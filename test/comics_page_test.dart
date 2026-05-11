@@ -311,6 +311,55 @@ void main() {
     expect(find.text('Grade'), findsWidgets);
   });
 
+  testWidgets('comics page opens owned comic edit dialog tabs', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(
+                  itemId: 'comic-1',
+                  catalogItem: catalogItems[0],
+                  ownedItem: ownedItem,
+                ),
+              ],
+              ownedCount: 1,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 1,
+              totalPaidCents: 1299,
+              primaryCurrency: 'USD',
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => [ownedItem]),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Edit comic'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Edit - Superman, Vol. 4'), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
+    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Cover'), findsOneWidget);
+    expect(find.text('Plot'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Personal notes'), findsWidgets);
+  });
+
   testWidgets('comics page filters local shelf by ownership', (tester) async {
     tester.view.physicalSize = const Size(1400, 1400);
     tester.view.devicePixelRatio = 1;

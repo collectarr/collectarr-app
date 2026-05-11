@@ -1763,6 +1763,23 @@ String _formatOptionalMoney(int? cents, String? currency) {
   return '$prefix$sign$whole.$fraction';
 }
 
+int? _parseMoneyCents(String value, {int? fallback}) {
+  final normalized = value.trim().replaceAll(',', '.');
+  if (normalized.isEmpty) {
+    return null;
+  }
+  final parsed = double.tryParse(normalized);
+  if (parsed == null) {
+    return fallback;
+  }
+  return (parsed * 100).round();
+}
+
+String? _emptyToNull(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}
+
 class _CoverTile extends StatelessWidget {
   const _CoverTile({
     required this.item,
@@ -2077,6 +2094,17 @@ class _ComicInspector extends ConsumerWidget {
                   icon: Icon(isOwned ? Icons.remove : Icons.add),
                 ),
               ),
+              if (ownedItem != null) ...[
+                const SizedBox(width: 6),
+                Tooltip(
+                  message: 'Edit comic',
+                  child: IconButton.filledTonal(
+                    onPressed: () =>
+                        _showEditDialog(context, ref, item!, ownedItem),
+                    icon: const Icon(Icons.edit),
+                  ),
+                ),
+              ],
             ],
           ),
           Text(
@@ -2161,6 +2189,12 @@ class _ComicInspector extends ConsumerWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
+                FilledButton.icon(
+                  onPressed: () =>
+                      _showEditDialog(context, ref, item!, ownedItem),
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Edit'),
+                ),
                 OutlinedButton.icon(
                   onPressed: () => _moveToWishlist(
                     context,
@@ -2205,6 +2239,40 @@ class _ComicInspector extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _showEditDialog(
+    BuildContext context,
+    WidgetRef ref,
+    CatalogItem item,
+    OwnedItem ownedItem,
+  ) async {
+    final selection = await showDialog<_OwnedComicEditSelection>(
+      context: context,
+      builder: (context) => _OwnedComicEditDialog(
+        item: item,
+        ownedItem: ownedItem,
+        conditions: _conditions,
+        grades: _grades,
+      ),
+    );
+    if (selection == null) {
+      return;
+    }
+    await ref.read(collectionMutationsProvider).updateItem(
+          ownedItem,
+          condition: selection.condition,
+          grade: selection.grade,
+          purchaseDate: selection.purchaseDate,
+          pricePaidCents: selection.pricePaidCents,
+          currency: selection.currency,
+          personalNotes: selection.personalNotes,
+        );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Comic details updated')),
+      );
+    }
   }
 
   Future<void> _addToCollection(
@@ -2541,6 +2609,456 @@ class _PersonalDetailsEditorState
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
   }
+}
+
+class _OwnedComicEditDialog extends StatefulWidget {
+  const _OwnedComicEditDialog({
+    required this.item,
+    required this.ownedItem,
+    required this.conditions,
+    required this.grades,
+  });
+
+  final CatalogItem item;
+  final OwnedItem ownedItem;
+  final List<String> conditions;
+  final List<String> grades;
+
+  @override
+  State<_OwnedComicEditDialog> createState() => _OwnedComicEditDialogState();
+}
+
+class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  late final TextEditingController _priceController;
+  late final TextEditingController _currencyController;
+  late final TextEditingController _notesController;
+  late final TextEditingController _quantityController;
+  late final TextEditingController _storageBoxController;
+  late String? _condition = widget.ownedItem.condition;
+  late String? _grade = widget.ownedItem.grade;
+  late DateTime? _purchaseDate = widget.ownedItem.purchaseDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 6, vsync: this);
+    _priceController = TextEditingController(
+      text: widget.ownedItem.pricePaidCents == null
+          ? ''
+          : (widget.ownedItem.pricePaidCents! / 100).toStringAsFixed(2),
+    );
+    _currencyController =
+        TextEditingController(text: widget.ownedItem.currency ?? 'USD');
+    _notesController =
+        TextEditingController(text: widget.ownedItem.personalNotes ?? '');
+    _quantityController = TextEditingController(text: '1');
+    _storageBoxController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _priceController.dispose();
+    _currencyController.dispose();
+    _notesController.dispose();
+    _quantityController.dispose();
+    _storageBoxController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 780, maxHeight: 720),
+        child: Column(
+          children: [
+            Container(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              color: colorScheme.surfaceContainerHighest,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Edit - ${widget.item.title} ${widget.item.itemNumber == null ? '' : '#${widget.item.itemNumber}'}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+            TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabs: const [
+                Tab(icon: Icon(Icons.article), text: 'Main'),
+                Tab(icon: Icon(Icons.search), text: 'Details'),
+                Tab(icon: Icon(Icons.attach_money), text: 'Value'),
+                Tab(icon: Icon(Icons.person), text: 'Personal'),
+                Tab(icon: Icon(Icons.image), text: 'Cover'),
+                Tab(icon: Icon(Icons.notes), text: 'Plot'),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _editMainTab(),
+                  _editDetailsTab(),
+                  _editValueTab(),
+                  _editPersonalTab(),
+                  _editCoverTab(),
+                  _editPlotTab(),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerLowest,
+                border: Border(
+                  top: BorderSide(color: colorScheme.outlineVariant),
+                ),
+              ),
+              child: Row(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _pickPurchaseDate,
+                    icon: const Icon(Icons.event),
+                    label: Text(
+                      _purchaseDate == null
+                          ? 'Set purchase date'
+                          : _formatDate(_purchaseDate!),
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: _submit,
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _editMainTab() {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        TextFormField(
+          initialValue: widget.item.title,
+          readOnly: true,
+          decoration: const InputDecoration(
+            labelText: 'Series',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                initialValue: widget.item.itemNumber ?? '',
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Issue No.',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                isExpanded: true,
+                initialValue:
+                    widget.conditions.contains(_condition) ? _condition : null,
+                decoration: const InputDecoration(
+                  labelText: 'Condition',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  for (final option in widget.conditions)
+                    DropdownMenuItem(value: option, child: Text(option)),
+                ],
+                onChanged: (value) => setState(() => _condition = value),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                isExpanded: true,
+                initialValue: widget.grades.contains(_grade) ? _grade : null,
+                decoration: const InputDecoration(
+                  labelText: 'Grade',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  for (final option in widget.grades)
+                    DropdownMenuItem(value: option, child: Text(option)),
+                ],
+                onChanged: (value) => setState(() => _grade = value),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _notesController,
+          minLines: 5,
+          maxLines: 8,
+          decoration: const InputDecoration(
+            labelText: 'Personal notes',
+            alignLabelWithHint: true,
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _editDetailsTab() {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        TextFormField(
+          initialValue: widget.item.id,
+          readOnly: true,
+          decoration: const InputDecoration(
+            labelText: 'Collectarr Item ID',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          initialValue: widget.item.kind,
+          readOnly: true,
+          decoration: const InputDecoration(
+            labelText: 'Format',
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _editValueTab() {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _priceController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Purchase price',
+                  prefixText: r'$ ',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 140,
+              child: TextField(
+                controller: _currencyController,
+                textCapitalization: TextCapitalization.characters,
+                decoration: const InputDecoration(
+                  labelText: 'Currency',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _PlaceholderPanel(
+          icon: Icons.bar_chart,
+          title: 'Value by grade',
+          text:
+              'Value history will appear here once price tracking is connected.',
+        ),
+      ],
+    );
+  }
+
+  Widget _editPersonalTab() {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        Row(
+          children: [
+            SizedBox(
+              width: 140,
+              child: TextField(
+                controller: _quantityController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Quantity',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _storageBoxController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Storage box',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _PlaceholderPanel(
+          icon: Icons.lock_outline,
+          title: 'More personal fields',
+          text:
+              'Storage, tags, signed-by, key comic, and slab data are next and will stay local-only.',
+        ),
+      ],
+    );
+  }
+
+  Widget _editCoverTab() {
+    return Center(
+      child: SizedBox(
+        width: 220,
+        child: AspectRatio(
+          aspectRatio: 2 / 3,
+          child: _CoverImage(item: widget.item),
+        ),
+      ),
+    );
+  }
+
+  Widget _editPlotTab() {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        Text(
+          widget.item.synopsis ?? 'No plot metadata available yet.',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickPurchaseDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _purchaseDate ?? now,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(now.year + 1),
+    );
+    if (picked != null && mounted) {
+      setState(() => _purchaseDate = picked);
+    }
+  }
+
+  void _submit() {
+    final currency = _currencyController.text.trim().toUpperCase();
+    Navigator.of(context).pop(
+      _OwnedComicEditSelection(
+        condition: _condition,
+        grade: _grade,
+        purchaseDate: _purchaseDate,
+        pricePaidCents: _parseMoneyCents(
+          _priceController.text,
+          fallback: widget.ownedItem.pricePaidCents,
+        ),
+        currency: currency.isEmpty ? null : currency,
+        personalNotes: _emptyToNull(_notesController.text),
+      ),
+    );
+  }
+}
+
+class _PlaceholderPanel extends StatelessWidget {
+  const _PlaceholderPanel({
+    required this.icon,
+    required this.title,
+    required this.text,
+  });
+
+  final IconData icon;
+  final String title;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            Icon(icon, color: colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 4),
+                  Text(text),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OwnedComicEditSelection {
+  const _OwnedComicEditSelection({
+    required this.condition,
+    required this.grade,
+    required this.purchaseDate,
+    required this.pricePaidCents,
+    required this.currency,
+    required this.personalNotes,
+  });
+
+  final String? condition;
+  final String? grade;
+  final DateTime? purchaseDate;
+  final int? pricePaidCents;
+  final String? currency;
+  final String? personalNotes;
 }
 
 class _MetaChip extends StatelessWidget {
