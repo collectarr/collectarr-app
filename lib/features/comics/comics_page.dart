@@ -4302,7 +4302,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   bool _isSearchingProvider = false;
   bool _isSubmitting = false;
   bool _includeVariants = true;
-  bool _hideOwned = true;
+  bool _hideInShelf = true;
   bool _showAdvancedFilters = false;
   _AddComicTarget _addTarget = _AddComicTarget.owned;
   String? _error;
@@ -4416,15 +4416,15 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                                 selectedProviderId: _selectedProviderId,
                                 checkedServerIds: _checkedServerIds,
                                 includeVariants: _includeVariants,
-                                hideOwned: _hideOwned,
+                                hideInShelf: _hideInShelf,
                                 searchedServer: _searchedServer,
                                 searchedProvider: _searchedProvider,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: _isSearchingProvider,
                                 onIncludeVariantsChanged: (value) =>
                                     setState(() => _includeVariants = value),
-                                onHideOwnedChanged: (value) =>
-                                    setState(() => _hideOwned = value),
+                                onHideInShelfChanged: (value) =>
+                                    setState(() => _hideInShelf = value),
                                 onSelectServer: (id) => setState(() {
                                   _selectedServerId = id;
                                   _selectedProviderId = null;
@@ -4464,15 +4464,15 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                                 selectedProviderId: _selectedProviderId,
                                 checkedServerIds: _checkedServerIds,
                                 includeVariants: _includeVariants,
-                                hideOwned: _hideOwned,
+                                hideInShelf: _hideInShelf,
                                 searchedServer: _searchedServer,
                                 searchedProvider: _searchedProvider,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: _isSearchingProvider,
                                 onIncludeVariantsChanged: (value) =>
                                     setState(() => _includeVariants = value),
-                                onHideOwnedChanged: (value) =>
-                                    setState(() => _hideOwned = value),
+                                onHideInShelfChanged: (value) =>
+                                    setState(() => _hideInShelf = value),
                                 onSelectServer: (id) => setState(() {
                                   _selectedServerId = id;
                                   _selectedProviderId = null;
@@ -5106,13 +5106,13 @@ class _AddComicResultPane extends StatelessWidget {
     required this.selectedProviderId,
     required this.checkedServerIds,
     required this.includeVariants,
-    required this.hideOwned,
+    required this.hideInShelf,
     required this.searchedServer,
     required this.searchedProvider,
     required this.isSearchingServer,
     required this.isSearchingProvider,
     required this.onIncludeVariantsChanged,
-    required this.onHideOwnedChanged,
+    required this.onHideInShelfChanged,
     required this.onSelectServer,
     required this.onToggleServerCheck,
     required this.onCheckAllVisible,
@@ -5129,13 +5129,13 @@ class _AddComicResultPane extends StatelessWidget {
   final String? selectedProviderId;
   final Set<String> checkedServerIds;
   final bool includeVariants;
-  final bool hideOwned;
+  final bool hideInShelf;
   final bool searchedServer;
   final bool searchedProvider;
   final bool isSearchingServer;
   final bool isSearchingProvider;
   final ValueChanged<bool> onIncludeVariantsChanged;
-  final ValueChanged<bool> onHideOwnedChanged;
+  final ValueChanged<bool> onHideInShelfChanged;
   final ValueChanged<String> onSelectServer;
   final ValueChanged<String> onToggleServerCheck;
   final ValueChanged<Iterable<CatalogItem>> onCheckAllVisible;
@@ -5162,9 +5162,9 @@ class _AddComicResultPane extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   _TinyCheckbox(
-                    value: hideOwned,
-                    label: 'Hide owned',
-                    onChanged: onHideOwnedChanged,
+                    value: hideInShelf,
+                    label: 'Hide in shelf',
+                    onChanged: onHideInShelfChanged,
                   ),
                   const SizedBox(width: 10),
                   const Text('Issues:'),
@@ -5219,15 +5219,17 @@ class _AddComicResultPane extends StatelessWidget {
       );
     }
     if (serverResults.isNotEmpty) {
-      final visibleResults = hideOwned
+      final visibleResults = hideInShelf
           ? serverResults
-              .where((item) => !ownedItemIds.contains(item.id))
+              .where((item) =>
+                  !ownedItemIds.contains(item.id) &&
+                  !wishlistItemIds.contains(item.id))
               .toList(growable: false)
           : serverResults;
       if (visibleResults.isEmpty) {
         return const Center(
           child: Text(
-            'All matching comics are already in your local collection.',
+            'All matching comics are already in your local shelf.',
             textAlign: TextAlign.center,
           ),
         );
