@@ -3818,6 +3818,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   var _providerResults = const <_ProviderCandidate>[];
   String? _selectedServerId;
   String? _selectedProviderId;
+  final _checkedServerIds = <String>{};
   bool _searchedServer = false;
   bool _searchedProvider = false;
   bool _isSearchingServer = false;
@@ -3862,6 +3863,21 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
         selectedItem != null && ownedItemIds.contains(selectedItem.id);
     final selectedIsWishlisted =
         selectedItem != null && wishlistItemIds.contains(selectedItem.id);
+    final checkedItems = [
+      for (final item in _serverResults)
+        if (_checkedServerIds.contains(item.id) &&
+            !ownedItemIds.contains(item.id) &&
+            !wishlistItemIds.contains(item.id))
+          item,
+    ];
+    final addItems = checkedItems.isNotEmpty
+        ? checkedItems
+        : [
+            if (selectedItem != null &&
+                !selectedIsOwned &&
+                !selectedIsWishlisted)
+              selectedItem,
+          ];
     return Theme(
       data: ThemeData.dark(useMaterial3: true).copyWith(
         colorScheme: ColorScheme.fromSeed(
@@ -3920,6 +3936,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                                 wishlistItemIds: wishlistItemIds,
                                 selectedServerId: _selectedServerId,
                                 selectedProviderId: _selectedProviderId,
+                                checkedServerIds: _checkedServerIds,
                                 includeVariants: _includeVariants,
                                 hideOwned: _hideOwned,
                                 searchedServer: _searchedServer,
@@ -3934,6 +3951,10 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                                   _selectedServerId = id;
                                   _selectedProviderId = null;
                                 }),
+                                onToggleServerCheck: _toggleServerCheck,
+                                onCheckAllVisible: _checkServerItems,
+                                onClearServerChecks: () =>
+                                    setState(_checkedServerIds.clear),
                                 onSelectProvider: (id) => setState(() {
                                   _selectedProviderId = id;
                                   _selectedServerId = null;
@@ -3963,6 +3984,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                                 wishlistItemIds: wishlistItemIds,
                                 selectedServerId: _selectedServerId,
                                 selectedProviderId: _selectedProviderId,
+                                checkedServerIds: _checkedServerIds,
                                 includeVariants: _includeVariants,
                                 hideOwned: _hideOwned,
                                 searchedServer: _searchedServer,
@@ -3977,6 +3999,10 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                                   _selectedServerId = id;
                                   _selectedProviderId = null;
                                 }),
+                                onToggleServerCheck: _toggleServerCheck,
+                                onCheckAllVisible: _checkServerItems,
+                                onClearServerChecks: () =>
+                                    setState(_checkedServerIds.clear),
                                 onSelectProvider: (id) => setState(() {
                                   _selectedProviderId = id;
                                   _selectedServerId = null;
@@ -4002,13 +4028,14 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                   selectedCandidate: selectedCandidate,
                   selectedIsOwned: selectedIsOwned,
                   selectedIsWishlisted: selectedIsWishlisted,
+                  addCount: addItems.length,
                   isSubmitting: _isSubmitting,
-                  onAddOwned: selectedItem == null || selectedIsOwned
+                  onAddOwned: addItems.isEmpty
                       ? null
-                      : () => _addServerComic(selectedItem, wishlist: false),
-                  onAddWishlist: selectedItem == null || selectedIsWishlisted
+                      : () => _addServerComics(addItems, wishlist: false),
+                  onAddWishlist: addItems.isEmpty
                       ? null
-                      : () => _addServerComic(selectedItem, wishlist: true),
+                      : () => _addServerComics(addItems, wishlist: true),
                   onPropose: selectedCandidate == null
                       ? null
                       : () => _proposeCandidate(selectedCandidate),
@@ -4070,6 +4097,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       _providerResults = const [];
       _selectedServerId = null;
       _selectedProviderId = null;
+      _checkedServerIds.clear();
       _error = null;
     });
     try {
@@ -4176,6 +4204,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       _providerResults = const [];
       _selectedServerId = null;
       _selectedProviderId = null;
+      _checkedServerIds.clear();
       _error = null;
     });
     try {
@@ -4204,22 +4233,48 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
     }
   }
 
-  Future<void> _addServerComic(
-    CatalogItem item, {
+  void _toggleServerCheck(String id) {
+    setState(() {
+      _selectedServerId = id;
+      _selectedProviderId = null;
+      if (_checkedServerIds.contains(id)) {
+        _checkedServerIds.remove(id);
+      } else {
+        _checkedServerIds.add(id);
+      }
+    });
+  }
+
+  void _checkServerItems(Iterable<CatalogItem> items) {
+    setState(() {
+      _checkedServerIds
+        ..clear()
+        ..addAll(items.map((item) => item.id));
+      if (items.isNotEmpty) {
+        _selectedServerId = items.first.id;
+        _selectedProviderId = null;
+      }
+    });
+  }
+
+  Future<void> _addServerComics(
+    List<CatalogItem> items, {
     required bool wishlist,
   }) async {
     setState(() => _isSubmitting = true);
     await CatalogCacheRepository(ref.read(localDatabaseProvider))
-        .upsertAll([item]);
+        .upsertAll(items);
     final mutations = ref.read(collectionMutationsProvider);
-    if (wishlist) {
-      await mutations.addToWishlist(item.id);
-    } else {
-      await mutations.addItem(
-        item.id,
-        condition: 'Near Mint',
-        grade: 'Ungraded',
-      );
+    for (final item in items) {
+      if (wishlist) {
+        await mutations.addToWishlist(item.id);
+      } else {
+        await mutations.addItem(
+          item.id,
+          condition: 'Near Mint',
+          grade: 'Ungraded',
+        );
+      }
     }
     ref.invalidate(shelfProvider);
     if (!mounted) {
@@ -4231,8 +4286,8 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       SnackBar(
         content: Text(
           wishlist
-              ? 'Saved ${item.title} to local wishlist'
-              : 'Added ${item.title} to local collection',
+              ? 'Saved ${items.length} comic${items.length == 1 ? '' : 's'} to local wishlist'
+              : 'Added ${items.length} comic${items.length == 1 ? '' : 's'} to local collection',
         ),
       ),
     );
@@ -4568,6 +4623,7 @@ class _AddComicResultPane extends StatelessWidget {
     required this.wishlistItemIds,
     required this.selectedServerId,
     required this.selectedProviderId,
+    required this.checkedServerIds,
     required this.includeVariants,
     required this.hideOwned,
     required this.searchedServer,
@@ -4577,6 +4633,9 @@ class _AddComicResultPane extends StatelessWidget {
     required this.onIncludeVariantsChanged,
     required this.onHideOwnedChanged,
     required this.onSelectServer,
+    required this.onToggleServerCheck,
+    required this.onCheckAllVisible,
+    required this.onClearServerChecks,
     required this.onSelectProvider,
     required this.onSearchProvider,
   });
@@ -4587,6 +4646,7 @@ class _AddComicResultPane extends StatelessWidget {
   final Set<String> wishlistItemIds;
   final String? selectedServerId;
   final String? selectedProviderId;
+  final Set<String> checkedServerIds;
   final bool includeVariants;
   final bool hideOwned;
   final bool searchedServer;
@@ -4596,6 +4656,9 @@ class _AddComicResultPane extends StatelessWidget {
   final ValueChanged<bool> onIncludeVariantsChanged;
   final ValueChanged<bool> onHideOwnedChanged;
   final ValueChanged<String> onSelectServer;
+  final ValueChanged<String> onToggleServerCheck;
+  final ValueChanged<Iterable<CatalogItem>> onCheckAllVisible;
+  final VoidCallback onClearServerChecks;
   final ValueChanged<String> onSelectProvider;
   final VoidCallback onSearchProvider;
 
@@ -4688,26 +4751,66 @@ class _AddComicResultPane extends StatelessWidget {
           ),
         );
       }
-      return ListView.builder(
-        itemCount: visibleResults.length,
-        itemBuilder: (context, index) {
-          final item = visibleResults[index];
-          return _AddResultRow(
-            selected: item.id == selectedServerId,
-            cover:
-                SizedBox(width: 42, height: 62, child: _CoverImage(item: item)),
-            title: item.itemNumber == null
-                ? item.title
-                : '${item.title} #${item.itemNumber}',
-            subtitle: item.synopsis ?? 'Metadata in Collectarr Core',
-            badges: [
-              if (ownedItemIds.contains(item.id)) 'Owned',
-              if (wishlistItemIds.contains(item.id)) 'Wishlist',
-            ],
-            trailing: item.itemNumber == null ? '' : '#${item.itemNumber}',
-            onTap: () => onSelectServer(item.id),
-          );
-        },
+      final addable = visibleResults
+          .where((item) =>
+              !ownedItemIds.contains(item.id) &&
+              !wishlistItemIds.contains(item.id))
+          .toList(growable: false);
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
+            child: Row(
+              children: [
+                Text('${checkedServerIds.length} selected'),
+                const Spacer(),
+                TextButton(
+                  onPressed:
+                      addable.isEmpty ? null : () => onCheckAllVisible(addable),
+                  child: const Text('Select all'),
+                ),
+                TextButton(
+                  onPressed:
+                      checkedServerIds.isEmpty ? null : onClearServerChecks,
+                  child: const Text('Clear'),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: visibleResults.length,
+              itemBuilder: (context, index) {
+                final item = visibleResults[index];
+                final disabled = ownedItemIds.contains(item.id) ||
+                    wishlistItemIds.contains(item.id);
+                return _AddResultRow(
+                  selected: item.id == selectedServerId,
+                  checked: checkedServerIds.contains(item.id),
+                  checkDisabled: disabled,
+                  cover: SizedBox(
+                    width: 42,
+                    height: 62,
+                    child: _CoverImage(item: item),
+                  ),
+                  title: item.itemNumber == null
+                      ? item.title
+                      : '${item.title} #${item.itemNumber}',
+                  subtitle: item.synopsis ?? 'Metadata in Collectarr Core',
+                  badges: [
+                    if (ownedItemIds.contains(item.id)) 'Owned',
+                    if (wishlistItemIds.contains(item.id)) 'Wishlist',
+                  ],
+                  trailing:
+                      item.itemNumber == null ? '' : '#${item.itemNumber}',
+                  onTap: () => onSelectServer(item.id),
+                  onToggleCheck:
+                      disabled ? null : () => onToggleServerCheck(item.id),
+                );
+              },
+            ),
+          ),
+        ],
       );
     }
     if (providerResults.isNotEmpty) {
@@ -4717,6 +4820,8 @@ class _AddComicResultPane extends StatelessWidget {
           final item = providerResults[index];
           return _AddResultRow(
             selected: item.providerItemId == selectedProviderId,
+            checked: false,
+            checkDisabled: true,
             cover: SizedBox(
               width: 42,
               height: 62,
@@ -4727,6 +4832,7 @@ class _AddComicResultPane extends StatelessWidget {
             badges: const ['ComicVine'],
             trailing: 'propose',
             onTap: () => onSelectProvider(item.providerItemId),
+            onToggleCheck: null,
           );
         },
       );
@@ -4789,21 +4895,27 @@ class _IssueSortButton extends StatelessWidget {
 class _AddResultRow extends StatelessWidget {
   const _AddResultRow({
     required this.selected,
+    required this.checked,
+    required this.checkDisabled,
     required this.cover,
     required this.title,
     required this.subtitle,
     required this.badges,
     required this.trailing,
     required this.onTap,
+    required this.onToggleCheck,
   });
 
   final bool selected;
+  final bool checked;
+  final bool checkDisabled;
   final Widget cover;
   final String title;
   final String subtitle;
   final List<String> badges;
   final String trailing;
   final VoidCallback onTap;
+  final VoidCallback? onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -4814,6 +4926,11 @@ class _AddResultRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         child: Row(
           children: [
+            Checkbox(
+              value: checked,
+              onChanged: checkDisabled ? null : (_) => onToggleCheck?.call(),
+              visualDensity: VisualDensity.compact,
+            ),
             cover,
             const SizedBox(width: 8),
             Expanded(
@@ -5018,6 +5135,7 @@ class _AddComicBottomBar extends StatelessWidget {
     required this.selectedCandidate,
     required this.selectedIsOwned,
     required this.selectedIsWishlisted,
+    required this.addCount,
     required this.isSubmitting,
     required this.onAddOwned,
     required this.onAddWishlist,
@@ -5028,6 +5146,7 @@ class _AddComicBottomBar extends StatelessWidget {
   final _ProviderCandidate? selectedCandidate;
   final bool selectedIsOwned;
   final bool selectedIsWishlisted;
+  final int addCount;
   final bool isSubmitting;
   final VoidCallback? onAddOwned;
   final VoidCallback? onAddWishlist;
@@ -5040,7 +5159,7 @@ class _AddComicBottomBar extends StatelessWidget {
         ? 'Already in Collection'
         : isProposal
             ? 'Propose ComicVine Metadata'
-            : 'Add 1 Comic to Collection';
+            : 'Add ${addCount <= 1 ? 1 : addCount} Comic${addCount <= 1 ? '' : 's'} to Collection';
     return ColoredBox(
       color: const Color(0xFF262626),
       child: Padding(
