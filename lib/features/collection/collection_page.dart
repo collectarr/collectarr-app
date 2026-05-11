@@ -351,8 +351,10 @@ class _ShelfEntryRow extends StatelessWidget {
                     switch (action) {
                       case _ShelfAction.removeOwned:
                         onRemoveOwned();
+                        break;
                       case _ShelfAction.removeWishlist:
                         onRemoveWishlist();
+                        break;
                     }
                   },
                   itemBuilder: (context) => [
@@ -455,9 +457,11 @@ class _EmptyShelf extends StatelessWidget {
 }
 
 String _formatMoney(int cents, String currency) {
-  final whole = cents ~/ 100;
+  final sign = cents < 0 ? '-' : '';
+  final absolute = cents.abs();
+  final whole = absolute ~/ 100;
   final fraction = (cents.abs() % 100).toString().padLeft(2, '0');
-  return '$currency $whole.$fraction';
+  return '$currency $sign$whole.$fraction';
 }
 
 String _formatDate(DateTime value) {
