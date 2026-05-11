@@ -17,21 +17,30 @@ class SyncState {
     this.pendingCount = 0,
     this.isSyncing = false,
     this.isOffline = false,
+    this.lastSyncedAt,
+    this.errorMessage,
   });
 
   final int pendingCount;
   final bool isSyncing;
   final bool isOffline;
+  final DateTime? lastSyncedAt;
+  final String? errorMessage;
 
   SyncState copyWith({
     int? pendingCount,
     bool? isSyncing,
     bool? isOffline,
+    DateTime? lastSyncedAt,
+    String? errorMessage,
+    bool clearError = false,
   }) {
     return SyncState(
       pendingCount: pendingCount ?? this.pendingCount,
       isSyncing: isSyncing ?? this.isSyncing,
       isOffline: isOffline ?? this.isOffline,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
 }
@@ -48,11 +57,12 @@ class SyncController extends StateNotifier<SyncState> {
 
   Future<void> refreshPendingCount() async {
     final count = await _queue().pendingCount();
-    state = state.copyWith(pendingCount: count);
+    final lastSyncedAt = await _readLastSyncedAt();
+    state = state.copyWith(pendingCount: count, lastSyncedAt: lastSyncedAt);
   }
 
   Future<void> syncNow() async {
-    state = state.copyWith(isSyncing: true, isOffline: false);
+    state = state.copyWith(isSyncing: true, isOffline: false, clearError: true);
     try {
       final deviceId = await DeviceIdentity().getOrCreate();
       final cursor = SyncCursorStore();
@@ -71,8 +81,9 @@ class SyncController extends StateNotifier<SyncState> {
       await cursor.write(serverTime);
       ref.invalidate(collectionProvider);
       ref.invalidate(wishlistIdsProvider);
+      ref.invalidate(wishlistProvider);
       final count = await _queue().pendingCount();
-      state = SyncState(pendingCount: count);
+      state = SyncState(pendingCount: count, lastSyncedAt: serverTime);
     } catch (error, stackTrace) {
       developer.log(
         'Collectarr personal sync failed',
@@ -81,11 +92,30 @@ class SyncController extends StateNotifier<SyncState> {
         stackTrace: stackTrace,
       );
       final count = await _queue().pendingCount();
-      state = SyncState(pendingCount: count, isOffline: true);
+      state = SyncState(
+        pendingCount: count,
+        isOffline: true,
+        lastSyncedAt: state.lastSyncedAt,
+        errorMessage: error.toString(),
+      );
     }
   }
 
   SyncQueueRepository _queue() {
     return SyncQueueRepository(ref.read(localDatabaseProvider));
+  }
+
+  Future<DateTime?> _readLastSyncedAt() async {
+    try {
+      return await SyncCursorStore().read();
+    } catch (error, stackTrace) {
+      developer.log(
+        'Collectarr sync cursor read failed',
+        name: 'collectarr.sync',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return state.lastSyncedAt;
+    }
   }
 }

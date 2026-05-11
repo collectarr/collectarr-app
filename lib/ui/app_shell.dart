@@ -27,10 +27,8 @@ class _AppShellState extends ConsumerState<AppShell> {
     return Scaffold(
       body: pages[index],
       floatingActionButton: FloatingActionButton.small(
-        tooltip: sync.isOffline ? 'Sync unavailable' : 'Sync personal data',
-        onPressed: sync.isSyncing
-            ? null
-            : () => ref.read(syncControllerProvider.notifier).syncNow(),
+        tooltip: _syncTooltip(sync),
+        onPressed: sync.isSyncing ? null : _syncNow,
         child: sync.isSyncing
             ? const SizedBox.square(
                 dimension: 18,
@@ -53,5 +51,38 @@ class _AppShellState extends ConsumerState<AppShell> {
         ],
       ),
     );
+  }
+
+  Future<void> _syncNow() async {
+    await ref.read(syncControllerProvider.notifier).syncNow();
+    if (!mounted) {
+      return;
+    }
+    final sync = ref.read(syncControllerProvider);
+    final message = sync.errorMessage == null
+        ? 'Personal sync complete'
+        : 'Personal sync unavailable: ${sync.errorMessage}';
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _syncTooltip(SyncState sync) {
+    if (sync.isOffline) {
+      return sync.errorMessage ?? 'Sync unavailable';
+    }
+    final pending = sync.pendingCount == 0
+        ? 'no pending changes'
+        : '${sync.pendingCount} pending';
+    final last = sync.lastSyncedAt == null
+        ? 'never synced'
+        : 'last sync ${_formatSyncTime(sync.lastSyncedAt!)}';
+    return 'Sync personal data - $pending, $last';
+  }
+
+  String _formatSyncTime(DateTime value) {
+    final local = value.toLocal();
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hour:$minute';
   }
 }
