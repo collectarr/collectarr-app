@@ -45,6 +45,14 @@ class CollectarrSyncClient {
     return _responseData(response, '/health');
   }
 
+  Future<Map<String, dynamic>> status() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/sync/status',
+      options: _options(),
+    );
+    return _responseData(response, '/sync/status');
+  }
+
   Options _options() {
     return Options(headers: {'X-Collectarr-Sync-Key': _syncKey});
   }

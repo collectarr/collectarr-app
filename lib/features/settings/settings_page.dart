@@ -228,10 +228,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       final data = await CollectarrSyncClient(
         baseUrl: _syncController.text,
         syncKey: _syncKeyController.text,
-      ).health();
+      ).status();
       final version = data['schema_version']?.toString() ?? 'unknown';
+      final entities = data['entity_count']?.toString() ?? 'unknown';
+      final changes = data['change_count']?.toString() ?? 'unknown';
       setState(() {
-        _syncDiagnostic = _DiagnosticState.ok('Sync schema: $version');
+        _syncDiagnostic = _DiagnosticState.ok(
+          'Sync schema: $version, entities: $entities, changes: $changes',
+        );
       });
     } catch (error) {
       setState(() {
