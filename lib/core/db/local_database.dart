@@ -88,33 +88,12 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
-      onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          await m.addColumn(ownedItemsCache, ownedItemsCache.quantity);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.storageBox);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.indexNumber);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.coverPriceCents);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.rawOrSlabbed);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.gradingCompany);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.graderNotes);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.signedBy);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.keyComic);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.keyReason);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.rating);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.readStatus);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.tags);
-        }
-        if (from < 3) {
-          await m.addColumn(catalogCache, catalogCache.publisher);
-          await m.addColumn(catalogCache, catalogCache.releaseYear);
-        }
-      },
     );
   }
 }
