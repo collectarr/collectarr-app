@@ -27,6 +27,7 @@ const String _kComicsSortColumnPreferenceKey = 'comics.sort_column';
 const String _kComicsSortAscendingPreferenceKey = 'comics.sort_ascending';
 const String _kComicsCoverSizePreferenceKey = 'comics.cover_size';
 const String _kComicsVisibleColumnsPreferenceKey = 'comics.visible_columns';
+const String _kComicsColumnWidthsPreferenceKey = 'comics.column_widths';
 const String _kComicsDetailsLayoutPreferenceKey = 'comics.details_layout';
 const Color _kClzTopBar = Color(0xFF4DBBD5);
 const Color _kClzToolbar = Color(0xFF2B2B2B);
@@ -195,6 +196,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   bool sortAscending = true;
   double coverSize = _kDefaultCoverSize;
   Set<_ComicTableColumn> visibleColumns = _defaultComicTableColumns();
+  Map<_ComicTableColumn, double> columnWidths = const {};
   _OwnershipFilter ownershipFilter = _OwnershipFilter.all;
   String? gradeFilter;
   String? conditionFilter;
@@ -256,6 +258,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 sortAscending: sortAscending,
                 coverSize: coverSize,
                 visibleColumns: visibleColumns,
+                columnWidths: columnWidths,
                 selectionMode: selectionMode,
                 selectedItemIds: selectedItemIds,
                 hasActiveFilters: _hasActiveFilters,
@@ -289,6 +292,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 onViewModeChanged: _handleViewModeChanged,
                 onDetailsLayoutChanged: _handleDetailsLayoutChanged,
                 onSortChanged: _handleSortChanged,
+                onColumnWidthChanged: _handleColumnWidthChanged,
                 onCoverSizeChanged: _handleCoverSizeChanged,
                 onSelectionModeChanged: _setSelectionMode,
                 onClearSelection: _clearSelection,
@@ -613,6 +617,16 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     _saveViewPreferences();
   }
 
+  void _handleColumnWidthChanged(_ComicTableColumn column, double width) {
+    setState(() {
+      columnWidths = {
+        ...columnWidths,
+        column: _clampComicTableColumnWidth(column, width),
+      };
+    });
+    _saveViewPreferences();
+  }
+
   Future<void> _showColumnChooser(BuildContext context) async {
     final selected = await showDialog<Set<_ComicTableColumn>>(
       context: context,
@@ -633,6 +647,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     final storedCoverSize = prefs.getDouble(_kComicsCoverSizePreferenceKey);
     final storedColumns =
         prefs.getStringList(_kComicsVisibleColumnsPreferenceKey);
+    final storedColumnWidths =
+        prefs.getStringList(_kComicsColumnWidthsPreferenceKey);
     if (!mounted) {
       return;
     }
@@ -649,6 +665,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
           .clamp(_kMinCoverSize, _kMaxCoverSize)
           .toDouble();
       visibleColumns = _decodeVisibleColumns(storedColumns);
+      columnWidths = _decodeColumnWidths(storedColumnWidths);
     });
   }
 
@@ -666,6 +683,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
       _kComicsVisibleColumnsPreferenceKey,
       visibleColumns.map((column) => column.name).toList(growable: false),
     );
+    await prefs.setStringList(
+      _kComicsColumnWidthsPreferenceKey,
+      _encodeColumnWidths(columnWidths),
+    );
   }
 }
 
@@ -682,6 +703,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.sortAscending,
     required this.coverSize,
     required this.visibleColumns,
+    required this.columnWidths,
     required this.selectionMode,
     required this.selectedItemIds,
     required this.hasActiveFilters,
@@ -696,6 +718,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onSortChanged,
+    required this.onColumnWidthChanged,
     required this.onCoverSizeChanged,
     required this.onSelectionModeChanged,
     required this.onClearSelection,
@@ -715,6 +738,7 @@ class _ComicsWorkspace extends StatelessWidget {
   final bool sortAscending;
   final double coverSize;
   final Set<_ComicTableColumn> visibleColumns;
+  final Map<_ComicTableColumn, double> columnWidths;
   final bool selectionMode;
   final Set<String> selectedItemIds;
   final bool hasActiveFilters;
@@ -729,6 +753,8 @@ class _ComicsWorkspace extends StatelessWidget {
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
   final ValueChanged<_DetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final void Function(_ComicTableColumn column, double width)
+      onColumnWidthChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<bool> onSelectionModeChanged;
   final VoidCallback onClearSelection;
@@ -825,7 +851,9 @@ class _ComicsWorkspace extends StatelessWidget {
                     sortColumn: sortColumn,
                     sortAscending: sortAscending,
                     visibleColumns: visibleColumns,
+                    columnWidths: columnWidths,
                     onSortChanged: onSortChanged,
+                    onColumnWidthChanged: onColumnWidthChanged,
                     onAddComic: onAddComic,
                     onSelectItem: onSelectItem,
                   ),
@@ -906,7 +934,9 @@ class _LibraryAwareShelfContent extends StatelessWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.visibleColumns,
+    required this.columnWidths,
     required this.onSortChanged,
+    required this.onColumnWidthChanged,
     required this.onAddComic,
     required this.onSelectItem,
   });
@@ -919,7 +949,10 @@ class _LibraryAwareShelfContent extends StatelessWidget {
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final Set<_ComicTableColumn> visibleColumns;
+  final Map<_ComicTableColumn, double> columnWidths;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final void Function(_ComicTableColumn column, double width)
+      onColumnWidthChanged;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
 
@@ -949,7 +982,9 @@ class _LibraryAwareShelfContent extends StatelessWidget {
           sortColumn: sortColumn,
           sortAscending: sortAscending,
           visibleColumns: visibleColumns,
+          columnWidths: columnWidths,
           onSortChanged: onSortChanged,
+          onColumnWidthChanged: onColumnWidthChanged,
           onAddComic: onAddComic,
           onSelectItem: onSelectItem,
         ),
@@ -2135,7 +2170,9 @@ class _LibraryAwareComicList extends ConsumerWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.visibleColumns,
+    required this.columnWidths,
     required this.onSortChanged,
+    required this.onColumnWidthChanged,
     required this.onAddComic,
     required this.onSelectItem,
   });
@@ -2146,7 +2183,10 @@ class _LibraryAwareComicList extends ConsumerWidget {
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final Set<_ComicTableColumn> visibleColumns;
+  final Map<_ComicTableColumn, double> columnWidths;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final void Function(_ComicTableColumn column, double width)
+      onColumnWidthChanged;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
 
@@ -2163,7 +2203,9 @@ class _LibraryAwareComicList extends ConsumerWidget {
       sortColumn: sortColumn,
       sortAscending: sortAscending,
       visibleColumns: visibleColumns,
+      columnWidths: columnWidths,
       onSortChanged: onSortChanged,
+      onColumnWidthChanged: onColumnWidthChanged,
       onAddComic: onAddComic,
       onSelectItem: onSelectItem,
     );
@@ -2180,7 +2222,9 @@ class _ComicList extends StatelessWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.visibleColumns,
+    required this.columnWidths,
     required this.onSortChanged,
+    required this.onColumnWidthChanged,
     required this.onAddComic,
     required this.onSelectItem,
   });
@@ -2193,7 +2237,10 @@ class _ComicList extends StatelessWidget {
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final Set<_ComicTableColumn> visibleColumns;
+  final Map<_ComicTableColumn, double> columnWidths;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final void Function(_ComicTableColumn column, double width)
+      onColumnWidthChanged;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
 
@@ -2213,7 +2260,10 @@ class _ComicList extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final tableWidth = _tableWidthForColumns(visibleColumns);
+        final tableWidth = _tableWidthForColumns(
+          visibleColumns,
+          columnWidths,
+        );
         final contentWidth = tableWidth > constraints.maxWidth
             ? tableWidth + 16
             : constraints.maxWidth;
@@ -2233,7 +2283,9 @@ class _ComicList extends StatelessWidget {
                     sortColumn: sortColumn,
                     sortAscending: sortAscending,
                     visibleColumns: visibleColumns,
+                    columnWidths: columnWidths,
                     onSortChanged: onSortChanged,
+                    onColumnWidthChanged: onColumnWidthChanged,
                     onSelectItem: onSelectItem,
                   ),
                 ),
@@ -2254,7 +2306,9 @@ class _ComicTableView extends StatelessWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.visibleColumns,
+    required this.columnWidths,
     required this.onSortChanged,
+    required this.onColumnWidthChanged,
     required this.onSelectItem,
   });
 
@@ -2264,7 +2318,10 @@ class _ComicTableView extends StatelessWidget {
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final Set<_ComicTableColumn> visibleColumns;
+  final Map<_ComicTableColumn, double> columnWidths;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final void Function(_ComicTableColumn column, double width)
+      onColumnWidthChanged;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -2276,7 +2333,9 @@ class _ComicTableView extends StatelessWidget {
           columns: columns,
           sortColumn: sortColumn,
           sortAscending: sortAscending,
+          columnWidths: columnWidths,
           onSortChanged: onSortChanged,
+          onColumnWidthChanged: onColumnWidthChanged,
         ),
         Expanded(
           child: Scrollbar(
@@ -2286,6 +2345,7 @@ class _ComicTableView extends StatelessWidget {
               itemBuilder: (context, index) => _ComicTableRow(
                 entry: entries[index],
                 columns: columns,
+                columnWidths: columnWidths,
                 selected: selectedItemIds.contains(entries[index].item.id) ||
                     entries[index].item.id == selectedItemId,
                 odd: index.isOdd,
@@ -2304,13 +2364,18 @@ class _ComicTableHeader extends StatelessWidget {
     required this.columns,
     required this.sortColumn,
     required this.sortAscending,
+    required this.columnWidths,
     required this.onSortChanged,
+    required this.onColumnWidthChanged,
   });
 
   final List<_ComicTableColumn> columns;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
+  final Map<_ComicTableColumn, double> columnWidths;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final void Function(_ComicTableColumn column, double width)
+      onColumnWidthChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -2331,9 +2396,11 @@ class _ComicTableHeader extends StatelessWidget {
             for (final column in columns) ...[
               _ComicTableHeaderCell(
                 column: column,
+                width: _comicTableColumnWidth(column, columnWidths),
                 sorted: _comicTableColumnSort(column) == sortColumn,
                 ascending: sortAscending,
                 onSortChanged: onSortChanged,
+                onColumnWidthChanged: onColumnWidthChanged,
               ),
               if (column != columns.last)
                 const SizedBox(width: _kComicTableColumnSpacing),
@@ -2348,46 +2415,86 @@ class _ComicTableHeader extends StatelessWidget {
 class _ComicTableHeaderCell extends StatelessWidget {
   const _ComicTableHeaderCell({
     required this.column,
+    required this.width,
     required this.sorted,
     required this.ascending,
     required this.onSortChanged,
+    required this.onColumnWidthChanged,
   });
 
   final _ComicTableColumn column;
+  final double width;
   final bool sorted;
   final bool ascending;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final void Function(_ComicTableColumn column, double width)
+      onColumnWidthChanged;
 
   @override
   Widget build(BuildContext context) {
     final sort = _comicTableColumnSort(column);
-    return InkWell(
-      onTap: sort == null ? null : () => onSortChanged(sort),
-      child: SizedBox(
-        width: _comicTableColumnWidth(column),
-        height: 34,
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                _comicTableColumnLabel(column),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12,
+    return SizedBox(
+      width: width,
+      height: 34,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            right: 8,
+            child: InkWell(
+              onTap: sort == null ? null : () => onSortChanged(sort),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _comicTableColumnLabel(column),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  if (sorted)
+                    Icon(
+                      ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                      size: 18,
+                      color: _kClzAccent,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.resizeColumn,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragUpdate: (details) {
+                  onColumnWidthChanged(column, width + details.delta.dx);
+                },
+                onDoubleTap: () => onColumnWidthChanged(
+                  column,
+                  _defaultComicTableColumnWidth(column),
+                ),
+                child: const SizedBox(
+                  width: 10,
+                  child: Center(
+                    child: VerticalDivider(
+                      width: 1,
+                      thickness: 1,
+                      color: Color(0xFF6A6A6A),
+                    ),
+                  ),
                 ),
               ),
             ),
-            if (sorted)
-              Icon(
-                ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                size: 18,
-                color: _kClzAccent,
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -2397,6 +2504,7 @@ class _ComicTableRow extends StatelessWidget {
   const _ComicTableRow({
     required this.entry,
     required this.columns,
+    required this.columnWidths,
     required this.selected,
     required this.odd,
     required this.onTap,
@@ -2404,6 +2512,7 @@ class _ComicTableRow extends StatelessWidget {
 
   final _ComicTableEntry entry;
   final List<_ComicTableColumn> columns;
+  final Map<_ComicTableColumn, double> columnWidths;
   final bool selected;
   final bool odd;
   final VoidCallback onTap;
@@ -2432,7 +2541,7 @@ class _ComicTableRow extends StatelessWidget {
             children: [
               for (final column in columns) ...[
                 SizedBox(
-                  width: _comicTableColumnWidth(column),
+                  width: _comicTableColumnWidth(column, columnWidths),
                   height: 46,
                   child: Align(
                     alignment: _comicTableColumnIsNumeric(column)
@@ -2491,10 +2600,13 @@ Set<_ComicTableColumn> _decodeVisibleColumns(List<String>? values) {
   return columns.isEmpty ? _defaultComicTableColumns() : columns;
 }
 
-double _tableWidthForColumns(Set<_ComicTableColumn> columns) {
+double _tableWidthForColumns(
+  Set<_ComicTableColumn> columns,
+  Map<_ComicTableColumn, double> customWidths,
+) {
   final orderedColumns = _orderedVisibleColumns(columns);
   final contentWidth = orderedColumns
-      .map(_comicTableColumnWidth)
+      .map((column) => _comicTableColumnWidth(column, customWidths))
       .fold<double>(0, (total, width) => total + width);
   final spacing = orderedColumns.isEmpty
       ? 0.0
@@ -2502,7 +2614,18 @@ double _tableWidthForColumns(Set<_ComicTableColumn> columns) {
   return contentWidth + spacing + (_kComicTableHorizontalMargin * 2);
 }
 
-double _comicTableColumnWidth(_ComicTableColumn column) {
+double _comicTableColumnWidth(
+  _ComicTableColumn column,
+  Map<_ComicTableColumn, double> customWidths,
+) {
+  final customWidth = customWidths[column];
+  if (customWidth != null) {
+    return _clampComicTableColumnWidth(column, customWidth);
+  }
+  return _defaultComicTableColumnWidth(column);
+}
+
+double _defaultComicTableColumnWidth(_ComicTableColumn column) {
   return switch (column) {
     _ComicTableColumn.status => 58.0,
     _ComicTableColumn.cover => 52.0,
@@ -2519,6 +2642,65 @@ double _comicTableColumnWidth(_ComicTableColumn column) {
     _ComicTableColumn.wishlist => 96.0,
     _ComicTableColumn.updated => 124.0,
   };
+}
+
+double _minComicTableColumnWidth(_ComicTableColumn column) {
+  return switch (column) {
+    _ComicTableColumn.status => 44.0,
+    _ComicTableColumn.cover => 44.0,
+    _ComicTableColumn.issue => 54.0,
+    _ComicTableColumn.price => 78.0,
+    _ComicTableColumn.wishlist => 70.0,
+    _ => 86.0,
+  };
+}
+
+double _maxComicTableColumnWidth(_ComicTableColumn column) {
+  return switch (column) {
+    _ComicTableColumn.title => 520.0,
+    _ComicTableColumn.variant => 420.0,
+    _ComicTableColumn.barcode => 260.0,
+    _ => 260.0,
+  };
+}
+
+double _clampComicTableColumnWidth(
+  _ComicTableColumn column,
+  double width,
+) {
+  return width
+      .clamp(
+        _minComicTableColumnWidth(column),
+        _maxComicTableColumnWidth(column),
+      )
+      .toDouble();
+}
+
+List<String> _encodeColumnWidths(Map<_ComicTableColumn, double> widths) {
+  return [
+    for (final entry in widths.entries)
+      if ((entry.value - _defaultComicTableColumnWidth(entry.key)).abs() > 0.5)
+        '${entry.key.name}:${entry.value.round()}',
+  ];
+}
+
+Map<_ComicTableColumn, double> _decodeColumnWidths(List<String>? values) {
+  if (values == null || values.isEmpty) {
+    return const {};
+  }
+  final widths = <_ComicTableColumn, double>{};
+  for (final value in values) {
+    final parts = value.split(':');
+    if (parts.length != 2) {
+      continue;
+    }
+    final column = _enumByName(_ComicTableColumn.values, parts[0]);
+    final width = double.tryParse(parts[1]);
+    if (column != null && width != null) {
+      widths[column] = _clampComicTableColumnWidth(column, width);
+    }
+  }
+  return widths;
 }
 
 String _comicTableColumnLabel(_ComicTableColumn column) {
