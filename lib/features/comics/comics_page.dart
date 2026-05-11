@@ -67,6 +67,8 @@ enum _OwnershipFilter { all, owned, wishlist, missingGrade }
 
 enum _BulkToolbarAction { edit, wishlist, remove, clear }
 
+enum _AddComicTarget { owned, wishlist }
+
 class ComicsPage extends ConsumerStatefulWidget {
   const ComicsPage({super.key});
 
@@ -4226,6 +4228,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   bool _includeVariants = true;
   bool _hideOwned = true;
   bool _showAdvancedFilters = false;
+  _AddComicTarget _addTarget = _AddComicTarget.owned;
   String? _error;
 
   @override
@@ -4427,14 +4430,17 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                   selectedCandidate: selectedCandidate,
                   selectedIsOwned: selectedIsOwned,
                   selectedIsWishlisted: selectedIsWishlisted,
+                  addTarget: _addTarget,
                   addCount: addItems.length,
                   isSubmitting: _isSubmitting,
-                  onAddOwned: addItems.isEmpty
+                  onAddTargetChanged: (value) =>
+                      setState(() => _addTarget = value),
+                  onAdd: addItems.isEmpty
                       ? null
-                      : () => _addServerComics(addItems, wishlist: false),
-                  onAddWishlist: addItems.isEmpty
-                      ? null
-                      : () => _addServerComics(addItems, wishlist: true),
+                      : () => _addServerComics(
+                            addItems,
+                            wishlist: _addTarget == _AddComicTarget.wishlist,
+                          ),
                   onPropose: selectedCandidate == null
                       ? null
                       : () => _proposeCandidate(selectedCandidate),
@@ -5534,10 +5540,11 @@ class _AddComicBottomBar extends StatelessWidget {
     required this.selectedCandidate,
     required this.selectedIsOwned,
     required this.selectedIsWishlisted,
+    required this.addTarget,
     required this.addCount,
     required this.isSubmitting,
-    required this.onAddOwned,
-    required this.onAddWishlist,
+    required this.onAddTargetChanged,
+    required this.onAdd,
     required this.onPropose,
   });
 
@@ -5545,50 +5552,90 @@ class _AddComicBottomBar extends StatelessWidget {
   final _ProviderCandidate? selectedCandidate;
   final bool selectedIsOwned;
   final bool selectedIsWishlisted;
+  final _AddComicTarget addTarget;
   final int addCount;
   final bool isSubmitting;
-  final VoidCallback? onAddOwned;
-  final VoidCallback? onAddWishlist;
+  final ValueChanged<_AddComicTarget> onAddTargetChanged;
+  final VoidCallback? onAdd;
   final VoidCallback? onPropose;
 
   @override
   Widget build(BuildContext context) {
     final isProposal = selectedItem == null && selectedCandidate != null;
-    final label = selectedIsOwned
-        ? 'Already in Collection'
-        : isProposal
-            ? 'Propose ComicVine Metadata'
-            : 'Add ${addCount <= 1 ? 1 : addCount} Comic${addCount <= 1 ? '' : 's'} to Collection';
+    final disabledByLocalStatus = addTarget == _AddComicTarget.owned
+        ? selectedIsOwned
+        : selectedIsWishlisted;
+    final label = isProposal
+        ? 'Propose ComicVine Metadata'
+        : disabledByLocalStatus
+            ? addTarget == _AddComicTarget.owned
+                ? 'Already in Collection'
+                : 'Already in Wishlist'
+            : 'Add ${addCount <= 1 ? 1 : addCount} Comic${addCount <= 1 ? '' : 's'} to ${_addComicTargetLabel(addTarget)}';
     return ColoredBox(
       color: const Color(0xFF262626),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
         child: Row(
           children: [
+            if (!isProposal) ...[
+              SizedBox(
+                width: 190,
+                height: 40,
+                child: DropdownButtonFormField<_AddComicTarget>(
+                  initialValue: addTarget,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: _AddComicTarget.owned,
+                      child: Text('Add as owned'),
+                    ),
+                    DropdownMenuItem(
+                      value: _AddComicTarget.wishlist,
+                      child: Text('Add to wishlist'),
+                    ),
+                  ],
+                  onChanged: isSubmitting
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            onAddTargetChanged(value);
+                          }
+                        },
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
             Expanded(
               child: FilledButton(
                 onPressed: isSubmitting
                     ? null
                     : isProposal
                         ? onPropose
-                        : onAddOwned,
+                        : disabledByLocalStatus
+                            ? null
+                            : onAdd,
                 child: Text(label),
               ),
-            ),
-            const SizedBox(width: 6),
-            IconButton.filledTonal(
-              tooltip: selectedIsWishlisted
-                  ? 'Already in wishlist'
-                  : 'Add to wishlist',
-              onPressed:
-                  isSubmitting || selectedIsWishlisted ? null : onAddWishlist,
-              icon: const Icon(Icons.star_border),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+String _addComicTargetLabel(_AddComicTarget target) {
+  return switch (target) {
+    _AddComicTarget.owned => 'Collection',
+    _AddComicTarget.wishlist => 'Wishlist',
+  };
 }
 
 class _ProviderCandidateImage extends StatelessWidget {

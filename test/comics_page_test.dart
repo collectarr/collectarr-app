@@ -211,7 +211,15 @@ void main() {
     expect(find.text('Add Comics from Collectarr Core'), findsOneWidget);
     expect(find.text('Add Comics'), findsWidgets);
     expect(find.text('Search Collectarr Core'), findsOneWidget);
+    expect(find.text('Add as owned'), findsOneWidget);
     expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
+
+    await tester.tap(find.text('Add as owned'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add to wishlist').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add 1 Comic to Wishlist'), findsOneWidget);
 
     await tester.tap(find.text('Filters'));
     await tester.pumpAndSettle();
