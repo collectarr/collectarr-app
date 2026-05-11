@@ -5833,22 +5833,26 @@ class _AddComicModeBar extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: [
+                      children: const [
+                        Text(
+                          'Search by',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFFEDEDED),
+                          ),
+                        ),
+                        SizedBox(width: 8),
                         _AddModeTab(
-                          icon: Icons.view_list,
-                          label: 'Add Comics',
+                          icon: Icons.menu_book,
+                          label: 'Series',
                           selected: true,
                         ),
-                        _AddModeTab(
-                            icon: Icons.star_border, label: 'Pull List'),
-                        _AddModeTab(
-                          icon: Icons.calendar_month,
-                          label: 'Daily Updates',
-                        ),
+                        _AddModeTab(icon: Icons.qr_code_2, label: 'Barcode'),
+                        _AddModeTab(icon: Icons.star, label: 'Pull List'),
                       ],
                     ),
                   ),
@@ -6191,6 +6195,7 @@ class _AddComicResultPane extends StatelessWidget {
               !ownedItemIds.contains(item.id) &&
               !wishlistItemIds.contains(item.id))
           .toList(growable: false);
+      final groupedResults = _groupAddResultsBySeries(visibleResults);
       return Column(
         children: [
           Padding(
@@ -6213,36 +6218,43 @@ class _AddComicResultPane extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: visibleResults.length,
-              itemBuilder: (context, index) {
-                final item = visibleResults[index];
-                final disabled = ownedItemIds.contains(item.id) ||
-                    wishlistItemIds.contains(item.id);
-                return _AddResultRow(
-                  selected: item.id == selectedServerId,
-                  checked: checkedServerIds.contains(item.id),
-                  checkDisabled: disabled,
-                  cover: SizedBox(
-                    width: 42,
-                    height: 62,
-                    child: _CoverImage(item: item),
+            child: ListView(
+              children: [
+                for (final group in groupedResults.entries) ...[
+                  _AddSeriesHeader(
+                    title: group.key,
+                    count: group.value.length,
                   ),
-                  title: item.itemNumber == null
-                      ? item.title
-                      : '${item.title} #${item.itemNumber}',
-                  subtitle: item.synopsis ?? 'Metadata in Collectarr Core',
-                  badges: [
-                    if (ownedItemIds.contains(item.id)) 'Owned',
-                    if (wishlistItemIds.contains(item.id)) 'Wishlist',
-                  ],
-                  trailing:
-                      item.itemNumber == null ? '' : '#${item.itemNumber}',
-                  onTap: () => onSelectServer(item.id),
-                  onToggleCheck:
-                      disabled ? null : () => onToggleServerCheck(item.id),
-                );
-              },
+                  for (final item in group.value)
+                    _AddResultRow(
+                      selected: item.id == selectedServerId,
+                      checked: checkedServerIds.contains(item.id),
+                      checkDisabled: ownedItemIds.contains(item.id) ||
+                          wishlistItemIds.contains(item.id),
+                      cover: SizedBox(
+                        width: 42,
+                        height: 62,
+                        child: _CoverImage(item: item),
+                      ),
+                      title: item.itemNumber == null
+                          ? item.title
+                          : '#${item.itemNumber}',
+                      subtitle: _addResultSubtitle(item),
+                      badges: [
+                        ..._addResultBadges(item),
+                        if (ownedItemIds.contains(item.id)) 'Owned',
+                        if (wishlistItemIds.contains(item.id)) 'Wishlist',
+                      ],
+                      trailing:
+                          item.itemNumber == null ? '' : '#${item.itemNumber}',
+                      onTap: () => onSelectServer(item.id),
+                      onToggleCheck: ownedItemIds.contains(item.id) ||
+                              wishlistItemIds.contains(item.id)
+                          ? null
+                          : () => onToggleServerCheck(item.id),
+                    ),
+                ],
+              ],
             ),
           ),
         ],
@@ -6276,6 +6288,68 @@ class _AddComicResultPane extends StatelessWidget {
       child: Text(
         'No Collectarr Core matches yet. Try ComicVine to propose metadata.',
         textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+Map<String, List<CatalogItem>> _groupAddResultsBySeries(
+  List<CatalogItem> items,
+) {
+  final grouped = <String, List<CatalogItem>>{};
+  for (final item in items) {
+    grouped.putIfAbsent(item.title, () => []).add(item);
+  }
+  return grouped;
+}
+
+String _addResultSubtitle(CatalogItem item) {
+  final parts = [
+    if (item.variant != null && item.variant!.isNotEmpty) item.variant,
+    if (item.releaseDate != null) _formatDate(item.releaseDate!),
+    if (item.publisher != null && item.publisher!.isNotEmpty) item.publisher,
+    if (item.barcode != null && item.barcode!.isNotEmpty) item.barcode,
+  ].whereType<String>().toList(growable: false);
+  if (parts.isNotEmpty) {
+    return parts.join('  |  ');
+  }
+  return item.synopsis ?? 'Metadata in Collectarr Core';
+}
+
+List<String> _addResultBadges(CatalogItem item) {
+  return [
+    if (item.publisher != null && item.publisher!.isNotEmpty) item.publisher!,
+    if (item.releaseYear != null) item.releaseYear!.toString(),
+  ];
+}
+
+class _AddSeriesHeader extends StatelessWidget {
+  const _AddSeriesHeader({required this.title, required this.count});
+
+  final String title;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(color: Color(0xFF232323)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 8, 8, 6),
+        child: Row(
+          children: [
+            const Icon(Icons.folder, size: 15, color: Color(0xFF18B7EB)),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
+            _AddResultBadge('$count issue${count == 1 ? '' : 's'}'),
+          ],
+        ),
       ),
     );
   }
