@@ -34,6 +34,11 @@ class _ComicDetailBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final edition = comic.primaryEdition;
     final variant = comic.primaryVariant;
+    final source = edition?.sourceMetadata;
+    final providerUrl = source?['site_detail_url']?.toString();
+    final creators = _metadataNames(source, 'person_credits');
+    final characters = _metadataNames(source, 'character_credits');
+    final arcs = _metadataNames(source, 'story_arc_credits');
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -58,6 +63,28 @@ class _ComicDetailBody extends ConsumerWidget {
           const SizedBox(height: 16),
           Text(comic.synopsis!),
         ],
+        if (providerUrl != null) ...[
+          const SizedBox(height: 16),
+          _MetadataSection(
+            title: 'Provider links',
+            children: [SelectableText(providerUrl)],
+          ),
+        ],
+        if (creators.isNotEmpty)
+          _MetadataSection(
+            title: 'Creators',
+            children: [_NameWrap(names: creators)],
+          ),
+        if (characters.isNotEmpty)
+          _MetadataSection(
+            title: 'Characters',
+            children: [_NameWrap(names: characters)],
+          ),
+        if (arcs.isNotEmpty)
+          _MetadataSection(
+            title: 'Story arcs',
+            children: [_NameWrap(names: arcs)],
+          ),
         const SizedBox(height: 16),
         FilledButton.icon(
           onPressed: () async {
@@ -89,6 +116,17 @@ class _ComicDetailBody extends ConsumerWidget {
     return '${value.year.toString().padLeft(4, '0')}-'
         '${value.month.toString().padLeft(2, '0')}-'
         '${value.day.toString().padLeft(2, '0')}';
+  }
+
+  List<String> _metadataNames(Map<String, dynamic>? source, String key) {
+    final values = source?[key];
+    if (values is! List) {
+      return const [];
+    }
+    return [
+      for (final value in values)
+        if (value is Map && value['name'] != null) value['name'].toString(),
+    ];
   }
 }
 
@@ -169,6 +207,7 @@ class _EditionPanel extends StatelessWidget {
             ),
             if (edition.variants.isNotEmpty) ...[
               const SizedBox(height: 12),
+              Text('Variants', style: Theme.of(context).textTheme.labelLarge),
               for (final variant in edition.variants)
                 ListTile(
                   dense: true,
@@ -180,9 +219,72 @@ class _EditionPanel extends StatelessWidget {
                   subtitle: variant.sku == null ? null : Text(variant.sku!),
                 ),
             ],
+            if (edition.releases.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text('Releases', style: Theme.of(context).textTheme.labelLarge),
+              for (final release in edition.releases)
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.public),
+                  title: Text(release.region),
+                  subtitle: Text(
+                    [
+                      if (release.publisher != null) release.publisher,
+                      if (release.releaseDate != null)
+                        _dateLabel(release.releaseDate!),
+                    ].whereType<String>().join(' - '),
+                  ),
+                ),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  String _dateLabel(DateTime value) {
+    return '${value.year.toString().padLeft(4, '0')}-'
+        '${value.month.toString().padLeft(2, '0')}-'
+        '${value.day.toString().padLeft(2, '0')}';
+  }
+}
+
+class _MetadataSection extends StatelessWidget {
+  const _MetadataSection({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          ...children,
+        ],
+      ),
+    );
+  }
+}
+
+class _NameWrap extends StatelessWidget {
+  const _NameWrap({required this.names});
+
+  final List<String> names;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final name in names) _MetadataChip(label: name),
+      ],
     );
   }
 }

@@ -41,6 +41,14 @@ void main() {
           'upc': '75960604716100111',
           'language': 'en',
           'release_date': '2026-05-11',
+          'metadata_json': {
+            'source': {
+              'site_detail_url': 'https://comicvine.example/issue',
+              'person_credits': [
+                {'name': 'Stan Lee'}
+              ],
+            },
+          },
           'variants': [
             {
               'id': 'variant-1',
@@ -51,6 +59,15 @@ void main() {
               'is_primary': true,
             }
           ],
+          'releases': [
+            {
+              'id': 'release-1',
+              'region': 'US',
+              'release_date': '2026-05-11',
+              'publisher': 'Marvel',
+              'external_ids': {'comicvine': '4000-1'},
+            }
+          ],
         }
       ],
     });
@@ -59,6 +76,11 @@ void main() {
     expect(detail.primaryVariant?.id, 'variant-1');
     expect(detail.displayCoverUrl, 'https://cdn.example/thumb.jpg');
     expect(detail.primaryEdition?.releaseDate, DateTime.utc(2026, 5, 11));
+    expect(detail.primaryEdition?.releases.single.region, 'US');
+    expect(
+      detail.primaryEdition?.sourceMetadata?['site_detail_url'],
+      'https://comicvine.example/issue',
+    );
   });
 
   test('owned item builds sync payload', () {
