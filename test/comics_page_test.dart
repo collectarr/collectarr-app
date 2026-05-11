@@ -213,6 +213,7 @@ void main() {
       'comics.sort_column': 'updated',
       'comics.sort_ascending': false,
       'comics.cover_size': 188.0,
+      'comics.visible_columns': ['title', 'issue', 'price'],
     });
     tester.view.physicalSize = const Size(1400, 1400);
     tester.view.devicePixelRatio = 1;
@@ -251,7 +252,63 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Issue'), findsOneWidget);
-    expect(find.text('Updated'), findsOneWidget);
+    expect(find.text('Price'), findsOneWidget);
+    expect(find.text('Updated'), findsNothing);
+  });
+
+  testWidgets('comics page opens column chooser from list view',
+      (tester) async {
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(
+                  itemId: 'comic-1',
+                  catalogItem: catalogItems[0],
+                  ownedItem: ownedItem,
+                ),
+              ],
+              ownedCount: 1,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 1,
+              totalPaidCents: 1299,
+              primaryCurrency: 'USD',
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => [ownedItem]),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('List view'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Select columns'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Select columns'), findsOneWidget);
+    expect(find.widgetWithText(CheckboxListTile, 'Grade'), findsOneWidget);
+    expect(find.widgetWithText(CheckboxListTile, 'Price'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(CheckboxListTile, 'Price'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Price'), findsNothing);
+    expect(find.text('Grade'), findsWidgets);
   });
 
   testWidgets('comics page filters local shelf by ownership', (tester) async {

@@ -22,10 +22,22 @@ const String _kComicsViewModePreferenceKey = 'comics.view_mode';
 const String _kComicsSortColumnPreferenceKey = 'comics.sort_column';
 const String _kComicsSortAscendingPreferenceKey = 'comics.sort_ascending';
 const String _kComicsCoverSizePreferenceKey = 'comics.cover_size';
+const String _kComicsVisibleColumnsPreferenceKey = 'comics.visible_columns';
 
 enum _ComicsViewMode { grid, list }
 
 enum _ComicSortColumn {
+  title,
+  issue,
+  grade,
+  condition,
+  price,
+  wishlist,
+  updated
+}
+
+enum _ComicTableColumn {
+  cover,
   title,
   issue,
   grade,
@@ -54,6 +66,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   _ComicSortColumn sortColumn = _ComicSortColumn.title;
   bool sortAscending = true;
   double coverSize = _kDefaultCoverSize;
+  Set<_ComicTableColumn> visibleColumns = _defaultComicTableColumns();
   _OwnershipFilter ownershipFilter = _OwnershipFilter.all;
   String? gradeFilter;
   String? conditionFilter;
@@ -101,6 +114,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               sortColumn: sortColumn,
               sortAscending: sortAscending,
               coverSize: coverSize,
+              visibleColumns: visibleColumns,
               selectionMode: selectionMode,
               selectedItemIds: selectedItemIds,
               hasActiveFilters: _hasActiveFilters,
@@ -128,6 +142,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               }),
               onClearSeries: () => setState(() => selectedSeries = null),
               onScanBarcode: () => _handleBarcodeScan(context),
+              onEditColumns: () => _showColumnChooser(context),
               onViewModeChanged: _handleViewModeChanged,
               onSortChanged: _handleSortChanged,
               onCoverSizeChanged: _handleCoverSizeChanged,
@@ -408,11 +423,29 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     _saveViewPreferences();
   }
 
+  void _handleVisibleColumnsChanged(Set<_ComicTableColumn> columns) {
+    setState(() => visibleColumns = columns);
+    _saveViewPreferences();
+  }
+
+  Future<void> _showColumnChooser(BuildContext context) async {
+    final selected = await showDialog<Set<_ComicTableColumn>>(
+      context: context,
+      builder: (context) =>
+          _ColumnChooserDialog(selectedColumns: visibleColumns),
+    );
+    if (selected != null) {
+      _handleVisibleColumnsChanged(selected);
+    }
+  }
+
   Future<void> _loadViewPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final storedViewMode = prefs.getString(_kComicsViewModePreferenceKey);
     final storedSortColumn = prefs.getString(_kComicsSortColumnPreferenceKey);
     final storedCoverSize = prefs.getDouble(_kComicsCoverSizePreferenceKey);
+    final storedColumns =
+        prefs.getStringList(_kComicsVisibleColumnsPreferenceKey);
     if (!mounted) {
       return;
     }
@@ -426,6 +459,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
       coverSize = (storedCoverSize ?? coverSize)
           .clamp(_kMinCoverSize, _kMaxCoverSize)
           .toDouble();
+      visibleColumns = _decodeVisibleColumns(storedColumns);
     });
   }
 
@@ -435,6 +469,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     await prefs.setString(_kComicsSortColumnPreferenceKey, sortColumn.name);
     await prefs.setBool(_kComicsSortAscendingPreferenceKey, sortAscending);
     await prefs.setDouble(_kComicsCoverSizePreferenceKey, coverSize);
+    await prefs.setStringList(
+      _kComicsVisibleColumnsPreferenceKey,
+      visibleColumns.map((column) => column.name).toList(growable: false),
+    );
   }
 }
 
@@ -448,10 +486,12 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.coverSize,
+    required this.visibleColumns,
     required this.selectionMode,
     required this.selectedItemIds,
     required this.hasActiveFilters,
     required this.onEditFilters,
+    required this.onEditColumns,
     required this.onSearch,
     required this.onAddComic,
     required this.onSelectItem,
@@ -476,10 +516,12 @@ class _ComicsWorkspace extends StatelessWidget {
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final double coverSize;
+  final Set<_ComicTableColumn> visibleColumns;
   final bool selectionMode;
   final Set<String> selectedItemIds;
   final bool hasActiveFilters;
   final VoidCallback onEditFilters;
+  final VoidCallback onEditColumns;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
@@ -545,6 +587,7 @@ class _ComicsWorkspace extends StatelessWidget {
           onSearch: onSearch,
           onAddComic: onAddComic,
           onEditFilters: onEditFilters,
+          onEditColumns: onEditColumns,
           onScanBarcode: onScanBarcode,
           onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
           onClearSeries: onClearSeries,
@@ -583,6 +626,7 @@ class _ComicsWorkspace extends StatelessWidget {
                         selectedItemIds: selectedItemIds,
                         sortColumn: sortColumn,
                         sortAscending: sortAscending,
+                        visibleColumns: visibleColumns,
                         onSortChanged: onSortChanged,
                         onSelectItem: onSelectItem,
                       ),
@@ -670,6 +714,7 @@ class _ComicsToolbar extends StatelessWidget {
     required this.onSearch,
     required this.onAddComic,
     required this.onEditFilters,
+    required this.onEditColumns,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onClearSeries,
@@ -695,6 +740,7 @@ class _ComicsToolbar extends StatelessWidget {
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final VoidCallback onEditFilters;
+  final VoidCallback onEditColumns;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final VoidCallback onClearSeries;
@@ -851,6 +897,15 @@ class _ComicsToolbar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
+            Tooltip(
+              message: 'Select columns',
+              child: IconButton.filledTonal(
+                onPressed:
+                    viewMode == _ComicsViewMode.list ? onEditColumns : null,
+                icon: const Icon(Icons.view_column),
+              ),
+            ),
+            const SizedBox(width: 8),
             _ToolbarStat(label: 'Shown', value: itemCount),
             const SizedBox(width: 8),
             _ToolbarStat(label: 'Total', value: totalCount),
@@ -890,6 +945,155 @@ class _ComicsToolbar extends StatelessWidget {
               onSelectionChanged: (selection) =>
                   onViewModeChanged(selection.first),
               showSelectedIcon: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ColumnChooserDialog extends StatefulWidget {
+  const _ColumnChooserDialog({required this.selectedColumns});
+
+  final Set<_ComicTableColumn> selectedColumns;
+
+  @override
+  State<_ColumnChooserDialog> createState() => _ColumnChooserDialogState();
+}
+
+class _ColumnChooserDialogState extends State<_ColumnChooserDialog> {
+  late var _selected = Set<_ComicTableColumn>.of(widget.selectedColumns);
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final columns = _ComicTableColumn.values
+        .where((column) => _comicTableColumnDisplayName(column)
+            .toLowerCase()
+            .contains(_query.trim().toLowerCase()))
+        .toList(growable: false);
+    final selectedColumns = _orderedVisibleColumns(_selected);
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 620, maxHeight: 620),
+        child: Column(
+          children: [
+            Container(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                border: Border(
+                  bottom: BorderSide(color: colorScheme.outlineVariant),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'Select columns',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: TextField(
+                decoration: const InputDecoration(
+                  isDense: true,
+                  prefixIcon: Icon(Icons.search),
+                  hintText: 'Search columns...',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) => setState(() => _query = value),
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 8, 12),
+                      children: [
+                        for (final column in columns)
+                          CheckboxListTile(
+                            dense: true,
+                            value: _selected.contains(column),
+                            onChanged: column == _ComicTableColumn.title
+                                ? null
+                                : (value) => setState(() {
+                                      if (value ?? false) {
+                                        _selected.add(column);
+                                      } else {
+                                        _selected.remove(column);
+                                      }
+                                    }),
+                            title: Text(_comicTableColumnDisplayName(column)),
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                      ],
+                    ),
+                  ),
+                  VerticalDivider(color: colorScheme.outlineVariant),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 12, 12),
+                      children: [
+                        for (final column in selectedColumns)
+                          ListTile(
+                            dense: true,
+                            leading: const Icon(Icons.drag_indicator),
+                            title: Text(_comicTableColumnDisplayName(column)),
+                            trailing: column == _ComicTableColumn.title
+                                ? null
+                                : IconButton(
+                                    tooltip: 'Hide column',
+                                    onPressed: () => setState(
+                                      () => _selected.remove(column),
+                                    ),
+                                    icon: const Icon(Icons.close),
+                                  ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: () => setState(
+                      () => _selected = _defaultComicTableColumns(),
+                    ),
+                    child: const Text('Reset'),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: () {
+                      final result = Set<_ComicTableColumn>.of(_selected)
+                        ..add(_ComicTableColumn.title);
+                      Navigator.of(context).pop(result);
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -1107,6 +1311,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
     required this.selectedItemIds,
     required this.sortColumn,
     required this.sortAscending,
+    required this.visibleColumns,
     required this.onSortChanged,
     required this.onSelectItem,
   });
@@ -1116,6 +1321,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
   final Set<String> selectedItemIds;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
+  final Set<_ComicTableColumn> visibleColumns;
   final ValueChanged<_ComicSortColumn> onSortChanged;
   final ValueChanged<CatalogItem> onSelectItem;
 
@@ -1131,6 +1337,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
       selectedItemIds: selectedItemIds,
       sortColumn: sortColumn,
       sortAscending: sortAscending,
+      visibleColumns: visibleColumns,
       onSortChanged: onSortChanged,
       onSelectItem: onSelectItem,
     );
@@ -1146,6 +1353,7 @@ class _ComicList extends StatelessWidget {
     required this.selectedItemIds,
     required this.sortColumn,
     required this.sortAscending,
+    required this.visibleColumns,
     required this.onSortChanged,
     required this.onSelectItem,
   });
@@ -1157,6 +1365,7 @@ class _ComicList extends StatelessWidget {
   final Set<String> selectedItemIds;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
+  final Set<_ComicTableColumn> visibleColumns;
   final ValueChanged<_ComicSortColumn> onSortChanged;
   final ValueChanged<CatalogItem> onSelectItem;
 
@@ -1176,13 +1385,15 @@ class _ComicList extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width =
-            constraints.maxWidth < 1060 ? 1060.0 : constraints.maxWidth;
+        final tableWidth = _tableWidthForColumns(visibleColumns);
+        final contentWidth = tableWidth > constraints.maxWidth
+            ? tableWidth
+            : constraints.maxWidth;
         return Scrollbar(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
-              width: width,
+              width: contentWidth,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(12),
                 child: _ComicDataTable(
@@ -1191,6 +1402,7 @@ class _ComicList extends StatelessWidget {
                   selectedItemIds: selectedItemIds,
                   sortColumn: sortColumn,
                   sortAscending: sortAscending,
+                  visibleColumns: visibleColumns,
                   onSortChanged: onSortChanged,
                   onSelectItem: onSelectItem,
                 ),
@@ -1210,6 +1422,7 @@ class _ComicDataTable extends StatelessWidget {
     required this.selectedItemIds,
     required this.sortColumn,
     required this.sortAscending,
+    required this.visibleColumns,
     required this.onSortChanged,
     required this.onSelectItem,
   });
@@ -1219,14 +1432,16 @@ class _ComicDataTable extends StatelessWidget {
   final Set<String> selectedItemIds;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
+  final Set<_ComicTableColumn> visibleColumns;
   final ValueChanged<_ComicSortColumn> onSortChanged;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final columns = _orderedVisibleColumns(visibleColumns);
     return DataTable(
-      sortColumnIndex: _sortColumnIndex(sortColumn),
+      sortColumnIndex: _sortColumnIndex(sortColumn, columns),
       sortAscending: sortAscending,
       headingRowColor: WidgetStatePropertyAll(colorScheme.surfaceContainerHigh),
       dataRowMinHeight: 68,
@@ -1237,37 +1452,14 @@ class _ComicDataTable extends StatelessWidget {
         horizontalInside: BorderSide(color: colorScheme.outlineVariant),
       ),
       columns: [
-        const DataColumn(label: SizedBox.shrink()),
-        DataColumn(
-          label: const Text('Title'),
-          onSort: (_, __) => onSortChanged(_ComicSortColumn.title),
-        ),
-        DataColumn(
-          label: const Text('Issue'),
-          numeric: true,
-          onSort: (_, __) => onSortChanged(_ComicSortColumn.issue),
-        ),
-        DataColumn(
-          label: const Text('Grade'),
-          onSort: (_, __) => onSortChanged(_ComicSortColumn.grade),
-        ),
-        DataColumn(
-          label: const Text('Condition'),
-          onSort: (_, __) => onSortChanged(_ComicSortColumn.condition),
-        ),
-        DataColumn(
-          label: const Text('Price'),
-          numeric: true,
-          onSort: (_, __) => onSortChanged(_ComicSortColumn.price),
-        ),
-        DataColumn(
-          label: const Text('Wishlist'),
-          onSort: (_, __) => onSortChanged(_ComicSortColumn.wishlist),
-        ),
-        DataColumn(
-          label: const Text('Updated'),
-          onSort: (_, __) => onSortChanged(_ComicSortColumn.updated),
-        ),
+        for (final column in columns)
+          DataColumn(
+            label: Text(_comicTableColumnLabel(column)),
+            numeric: _comicTableColumnIsNumeric(column),
+            onSort: _comicTableColumnSort(column) == null
+                ? null
+                : (_, __) => onSortChanged(_comicTableColumnSort(column)!),
+          ),
       ],
       rows: [
         for (final entry in entries)
@@ -1282,45 +1474,145 @@ class _ComicDataTable extends StatelessWidget {
             ),
             onSelectChanged: (_) => onSelectItem(entry.item),
             cells: [
-              DataCell(
-                SizedBox(
-                  width: 36,
-                  height: 54,
-                  child: _CoverImage(item: entry.item),
-                ),
-              ),
-              DataCell(
-                SizedBox(
-                  width: 280,
-                  child: Text(
-                    entry.item.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              DataCell(Text(entry.item.itemNumber ?? '')),
-              DataCell(_CellText(entry.ownedItem?.grade)),
-              DataCell(_CellText(entry.ownedItem?.condition)),
-              DataCell(
-                Text(
-                  _formatOptionalMoney(
-                    entry.ownedItem?.pricePaidCents,
-                    entry.ownedItem?.currency,
-                  ),
-                ),
-              ),
-              DataCell(
-                entry.isWishlisted
-                    ? const Icon(Icons.star, size: 18)
-                    : const Text(''),
-              ),
-              DataCell(Text(_formatDate(entry.updatedAt))),
+              for (final column in columns) _comicTableCell(entry, column),
             ],
           ),
       ],
     );
   }
+}
+
+List<_ComicTableColumn> _orderedVisibleColumns(Set<_ComicTableColumn> columns) {
+  final effective = columns.isEmpty ? _defaultComicTableColumns() : columns;
+  return [
+    for (final column in _ComicTableColumn.values)
+      if (effective.contains(column)) column,
+  ];
+}
+
+Set<_ComicTableColumn> _defaultComicTableColumns() => {
+      _ComicTableColumn.cover,
+      _ComicTableColumn.title,
+      _ComicTableColumn.issue,
+      _ComicTableColumn.grade,
+      _ComicTableColumn.condition,
+      _ComicTableColumn.price,
+      _ComicTableColumn.wishlist,
+      _ComicTableColumn.updated,
+    };
+
+Set<_ComicTableColumn> _decodeVisibleColumns(List<String>? values) {
+  if (values == null || values.isEmpty) {
+    return _defaultComicTableColumns();
+  }
+  final columns = {
+    for (final value in values)
+      if (_enumByName(_ComicTableColumn.values, value) != null)
+        _enumByName(_ComicTableColumn.values, value)!,
+  };
+  if (!columns.contains(_ComicTableColumn.title)) {
+    columns.add(_ComicTableColumn.title);
+  }
+  return columns.isEmpty ? _defaultComicTableColumns() : columns;
+}
+
+double _tableWidthForColumns(Set<_ComicTableColumn> columns) {
+  return _orderedVisibleColumns(columns)
+      .map((column) => switch (column) {
+            _ComicTableColumn.cover => 76.0,
+            _ComicTableColumn.title => 340.0,
+            _ComicTableColumn.issue => 92.0,
+            _ComicTableColumn.grade => 120.0,
+            _ComicTableColumn.condition => 150.0,
+            _ComicTableColumn.price => 120.0,
+            _ComicTableColumn.wishlist => 112.0,
+            _ComicTableColumn.updated => 132.0,
+          })
+      .fold<double>(0, (total, width) => total + width);
+}
+
+String _comicTableColumnLabel(_ComicTableColumn column) {
+  return switch (column) {
+    _ComicTableColumn.cover => '',
+    _ComicTableColumn.title => 'Series',
+    _ComicTableColumn.issue => 'Issue',
+    _ComicTableColumn.grade => 'Grade',
+    _ComicTableColumn.condition => 'Condition',
+    _ComicTableColumn.price => 'Price',
+    _ComicTableColumn.wishlist => 'Wishlist',
+    _ComicTableColumn.updated => 'Updated',
+  };
+}
+
+String _comicTableColumnDisplayName(_ComicTableColumn column) {
+  return switch (column) {
+    _ComicTableColumn.cover => 'Cover',
+    _ComicTableColumn.title => 'Series',
+    _ComicTableColumn.issue => 'Issue',
+    _ComicTableColumn.grade => 'Grade',
+    _ComicTableColumn.condition => 'Condition',
+    _ComicTableColumn.price => 'Price',
+    _ComicTableColumn.wishlist => 'Wishlist',
+    _ComicTableColumn.updated => 'Updated',
+  };
+}
+
+bool _comicTableColumnIsNumeric(_ComicTableColumn column) {
+  return switch (column) {
+    _ComicTableColumn.issue || _ComicTableColumn.price => true,
+    _ => false,
+  };
+}
+
+_ComicSortColumn? _comicTableColumnSort(_ComicTableColumn column) {
+  return switch (column) {
+    _ComicTableColumn.cover => null,
+    _ComicTableColumn.title => _ComicSortColumn.title,
+    _ComicTableColumn.issue => _ComicSortColumn.issue,
+    _ComicTableColumn.grade => _ComicSortColumn.grade,
+    _ComicTableColumn.condition => _ComicSortColumn.condition,
+    _ComicTableColumn.price => _ComicSortColumn.price,
+    _ComicTableColumn.wishlist => _ComicSortColumn.wishlist,
+    _ComicTableColumn.updated => _ComicSortColumn.updated,
+  };
+}
+
+DataCell _comicTableCell(_ComicTableEntry entry, _ComicTableColumn column) {
+  return switch (column) {
+    _ComicTableColumn.cover => DataCell(
+        SizedBox(
+          width: 36,
+          height: 54,
+          child: _CoverImage(item: entry.item),
+        ),
+      ),
+    _ComicTableColumn.title => DataCell(
+        SizedBox(
+          width: 280,
+          child: Text(
+            entry.item.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+    _ComicTableColumn.issue => DataCell(Text(entry.item.itemNumber ?? '')),
+    _ComicTableColumn.grade => DataCell(_CellText(entry.ownedItem?.grade)),
+    _ComicTableColumn.condition =>
+      DataCell(_CellText(entry.ownedItem?.condition)),
+    _ComicTableColumn.price => DataCell(
+        Text(
+          _formatOptionalMoney(
+            entry.ownedItem?.pricePaidCents,
+            entry.ownedItem?.currency,
+          ),
+        ),
+      ),
+    _ComicTableColumn.wishlist => DataCell(
+        entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
+      ),
+    _ComicTableColumn.updated => DataCell(Text(_formatDate(entry.updatedAt))),
+  };
 }
 
 class _CellText extends StatelessWidget {
@@ -1402,16 +1694,16 @@ int _compareEntries(
   return _compareNullableStrings(a.item.title, b.item.title);
 }
 
-int _sortColumnIndex(_ComicSortColumn column) {
-  return switch (column) {
-    _ComicSortColumn.title => 1,
-    _ComicSortColumn.issue => 2,
-    _ComicSortColumn.grade => 3,
-    _ComicSortColumn.condition => 4,
-    _ComicSortColumn.price => 5,
-    _ComicSortColumn.wishlist => 6,
-    _ComicSortColumn.updated => 7,
-  };
+int? _sortColumnIndex(
+  _ComicSortColumn column,
+  List<_ComicTableColumn> visibleColumns,
+) {
+  for (var index = 0; index < visibleColumns.length; index++) {
+    if (_comicTableColumnSort(visibleColumns[index]) == column) {
+      return index;
+    }
+  }
+  return null;
 }
 
 int _compareIssueNumbers(String? left, String? right) {
