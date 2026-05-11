@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comic_detail_page.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
@@ -36,30 +37,6 @@ const Color _kClzSelection = Color(0xFF075F75);
 const Color _kClzYellow = Color(0xFFFFD400);
 const Color _kClzDivider = Color(0xFF4A4A4A);
 const Color _kClzTextMuted = Color(0xFFB8B8B8);
-
-const _comicsWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'comic',
-  title: 'Comics',
-  icon: Icons.menu_book,
-  preferencePrefix: 'comics',
-  defaultSortColumn: LibrarySortColumn.title,
-  defaultVisibleColumns: {
-    LibraryTableColumn.status,
-    LibraryTableColumn.cover,
-    LibraryTableColumn.title,
-    LibraryTableColumn.issue,
-    LibraryTableColumn.variant,
-    LibraryTableColumn.publisher,
-    LibraryTableColumn.releaseDate,
-    LibraryTableColumn.barcode,
-    LibraryTableColumn.grade,
-    LibraryTableColumn.condition,
-    LibraryTableColumn.price,
-    LibraryTableColumn.storageBox,
-    LibraryTableColumn.wishlist,
-    LibraryTableColumn.updated,
-  },
-);
 
 enum _OwnershipFilter { all, owned, wishlist, missingGrade }
 
@@ -206,7 +183,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   String? selectedSeries;
   LibraryViewMode viewMode = LibraryViewMode.grid;
   LibraryDetailsLayout detailsLayout = LibraryDetailsLayout.right;
-  LibrarySortColumn sortColumn = _comicsWorkspaceConfig.defaultSortColumn;
+  LibrarySortColumn sortColumn = comicsWorkspaceConfig.defaultSortColumn;
   bool sortAscending = true;
   double coverSize = _kDefaultCoverSize;
   Set<LibraryTableColumn> visibleColumns = _defaultComicTableColumns();
@@ -654,7 +631,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
 
   Future<void> _loadViewPreferences() async {
     final preferences =
-        await LibraryWorkspacePreferences(_comicsWorkspaceConfig).read(
+        await LibraryWorkspacePreferences(comicsWorkspaceConfig).read(
       defaultCoverSize: _kDefaultCoverSize,
       minCoverSize: _kMinCoverSize,
       maxCoverSize: _kMaxCoverSize,
@@ -677,7 +654,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   }
 
   Future<void> _saveViewPreferences() async {
-    await LibraryWorkspacePreferences(_comicsWorkspaceConfig).write(
+    await LibraryWorkspacePreferences(comicsWorkspaceConfig).write(
       LibraryWorkspacePreferenceSnapshot(
         viewMode: viewMode,
         detailsLayout: detailsLayout,
@@ -2839,7 +2816,7 @@ List<LibraryTableColumn> _orderedVisibleColumns(
 }
 
 Set<LibraryTableColumn> _defaultComicTableColumns() =>
-    Set.of(_comicsWorkspaceConfig.defaultVisibleColumns);
+    Set.of(comicsWorkspaceConfig.defaultVisibleColumns);
 
 double _tableWidthForColumns(
   Set<LibraryTableColumn> columns,
