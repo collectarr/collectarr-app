@@ -91,6 +91,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           onTogglePassword: () => setState(
                             () => obscurePassword = !obscurePassword,
                           ),
+                          onFillDevCredentials: _fillDevCredentials,
                           onSubmit: _submit,
                         );
                         return ConstrainedBox(
@@ -133,6 +134,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   }
 
   void _submit() {
+    final auth = ref.read(authControllerProvider);
+    if (auth.isLoading || auth.isRestoring) {
+      return;
+    }
     final email = emailController.text.trim();
     final password = passwordController.text;
     if (isRegister) {
@@ -140,6 +145,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     } else {
       ref.read(authControllerProvider.notifier).login(email, password);
     }
+  }
+
+  void _fillDevCredentials() {
+    emailController.text = 'user@example.com';
+    passwordController.text = 'password123';
   }
 }
 
@@ -229,6 +239,7 @@ class _AuthFormPanel extends StatelessWidget {
     required this.obscurePassword,
     required this.onToggleMode,
     required this.onTogglePassword,
+    required this.onFillDevCredentials,
     required this.onSubmit,
   });
 
@@ -239,10 +250,12 @@ class _AuthFormPanel extends StatelessWidget {
   final bool obscurePassword;
   final VoidCallback onToggleMode;
   final VoidCallback onTogglePassword;
+  final VoidCallback onFillDevCredentials;
   final VoidCallback onSubmit;
 
   @override
   Widget build(BuildContext context) {
+    final isBusy = auth.isLoading || auth.isRestoring;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: _authPanelRaised,
@@ -264,21 +277,34 @@ class _AuthFormPanel extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  isRegister ? Icons.person_add : Icons.login,
+                  auth.isRestoring
+                      ? Icons.hourglass_top
+                      : isRegister
+                          ? Icons.person_add
+                          : Icons.login,
                   color: _authYellow,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  isRegister ? 'Create account' : 'Login',
+                  auth.isRestoring
+                      ? 'Restoring session'
+                      : isRegister
+                          ? 'Create account'
+                          : 'Login',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
                 ),
               ],
             ),
+            if (auth.email != null && auth.email!.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _RememberedAccount(email: auth.email!),
+            ],
             const SizedBox(height: 16),
             TextField(
               controller: emailController,
+              enabled: !isBusy,
               decoration: const InputDecoration(
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.alternate_email),
@@ -289,12 +315,13 @@ class _AuthFormPanel extends StatelessWidget {
             const SizedBox(height: 12),
             TextField(
               controller: passwordController,
+              enabled: !isBusy,
               decoration: InputDecoration(
                 labelText: 'Password',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   tooltip: obscurePassword ? 'Show password' : 'Hide password',
-                  onPressed: onTogglePassword,
+                  onPressed: isBusy ? null : onTogglePassword,
                   icon: Icon(
                     obscurePassword
                         ? Icons.visibility_outlined
@@ -303,7 +330,7 @@ class _AuthFormPanel extends StatelessWidget {
                 ),
               ),
               obscureText: obscurePassword,
-              onSubmitted: (_) => auth.isLoading ? null : onSubmit(),
+              onSubmitted: (_) => isBusy ? null : onSubmit(),
             ),
             if (auth.error != null) ...[
               const SizedBox(height: 12),
@@ -313,21 +340,32 @@ class _AuthFormPanel extends StatelessWidget {
             SizedBox(
               height: 42,
               child: FilledButton.icon(
-                onPressed: auth.isLoading ? null : onSubmit,
+                onPressed: isBusy ? null : onSubmit,
                 icon: auth.isLoading
                     ? const SizedBox.square(
                         dimension: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Icon(isRegister ? Icons.person_add : Icons.login),
-                label: Text(isRegister ? 'Register' : 'Login'),
+                label: Text(
+                  auth.isRestoring
+                      ? 'Restoring...'
+                      : isRegister
+                          ? 'Register'
+                          : 'Login',
+                ),
               ),
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: auth.isLoading ? null : onToggleMode,
+              onPressed: isBusy ? null : onToggleMode,
               child:
                   Text(isRegister ? 'Use existing account' : 'Create account'),
+            ),
+            OutlinedButton.icon(
+              onPressed: isBusy ? null : onFillDevCredentials,
+              icon: const Icon(Icons.science_outlined, size: 18),
+              label: const Text('Fill dev credentials'),
             ),
             const Divider(height: 24),
             const Text(
@@ -357,6 +395,39 @@ class _MiniShelfPreview extends StatelessWidget {
             const SizedBox(width: 8),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _RememberedAccount extends StatelessWidget {
+  const _RememberedAccount({required this.email});
+
+  final String email;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF171717),
+        border: Border.all(color: _authDivider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Row(
+          children: [
+            const Icon(Icons.history, color: _authAccent, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Last account: $email',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: _authMuted),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

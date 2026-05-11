@@ -12,6 +12,8 @@ void main() {
 
     expect(find.text('Collectarr'), findsWidgets);
     expect(find.widgetWithText(FilledButton, 'Login'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Fill dev credentials'),
+        findsOneWidget);
     expect(find.text('Dev credentials: user@example.com / password123'),
         findsOneWidget);
   });
