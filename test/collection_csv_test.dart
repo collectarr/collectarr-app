@@ -25,6 +25,19 @@ void main() {
           pricePaidCents: 1299,
           currency: 'USD',
           personalNotes: 'Signed copy',
+          quantity: 2,
+          storageBox: 'Box 6',
+          indexNumber: 1310,
+          coverPriceCents: 399,
+          rawOrSlabbed: 'Raw',
+          gradingCompany: 'CGC',
+          graderNotes: 'Clean press',
+          signedBy: 'Stan Lee',
+          keyComic: true,
+          keyReason: 'First appearance',
+          rating: 5,
+          readStatus: 'Read',
+          tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
         ),
       ),
@@ -39,5 +52,18 @@ void main() {
     expect(rows.single.grade, '9.8');
     expect(rows.single.pricePaidCents, 1299);
     expect(rows.single.notes, 'Signed copy');
+    expect(rows.single.quantity, 2);
+    expect(rows.single.storageBox, 'Box 6');
+    expect(rows.single.indexNumber, 1310);
+    expect(rows.single.coverPriceCents, 399);
+    expect(rows.single.rawOrSlabbed, 'Raw');
+    expect(rows.single.gradingCompany, 'CGC');
+    expect(rows.single.graderNotes, 'Clean press');
+    expect(rows.single.signedBy, 'Stan Lee');
+    expect(rows.single.keyComic, isTrue);
+    expect(rows.single.keyReason, 'First appearance');
+    expect(rows.single.rating, 5);
+    expect(rows.single.readStatus, 'Read');
+    expect(rows.single.tags, 'spider,key');
   });
 }

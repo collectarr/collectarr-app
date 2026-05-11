@@ -10,6 +10,19 @@ class CollectionCsvRow {
     this.pricePaidCents,
     this.currency,
     this.notes,
+    this.quantity,
+    this.storageBox,
+    this.indexNumber,
+    this.coverPriceCents,
+    this.rawOrSlabbed,
+    this.gradingCompany,
+    this.graderNotes,
+    this.signedBy,
+    this.keyComic = false,
+    this.keyReason,
+    this.rating,
+    this.readStatus,
+    this.tags,
   });
 
   final String itemId;
@@ -20,6 +33,19 @@ class CollectionCsvRow {
   final int? pricePaidCents;
   final String? currency;
   final String? notes;
+  final int? quantity;
+  final String? storageBox;
+  final int? indexNumber;
+  final int? coverPriceCents;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final String? graderNotes;
+  final String? signedBy;
+  final bool keyComic;
+  final String? keyReason;
+  final int? rating;
+  final String? readStatus;
+  final String? tags;
 
   bool get isOwned => status == 'owned' || status == 'both';
   bool get isWishlisted => status == 'wishlist' || status == 'both';
@@ -37,6 +63,19 @@ class CollectionCsv {
     'price_paid_cents',
     'currency',
     'notes',
+    'quantity',
+    'storage_box',
+    'index_number',
+    'cover_price_cents',
+    'raw_or_slabbed',
+    'grading_company',
+    'grader_notes',
+    'signed_by',
+    'key_comic',
+    'key_reason',
+    'rating',
+    'read_status',
+    'tags',
   ];
 
   String exportShelf(List<ShelfEntry> entries) {
@@ -54,6 +93,19 @@ class CollectionCsv {
           entry.ownedItem?.pricePaidCents?.toString() ?? '',
           entry.ownedItem?.currency ?? entry.wishlistItem?.currency ?? '',
           entry.ownedItem?.personalNotes ?? entry.wishlistItem?.notes ?? '',
+          entry.ownedItem?.quantity.toString() ?? '',
+          entry.ownedItem?.storageBox ?? '',
+          entry.ownedItem?.indexNumber?.toString() ?? '',
+          entry.ownedItem?.coverPriceCents?.toString() ?? '',
+          entry.ownedItem?.rawOrSlabbed ?? '',
+          entry.ownedItem?.gradingCompany ?? '',
+          entry.ownedItem?.graderNotes ?? '',
+          entry.ownedItem?.signedBy ?? '',
+          entry.ownedItem == null ? '' : entry.ownedItem!.keyComic.toString(),
+          entry.ownedItem?.keyReason ?? '',
+          entry.ownedItem?.rating?.toString() ?? '',
+          entry.ownedItem?.readStatus ?? '',
+          entry.ownedItem?.tags ?? '',
         ],
     ];
     return rows.map((row) => row.map(_escape).join(',')).join('\n');
@@ -97,6 +149,19 @@ class CollectionCsv {
       pricePaidCents: int.tryParse(_value(index, values, 'price_paid_cents')),
       currency: _optionalValue(index, values, 'currency'),
       notes: _optionalValue(index, values, 'notes'),
+      quantity: int.tryParse(_value(index, values, 'quantity')),
+      storageBox: _optionalValue(index, values, 'storage_box'),
+      indexNumber: int.tryParse(_value(index, values, 'index_number')),
+      coverPriceCents: int.tryParse(_value(index, values, 'cover_price_cents')),
+      rawOrSlabbed: _optionalValue(index, values, 'raw_or_slabbed'),
+      gradingCompany: _optionalValue(index, values, 'grading_company'),
+      graderNotes: _optionalValue(index, values, 'grader_notes'),
+      signedBy: _optionalValue(index, values, 'signed_by'),
+      keyComic: _boolValue(index, values, 'key_comic'),
+      keyReason: _optionalValue(index, values, 'key_reason'),
+      rating: int.tryParse(_value(index, values, 'rating')),
+      readStatus: _optionalValue(index, values, 'read_status'),
+      tags: _optionalValue(index, values, 'tags'),
     );
   }
 
@@ -112,6 +177,13 @@ class CollectionCsv {
       Map<String, int> index, List<String> values, String column) {
     final value = _value(index, values, column).trim();
     return value.isEmpty ? null : value;
+  }
+
+  bool _boolValue(Map<String, int> index, List<String> values, String column) {
+    return switch (_value(index, values, column).trim().toLowerCase()) {
+      '1' || 'true' || 'yes' || 'y' => true,
+      _ => false,
+    };
   }
 
   String _escape(String value) {
