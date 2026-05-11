@@ -82,6 +82,8 @@ enum _OwnershipFilter { all, owned, wishlist, missingGrade }
 
 enum _BulkToolbarAction { edit, wishlist, remove, clear }
 
+enum _AddComicMode { search, barcode, pullList }
+
 enum _AddComicTarget { owned, wishlist }
 
 ThemeData _clzComicsTheme() {
@@ -5954,6 +5956,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   final _publisherController = TextEditingController();
   final _yearController = TextEditingController();
   final _barcodeController = TextEditingController();
+  final _defaultStorageBoxController = TextEditingController();
   var _serverResults = const <CatalogItem>[];
   var _providerResults = const <_ProviderCandidate>[];
   String? _selectedServerId;
@@ -5967,7 +5970,11 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   bool _includeVariants = true;
   bool _hideInShelf = true;
   bool _showAdvancedFilters = false;
+  _AddComicMode _mode = _AddComicMode.search;
   _AddComicTarget _addTarget = _AddComicTarget.owned;
+  String? _defaultCondition = 'Near Mint';
+  String? _defaultGrade = 'Ungraded';
+  DateTime? _defaultPurchaseDate;
   String? _error;
 
   @override
@@ -5978,6 +5985,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
     _publisherController.dispose();
     _yearController.dispose();
     _barcodeController.dispose();
+    _defaultStorageBoxController.dispose();
     super.dispose();
   }
 
@@ -6043,6 +6051,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
               children: [
                 _AddComicTitleBar(onClose: () => Navigator.of(context).pop()),
                 _AddComicModeBar(
+                  mode: _mode,
                   queryController: _controller,
                   seriesController: _seriesController,
                   issueController: _issueController,
@@ -6051,10 +6060,15 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                   barcodeController: _barcodeController,
                   showAdvancedFilters: _showAdvancedFilters,
                   isSearching: _isSearchingServer,
+                  onModeChanged: (value) => setState(() => _mode = value),
                   onAdvancedChanged: (value) =>
                       setState(() => _showAdvancedFilters = value),
                   onSearch: _searchServer,
+                  onLookupBarcode: () =>
+                      _lookupBarcode(_barcodeController.text.trim()),
                   onScanBarcode: _scanBarcode,
+                  onAddManual: _addManualComic,
+                  onProposeManual: _proposeManualComic,
                 ),
                 if (_error != null)
                   Padding(
@@ -6071,6 +6085,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                             SizedBox(
                               height: 300,
                               child: _AddComicResultPane(
+                                mode: _mode,
                                 serverResults: _serverResults,
                                 providerResults: _providerResults,
                                 ownedItemIds: ownedItemIds,
@@ -6119,6 +6134,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                             SizedBox(
                               width: 320,
                               child: _AddComicResultPane(
+                                mode: _mode,
                                 serverResults: _serverResults,
                                 providerResults: _providerResults,
                                 ownedItemIds: ownedItemIds,
@@ -6172,8 +6188,18 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                   addTarget: _addTarget,
                   addCount: addItems.length,
                   isSubmitting: _isSubmitting,
+                  defaultCondition: _defaultCondition,
+                  defaultGrade: _defaultGrade,
+                  defaultStorageBoxController: _defaultStorageBoxController,
+                  defaultPurchaseDate: _defaultPurchaseDate,
                   onAddTargetChanged: (value) =>
                       setState(() => _addTarget = value),
+                  onDefaultConditionChanged: (value) =>
+                      setState(() => _defaultCondition = value),
+                  onDefaultGradeChanged: (value) =>
+                      setState(() => _defaultGrade = value),
+                  onDefaultPurchaseDateChanged: (value) =>
+                      setState(() => _defaultPurchaseDate = value),
                   onAdd: addItems.isEmpty
                       ? null
                       : () => _addServerComics(
@@ -6340,6 +6366,9 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   }
 
   Future<void> _lookupBarcode(String code) async {
+    if (code.isEmpty) {
+      return;
+    }
     setState(() {
       _isSearchingServer = true;
       _searchedServer = true;
@@ -6415,8 +6444,12 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       } else {
         await mutations.addItem(
           item.id,
-          condition: 'Near Mint',
-          grade: 'Ungraded',
+          condition: _defaultCondition,
+          grade: _defaultGrade,
+          purchaseDate: _defaultPurchaseDate,
+          storageBox: _defaultStorageBoxController.text.trim().isEmpty
+              ? null
+              : _defaultStorageBoxController.text.trim(),
         );
       }
     }
@@ -6469,6 +6502,70 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       }
     }
   }
+
+  Future<void> _addManualComic() async {
+    final item = await showDialog<CatalogItem>(
+      context: context,
+      builder: (context) => const _ManualComicDialog(),
+    );
+    if (item == null || !mounted) {
+      return;
+    }
+    await CatalogCacheRepository(ref.read(localDatabaseProvider))
+        .upsertAll([item]);
+    setState(() {
+      _mode = _AddComicMode.search;
+      _searchedServer = true;
+      _serverResults = [
+        item,
+        ..._serverResults.where((row) => row.id != item.id)
+      ];
+      _selectedServerId = item.id;
+      _selectedProviderId = null;
+      _checkedServerIds
+        ..clear()
+        ..add(item.id);
+      _error = null;
+    });
+  }
+
+  Future<void> _proposeManualComic() async {
+    final proposal = await showDialog<_ManualProposalDraft>(
+      context: context,
+      builder: (context) => const _ManualProposalDialog(),
+    );
+    if (proposal == null || !mounted) {
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+    try {
+      await ref.read(apiClientProvider).createMetadataProposal(
+            provider: 'comicvine',
+            query: proposal.title,
+            title: proposal.title,
+            summary: proposal.notes,
+          );
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Manual metadata proposal sent for review')),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _error = 'Manual metadata proposal failed: $error');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
 }
 
 class _AddComicTitleBar extends StatelessWidget {
@@ -6509,6 +6606,7 @@ class _AddComicTitleBar extends StatelessWidget {
 
 class _AddComicModeBar extends StatelessWidget {
   const _AddComicModeBar({
+    required this.mode,
     required this.queryController,
     required this.seriesController,
     required this.issueController,
@@ -6517,11 +6615,16 @@ class _AddComicModeBar extends StatelessWidget {
     required this.barcodeController,
     required this.showAdvancedFilters,
     required this.isSearching,
+    required this.onModeChanged,
     required this.onAdvancedChanged,
     required this.onSearch,
+    required this.onLookupBarcode,
     required this.onScanBarcode,
+    required this.onAddManual,
+    required this.onProposeManual,
   });
 
+  final _AddComicMode mode;
   final TextEditingController queryController;
   final TextEditingController seriesController;
   final TextEditingController issueController;
@@ -6530,9 +6633,13 @@ class _AddComicModeBar extends StatelessWidget {
   final TextEditingController barcodeController;
   final bool showAdvancedFilters;
   final bool isSearching;
+  final ValueChanged<_AddComicMode> onModeChanged;
   final ValueChanged<bool> onAdvancedChanged;
   final VoidCallback onSearch;
+  final VoidCallback onLookupBarcode;
   final VoidCallback onScanBarcode;
+  final VoidCallback onAddManual;
+  final VoidCallback onProposeManual;
 
   @override
   Widget build(BuildContext context) {
@@ -6548,27 +6655,50 @@ class _AddComicModeBar extends StatelessWidget {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           'Search by',
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
                             color: Color(0xFFEDEDED),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         _AddModeTab(
                           icon: Icons.menu_book,
                           label: 'Series',
-                          selected: true,
+                          selected: mode == _AddComicMode.search,
+                          onTap: () => onModeChanged(_AddComicMode.search),
                         ),
-                        _AddModeTab(icon: Icons.qr_code_2, label: 'Barcode'),
-                        _AddModeTab(icon: Icons.star, label: 'Pull List'),
+                        _AddModeTab(
+                          icon: Icons.qr_code_2,
+                          label: 'Barcode',
+                          selected: mode == _AddComicMode.barcode,
+                          onTap: () => onModeChanged(_AddComicMode.barcode),
+                        ),
+                        _AddModeTab(
+                          icon: Icons.star,
+                          label: 'Pull List',
+                          selected: mode == _AddComicMode.pullList,
+                          onTap: () => onModeChanged(_AddComicMode.pullList),
+                        ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: onAddManual,
+                  icon: const Icon(Icons.edit_note, size: 18),
+                  label: const Text('Add manually'),
+                ),
+                const SizedBox(width: 4),
+                TextButton.icon(
+                  onPressed: onProposeManual,
+                  icon: const Icon(Icons.outbox, size: 18),
+                  label: const Text('Propose manually'),
+                ),
+                const SizedBox(width: 4),
                 TextButton.icon(
                   onPressed: onScanBarcode,
                   icon: const Icon(Icons.barcode_reader, size: 18),
@@ -6579,54 +6709,101 @@ class _AddComicModeBar extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 32,
-                    child: TextField(
-                      controller: queryController,
-                      onSubmitted: (_) => onSearch(),
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        filled: true,
-                        fillColor: Color(0xFF4A4A4A),
-                        border: OutlineInputBorder(),
-                        hintText: 'Search title, series, issue, publisher...',
+            switch (mode) {
+              _AddComicMode.search => Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 32,
+                            child: TextField(
+                              controller: queryController,
+                              onSubmitted: (_) => onSearch(),
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                filled: true,
+                                fillColor: Color(0xFF4A4A4A),
+                                border: OutlineInputBorder(),
+                                hintText:
+                                    'Search title, series, issue, publisher...',
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        FilterChip(
+                          selected: showAdvancedFilters,
+                          onSelected: onAdvancedChanged,
+                          avatar: const Icon(Icons.tune, size: 18),
+                          label: const Text('Filters'),
+                        ),
+                        const SizedBox(width: 10),
+                        FilledButton(
+                          onPressed: isSearching ? null : onSearch,
+                          child: isSearching
+                              ? const SizedBox.square(
+                                  dimension: 16,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Text('Search Collectarr Core'),
+                        ),
+                      ],
+                    ),
+                    if (showAdvancedFilters) ...[
+                      const SizedBox(height: 8),
+                      _AdvancedSearchFilters(
+                        seriesController: seriesController,
+                        issueController: issueController,
+                        publisherController: publisherController,
+                        yearController: yearController,
+                        barcodeController: barcodeController,
+                        onSubmitted: onSearch,
+                      ),
+                    ],
+                  ],
+                ),
+              _AddComicMode.barcode => Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 34,
+                        child: TextField(
+                          controller: barcodeController,
+                          keyboardType: TextInputType.number,
+                          onSubmitted: (_) => onLookupBarcode(),
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            filled: true,
+                            fillColor: Color(0xFF4A4A4A),
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.qr_code_2),
+                            hintText: 'Scan or enter barcode / UPC...',
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 10),
+                    OutlinedButton.icon(
+                      onPressed: isSearching ? null : onScanBarcode,
+                      icon: const Icon(Icons.barcode_reader, size: 18),
+                      label: const Text('Scan barcode'),
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton(
+                      onPressed: isSearching ? null : onLookupBarcode,
+                      child: isSearching
+                          ? const SizedBox.square(
+                              dimension: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Lookup barcode'),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                FilterChip(
-                  selected: showAdvancedFilters,
-                  onSelected: onAdvancedChanged,
-                  avatar: const Icon(Icons.tune, size: 18),
-                  label: const Text('Filters'),
-                ),
-                const SizedBox(width: 10),
-                FilledButton(
-                  onPressed: isSearching ? null : onSearch,
-                  child: isSearching
-                      ? const SizedBox.square(
-                          dimension: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Search Collectarr Core'),
-                ),
-              ],
-            ),
-            if (showAdvancedFilters) ...[
-              const SizedBox(height: 8),
-              _AdvancedSearchFilters(
-                seriesController: seriesController,
-                issueController: issueController,
-                publisherController: publisherController,
-                yearController: yearController,
-                barcodeController: barcodeController,
-                onSubmitted: onSearch,
-              ),
-            ],
+              _AddComicMode.pullList => const _PullListModePanel(),
+            },
           ],
         ),
       ),
@@ -6734,29 +6911,63 @@ class _AddModeTab extends StatelessWidget {
   const _AddModeTab({
     required this.icon,
     required this.label,
+    required this.onTap,
     this.selected = false,
   });
 
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
   final bool selected;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 30,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: selected ? const Color(0xFF202020) : const Color(0xFF444444),
-        border: const Border(
-          right: BorderSide(color: Color(0xFF1A1A1A)),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF202020) : const Color(0xFF444444),
+          border: const Border(
+            right: BorderSide(color: Color(0xFF1A1A1A)),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: const Color(0xFF18B7EB)),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+          ],
         ),
       ),
-      child: Row(
+    );
+  }
+}
+
+class _PullListModePanel extends StatelessWidget {
+  const _PullListModePanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: const Color(0xFF242424),
+        border: Border.all(color: const Color(0xFF555555)),
+      ),
+      child: const Row(
         children: [
-          Icon(icon, size: 16, color: const Color(0xFF18B7EB)),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Icon(Icons.event_available, color: Color(0xFF18B7EB), size: 18),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Pull List will track upcoming issues from Collectarr Core and provider feeds. For now, use Series or Barcode search to add comics.',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
@@ -6765,6 +6976,7 @@ class _AddModeTab extends StatelessWidget {
 
 class _AddComicResultPane extends StatelessWidget {
   const _AddComicResultPane({
+    required this.mode,
     required this.serverResults,
     required this.providerResults,
     required this.ownedItemIds,
@@ -6788,6 +7000,7 @@ class _AddComicResultPane extends StatelessWidget {
     required this.onSearchProvider,
   });
 
+  final _AddComicMode mode;
   final List<CatalogItem> serverResults;
   final List<_ProviderCandidate> providerResults;
   final Set<String> ownedItemIds;
@@ -6812,6 +7025,9 @@ class _AddComicResultPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (mode == _AddComicMode.pullList) {
+      return const _PullListResultsPane();
+    }
     return ColoredBox(
       color: const Color(0xFF2E2E2E),
       child: Column(
@@ -6999,6 +7215,26 @@ class _AddComicResultPane extends StatelessWidget {
       child: Text(
         'No Collectarr Core matches yet. Try ComicVine to propose metadata.',
         textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class _PullListResultsPane extends StatelessWidget {
+  const _PullListResultsPane();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ColoredBox(
+      color: Color(0xFF2E2E2E),
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text(
+            'Pull List is reserved for upcoming comics. It will combine your watched series, wishlist, and provider release feeds without storing personal library data on the metadata server.',
+            textAlign: TextAlign.center,
+          ),
+        ),
       ),
     );
   }
@@ -7358,7 +7594,14 @@ class _AddComicBottomBar extends StatelessWidget {
     required this.addTarget,
     required this.addCount,
     required this.isSubmitting,
+    required this.defaultCondition,
+    required this.defaultGrade,
+    required this.defaultStorageBoxController,
+    required this.defaultPurchaseDate,
     required this.onAddTargetChanged,
+    required this.onDefaultConditionChanged,
+    required this.onDefaultGradeChanged,
+    required this.onDefaultPurchaseDateChanged,
     required this.onAdd,
     required this.onPropose,
   });
@@ -7370,7 +7613,14 @@ class _AddComicBottomBar extends StatelessWidget {
   final _AddComicTarget addTarget;
   final int addCount;
   final bool isSubmitting;
+  final String? defaultCondition;
+  final String? defaultGrade;
+  final TextEditingController defaultStorageBoxController;
+  final DateTime? defaultPurchaseDate;
   final ValueChanged<_AddComicTarget> onAddTargetChanged;
+  final ValueChanged<String?> onDefaultConditionChanged;
+  final ValueChanged<String?> onDefaultGradeChanged;
+  final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
   final VoidCallback? onAdd;
   final VoidCallback? onPropose;
 
@@ -7391,55 +7641,419 @@ class _AddComicBottomBar extends StatelessWidget {
       color: const Color(0xFF262626),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (!isProposal) ...[
-              SizedBox(
-                width: 190,
-                height: 40,
-                child: DropdownButtonFormField<_AddComicTarget>(
-                  initialValue: addTarget,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    border: OutlineInputBorder(),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                      value: _AddComicTarget.owned,
-                      child: Text('Add as owned'),
-                    ),
-                    DropdownMenuItem(
-                      value: _AddComicTarget.wishlist,
-                      child: Text('Add to wishlist'),
-                    ),
-                  ],
-                  onChanged: isSubmitting
-                      ? null
-                      : (value) {
-                          if (value != null) {
-                            onAddTargetChanged(value);
-                          }
-                        },
-                ),
+            if (!isProposal && addTarget == _AddComicTarget.owned) ...[
+              _AddOwnedDefaultsBar(
+                condition: defaultCondition,
+                grade: defaultGrade,
+                storageBoxController: defaultStorageBoxController,
+                purchaseDate: defaultPurchaseDate,
+                onConditionChanged: onDefaultConditionChanged,
+                onGradeChanged: onDefaultGradeChanged,
+                onPurchaseDateChanged: onDefaultPurchaseDateChanged,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(height: 8),
             ],
-            Expanded(
-              child: FilledButton(
-                onPressed: isSubmitting
-                    ? null
-                    : isProposal
-                        ? onPropose
-                        : disabledByLocalStatus
-                            ? null
-                            : onAdd,
-                child: Text(label),
+            Row(
+              children: [
+                if (!isProposal) ...[
+                  SizedBox(
+                    width: 190,
+                    height: 40,
+                    child: DropdownButtonFormField<_AddComicTarget>(
+                      initialValue: addTarget,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: _AddComicTarget.owned,
+                          child: Text('Add as owned'),
+                        ),
+                        DropdownMenuItem(
+                          value: _AddComicTarget.wishlist,
+                          child: Text('Add to wishlist'),
+                        ),
+                      ],
+                      onChanged: isSubmitting
+                          ? null
+                          : (value) {
+                              if (value != null) {
+                                onAddTargetChanged(value);
+                              }
+                            },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: FilledButton(
+                    onPressed: isSubmitting
+                        ? null
+                        : isProposal
+                            ? onPropose
+                            : disabledByLocalStatus
+                                ? null
+                                : onAdd,
+                    child: Text(label),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddOwnedDefaultsBar extends StatelessWidget {
+  const _AddOwnedDefaultsBar({
+    required this.condition,
+    required this.grade,
+    required this.storageBoxController,
+    required this.purchaseDate,
+    required this.onConditionChanged,
+    required this.onGradeChanged,
+    required this.onPurchaseDateChanged,
+  });
+
+  final String? condition;
+  final String? grade;
+  final TextEditingController storageBoxController;
+  final DateTime? purchaseDate;
+  final ValueChanged<String?> onConditionChanged;
+  final ValueChanged<String?> onGradeChanged;
+  final ValueChanged<DateTime?> onPurchaseDateChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        const Text(
+          'Owned defaults',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        _SmallDropdown(
+          width: 140,
+          value: condition,
+          items: _ComicInspector._conditions,
+          label: 'Condition',
+          onChanged: onConditionChanged,
+        ),
+        _SmallDropdown(
+          width: 120,
+          value: grade,
+          items: _ComicInspector._grades,
+          label: 'Grade',
+          onChanged: onGradeChanged,
+        ),
+        SizedBox(
+          width: 150,
+          height: 38,
+          child: TextField(
+            controller: storageBoxController,
+            decoration: const InputDecoration(
+              isDense: true,
+              border: OutlineInputBorder(),
+              labelText: 'Storage box',
+            ),
+          ),
+        ),
+        OutlinedButton.icon(
+          onPressed: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: purchaseDate ?? DateTime.now(),
+              firstDate: DateTime(1970),
+              lastDate: DateTime(2100),
+            );
+            onPurchaseDateChanged(picked);
+          },
+          icon: const Icon(Icons.calendar_today, size: 16),
+          label: Text(
+            purchaseDate == null ? 'Purchase date' : _formatDate(purchaseDate!),
+          ),
+        ),
+        if (purchaseDate != null)
+          IconButton(
+            tooltip: 'Clear purchase date',
+            onPressed: () => onPurchaseDateChanged(null),
+            icon: const Icon(Icons.clear, size: 18),
+          ),
+      ],
+    );
+  }
+}
+
+class _SmallDropdown extends StatelessWidget {
+  const _SmallDropdown({
+    required this.width,
+    required this.value,
+    required this.items,
+    required this.label,
+    required this.onChanged,
+  });
+
+  final double width;
+  final String? value;
+  final List<String> items;
+  final String label;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: 38,
+      child: DropdownButtonFormField<String>(
+        initialValue: items.contains(value) ? value : null,
+        isExpanded: true,
+        decoration: InputDecoration(
+          isDense: true,
+          border: const OutlineInputBorder(),
+          labelText: label,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        ),
+        items: [
+          const DropdownMenuItem<String>(value: null, child: Text('None')),
+          for (final item in items)
+            DropdownMenuItem(value: item, child: Text(item)),
+        ],
+        onChanged: onChanged,
+      ),
+    );
+  }
+}
+
+class _ManualComicDialog extends StatefulWidget {
+  const _ManualComicDialog();
+
+  @override
+  State<_ManualComicDialog> createState() => _ManualComicDialogState();
+}
+
+class _ManualComicDialogState extends State<_ManualComicDialog> {
+  final _titleController = TextEditingController();
+  final _issueController = TextEditingController();
+  final _publisherController = TextEditingController();
+  final _yearController = TextEditingController();
+  final _barcodeController = TextEditingController();
+  final _variantController = TextEditingController();
+  final _synopsisController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _issueController.dispose();
+    _publisherController.dispose();
+    _yearController.dispose();
+    _barcodeController.dispose();
+    _variantController.dispose();
+    _synopsisController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Add manual comic'),
+      content: SizedBox(
+        width: 520,
+        child: SingleChildScrollView(
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _DialogTextField(
+                width: 320,
+                controller: _titleController,
+                label: 'Series / title',
+              ),
+              _DialogTextField(
+                width: 110,
+                controller: _issueController,
+                label: 'Issue #',
+              ),
+              _DialogTextField(
+                width: 220,
+                controller: _publisherController,
+                label: 'Publisher',
+              ),
+              _DialogTextField(
+                width: 100,
+                controller: _yearController,
+                label: 'Year',
+                keyboardType: TextInputType.number,
+              ),
+              _DialogTextField(
+                width: 220,
+                controller: _barcodeController,
+                label: 'Barcode / UPC',
+                keyboardType: TextInputType.number,
+              ),
+              _DialogTextField(
+                width: 220,
+                controller: _variantController,
+                label: 'Variant',
+              ),
+              _DialogTextField(
+                width: 500,
+                controller: _synopsisController,
+                label: 'Plot / notes',
+                maxLines: 4,
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            final title = _titleController.text.trim();
+            if (title.isEmpty) {
+              return;
+            }
+            Navigator.of(context).pop(
+              CatalogItem(
+                id: 'manual-comic-${DateTime.now().microsecondsSinceEpoch}',
+                kind: 'comic',
+                title: title,
+                itemNumber: _emptyToNull(_issueController.text),
+                synopsis: _emptyToNull(_synopsisController.text),
+                publisher: _emptyToNull(_publisherController.text),
+                releaseYear: int.tryParse(_yearController.text.trim()),
+                barcode: _emptyToNull(_barcodeController.text),
+                variant: _emptyToNull(_variantController.text),
+              ),
+            );
+          },
+          child: const Text('Add to results'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ManualProposalDialog extends StatefulWidget {
+  const _ManualProposalDialog();
+
+  @override
+  State<_ManualProposalDialog> createState() => _ManualProposalDialogState();
+}
+
+class _ManualProposalDialogState extends State<_ManualProposalDialog> {
+  final _titleController = TextEditingController();
+  final _notesController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Propose manual metadata'),
+      content: SizedBox(
+        width: 480,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Comic title / issue',
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _notesController,
+              maxLines: 5,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Source notes',
               ),
             ),
           ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            final title = _titleController.text.trim();
+            if (title.isEmpty) {
+              return;
+            }
+            Navigator.of(context).pop(
+              _ManualProposalDraft(
+                title: title,
+                notes: _emptyToNull(_notesController.text),
+              ),
+            );
+          },
+          child: const Text('Send proposal'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ManualProposalDraft {
+  const _ManualProposalDraft({required this.title, required this.notes});
+
+  final String title;
+  final String? notes;
+}
+
+class _DialogTextField extends StatelessWidget {
+  const _DialogTextField({
+    required this.width,
+    required this.controller,
+    required this.label,
+    this.keyboardType,
+    this.maxLines = 1,
+  });
+
+  final double width;
+  final TextEditingController controller;
+  final String label;
+  final TextInputType? keyboardType;
+  final int maxLines;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          isDense: true,
+          border: const OutlineInputBorder(),
+          labelText: label,
         ),
       ),
     );
