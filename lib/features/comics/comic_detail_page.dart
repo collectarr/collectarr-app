@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
+import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,9 +16,22 @@ class ComicDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detail = ref.watch(comicDetailProvider(item.id));
     return Scaffold(
-      appBar: AppBar(title: Text(item.title)),
+      appBar: AppBar(
+        title: Text(item.title),
+        actions: [
+          IconButton(
+            tooltip: 'Correct metadata',
+            onPressed: () => showMetadataCorrectionDialog(
+              context: context,
+              ref: ref,
+              item: item,
+            ),
+            icon: const Icon(Icons.fact_check_outlined),
+          ),
+        ],
+      ),
       body: detail.when(
-        data: (comic) => _ComicDetailBody(comic: comic),
+        data: (comic) => _ComicDetailBody(item: item, comic: comic),
         loading: () => _FallbackDetailBody(item: item, isLoading: true),
         error: (_, __) => _FallbackDetailBody(item: item),
       ),
@@ -26,8 +40,9 @@ class ComicDetailPage extends ConsumerWidget {
 }
 
 class _ComicDetailBody extends ConsumerWidget {
-  const _ComicDetailBody({required this.comic});
+  const _ComicDetailBody({required this.item, required this.comic});
 
+  final CatalogItem item;
   final ComicDetail comic;
 
   @override
@@ -86,6 +101,16 @@ class _ComicDetailBody extends ConsumerWidget {
             children: [_NameWrap(names: arcs)],
           ),
         const SizedBox(height: 16),
+        FilledButton.icon(
+          onPressed: () => showMetadataCorrectionDialog(
+            context: context,
+            ref: ref,
+            item: item,
+          ),
+          icon: const Icon(Icons.fact_check_outlined),
+          label: const Text('Suggest metadata correction'),
+        ),
+        const SizedBox(height: 8),
         FilledButton.icon(
           onPressed: () async {
             await ref.read(collectionMutationsProvider).addItem(
@@ -154,6 +179,16 @@ class _FallbackDetailBody extends ConsumerWidget {
           Text(item.synopsis!),
         ],
         const SizedBox(height: 16),
+        FilledButton.icon(
+          onPressed: () => showMetadataCorrectionDialog(
+            context: context,
+            ref: ref,
+            item: item,
+          ),
+          icon: const Icon(Icons.fact_check_outlined),
+          label: const Text('Suggest metadata correction'),
+        ),
+        const SizedBox(height: 8),
         FilledButton.icon(
           onPressed: () async {
             await ref.read(collectionMutationsProvider).addItem(item.id);

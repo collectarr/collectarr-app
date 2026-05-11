@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
+import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -3636,6 +3637,11 @@ class _ComicInspector extends ConsumerWidget {
                     builder: (_) => ComicDetailPage(item: item!),
                   ),
                 ),
+                onCorrectMetadata: () => showMetadataCorrectionDialog(
+                  context: context,
+                  ref: ref,
+                  item: item!,
+                ),
               ),
               const SizedBox(height: 8),
               _InspectorHero(item: item!, libraryState: libraryState),
@@ -3937,6 +3943,7 @@ class _InspectorActionBar extends StatelessWidget {
     required this.onEdit,
     required this.onWishlist,
     required this.onOpenDetails,
+    required this.onCorrectMetadata,
   });
 
   final bool isOwned;
@@ -3944,6 +3951,7 @@ class _InspectorActionBar extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback onWishlist;
   final VoidCallback onOpenDetails;
+  final VoidCallback onCorrectMetadata;
 
   @override
   Widget build(BuildContext context) {
@@ -3973,6 +3981,11 @@ class _InspectorActionBar extends StatelessWidget {
               tooltip: 'Open details',
               onPressed: onOpenDetails,
               icon: const Icon(Icons.open_in_new, size: 18),
+            ),
+            IconButton(
+              tooltip: 'Correct metadata',
+              onPressed: onCorrectMetadata,
+              icon: const Icon(Icons.fact_check_outlined, size: 18),
             ),
             const Spacer(),
             Icon(
