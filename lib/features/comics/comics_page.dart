@@ -2920,232 +2920,145 @@ class _ComicInspector extends ConsumerWidget {
     if (item == null) {
       return const _EmptyInspector();
     }
-    return DecoratedBox(
-      decoration: const BoxDecoration(color: _kClzPanel),
-      child: ListView(
-        padding: const EdgeInsets.all(12),
-        children: [
-          Row(
+    return Stack(
+      children: [
+        Positioned.fill(child: _InspectorBackdrop(item: item!)),
+        DecoratedBox(
+          decoration: const BoxDecoration(color: Color(0xC91D1D1D)),
+          child: ListView(
+            padding: const EdgeInsets.all(12),
             children: [
-              IconButton(
-                tooltip: 'Edit comic',
-                onPressed: ownedItem == null
+              _InspectorActionBar(
+                isOwned: isOwned,
+                isWishlisted: libraryState.isWishlisted,
+                onEdit: ownedItem == null
                     ? null
                     : () => _showEditDialog(context, ref, item!, ownedItem),
-                icon: const Icon(Icons.edit, size: 18),
-              ),
-              IconButton(
-                tooltip: 'Wishlist',
-                onPressed: () => _toggleWishlist(context, ref, item!),
-                icon: Icon(
-                  libraryState.isWishlisted ? Icons.star : Icons.star_border,
-                  size: 18,
+                onWishlist: () => _toggleWishlist(context, ref, item!),
+                onOpenDetails: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ComicDetailPage(item: item!),
+                  ),
                 ),
               ),
-              IconButton(
-                tooltip: 'Open details',
+              const SizedBox(height: 8),
+              _InspectorHero(item: item!, libraryState: libraryState),
+              const SizedBox(height: 12),
+              _CollectionFields(
+                enabled: isOwned,
+                condition: ownedItem?.condition,
+                grade: ownedItem?.grade,
+                conditions: _conditions,
+                grades: _grades,
+                onConditionChanged: ownedItem == null
+                    ? null
+                    : (value) => _updateCollection(
+                          context,
+                          ref,
+                          ownedItem,
+                          condition: value,
+                          grade: ownedItem.grade,
+                        ),
+                onGradeChanged: ownedItem == null
+                    ? null
+                    : (value) => _updateCollection(
+                          context,
+                          ref,
+                          ownedItem,
+                          condition: ownedItem.condition,
+                          grade: value,
+                        ),
+              ),
+              if (ownedItem != null) ...[
+                const SizedBox(height: 12),
+                _PersonalDetailsEditor(ownedItem: ownedItem),
+              ],
+              if (item!.synopsis != null) ...[
+                const SizedBox(height: 12),
+                _InspectorSection(
+                  title: 'Plot',
+                  children: [
+                    Text(
+                      item!.synopsis!,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ],
+              OutlinedButton.icon(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => ComicDetailPage(item: item!),
                   ),
                 ),
-                icon: const Icon(Icons.open_in_new, size: 18),
+                icon: const Icon(Icons.open_in_new),
+                label: const Text('Open comic details'),
               ),
-              const Spacer(),
+              const SizedBox(height: 8),
               if (isOwned)
-                Icon(Icons.check_box, color: _kClzAccent)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: () =>
+                          _showEditDialog(context, ref, item!, ownedItem),
+                      icon: const Icon(Icons.edit),
+                      label: const Text('Edit'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => _moveToWishlist(
+                        context,
+                        ref,
+                        item!,
+                        ownedItem,
+                      ),
+                      icon: const Icon(Icons.star_border),
+                      label: const Text('Move to wishlist'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: () =>
+                          _removeFromCollection(context, ref, ownedItem),
+                      icon: const Icon(Icons.remove_circle_outline),
+                      label: const Text('Remove'),
+                    ),
+                  ],
+                )
               else
-                const Icon(Icons.check_box_outline_blank),
-            ],
-          ),
-          const Divider(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  item!.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: _kClzAccent,
-                        fontWeight: FontWeight.w900,
-                        height: 1.05,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: () => _addToCollection(context, ref, item!),
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text('Add to collection'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () => _toggleWishlist(context, ref, item!),
+                      icon: Icon(
+                        libraryState.isWishlisted
+                            ? Icons.star
+                            : Icons.star_border,
                       ),
-                ),
-              ),
-              if (item!.itemNumber != null)
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: _kClzYellow,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Text(
-                      '#${item!.itemNumber}',
-                      style: const TextStyle(
-                        color: Color(0xFF101010),
-                        fontWeight: FontWeight.w900,
+                      label: Text(
+                        libraryState.isWishlisted
+                            ? 'Remove from wishlist'
+                            : 'Move to wishlist',
                       ),
                     ),
-                  ),
+                  ],
                 ),
-            ],
-          ),
-          Text(
-            item!.itemNumber == null ? item!.kind : '#${item!.itemNumber}',
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: _kClzTextMuted),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: SizedBox(
-              width: 170,
-              child: AspectRatio(
-                aspectRatio: 2 / 3,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: _kClzDivider),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0xAA000000),
-                        blurRadius: 12,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: _CoverImage(item: item!),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _MetaChip(
-                icon: Icons.inventory_2,
-                label: isOwned ? 'Owned' : 'Not owned',
-              ),
-              _MetaChip(
-                icon:
-                    libraryState.isWishlisted ? Icons.star : Icons.star_border,
-                label: libraryState.isWishlisted ? 'Wishlisted' : 'Wishlist',
-              ),
-              _MetaChip(
-                icon: Icons.verified_outlined,
-                label: ownedItem?.grade ?? 'Ungraded',
+              const SizedBox(height: 16),
+              _RichMetadataInspector(
+                item: item!,
+                detail: detail,
+                libraryState: libraryState,
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          _CollectionFields(
-            enabled: isOwned,
-            condition: ownedItem?.condition,
-            grade: ownedItem?.grade,
-            conditions: _conditions,
-            grades: _grades,
-            onConditionChanged: ownedItem == null
-                ? null
-                : (value) => _updateCollection(
-                      context,
-                      ref,
-                      ownedItem,
-                      condition: value,
-                      grade: ownedItem.grade,
-                    ),
-            onGradeChanged: ownedItem == null
-                ? null
-                : (value) => _updateCollection(
-                      context,
-                      ref,
-                      ownedItem,
-                      condition: ownedItem.condition,
-                      grade: value,
-                    ),
-          ),
-          if (ownedItem != null) ...[
-            const SizedBox(height: 12),
-            _PersonalDetailsEditor(ownedItem: ownedItem),
-          ],
-          if (item!.synopsis != null)
-            Text(item!.synopsis!,
-                style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 20),
-          OutlinedButton.icon(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ComicDetailPage(item: item!),
-              ),
-            ),
-            icon: const Icon(Icons.open_in_new),
-            label: const Text('Open comic details'),
-          ),
-          const SizedBox(height: 8),
-          if (isOwned)
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FilledButton.icon(
-                  onPressed: () =>
-                      _showEditDialog(context, ref, item!, ownedItem),
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Edit'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => _moveToWishlist(
-                    context,
-                    ref,
-                    item!,
-                    ownedItem,
-                  ),
-                  icon: const Icon(Icons.star_border),
-                  label: const Text('Move to wishlist'),
-                ),
-                FilledButton.icon(
-                  onPressed: () =>
-                      _removeFromCollection(context, ref, ownedItem),
-                  icon: const Icon(Icons.remove_circle_outline),
-                  label: const Text('Remove'),
-                ),
-              ],
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                FilledButton.icon(
-                  onPressed: () => _addToCollection(context, ref, item!),
-                  icon: const Icon(Icons.add_circle_outline),
-                  label: const Text('Add to collection'),
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: () => _toggleWishlist(context, ref, item!),
-                  icon: Icon(
-                    libraryState.isWishlisted ? Icons.star : Icons.star_border,
-                  ),
-                  label: Text(
-                    libraryState.isWishlisted
-                        ? 'Remove from wishlist'
-                        : 'Move to wishlist',
-                  ),
-                ),
-              ],
-            ),
-          const SizedBox(height: 16),
-          _RichMetadataInspector(
-            item: item!,
-            detail: detail,
-            libraryState: libraryState,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -3285,6 +3198,264 @@ class _ComicInspector extends ConsumerWidget {
         ),
       );
     }
+  }
+}
+
+class _InspectorBackdrop extends StatelessWidget {
+  const _InspectorBackdrop({required this.item});
+
+  final CatalogItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Opacity(
+          opacity: 0.34,
+          child: _CoverImage(item: item),
+        ),
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xAA101010),
+                Color(0xE4181818),
+                Color(0xF5181818),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _InspectorActionBar extends StatelessWidget {
+  const _InspectorActionBar({
+    required this.isOwned,
+    required this.isWishlisted,
+    required this.onEdit,
+    required this.onWishlist,
+    required this.onOpenDetails,
+  });
+
+  final bool isOwned;
+  final bool isWishlisted;
+  final VoidCallback? onEdit;
+  final VoidCallback onWishlist;
+  final VoidCallback onOpenDetails;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xB5242424),
+        border: Border.all(color: const Color(0x663C3C3C)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        child: Row(
+          children: [
+            IconButton(
+              tooltip: 'Edit comic',
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit, size: 18),
+            ),
+            IconButton(
+              tooltip: 'Wishlist',
+              onPressed: onWishlist,
+              icon: Icon(
+                isWishlisted ? Icons.star : Icons.star_border,
+                size: 18,
+              ),
+            ),
+            IconButton(
+              tooltip: 'Open details',
+              onPressed: onOpenDetails,
+              icon: const Icon(Icons.open_in_new, size: 18),
+            ),
+            const Spacer(),
+            Icon(
+              isOwned ? Icons.check_box : Icons.check_box_outline_blank,
+              color: isOwned ? _kClzAccent : _kClzTextMuted,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InspectorHero extends StatelessWidget {
+  const _InspectorHero({required this.item, required this.libraryState});
+
+  final CatalogItem item;
+  final _LibraryState libraryState;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 560;
+        final cover = SizedBox(
+          width: wide ? 150 : 178,
+          child: AspectRatio(
+            aspectRatio: 2 / 3,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xAAFFFFFF)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0xCC000000),
+                    blurRadius: 16,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: _CoverImage(item: item),
+            ),
+          ),
+        );
+        final info = _InspectorHeroInfo(
+          item: item,
+          libraryState: libraryState,
+        );
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: const Color(0xBA0D0D0D),
+            border: Border.all(color: const Color(0x664DBBD5)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: wide
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      cover,
+                      const SizedBox(width: 16),
+                      Expanded(child: info),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      cover,
+                      const SizedBox(height: 12),
+                      info,
+                    ],
+                  ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _InspectorHeroInfo extends StatelessWidget {
+  const _InspectorHeroInfo({required this.item, required this.libraryState});
+
+  final CatalogItem item;
+  final _LibraryState libraryState;
+
+  @override
+  Widget build(BuildContext context) {
+    final ownedItem = libraryState.ownedItem;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                item.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: _kClzAccent,
+                      fontWeight: FontWeight.w900,
+                      height: 1,
+                    ),
+              ),
+            ),
+            if (item.itemNumber != null) ...[
+              const SizedBox(width: 8),
+              _IssuePill(label: '#${item.itemNumber}'),
+            ],
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          [
+            if (item.variant != null && item.variant!.isNotEmpty) item.variant,
+            if (item.publisher != null && item.publisher!.isNotEmpty)
+              item.publisher,
+            if (item.releaseDate != null) _formatDate(item.releaseDate!),
+          ].whereType<String>().join('  |  '),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 7,
+          runSpacing: 7,
+          children: [
+            _MetaChip(
+              icon: Icons.inventory_2,
+              label: libraryState.isOwned ? 'Owned' : 'Not owned',
+            ),
+            _MetaChip(
+              icon: libraryState.isWishlisted ? Icons.star : Icons.star_border,
+              label: libraryState.isWishlisted ? 'Wishlisted' : 'Wishlist',
+            ),
+            _MetaChip(
+              icon: Icons.workspace_premium,
+              label: ownedItem?.grade ?? 'Ungraded',
+            ),
+            if (ownedItem?.condition != null)
+              _MetaChip(
+                icon: Icons.fact_check_outlined,
+                label: ownedItem!.condition!,
+              ),
+            if (ownedItem?.pricePaidCents != null)
+              _MetaChip(
+                icon: Icons.attach_money,
+                label: _formatOptionalMoney(
+                  ownedItem!.pricePaidCents,
+                  ownedItem.currency,
+                ),
+              ),
+          ],
+        ),
+        if (item.barcode != null && item.barcode!.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.view_week_outlined, size: 17),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  item.barcode!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        letterSpacing: 1.1,
+                        color: _kClzTextMuted,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
   }
 }
 

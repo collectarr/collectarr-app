@@ -99,7 +99,7 @@ void main() {
     expect(find.text('Superman, Vol. 4'), findsWidgets);
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
     expect(find.text('Owned'), findsWidgets);
-    expect(find.text('Near Mint'), findsOneWidget);
+    expect(find.text('Near Mint'), findsWidgets);
     expect(find.text('9.8'), findsWidgets);
     expect(find.text('Personal details'), findsOneWidget);
     expect(find.text('Purchased 2026-05-10'), findsOneWidget);
@@ -387,7 +387,7 @@ void main() {
     expect(find.text('Value'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Cover'), findsOneWidget);
-    expect(find.text('Plot'), findsOneWidget);
+    expect(find.widgetWithText(Tab, 'Plot'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Personal notes'), findsWidgets);
 
     await tester.tap(find.text('Personal'));
