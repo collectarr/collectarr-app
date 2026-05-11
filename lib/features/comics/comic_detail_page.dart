@@ -38,7 +38,7 @@ class ComicDetailPage extends ConsumerWidget {
               await ref.read(collectionMutationsProvider).addItem(item.id);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Added or queued for sync')),
+                  const SnackBar(content: Text('Saved to local collection')),
                 );
               }
             },

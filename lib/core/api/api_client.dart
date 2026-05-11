@@ -44,7 +44,8 @@ class ApiClient {
     return data;
   }
 
-  Future<List<Map<String, dynamic>>> search(String query, {String? kind}) async {
+  Future<List<Map<String, dynamic>>> search(String query,
+      {String? kind}) async {
     final response = await _dio.get<List<dynamic>>(
       '/search',
       queryParameters: {
@@ -65,9 +66,28 @@ class ApiClient {
     return response.data!.cast<Map<String, dynamic>>();
   }
 
-  Future<Map<String, dynamic>> addToCollection(Map<String, dynamic> payload) async {
-    final response = await _dio.post<Map<String, dynamic>>('/collection/add', data: payload);
+  Future<Map<String, dynamic>> addToCollection(
+      Map<String, dynamic> payload) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/collection/add',
+      data: payload,
+    );
     return response.data!;
+  }
+
+  Future<Map<String, dynamic>> patchCollectionItem(
+    String ownedItemId,
+    Map<String, dynamic> payload,
+  ) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/collection/$ownedItemId',
+      data: payload,
+    );
+    return response.data!;
+  }
+
+  Future<void> deleteCollectionItem(String ownedItemId) async {
+    await _dio.delete<void>('/collection/$ownedItemId');
   }
 
   Future<Map<String, dynamic>> pushSync(

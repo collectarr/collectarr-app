@@ -436,6 +436,24 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> grade = GeneratedColumn<String>(
       'grade', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _purchaseDateMeta =
+      const VerificationMeta('purchaseDate');
+  @override
+  late final GeneratedColumn<DateTime> purchaseDate = GeneratedColumn<DateTime>(
+      'purchase_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _pricePaidCentsMeta =
+      const VerificationMeta('pricePaidCents');
+  @override
+  late final GeneratedColumn<int> pricePaidCents = GeneratedColumn<int>(
+      'price_paid_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _currencyMeta =
+      const VerificationMeta('currency');
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+      'currency', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _personalNotesMeta =
       const VerificationMeta('personalNotes');
   @override
@@ -462,6 +480,9 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         variantId,
         condition,
         grade,
+        purchaseDate,
+        pricePaidCents,
+        currency,
         personalNotes,
         updatedAt,
         deletedAt
@@ -504,6 +525,22 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
       context.handle(
           _gradeMeta, grade.isAcceptableOrUnknown(data['grade']!, _gradeMeta));
     }
+    if (data.containsKey('purchase_date')) {
+      context.handle(
+          _purchaseDateMeta,
+          purchaseDate.isAcceptableOrUnknown(
+              data['purchase_date']!, _purchaseDateMeta));
+    }
+    if (data.containsKey('price_paid_cents')) {
+      context.handle(
+          _pricePaidCentsMeta,
+          pricePaidCents.isAcceptableOrUnknown(
+              data['price_paid_cents']!, _pricePaidCentsMeta));
+    }
+    if (data.containsKey('currency')) {
+      context.handle(_currencyMeta,
+          currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta));
+    }
     if (data.containsKey('personal_notes')) {
       context.handle(
           _personalNotesMeta,
@@ -541,6 +578,12 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}grade']),
+      purchaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}purchase_date']),
+      pricePaidCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}price_paid_cents']),
+      currency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
       updatedAt: attachedDatabase.typeMapping
@@ -564,6 +607,9 @@ class OwnedItemsCacheData extends DataClass
   final String? variantId;
   final String? condition;
   final String? grade;
+  final DateTime? purchaseDate;
+  final int? pricePaidCents;
+  final String? currency;
   final String? personalNotes;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -574,6 +620,9 @@ class OwnedItemsCacheData extends DataClass
       this.variantId,
       this.condition,
       this.grade,
+      this.purchaseDate,
+      this.pricePaidCents,
+      this.currency,
       this.personalNotes,
       required this.updatedAt,
       this.deletedAt});
@@ -593,6 +642,15 @@ class OwnedItemsCacheData extends DataClass
     }
     if (!nullToAbsent || grade != null) {
       map['grade'] = Variable<String>(grade);
+    }
+    if (!nullToAbsent || purchaseDate != null) {
+      map['purchase_date'] = Variable<DateTime>(purchaseDate);
+    }
+    if (!nullToAbsent || pricePaidCents != null) {
+      map['price_paid_cents'] = Variable<int>(pricePaidCents);
+    }
+    if (!nullToAbsent || currency != null) {
+      map['currency'] = Variable<String>(currency);
     }
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
@@ -619,6 +677,15 @@ class OwnedItemsCacheData extends DataClass
           : Value(condition),
       grade:
           grade == null && nullToAbsent ? const Value.absent() : Value(grade),
+      purchaseDate: purchaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseDate),
+      pricePaidCents: pricePaidCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pricePaidCents),
+      currency: currency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currency),
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
@@ -639,6 +706,9 @@ class OwnedItemsCacheData extends DataClass
       variantId: serializer.fromJson<String?>(json['variantId']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
+      purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
+      pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
+      currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -654,6 +724,9 @@ class OwnedItemsCacheData extends DataClass
       'variantId': serializer.toJson<String?>(variantId),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
+      'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
+      'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
+      'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -667,6 +740,9 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> variantId = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
+          Value<DateTime?> purchaseDate = const Value.absent(),
+          Value<int?> pricePaidCents = const Value.absent(),
+          Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
@@ -677,6 +753,11 @@ class OwnedItemsCacheData extends DataClass
         variantId: variantId.present ? variantId.value : this.variantId,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
+        purchaseDate:
+            purchaseDate.present ? purchaseDate.value : this.purchaseDate,
+        pricePaidCents:
+            pricePaidCents.present ? pricePaidCents.value : this.pricePaidCents,
+        currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -690,6 +771,13 @@ class OwnedItemsCacheData extends DataClass
       variantId: data.variantId.present ? data.variantId.value : this.variantId,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
+      purchaseDate: data.purchaseDate.present
+          ? data.purchaseDate.value
+          : this.purchaseDate,
+      pricePaidCents: data.pricePaidCents.present
+          ? data.pricePaidCents.value
+          : this.pricePaidCents,
+      currency: data.currency.present ? data.currency.value : this.currency,
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
@@ -707,6 +795,9 @@ class OwnedItemsCacheData extends DataClass
           ..write('variantId: $variantId, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
+          ..write('purchaseDate: $purchaseDate, ')
+          ..write('pricePaidCents: $pricePaidCents, ')
+          ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -715,8 +806,19 @@ class OwnedItemsCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, itemId, editionId, variantId, condition,
-      grade, personalNotes, updatedAt, deletedAt);
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      editionId,
+      variantId,
+      condition,
+      grade,
+      purchaseDate,
+      pricePaidCents,
+      currency,
+      personalNotes,
+      updatedAt,
+      deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -727,6 +829,9 @@ class OwnedItemsCacheData extends DataClass
           other.variantId == this.variantId &&
           other.condition == this.condition &&
           other.grade == this.grade &&
+          other.purchaseDate == this.purchaseDate &&
+          other.pricePaidCents == this.pricePaidCents &&
+          other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -739,6 +844,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> variantId;
   final Value<String?> condition;
   final Value<String?> grade;
+  final Value<DateTime?> purchaseDate;
+  final Value<int?> pricePaidCents;
+  final Value<String?> currency;
   final Value<String?> personalNotes;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -750,6 +858,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.variantId = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
+    this.purchaseDate = const Value.absent(),
+    this.pricePaidCents = const Value.absent(),
+    this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -762,6 +873,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.variantId = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
+    this.purchaseDate = const Value.absent(),
+    this.pricePaidCents = const Value.absent(),
+    this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -776,6 +890,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? variantId,
     Expression<String>? condition,
     Expression<String>? grade,
+    Expression<DateTime>? purchaseDate,
+    Expression<int>? pricePaidCents,
+    Expression<String>? currency,
     Expression<String>? personalNotes,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -788,6 +905,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (variantId != null) 'variant_id': variantId,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
+      if (purchaseDate != null) 'purchase_date': purchaseDate,
+      if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
+      if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -802,6 +922,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? variantId,
       Value<String?>? condition,
       Value<String?>? grade,
+      Value<DateTime?>? purchaseDate,
+      Value<int?>? pricePaidCents,
+      Value<String?>? currency,
       Value<String?>? personalNotes,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -813,6 +936,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       variantId: variantId ?? this.variantId,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
+      purchaseDate: purchaseDate ?? this.purchaseDate,
+      pricePaidCents: pricePaidCents ?? this.pricePaidCents,
+      currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -841,6 +967,15 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (grade.present) {
       map['grade'] = Variable<String>(grade.value);
     }
+    if (purchaseDate.present) {
+      map['purchase_date'] = Variable<DateTime>(purchaseDate.value);
+    }
+    if (pricePaidCents.present) {
+      map['price_paid_cents'] = Variable<int>(pricePaidCents.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
     }
@@ -865,7 +1000,527 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('variantId: $variantId, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
+          ..write('purchaseDate: $purchaseDate, ')
+          ..write('pricePaidCents: $pricePaidCents, ')
+          ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WishlistItemsCacheTable extends WishlistItemsCache
+    with TableInfo<$WishlistItemsCacheTable, WishlistItemsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WishlistItemsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _targetPriceCentsMeta =
+      const VerificationMeta('targetPriceCents');
+  @override
+  late final GeneratedColumn<int> targetPriceCents = GeneratedColumn<int>(
+      'target_price_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _currencyMeta =
+      const VerificationMeta('currency');
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+      'currency', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        editionId,
+        variantId,
+        targetPriceCents,
+        currency,
+        notes,
+        createdAt,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'wishlist_items_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<WishlistItemsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('target_price_cents')) {
+      context.handle(
+          _targetPriceCentsMeta,
+          targetPriceCents.isAcceptableOrUnknown(
+              data['target_price_cents']!, _targetPriceCentsMeta));
+    }
+    if (data.containsKey('currency')) {
+      context.handle(_currencyMeta,
+          currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WishlistItemsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WishlistItemsCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      targetPriceCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}target_price_cents']),
+      currency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $WishlistItemsCacheTable createAlias(String alias) {
+    return $WishlistItemsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class WishlistItemsCacheData extends DataClass
+    implements Insertable<WishlistItemsCacheData> {
+  final String id;
+  final String itemId;
+  final String? editionId;
+  final String? variantId;
+  final int? targetPriceCents;
+  final String? currency;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const WishlistItemsCacheData(
+      {required this.id,
+      required this.itemId,
+      this.editionId,
+      this.variantId,
+      this.targetPriceCents,
+      this.currency,
+      this.notes,
+      required this.createdAt,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || targetPriceCents != null) {
+      map['target_price_cents'] = Variable<int>(targetPriceCents);
+    }
+    if (!nullToAbsent || currency != null) {
+      map['currency'] = Variable<String>(currency);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  WishlistItemsCacheCompanion toCompanion(bool nullToAbsent) {
+    return WishlistItemsCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      targetPriceCents: targetPriceCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetPriceCents),
+      currency: currency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currency),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory WishlistItemsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WishlistItemsCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      targetPriceCents: serializer.fromJson<int?>(json['targetPriceCents']),
+      currency: serializer.fromJson<String?>(json['currency']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'targetPriceCents': serializer.toJson<int?>(targetPriceCents),
+      'currency': serializer.toJson<String?>(currency),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  WishlistItemsCacheData copyWith(
+          {String? id,
+          String? itemId,
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          Value<int?> targetPriceCents = const Value.absent(),
+          Value<String?> currency = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      WishlistItemsCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        targetPriceCents: targetPriceCents.present
+            ? targetPriceCents.value
+            : this.targetPriceCents,
+        currency: currency.present ? currency.value : this.currency,
+        notes: notes.present ? notes.value : this.notes,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  WishlistItemsCacheData copyWithCompanion(WishlistItemsCacheCompanion data) {
+    return WishlistItemsCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      targetPriceCents: data.targetPriceCents.present
+          ? data.targetPriceCents.value
+          : this.targetPriceCents,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WishlistItemsCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('targetPriceCents: $targetPriceCents, ')
+          ..write('currency: $currency, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, itemId, editionId, variantId,
+      targetPriceCents, currency, notes, createdAt, updatedAt, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WishlistItemsCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.targetPriceCents == this.targetPriceCents &&
+          other.currency == this.currency &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class WishlistItemsCacheCompanion
+    extends UpdateCompanion<WishlistItemsCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<int?> targetPriceCents;
+  final Value<String?> currency;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const WishlistItemsCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.targetPriceCents = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WishlistItemsCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.targetPriceCents = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<WishlistItemsCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<int>? targetPriceCents,
+    Expression<String>? currency,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (targetPriceCents != null) 'target_price_cents': targetPriceCents,
+      if (currency != null) 'currency': currency,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WishlistItemsCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<int?>? targetPriceCents,
+      Value<String?>? currency,
+      Value<String?>? notes,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return WishlistItemsCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      targetPriceCents: targetPriceCents ?? this.targetPriceCents,
+      currency: currency ?? this.currency,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (targetPriceCents.present) {
+      map['target_price_cents'] = Variable<int>(targetPriceCents.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WishlistItemsCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('targetPriceCents: $targetPriceCents, ')
+          ..write('currency: $currency, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
@@ -1237,13 +1892,15 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $CatalogCacheTable catalogCache = $CatalogCacheTable(this);
   late final $OwnedItemsCacheTable ownedItemsCache =
       $OwnedItemsCacheTable(this);
+  late final $WishlistItemsCacheTable wishlistItemsCache =
+      $WishlistItemsCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [catalogCache, ownedItemsCache, syncQueue];
+      [catalogCache, ownedItemsCache, wishlistItemsCache, syncQueue];
 }
 
 typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
@@ -1458,6 +2115,9 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> variantId,
   Value<String?> condition,
   Value<String?> grade,
+  Value<DateTime?> purchaseDate,
+  Value<int?> pricePaidCents,
+  Value<String?> currency,
   Value<String?> personalNotes,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -1471,6 +2131,9 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> variantId,
   Value<String?> condition,
   Value<String?> grade,
+  Value<DateTime?> purchaseDate,
+  Value<int?> pricePaidCents,
+  Value<String?> currency,
   Value<String?> personalNotes,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -1503,6 +2166,16 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get grade => $composableBuilder(
       column: $table.grade, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
@@ -1541,6 +2214,17 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<String> get grade => $composableBuilder(
       column: $table.grade, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
@@ -1578,6 +2262,15 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get grade =>
       $composableBuilder(column: $table.grade, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate, builder: (column) => column);
+
+  GeneratedColumn<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
 
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
@@ -1623,6 +2316,9 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> variantId = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
+            Value<DateTime?> purchaseDate = const Value.absent(),
+            Value<int?> pricePaidCents = const Value.absent(),
+            Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -1635,6 +2331,9 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             variantId: variantId,
             condition: condition,
             grade: grade,
+            purchaseDate: purchaseDate,
+            pricePaidCents: pricePaidCents,
+            currency: currency,
             personalNotes: personalNotes,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -1647,6 +2346,9 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> variantId = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
+            Value<DateTime?> purchaseDate = const Value.absent(),
+            Value<int?> pricePaidCents = const Value.absent(),
+            Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -1659,6 +2361,9 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             variantId: variantId,
             condition: condition,
             grade: grade,
+            purchaseDate: purchaseDate,
+            pricePaidCents: pricePaidCents,
+            currency: currency,
             personalNotes: personalNotes,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -1686,6 +2391,260 @@ typedef $$OwnedItemsCacheTableProcessedTableManager = ProcessedTableManager<
           OwnedItemsCacheData>
     ),
     OwnedItemsCacheData,
+    PrefetchHooks Function()>;
+typedef $$WishlistItemsCacheTableCreateCompanionBuilder
+    = WishlistItemsCacheCompanion Function({
+  required String id,
+  required String itemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<int?> targetPriceCents,
+  Value<String?> currency,
+  Value<String?> notes,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$WishlistItemsCacheTableUpdateCompanionBuilder
+    = WishlistItemsCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<int?> targetPriceCents,
+  Value<String?> currency,
+  Value<String?> notes,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$WishlistItemsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $WishlistItemsCacheTable> {
+  $$WishlistItemsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get targetPriceCents => $composableBuilder(
+      column: $table.targetPriceCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$WishlistItemsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $WishlistItemsCacheTable> {
+  $$WishlistItemsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get targetPriceCents => $composableBuilder(
+      column: $table.targetPriceCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$WishlistItemsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $WishlistItemsCacheTable> {
+  $$WishlistItemsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<int> get targetPriceCents => $composableBuilder(
+      column: $table.targetPriceCents, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$WishlistItemsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $WishlistItemsCacheTable,
+    WishlistItemsCacheData,
+    $$WishlistItemsCacheTableFilterComposer,
+    $$WishlistItemsCacheTableOrderingComposer,
+    $$WishlistItemsCacheTableAnnotationComposer,
+    $$WishlistItemsCacheTableCreateCompanionBuilder,
+    $$WishlistItemsCacheTableUpdateCompanionBuilder,
+    (
+      WishlistItemsCacheData,
+      BaseReferences<_$LocalDatabase, $WishlistItemsCacheTable,
+          WishlistItemsCacheData>
+    ),
+    WishlistItemsCacheData,
+    PrefetchHooks Function()> {
+  $$WishlistItemsCacheTableTableManager(
+      _$LocalDatabase db, $WishlistItemsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WishlistItemsCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WishlistItemsCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WishlistItemsCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<int?> targetPriceCents = const Value.absent(),
+            Value<String?> currency = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              WishlistItemsCacheCompanion(
+            id: id,
+            itemId: itemId,
+            editionId: editionId,
+            variantId: variantId,
+            targetPriceCents: targetPriceCents,
+            currency: currency,
+            notes: notes,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<int?> targetPriceCents = const Value.absent(),
+            Value<String?> currency = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              WishlistItemsCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            editionId: editionId,
+            variantId: variantId,
+            targetPriceCents: targetPriceCents,
+            currency: currency,
+            notes: notes,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$WishlistItemsCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $WishlistItemsCacheTable,
+    WishlistItemsCacheData,
+    $$WishlistItemsCacheTableFilterComposer,
+    $$WishlistItemsCacheTableOrderingComposer,
+    $$WishlistItemsCacheTableAnnotationComposer,
+    $$WishlistItemsCacheTableCreateCompanionBuilder,
+    $$WishlistItemsCacheTableUpdateCompanionBuilder,
+    (
+      WishlistItemsCacheData,
+      BaseReferences<_$LocalDatabase, $WishlistItemsCacheTable,
+          WishlistItemsCacheData>
+    ),
+    WishlistItemsCacheData,
     PrefetchHooks Function()>;
 typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   required String id,
@@ -1883,6 +2842,8 @@ class $LocalDatabaseManager {
       $$CatalogCacheTableTableManager(_db, _db.catalogCache);
   $$OwnedItemsCacheTableTableManager get ownedItemsCache =>
       $$OwnedItemsCacheTableTableManager(_db, _db.ownedItemsCache);
+  $$WishlistItemsCacheTableTableManager get wishlistItemsCache =>
+      $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
 }
