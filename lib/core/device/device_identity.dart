@@ -35,4 +35,12 @@ class DeviceIdentity {
     await prefs.setString(_key, deviceId);
     return deviceId;
   }
+
+  Future<String> regenerate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final deviceId = const Uuid().v4();
+    await prefs.setString(_key, deviceId);
+    _initFuture = Future.value(deviceId);
+    return deviceId;
+  }
 }

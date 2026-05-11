@@ -6,6 +6,8 @@ class ApiClient {
 
   final Dio _dio;
 
+  String get baseUrl => _dio.options.baseUrl;
+
   void setToken(String token) {
     _dio.options.headers['Authorization'] = 'Bearer $token';
   }
@@ -59,5 +61,14 @@ class ApiClient {
   Future<Map<String, dynamic>> getComic(String id) async {
     final response = await _dio.get<Map<String, dynamic>>('/comics/$id');
     return response.data!;
+  }
+
+  Future<Map<String, dynamic>> health() async {
+    final response = await _dio.get<Map<String, dynamic>>('/health');
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/health returned an empty response body');
+    }
+    return data;
   }
 }

@@ -14,7 +14,7 @@ class CollectarrApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Collector',
+      title: 'Collectarr',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2F6F73)),
         useMaterial3: true,

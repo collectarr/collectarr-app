@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/comics/comics_page.dart';
 import 'package:collectarr_app/features/games/games_page.dart';
+import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     ComicsPage(),
     CollectionPage(),
     GamesPage(),
+    SettingsPage(),
   ];
 
   @override
@@ -50,6 +52,8 @@ class _AppShellState extends ConsumerState<AppShell> {
           NavigationDestination(icon: Icon(Icons.inventory_2), label: 'Shelf'),
           NavigationDestination(
               icon: Icon(Icons.sports_esports), label: 'Games'),
+          NavigationDestination(
+              icon: Icon(Icons.settings_outlined), label: 'Settings'),
         ],
       ),
     );

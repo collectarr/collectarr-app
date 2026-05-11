@@ -8,17 +8,9 @@ import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-const _syncBaseUrl = String.fromEnvironment(
-  'COLLECTARR_SYNC_BASE_URL',
-  defaultValue: 'http://localhost:8020',
-);
-const _syncKey = String.fromEnvironment(
-  'COLLECTARR_SYNC_KEY',
-  defaultValue: 'collectarr-sync-dev-key',
-);
 
 class SyncState {
   const SyncState({
@@ -66,8 +58,12 @@ class SyncController extends StateNotifier<SyncState> {
       final cursor = SyncCursorStore();
       final since = await cursor.read();
       final db = ref.read(localDatabaseProvider);
+      final settings = ref.read(connectionSettingsProvider);
       final serverTime = await SyncService(
-        client: CollectarrSyncClient(baseUrl: _syncBaseUrl, syncKey: _syncKey),
+        client: CollectarrSyncClient(
+          baseUrl: settings.syncBaseUrl,
+          syncKey: settings.syncKey,
+        ),
         queue: SyncQueueRepository(db),
         ownedItems: OwnedItemsCacheRepository(db),
         wishlistItems: WishlistItemsCacheRepository(db),
