@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
+import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
@@ -46,8 +47,6 @@ enum _OwnershipFilter { all, owned, wishlist, missingGrade }
 enum _BulkToolbarAction { edit, wishlist, remove, clear }
 
 enum _AddComicMode { search, barcode, pullList }
-
-enum _AddComicTarget { owned, wishlist }
 
 ThemeData _clzComicsTheme() {
   final base = ThemeData.dark(useMaterial3: true);
@@ -5721,7 +5720,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   bool _hideInShelf = true;
   bool _showAdvancedFilters = false;
   _AddComicMode _mode = _AddComicMode.search;
-  _AddComicTarget _addTarget = _AddComicTarget.owned;
+  LibraryAddTarget _addTarget = LibraryAddTarget.owned;
   String? _defaultCondition = 'Near Mint';
   String? _defaultGrade = 'Ungraded';
   DateTime? _defaultPurchaseDate;
@@ -5954,7 +5953,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                       ? null
                       : () => _addServerComics(
                             addItems,
-                            wishlist: _addTarget == _AddComicTarget.wishlist,
+                            wishlist: _addTarget == LibraryAddTarget.wishlist,
                           ),
                   onPropose: selectedCandidate == null
                       ? null
@@ -7360,14 +7359,14 @@ class _AddComicBottomBar extends StatelessWidget {
   final ProviderCandidate? selectedCandidate;
   final bool selectedIsOwned;
   final bool selectedIsWishlisted;
-  final _AddComicTarget addTarget;
+  final LibraryAddTarget addTarget;
   final int addCount;
   final bool isSubmitting;
   final String? defaultCondition;
   final String? defaultGrade;
   final TextEditingController defaultStorageBoxController;
   final DateTime? defaultPurchaseDate;
-  final ValueChanged<_AddComicTarget> onAddTargetChanged;
+  final ValueChanged<LibraryAddTarget> onAddTargetChanged;
   final ValueChanged<String?> onDefaultConditionChanged;
   final ValueChanged<String?> onDefaultGradeChanged;
   final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
@@ -7377,16 +7376,16 @@ class _AddComicBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isProposal = selectedItem == null && selectedCandidate != null;
-    final disabledByLocalStatus = addTarget == _AddComicTarget.owned
+    final disabledByLocalStatus = addTarget == LibraryAddTarget.owned
         ? selectedIsOwned
         : selectedIsWishlisted;
     final label = isProposal
         ? 'Propose ComicVine Metadata'
         : disabledByLocalStatus
-            ? addTarget == _AddComicTarget.owned
+            ? addTarget == LibraryAddTarget.owned
                 ? 'Already in Collection'
                 : 'Already in Wishlist'
-            : 'Add ${addCount <= 1 ? 1 : addCount} Comic${addCount <= 1 ? '' : 's'} to ${_addComicTargetLabel(addTarget)}';
+            : 'Add ${addCount <= 1 ? 1 : addCount} Comic${addCount <= 1 ? '' : 's'} to ${addTarget.destinationLabel}';
     return ColoredBox(
       color: const Color(0xFF262626),
       child: Padding(
@@ -7394,7 +7393,7 @@ class _AddComicBottomBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!isProposal && addTarget == _AddComicTarget.owned) ...[
+            if (!isProposal && addTarget == LibraryAddTarget.owned) ...[
               _AddOwnedDefaultsBar(
                 condition: defaultCondition,
                 grade: defaultGrade,
@@ -7412,7 +7411,7 @@ class _AddComicBottomBar extends StatelessWidget {
                   SizedBox(
                     width: 190,
                     height: 40,
-                    child: DropdownButtonFormField<_AddComicTarget>(
+                    child: DropdownButtonFormField<LibraryAddTarget>(
                       initialValue: addTarget,
                       isExpanded: true,
                       decoration: const InputDecoration(
@@ -7421,14 +7420,14 @@ class _AddComicBottomBar extends StatelessWidget {
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       ),
-                      items: const [
+                      items: [
                         DropdownMenuItem(
-                          value: _AddComicTarget.owned,
-                          child: Text('Add as owned'),
+                          value: LibraryAddTarget.owned,
+                          child: Text(LibraryAddTarget.owned.actionLabel),
                         ),
                         DropdownMenuItem(
-                          value: _AddComicTarget.wishlist,
-                          child: Text('Add to wishlist'),
+                          value: LibraryAddTarget.wishlist,
+                          child: Text(LibraryAddTarget.wishlist.actionLabel),
                         ),
                       ],
                       onChanged: isSubmitting
@@ -7808,13 +7807,6 @@ class _DialogTextField extends StatelessWidget {
       ),
     );
   }
-}
-
-String _addComicTargetLabel(_AddComicTarget target) {
-  return switch (target) {
-    _AddComicTarget.owned => 'Collection',
-    _AddComicTarget.wishlist => 'Wishlist',
-  };
 }
 
 class _ProviderCandidateImage extends StatelessWidget {
