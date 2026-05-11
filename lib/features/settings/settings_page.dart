@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(connectionSettingsProvider);
+    final auth = ref.watch(authControllerProvider);
     _syncTextControllers(settings);
 
     return Scaffold(
@@ -144,6 +146,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ],
                 );
               },
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SettingsPanel(
+            icon: Icons.account_circle_outlined,
+            title: 'Account',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SelectableText(auth.email ?? 'Signed in'),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    onPressed: () =>
+                        ref.read(authControllerProvider.notifier).logout(),
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Logout'),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),

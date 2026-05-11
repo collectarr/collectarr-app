@@ -30,6 +30,11 @@ class AuthGate extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
+    if (auth.isRestoring) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return auth.isAuthenticated ? const AppShell() : const AuthPage();
   }
 }
