@@ -236,8 +236,15 @@ class _ShelfHeader extends StatelessWidget {
                 label: 'Paid',
                 value: _totalPaidLabel(state),
               ),
+              _ShelfStatCard(
+                icon: Icons.cloud_off_outlined,
+                label: 'Missing metadata',
+                value: state.missingMetadataCount.toString(),
+              ),
             ],
           ),
+          const SizedBox(height: 12),
+          _ShelfDistributionPanel(state: state),
           const SizedBox(height: 12),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -291,6 +298,70 @@ class _ShelfHeader extends StatelessWidget {
       return 'No prices';
     }
     return _formatMoney(cents, state.primaryCurrency!);
+  }
+}
+
+class _ShelfDistributionPanel extends StatelessWidget {
+  const _ShelfDistributionPanel({required this.state});
+
+  final ShelfState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _DistributionGroup(title: 'Grades', values: state.gradeCounts),
+            _DistributionGroup(
+              title: 'Conditions',
+              values: state.conditionCounts,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DistributionGroup extends StatelessWidget {
+  const _DistributionGroup({required this.title, required this.values});
+
+  final String title;
+  final Map<String, int> values;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 220),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              if (values.isEmpty)
+                const Chip(label: Text('None'))
+              else
+                for (final entry in values.entries)
+                  Chip(label: Text('${entry.key}: ${entry.value}')),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

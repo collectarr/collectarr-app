@@ -49,6 +49,9 @@ void main() {
     expect(state.missingGradeCount, 1);
     expect(state.totalPaidCents, 2000);
     expect(state.primaryCurrency, 'USD');
+    expect(state.missingMetadataCount, 2);
+    expect(state.gradeCounts, {'9.8': 1, 'Ungraded': 1});
+    expect(state.conditionCounts, {'Near Mint': 1, 'Fine': 1});
     expect(state.entries.first.title, 'Saga #1');
   });
 }

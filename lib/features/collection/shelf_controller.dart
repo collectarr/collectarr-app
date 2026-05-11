@@ -33,6 +33,9 @@ class ShelfState {
     required this.totalPaidCents,
     required this.primaryCurrency,
     required this.hasMixedCurrencies,
+    this.missingMetadataCount = 0,
+    this.gradeCounts = const {},
+    this.conditionCounts = const {},
   });
 
   factory ShelfState.from({
@@ -69,6 +72,7 @@ class ShelfState {
       for (final item in pricedOwned) item.currency!,
     };
     final hasMixedCurrencies = currencies.length > 1;
+    final activeOwned = ownedByItemId.values;
     return ShelfState(
       entries: entries,
       ownedCount: ownedByItemId.length,
@@ -84,6 +88,12 @@ class ShelfState {
             ),
       primaryCurrency: currencies.length == 1 ? currencies.single : null,
       hasMixedCurrencies: hasMixedCurrencies,
+      missingMetadataCount:
+          entries.where((entry) => entry.catalogItem == null).length,
+      gradeCounts: _counts(activeOwned.map((item) => item.grade ?? 'Ungraded')),
+      conditionCounts: _counts(
+        activeOwned.map((item) => item.condition ?? 'Unknown'),
+      ),
     );
   }
 
@@ -95,6 +105,17 @@ class ShelfState {
   final int? totalPaidCents;
   final String? primaryCurrency;
   final bool hasMixedCurrencies;
+  final int missingMetadataCount;
+  final Map<String, int> gradeCounts;
+  final Map<String, int> conditionCounts;
+
+  static Map<String, int> _counts(Iterable<String> values) {
+    final counts = <String, int>{};
+    for (final value in values) {
+      counts[value] = (counts[value] ?? 0) + 1;
+    }
+    return counts;
+  }
 }
 
 class ShelfEntry {
