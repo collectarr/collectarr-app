@@ -73,26 +73,12 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
-      onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          await m.addColumn(ownedItemsCache, ownedItemsCache.purchaseDate);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.pricePaidCents);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.currency);
-          await m.createTable(wishlistItemsCache);
-        }
-        if (from < 3) {
-          await customStatement('drop table if exists sync_queue');
-        }
-        if (from < 4) {
-          await m.createTable(syncQueue);
-        }
-      },
     );
   }
 }
