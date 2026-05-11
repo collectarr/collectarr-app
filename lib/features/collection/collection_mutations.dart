@@ -19,6 +19,8 @@ class CollectionMutations {
 
   Future<void> addItem(
     String itemId, {
+    String? editionId,
+    String? variantId,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -30,6 +32,8 @@ class CollectionMutations {
     final ownedItem = OwnedItem(
       id: _uuid.v4(),
       itemId: itemId,
+      editionId: editionId,
+      variantId: variantId,
       condition: condition,
       grade: grade,
       purchaseDate: purchaseDate,
@@ -97,13 +101,19 @@ class CollectionMutations {
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> addToWishlist(String itemId) async {
+  Future<void> addToWishlist(
+    String itemId, {
+    String? editionId,
+    String? variantId,
+  }) async {
     final now = DateTime.now().toUtc();
     final existing = await _wishlistCache().findActiveByItemId(itemId);
     if (existing == null) {
       final item = WishlistItem(
         id: _uuid.v4(),
         itemId: itemId,
+        editionId: editionId,
+        variantId: variantId,
         createdAt: now,
         updatedAt: now,
       );

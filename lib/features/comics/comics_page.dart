@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -1143,6 +1144,16 @@ class _ComicInspector extends ConsumerWidget {
             Text(item!.synopsis!,
                 style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 20),
+          OutlinedButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ComicDetailPage(item: item!),
+              ),
+            ),
+            icon: const Icon(Icons.open_in_new),
+            label: const Text('Open comic details'),
+          ),
+          const SizedBox(height: 8),
           if (isOwned)
             Wrap(
               spacing: 8,

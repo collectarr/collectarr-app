@@ -16,11 +16,18 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container
-        .read(collectionMutationsProvider)
-        .addItem('comic-1', condition: 'Near Mint', grade: '9.8');
+    await container.read(collectionMutationsProvider).addItem(
+          'comic-1',
+          editionId: 'edition-1',
+          variantId: 'variant-1',
+          condition: 'Near Mint',
+          grade: '9.8',
+        );
 
     final queued = await db.select(db.syncQueue).get();
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    expect(owned.editionId, 'edition-1');
+    expect(owned.variantId, 'variant-1');
     expect(queued, hasLength(1));
     expect(queued.single.entityType, 'owned_item');
     expect(queued.single.action, 'upsert');

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -15,4 +16,11 @@ final comicsSearchProvider =
   await CatalogCacheRepository(ref.watch(localDatabaseProvider))
       .upsertAll(items);
   return items;
+});
+
+final comicDetailProvider =
+    FutureProvider.family<ComicDetail, String>((ref, itemId) async {
+  final api = ref.watch(apiClientProvider);
+  final result = await api.getComic(itemId);
+  return ComicDetail.fromJson(result);
 });
