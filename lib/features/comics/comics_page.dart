@@ -37,6 +37,8 @@ enum _ComicSortColumn {
 
 enum _OwnershipFilter { all, owned, wishlist, missingGrade }
 
+enum _BulkToolbarAction { edit, wishlist, remove, clear }
+
 class ComicsPage extends ConsumerStatefulWidget {
   const ComicsPage({super.key});
 
@@ -55,6 +57,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   _OwnershipFilter ownershipFilter = _OwnershipFilter.all;
   String? gradeFilter;
   String? conditionFilter;
+  bool selectionMode = false;
+  final selectedItemIds = <String>{};
   late final TextEditingController _controller;
 
   @override
@@ -97,6 +101,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               sortColumn: sortColumn,
               sortAscending: sortAscending,
               coverSize: coverSize,
+              selectionMode: selectionMode,
+              selectedItemIds: selectedItemIds,
               hasActiveFilters: _hasActiveFilters,
               onEditFilters: () => _showFiltersDialog(
                 context,
@@ -109,7 +115,13 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 selectedSeries = null;
               }),
               onAddComic: () => _showAddComicDialog(context),
-              onSelectItem: (item) => setState(() => selectedItemId = item.id),
+              onSelectItem: (item) {
+                if (selectionMode) {
+                  _toggleSelection(item.id);
+                } else {
+                  setState(() => selectedItemId = item.id);
+                }
+              },
               onSelectSeries: (series) => setState(() {
                 selectedSeries = series;
                 selectedItemId = null;
@@ -119,6 +131,11 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               onViewModeChanged: _handleViewModeChanged,
               onSortChanged: _handleSortChanged,
               onCoverSizeChanged: _handleCoverSizeChanged,
+              onSelectionModeChanged: _setSelectionMode,
+              onClearSelection: _clearSelection,
+              onBulkEdit: () => _showBulkEditDialog(context, entries),
+              onBulkMoveToWishlist: () => _bulkMoveToWishlist(entries),
+              onBulkRemove: () => _bulkRemove(entries),
             );
           },
           error: (error, stackTrace) => _ErrorState(message: error.toString()),
@@ -275,7 +292,98 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
       conditionFilter = selection.condition;
       selectedItemId = null;
       selectedSeries = null;
+      selectedItemIds.clear();
     });
+  }
+
+  void _toggleSelection(String itemId) {
+    setState(() {
+      if (!selectedItemIds.add(itemId)) {
+        selectedItemIds.remove(itemId);
+      }
+      if (selectedItemIds.isEmpty) {
+        selectionMode = false;
+      }
+    });
+  }
+
+  void _setSelectionMode(bool value) {
+    setState(() {
+      selectionMode = value;
+      if (!value) {
+        selectedItemIds.clear();
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() {
+      selectedItemIds.clear();
+      selectionMode = false;
+    });
+  }
+
+  Future<void> _showBulkEditDialog(
+    BuildContext context,
+    List<ShelfEntry> visibleEntries,
+  ) async {
+    final selection = await showDialog<_BulkEditSelection>(
+      context: context,
+      builder: (context) => const _BulkEditDialog(),
+    );
+    if (selection == null) {
+      return;
+    }
+    final mutations = ref.read(collectionMutationsProvider);
+    for (final entry in _selectedEntries(visibleEntries)) {
+      final ownedItem = entry.ownedItem;
+      if (ownedItem == null) {
+        continue;
+      }
+      await mutations.updateItem(
+        ownedItem,
+        condition: selection.condition ?? ownedItem.condition,
+        grade: selection.grade ?? ownedItem.grade,
+        purchaseDate: ownedItem.purchaseDate,
+        pricePaidCents: ownedItem.pricePaidCents,
+        currency: ownedItem.currency,
+        personalNotes: ownedItem.personalNotes,
+      );
+    }
+    _clearSelection();
+  }
+
+  Future<void> _bulkMoveToWishlist(List<ShelfEntry> visibleEntries) async {
+    final mutations = ref.read(collectionMutationsProvider);
+    for (final entry in _selectedEntries(visibleEntries)) {
+      await mutations.addToWishlist(entry.itemId);
+      final ownedItem = entry.ownedItem;
+      if (ownedItem != null) {
+        await mutations.removeItem(ownedItem);
+      }
+    }
+    _clearSelection();
+  }
+
+  Future<void> _bulkRemove(List<ShelfEntry> visibleEntries) async {
+    final mutations = ref.read(collectionMutationsProvider);
+    for (final entry in _selectedEntries(visibleEntries)) {
+      final ownedItem = entry.ownedItem;
+      if (ownedItem != null) {
+        await mutations.removeItem(ownedItem);
+      }
+      if (entry.isWishlisted) {
+        await mutations.removeFromWishlist(entry.itemId);
+      }
+    }
+    _clearSelection();
+  }
+
+  List<ShelfEntry> _selectedEntries(List<ShelfEntry> visibleEntries) {
+    return [
+      for (final entry in visibleEntries)
+        if (selectedItemIds.contains(entry.itemId)) entry,
+    ];
   }
 
   void _handleSortChanged(_ComicSortColumn column) {
@@ -340,6 +448,8 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.coverSize,
+    required this.selectionMode,
+    required this.selectedItemIds,
     required this.hasActiveFilters,
     required this.onEditFilters,
     required this.onSearch,
@@ -351,6 +461,11 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.onViewModeChanged,
     required this.onSortChanged,
     required this.onCoverSizeChanged,
+    required this.onSelectionModeChanged,
+    required this.onClearSelection,
+    required this.onBulkEdit,
+    required this.onBulkMoveToWishlist,
+    required this.onBulkRemove,
   });
 
   final List<CatalogItem> items;
@@ -361,6 +476,8 @@ class _ComicsWorkspace extends StatelessWidget {
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final double coverSize;
+  final bool selectionMode;
+  final Set<String> selectedItemIds;
   final bool hasActiveFilters;
   final VoidCallback onEditFilters;
   final ValueChanged<String> onSearch;
@@ -372,6 +489,11 @@ class _ComicsWorkspace extends StatelessWidget {
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
   final ValueChanged<_ComicSortColumn> onSortChanged;
   final ValueChanged<double> onCoverSizeChanged;
+  final ValueChanged<bool> onSelectionModeChanged;
+  final VoidCallback onClearSelection;
+  final VoidCallback onBulkEdit;
+  final VoidCallback onBulkMoveToWishlist;
+  final VoidCallback onBulkRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -414,6 +536,8 @@ class _ComicsWorkspace extends StatelessWidget {
           viewMode: viewMode,
           coverSize: coverSize,
           hasActiveFilters: hasActiveFilters,
+          selectionMode: selectionMode,
+          selectedCount: selectedItemIds.length,
           onSearch: onSearch,
           onAddComic: onAddComic,
           onEditFilters: onEditFilters,
@@ -422,6 +546,11 @@ class _ComicsWorkspace extends StatelessWidget {
           onClearSeries: onClearSeries,
           onViewModeChanged: onViewModeChanged,
           onCoverSizeChanged: onCoverSizeChanged,
+          onSelectionModeChanged: onSelectionModeChanged,
+          onClearSelection: onClearSelection,
+          onBulkEdit: onBulkEdit,
+          onBulkMoveToWishlist: onBulkMoveToWishlist,
+          onBulkRemove: onBulkRemove,
         ),
         Expanded(
           child: Row(
@@ -440,12 +569,14 @@ class _ComicsWorkspace extends StatelessWidget {
                     ? _LibraryAwareCoverGrid(
                         items: visibleItems,
                         selectedItemId: selectedItem?.id,
+                        selectedItemIds: selectedItemIds,
                         coverSize: coverSize,
                         onSelectItem: onSelectItem,
                       )
                     : _LibraryAwareComicList(
                         items: visibleItems,
                         selectedItemId: selectedItem?.id,
+                        selectedItemIds: selectedItemIds,
                         sortColumn: sortColumn,
                         sortAscending: sortAscending,
                         onSortChanged: onSortChanged,
@@ -510,6 +641,8 @@ class _ComicsToolbar extends StatelessWidget {
     required this.viewMode,
     required this.coverSize,
     required this.hasActiveFilters,
+    required this.selectionMode,
+    required this.selectedCount,
     required this.onSearch,
     required this.onAddComic,
     required this.onEditFilters,
@@ -518,6 +651,11 @@ class _ComicsToolbar extends StatelessWidget {
     required this.onClearSeries,
     required this.onViewModeChanged,
     required this.onCoverSizeChanged,
+    required this.onSelectionModeChanged,
+    required this.onClearSelection,
+    required this.onBulkEdit,
+    required this.onBulkMoveToWishlist,
+    required this.onBulkRemove,
   });
 
   final TextEditingController controller;
@@ -527,6 +665,8 @@ class _ComicsToolbar extends StatelessWidget {
   final _ComicsViewMode viewMode;
   final double coverSize;
   final bool hasActiveFilters;
+  final bool selectionMode;
+  final int selectedCount;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final VoidCallback onEditFilters;
@@ -535,6 +675,11 @@ class _ComicsToolbar extends StatelessWidget {
   final VoidCallback onClearSeries;
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
   final ValueChanged<double> onCoverSizeChanged;
+  final ValueChanged<bool> onSelectionModeChanged;
+  final VoidCallback onClearSelection;
+  final VoidCallback onBulkEdit;
+  final VoidCallback onBulkMoveToWishlist;
+  final VoidCallback onBulkRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -595,6 +740,65 @@ class _ComicsToolbar extends StatelessWidget {
               ),
             ],
             const Spacer(),
+            Tooltip(
+              message: selectionMode ? 'Exit selection' : 'Select comics',
+              child: IconButton.filledTonal(
+                onPressed: () => onSelectionModeChanged(!selectionMode),
+                icon: Icon(selectionMode ? Icons.close : Icons.checklist),
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (selectionMode) ...[
+              _ToolbarStat(label: 'Selected', value: selectedCount),
+              const SizedBox(width: 8),
+              PopupMenuButton<_BulkToolbarAction>(
+                tooltip: 'Bulk actions',
+                enabled: selectedCount > 0,
+                icon: const Icon(Icons.more_vert),
+                onSelected: (action) {
+                  if (action == _BulkToolbarAction.edit) {
+                    onBulkEdit();
+                  } else if (action == _BulkToolbarAction.wishlist) {
+                    onBulkMoveToWishlist();
+                  } else if (action == _BulkToolbarAction.remove) {
+                    onBulkRemove();
+                  } else if (action == _BulkToolbarAction.clear) {
+                    onClearSelection();
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: _BulkToolbarAction.edit,
+                    child: ListTile(
+                      leading: Icon(Icons.edit_note),
+                      title: Text('Bulk edit'),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _BulkToolbarAction.wishlist,
+                    child: ListTile(
+                      leading: Icon(Icons.star_border),
+                      title: Text('Move to wishlist'),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _BulkToolbarAction.remove,
+                    child: ListTile(
+                      leading: Icon(Icons.delete_outline),
+                      title: Text('Remove selected'),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _BulkToolbarAction.clear,
+                    child: ListTile(
+                      leading: Icon(Icons.deselect),
+                      title: Text('Clear selection'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+            ],
             Tooltip(
               message: 'Filters',
               child: Badge(
@@ -778,12 +982,14 @@ class _LibraryAwareCoverGrid extends ConsumerWidget {
   const _LibraryAwareCoverGrid({
     required this.items,
     required this.selectedItemId,
+    required this.selectedItemIds,
     required this.coverSize,
     required this.onSelectItem,
   });
 
   final List<CatalogItem> items;
   final String? selectedItemId;
+  final Set<String> selectedItemIds;
   final double coverSize;
   final ValueChanged<CatalogItem> onSelectItem;
 
@@ -796,6 +1002,7 @@ class _LibraryAwareCoverGrid extends ConsumerWidget {
       ownedByItemId: ownedByItemId,
       wishlistIds: wishlistIds,
       selectedItemId: selectedItemId,
+      selectedItemIds: selectedItemIds,
       coverSize: coverSize,
       onSelectItem: onSelectItem,
     );
@@ -808,6 +1015,7 @@ class _CoverGrid extends StatelessWidget {
     required this.ownedByItemId,
     required this.wishlistIds,
     required this.selectedItemId,
+    required this.selectedItemIds,
     required this.coverSize,
     required this.onSelectItem,
   });
@@ -816,6 +1024,7 @@ class _CoverGrid extends StatelessWidget {
   final Map<String, OwnedItem> ownedByItemId;
   final Set<String> wishlistIds;
   final String? selectedItemId;
+  final Set<String> selectedItemIds;
   final double coverSize;
   final ValueChanged<CatalogItem> onSelectItem;
 
@@ -841,7 +1050,8 @@ class _CoverGrid extends StatelessWidget {
             ownedItem: ownedByItemId[item.id],
             isWishlisted: wishlistIds.contains(item.id),
           ),
-          selected: item.id == selectedItemId,
+          selected:
+              selectedItemIds.contains(item.id) || item.id == selectedItemId,
           onTap: () => onSelectItem(item),
         );
       },
@@ -853,6 +1063,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
   const _LibraryAwareComicList({
     required this.items,
     required this.selectedItemId,
+    required this.selectedItemIds,
     required this.sortColumn,
     required this.sortAscending,
     required this.onSortChanged,
@@ -861,6 +1072,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
 
   final List<CatalogItem> items;
   final String? selectedItemId;
+  final Set<String> selectedItemIds;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final ValueChanged<_ComicSortColumn> onSortChanged;
@@ -875,6 +1087,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
       ownedByItemId: ownedByItemId,
       wishlistByItemId: wishlistByItemId,
       selectedItemId: selectedItemId,
+      selectedItemIds: selectedItemIds,
       sortColumn: sortColumn,
       sortAscending: sortAscending,
       onSortChanged: onSortChanged,
@@ -889,6 +1102,7 @@ class _ComicList extends StatelessWidget {
     required this.ownedByItemId,
     required this.wishlistByItemId,
     required this.selectedItemId,
+    required this.selectedItemIds,
     required this.sortColumn,
     required this.sortAscending,
     required this.onSortChanged,
@@ -899,6 +1113,7 @@ class _ComicList extends StatelessWidget {
   final Map<String, OwnedItem> ownedByItemId;
   final Map<String, WishlistItem> wishlistByItemId;
   final String? selectedItemId;
+  final Set<String> selectedItemIds;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final ValueChanged<_ComicSortColumn> onSortChanged;
@@ -932,6 +1147,7 @@ class _ComicList extends StatelessWidget {
                 child: _ComicDataTable(
                   entries: entries,
                   selectedItemId: selectedItemId,
+                  selectedItemIds: selectedItemIds,
                   sortColumn: sortColumn,
                   sortAscending: sortAscending,
                   onSortChanged: onSortChanged,
@@ -950,6 +1166,7 @@ class _ComicDataTable extends StatelessWidget {
   const _ComicDataTable({
     required this.entries,
     required this.selectedItemId,
+    required this.selectedItemIds,
     required this.sortColumn,
     required this.sortAscending,
     required this.onSortChanged,
@@ -958,6 +1175,7 @@ class _ComicDataTable extends StatelessWidget {
 
   final List<_ComicTableEntry> entries;
   final String? selectedItemId;
+  final Set<String> selectedItemIds;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final ValueChanged<_ComicSortColumn> onSortChanged;
@@ -1013,9 +1231,11 @@ class _ComicDataTable extends StatelessWidget {
       rows: [
         for (final entry in entries)
           DataRow(
-            selected: entry.item.id == selectedItemId,
+            selected: selectedItemIds.contains(entry.item.id) ||
+                entry.item.id == selectedItemId,
             color: WidgetStateProperty.resolveWith(
-              (states) => entry.item.id == selectedItemId
+              (states) => selectedItemIds.contains(entry.item.id) ||
+                      entry.item.id == selectedItemId
                   ? colorScheme.primaryContainer
                   : null,
             ),
@@ -2254,6 +2474,87 @@ void _showCompactInspector(BuildContext context, CatalogItem item) {
       );
     },
   );
+}
+
+class _BulkEditDialog extends StatefulWidget {
+  const _BulkEditDialog();
+
+  @override
+  State<_BulkEditDialog> createState() => _BulkEditDialogState();
+}
+
+class _BulkEditDialogState extends State<_BulkEditDialog> {
+  String? _condition;
+  String? _grade;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Bulk edit'),
+      content: SizedBox(
+        width: 360,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButtonFormField<String>(
+              initialValue: _condition,
+              decoration: const InputDecoration(
+                labelText: 'Condition',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem(value: '', child: Text('Keep current')),
+                for (final option in _ComicInspector._conditions)
+                  DropdownMenuItem(value: option, child: Text(option)),
+              ],
+              onChanged: (value) {
+                setState(
+                  () => _condition =
+                      value == null || value.isEmpty ? null : value,
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: _grade,
+              decoration: const InputDecoration(
+                labelText: 'Grade',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem(value: '', child: Text('Keep current')),
+                for (final option in _ComicInspector._grades)
+                  DropdownMenuItem(value: option, child: Text(option)),
+              ],
+              onChanged: (value) {
+                setState(() =>
+                    _grade = value == null || value.isEmpty ? null : value);
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(
+            _BulkEditSelection(condition: _condition, grade: _grade),
+          ),
+          child: const Text('Apply'),
+        ),
+      ],
+    );
+  }
+}
+
+class _BulkEditSelection {
+  const _BulkEditSelection({this.condition, this.grade});
+
+  final String? condition;
+  final String? grade;
 }
 
 class _ComicsFilterDialog extends StatefulWidget {

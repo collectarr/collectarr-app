@@ -262,4 +262,64 @@ void main() {
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
     expect(find.text('Superman, Vol. 4 #9'), findsNothing);
   });
+
+  testWidgets('comics page supports multi-select bulk edit entrypoint',
+      (tester) async {
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(
+                  itemId: 'comic-1',
+                  catalogItem: catalogItems[0],
+                  ownedItem: ownedItem,
+                ),
+                ShelfEntry(
+                  itemId: 'comic-2',
+                  catalogItem: catalogItems[1],
+                ),
+              ],
+              ownedCount: 1,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 1,
+              totalPaidCents: 1299,
+              primaryCurrency: 'USD',
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => [ownedItem]),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Select comics'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Superman, Vol. 4 #8A').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Selected'), findsOneWidget);
+    expect(find.text('1'), findsWidgets);
+
+    await tester.tap(find.byTooltip('Bulk actions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bulk edit'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bulk edit'), findsOneWidget);
+    expect(find.text('Condition'), findsWidgets);
+    expect(find.text('Grade'), findsWidgets);
+  });
 }
