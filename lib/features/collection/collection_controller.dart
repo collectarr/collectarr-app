@@ -21,6 +21,18 @@ final collectionByCatalogItemProvider = Provider<Map<String, OwnedItem>>((ref) {
   );
 });
 
+final wishlistByCatalogItemProvider =
+    Provider<Map<String, WishlistItem>>((ref) {
+  final wishlist = ref.watch(wishlistProvider);
+  return wishlist.maybeWhen(
+    data: (items) => {
+      for (final item in items)
+        if (!item.isDeleted) item.itemId: item,
+    },
+    orElse: () => const {},
+  );
+});
+
 final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
   final cache = WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
   final items = await cache.listActive();

@@ -96,7 +96,12 @@ void main() {
     await tester.tap(find.byTooltip('List view'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Catalog'), findsOneWidget);
+    expect(find.text('Issue'), findsOneWidget);
+    expect(find.text('Grade'), findsWidgets);
+    expect(find.text('Condition'), findsWidgets);
+    expect(find.text('Price'), findsOneWidget);
+    expect(find.text('Wishlist'), findsWidgets);
+    expect(find.text('Updated'), findsOneWidget);
   });
 
   testWidgets(

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -16,6 +17,16 @@ const double _kDesktopBreakpoint = 980;
 
 enum _ComicsViewMode { grid, list }
 
+enum _ComicSortColumn {
+  title,
+  issue,
+  grade,
+  condition,
+  price,
+  wishlist,
+  updated
+}
+
 class ComicsPage extends ConsumerStatefulWidget {
   const ComicsPage({super.key});
 
@@ -28,6 +39,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   String? selectedItemId;
   String? selectedSeries;
   _ComicsViewMode viewMode = _ComicsViewMode.grid;
+  _ComicSortColumn sortColumn = _ComicSortColumn.title;
+  bool sortAscending = true;
   late final TextEditingController _controller;
 
   @override
@@ -62,6 +75,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               selectedItemId: selectedItemId,
               selectedSeries: selectedSeries,
               viewMode: viewMode,
+              sortColumn: sortColumn,
+              sortAscending: sortAscending,
               onSearch: (value) => setState(() {
                 query = value.trim();
                 selectedItemId = null;
@@ -76,6 +91,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               onClearSeries: () => setState(() => selectedSeries = null),
               onScanBarcode: () => _handleBarcodeScan(context),
               onViewModeChanged: (value) => setState(() => viewMode = value),
+              onSortChanged: _handleSortChanged,
             );
           },
           error: (error, stackTrace) => _ErrorState(message: error.toString()),
@@ -166,6 +182,17 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         (item.itemNumber?.toLowerCase().contains(query) ?? false) ||
         (item.synopsis?.toLowerCase().contains(query) ?? false);
   }
+
+  void _handleSortChanged(_ComicSortColumn column) {
+    setState(() {
+      if (sortColumn == column) {
+        sortAscending = !sortAscending;
+      } else {
+        sortColumn = column;
+        sortAscending = column == _ComicSortColumn.updated ? false : true;
+      }
+    });
+  }
 }
 
 class _ComicsWorkspace extends StatelessWidget {
@@ -175,6 +202,8 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.selectedItemId,
     required this.selectedSeries,
     required this.viewMode,
+    required this.sortColumn,
+    required this.sortAscending,
     required this.onSearch,
     required this.onAddComic,
     required this.onSelectItem,
@@ -182,6 +211,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.onClearSeries,
     required this.onScanBarcode,
     required this.onViewModeChanged,
+    required this.onSortChanged,
   });
 
   final List<CatalogItem> items;
@@ -189,6 +219,8 @@ class _ComicsWorkspace extends StatelessWidget {
   final String? selectedItemId;
   final String? selectedSeries;
   final _ComicsViewMode viewMode;
+  final _ComicSortColumn sortColumn;
+  final bool sortAscending;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
@@ -196,6 +228,7 @@ class _ComicsWorkspace extends StatelessWidget {
   final VoidCallback onClearSeries;
   final VoidCallback onScanBarcode;
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
+  final ValueChanged<_ComicSortColumn> onSortChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -261,6 +294,9 @@ class _ComicsWorkspace extends StatelessWidget {
                     : _LibraryAwareComicList(
                         items: visibleItems,
                         selectedItemId: selectedItem?.id,
+                        sortColumn: sortColumn,
+                        sortAscending: sortAscending,
+                        onSortChanged: onSortChanged,
                         onSelectItem: onSelectItem,
                       ),
               ),
@@ -627,22 +663,31 @@ class _LibraryAwareComicList extends ConsumerWidget {
   const _LibraryAwareComicList({
     required this.items,
     required this.selectedItemId,
+    required this.sortColumn,
+    required this.sortAscending,
+    required this.onSortChanged,
     required this.onSelectItem,
   });
 
   final List<CatalogItem> items;
   final String? selectedItemId;
+  final _ComicSortColumn sortColumn;
+  final bool sortAscending;
+  final ValueChanged<_ComicSortColumn> onSortChanged;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ownedByItemId = ref.watch(collectionByCatalogItemProvider);
-    final wishlistIds = _watchWishlistIds(ref);
+    final wishlistByItemId = ref.watch(wishlistByCatalogItemProvider);
     return _ComicList(
       items: items,
       ownedByItemId: ownedByItemId,
-      wishlistIds: wishlistIds,
+      wishlistByItemId: wishlistByItemId,
       selectedItemId: selectedItemId,
+      sortColumn: sortColumn,
+      sortAscending: sortAscending,
+      onSortChanged: onSortChanged,
       onSelectItem: onSelectItem,
     );
   }
@@ -652,15 +697,21 @@ class _ComicList extends StatelessWidget {
   const _ComicList({
     required this.items,
     required this.ownedByItemId,
-    required this.wishlistIds,
+    required this.wishlistByItemId,
     required this.selectedItemId,
+    required this.sortColumn,
+    required this.sortAscending,
+    required this.onSortChanged,
     required this.onSelectItem,
   });
 
   final List<CatalogItem> items;
   final Map<String, OwnedItem> ownedByItemId;
-  final Set<String> wishlistIds;
+  final Map<String, WishlistItem> wishlistByItemId;
   final String? selectedItemId;
+  final _ComicSortColumn sortColumn;
+  final bool sortAscending;
+  final ValueChanged<_ComicSortColumn> onSortChanged;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -668,155 +719,298 @@ class _ComicList extends StatelessWidget {
     if (items.isEmpty) {
       return const _EmptyState();
     }
-    return ListView.separated(
-      padding: const EdgeInsets.all(12),
-      itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (context, index) {
-        final item = items[index];
-        final libraryState = _LibraryState(
-          ownedItem: ownedByItemId[item.id],
-          isWishlisted: wishlistIds.contains(item.id),
-        );
-        return _ComicListRow(
+    final entries = [
+      for (final item in items)
+        _ComicTableEntry(
           item: item,
-          libraryState: libraryState,
-          selected: item.id == selectedItemId,
-          onTap: () => onSelectItem(item),
+          ownedItem: ownedByItemId[item.id],
+          wishlistItem: wishlistByItemId[item.id],
+        ),
+    ]..sort((a, b) => _compareEntries(a, b, sortColumn, sortAscending));
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width =
+            constraints.maxWidth < 1060 ? 1060.0 : constraints.maxWidth;
+        return Scrollbar(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: width,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(12),
+                child: _ComicDataTable(
+                  entries: entries,
+                  selectedItemId: selectedItemId,
+                  sortColumn: sortColumn,
+                  sortAscending: sortAscending,
+                  onSortChanged: onSortChanged,
+                  onSelectItem: onSelectItem,
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
   }
 }
 
-class _ComicListRow extends StatelessWidget {
-  const _ComicListRow({
-    required this.item,
-    required this.libraryState,
-    required this.selected,
-    required this.onTap,
+class _ComicDataTable extends StatelessWidget {
+  const _ComicDataTable({
+    required this.entries,
+    required this.selectedItemId,
+    required this.sortColumn,
+    required this.sortAscending,
+    required this.onSortChanged,
+    required this.onSelectItem,
   });
 
-  final CatalogItem item;
-  final _LibraryState libraryState;
-  final bool selected;
-  final VoidCallback onTap;
+  final List<_ComicTableEntry> entries;
+  final String? selectedItemId;
+  final _ComicSortColumn sortColumn;
+  final bool sortAscending;
+  final ValueChanged<_ComicSortColumn> onSortChanged;
+  final ValueChanged<CatalogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final ownedItem = libraryState.ownedItem;
-    return Material(
-      color: selected ? colorScheme.primaryContainer : colorScheme.surface,
-      borderRadius: BorderRadius.circular(6),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(6),
-        child: Container(
-          height: 96,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color:
-                  selected ? colorScheme.primary : colorScheme.outlineVariant,
-              width: selected ? 2 : 1,
+    return DataTable(
+      sortColumnIndex: _sortColumnIndex(sortColumn),
+      sortAscending: sortAscending,
+      headingRowColor: WidgetStatePropertyAll(colorScheme.surfaceContainerHigh),
+      dataRowMinHeight: 68,
+      dataRowMaxHeight: 76,
+      columnSpacing: 18,
+      showCheckboxColumn: false,
+      border: TableBorder(
+        horizontalInside: BorderSide(color: colorScheme.outlineVariant),
+      ),
+      columns: [
+        const DataColumn(label: SizedBox.shrink()),
+        DataColumn(
+          label: const Text('Title'),
+          onSort: (_, __) => onSortChanged(_ComicSortColumn.title),
+        ),
+        DataColumn(
+          label: const Text('Issue'),
+          numeric: true,
+          onSort: (_, __) => onSortChanged(_ComicSortColumn.issue),
+        ),
+        DataColumn(
+          label: const Text('Grade'),
+          onSort: (_, __) => onSortChanged(_ComicSortColumn.grade),
+        ),
+        DataColumn(
+          label: const Text('Condition'),
+          onSort: (_, __) => onSortChanged(_ComicSortColumn.condition),
+        ),
+        DataColumn(
+          label: const Text('Price'),
+          numeric: true,
+          onSort: (_, __) => onSortChanged(_ComicSortColumn.price),
+        ),
+        DataColumn(
+          label: const Text('Wishlist'),
+          onSort: (_, __) => onSortChanged(_ComicSortColumn.wishlist),
+        ),
+        DataColumn(
+          label: const Text('Updated'),
+          onSort: (_, __) => onSortChanged(_ComicSortColumn.updated),
+        ),
+      ],
+      rows: [
+        for (final entry in entries)
+          DataRow(
+            selected: entry.item.id == selectedItemId,
+            color: WidgetStateProperty.resolveWith(
+              (states) => entry.item.id == selectedItemId
+                  ? colorScheme.primaryContainer
+                  : null,
             ),
-          ),
-          child: Row(
-            children: [
-              AspectRatio(
-                aspectRatio: 2 / 3,
-                child: _CoverImage(item: item),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      item.itemNumber == null
-                          ? item.title
-                          : '${item.title} #${item.itemNumber}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.titleSmall,
-                    ),
-                    if (item.synopsis != null) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        item.synopsis!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.bodySmall,
-                      ),
-                    ],
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        if (libraryState.isOwned)
-                          _StatusPill(
-                            icon: Icons.inventory_2,
-                            label: ownedItem?.grade == null
-                                ? 'Owned'
-                                : 'Owned ${ownedItem!.grade}',
-                          ),
-                        if (libraryState.isWishlisted)
-                          const _StatusPill(
-                            icon: Icons.star,
-                            label: 'Wishlist',
-                          ),
-                        if (!libraryState.isOwned && !libraryState.isWishlisted)
-                          const _StatusPill(
-                            icon: Icons.library_add,
-                            label: 'Catalog',
-                          ),
-                      ],
-                    ),
-                  ],
+            onSelectChanged: (_) => onSelectItem(entry.item),
+            cells: [
+              DataCell(
+                SizedBox(
+                  width: 36,
+                  height: 54,
+                  child: _CoverImage(item: entry.item),
                 ),
               ),
-              if (selected)
-                Icon(Icons.check_circle, color: colorScheme.primary),
+              DataCell(
+                SizedBox(
+                  width: 280,
+                  child: Text(
+                    entry.item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              DataCell(Text(entry.item.itemNumber ?? '')),
+              DataCell(_CellText(entry.ownedItem?.grade)),
+              DataCell(_CellText(entry.ownedItem?.condition)),
+              DataCell(
+                Text(
+                  _formatOptionalMoney(
+                    entry.ownedItem?.pricePaidCents,
+                    entry.ownedItem?.currency,
+                  ),
+                ),
+              ),
+              DataCell(
+                entry.isWishlisted
+                    ? const Icon(Icons.star, size: 18)
+                    : const Text(''),
+              ),
+              DataCell(Text(_formatDate(entry.updatedAt))),
             ],
           ),
-        ),
-      ),
+      ],
     );
   }
 }
 
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({required this.icon, required this.label});
+class _CellText extends StatelessWidget {
+  const _CellText(this.value);
 
-  final IconData icon;
-  final String label;
+  final String? value;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 13, color: colorScheme.onSurfaceVariant),
-            const SizedBox(width: 4),
-            Text(label, style: Theme.of(context).textTheme.labelSmall),
-          ],
-        ),
-      ),
+    final text = value == null || value!.isEmpty ? '-' : value!;
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: value == null || value!.isEmpty
+          ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
+          : null,
     );
   }
+}
+
+class _ComicTableEntry {
+  const _ComicTableEntry({
+    required this.item,
+    this.ownedItem,
+    this.wishlistItem,
+  });
+
+  final CatalogItem item;
+  final OwnedItem? ownedItem;
+  final WishlistItem? wishlistItem;
+
+  bool get isWishlisted => wishlistItem != null;
+
+  DateTime get updatedAt {
+    final ownedUpdated = ownedItem?.updatedAt;
+    final wishUpdated = wishlistItem?.updatedAt;
+    if (ownedUpdated == null) {
+      return wishUpdated ?? DateTime.fromMillisecondsSinceEpoch(0);
+    }
+    if (wishUpdated == null) {
+      return ownedUpdated;
+    }
+    return ownedUpdated.isAfter(wishUpdated) ? ownedUpdated : wishUpdated;
+  }
+}
+
+int _compareEntries(
+  _ComicTableEntry a,
+  _ComicTableEntry b,
+  _ComicSortColumn column,
+  bool ascending,
+) {
+  final result = switch (column) {
+    _ComicSortColumn.title =>
+      _compareNullableStrings(a.item.title, b.item.title),
+    _ComicSortColumn.issue => _compareIssueNumbers(
+        a.item.itemNumber,
+        b.item.itemNumber,
+      ),
+    _ComicSortColumn.grade => _compareNullableStrings(
+        a.ownedItem?.grade,
+        b.ownedItem?.grade,
+      ),
+    _ComicSortColumn.condition => _compareNullableStrings(
+        a.ownedItem?.condition,
+        b.ownedItem?.condition,
+      ),
+    _ComicSortColumn.price => _compareNullableInts(
+        a.ownedItem?.pricePaidCents,
+        b.ownedItem?.pricePaidCents,
+      ),
+    _ComicSortColumn.wishlist => _compareBools(a.isWishlisted, b.isWishlisted),
+    _ComicSortColumn.updated => a.updatedAt.compareTo(b.updatedAt),
+  };
+  if (result != 0) {
+    return ascending ? result : -result;
+  }
+  return _compareNullableStrings(a.item.title, b.item.title);
+}
+
+int _sortColumnIndex(_ComicSortColumn column) {
+  return switch (column) {
+    _ComicSortColumn.title => 1,
+    _ComicSortColumn.issue => 2,
+    _ComicSortColumn.grade => 3,
+    _ComicSortColumn.condition => 4,
+    _ComicSortColumn.price => 5,
+    _ComicSortColumn.wishlist => 6,
+    _ComicSortColumn.updated => 7,
+  };
+}
+
+int _compareIssueNumbers(String? left, String? right) {
+  final leftNumber = double.tryParse(left ?? '');
+  final rightNumber = double.tryParse(right ?? '');
+  if (leftNumber != null && rightNumber != null) {
+    return leftNumber.compareTo(rightNumber);
+  }
+  return _compareNullableStrings(left, right);
+}
+
+int _compareNullableStrings(String? left, String? right) {
+  final leftValue = left?.toLowerCase() ?? '';
+  final rightValue = right?.toLowerCase() ?? '';
+  if (leftValue.isEmpty && rightValue.isNotEmpty) {
+    return 1;
+  }
+  if (leftValue.isNotEmpty && rightValue.isEmpty) {
+    return -1;
+  }
+  return leftValue.compareTo(rightValue);
+}
+
+int _compareNullableInts(int? left, int? right) {
+  if (left == null && right != null) {
+    return 1;
+  }
+  if (left != null && right == null) {
+    return -1;
+  }
+  return (left ?? 0).compareTo(right ?? 0);
+}
+
+int _compareBools(bool left, bool right) {
+  if (left == right) {
+    return 0;
+  }
+  return left ? -1 : 1;
+}
+
+String _formatOptionalMoney(int? cents, String? currency) {
+  if (cents == null) {
+    return '';
+  }
+  final sign = cents < 0 ? '-' : '';
+  final absolute = cents.abs();
+  final whole = absolute ~/ 100;
+  final fraction = (absolute % 100).toString().padLeft(2, '0');
+  final prefix = currency == null || currency.isEmpty ? '' : '$currency ';
+  return '$prefix$sign$whole.$fraction';
 }
 
 class _CoverTile extends StatelessWidget {
