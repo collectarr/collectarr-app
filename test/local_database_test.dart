@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/sync/sync_change.dart';
+import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,5 +41,30 @@ void main() {
     expect(owned.pricePaidCents, 1299);
     expect(wishlist.itemId, 'comic-2');
     expect(wishlist.targetPriceCents, 999);
+  });
+
+  test('stores pending personal sync changes locally', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final queue = SyncQueueRepository(db);
+
+    await queue.enqueue(
+      SyncChange(
+        id: 'sync-1',
+        entityType: 'owned_item',
+        entityId: 'owned-1',
+        action: 'upsert',
+        payload: const {'item_id': 'comic-1', 'grade': '9.8'},
+        clientChangedAt: DateTime.utc(2026, 5, 11, 10),
+      ),
+    );
+
+    expect(await queue.pendingCount(), 1);
+    final pending = await queue.listPending();
+    expect(pending.single.entityType, 'owned_item');
+    expect(pending.single.payload['grade'], '9.8');
+
+    await queue.deleteMany(['sync-1']);
+    expect(await queue.pendingCount(), 0);
   });
 }

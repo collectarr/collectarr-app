@@ -27,7 +27,9 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true);
     try {
-      final result = await ref.read(apiClientProvider).login(email: email, password: password);
+      final result = await ref
+          .read(apiClientProvider)
+          .login(email: email, password: password);
       state = AuthState(token: result['access_token'] as String);
     } catch (error) {
       state = AuthState(error: error.toString());
@@ -37,7 +39,9 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> register(String email, String password) async {
     state = state.copyWith(isLoading: true);
     try {
-      final result = await ref.read(apiClientProvider).register(email: email, password: password);
+      final result = await ref
+          .read(apiClientProvider)
+          .register(email: email, password: password);
       state = AuthState(token: result['access_token'] as String);
     } catch (error) {
       state = AuthState(error: error.toString());
@@ -45,7 +49,7 @@ class AuthController extends StateNotifier<AuthState> {
   }
 }
 
-final authControllerProvider = StateNotifierProvider<AuthController, AuthState>((ref) {
+final authControllerProvider =
+    StateNotifierProvider<AuthController, AuthState>((ref) {
   return AuthController(ref);
 });
-

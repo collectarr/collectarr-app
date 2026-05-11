@@ -284,14 +284,9 @@ class _ComicsToolbar extends StatelessWidget {
             const SizedBox(width: 8),
             _ToolbarStat(label: 'Total', value: totalCount),
             const SizedBox(width: 8),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'grid', icon: Icon(Icons.grid_view)),
-                ButtonSegment(value: 'list', icon: Icon(Icons.view_list)),
-              ],
-              selected: const {'grid'},
-              onSelectionChanged: (_) {},
-              showSelectedIcon: false,
+            const Tooltip(
+              message: 'Grid view',
+              child: Icon(Icons.grid_view),
             ),
           ],
         ),
@@ -953,8 +948,7 @@ class _CollectionFields extends StatelessWidget {
         Expanded(
           child: DropdownButtonFormField<String>(
             isExpanded: true,
-            // ignore: deprecated_member_use
-            value: conditions.contains(condition) ? condition : null,
+            initialValue: conditions.contains(condition) ? condition : null,
             decoration: const InputDecoration(
               labelText: 'Condition',
               border: OutlineInputBorder(),
@@ -970,8 +964,7 @@ class _CollectionFields extends StatelessWidget {
         Expanded(
           child: DropdownButtonFormField<String>(
             isExpanded: true,
-            // ignore: deprecated_member_use
-            value: grades.contains(grade) ? grade : null,
+            initialValue: grades.contains(grade) ? grade : null,
             decoration: const InputDecoration(
               labelText: 'Grade',
               border: OutlineInputBorder(),

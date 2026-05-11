@@ -50,17 +50,30 @@ class WishlistItemsCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class SyncQueue extends Table {
+  TextColumn get id => text()();
+  TextColumn get entityType => text()();
+  TextColumn get entityId => text()();
+  TextColumn get action => text()();
+  TextColumn get payloadJson => text()();
+  DateTimeColumn get clientChangedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
   WishlistItemsCache,
+  SyncQueue,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -74,7 +87,10 @@ class LocalDatabase extends _$LocalDatabase {
           await m.createTable(wishlistItemsCache);
         }
         if (from < 3) {
-          await m.deleteTable('sync_queue');
+          await customStatement('drop table if exists sync_queue');
+        }
+        if (from < 4) {
+          await m.createTable(syncQueue);
         }
       },
     );

@@ -64,7 +64,7 @@ void main() {
     expect(find.text('9.8'), findsWidgets);
     expect(find.text('Remove'), findsOneWidget);
     expect(find.text('Move to wishlist'), findsOneWidget);
-    expect(find.byIcon(Icons.grid_view), findsOneWidget);
+    expect(find.byTooltip('Grid view'), findsOneWidget);
   });
 
   testWidgets('compact comics page keeps scan and metadata refresh actions',

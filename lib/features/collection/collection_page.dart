@@ -49,4 +49,3 @@ class CollectionPage extends ConsumerWidget {
     );
   }
 }
-

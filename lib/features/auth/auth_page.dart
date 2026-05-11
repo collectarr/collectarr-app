@@ -46,7 +46,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                   obscureText: true,
                 ),
                 const SizedBox(height: 16),
-                if (auth.error != null) Text(auth.error!, style: const TextStyle(color: Colors.red)),
+                if (auth.error != null)
+                  Text(auth.error!, style: const TextStyle(color: Colors.red)),
                 FilledButton.icon(
                   onPressed: auth.isLoading
                       ? null
@@ -54,9 +55,13 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           final email = emailController.text.trim();
                           final password = passwordController.text;
                           if (isRegister) {
-                            ref.read(authControllerProvider.notifier).register(email, password);
+                            ref
+                                .read(authControllerProvider.notifier)
+                                .register(email, password);
                           } else {
-                            ref.read(authControllerProvider.notifier).login(email, password);
+                            ref
+                                .read(authControllerProvider.notifier)
+                                .login(email, password);
                           }
                         },
                   icon: Icon(isRegister ? Icons.person_add : Icons.login),
@@ -64,7 +69,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                 ),
                 TextButton(
                   onPressed: () => setState(() => isRegister = !isRegister),
-                  child: Text(isRegister ? 'Use existing account' : 'Create account'),
+                  child: Text(
+                      isRegister ? 'Use existing account' : 'Create account'),
                 ),
               ],
             ),
@@ -74,4 +80,3 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     );
   }
 }
-
