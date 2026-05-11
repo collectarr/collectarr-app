@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
@@ -4934,13 +4935,8 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
             const SizedBox(width: 12),
             SizedBox(
               width: 120,
-              child: TextField(
+              child: MediaRatingField(
                 controller: _ratingController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Rating',
-                  border: OutlineInputBorder(),
-                ),
               ),
             ),
           ],
