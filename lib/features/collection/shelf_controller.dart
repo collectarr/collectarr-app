@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/library/library_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -118,57 +119,11 @@ class ShelfState {
   }
 }
 
-class ShelfEntry {
+class ShelfEntry extends LibraryEntry {
   const ShelfEntry({
-    required this.itemId,
-    this.catalogItem,
-    this.ownedItem,
-    this.wishlistItem,
+    required super.itemId,
+    super.catalogItem,
+    super.ownedItem,
+    super.wishlistItem,
   });
-
-  final String itemId;
-  final CatalogItem? catalogItem;
-  final OwnedItem? ownedItem;
-  final WishlistItem? wishlistItem;
-
-  bool get isOwned => ownedItem != null;
-  bool get isWishlisted => wishlistItem != null;
-  bool get isMissingGrade => isOwned && ownedItem?.grade == null;
-  bool get hasNotes =>
-      (ownedItem?.personalNotes?.trim().isNotEmpty ?? false) ||
-      (wishlistItem?.notes?.trim().isNotEmpty ?? false);
-
-  DateTime get updatedAt {
-    final ownedUpdated = ownedItem?.updatedAt;
-    final wishUpdated = wishlistItem?.updatedAt;
-    if (ownedUpdated == null) {
-      return wishUpdated ?? DateTime.fromMillisecondsSinceEpoch(0);
-    }
-    if (wishUpdated == null) {
-      return ownedUpdated;
-    }
-    return ownedUpdated.isAfter(wishUpdated) ? ownedUpdated : wishUpdated;
-  }
-
-  String get title {
-    final item = catalogItem;
-    if (item == null) {
-      final length = itemId.length < 8 ? itemId.length : 8;
-      return 'Catalog item ${itemId.substring(0, length)}';
-    }
-    if (item.itemNumber == null) {
-      return item.title;
-    }
-    return '${item.title} #${item.itemNumber}';
-  }
-
-  String get subtitle {
-    if (isOwned && isWishlisted) {
-      return 'Owned and wishlisted';
-    }
-    if (isOwned) {
-      return 'Owned';
-    }
-    return 'Wishlist';
-  }
 }
