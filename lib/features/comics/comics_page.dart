@@ -172,6 +172,35 @@ ThemeData _clzComicsTheme() {
       side: const BorderSide(color: _kClzDivider),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
     ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: _kClzPanel,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+        side: const BorderSide(color: _kClzDivider),
+      ),
+      titleTextStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.w900,
+      ),
+      contentTextStyle: const TextStyle(color: Colors.white),
+    ),
+    popupMenuTheme: const PopupMenuThemeData(
+      color: _kClzPanelRaised,
+      surfaceTintColor: Colors.transparent,
+      textStyle: TextStyle(color: Colors.white),
+    ),
+    dropdownMenuTheme: const DropdownMenuThemeData(
+      textStyle: TextStyle(color: Colors.white),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Color(0xFF101010),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: _kClzDivider),
+        ),
+      ),
+    ),
     textTheme: base.textTheme.apply(
       bodyColor: Colors.white,
       displayColor: Colors.white,
@@ -4740,10 +4769,25 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
       clipBehavior: Clip.antiAlias,
       child: Theme(
         data: Theme.of(context).copyWith(
+          dialogTheme: Theme.of(context).dialogTheme.copyWith(
+                backgroundColor: _kClzPanel,
+                surfaceTintColor: Colors.transparent,
+              ),
           inputDecorationTheme: const InputDecorationTheme(
+            filled: true,
+            fillColor: Color(0xFF101010),
             isDense: true,
             contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            border: OutlineInputBorder(),
+            labelStyle: TextStyle(color: _kClzTextMuted),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: _kClzDivider),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: _kClzDivider),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: _kClzAccent),
+            ),
           ),
         ),
         child: ConstrainedBox(
@@ -4800,13 +4844,14 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
                 ),
               ),
               ColoredBox(
-                color: const Color(0xFFEEEEEE),
+                color: _kClzPanelRaised,
                 child: TabBar(
                   controller: _tabController,
                   isScrollable: true,
-                  labelColor: const Color(0xFF151515),
-                  unselectedLabelColor: const Color(0xFF555555),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: _kClzTextMuted,
                   indicatorColor: _kClzAccent,
+                  dividerColor: _kClzDivider,
                   tabs: const [
                     Tab(icon: Icon(Icons.article), text: 'Main'),
                     Tab(icon: Icon(Icons.search), text: 'Details'),
