@@ -1,0 +1,153 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final shelfProvider = FutureProvider<ShelfState>((ref) async {
+  final owned = await ref.watch(collectionProvider.future);
+  final wishlist = await ref.watch(wishlistProvider.future);
+  final ids = {
+    for (final item in owned) item.itemId,
+    for (final item in wishlist) item.itemId,
+  };
+  final catalogItems =
+      await CatalogCacheRepository(ref.watch(localDatabaseProvider))
+          .findByIds(ids);
+  return ShelfState.from(
+    ownedItems: owned,
+    wishlistItems: wishlist,
+    catalogItems: catalogItems,
+  );
+});
+
+class ShelfState {
+  const ShelfState({
+    required this.entries,
+    required this.ownedCount,
+    required this.wishlistCount,
+    required this.missingGradeCount,
+    required this.pricedCount,
+    required this.totalPaidCents,
+    required this.primaryCurrency,
+    required this.hasMixedCurrencies,
+  });
+
+  factory ShelfState.from({
+    required List<OwnedItem> ownedItems,
+    required List<WishlistItem> wishlistItems,
+    required Map<String, CatalogItem> catalogItems,
+  }) {
+    final ownedByItemId = {
+      for (final item in ownedItems)
+        if (!item.isDeleted) item.itemId: item,
+    };
+    final wishlistByItemId = {
+      for (final item in wishlistItems)
+        if (!item.isDeleted) item.itemId: item,
+    };
+    final ids = {
+      ...ownedByItemId.keys,
+      ...wishlistByItemId.keys,
+    };
+    final entries = [
+      for (final id in ids)
+        ShelfEntry(
+          itemId: id,
+          catalogItem: catalogItems[id],
+          ownedItem: ownedByItemId[id],
+          wishlistItem: wishlistByItemId[id],
+        ),
+    ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+    final pricedOwned = ownedItems
+        .where((item) => item.pricePaidCents != null && item.currency != null)
+        .toList(growable: false);
+    final currencies = {
+      for (final item in pricedOwned) item.currency!,
+    };
+    final hasMixedCurrencies = currencies.length > 1;
+    return ShelfState(
+      entries: entries,
+      ownedCount: ownedByItemId.length,
+      wishlistCount: wishlistByItemId.length,
+      missingGradeCount:
+          ownedByItemId.values.where((item) => item.grade == null).length,
+      pricedCount: pricedOwned.length,
+      totalPaidCents: hasMixedCurrencies
+          ? null
+          : pricedOwned.fold<int>(
+              0,
+              (total, item) => total + (item.pricePaidCents ?? 0),
+            ),
+      primaryCurrency: currencies.length == 1 ? currencies.single : null,
+      hasMixedCurrencies: hasMixedCurrencies,
+    );
+  }
+
+  final List<ShelfEntry> entries;
+  final int ownedCount;
+  final int wishlistCount;
+  final int missingGradeCount;
+  final int pricedCount;
+  final int? totalPaidCents;
+  final String? primaryCurrency;
+  final bool hasMixedCurrencies;
+}
+
+class ShelfEntry {
+  const ShelfEntry({
+    required this.itemId,
+    this.catalogItem,
+    this.ownedItem,
+    this.wishlistItem,
+  });
+
+  final String itemId;
+  final CatalogItem? catalogItem;
+  final OwnedItem? ownedItem;
+  final WishlistItem? wishlistItem;
+
+  bool get isOwned => ownedItem != null;
+  bool get isWishlisted => wishlistItem != null;
+  bool get isMissingGrade => isOwned && ownedItem?.grade == null;
+  bool get hasNotes =>
+      (ownedItem?.personalNotes?.trim().isNotEmpty ?? false) ||
+      (wishlistItem?.notes?.trim().isNotEmpty ?? false);
+
+  DateTime get updatedAt {
+    final ownedUpdated = ownedItem?.updatedAt;
+    final wishUpdated = wishlistItem?.updatedAt;
+    if (ownedUpdated == null) {
+      return wishUpdated ?? DateTime.fromMillisecondsSinceEpoch(0);
+    }
+    if (wishUpdated == null) {
+      return ownedUpdated;
+    }
+    return ownedUpdated.isAfter(wishUpdated) ? ownedUpdated : wishUpdated;
+  }
+
+  String get title {
+    final item = catalogItem;
+    if (item == null) {
+      final length = itemId.length < 8 ? itemId.length : 8;
+      return 'Catalog item ${itemId.substring(0, length)}';
+    }
+    if (item.itemNumber == null) {
+      return item.title;
+    }
+    return '${item.title} #${item.itemNumber}';
+  }
+
+  String get subtitle {
+    if (isOwned && isWishlisted) {
+      return 'Owned and wishlisted';
+    }
+    if (isOwned) {
+      return 'Owned';
+    }
+    return 'Wishlist';
+  }
+}

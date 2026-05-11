@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
@@ -48,9 +49,11 @@ class CollectionMutations {
         now,
       );
       ref.invalidate(wishlistIdsProvider);
+      ref.invalidate(wishlistProvider);
     }
     await ref.read(syncControllerProvider.notifier).refreshPendingCount();
     ref.invalidate(collectionProvider);
+    ref.invalidate(shelfProvider);
   }
 
   Future<void> updateItem(
@@ -76,6 +79,7 @@ class CollectionMutations {
     await _enqueueOwnedItem(updated, 'upsert', now);
     await ref.read(syncControllerProvider.notifier).refreshPendingCount();
     ref.invalidate(collectionProvider);
+    ref.invalidate(shelfProvider);
   }
 
   Future<void> removeItem(OwnedItem item) async {
@@ -85,6 +89,7 @@ class CollectionMutations {
         item.copyWith(updatedAt: now, deletedAt: now), 'delete', now);
     await ref.read(syncControllerProvider.notifier).refreshPendingCount();
     ref.invalidate(collectionProvider);
+    ref.invalidate(shelfProvider);
   }
 
   Future<void> addToWishlist(String itemId) async {
@@ -102,6 +107,8 @@ class CollectionMutations {
     }
     await ref.read(syncControllerProvider.notifier).refreshPendingCount();
     ref.invalidate(wishlistIdsProvider);
+    ref.invalidate(wishlistProvider);
+    ref.invalidate(shelfProvider);
   }
 
   Future<void> removeFromWishlist(String itemId) async {
@@ -117,6 +124,8 @@ class CollectionMutations {
     }
     await ref.read(syncControllerProvider.notifier).refreshPendingCount();
     ref.invalidate(wishlistIdsProvider);
+    ref.invalidate(wishlistProvider);
+    ref.invalidate(shelfProvider);
   }
 
   Future<void> toggleWishlist(String itemId) async {
