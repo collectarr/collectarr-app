@@ -384,7 +384,7 @@ void main() {
     expect(find.textContaining('Edit - Superman, Vol. 4'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Details'), findsOneWidget);
-    expect(find.text('Value'), findsOneWidget);
+    expect(find.widgetWithText(Tab, 'Value'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Cover'), findsOneWidget);
     expect(find.widgetWithText(Tab, 'Plot'), findsOneWidget);

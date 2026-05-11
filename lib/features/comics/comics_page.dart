@@ -245,6 +245,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                     .map((entry) => entry.catalogItem?.releaseYear?.toString()),
               );
               return _ComicsWorkspace(
+                shelfState: state,
                 items: items,
                 queryController: _controller,
                 selectedItemId: selectedItemId,
@@ -671,6 +672,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
 class _ComicsWorkspace extends StatelessWidget {
   const _ComicsWorkspace({
     required this.items,
+    required this.shelfState,
     required this.queryController,
     required this.selectedItemId,
     required this.selectedSeries,
@@ -703,6 +705,7 @@ class _ComicsWorkspace extends StatelessWidget {
   });
 
   final List<CatalogItem> items;
+  final ShelfState shelfState;
   final TextEditingController queryController;
   final String? selectedItemId;
   final String? selectedSeries;
@@ -798,6 +801,7 @@ class _ComicsWorkspace extends StatelessWidget {
           onBulkMoveToWishlist: onBulkMoveToWishlist,
           onBulkRemove: onBulkRemove,
         ),
+        _ComicsStatsBar(state: shelfState),
         Expanded(
           child: Row(
             children: [
@@ -1339,6 +1343,112 @@ class _ComicsToolbar extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ComicsStatsBar extends StatelessWidget {
+  const _ComicsStatsBar({required this.state});
+
+  final ShelfState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = state.totalPaidCents == null
+        ? '-'
+        : _formatOptionalMoney(state.totalPaidCents, state.primaryCurrency);
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0xFF181818),
+        border: Border(bottom: BorderSide(color: _kClzDivider)),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          children: [
+            _StatsTile(
+              icon: Icons.menu_book,
+              label: 'Local comics',
+              value: state.entries.length.toString(),
+            ),
+            _StatsTile(
+              icon: Icons.check_box,
+              label: 'Owned',
+              value: state.ownedCount.toString(),
+            ),
+            _StatsTile(
+              icon: Icons.star,
+              label: 'Wishlist',
+              value: state.wishlistCount.toString(),
+            ),
+            _StatsTile(
+              icon: Icons.attach_money,
+              label: 'Value',
+              value: state.hasMixedCurrencies ? '$value +' : value,
+            ),
+            _StatsTile(
+              icon: Icons.workspace_premium,
+              label: 'Graded',
+              value: '${state.ownedCount - state.missingGradeCount}',
+            ),
+            _StatsTile(
+              icon: Icons.report_gmailerrorred,
+              label: 'Missing grade',
+              value: state.missingGradeCount.toString(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatsTile extends StatelessWidget {
+  const _StatsTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFF242424),
+        border: Border.all(color: const Color(0xFF383838)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: _kClzAccent),
+          const SizedBox(width: 7),
+          Text(
+            label,
+            style: const TextStyle(
+              color: _kClzTextMuted,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
       ),
     );
   }
