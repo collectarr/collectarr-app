@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
 
 class ApiClient {
@@ -60,21 +61,26 @@ class ApiClient {
     String? barcode,
     int? limit,
   }) async {
+    return searchMetadata(
+      MetadataSearchQuery(
+        query: query,
+        kind: kind,
+        series: series,
+        issueNumber: issueNumber,
+        publisher: publisher,
+        year: year,
+        barcode: barcode,
+        limit: limit,
+      ),
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> searchMetadata(
+    MetadataSearchQuery query,
+  ) async {
     final response = await _dio.get<List<dynamic>>(
       '/search',
-      queryParameters: {
-        if (query.trim().isNotEmpty) 'q': query,
-        if (kind != null) 'kind': kind,
-        if (series != null && series.trim().isNotEmpty) 'series': series,
-        if (issueNumber != null && issueNumber.trim().isNotEmpty)
-          'issue_number': issueNumber,
-        if (publisher != null && publisher.trim().isNotEmpty)
-          'publisher': publisher,
-        if (year != null) 'year': year,
-        if (barcode != null && barcode.trim().isNotEmpty)
-          'barcode': _normalizeBarcode(barcode),
-        if (limit != null) 'limit': limit,
-      },
+      queryParameters: query.toQueryParameters(),
     );
     return response.data!.cast<Map<String, dynamic>>();
   }
@@ -128,7 +134,7 @@ class ApiClient {
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
       {String? kind}) async {
     final response = await _dio.get<Map<String, dynamic>>(
-      '/barcode/${Uri.encodeComponent(_normalizeBarcode(barcode))}',
+      '/barcode/${Uri.encodeComponent(MetadataSearchQuery.normalizeBarcode(barcode))}',
       queryParameters: {
         if (kind != null) 'kind': kind,
       },
@@ -147,9 +153,5 @@ class ApiClient {
       throw StateError('/health returned an empty response body');
     }
     return data;
-  }
-
-  String _normalizeBarcode(String value) {
-    return value.trim().replaceAll(RegExp(r'[\s-]+'), '');
   }
 }

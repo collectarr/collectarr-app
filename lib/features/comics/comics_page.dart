@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
+import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -6020,15 +6021,17 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       _error = null;
     });
     try {
-      final rows = await ref.read(apiClientProvider).search(
-            query,
-            kind: 'comic',
-            series: series,
-            issueNumber: issueNumber,
-            publisher: publisher,
-            year: year,
-            barcode: barcode,
-            limit: 50,
+      final rows = await ref.read(apiClientProvider).searchMetadata(
+            MetadataSearchQuery(
+              query: query,
+              kind: 'comic',
+              series: series,
+              issueNumber: issueNumber,
+              publisher: publisher,
+              year: year,
+              barcode: barcode,
+              limit: 50,
+            ),
           );
       final items = rows.map(CatalogItem.fromJson).toList(growable: false);
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
