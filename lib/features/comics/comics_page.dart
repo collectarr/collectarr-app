@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
@@ -5707,7 +5708,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   final _barcodeController = TextEditingController();
   final _defaultStorageBoxController = TextEditingController();
   var _serverResults = const <CatalogItem>[];
-  var _providerResults = const <_ProviderCandidate>[];
+  var _providerResults = const <ProviderCandidate>[];
   String? _selectedServerId;
   String? _selectedProviderId;
   final _checkedServerIds = <String>{};
@@ -5980,7 +5981,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
     return null;
   }
 
-  _ProviderCandidate? get _selectedProviderCandidate {
+  ProviderCandidate? get _selectedProviderCandidate {
     final id = _selectedProviderId;
     if (id == null) {
       return null;
@@ -6069,7 +6070,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
           .read(apiClientProvider)
           .searchProvider(provider: 'comicvine', query: query);
       final results =
-          rows.map(_ProviderCandidate.fromJson).toList(growable: false);
+          rows.map(ProviderCandidate.fromJson).toList(growable: false);
       if (!mounted) {
         return;
       }
@@ -6219,7 +6220,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
     );
   }
 
-  Future<void> _proposeCandidate(_ProviderCandidate candidate) async {
+  Future<void> _proposeCandidate(ProviderCandidate candidate) async {
     setState(() {
       _isSubmitting = true;
       _error = null;
@@ -6751,7 +6752,7 @@ class _AddComicResultPane extends StatelessWidget {
 
   final _AddComicMode mode;
   final List<CatalogItem> serverResults;
-  final List<_ProviderCandidate> providerResults;
+  final List<ProviderCandidate> providerResults;
   final Set<String> ownedItemIds;
   final Set<String> wishlistItemIds;
   final String? selectedServerId;
@@ -7211,7 +7212,7 @@ class _AddComicPreviewPane extends StatelessWidget {
   });
 
   final CatalogItem? item;
-  final _ProviderCandidate? candidate;
+  final ProviderCandidate? candidate;
   final bool selectedIsOwned;
   final bool selectedIsWishlisted;
   final bool searchedServer;
@@ -7356,7 +7357,7 @@ class _AddComicBottomBar extends StatelessWidget {
   });
 
   final CatalogItem? selectedItem;
-  final _ProviderCandidate? selectedCandidate;
+  final ProviderCandidate? selectedCandidate;
   final bool selectedIsOwned;
   final bool selectedIsWishlisted;
   final _AddComicTarget addTarget;
@@ -7819,32 +7820,21 @@ String _addComicTargetLabel(_AddComicTarget target) {
 class _ProviderCandidateImage extends StatelessWidget {
   const _ProviderCandidateImage({required this.candidate});
 
-  final _ProviderCandidate candidate;
+  final ProviderCandidate candidate;
 
   @override
   Widget build(BuildContext context) {
     final imageUrl = candidate.imageUrl;
     if (imageUrl == null || imageUrl.isEmpty) {
-      return _GeneratedCover(
-        item: CatalogItem(
-          id: candidate.providerItemId,
-          kind: 'comic',
-          title: candidate.title,
-        ),
-      );
+      return _GeneratedCover(item: candidate.placeholderCatalogItem());
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: CachedNetworkImage(
         imageUrl: imageUrl,
         fit: BoxFit.cover,
-        errorWidget: (context, url, error) => _GeneratedCover(
-          item: CatalogItem(
-            id: candidate.providerItemId,
-            kind: 'comic',
-            title: candidate.title,
-          ),
-        ),
+        errorWidget: (context, url, error) =>
+            _GeneratedCover(item: candidate.placeholderCatalogItem()),
       ),
     );
   }
@@ -7876,32 +7866,6 @@ class _DialogMessage extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ProviderCandidate {
-  const _ProviderCandidate({
-    required this.provider,
-    required this.providerItemId,
-    required this.title,
-    this.summary,
-    this.imageUrl,
-  });
-
-  factory _ProviderCandidate.fromJson(Map<String, dynamic> json) {
-    return _ProviderCandidate(
-      provider: json['provider'] as String,
-      providerItemId: json['provider_item_id'] as String,
-      title: json['title'] as String,
-      summary: json['summary'] as String?,
-      imageUrl: json['image_url'] as String?,
-    );
-  }
-
-  final String provider;
-  final String providerItemId;
-  final String title;
-  final String? summary;
-  final String? imageUrl;
 }
 
 class _ErrorState extends StatelessWidget {
