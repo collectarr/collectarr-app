@@ -25,6 +25,18 @@ class WishlistItem {
 
   bool get isDeleted => deletedAt != null;
 
+  Map<String, dynamic> toSyncPayload() {
+    return {
+      'item_id': itemId,
+      'edition_id': editionId,
+      'variant_id': variantId,
+      'target_price_cents': targetPriceCents,
+      'currency': currency,
+      'notes': notes,
+      'created_at': createdAt.toUtc().toIso8601String(),
+    };
+  }
+
   factory WishlistItem.fromJson(Map<String, dynamic> json) {
     return WishlistItem(
       id: json['id'] as String,

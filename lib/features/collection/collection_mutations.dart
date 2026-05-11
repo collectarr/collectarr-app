@@ -148,7 +148,7 @@ class CollectionMutations {
         entityType: 'owned_item',
         entityId: item.id,
         action: action,
-        payload: _ownedPayload(item),
+        payload: item.toSyncPayload(),
         clientChangedAt: changedAt,
       ),
     );
@@ -162,36 +162,10 @@ class CollectionMutations {
         entityType: 'wishlist_item',
         entityId: item.id,
         action: action,
-        payload: _wishlistPayload(item),
+        payload: item.toSyncPayload(),
         clientChangedAt: changedAt,
       ),
     );
-  }
-
-  Map<String, dynamic> _ownedPayload(OwnedItem item) {
-    return {
-      'item_id': item.itemId,
-      'edition_id': item.editionId,
-      'variant_id': item.variantId,
-      'condition': item.condition,
-      'grade': item.grade,
-      'purchase_date': item.purchaseDate?.toUtc().toIso8601String(),
-      'price_paid_cents': item.pricePaidCents,
-      'currency': item.currency,
-      'personal_notes': item.personalNotes,
-    };
-  }
-
-  Map<String, dynamic> _wishlistPayload(WishlistItem item) {
-    return {
-      'item_id': item.itemId,
-      'edition_id': item.editionId,
-      'variant_id': item.variantId,
-      'target_price_cents': item.targetPriceCents,
-      'currency': item.currency,
-      'notes': item.notes,
-      'created_at': item.createdAt.toUtc().toIso8601String(),
-    };
   }
 }
 

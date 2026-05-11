@@ -3,8 +3,8 @@ import 'package:dio/dio.dart';
 
 class CollectarrSyncClient {
   CollectarrSyncClient({
-    String baseUrl = 'http://localhost:8020',
-    String syncKey = 'collectarr-sync-dev-key',
+    required String baseUrl,
+    required String syncKey,
   })  : _syncKey = syncKey,
         _dio = Dio(BaseOptions(baseUrl: baseUrl));
 
@@ -23,7 +23,7 @@ class CollectarrSyncClient {
       },
       options: _options(),
     );
-    return response.data!;
+    return _responseData(response, '/sync/push');
   }
 
   Future<Map<String, dynamic>> pull({DateTime? since}) async {
@@ -34,10 +34,21 @@ class CollectarrSyncClient {
       },
       options: _options(),
     );
-    return response.data!;
+    return _responseData(response, '/sync/pull');
   }
 
   Options _options() {
     return Options(headers: {'X-Collectarr-Sync-Key': _syncKey});
+  }
+
+  Map<String, dynamic> _responseData(
+    Response<Map<String, dynamic>> response,
+    String endpoint,
+  ) {
+    final data = response.data;
+    if (data == null) {
+      throw StateError('$endpoint returned an empty response body');
+    }
+    return data;
   }
 }

@@ -1,5 +1,8 @@
+import 'dart:developer' as developer;
+
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
+import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -7,6 +10,15 @@ import 'package:collectarr_app/features/collection/owned_items_cache_repository.
 import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+const _syncBaseUrl = String.fromEnvironment(
+  'COLLECTARR_SYNC_BASE_URL',
+  defaultValue: 'http://localhost:8020',
+);
+const _syncKey = String.fromEnvironment(
+  'COLLECTARR_SYNC_KEY',
+  defaultValue: 'collectarr-sync-dev-key',
+);
 
 class SyncState {
   const SyncState({
@@ -51,18 +63,27 @@ class SyncController extends StateNotifier<SyncState> {
     state = state.copyWith(isSyncing: true, isOffline: false);
     try {
       final deviceId = await DeviceIdentity().getOrCreate();
+      final cursor = SyncCursorStore();
+      final since = await cursor.read();
       final db = ref.read(localDatabaseProvider);
-      await SyncService(
-        client: CollectarrSyncClient(),
+      final serverTime = await SyncService(
+        client: CollectarrSyncClient(baseUrl: _syncBaseUrl, syncKey: _syncKey),
         queue: SyncQueueRepository(db),
         ownedItems: OwnedItemsCacheRepository(db),
         wishlistItems: WishlistItemsCacheRepository(db),
-      ).syncNow(deviceId);
+      ).syncNow(deviceId, since: since);
+      await cursor.write(serverTime);
       ref.invalidate(collectionProvider);
       ref.invalidate(wishlistIdsProvider);
       final count = await _queue().pendingCount();
       state = SyncState(pendingCount: count);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      developer.log(
+        'Collectarr personal sync failed',
+        name: 'collectarr.sync',
+        error: error,
+        stackTrace: stackTrace,
+      );
       final count = await _queue().pendingCount();
       state = SyncState(pendingCount: count, isOffline: true);
     }

@@ -29,6 +29,20 @@ class OwnedItem {
 
   bool get isDeleted => deletedAt != null;
 
+  Map<String, dynamic> toSyncPayload() {
+    return {
+      'item_id': itemId,
+      'edition_id': editionId,
+      'variant_id': variantId,
+      'condition': condition,
+      'grade': grade,
+      'purchase_date': purchaseDate?.toUtc().toIso8601String(),
+      'price_paid_cents': pricePaidCents,
+      'currency': currency,
+      'personal_notes': personalNotes,
+    };
+  }
+
   factory OwnedItem.fromJson(Map<String, dynamic> json) {
     return OwnedItem(
       id: json['id'] as String,
