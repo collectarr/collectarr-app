@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
+import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
@@ -47,8 +48,6 @@ const Color _kClzTextMuted = Color(0xFFB8B8B8);
 enum _OwnershipFilter { all, owned, wishlist, missingGrade }
 
 enum _BulkToolbarAction { edit, wishlist, remove, clear }
-
-enum _AddComicMode { search, barcode, pullList }
 
 ThemeData _clzComicsTheme() {
   final base = ThemeData.dark(useMaterial3: true);
@@ -5735,7 +5734,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   bool _includeVariants = true;
   bool _hideInShelf = true;
   bool _showAdvancedFilters = false;
-  _AddComicMode _mode = _AddComicMode.search;
+  LibraryAddMode _mode = LibraryAddMode.search;
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
   String? _defaultCondition = 'Near Mint';
   String? _defaultGrade = 'Ungraded';
@@ -6284,7 +6283,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
     await CatalogCacheRepository(ref.read(localDatabaseProvider))
         .upsertAll([item]);
     setState(() {
-      _mode = _AddComicMode.search;
+      _mode = LibraryAddMode.search;
       _searchedServer = true;
       _serverResults = [
         item,
@@ -6394,7 +6393,7 @@ class _AddComicModeBar extends StatelessWidget {
     required this.onProposeManual,
   });
 
-  final _AddComicMode mode;
+  final LibraryAddMode mode;
   final TextEditingController queryController;
   final TextEditingController seriesController;
   final TextEditingController issueController;
@@ -6403,7 +6402,7 @@ class _AddComicModeBar extends StatelessWidget {
   final TextEditingController barcodeController;
   final bool showAdvancedFilters;
   final bool isSearching;
-  final ValueChanged<_AddComicMode> onModeChanged;
+  final ValueChanged<LibraryAddMode> onModeChanged;
   final ValueChanged<bool> onAdvancedChanged;
   final VoidCallback onSearch;
   final VoidCallback onLookupBarcode;
@@ -6437,20 +6436,20 @@ class _AddComicModeBar extends StatelessWidget {
                         _AddModeTab(
                           icon: Icons.menu_book,
                           label: 'Series',
-                          selected: mode == _AddComicMode.search,
-                          onTap: () => onModeChanged(_AddComicMode.search),
+                          selected: mode == LibraryAddMode.search,
+                          onTap: () => onModeChanged(LibraryAddMode.search),
                         ),
                         _AddModeTab(
                           icon: Icons.qr_code_2,
                           label: 'Barcode',
-                          selected: mode == _AddComicMode.barcode,
-                          onTap: () => onModeChanged(_AddComicMode.barcode),
+                          selected: mode == LibraryAddMode.barcode,
+                          onTap: () => onModeChanged(LibraryAddMode.barcode),
                         ),
                         _AddModeTab(
                           icon: Icons.star,
                           label: 'Pull List',
-                          selected: mode == _AddComicMode.pullList,
-                          onTap: () => onModeChanged(_AddComicMode.pullList),
+                          selected: mode == LibraryAddMode.pullList,
+                          onTap: () => onModeChanged(LibraryAddMode.pullList),
                         ),
                       ],
                     ),
@@ -6480,7 +6479,7 @@ class _AddComicModeBar extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             switch (mode) {
-              _AddComicMode.search => Column(
+              LibraryAddMode.search => Column(
                   children: [
                     Row(
                       children: [
@@ -6534,7 +6533,7 @@ class _AddComicModeBar extends StatelessWidget {
                     ],
                   ],
                 ),
-              _AddComicMode.barcode => Row(
+              LibraryAddMode.barcode => Row(
                   children: [
                     Expanded(
                       child: SizedBox(
@@ -6572,7 +6571,7 @@ class _AddComicModeBar extends StatelessWidget {
                     ),
                   ],
                 ),
-              _AddComicMode.pullList => const _PullListModePanel(),
+              LibraryAddMode.pullList => const _PullListModePanel(),
             },
           ],
         ),
@@ -6770,7 +6769,7 @@ class _AddComicResultPane extends StatelessWidget {
     required this.onSearchProvider,
   });
 
-  final _AddComicMode mode;
+  final LibraryAddMode mode;
   final List<CatalogItem> serverResults;
   final List<ProviderCandidate> providerResults;
   final Set<String> ownedItemIds;
@@ -6795,7 +6794,7 @@ class _AddComicResultPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (mode == _AddComicMode.pullList) {
+    if (mode == LibraryAddMode.pullList) {
       return const _PullListResultsPane();
     }
     return ColoredBox(
