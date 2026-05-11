@@ -108,7 +108,7 @@ class _ComicsWorkspace extends StatelessWidget {
         queryController: queryController,
         onSearch: onSearch,
         onScanBarcode: () => _showScanPlaceholder(context),
-        onSync: () => _showMetadataSyncPlaceholder(context),
+        onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
         onSelectItem: onSelectItem,
         onClearSeries: onClearSeries,
       );
@@ -123,7 +123,7 @@ class _ComicsWorkspace extends StatelessWidget {
           selectedSeries: selectedSeries,
           onSearch: onSearch,
           onScanBarcode: () => _showScanPlaceholder(context),
-          onSync: () => _showMetadataSyncPlaceholder(context),
+          onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
           onClearSeries: onClearSeries,
         ),
         Expanded(
@@ -171,7 +171,7 @@ class _ComicsWorkspace extends StatelessWidget {
     return buckets;
   }
 
-  void _showMetadataSyncPlaceholder(BuildContext context) {
+  void _showMetadataRefreshPlaceholder(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Metadata refresh is not wired yet')),
     );
@@ -208,7 +208,7 @@ class _ComicsToolbar extends StatelessWidget {
     required this.selectedSeries,
     required this.onSearch,
     required this.onScanBarcode,
-    required this.onSync,
+    required this.onRefreshMetadata,
     required this.onClearSeries,
   });
 
@@ -218,7 +218,7 @@ class _ComicsToolbar extends StatelessWidget {
   final String? selectedSeries;
   final ValueChanged<String> onSearch;
   final VoidCallback onScanBarcode;
-  final VoidCallback onSync;
+  final VoidCallback onRefreshMetadata;
   final VoidCallback onClearSeries;
 
   @override
@@ -247,9 +247,9 @@ class _ComicsToolbar extends StatelessWidget {
               ),
             ),
             Tooltip(
-              message: 'Sync',
+              message: 'Refresh metadata',
               child: IconButton.filledTonal(
-                onPressed: onSync,
+                onPressed: onRefreshMetadata,
                 icon: const Icon(Icons.sync),
               ),
             ),
@@ -1012,7 +1012,7 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
     required this.queryController,
     required this.onSearch,
     required this.onScanBarcode,
-    required this.onSync,
+    required this.onRefreshMetadata,
     required this.onSelectItem,
     required this.onClearSeries,
   });
@@ -1023,7 +1023,7 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
   final VoidCallback onScanBarcode;
-  final VoidCallback onSync;
+  final VoidCallback onRefreshMetadata;
   final ValueChanged<CatalogItem> onSelectItem;
   final VoidCallback onClearSeries;
 
@@ -1040,7 +1040,7 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
       queryController: queryController,
       onSearch: onSearch,
       onScanBarcode: onScanBarcode,
-      onSync: onSync,
+      onRefreshMetadata: onRefreshMetadata,
       onSelectItem: onSelectItem,
       onClearSeries: onClearSeries,
     );
@@ -1057,7 +1057,7 @@ class _CompactComicsView extends StatelessWidget {
     required this.queryController,
     required this.onSearch,
     required this.onScanBarcode,
-    required this.onSync,
+    required this.onRefreshMetadata,
     required this.onSelectItem,
     required this.onClearSeries,
   });
@@ -1070,7 +1070,7 @@ class _CompactComicsView extends StatelessWidget {
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
   final VoidCallback onScanBarcode;
-  final VoidCallback onSync;
+  final VoidCallback onRefreshMetadata;
   final ValueChanged<CatalogItem> onSelectItem;
   final VoidCallback onClearSeries;
 
@@ -1101,9 +1101,9 @@ class _CompactComicsView extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Tooltip(
-                  message: 'Sync',
+                  message: 'Refresh metadata',
                   child: IconButton.filledTonal(
-                    onPressed: onSync,
+                    onPressed: onRefreshMetadata,
                     icon: const Icon(Icons.sync),
                   ),
                 ),

@@ -67,7 +67,7 @@ void main() {
     expect(find.byIcon(Icons.grid_view), findsOneWidget);
   });
 
-  testWidgets('compact comics page keeps scan and sync actions',
+  testWidgets('compact comics page keeps scan and metadata refresh actions',
       (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
