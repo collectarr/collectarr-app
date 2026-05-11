@@ -4006,6 +4006,11 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
   void initState() {
     super.initState();
     _tabController = TabController(length: 6, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
     _priceController = TextEditingController(
       text: widget.ownedItem.pricePaidCents == null
           ? ''
@@ -4066,90 +4071,152 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Dialog(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 780, maxHeight: 720),
-        child: Column(
-          children: [
-            Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              color: colorScheme.surfaceContainerHighest,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Edit - ${widget.item.title} ${widget.item.itemNumber == null ? '' : '#${widget.item.itemNumber}'}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          inputDecorationTheme: const InputDecorationTheme(
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            border: OutlineInputBorder(),
+          ),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 860, maxHeight: 720),
+          child: Column(
+            children: [
+              Container(
+                height: 54,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                color: _kClzToolbar,
+                child: Row(
+                  children: [
+                    const Icon(Icons.edit_note, color: _kClzAccent),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Edit - ${widget.item.title}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w900),
+                          ),
+                          Text(
+                            widget.item.itemNumber == null
+                                ? 'Personal local copy'
+                                : 'Issue #${widget.item.itemNumber} - local copy',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: _kClzTextMuted,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    tooltip: 'Close',
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
-            TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabs: const [
-                Tab(icon: Icon(Icons.article), text: 'Main'),
-                Tab(icon: Icon(Icons.search), text: 'Details'),
-                Tab(icon: Icon(Icons.attach_money), text: 'Value'),
-                Tab(icon: Icon(Icons.person), text: 'Personal'),
-                Tab(icon: Icon(Icons.image), text: 'Cover'),
-                Tab(icon: Icon(Icons.notes), text: 'Plot'),
-              ],
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _editMainTab(),
-                  _editDetailsTab(),
-                  _editValueTab(),
-                  _editPersonalTab(),
-                  _editCoverTab(),
-                  _editPlotTab(),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerLowest,
-                border: Border(
-                  top: BorderSide(color: colorScheme.outlineVariant),
+                    if (widget.item.itemNumber != null)
+                      _IssuePill(label: '#${widget.item.itemNumber}'),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
                 ),
               ),
-              child: Row(
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _pickPurchaseDate,
-                    icon: const Icon(Icons.event),
-                    label: Text(
-                      _purchaseDate == null
-                          ? 'Set purchase date'
-                          : _formatDate(_purchaseDate!),
-                    ),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: _submit,
-                    child: const Text('OK'),
-                  ),
-                ],
+              ColoredBox(
+                color: const Color(0xFFEEEEEE),
+                child: TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  labelColor: const Color(0xFF151515),
+                  unselectedLabelColor: const Color(0xFF555555),
+                  indicatorColor: _kClzAccent,
+                  tabs: const [
+                    Tab(icon: Icon(Icons.article), text: 'Main'),
+                    Tab(icon: Icon(Icons.search), text: 'Details'),
+                    Tab(icon: Icon(Icons.attach_money), text: 'Value'),
+                    Tab(icon: Icon(Icons.person), text: 'Personal'),
+                    Tab(icon: Icon(Icons.image), text: 'Cover'),
+                    Tab(icon: Icon(Icons.notes), text: 'Plot'),
+                  ],
+                ),
               ),
-            ),
-          ],
+              Expanded(
+                child: ColoredBox(
+                  color: colorScheme.surfaceContainerLowest,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _editMainTab(),
+                      _editDetailsTab(),
+                      _editValueTab(),
+                      _editPersonalTab(),
+                      _editCoverTab(),
+                      _editPlotTab(),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerLowest,
+                  border: Border(
+                    top: BorderSide(color: colorScheme.outlineVariant),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed:
+                          _tabController.index == 0 ? null : _previousTab,
+                      icon: const Icon(Icons.chevron_left),
+                      label: const Text('Previous'),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton.icon(
+                      onPressed:
+                          _tabController.index == _tabController.length - 1
+                              ? null
+                              : _nextTab,
+                      icon: const Icon(Icons.chevron_right),
+                      label: const Text('Next'),
+                    ),
+                    const SizedBox(width: 12),
+                    OutlinedButton.icon(
+                      onPressed: _pickPurchaseDate,
+                      icon: const Icon(Icons.event),
+                      label: Text(
+                        _purchaseDate == null
+                            ? 'Set purchase date'
+                            : _formatDate(_purchaseDate!),
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton(
+                      onPressed: _submit,
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -4477,6 +4544,18 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
         ),
       ],
     );
+  }
+
+  void _previousTab() {
+    if (_tabController.index > 0) {
+      _tabController.animateTo(_tabController.index - 1);
+    }
+  }
+
+  void _nextTab() {
+    if (_tabController.index < _tabController.length - 1) {
+      _tabController.animateTo(_tabController.index + 1);
+    }
   }
 
   Future<void> _pickPurchaseDate() async {
