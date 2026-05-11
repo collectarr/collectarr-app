@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
+import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -7405,7 +7406,11 @@ class _AddComicBottomBar extends StatelessWidget {
             ? addTarget == LibraryAddTarget.owned
                 ? 'Already in Collection'
                 : 'Already in Wishlist'
-            : 'Add ${addCount <= 1 ? 1 : addCount} Comic${addCount <= 1 ? '' : 's'} to ${addTarget.destinationLabel}';
+            : LibraryAddCopy.addToTargetLabel(
+                count: addCount,
+                type: comicsLibraryConfig,
+                target: addTarget,
+              );
     return ColoredBox(
       color: const Color(0xFF262626),
       child: Padding(
