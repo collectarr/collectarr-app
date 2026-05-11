@@ -1,9 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
+import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -63,6 +67,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               selectedItemId = null;
             }),
             onClearSeries: () => setState(() => selectedSeries = null),
+            onScanBarcode: () => _handleBarcodeScan(context),
             onViewModeChanged: (value) => setState(() => viewMode = value),
           ),
           error: (error, stackTrace) => _ErrorState(message: error.toString()),
@@ -70,6 +75,43 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleBarcodeScan(BuildContext context) async {
+    final code = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => const BarcodeScanSheet(),
+    );
+    if (code == null || !context.mounted) {
+      return;
+    }
+
+    try {
+      final result =
+          await ref.read(apiClientProvider).lookupBarcode(code, kind: 'comic');
+      final item = CatalogItem.fromJson(result);
+      await CatalogCacheRepository(ref.read(localDatabaseProvider))
+          .upsertAll([item]);
+      setState(() {
+        query = item.title;
+        selectedSeries = null;
+        selectedItemId = item.id;
+        _controller.text = item.title;
+      });
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Found ${item.title}')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No metadata found for barcode $code')),
+        );
+      }
+    }
   }
 }
 
@@ -84,6 +126,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.onSelectItem,
     required this.onSelectSeries,
     required this.onClearSeries,
+    required this.onScanBarcode,
     required this.onViewModeChanged,
   });
 
@@ -96,6 +139,7 @@ class _ComicsWorkspace extends StatelessWidget {
   final ValueChanged<CatalogItem> onSelectItem;
   final ValueChanged<String> onSelectSeries;
   final VoidCallback onClearSeries;
+  final VoidCallback onScanBarcode;
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
 
   @override
@@ -117,7 +161,7 @@ class _ComicsWorkspace extends StatelessWidget {
         selectedSeries: selectedSeries,
         queryController: queryController,
         onSearch: onSearch,
-        onScanBarcode: () => _showScanPlaceholder(context),
+        onScanBarcode: onScanBarcode,
         onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
         onSelectItem: onSelectItem,
         onClearSeries: onClearSeries,
@@ -133,7 +177,7 @@ class _ComicsWorkspace extends StatelessWidget {
           selectedSeries: selectedSeries,
           viewMode: viewMode,
           onSearch: onSearch,
-          onScanBarcode: () => _showScanPlaceholder(context),
+          onScanBarcode: onScanBarcode,
           onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
           onClearSeries: onClearSeries,
           onViewModeChanged: onViewModeChanged,
@@ -192,12 +236,6 @@ class _ComicsWorkspace extends StatelessWidget {
   void _showMetadataRefreshPlaceholder(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Metadata refresh is not wired yet')),
-    );
-  }
-
-  void _showScanPlaceholder(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Barcode scanning is not wired yet')),
     );
   }
 

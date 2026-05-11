@@ -63,6 +63,21 @@ class ApiClient {
     return response.data!;
   }
 
+  Future<Map<String, dynamic>> lookupBarcode(String barcode,
+      {String? kind}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/barcode/${Uri.encodeComponent(_normalizeBarcode(barcode))}',
+      queryParameters: {
+        if (kind != null) 'kind': kind,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/barcode returned an empty response body');
+    }
+    return data;
+  }
+
   Future<Map<String, dynamic>> health() async {
     final response = await _dio.get<Map<String, dynamic>>('/health');
     final data = response.data;
@@ -70,5 +85,9 @@ class ApiClient {
       throw StateError('/health returned an empty response body');
     }
     return data;
+  }
+
+  String _normalizeBarcode(String value) {
+    return value.trim().replaceAll(RegExp(r'[\s-]+'), '');
   }
 }
