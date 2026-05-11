@@ -2615,6 +2615,7 @@ class _RichMetadataInspector extends StatelessWidget {
     final creators = _metadataNames(source, 'person_credits');
     final characters = _metadataNames(source, 'character_credits');
     final arcs = _metadataNames(source, 'story_arc_credits');
+    final providerFacts = _providerFacts(edition);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -2633,6 +2634,14 @@ class _RichMetadataInspector extends StatelessWidget {
             _InspectorFact('Variant', variant?.name ?? '-'),
           ],
         ),
+        if (providerFacts.isNotEmpty)
+          _InspectorSection(
+            title: 'Provider links',
+            children: [
+              for (final fact in providerFacts)
+                _InspectorFact(fact.label, fact.value),
+            ],
+          ),
         _InspectorSection(
           title: 'Personal',
           children: [
@@ -2690,6 +2699,40 @@ class _RichMetadataInspector extends StatelessWidget {
         if (value is Map && value['name'] != null) value['name'].toString(),
     ];
   }
+
+  List<_InspectorFactData> _providerFacts(ComicEdition? edition) {
+    final metadata = edition?.metadataJson;
+    final source = edition?.sourceMetadata;
+    final releaseIds = edition?.releases
+            .map((release) => release.externalIds)
+            .whereType<Map<String, dynamic>>()
+            .expand((ids) => ids.entries)
+            .map((entry) => '${entry.key}: ${entry.value}')
+            .toSet()
+            .join(', ') ??
+        '';
+    return [
+      if (metadata?['provider'] != null)
+        _InspectorFactData('Provider', metadata!['provider'].toString()),
+      if (metadata?['provider_item_id'] != null)
+        _InspectorFactData(
+          'Provider ID',
+          metadata!['provider_item_id'].toString(),
+        ),
+      if (source?['site_detail_url'] != null)
+        _InspectorFactData('Source URL', source!['site_detail_url'].toString()),
+      if (source?['api_detail_url'] != null)
+        _InspectorFactData('API URL', source!['api_detail_url'].toString()),
+      if (releaseIds.isNotEmpty) _InspectorFactData('Release IDs', releaseIds),
+    ];
+  }
+}
+
+class _InspectorFactData {
+  const _InspectorFactData(this.label, this.value);
+
+  final String label;
+  final String value;
 }
 
 class _InspectorSection extends StatelessWidget {
