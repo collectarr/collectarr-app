@@ -159,6 +159,45 @@ void main() {
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
   });
 
+  testWidgets('add comics opens Collectarr Core style dialog', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => const ShelfState(
+              entries: [],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Add Comics'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Comics from Collectarr Core'), findsOneWidget);
+    expect(find.text('Add Series'), findsOneWidget);
+    expect(find.text('Search Collectarr Core'), findsOneWidget);
+    expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
+  });
+
   testWidgets('comics page restores persisted list view preferences',
       (tester) async {
     SharedPreferences.setMockInitialValues({

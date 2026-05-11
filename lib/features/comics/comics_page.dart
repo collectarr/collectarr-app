@@ -2791,11 +2791,15 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   final _controller = TextEditingController();
   var _serverResults = const <CatalogItem>[];
   var _providerResults = const <_ProviderCandidate>[];
+  String? _selectedServerId;
+  String? _selectedProviderId;
   bool _searchedServer = false;
   bool _searchedProvider = false;
   bool _isSearchingServer = false;
   bool _isSearchingProvider = false;
   bool _isSubmitting = false;
+  bool _includeVariants = true;
+  bool _hideOwned = true;
   String? _error;
 
   @override
@@ -2807,104 +2811,202 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    return Dialog(
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: width < 720 ? 12 : 32,
-        vertical: 24,
+    final compact = width < 760;
+    final shelf = ref.watch(shelfProvider).valueOrNull;
+    final ownedItemIds = shelf == null
+        ? const <String>{}
+        : {
+            for (final entry in shelf.entries)
+              if (entry.ownedItem != null) entry.itemId,
+          };
+    final wishlistItemIds = shelf == null
+        ? const <String>{}
+        : {
+            for (final entry in shelf.entries)
+              if (entry.wishlistItem != null) entry.itemId,
+          };
+    final selectedItem = _selectedServerItem;
+    final selectedCandidate = _selectedProviderCandidate;
+    final selectedIsOwned =
+        selectedItem != null && ownedItemIds.contains(selectedItem.id);
+    final selectedIsWishlisted =
+        selectedItem != null && wishlistItemIds.contains(selectedItem.id);
+    return Theme(
+      data: ThemeData.dark(useMaterial3: true).copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF10A8D8),
+          brightness: Brightness.dark,
+          surface: const Color(0xFF1D1D1D),
+        ),
       ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 12, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Add comic',
-                      style: Theme.of(context).textTheme.titleLarge,
+      child: Dialog(
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: width < 720 ? 10 : 32,
+          vertical: 24,
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1040, maxHeight: 780),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: const Color(0xFF1F1F1F),
+              border: Border.all(color: const Color(0xFF5A5A5A)),
+            ),
+            child: Column(
+              children: [
+                _AddComicTitleBar(onClose: () => Navigator.of(context).pop()),
+                _AddComicModeBar(
+                  queryController: _controller,
+                  isSearching: _isSearchingServer,
+                  onSearch: _searchServer,
+                ),
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+                    child: _DialogMessage(
+                      icon: Icons.error_outline,
+                      text: _error!,
                     ),
                   ),
-                  IconButton(
-                    tooltip: 'Close',
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
+                Expanded(
+                  child: compact
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: 300,
+                              child: _AddComicResultPane(
+                                queryController: _controller,
+                                serverResults: _serverResults,
+                                providerResults: _providerResults,
+                                ownedItemIds: ownedItemIds,
+                                wishlistItemIds: wishlistItemIds,
+                                selectedServerId: _selectedServerId,
+                                selectedProviderId: _selectedProviderId,
+                                includeVariants: _includeVariants,
+                                hideOwned: _hideOwned,
+                                searchedServer: _searchedServer,
+                                searchedProvider: _searchedProvider,
+                                isSearchingServer: _isSearchingServer,
+                                isSearchingProvider: _isSearchingProvider,
+                                onIncludeVariantsChanged: (value) =>
+                                    setState(() => _includeVariants = value),
+                                onHideOwnedChanged: (value) =>
+                                    setState(() => _hideOwned = value),
+                                onSelectServer: (id) => setState(() {
+                                  _selectedServerId = id;
+                                  _selectedProviderId = null;
+                                }),
+                                onSelectProvider: (id) => setState(() {
+                                  _selectedProviderId = id;
+                                  _selectedServerId = null;
+                                }),
+                                onSearchProvider: _searchComicVine,
+                              ),
+                            ),
+                            Expanded(
+                              child: _AddComicPreviewPane(
+                                item: selectedItem,
+                                candidate: selectedCandidate,
+                                selectedIsOwned: selectedIsOwned,
+                                selectedIsWishlisted: selectedIsWishlisted,
+                                searchedServer: _searchedServer,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            SizedBox(
+                              width: 320,
+                              child: _AddComicResultPane(
+                                queryController: _controller,
+                                serverResults: _serverResults,
+                                providerResults: _providerResults,
+                                ownedItemIds: ownedItemIds,
+                                wishlistItemIds: wishlistItemIds,
+                                selectedServerId: _selectedServerId,
+                                selectedProviderId: _selectedProviderId,
+                                includeVariants: _includeVariants,
+                                hideOwned: _hideOwned,
+                                searchedServer: _searchedServer,
+                                searchedProvider: _searchedProvider,
+                                isSearchingServer: _isSearchingServer,
+                                isSearchingProvider: _isSearchingProvider,
+                                onIncludeVariantsChanged: (value) =>
+                                    setState(() => _includeVariants = value),
+                                onHideOwnedChanged: (value) =>
+                                    setState(() => _hideOwned = value),
+                                onSelectServer: (id) => setState(() {
+                                  _selectedServerId = id;
+                                  _selectedProviderId = null;
+                                }),
+                                onSelectProvider: (id) => setState(() {
+                                  _selectedProviderId = id;
+                                  _selectedServerId = null;
+                                }),
+                                onSearchProvider: _searchComicVine,
+                              ),
+                            ),
+                            const VerticalDivider(width: 1),
+                            Expanded(
+                              child: _AddComicPreviewPane(
+                                item: selectedItem,
+                                candidate: selectedCandidate,
+                                selectedIsOwned: selectedIsOwned,
+                                selectedIsWishlisted: selectedIsWishlisted,
+                                searchedServer: _searchedServer,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                _AddComicBottomBar(
+                  selectedItem: selectedItem,
+                  selectedCandidate: selectedCandidate,
+                  selectedIsOwned: selectedIsOwned,
+                  selectedIsWishlisted: selectedIsWishlisted,
+                  isSubmitting: _isSubmitting,
+                  onAddOwned: selectedItem == null || selectedIsOwned
+                      ? null
+                      : () => _addServerComic(selectedItem, wishlist: false),
+                  onAddWishlist: selectedItem == null || selectedIsWishlisted
+                      ? null
+                      : () => _addServerComic(selectedItem, wishlist: true),
+                  onPropose: selectedCandidate == null
+                      ? null
+                      : () => _proposeCandidate(selectedCandidate),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SearchBar(
-                      controller: _controller,
-                      hintText: 'Search server metadata...',
-                      leading: const Icon(Icons.search),
-                      onSubmitted: (_) => _searchServer(),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  FilledButton.icon(
-                    onPressed: _isSearchingServer ? null : _searchServer,
-                    icon: _isSearchingServer
-                        ? const SizedBox.square(
-                            dimension: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.search),
-                    label: const Text('Search'),
-                  ),
-                ],
-              ),
-            ),
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: _DialogMessage(icon: Icons.error_outline, text: _error!),
-              ),
-            Expanded(
-              child: _buildResults(context),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildResults(BuildContext context) {
-    if (!_searchedServer && !_isSearchingServer) {
-      return const _AddComicPrompt();
+  CatalogItem? get _selectedServerItem {
+    final id = _selectedServerId;
+    if (id == null) {
+      return null;
     }
-    if (_isSearchingServer) {
-      return const Center(child: CircularProgressIndicator());
+    for (final item in _serverResults) {
+      if (item.id == id) {
+        return item;
+      }
     }
-    if (_serverResults.isNotEmpty) {
-      return ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-        itemCount: _serverResults.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          final item = _serverResults[index];
-          return _ServerComicResult(
-            item: item,
-            isSubmitting: _isSubmitting,
-            onAddOwned: () => _addServerComic(item, wishlist: false),
-            onAddWishlist: () => _addServerComic(item, wishlist: true),
-          );
-        },
-      );
+    return null;
+  }
+
+  _ProviderCandidate? get _selectedProviderCandidate {
+    final id = _selectedProviderId;
+    if (id == null) {
+      return null;
     }
-    return _NoServerResults(
-      isSearchingProvider: _isSearchingProvider,
-      searchedProvider: _searchedProvider,
-      providerResults: _providerResults,
-      isSubmitting: _isSubmitting,
-      onSearchProvider: _searchComicVine,
-      onPropose: _proposeCandidate,
-    );
+    for (final item in _providerResults) {
+      if (item.providerItemId == id) {
+        return item;
+      }
+    }
+    return null;
   }
 
   Future<void> _searchServer() async {
@@ -2916,7 +3018,10 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       _isSearchingServer = true;
       _searchedServer = true;
       _searchedProvider = false;
+      _serverResults = const [];
       _providerResults = const [];
+      _selectedServerId = null;
+      _selectedProviderId = null;
       _error = null;
     });
     try {
@@ -2928,15 +3033,15 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       if (!mounted) {
         return;
       }
-      setState(() => _serverResults = items);
+      setState(() {
+        _serverResults = items;
+        _selectedServerId = items.isEmpty ? null : items.first.id;
+      });
     } catch (error) {
       if (!mounted) {
         return;
       }
-      setState(() {
-        _serverResults = const [];
-        _error = 'Server metadata search failed: $error';
-      });
+      setState(() => _error = 'Server metadata search failed: $error');
     } finally {
       if (mounted) {
         setState(() => _isSearchingServer = false);
@@ -2952,6 +3057,8 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
     setState(() {
       _isSearchingProvider = true;
       _searchedProvider = true;
+      _providerResults = const [];
+      _selectedProviderId = null;
       _error = null;
     });
     try {
@@ -2963,15 +3070,16 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       if (!mounted) {
         return;
       }
-      setState(() => _providerResults = results);
+      setState(() {
+        _providerResults = results;
+        _selectedProviderId =
+            results.isEmpty ? null : results.first.providerItemId;
+      });
     } catch (error) {
       if (!mounted) {
         return;
       }
-      setState(() {
-        _providerResults = const [];
-        _error = 'ComicVine search failed: $error';
-      });
+      setState(() => _error = 'ComicVine search failed: $error');
     } finally {
       if (mounted) {
         setState(() => _isSearchingProvider = false);
@@ -3047,27 +3155,122 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   }
 }
 
-class _AddComicPrompt extends StatelessWidget {
-  const _AddComicPrompt();
+class _AddComicTitleBar extends StatelessWidget {
+  const _AddComicTitleBar({required this.onClose});
+
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.menu_book_outlined,
-              size: 48,
-              color: Theme.of(context).colorScheme.primary,
+    return Container(
+      height: 32,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF5B5B5B), Color(0xFF2E2E2E)],
+        ),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          const Icon(Icons.public, color: Color(0xFF03A9DE), size: 18),
+          const SizedBox(width: 8),
+          const Expanded(
+            child: Text(
+              'Add Comics from Collectarr Core',
+              style: TextStyle(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Search the server catalog to add comics to your local library.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
+          ),
+          IconButton(
+            tooltip: 'Close',
+            onPressed: onClose,
+            icon: const Icon(Icons.close, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AddComicModeBar extends StatelessWidget {
+  const _AddComicModeBar({
+    required this.queryController,
+    required this.isSearching,
+    required this.onSearch,
+  });
+
+  final TextEditingController queryController;
+  final bool isSearching;
+  final VoidCallback onSearch;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: const Color(0xFF333333),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _AddModeTab(
+                          icon: Icons.view_list,
+                          label: 'Add Series',
+                          selected: true,
+                        ),
+                        _AddModeTab(icon: Icons.grid_on, label: 'Add Issue'),
+                        _AddModeTab(
+                          icon: Icons.barcode_reader,
+                          label: 'Add by Barcode',
+                        ),
+                        _AddModeTab(
+                            icon: Icons.star_border, label: 'Pull List'),
+                        _AddModeTab(
+                          icon: Icons.calendar_month,
+                          label: 'Daily Updates',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.menu, size: 28),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 32,
+                    child: TextField(
+                      controller: queryController,
+                      onSubmitted: (_) => onSearch(),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        filled: true,
+                        fillColor: Color(0xFF4A4A4A),
+                        border: OutlineInputBorder(),
+                        hintText: 'Search title, series, barcode...',
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                FilledButton(
+                  onPressed: isSearching ? null : onSearch,
+                  child: isSearching
+                      ? const SizedBox.square(
+                          dimension: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Search Collectarr Core'),
+                ),
+              ],
             ),
           ],
         ),
@@ -3076,187 +3279,552 @@ class _AddComicPrompt extends StatelessWidget {
   }
 }
 
-class _ServerComicResult extends StatelessWidget {
-  const _ServerComicResult({
+class _AddModeTab extends StatelessWidget {
+  const _AddModeTab({
+    required this.icon,
+    required this.label,
+    this.selected = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 30,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: selected ? const Color(0xFF202020) : const Color(0xFF444444),
+        border: const Border(
+          right: BorderSide(color: Color(0xFF1A1A1A)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFF18B7EB)),
+          const SizedBox(width: 6),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
+}
+
+class _AddComicResultPane extends StatelessWidget {
+  const _AddComicResultPane({
+    required this.queryController,
+    required this.serverResults,
+    required this.providerResults,
+    required this.ownedItemIds,
+    required this.wishlistItemIds,
+    required this.selectedServerId,
+    required this.selectedProviderId,
+    required this.includeVariants,
+    required this.hideOwned,
+    required this.searchedServer,
+    required this.searchedProvider,
+    required this.isSearchingServer,
+    required this.isSearchingProvider,
+    required this.onIncludeVariantsChanged,
+    required this.onHideOwnedChanged,
+    required this.onSelectServer,
+    required this.onSelectProvider,
+    required this.onSearchProvider,
+  });
+
+  final TextEditingController queryController;
+  final List<CatalogItem> serverResults;
+  final List<_ProviderCandidate> providerResults;
+  final Set<String> ownedItemIds;
+  final Set<String> wishlistItemIds;
+  final String? selectedServerId;
+  final String? selectedProviderId;
+  final bool includeVariants;
+  final bool hideOwned;
+  final bool searchedServer;
+  final bool searchedProvider;
+  final bool isSearchingServer;
+  final bool isSearchingProvider;
+  final ValueChanged<bool> onIncludeVariantsChanged;
+  final ValueChanged<bool> onHideOwnedChanged;
+  final ValueChanged<String> onSelectServer;
+  final ValueChanged<String> onSelectProvider;
+  final VoidCallback onSearchProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: const Color(0xFF2E2E2E),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _TinyCheckbox(
+                    value: includeVariants,
+                    label: 'Variants',
+                    onChanged: onIncludeVariantsChanged,
+                  ),
+                  const SizedBox(width: 10),
+                  _TinyCheckbox(
+                    value: hideOwned,
+                    label: 'Hide owned',
+                    onChanged: onHideOwnedChanged,
+                  ),
+                  const SizedBox(width: 10),
+                  const Text('Issues:'),
+                  const SizedBox(width: 4),
+                  const _IssueSortButton(label: 'III', selected: true),
+                  const _IssueSortButton(label: 'Asc'),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
+            child: SizedBox(
+              height: 28,
+              child: TextField(
+                controller: queryController,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  filled: true,
+                  fillColor: Color(0xFFF2F2F2),
+                  border: OutlineInputBorder(),
+                ),
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _buildResults(),
+          ),
+          if (serverResults.isEmpty && searchedServer)
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: OutlinedButton.icon(
+                onPressed: isSearchingProvider ? null : onSearchProvider,
+                icon: const Icon(Icons.manage_search),
+                label: Text(
+                  searchedProvider
+                      ? 'Search ComicVine again'
+                      : 'Search ComicVine',
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResults() {
+    if (isSearchingServer || isSearchingProvider) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (!searchedServer) {
+      return const Center(
+        child: Text(
+          'Search Collectarr Core to add comics to your local collection.',
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+    if (serverResults.isNotEmpty) {
+      final visibleResults = hideOwned
+          ? serverResults
+              .where((item) => !ownedItemIds.contains(item.id))
+              .toList(growable: false)
+          : serverResults;
+      if (visibleResults.isEmpty) {
+        return const Center(
+          child: Text(
+            'All matching comics are already in your local collection.',
+            textAlign: TextAlign.center,
+          ),
+        );
+      }
+      return ListView.builder(
+        itemCount: visibleResults.length,
+        itemBuilder: (context, index) {
+          final item = visibleResults[index];
+          return _AddResultRow(
+            selected: item.id == selectedServerId,
+            cover:
+                SizedBox(width: 42, height: 62, child: _CoverImage(item: item)),
+            title: item.itemNumber == null
+                ? item.title
+                : '${item.title} #${item.itemNumber}',
+            subtitle: item.synopsis ?? 'Metadata in Collectarr Core',
+            badges: [
+              if (ownedItemIds.contains(item.id)) 'Owned',
+              if (wishlistItemIds.contains(item.id)) 'Wishlist',
+            ],
+            trailing: item.itemNumber == null ? '' : '#${item.itemNumber}',
+            onTap: () => onSelectServer(item.id),
+          );
+        },
+      );
+    }
+    if (providerResults.isNotEmpty) {
+      return ListView.builder(
+        itemCount: providerResults.length,
+        itemBuilder: (context, index) {
+          final item = providerResults[index];
+          return _AddResultRow(
+            selected: item.providerItemId == selectedProviderId,
+            cover: SizedBox(
+              width: 42,
+              height: 62,
+              child: _ProviderCandidateImage(candidate: item),
+            ),
+            title: item.title,
+            subtitle: item.summary ?? 'ComicVine candidate',
+            badges: const ['ComicVine'],
+            trailing: 'propose',
+            onTap: () => onSelectProvider(item.providerItemId),
+          );
+        },
+      );
+    }
+    return const Center(
+      child: Text(
+        'No Collectarr Core matches yet. Try ComicVine to propose metadata.',
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class _TinyCheckbox extends StatelessWidget {
+  const _TinyCheckbox({
+    required this.value,
+    required this.label,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final String label;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            value ? Icons.check_box : Icons.check_box_outline_blank,
+            size: 18,
+          ),
+          const SizedBox(width: 4),
+          Text(label, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
+    );
+  }
+}
+
+class _IssueSortButton extends StatelessWidget {
+  const _IssueSortButton({required this.label, this.selected = false});
+
+  final String label;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      color: selected ? const Color(0xFF159AC8) : const Color(0xFF555555),
+      child: Text(label, style: const TextStyle(fontSize: 11)),
+    );
+  }
+}
+
+class _AddResultRow extends StatelessWidget {
+  const _AddResultRow({
+    required this.selected,
+    required this.cover,
+    required this.title,
+    required this.subtitle,
+    required this.badges,
+    required this.trailing,
+    required this.onTap,
+  });
+
+  final bool selected;
+  final Widget cover;
+  final String title;
+  final String subtitle;
+  final List<String> badges;
+  final String trailing;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        color: selected ? const Color(0xFF214B55) : Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          children: [
+            cover,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        const TextStyle(fontSize: 12, color: Color(0xFFDDDDDD)),
+                  ),
+                  if (badges.isNotEmpty) ...[
+                    const SizedBox(height: 5),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: [
+                        for (final badge in badges) _AddResultBadge(badge),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (trailing.isNotEmpty)
+              Text(trailing, style: const TextStyle(color: Color(0xFFBFEFFF))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddResultBadge extends StatelessWidget {
+  const _AddResultBadge(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF0E81A6),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddComicPreviewPane extends StatelessWidget {
+  const _AddComicPreviewPane({
     required this.item,
+    required this.candidate,
+    required this.selectedIsOwned,
+    required this.selectedIsWishlisted,
+    required this.searchedServer,
+  });
+
+  final CatalogItem? item;
+  final _ProviderCandidate? candidate;
+  final bool selectedIsOwned;
+  final bool selectedIsWishlisted;
+  final bool searchedServer;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedItem = item;
+    final selectedCandidate = candidate;
+    if (selectedItem == null && selectedCandidate == null) {
+      return ColoredBox(
+        color: Colors.black,
+        child: Center(
+          child: Text(
+            searchedServer
+                ? 'Select a result or search ComicVine.'
+                : 'Search Collectarr Core to preview metadata.',
+          ),
+        ),
+      );
+    }
+    final title = selectedItem?.title ?? selectedCandidate!.title;
+    final issue = selectedItem?.itemNumber;
+    final synopsis = selectedItem?.synopsis ?? selectedCandidate?.summary;
+    final localStatus = selectedIsOwned
+        ? 'In local collection'
+        : selectedIsWishlisted
+            ? 'In local wishlist'
+            : 'Not in local shelf';
+    return ColoredBox(
+      color: Colors.black,
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFF05AEEF),
+                          fontSize: 28,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        selectedItem == null
+                            ? 'ComicVine candidate'
+                            : 'Collectarr Core metadata',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+                if (issue != null)
+                  Text(
+                    '# $issue',
+                    style: const TextStyle(
+                      color: Color(0xFF05AEEF),
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+              ],
+            ),
+            const Divider(height: 28),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        const Text(
+                          'Plot',
+                          style: TextStyle(color: Color(0xFF05AEEF)),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(synopsis ?? 'No plot metadata available yet.'),
+                        const SizedBox(height: 22),
+                        const Text(
+                          'Details',
+                          style: TextStyle(color: Color(0xFF05AEEF)),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          selectedItem == null
+                              ? 'Provider ID: ${selectedCandidate!.providerItemId}'
+                              : 'Status: $localStatus\nLocal catalog ID: ${selectedItem.id}',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  SizedBox(
+                    width: 210,
+                    child: AspectRatio(
+                      aspectRatio: 2 / 3,
+                      child: selectedItem == null
+                          ? _ProviderCandidateImage(
+                              candidate: selectedCandidate!,
+                            )
+                          : _CoverImage(item: selectedItem),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddComicBottomBar extends StatelessWidget {
+  const _AddComicBottomBar({
+    required this.selectedItem,
+    required this.selectedCandidate,
+    required this.selectedIsOwned,
+    required this.selectedIsWishlisted,
     required this.isSubmitting,
     required this.onAddOwned,
     required this.onAddWishlist,
+    required this.onPropose,
   });
 
-  final CatalogItem item;
+  final CatalogItem? selectedItem;
+  final _ProviderCandidate? selectedCandidate;
+  final bool selectedIsOwned;
+  final bool selectedIsWishlisted;
   final bool isSubmitting;
-  final VoidCallback onAddOwned;
-  final VoidCallback onAddWishlist;
+  final VoidCallback? onAddOwned;
+  final VoidCallback? onAddWishlist;
+  final VoidCallback? onPropose;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.zero,
+    final isProposal = selectedItem == null && selectedCandidate != null;
+    final label = selectedIsOwned
+        ? 'Already in Collection'
+        : isProposal
+            ? 'Propose ComicVine Metadata'
+            : 'Add 1 Comic to Collection';
+    return ColoredBox(
+      color: const Color(0xFF262626),
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
         child: Row(
           children: [
-            SizedBox(
-              width: 58,
-              height: 86,
-              child: _CoverImage(item: item),
-            ),
-            const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.itemNumber == null
-                        ? item.title
-                        : '${item.title} #${item.itemNumber}',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (item.synopsis != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      item.synopsis!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ],
+              child: FilledButton(
+                onPressed: isSubmitting
+                    ? null
+                    : isProposal
+                        ? onPropose
+                        : onAddOwned,
+                child: Text(label),
               ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: isSubmitting ? null : onAddOwned,
-              icon: const Icon(Icons.inventory_2_outlined),
-              label: const Text('Add'),
             ),
             const SizedBox(width: 6),
             IconButton.filledTonal(
-              tooltip: 'Add to wishlist',
-              onPressed: isSubmitting ? null : onAddWishlist,
+              tooltip: selectedIsWishlisted
+                  ? 'Already in wishlist'
+                  : 'Add to wishlist',
+              onPressed:
+                  isSubmitting || selectedIsWishlisted ? null : onAddWishlist,
               icon: const Icon(Icons.star_border),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NoServerResults extends StatelessWidget {
-  const _NoServerResults({
-    required this.isSearchingProvider,
-    required this.searchedProvider,
-    required this.providerResults,
-    required this.isSubmitting,
-    required this.onSearchProvider,
-    required this.onPropose,
-  });
-
-  final bool isSearchingProvider;
-  final bool searchedProvider;
-  final List<_ProviderCandidate> providerResults;
-  final bool isSubmitting;
-  final VoidCallback onSearchProvider;
-  final ValueChanged<_ProviderCandidate> onPropose;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isSearchingProvider) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-      children: [
-        _DialogMessage(
-          icon: Icons.manage_search,
-          text: searchedProvider
-              ? 'No server match. ComicVine candidates can be proposed for admin review.'
-              : 'No server match. Search ComicVine and propose metadata for review.',
-        ),
-        const SizedBox(height: 12),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: FilledButton.icon(
-            onPressed: onSearchProvider,
-            icon: const Icon(Icons.manage_search),
-            label: const Text('Search ComicVine'),
-          ),
-        ),
-        const SizedBox(height: 16),
-        for (final candidate in providerResults) ...[
-          _ProviderResult(
-            candidate: candidate,
-            isSubmitting: isSubmitting,
-            onPropose: () => onPropose(candidate),
-          ),
-          const SizedBox(height: 10),
-        ],
-        if (searchedProvider && providerResults.isEmpty)
-          const _DialogMessage(
-            icon: Icons.info_outline,
-            text: 'ComicVine did not return candidates for this search.',
-          ),
-      ],
-    );
-  }
-}
-
-class _ProviderResult extends StatelessWidget {
-  const _ProviderResult({
-    required this.candidate,
-    required this.isSubmitting,
-    required this.onPropose,
-  });
-
-  final _ProviderCandidate candidate;
-  final bool isSubmitting;
-  final VoidCallback onPropose;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 58,
-              height: 86,
-              child: _ProviderCandidateImage(candidate: candidate),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    candidate.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (candidate.summary != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      candidate.summary!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: isSubmitting ? null : onPropose,
-              icon: const Icon(Icons.outbox_outlined),
-              label: const Text('Propose'),
             ),
           ],
         ),
