@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +11,7 @@ class AuthState {
   const AuthState({
     this.token,
     this.email,
+    this.expiresAt,
     this.isLoading = false,
     this.error,
     this.isRestoring = false,
@@ -16,15 +19,19 @@ class AuthState {
 
   final String? token;
   final String? email;
+  final DateTime? expiresAt;
   final bool isLoading;
   final String? error;
   final bool isRestoring;
 
   bool get isAuthenticated => token != null;
+  bool get isExpired =>
+      expiresAt != null && !expiresAt!.isAfter(DateTime.now().toUtc());
 
   AuthState copyWith({
     String? token,
     String? email,
+    DateTime? expiresAt,
     bool? isLoading,
     String? error,
     bool? isRestoring,
@@ -32,6 +39,7 @@ class AuthState {
     return AuthState(
       token: token ?? this.token,
       email: email ?? this.email,
+      expiresAt: expiresAt ?? this.expiresAt,
       isLoading: isLoading ?? this.isLoading,
       error: error,
       isRestoring: isRestoring ?? this.isRestoring,
@@ -79,6 +87,7 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_authTokenKey);
+    ref.read(apiClientProvider).clearToken();
     state = AuthState(email: prefs.getString(_authEmailKey));
   }
 
@@ -88,8 +97,18 @@ class AuthController extends StateNotifier<AuthState> {
       final token = prefs.getString(_authTokenKey);
       final email = prefs.getString(_authEmailKey);
       if (token != null && token.isNotEmpty) {
+        final expiresAt = _jwtExpiresAt(token);
+        if (_isExpired(expiresAt)) {
+          await prefs.remove(_authTokenKey);
+          ref.read(apiClientProvider).clearToken();
+          state = AuthState(
+            email: email,
+            error: 'Session expired. Sign in again.',
+          );
+          return;
+        }
         ref.read(apiClientProvider).setToken(token);
-        state = AuthState(token: token, email: email);
+        state = AuthState(token: token, email: email, expiresAt: expiresAt);
       } else {
         state = AuthState(email: email);
       }
@@ -106,8 +125,41 @@ class AuthController extends StateNotifier<AuthState> {
     await prefs.setString(_authTokenKey, token);
     await prefs.setString(_authEmailKey, email);
     ref.read(apiClientProvider).setToken(token);
-    state = AuthState(token: token, email: email);
+    state = AuthState(
+      token: token,
+      email: email,
+      expiresAt: _jwtExpiresAt(token),
+    );
   }
+}
+
+DateTime? _jwtExpiresAt(String token) {
+  final parts = token.split('.');
+  if (parts.length != 3) {
+    return null;
+  }
+  try {
+    final payload = jsonDecode(
+      utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+    );
+    final exp = payload is Map<String, dynamic> ? payload['exp'] : null;
+    if (exp is int) {
+      return DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
+    }
+    if (exp is num) {
+      return DateTime.fromMillisecondsSinceEpoch(
+        (exp * 1000).round(),
+        isUtc: true,
+      );
+    }
+  } catch (_) {
+    return null;
+  }
+  return null;
+}
+
+bool _isExpired(DateTime? expiresAt) {
+  return expiresAt != null && !expiresAt.isAfter(DateTime.now().toUtc());
 }
 
 final authControllerProvider =

@@ -12,6 +12,10 @@ class ApiClient {
     _dio.options.headers['Authorization'] = 'Bearer $token';
   }
 
+  void clearToken() {
+    _dio.options.headers.remove('Authorization');
+  }
+
   Future<Map<String, dynamic>> register({
     required String email,
     required String password,
