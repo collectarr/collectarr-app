@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -4964,21 +4965,10 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
         Row(
           children: [
             Expanded(
-              child: DropdownButtonFormField<String>(
-                isExpanded: true,
-                initialValue: comicTrackingProfile
-                    .normalizeStorageValue(_readStatusController.text),
-                decoration: const InputDecoration(
-                  labelText: 'Read status',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final option in comicTrackingProfile.options)
-                    DropdownMenuItem(
-                      value: option.storageValue,
-                      child: Text(option.label),
-                    ),
-                ],
+              child: MediaTrackingStatusField(
+                profile: comicTrackingProfile,
+                value: _readStatusController.text,
+                label: 'Read status',
                 onChanged: (value) {
                   _readStatusController.text = value ?? '';
                 },
