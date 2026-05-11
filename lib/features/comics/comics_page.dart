@@ -18,7 +18,6 @@ import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
@@ -4966,7 +4965,7 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
           children: [
             Expanded(
               child: MediaTrackingStatusField(
-                profile: comicTrackingProfile,
+                profile: comicsLibraryConfig.trackingProfile,
                 value: _readStatusController.text,
                 label: 'Read status',
                 onChanged: (value) {
