@@ -19,6 +19,10 @@ void main() {
             purchaseDate: Value(DateTime.utc(2026, 5, 11)),
             pricePaidCents: const Value(1299),
             currency: const Value('USD'),
+            quantity: const Value(2),
+            storageBox: const Value('Box 6'),
+            keyComic: const Value(true),
+            tags: const Value('signed,key'),
             updatedAt: DateTime.utc(2026, 5, 11),
           ),
         );
@@ -39,6 +43,10 @@ void main() {
     expect(owned.itemId, 'comic-1');
     expect(owned.purchaseDate?.toUtc(), DateTime.utc(2026, 5, 11));
     expect(owned.pricePaidCents, 1299);
+    expect(owned.quantity, 2);
+    expect(owned.storageBox, 'Box 6');
+    expect(owned.keyComic, isTrue);
+    expect(owned.tags, 'signed,key');
     expect(wishlist.itemId, 'comic-2');
     expect(wishlist.targetPriceCents, 999);
   });

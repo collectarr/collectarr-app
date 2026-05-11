@@ -460,6 +460,88 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _quantityMeta =
+      const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+      'quantity', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _storageBoxMeta =
+      const VerificationMeta('storageBox');
+  @override
+  late final GeneratedColumn<String> storageBox = GeneratedColumn<String>(
+      'storage_box', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _indexNumberMeta =
+      const VerificationMeta('indexNumber');
+  @override
+  late final GeneratedColumn<int> indexNumber = GeneratedColumn<int>(
+      'index_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _coverPriceCentsMeta =
+      const VerificationMeta('coverPriceCents');
+  @override
+  late final GeneratedColumn<int> coverPriceCents = GeneratedColumn<int>(
+      'cover_price_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _rawOrSlabbedMeta =
+      const VerificationMeta('rawOrSlabbed');
+  @override
+  late final GeneratedColumn<String> rawOrSlabbed = GeneratedColumn<String>(
+      'raw_or_slabbed', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gradingCompanyMeta =
+      const VerificationMeta('gradingCompany');
+  @override
+  late final GeneratedColumn<String> gradingCompany = GeneratedColumn<String>(
+      'grading_company', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _graderNotesMeta =
+      const VerificationMeta('graderNotes');
+  @override
+  late final GeneratedColumn<String> graderNotes = GeneratedColumn<String>(
+      'grader_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _signedByMeta =
+      const VerificationMeta('signedBy');
+  @override
+  late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
+      'signed_by', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _keyComicMeta =
+      const VerificationMeta('keyComic');
+  @override
+  late final GeneratedColumn<bool> keyComic = GeneratedColumn<bool>(
+      'key_comic', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("key_comic" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _keyReasonMeta =
+      const VerificationMeta('keyReason');
+  @override
+  late final GeneratedColumn<String> keyReason = GeneratedColumn<String>(
+      'key_reason', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _readStatusMeta =
+      const VerificationMeta('readStatus');
+  @override
+  late final GeneratedColumn<String> readStatus = GeneratedColumn<String>(
+      'read_status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
@@ -484,6 +566,19 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         pricePaidCents,
         currency,
         personalNotes,
+        quantity,
+        storageBox,
+        indexNumber,
+        coverPriceCents,
+        rawOrSlabbed,
+        gradingCompany,
+        graderNotes,
+        signedBy,
+        keyComic,
+        keyReason,
+        rating,
+        readStatus,
+        tags,
         updatedAt,
         deletedAt
       ];
@@ -547,6 +642,72 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
     }
+    if (data.containsKey('quantity')) {
+      context.handle(_quantityMeta,
+          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    }
+    if (data.containsKey('storage_box')) {
+      context.handle(
+          _storageBoxMeta,
+          storageBox.isAcceptableOrUnknown(
+              data['storage_box']!, _storageBoxMeta));
+    }
+    if (data.containsKey('index_number')) {
+      context.handle(
+          _indexNumberMeta,
+          indexNumber.isAcceptableOrUnknown(
+              data['index_number']!, _indexNumberMeta));
+    }
+    if (data.containsKey('cover_price_cents')) {
+      context.handle(
+          _coverPriceCentsMeta,
+          coverPriceCents.isAcceptableOrUnknown(
+              data['cover_price_cents']!, _coverPriceCentsMeta));
+    }
+    if (data.containsKey('raw_or_slabbed')) {
+      context.handle(
+          _rawOrSlabbedMeta,
+          rawOrSlabbed.isAcceptableOrUnknown(
+              data['raw_or_slabbed']!, _rawOrSlabbedMeta));
+    }
+    if (data.containsKey('grading_company')) {
+      context.handle(
+          _gradingCompanyMeta,
+          gradingCompany.isAcceptableOrUnknown(
+              data['grading_company']!, _gradingCompanyMeta));
+    }
+    if (data.containsKey('grader_notes')) {
+      context.handle(
+          _graderNotesMeta,
+          graderNotes.isAcceptableOrUnknown(
+              data['grader_notes']!, _graderNotesMeta));
+    }
+    if (data.containsKey('signed_by')) {
+      context.handle(_signedByMeta,
+          signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
+    }
+    if (data.containsKey('key_comic')) {
+      context.handle(_keyComicMeta,
+          keyComic.isAcceptableOrUnknown(data['key_comic']!, _keyComicMeta));
+    }
+    if (data.containsKey('key_reason')) {
+      context.handle(_keyReasonMeta,
+          keyReason.isAcceptableOrUnknown(data['key_reason']!, _keyReasonMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('read_status')) {
+      context.handle(
+          _readStatusMeta,
+          readStatus.isAcceptableOrUnknown(
+              data['read_status']!, _readStatusMeta));
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
@@ -586,6 +747,32 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
+      quantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+      storageBox: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_box']),
+      indexNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
+      coverPriceCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}cover_price_cents']),
+      rawOrSlabbed: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}raw_or_slabbed']),
+      gradingCompany: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grading_company']),
+      graderNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grader_notes']),
+      signedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      keyComic: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}key_comic'])!,
+      keyReason: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_reason']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      readStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}read_status']),
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags']),
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
@@ -611,6 +798,19 @@ class OwnedItemsCacheData extends DataClass
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
+  final int quantity;
+  final String? storageBox;
+  final int? indexNumber;
+  final int? coverPriceCents;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final String? graderNotes;
+  final String? signedBy;
+  final bool keyComic;
+  final String? keyReason;
+  final int? rating;
+  final String? readStatus;
+  final String? tags;
   final DateTime updatedAt;
   final DateTime? deletedAt;
   const OwnedItemsCacheData(
@@ -624,6 +824,19 @@ class OwnedItemsCacheData extends DataClass
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
+      required this.quantity,
+      this.storageBox,
+      this.indexNumber,
+      this.coverPriceCents,
+      this.rawOrSlabbed,
+      this.gradingCompany,
+      this.graderNotes,
+      this.signedBy,
+      required this.keyComic,
+      this.keyReason,
+      this.rating,
+      this.readStatus,
+      this.tags,
       required this.updatedAt,
       this.deletedAt});
   @override
@@ -654,6 +867,41 @@ class OwnedItemsCacheData extends DataClass
     }
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
+    }
+    map['quantity'] = Variable<int>(quantity);
+    if (!nullToAbsent || storageBox != null) {
+      map['storage_box'] = Variable<String>(storageBox);
+    }
+    if (!nullToAbsent || indexNumber != null) {
+      map['index_number'] = Variable<int>(indexNumber);
+    }
+    if (!nullToAbsent || coverPriceCents != null) {
+      map['cover_price_cents'] = Variable<int>(coverPriceCents);
+    }
+    if (!nullToAbsent || rawOrSlabbed != null) {
+      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed);
+    }
+    if (!nullToAbsent || gradingCompany != null) {
+      map['grading_company'] = Variable<String>(gradingCompany);
+    }
+    if (!nullToAbsent || graderNotes != null) {
+      map['grader_notes'] = Variable<String>(graderNotes);
+    }
+    if (!nullToAbsent || signedBy != null) {
+      map['signed_by'] = Variable<String>(signedBy);
+    }
+    map['key_comic'] = Variable<bool>(keyComic);
+    if (!nullToAbsent || keyReason != null) {
+      map['key_reason'] = Variable<String>(keyReason);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || readStatus != null) {
+      map['read_status'] = Variable<String>(readStatus);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -689,6 +937,38 @@ class OwnedItemsCacheData extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
+      quantity: Value(quantity),
+      storageBox: storageBox == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageBox),
+      indexNumber: indexNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indexNumber),
+      coverPriceCents: coverPriceCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverPriceCents),
+      rawOrSlabbed: rawOrSlabbed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawOrSlabbed),
+      gradingCompany: gradingCompany == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gradingCompany),
+      graderNotes: graderNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(graderNotes),
+      signedBy: signedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(signedBy),
+      keyComic: Value(keyComic),
+      keyReason: keyReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keyReason),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      readStatus: readStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readStatus),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -710,6 +990,19 @@ class OwnedItemsCacheData extends DataClass
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      storageBox: serializer.fromJson<String?>(json['storageBox']),
+      indexNumber: serializer.fromJson<int?>(json['indexNumber']),
+      coverPriceCents: serializer.fromJson<int?>(json['coverPriceCents']),
+      rawOrSlabbed: serializer.fromJson<String?>(json['rawOrSlabbed']),
+      gradingCompany: serializer.fromJson<String?>(json['gradingCompany']),
+      graderNotes: serializer.fromJson<String?>(json['graderNotes']),
+      signedBy: serializer.fromJson<String?>(json['signedBy']),
+      keyComic: serializer.fromJson<bool>(json['keyComic']),
+      keyReason: serializer.fromJson<String?>(json['keyReason']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      readStatus: serializer.fromJson<String?>(json['readStatus']),
+      tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
@@ -728,6 +1021,19 @@ class OwnedItemsCacheData extends DataClass
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
+      'quantity': serializer.toJson<int>(quantity),
+      'storageBox': serializer.toJson<String?>(storageBox),
+      'indexNumber': serializer.toJson<int?>(indexNumber),
+      'coverPriceCents': serializer.toJson<int?>(coverPriceCents),
+      'rawOrSlabbed': serializer.toJson<String?>(rawOrSlabbed),
+      'gradingCompany': serializer.toJson<String?>(gradingCompany),
+      'graderNotes': serializer.toJson<String?>(graderNotes),
+      'signedBy': serializer.toJson<String?>(signedBy),
+      'keyComic': serializer.toJson<bool>(keyComic),
+      'keyReason': serializer.toJson<String?>(keyReason),
+      'rating': serializer.toJson<int?>(rating),
+      'readStatus': serializer.toJson<String?>(readStatus),
+      'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
@@ -744,6 +1050,19 @@ class OwnedItemsCacheData extends DataClass
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
+          int? quantity,
+          Value<String?> storageBox = const Value.absent(),
+          Value<int?> indexNumber = const Value.absent(),
+          Value<int?> coverPriceCents = const Value.absent(),
+          Value<String?> rawOrSlabbed = const Value.absent(),
+          Value<String?> gradingCompany = const Value.absent(),
+          Value<String?> graderNotes = const Value.absent(),
+          Value<String?> signedBy = const Value.absent(),
+          bool? keyComic,
+          Value<String?> keyReason = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<String?> readStatus = const Value.absent(),
+          Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       OwnedItemsCacheData(
@@ -760,6 +1079,23 @@ class OwnedItemsCacheData extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
+        quantity: quantity ?? this.quantity,
+        storageBox: storageBox.present ? storageBox.value : this.storageBox,
+        indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
+        coverPriceCents: coverPriceCents.present
+            ? coverPriceCents.value
+            : this.coverPriceCents,
+        rawOrSlabbed:
+            rawOrSlabbed.present ? rawOrSlabbed.value : this.rawOrSlabbed,
+        gradingCompany:
+            gradingCompany.present ? gradingCompany.value : this.gradingCompany,
+        graderNotes: graderNotes.present ? graderNotes.value : this.graderNotes,
+        signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        keyComic: keyComic ?? this.keyComic,
+        keyReason: keyReason.present ? keyReason.value : this.keyReason,
+        rating: rating.present ? rating.value : this.rating,
+        readStatus: readStatus.present ? readStatus.value : this.readStatus,
+        tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
@@ -781,6 +1117,29 @@ class OwnedItemsCacheData extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      storageBox:
+          data.storageBox.present ? data.storageBox.value : this.storageBox,
+      indexNumber:
+          data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
+      coverPriceCents: data.coverPriceCents.present
+          ? data.coverPriceCents.value
+          : this.coverPriceCents,
+      rawOrSlabbed: data.rawOrSlabbed.present
+          ? data.rawOrSlabbed.value
+          : this.rawOrSlabbed,
+      gradingCompany: data.gradingCompany.present
+          ? data.gradingCompany.value
+          : this.gradingCompany,
+      graderNotes:
+          data.graderNotes.present ? data.graderNotes.value : this.graderNotes,
+      signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      keyComic: data.keyComic.present ? data.keyComic.value : this.keyComic,
+      keyReason: data.keyReason.present ? data.keyReason.value : this.keyReason,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      readStatus:
+          data.readStatus.present ? data.readStatus.value : this.readStatus,
+      tags: data.tags.present ? data.tags.value : this.tags,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
@@ -799,6 +1158,19 @@ class OwnedItemsCacheData extends DataClass
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
+          ..write('quantity: $quantity, ')
+          ..write('storageBox: $storageBox, ')
+          ..write('indexNumber: $indexNumber, ')
+          ..write('coverPriceCents: $coverPriceCents, ')
+          ..write('rawOrSlabbed: $rawOrSlabbed, ')
+          ..write('gradingCompany: $gradingCompany, ')
+          ..write('graderNotes: $graderNotes, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('keyComic: $keyComic, ')
+          ..write('keyReason: $keyReason, ')
+          ..write('rating: $rating, ')
+          ..write('readStatus: $readStatus, ')
+          ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -806,19 +1178,33 @@ class OwnedItemsCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      itemId,
-      editionId,
-      variantId,
-      condition,
-      grade,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      updatedAt,
-      deletedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        itemId,
+        editionId,
+        variantId,
+        condition,
+        grade,
+        purchaseDate,
+        pricePaidCents,
+        currency,
+        personalNotes,
+        quantity,
+        storageBox,
+        indexNumber,
+        coverPriceCents,
+        rawOrSlabbed,
+        gradingCompany,
+        graderNotes,
+        signedBy,
+        keyComic,
+        keyReason,
+        rating,
+        readStatus,
+        tags,
+        updatedAt,
+        deletedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -833,6 +1219,19 @@ class OwnedItemsCacheData extends DataClass
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
+          other.quantity == this.quantity &&
+          other.storageBox == this.storageBox &&
+          other.indexNumber == this.indexNumber &&
+          other.coverPriceCents == this.coverPriceCents &&
+          other.rawOrSlabbed == this.rawOrSlabbed &&
+          other.gradingCompany == this.gradingCompany &&
+          other.graderNotes == this.graderNotes &&
+          other.signedBy == this.signedBy &&
+          other.keyComic == this.keyComic &&
+          other.keyReason == this.keyReason &&
+          other.rating == this.rating &&
+          other.readStatus == this.readStatus &&
+          other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -848,6 +1247,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
+  final Value<int> quantity;
+  final Value<String?> storageBox;
+  final Value<int?> indexNumber;
+  final Value<int?> coverPriceCents;
+  final Value<String?> rawOrSlabbed;
+  final Value<String?> gradingCompany;
+  final Value<String?> graderNotes;
+  final Value<String?> signedBy;
+  final Value<bool> keyComic;
+  final Value<String?> keyReason;
+  final Value<int?> rating;
+  final Value<String?> readStatus;
+  final Value<String?> tags;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   final Value<int> rowid;
@@ -862,6 +1274,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.storageBox = const Value.absent(),
+    this.indexNumber = const Value.absent(),
+    this.coverPriceCents = const Value.absent(),
+    this.rawOrSlabbed = const Value.absent(),
+    this.gradingCompany = const Value.absent(),
+    this.graderNotes = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.keyComic = const Value.absent(),
+    this.keyReason = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.readStatus = const Value.absent(),
+    this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -877,6 +1302,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.storageBox = const Value.absent(),
+    this.indexNumber = const Value.absent(),
+    this.coverPriceCents = const Value.absent(),
+    this.rawOrSlabbed = const Value.absent(),
+    this.gradingCompany = const Value.absent(),
+    this.graderNotes = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.keyComic = const Value.absent(),
+    this.keyReason = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.readStatus = const Value.absent(),
+    this.tags = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -894,6 +1332,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
+    Expression<int>? quantity,
+    Expression<String>? storageBox,
+    Expression<int>? indexNumber,
+    Expression<int>? coverPriceCents,
+    Expression<String>? rawOrSlabbed,
+    Expression<String>? gradingCompany,
+    Expression<String>? graderNotes,
+    Expression<String>? signedBy,
+    Expression<bool>? keyComic,
+    Expression<String>? keyReason,
+    Expression<int>? rating,
+    Expression<String>? readStatus,
+    Expression<String>? tags,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
@@ -909,6 +1360,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
+      if (quantity != null) 'quantity': quantity,
+      if (storageBox != null) 'storage_box': storageBox,
+      if (indexNumber != null) 'index_number': indexNumber,
+      if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
+      if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
+      if (gradingCompany != null) 'grading_company': gradingCompany,
+      if (graderNotes != null) 'grader_notes': graderNotes,
+      if (signedBy != null) 'signed_by': signedBy,
+      if (keyComic != null) 'key_comic': keyComic,
+      if (keyReason != null) 'key_reason': keyReason,
+      if (rating != null) 'rating': rating,
+      if (readStatus != null) 'read_status': readStatus,
+      if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
@@ -926,6 +1390,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
+      Value<int>? quantity,
+      Value<String?>? storageBox,
+      Value<int?>? indexNumber,
+      Value<int?>? coverPriceCents,
+      Value<String?>? rawOrSlabbed,
+      Value<String?>? gradingCompany,
+      Value<String?>? graderNotes,
+      Value<String?>? signedBy,
+      Value<bool>? keyComic,
+      Value<String?>? keyReason,
+      Value<int?>? rating,
+      Value<String?>? readStatus,
+      Value<String?>? tags,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
       Value<int>? rowid}) {
@@ -940,6 +1417,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
+      quantity: quantity ?? this.quantity,
+      storageBox: storageBox ?? this.storageBox,
+      indexNumber: indexNumber ?? this.indexNumber,
+      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
+      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
+      gradingCompany: gradingCompany ?? this.gradingCompany,
+      graderNotes: graderNotes ?? this.graderNotes,
+      signedBy: signedBy ?? this.signedBy,
+      keyComic: keyComic ?? this.keyComic,
+      keyReason: keyReason ?? this.keyReason,
+      rating: rating ?? this.rating,
+      readStatus: readStatus ?? this.readStatus,
+      tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
@@ -979,6 +1469,45 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
     }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (storageBox.present) {
+      map['storage_box'] = Variable<String>(storageBox.value);
+    }
+    if (indexNumber.present) {
+      map['index_number'] = Variable<int>(indexNumber.value);
+    }
+    if (coverPriceCents.present) {
+      map['cover_price_cents'] = Variable<int>(coverPriceCents.value);
+    }
+    if (rawOrSlabbed.present) {
+      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed.value);
+    }
+    if (gradingCompany.present) {
+      map['grading_company'] = Variable<String>(gradingCompany.value);
+    }
+    if (graderNotes.present) {
+      map['grader_notes'] = Variable<String>(graderNotes.value);
+    }
+    if (signedBy.present) {
+      map['signed_by'] = Variable<String>(signedBy.value);
+    }
+    if (keyComic.present) {
+      map['key_comic'] = Variable<bool>(keyComic.value);
+    }
+    if (keyReason.present) {
+      map['key_reason'] = Variable<String>(keyReason.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (readStatus.present) {
+      map['read_status'] = Variable<String>(readStatus.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -1004,6 +1533,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
+          ..write('quantity: $quantity, ')
+          ..write('storageBox: $storageBox, ')
+          ..write('indexNumber: $indexNumber, ')
+          ..write('coverPriceCents: $coverPriceCents, ')
+          ..write('rawOrSlabbed: $rawOrSlabbed, ')
+          ..write('gradingCompany: $gradingCompany, ')
+          ..write('graderNotes: $graderNotes, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('keyComic: $keyComic, ')
+          ..write('keyReason: $keyReason, ')
+          ..write('rating: $rating, ')
+          ..write('readStatus: $readStatus, ')
+          ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
@@ -2118,6 +2660,19 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
+  Value<int> quantity,
+  Value<String?> storageBox,
+  Value<int?> indexNumber,
+  Value<int?> coverPriceCents,
+  Value<String?> rawOrSlabbed,
+  Value<String?> gradingCompany,
+  Value<String?> graderNotes,
+  Value<String?> signedBy,
+  Value<bool> keyComic,
+  Value<String?> keyReason,
+  Value<int?> rating,
+  Value<String?> readStatus,
+  Value<String?> tags,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -2134,6 +2689,19 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
+  Value<int> quantity,
+  Value<String?> storageBox,
+  Value<int?> indexNumber,
+  Value<int?> coverPriceCents,
+  Value<String?> rawOrSlabbed,
+  Value<String?> gradingCompany,
+  Value<String?> graderNotes,
+  Value<String?> signedBy,
+  Value<bool> keyComic,
+  Value<String?> keyReason,
+  Value<int?> rating,
+  Value<String?> readStatus,
+  Value<String?> tags,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -2178,6 +2746,47 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageBox => $composableBuilder(
+      column: $table.storageBox, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get keyComic => $composableBuilder(
+      column: $table.keyComic, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keyReason => $composableBuilder(
+      column: $table.keyReason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get readStatus => $composableBuilder(
+      column: $table.readStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
@@ -2228,6 +2837,48 @@ class $$OwnedItemsCacheTableOrderingComposer
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageBox => $composableBuilder(
+      column: $table.storageBox, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get keyComic => $composableBuilder(
+      column: $table.keyComic, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keyReason => $composableBuilder(
+      column: $table.keyReason, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get readStatus => $composableBuilder(
+      column: $table.readStatus, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
@@ -2274,6 +2925,45 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
 
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get storageBox => $composableBuilder(
+      column: $table.storageBox, builder: (column) => column);
+
+  GeneratedColumn<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents, builder: (column) => column);
+
+  GeneratedColumn<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed, builder: (column) => column);
+
+  GeneratedColumn<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany, builder: (column) => column);
+
+  GeneratedColumn<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get signedBy =>
+      $composableBuilder(column: $table.signedBy, builder: (column) => column);
+
+  GeneratedColumn<bool> get keyComic =>
+      $composableBuilder(column: $table.keyComic, builder: (column) => column);
+
+  GeneratedColumn<String> get keyReason =>
+      $composableBuilder(column: $table.keyReason, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<String> get readStatus => $composableBuilder(
+      column: $table.readStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
@@ -2319,6 +3009,19 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<String?> storageBox = const Value.absent(),
+            Value<int?> indexNumber = const Value.absent(),
+            Value<int?> coverPriceCents = const Value.absent(),
+            Value<String?> rawOrSlabbed = const Value.absent(),
+            Value<String?> gradingCompany = const Value.absent(),
+            Value<String?> graderNotes = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> keyComic = const Value.absent(),
+            Value<String?> keyReason = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<String?> readStatus = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -2334,6 +3037,19 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
+            quantity: quantity,
+            storageBox: storageBox,
+            indexNumber: indexNumber,
+            coverPriceCents: coverPriceCents,
+            rawOrSlabbed: rawOrSlabbed,
+            gradingCompany: gradingCompany,
+            graderNotes: graderNotes,
+            signedBy: signedBy,
+            keyComic: keyComic,
+            keyReason: keyReason,
+            rating: rating,
+            readStatus: readStatus,
+            tags: tags,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -2349,6 +3065,19 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<String?> storageBox = const Value.absent(),
+            Value<int?> indexNumber = const Value.absent(),
+            Value<int?> coverPriceCents = const Value.absent(),
+            Value<String?> rawOrSlabbed = const Value.absent(),
+            Value<String?> gradingCompany = const Value.absent(),
+            Value<String?> graderNotes = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> keyComic = const Value.absent(),
+            Value<String?> keyReason = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<String?> readStatus = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -2364,6 +3093,19 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
+            quantity: quantity,
+            storageBox: storageBox,
+            indexNumber: indexNumber,
+            coverPriceCents: coverPriceCents,
+            rawOrSlabbed: rawOrSlabbed,
+            gradingCompany: gradingCompany,
+            graderNotes: graderNotes,
+            signedBy: signedBy,
+            keyComic: keyComic,
+            keyReason: keyReason,
+            rating: rating,
+            readStatus: readStatus,
+            tags: tags,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,

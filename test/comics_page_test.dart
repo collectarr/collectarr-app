@@ -358,6 +358,13 @@ void main() {
     expect(find.text('Cover'), findsOneWidget);
     expect(find.text('Plot'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Personal notes'), findsWidgets);
+
+    await tester.tap(find.text('Personal'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Quantity'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Storage box'), findsOneWidget);
+    expect(find.text('Key comic'), findsOneWidget);
   });
 
   testWidgets('comics page filters local shelf by ownership', (tester) async {

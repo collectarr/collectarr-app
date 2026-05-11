@@ -363,6 +363,19 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         pricePaidCents: ownedItem.pricePaidCents,
         currency: ownedItem.currency,
         personalNotes: ownedItem.personalNotes,
+        quantity: ownedItem.quantity,
+        storageBox: ownedItem.storageBox,
+        indexNumber: ownedItem.indexNumber,
+        coverPriceCents: ownedItem.coverPriceCents,
+        rawOrSlabbed: ownedItem.rawOrSlabbed,
+        gradingCompany: ownedItem.gradingCompany,
+        graderNotes: ownedItem.graderNotes,
+        signedBy: ownedItem.signedBy,
+        keyComic: ownedItem.keyComic,
+        keyReason: ownedItem.keyReason,
+        rating: ownedItem.rating,
+        readStatus: ownedItem.readStatus,
+        tags: ownedItem.tags,
       );
     }
     _clearSelection();
@@ -2267,6 +2280,19 @@ class _ComicInspector extends ConsumerWidget {
           pricePaidCents: selection.pricePaidCents,
           currency: selection.currency,
           personalNotes: selection.personalNotes,
+          quantity: selection.quantity,
+          storageBox: selection.storageBox,
+          indexNumber: selection.indexNumber,
+          coverPriceCents: selection.coverPriceCents,
+          rawOrSlabbed: selection.rawOrSlabbed,
+          gradingCompany: selection.gradingCompany,
+          graderNotes: selection.graderNotes,
+          signedBy: selection.signedBy,
+          keyComic: selection.keyComic,
+          keyReason: selection.keyReason,
+          rating: selection.rating,
+          readStatus: selection.readStatus,
+          tags: selection.tags,
         );
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2304,6 +2330,19 @@ class _ComicInspector extends ConsumerWidget {
           pricePaidCents: ownedItem.pricePaidCents,
           currency: ownedItem.currency,
           personalNotes: ownedItem.personalNotes,
+          quantity: ownedItem.quantity,
+          storageBox: ownedItem.storageBox,
+          indexNumber: ownedItem.indexNumber,
+          coverPriceCents: ownedItem.coverPriceCents,
+          rawOrSlabbed: ownedItem.rawOrSlabbed,
+          gradingCompany: ownedItem.gradingCompany,
+          graderNotes: ownedItem.graderNotes,
+          signedBy: ownedItem.signedBy,
+          keyComic: ownedItem.keyComic,
+          keyReason: ownedItem.keyReason,
+          rating: ownedItem.rating,
+          readStatus: ownedItem.readStatus,
+          tags: ownedItem.tags,
         );
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2585,6 +2624,19 @@ class _PersonalDetailsEditorState
           pricePaidCents: price,
           currency: currency.isEmpty ? null : currency,
           personalNotes: _emptyToNull(_notesController.text),
+          quantity: widget.ownedItem.quantity,
+          storageBox: widget.ownedItem.storageBox,
+          indexNumber: widget.ownedItem.indexNumber,
+          coverPriceCents: widget.ownedItem.coverPriceCents,
+          rawOrSlabbed: widget.ownedItem.rawOrSlabbed,
+          gradingCompany: widget.ownedItem.gradingCompany,
+          graderNotes: widget.ownedItem.graderNotes,
+          signedBy: widget.ownedItem.signedBy,
+          keyComic: widget.ownedItem.keyComic,
+          keyReason: widget.ownedItem.keyReason,
+          rating: widget.ownedItem.rating,
+          readStatus: widget.ownedItem.readStatus,
+          tags: widget.ownedItem.tags,
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2636,8 +2688,19 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
   late final TextEditingController _notesController;
   late final TextEditingController _quantityController;
   late final TextEditingController _storageBoxController;
+  late final TextEditingController _indexNumberController;
+  late final TextEditingController _coverPriceController;
+  late final TextEditingController _gradingCompanyController;
+  late final TextEditingController _graderNotesController;
+  late final TextEditingController _signedByController;
+  late final TextEditingController _keyReasonController;
+  late final TextEditingController _ratingController;
+  late final TextEditingController _readStatusController;
+  late final TextEditingController _tagsController;
   late String? _condition = widget.ownedItem.condition;
   late String? _grade = widget.ownedItem.grade;
+  late String? _rawOrSlabbed = widget.ownedItem.rawOrSlabbed ?? 'Raw';
+  late bool _keyComic = widget.ownedItem.keyComic;
   late DateTime? _purchaseDate = widget.ownedItem.purchaseDate;
 
   @override
@@ -2653,8 +2716,31 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
         TextEditingController(text: widget.ownedItem.currency ?? 'USD');
     _notesController =
         TextEditingController(text: widget.ownedItem.personalNotes ?? '');
-    _quantityController = TextEditingController(text: '1');
-    _storageBoxController = TextEditingController();
+    _quantityController =
+        TextEditingController(text: widget.ownedItem.quantity.toString());
+    _storageBoxController =
+        TextEditingController(text: widget.ownedItem.storageBox ?? '');
+    _indexNumberController = TextEditingController(
+      text: widget.ownedItem.indexNumber?.toString() ?? '',
+    );
+    _coverPriceController = TextEditingController(
+      text: widget.ownedItem.coverPriceCents == null
+          ? ''
+          : (widget.ownedItem.coverPriceCents! / 100).toStringAsFixed(2),
+    );
+    _gradingCompanyController =
+        TextEditingController(text: widget.ownedItem.gradingCompany ?? '');
+    _graderNotesController =
+        TextEditingController(text: widget.ownedItem.graderNotes ?? '');
+    _signedByController =
+        TextEditingController(text: widget.ownedItem.signedBy ?? '');
+    _keyReasonController =
+        TextEditingController(text: widget.ownedItem.keyReason ?? '');
+    _ratingController =
+        TextEditingController(text: widget.ownedItem.rating?.toString() ?? '');
+    _readStatusController =
+        TextEditingController(text: widget.ownedItem.readStatus ?? '');
+    _tagsController = TextEditingController(text: widget.ownedItem.tags ?? '');
   }
 
   @override
@@ -2665,6 +2751,15 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
     _notesController.dispose();
     _quantityController.dispose();
     _storageBoxController.dispose();
+    _indexNumberController.dispose();
+    _coverPriceController.dispose();
+    _gradingCompanyController.dispose();
+    _graderNotesController.dispose();
+    _signedByController.dispose();
+    _keyReasonController.dispose();
+    _ratingController.dispose();
+    _readStatusController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 
@@ -2894,11 +2989,42 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
           ],
         ),
         const SizedBox(height: 16),
-        _PlaceholderPanel(
-          icon: Icons.bar_chart,
-          title: 'Value by grade',
-          text:
-              'Value history will appear here once price tracking is connected.',
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _coverPriceController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Cover price',
+                  prefixText: r'$ ',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _gradingCompanyController,
+                decoration: const InputDecoration(
+                  labelText: 'Grading company',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _graderNotesController,
+          minLines: 4,
+          maxLines: 6,
+          decoration: const InputDecoration(
+            labelText: 'Grader notes',
+            alignLabelWithHint: true,
+            border: OutlineInputBorder(),
+          ),
         ),
       ],
     );
@@ -2914,7 +3040,7 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
               width: 140,
               child: TextField(
                 controller: _quantityController,
-                readOnly: true,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Quantity',
                   border: OutlineInputBorder(),
@@ -2925,7 +3051,6 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
             Expanded(
               child: TextField(
                 controller: _storageBoxController,
-                readOnly: true,
                 decoration: const InputDecoration(
                   labelText: 'Storage box',
                   border: OutlineInputBorder(),
@@ -2935,11 +3060,97 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
           ],
         ),
         const SizedBox(height: 16),
-        _PlaceholderPanel(
-          icon: Icons.lock_outline,
-          title: 'More personal fields',
-          text:
-              'Storage, tags, signed-by, key comic, and slab data are next and will stay local-only.',
+        Row(
+          children: [
+            SizedBox(
+              width: 140,
+              child: TextField(
+                controller: _indexNumberController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Index',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'Raw', label: Text('Raw')),
+                  ButtonSegment(value: 'Slabbed', label: Text('Slabbed')),
+                ],
+                selected: {_rawOrSlabbed ?? 'Raw'},
+                onSelectionChanged: (selection) =>
+                    setState(() => _rawOrSlabbed = selection.first),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _signedByController,
+                decoration: const InputDecoration(
+                  labelText: 'Signed by',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 120,
+              child: TextField(
+                controller: _ratingController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Rating',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SwitchListTile(
+          value: _keyComic,
+          onChanged: (value) => setState(() => _keyComic = value),
+          title: const Text('Key comic'),
+          contentPadding: EdgeInsets.zero,
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _keyReasonController,
+          decoration: const InputDecoration(
+            labelText: 'Key reason',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _readStatusController,
+                decoration: const InputDecoration(
+                  labelText: 'Read status',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _tagsController,
+                decoration: const InputDecoration(
+                  labelText: 'Tags',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -2995,49 +3206,22 @@ class _OwnedComicEditDialogState extends State<_OwnedComicEditDialog>
         ),
         currency: currency.isEmpty ? null : currency,
         personalNotes: _emptyToNull(_notesController.text),
-      ),
-    );
-  }
-}
-
-class _PlaceholderPanel extends StatelessWidget {
-  const _PlaceholderPanel({
-    required this.icon,
-    required this.title,
-    required this.text,
-  });
-
-  final IconData icon;
-  final String title;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            Icon(icon, color: colorScheme.primary),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.titleSmall),
-                  const SizedBox(height: 4),
-                  Text(text),
-                ],
-              ),
-            ),
-          ],
+        quantity: int.tryParse(_quantityController.text.trim()) ?? 1,
+        storageBox: _emptyToNull(_storageBoxController.text),
+        indexNumber: int.tryParse(_indexNumberController.text.trim()),
+        coverPriceCents: _parseMoneyCents(
+          _coverPriceController.text,
+          fallback: widget.ownedItem.coverPriceCents,
         ),
+        rawOrSlabbed: _rawOrSlabbed,
+        gradingCompany: _emptyToNull(_gradingCompanyController.text),
+        graderNotes: _emptyToNull(_graderNotesController.text),
+        signedBy: _emptyToNull(_signedByController.text),
+        keyComic: _keyComic,
+        keyReason: _emptyToNull(_keyReasonController.text),
+        rating: int.tryParse(_ratingController.text.trim()),
+        readStatus: _emptyToNull(_readStatusController.text),
+        tags: _emptyToNull(_tagsController.text),
       ),
     );
   }
@@ -3051,6 +3235,19 @@ class _OwnedComicEditSelection {
     required this.pricePaidCents,
     required this.currency,
     required this.personalNotes,
+    required this.quantity,
+    required this.storageBox,
+    required this.indexNumber,
+    required this.coverPriceCents,
+    required this.rawOrSlabbed,
+    required this.gradingCompany,
+    required this.graderNotes,
+    required this.signedBy,
+    required this.keyComic,
+    required this.keyReason,
+    required this.rating,
+    required this.readStatus,
+    required this.tags,
   });
 
   final String? condition;
@@ -3059,6 +3256,19 @@ class _OwnedComicEditSelection {
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
+  final int quantity;
+  final String? storageBox;
+  final int? indexNumber;
+  final int? coverPriceCents;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final String? graderNotes;
+  final String? signedBy;
+  final bool keyComic;
+  final String? keyReason;
+  final int? rating;
+  final String? readStatus;
+  final String? tags;
 }
 
 class _MetaChip extends StatelessWidget {

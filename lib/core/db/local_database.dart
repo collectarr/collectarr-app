@@ -27,6 +27,19 @@ class OwnedItemsCache extends Table {
   IntColumn get pricePaidCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+  TextColumn get storageBox => text().nullable()();
+  IntColumn get indexNumber => integer().nullable()();
+  IntColumn get coverPriceCents => integer().nullable()();
+  TextColumn get rawOrSlabbed => text().nullable()();
+  TextColumn get gradingCompany => text().nullable()();
+  TextColumn get graderNotes => text().nullable()();
+  TextColumn get signedBy => text().nullable()();
+  BoolColumn get keyComic => boolean().withDefault(const Constant(false))();
+  TextColumn get keyReason => text().nullable()();
+  IntColumn get rating => integer().nullable()();
+  TextColumn get readStatus => text().nullable()();
+  TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
@@ -73,12 +86,29 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          await m.addColumn(ownedItemsCache, ownedItemsCache.quantity);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.storageBox);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.indexNumber);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.coverPriceCents);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.rawOrSlabbed);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.gradingCompany);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.graderNotes);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.signedBy);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.keyComic);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.keyReason);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.rating);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.readStatus);
+          await m.addColumn(ownedItemsCache, ownedItemsCache.tags);
+        }
+      },
     );
   }
 }

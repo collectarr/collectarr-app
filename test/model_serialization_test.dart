@@ -92,6 +92,11 @@ void main() {
       purchaseDate: DateTime.utc(2026, 5, 11),
       pricePaidCents: 1299,
       currency: 'USD',
+      quantity: 2,
+      storageBox: 'Box 6',
+      keyComic: true,
+      keyReason: 'First appearance',
+      tags: 'signed,key',
       updatedAt: DateTime.utc(2026, 5, 12),
     );
 
@@ -100,6 +105,11 @@ void main() {
     expect(payload['item_id'], 'comic-1');
     expect(payload['grade'], '9.8');
     expect(payload['purchase_date'], '2026-05-11T00:00:00.000Z');
+    expect(payload['quantity'], 2);
+    expect(payload['storage_box'], 'Box 6');
+    expect(payload['key_comic'], isTrue);
+    expect(payload['key_reason'], 'First appearance');
+    expect(payload['tags'], 'signed,key');
   });
 
   test('wishlist item builds sync payload', () {
