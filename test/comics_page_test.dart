@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/comics/comics_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   const catalogItems = [
@@ -36,6 +37,10 @@ void main() {
     personalNotes: 'Signed copy',
     updatedAt: DateTime.utc(2026, 5, 11),
   );
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
   testWidgets('comics page shows desktop local library workspace',
       (tester) async {
@@ -70,6 +75,7 @@ void main() {
             ),
           ),
           collectionProvider.overrideWith((ref) async => [ownedItem]),
+          wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
         child: const MaterialApp(home: ComicsPage()),
@@ -137,6 +143,7 @@ void main() {
             ),
           ),
           collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
         child: const MaterialApp(home: ComicsPage()),
@@ -150,5 +157,53 @@ void main() {
     expect(find.byIcon(Icons.sync), findsOneWidget);
     expect(find.text('Superman, Vol. 4'), findsNothing);
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+  });
+
+  testWidgets('comics page restores persisted list view preferences',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'comics.view_mode': 'list',
+      'comics.sort_column': 'updated',
+      'comics.sort_ascending': false,
+      'comics.cover_size': 188.0,
+    });
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(
+                  itemId: 'comic-1',
+                  catalogItem: catalogItems[0],
+                  ownedItem: ownedItem,
+                ),
+              ],
+              ownedCount: 1,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 1,
+              totalPaidCents: 1299,
+              primaryCurrency: 'USD',
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => [ownedItem]),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Issue'), findsOneWidget);
+    expect(find.text('Updated'), findsOneWidget);
   });
 }

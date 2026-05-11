@@ -12,8 +12,16 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const double _kDesktopBreakpoint = 980;
+const double _kMinCoverSize = 104;
+const double _kDefaultCoverSize = 128;
+const double _kMaxCoverSize = 188;
+const String _kComicsViewModePreferenceKey = 'comics.view_mode';
+const String _kComicsSortColumnPreferenceKey = 'comics.sort_column';
+const String _kComicsSortAscendingPreferenceKey = 'comics.sort_ascending';
+const String _kComicsCoverSizePreferenceKey = 'comics.cover_size';
 
 enum _ComicsViewMode { grid, list }
 
@@ -41,12 +49,14 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   _ComicsViewMode viewMode = _ComicsViewMode.grid;
   _ComicSortColumn sortColumn = _ComicSortColumn.title;
   bool sortAscending = true;
+  double coverSize = _kDefaultCoverSize;
   late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: query);
+    _loadViewPreferences();
   }
 
   @override
@@ -77,6 +87,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               viewMode: viewMode,
               sortColumn: sortColumn,
               sortAscending: sortAscending,
+              coverSize: coverSize,
               onSearch: (value) => setState(() {
                 query = value.trim();
                 selectedItemId = null;
@@ -90,8 +101,9 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               }),
               onClearSeries: () => setState(() => selectedSeries = null),
               onScanBarcode: () => _handleBarcodeScan(context),
-              onViewModeChanged: (value) => setState(() => viewMode = value),
+              onViewModeChanged: _handleViewModeChanged,
               onSortChanged: _handleSortChanged,
+              onCoverSizeChanged: _handleCoverSizeChanged,
             );
           },
           error: (error, stackTrace) => _ErrorState(message: error.toString()),
@@ -192,6 +204,46 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         sortAscending = column == _ComicSortColumn.updated ? false : true;
       }
     });
+    _saveViewPreferences();
+  }
+
+  void _handleViewModeChanged(_ComicsViewMode value) {
+    setState(() => viewMode = value);
+    _saveViewPreferences();
+  }
+
+  void _handleCoverSizeChanged(double value) {
+    setState(() => coverSize = value);
+    _saveViewPreferences();
+  }
+
+  Future<void> _loadViewPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedViewMode = prefs.getString(_kComicsViewModePreferenceKey);
+    final storedSortColumn = prefs.getString(_kComicsSortColumnPreferenceKey);
+    final storedCoverSize = prefs.getDouble(_kComicsCoverSizePreferenceKey);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      viewMode =
+          _enumByName(_ComicsViewMode.values, storedViewMode) ?? viewMode;
+      sortColumn =
+          _enumByName(_ComicSortColumn.values, storedSortColumn) ?? sortColumn;
+      sortAscending =
+          prefs.getBool(_kComicsSortAscendingPreferenceKey) ?? sortAscending;
+      coverSize = (storedCoverSize ?? coverSize)
+          .clamp(_kMinCoverSize, _kMaxCoverSize)
+          .toDouble();
+    });
+  }
+
+  Future<void> _saveViewPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kComicsViewModePreferenceKey, viewMode.name);
+    await prefs.setString(_kComicsSortColumnPreferenceKey, sortColumn.name);
+    await prefs.setBool(_kComicsSortAscendingPreferenceKey, sortAscending);
+    await prefs.setDouble(_kComicsCoverSizePreferenceKey, coverSize);
   }
 }
 
@@ -204,6 +256,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.viewMode,
     required this.sortColumn,
     required this.sortAscending,
+    required this.coverSize,
     required this.onSearch,
     required this.onAddComic,
     required this.onSelectItem,
@@ -212,6 +265,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.onScanBarcode,
     required this.onViewModeChanged,
     required this.onSortChanged,
+    required this.onCoverSizeChanged,
   });
 
   final List<CatalogItem> items;
@@ -221,6 +275,7 @@ class _ComicsWorkspace extends StatelessWidget {
   final _ComicsViewMode viewMode;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
+  final double coverSize;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
@@ -229,6 +284,7 @@ class _ComicsWorkspace extends StatelessWidget {
   final VoidCallback onScanBarcode;
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final ValueChanged<double> onCoverSizeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -250,6 +306,8 @@ class _ComicsWorkspace extends StatelessWidget {
         queryController: queryController,
         onSearch: onSearch,
         onAddComic: onAddComic,
+        coverSize: coverSize,
+        onCoverSizeChanged: onCoverSizeChanged,
         onScanBarcode: onScanBarcode,
         onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
         onSelectItem: onSelectItem,
@@ -265,12 +323,14 @@ class _ComicsWorkspace extends StatelessWidget {
           totalCount: items.length,
           selectedSeries: selectedSeries,
           viewMode: viewMode,
+          coverSize: coverSize,
           onSearch: onSearch,
           onAddComic: onAddComic,
           onScanBarcode: onScanBarcode,
           onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
           onClearSeries: onClearSeries,
           onViewModeChanged: onViewModeChanged,
+          onCoverSizeChanged: onCoverSizeChanged,
         ),
         Expanded(
           child: Row(
@@ -289,6 +349,7 @@ class _ComicsWorkspace extends StatelessWidget {
                     ? _LibraryAwareCoverGrid(
                         items: visibleItems,
                         selectedItemId: selectedItem?.id,
+                        coverSize: coverSize,
                         onSelectItem: onSelectItem,
                       )
                     : _LibraryAwareComicList(
@@ -356,12 +417,14 @@ class _ComicsToolbar extends StatelessWidget {
     required this.totalCount,
     required this.selectedSeries,
     required this.viewMode,
+    required this.coverSize,
     required this.onSearch,
     required this.onAddComic,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onClearSeries,
     required this.onViewModeChanged,
+    required this.onCoverSizeChanged,
   });
 
   final TextEditingController controller;
@@ -369,12 +432,14 @@ class _ComicsToolbar extends StatelessWidget {
   final int totalCount;
   final String? selectedSeries;
   final _ComicsViewMode viewMode;
+  final double coverSize;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final VoidCallback onClearSeries;
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
+  final ValueChanged<double> onCoverSizeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -438,6 +503,20 @@ class _ComicsToolbar extends StatelessWidget {
             _ToolbarStat(label: 'Shown', value: itemCount),
             const SizedBox(width: 8),
             _ToolbarStat(label: 'Total', value: totalCount),
+            const SizedBox(width: 8),
+            Tooltip(
+              message: 'Cover size',
+              child: SizedBox(
+                width: 140,
+                child: Slider(
+                  min: _kMinCoverSize,
+                  max: _kMaxCoverSize,
+                  divisions: 7,
+                  value: coverSize,
+                  onChanged: onCoverSizeChanged,
+                ),
+              ),
+            ),
             const SizedBox(width: 8),
             SegmentedButton<_ComicsViewMode>(
               segments: const [
@@ -593,11 +672,13 @@ class _LibraryAwareCoverGrid extends ConsumerWidget {
   const _LibraryAwareCoverGrid({
     required this.items,
     required this.selectedItemId,
+    required this.coverSize,
     required this.onSelectItem,
   });
 
   final List<CatalogItem> items;
   final String? selectedItemId;
+  final double coverSize;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -609,6 +690,7 @@ class _LibraryAwareCoverGrid extends ConsumerWidget {
       ownedByItemId: ownedByItemId,
       wishlistIds: wishlistIds,
       selectedItemId: selectedItemId,
+      coverSize: coverSize,
       onSelectItem: onSelectItem,
     );
   }
@@ -620,6 +702,7 @@ class _CoverGrid extends StatelessWidget {
     required this.ownedByItemId,
     required this.wishlistIds,
     required this.selectedItemId,
+    required this.coverSize,
     required this.onSelectItem,
   });
 
@@ -627,6 +710,7 @@ class _CoverGrid extends StatelessWidget {
   final Map<String, OwnedItem> ownedByItemId;
   final Set<String> wishlistIds;
   final String? selectedItemId;
+  final double coverSize;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -636,9 +720,9 @@ class _CoverGrid extends StatelessWidget {
     }
     return GridView.builder(
       padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 128,
-        mainAxisExtent: 196,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: coverSize,
+        mainAxisExtent: coverSize * 1.53,
         crossAxisSpacing: 10,
         mainAxisSpacing: 12,
       ),
@@ -1817,6 +1901,8 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
     required this.queryController,
     required this.onSearch,
     required this.onAddComic,
+    required this.coverSize,
+    required this.onCoverSizeChanged,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onSelectItem,
@@ -1829,6 +1915,8 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
+  final double coverSize;
+  final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<CatalogItem> onSelectItem;
@@ -1847,6 +1935,8 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
       queryController: queryController,
       onSearch: onSearch,
       onAddComic: onAddComic,
+      coverSize: coverSize,
+      onCoverSizeChanged: onCoverSizeChanged,
       onScanBarcode: onScanBarcode,
       onRefreshMetadata: onRefreshMetadata,
       onSelectItem: onSelectItem,
@@ -1865,6 +1955,8 @@ class _CompactComicsView extends StatelessWidget {
     required this.queryController,
     required this.onSearch,
     required this.onAddComic,
+    required this.coverSize,
+    required this.onCoverSizeChanged,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onSelectItem,
@@ -1879,6 +1971,8 @@ class _CompactComicsView extends StatelessWidget {
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
+  final double coverSize;
+  final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<CatalogItem> onSelectItem;
@@ -1911,6 +2005,18 @@ class _CompactComicsView extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Tooltip(
+                  message: 'Cover size',
+                  child: IconButton.filledTonal(
+                    onPressed: () => _showCompactCoverSizeSheet(
+                      context,
+                      coverSize,
+                      onCoverSizeChanged,
+                    ),
+                    icon: const Icon(Icons.photo_size_select_large_outlined),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Tooltip(
                   message: 'Scan barcode',
                   child: IconButton.filledTonal(
                     onPressed: onScanBarcode,
@@ -1940,9 +2046,9 @@ class _CompactComicsView extends StatelessWidget {
         SliverPadding(
           padding: const EdgeInsets.all(12),
           sliver: SliverGrid.builder(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 130,
-              mainAxisExtent: 196,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: coverSize,
+              mainAxisExtent: coverSize * 1.53,
               crossAxisSpacing: 10,
               mainAxisSpacing: 12,
             ),
@@ -1967,6 +2073,46 @@ class _CompactComicsView extends StatelessWidget {
       ],
     );
   }
+}
+
+void _showCompactCoverSizeSheet(
+  BuildContext context,
+  double coverSize,
+  ValueChanged<double> onCoverSizeChanged,
+) {
+  showModalBottomSheet<void>(
+    context: context,
+    builder: (context) {
+      var draftSize = coverSize;
+      return StatefulBuilder(
+        builder: (context, setSheetState) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Cover size',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Slider(
+                  min: _kMinCoverSize,
+                  max: _kMaxCoverSize,
+                  divisions: 7,
+                  value: draftSize,
+                  onChanged: (value) {
+                    setSheetState(() => draftSize = value);
+                    onCoverSizeChanged(value);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
 }
 
 void _showCompactInspector(BuildContext context, CatalogItem item) {
@@ -2625,4 +2771,16 @@ _LibraryState _libraryStateFor(
 String _formatDate(DateTime value) {
   final local = value.toLocal();
   return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+}
+
+T? _enumByName<T extends Enum>(List<T> values, String? name) {
+  if (name == null) {
+    return null;
+  }
+  for (final value in values) {
+    if (value.name == name) {
+      return value;
+    }
+  }
+  return null;
 }
