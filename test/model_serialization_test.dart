@@ -11,11 +11,15 @@ void main() {
       'title': 'Spider-Man',
       'item_number': '1',
       'synopsis': 'Seed',
-      'cover_image_url': null,
+      'cover_image_url': 'https://cdn.example/full.jpg',
+      'thumbnail_image_url': 'https://cdn.example/thumb.jpg',
     });
 
     expect(item.title, 'Spider-Man');
     expect(item.itemNumber, '1');
+    expect(item.coverImageUrl, 'https://cdn.example/full.jpg');
+    expect(item.thumbnailImageUrl, 'https://cdn.example/thumb.jpg');
+    expect(item.displayCoverUrl, 'https://cdn.example/thumb.jpg');
   });
 
   test('owned item builds sync payload', () {

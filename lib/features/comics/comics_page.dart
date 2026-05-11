@@ -893,7 +893,7 @@ class _CoverImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final placeholder = _GeneratedCover(item: item);
-    final url = item.coverImageUrl;
+    final url = item.displayCoverUrl;
     if (url == null || url.isEmpty) {
       return placeholder;
     }

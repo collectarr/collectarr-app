@@ -59,6 +59,7 @@ class CatalogCacheRepository {
           itemNumber: row.itemNumber,
           synopsis: row.synopsis,
           coverImageUrl: row.coverImageUrl,
+          thumbnailImageUrl: null,
         ),
     };
   }

@@ -6,6 +6,7 @@ class CatalogItem {
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
+    this.thumbnailImageUrl,
   });
 
   final String id;
@@ -14,6 +15,9 @@ class CatalogItem {
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+
+  String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
   factory CatalogItem.fromJson(Map<String, dynamic> json) {
     return CatalogItem(
@@ -23,6 +27,7 @@ class CatalogItem {
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
+      thumbnailImageUrl: json['thumbnail_image_url'] as String?,
     );
   }
 }
