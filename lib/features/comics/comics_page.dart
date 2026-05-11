@@ -5854,7 +5854,7 @@ class _EmptyState extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onAddComic,
                 icon: const Icon(Icons.add),
-                label: const Text('Add Comics'),
+                label: const Text('Add from Collectarr Core'),
               ),
             ],
           ),
