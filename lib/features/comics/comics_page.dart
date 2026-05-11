@@ -27,6 +27,17 @@ const String _kComicsSortColumnPreferenceKey = 'comics.sort_column';
 const String _kComicsSortAscendingPreferenceKey = 'comics.sort_ascending';
 const String _kComicsCoverSizePreferenceKey = 'comics.cover_size';
 const String _kComicsVisibleColumnsPreferenceKey = 'comics.visible_columns';
+const Color _kClzTopBar = Color(0xFF4DBBD5);
+const Color _kClzToolbar = Color(0xFF2B2B2B);
+const Color _kClzPanel = Color(0xFF1D1D1D);
+const Color _kClzPanelRaised = Color(0xFF2F2F2F);
+const Color _kClzCanvas = Color(0xFF141414);
+const Color _kClzGridCanvas = Color(0xFF202020);
+const Color _kClzAccent = Color(0xFF10A8D8);
+const Color _kClzSelection = Color(0xFF075F75);
+const Color _kClzYellow = Color(0xFFFFD400);
+const Color _kClzDivider = Color(0xFF4A4A4A);
+const Color _kClzTextMuted = Color(0xFFB8B8B8);
 
 enum _ComicsViewMode { grid, list }
 
@@ -68,6 +79,101 @@ enum _OwnershipFilter { all, owned, wishlist, missingGrade }
 enum _BulkToolbarAction { edit, wishlist, remove, clear }
 
 enum _AddComicTarget { owned, wishlist }
+
+ThemeData _clzComicsTheme() {
+  final base = ThemeData.dark(useMaterial3: true);
+  final scheme = ColorScheme.fromSeed(
+    seedColor: _kClzAccent,
+    brightness: Brightness.dark,
+    surface: _kClzPanel,
+  );
+  return base.copyWith(
+    colorScheme: scheme.copyWith(
+      primary: _kClzAccent,
+      secondary: _kClzYellow,
+      surface: _kClzPanel,
+      surfaceContainerLowest: _kClzCanvas,
+      surfaceContainerLow: _kClzPanel,
+      surfaceContainer: _kClzToolbar,
+      surfaceContainerHigh: _kClzPanelRaised,
+      surfaceContainerHighest: const Color(0xFF3A3A3A),
+      outline: _kClzDivider,
+      outlineVariant: const Color(0xFF373737),
+    ),
+    scaffoldBackgroundColor: _kClzCanvas,
+    dividerTheme: const DividerThemeData(
+      color: _kClzDivider,
+      thickness: 1,
+      space: 1,
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF343434),
+        disabledForegroundColor: const Color(0xFF777777),
+        disabledBackgroundColor: const Color(0xFF252525),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: _kClzAccent,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+        visualDensity: VisualDensity.compact,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: _kClzDivider),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+        visualDensity: VisualDensity.compact,
+      ),
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
+      filled: true,
+      fillColor: Color(0xFF101010),
+      isDense: true,
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: _kClzDivider),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: _kClzDivider),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: _kClzAccent),
+      ),
+    ),
+    searchBarTheme: SearchBarThemeData(
+      backgroundColor: const WidgetStatePropertyAll(Color(0xFF101010)),
+      hintStyle: const WidgetStatePropertyAll(
+        TextStyle(color: _kClzTextMuted),
+      ),
+      elevation: const WidgetStatePropertyAll(0),
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(
+          side: const BorderSide(color: _kClzDivider),
+          borderRadius: BorderRadius.circular(3),
+        ),
+      ),
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: 10),
+      ),
+    ),
+    chipTheme: base.chipTheme.copyWith(
+      backgroundColor: const Color(0xFF343434),
+      selectedColor: _kClzSelection,
+      labelStyle: const TextStyle(color: Colors.white),
+      side: const BorderSide(color: _kClzDivider),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+    ),
+    textTheme: base.textTheme.apply(
+      bodyColor: Colors.white,
+      displayColor: Colors.white,
+    ),
+  );
+}
 
 class ComicsPage extends ConsumerStatefulWidget {
   const ComicsPage({super.key});
@@ -112,78 +218,82 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     final shelf = ref.watch(shelfProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F6),
+      backgroundColor: _kClzCanvas,
       body: SafeArea(
         bottom: false,
-        child: shelf.when(
-          data: (state) {
-            final entries = _filterShelfEntries(state.entries);
-            final items = _catalogItemsFromShelf(entries);
-            final gradeOptions = _filterOptions(
-              state.entries.map((entry) => entry.ownedItem?.grade),
-            );
-            final conditionOptions = _filterOptions(
-              state.entries.map((entry) => entry.ownedItem?.condition),
-            );
-            final publisherOptions = _filterOptions(
-              state.entries.map((entry) => entry.catalogItem?.publisher),
-            );
-            final releaseYearOptions = _filterOptions(
-              state.entries
-                  .map((entry) => entry.catalogItem?.releaseYear?.toString()),
-            );
-            return _ComicsWorkspace(
-              items: items,
-              queryController: _controller,
-              selectedItemId: selectedItemId,
-              selectedSeries: selectedSeries,
-              viewMode: viewMode,
-              sortColumn: sortColumn,
-              sortAscending: sortAscending,
-              coverSize: coverSize,
-              visibleColumns: visibleColumns,
-              selectionMode: selectionMode,
-              selectedItemIds: selectedItemIds,
-              hasActiveFilters: _hasActiveFilters,
-              onEditFilters: () => _showFiltersDialog(
-                context,
-                gradeOptions: gradeOptions,
-                conditionOptions: conditionOptions,
-                publisherOptions: publisherOptions,
-                releaseYearOptions: releaseYearOptions,
-              ),
-              onSearch: (value) => setState(() {
-                query = value.trim();
-                selectedItemId = null;
-                selectedSeries = null;
-              }),
-              onAddComic: () => _showAddComicDialog(context),
-              onSelectItem: (item) {
-                if (selectionMode) {
-                  _toggleSelection(item.id);
-                } else {
-                  setState(() => selectedItemId = item.id);
-                }
-              },
-              onSelectSeries: (series) => setState(() {
-                selectedSeries = series;
-                selectedItemId = null;
-              }),
-              onClearSeries: () => setState(() => selectedSeries = null),
-              onScanBarcode: () => _handleBarcodeScan(context),
-              onEditColumns: () => _showColumnChooser(context),
-              onViewModeChanged: _handleViewModeChanged,
-              onSortChanged: _handleSortChanged,
-              onCoverSizeChanged: _handleCoverSizeChanged,
-              onSelectionModeChanged: _setSelectionMode,
-              onClearSelection: _clearSelection,
-              onBulkEdit: () => _showBulkEditDialog(context, entries),
-              onBulkMoveToWishlist: () => _bulkMoveToWishlist(entries),
-              onBulkRemove: () => _bulkRemove(entries),
-            );
-          },
-          error: (error, stackTrace) => _ErrorState(message: error.toString()),
-          loading: () => const Center(child: CircularProgressIndicator()),
+        child: Theme(
+          data: _clzComicsTheme(),
+          child: shelf.when(
+            data: (state) {
+              final entries = _filterShelfEntries(state.entries);
+              final items = _catalogItemsFromShelf(entries);
+              final gradeOptions = _filterOptions(
+                state.entries.map((entry) => entry.ownedItem?.grade),
+              );
+              final conditionOptions = _filterOptions(
+                state.entries.map((entry) => entry.ownedItem?.condition),
+              );
+              final publisherOptions = _filterOptions(
+                state.entries.map((entry) => entry.catalogItem?.publisher),
+              );
+              final releaseYearOptions = _filterOptions(
+                state.entries.map(
+                    (entry) => entry.catalogItem?.releaseYear?.toString()),
+              );
+              return _ComicsWorkspace(
+                items: items,
+                queryController: _controller,
+                selectedItemId: selectedItemId,
+                selectedSeries: selectedSeries,
+                viewMode: viewMode,
+                sortColumn: sortColumn,
+                sortAscending: sortAscending,
+                coverSize: coverSize,
+                visibleColumns: visibleColumns,
+                selectionMode: selectionMode,
+                selectedItemIds: selectedItemIds,
+                hasActiveFilters: _hasActiveFilters,
+                onEditFilters: () => _showFiltersDialog(
+                  context,
+                  gradeOptions: gradeOptions,
+                  conditionOptions: conditionOptions,
+                  publisherOptions: publisherOptions,
+                  releaseYearOptions: releaseYearOptions,
+                ),
+                onSearch: (value) => setState(() {
+                  query = value.trim();
+                  selectedItemId = null;
+                  selectedSeries = null;
+                }),
+                onAddComic: () => _showAddComicDialog(context),
+                onSelectItem: (item) {
+                  if (selectionMode) {
+                    _toggleSelection(item.id);
+                  } else {
+                    setState(() => selectedItemId = item.id);
+                  }
+                },
+                onSelectSeries: (series) => setState(() {
+                  selectedSeries = series;
+                  selectedItemId = null;
+                }),
+                onClearSeries: () => setState(() => selectedSeries = null),
+                onScanBarcode: () => _handleBarcodeScan(context),
+                onEditColumns: () => _showColumnChooser(context),
+                onViewModeChanged: _handleViewModeChanged,
+                onSortChanged: _handleSortChanged,
+                onCoverSizeChanged: _handleCoverSizeChanged,
+                onSelectionModeChanged: _setSelectionMode,
+                onClearSelection: _clearSelection,
+                onBulkEdit: () => _showBulkEditDialog(context, entries),
+                onBulkMoveToWishlist: () => _bulkMoveToWishlist(entries),
+                onBulkRemove: () => _bulkRemove(entries),
+              );
+            },
+            error: (error, stackTrace) =>
+                _ErrorState(message: error.toString()),
+            loading: () => const Center(child: CircularProgressIndicator()),
+          ),
         ),
       ),
     );
@@ -636,6 +746,7 @@ class _ComicsWorkspace extends StatelessWidget {
 
     return Column(
       children: [
+        _ComicsTopBar(totalCount: items.length),
         _ComicsToolbar(
           controller: queryController,
           itemCount: visibleItems.length,
@@ -764,6 +875,43 @@ class _ComicsWorkspace extends StatelessWidget {
   }
 }
 
+class _ComicsTopBar extends StatelessWidget {
+  const _ComicsTopBar({required this.totalCount});
+
+  final int totalCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 34,
+      decoration: const BoxDecoration(
+        color: _kClzTopBar,
+        border: Border(bottom: BorderSide(color: Color(0xFF1B6F80))),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_queue, size: 20, color: Colors.white),
+          const SizedBox(width: 8),
+          const Text(
+            'Collectarr Comics',
+            style: TextStyle(fontWeight: FontWeight.w800),
+          ),
+          const Spacer(),
+          Text(
+            '$totalCount local comics',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(width: 14),
+          const Icon(Icons.grid_view, size: 18, color: Colors.white),
+          const SizedBox(width: 10),
+          const Icon(Icons.person, size: 18, color: Colors.white),
+        ],
+      ),
+    );
+  }
+}
+
 class _ComicsToolbar extends StatelessWidget {
   const _ComicsToolbar({
     required this.controller,
@@ -819,20 +967,27 @@ class _ComicsToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+      decoration: const BoxDecoration(
+        color: _kClzToolbar,
+        border: Border(bottom: BorderSide(color: _kClzDivider)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         child: Row(
           children: [
-            FilledButton.icon(
-              onPressed: onAddComic,
-              icon: const Icon(Icons.add),
-              label: const Text('Add Comics'),
+            SizedBox(
+              height: 32,
+              child: FilledButton.icon(
+                onPressed: onAddComic,
+                style: FilledButton.styleFrom(
+                  backgroundColor: _kClzYellow,
+                  foregroundColor: const Color(0xFF151515),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add Comics'),
+              ),
             ),
             const SizedBox(width: 8),
             Tooltip(
@@ -873,6 +1028,7 @@ class _ComicsToolbar extends StatelessWidget {
             if (selectedSeries != null) ...[
               const SizedBox(width: 8),
               InputChip(
+                backgroundColor: _kClzSelection,
                 label: Text(selectedSeries!),
                 onDeleted: onClearSeries,
               ),
@@ -1216,24 +1372,29 @@ class _SeriesSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return DecoratedBox(
-      decoration: BoxDecoration(color: colorScheme.surfaceContainerLowest),
+      decoration: const BoxDecoration(color: _kClzPanel),
       child: Column(
         children: [
           Container(
             height: 42,
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              border:
-                  Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+            decoration: const BoxDecoration(
+              color: Color(0xFF303030),
+              border: Border(bottom: BorderSide(color: _kClzDivider)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.folder, size: 18),
+                const Icon(Icons.folder, size: 18, color: _kClzAccent),
                 const SizedBox(width: 8),
-                Text('Series', style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  'Series',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
               ],
             ),
           ),
@@ -1270,13 +1431,12 @@ class _SeriesRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       child: Container(
         height: 32,
         padding: const EdgeInsets.symmetric(horizontal: 8),
-        color: selected ? colorScheme.primaryContainer : null,
+        color: selected ? _kClzSelection : Colors.transparent,
         child: Row(
           children: [
             Expanded(
@@ -1284,18 +1444,19 @@ class _SeriesRow extends StatelessWidget {
                 bucket.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: selected ? Colors.white : _kClzTextMuted,
+                      fontWeight:
+                          selected ? FontWeight.w800 : FontWeight.w500,
+                    ),
               ),
             ),
             const SizedBox(width: 8),
             Badge(
               label: Text(bucket.count.toString()),
-              backgroundColor: selected
-                  ? colorScheme.primary
-                  : colorScheme.surfaceContainerHighest,
-              textColor: selected
-                  ? colorScheme.onPrimary
-                  : colorScheme.onSurfaceVariant,
+              backgroundColor:
+                  selected ? _kClzYellow : const Color(0xFF444444),
+              textColor: selected ? const Color(0xFF171717) : Colors.white,
             ),
           ],
         ),
@@ -1364,28 +1525,31 @@ class _CoverGrid extends StatelessWidget {
     if (items.isEmpty) {
       return _EmptyState(onAddComic: onAddComic);
     }
-    return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: coverSize,
-        mainAxisExtent: coverSize * 1.53,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 12,
+    return ColoredBox(
+      color: _kClzGridCanvas,
+      child: GridView.builder(
+        padding: const EdgeInsets.all(10),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: coverSize,
+          mainAxisExtent: coverSize * 1.53,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return _CoverTile(
+            item: item,
+            libraryState: _LibraryState(
+              ownedItem: ownedByItemId[item.id],
+              isWishlisted: wishlistIds.contains(item.id),
+            ),
+            selected:
+                selectedItemIds.contains(item.id) || item.id == selectedItemId,
+            onTap: () => onSelectItem(item),
+          );
+        },
       ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return _CoverTile(
-          item: item,
-          libraryState: _LibraryState(
-            ownedItem: ownedByItemId[item.id],
-            isWishlisted: wishlistIds.contains(item.id),
-          ),
-          selected:
-              selectedItemIds.contains(item.id) || item.id == selectedItemId,
-          onTap: () => onSelectItem(item),
-        );
-      },
     );
   }
 }
@@ -1480,22 +1644,25 @@ class _ComicList extends StatelessWidget {
         final contentWidth = tableWidth > constraints.maxWidth
             ? tableWidth
             : constraints.maxWidth;
-        return Scrollbar(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: contentWidth,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(12),
-                child: _ComicDataTable(
-                  entries: entries,
-                  selectedItemId: selectedItemId,
-                  selectedItemIds: selectedItemIds,
-                  sortColumn: sortColumn,
-                  sortAscending: sortAscending,
-                  visibleColumns: visibleColumns,
-                  onSortChanged: onSortChanged,
-                  onSelectItem: onSelectItem,
+        return ColoredBox(
+          color: _kClzCanvas,
+          child: Scrollbar(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: contentWidth,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(8),
+                  child: _ComicDataTable(
+                    entries: entries,
+                    selectedItemId: selectedItemId,
+                    selectedItemIds: selectedItemIds,
+                    sortColumn: sortColumn,
+                    sortAscending: sortAscending,
+                    visibleColumns: visibleColumns,
+                    onSortChanged: onSortChanged,
+                    onSelectItem: onSelectItem,
+                  ),
                 ),
               ),
             ),
@@ -1529,19 +1696,19 @@ class _ComicDataTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final columns = _orderedVisibleColumns(visibleColumns);
     return DataTable(
       sortColumnIndex: _sortColumnIndex(sortColumn, columns),
       sortAscending: sortAscending,
-      headingRowColor: WidgetStatePropertyAll(colorScheme.surfaceContainerHigh),
-      dataRowMinHeight: 48,
-      dataRowMaxHeight: 58,
+      headingRowColor: const WidgetStatePropertyAll(Color(0xFF363636)),
+      dataRowMinHeight: 34,
+      dataRowMaxHeight: 46,
       columnSpacing: _kComicTableColumnSpacing,
       horizontalMargin: _kComicTableHorizontalMargin,
       showCheckboxColumn: false,
       border: TableBorder(
-        horizontalInside: BorderSide(color: colorScheme.outlineVariant),
+        horizontalInside: const BorderSide(color: Color(0xFF2E2E2E)),
+        verticalInside: const BorderSide(color: Color(0xFF303030)),
       ),
       columns: [
         for (final column in columns)
@@ -1552,6 +1719,11 @@ class _ComicDataTable extends StatelessWidget {
                 _comicTableColumnLabel(column),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                ),
               ),
             ),
             numeric: _comicTableColumnIsNumeric(column),
@@ -1568,10 +1740,10 @@ class _ComicDataTable extends StatelessWidget {
             color: WidgetStateProperty.resolveWith(
               (states) => selectedItemIds.contains(entries[index].item.id) ||
                       entries[index].item.id == selectedItemId
-                  ? colorScheme.primaryContainer
+                  ? _kClzSelection
                   : index.isOdd
-                      ? colorScheme.surfaceContainerLowest
-                      : colorScheme.surface,
+                      ? const Color(0xFF202020)
+                      : const Color(0xFF181818),
             ),
             onSelectChanged: (_) => onSelectItem(entries[index].item),
             cells: [
@@ -2002,20 +2174,26 @@ class _CoverTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(2),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: selected ? colorScheme.primaryContainer : colorScheme.surface,
-          borderRadius: BorderRadius.circular(6),
+          color: selected ? _kClzSelection : const Color(0xFF111111),
+          borderRadius: BorderRadius.circular(2),
           border: Border.all(
-            color: selected ? colorScheme.primary : colorScheme.outlineVariant,
+            color: selected ? _kClzAccent : const Color(0xFF3C3C3C),
             width: selected ? 2 : 1,
           ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x99000000),
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2036,7 +2214,7 @@ class _CoverTile extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(4),
                         child: Icon(Icons.check_circle,
-                            color: colorScheme.primary),
+                            color: _kClzYellow),
                       ),
                     ),
                 ],
@@ -2049,7 +2227,10 @@ class _CoverTile extends StatelessWidget {
                   : '${item.title} #${item.itemNumber}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelMedium,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: selected ? Colors.white : _kClzTextMuted,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  ),
             ),
           ],
         ),
@@ -2270,7 +2451,6 @@ class _ComicInspector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
     final ownedItem = libraryState.ownedItem;
     final isOwned = ownedItem != null;
     final detail =
@@ -2279,10 +2459,44 @@ class _ComicInspector extends ConsumerWidget {
       return const _EmptyInspector();
     }
     return DecoratedBox(
-      decoration: BoxDecoration(color: colorScheme.surface),
+      decoration: const BoxDecoration(color: _kClzPanel),
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         children: [
+          Row(
+            children: [
+              IconButton(
+                tooltip: 'Edit comic',
+                onPressed: ownedItem == null
+                    ? null
+                    : () => _showEditDialog(context, ref, item!, ownedItem),
+                icon: const Icon(Icons.edit, size: 18),
+              ),
+              IconButton(
+                tooltip: 'Wishlist',
+                onPressed: () => _toggleWishlist(context, ref, item!),
+                icon: Icon(
+                  libraryState.isWishlisted ? Icons.star : Icons.star_border,
+                  size: 18,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Open details',
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ComicDetailPage(item: item!),
+                  ),
+                ),
+                icon: const Icon(Icons.open_in_new, size: 18),
+              ),
+              const Spacer(),
+              if (isOwned)
+                Icon(Icons.check_box, color: _kClzAccent)
+              else
+                const Icon(Icons.check_box_outline_blank),
+            ],
+          ),
+          const Divider(height: 10),
           Row(
             children: [
               Expanded(
@@ -2290,30 +2504,31 @@ class _ComicInspector extends ConsumerWidget {
                   item!.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: _kClzAccent,
+                        fontWeight: FontWeight.w900,
+                        height: 1.05,
+                      ),
                 ),
               ),
-              Tooltip(
-                message:
-                    isOwned ? 'Remove from collection' : 'Add to collection',
-                child: IconButton.filled(
-                  onPressed: isOwned
-                      ? () => _removeFromCollection(context, ref, ownedItem)
-                      : () => _addToCollection(context, ref, item!),
-                  icon: Icon(isOwned ? Icons.remove : Icons.add),
-                ),
-              ),
-              if (ownedItem != null) ...[
-                const SizedBox(width: 6),
-                Tooltip(
-                  message: 'Edit comic',
-                  child: IconButton.filledTonal(
-                    onPressed: () =>
-                        _showEditDialog(context, ref, item!, ownedItem),
-                    icon: const Icon(Icons.edit),
+              if (item!.itemNumber != null)
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: _kClzYellow,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Text(
+                      '#${item!.itemNumber}',
+                      style: const TextStyle(
+                        color: Color(0xFF101010),
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
                 ),
-              ],
             ],
           ),
           Text(
@@ -2321,12 +2536,29 @@ class _ComicInspector extends ConsumerWidget {
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
-                ?.copyWith(color: colorScheme.primary),
+                ?.copyWith(color: _kClzTextMuted),
           ),
           const SizedBox(height: 16),
-          AspectRatio(
-            aspectRatio: 2 / 3,
-            child: _CoverImage(item: item!),
+          Center(
+            child: SizedBox(
+              width: 170,
+              child: AspectRatio(
+                aspectRatio: 2 / 3,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: _kClzDivider),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0xAA000000),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: _CoverImage(item: item!),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           Wrap(
@@ -2630,8 +2862,8 @@ class _RichMetadataInspector extends StatelessWidget {
                   : _formatDate(edition!.releaseDate!),
             ),
             _InspectorFact('Format', edition?.format ?? item.kind),
-            _InspectorFact('Barcode', edition?.upc ?? edition?.isbn ?? '-'),
-            _InspectorFact('Variant', variant?.name ?? '-'),
+            _InspectorFact('UPC / ISBN', edition?.upc ?? edition?.isbn ?? '-'),
+            _InspectorFact('Variant cover', variant?.name ?? '-'),
           ],
         ),
         if (providerFacts.isNotEmpty)
@@ -2643,7 +2875,7 @@ class _RichMetadataInspector extends StatelessWidget {
             ],
           ),
         _InspectorSection(
-          title: 'Personal',
+          title: 'Local details',
           children: [
             _InspectorFact('Quantity', owned?.quantity.toString() ?? '-'),
             _InspectorFact('Storage box', owned?.storageBox ?? '-'),
@@ -2671,7 +2903,7 @@ class _RichMetadataInspector extends StatelessWidget {
             ),
             _InspectorFact('Grade status', owned?.rawOrSlabbed ?? '-'),
             _InspectorFact('Grading company', owned?.gradingCompany ?? '-'),
-            _InspectorFact('Key comic', owned?.keyComic == true ? 'Yes' : 'No'),
+            _InspectorFact('Key issue', owned?.keyComic == true ? 'Yes' : 'No'),
           ],
         ),
         if (creators.isNotEmpty)
@@ -2743,21 +2975,26 @@ class _InspectorSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colorScheme.outlineVariant),
+          color: const Color(0xFF242424),
+          borderRadius: BorderRadius.circular(2),
+          border: Border.all(color: const Color(0xFF363636)),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleSmall),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: _kClzAccent,
+                      fontWeight: FontWeight.w900,
+                    ),
+              ),
               const SizedBox(height: 8),
               ...children,
             ],
@@ -2785,7 +3022,10 @@ class _InspectorFact extends StatelessWidget {
             width: 104,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.labelMedium,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: _kClzTextMuted,
+                    fontWeight: FontWeight.w800,
+                  ),
             ),
           ),
           Expanded(child: Text(value)),
