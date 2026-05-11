@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -8,6 +9,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comic_detail_page.dart';
+import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -2079,6 +2081,8 @@ class _ComicInspector extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final ownedItem = libraryState.ownedItem;
     final isOwned = ownedItem != null;
+    final detail =
+        item == null ? null : ref.watch(comicDetailProvider(item!.id));
     if (item == null) {
       return const _EmptyInspector();
     }
@@ -2182,7 +2186,6 @@ class _ComicInspector extends ConsumerWidget {
             const SizedBox(height: 12),
             _PersonalDetailsEditor(ownedItem: ownedItem),
           ],
-          const SizedBox(height: 16),
           if (item!.synopsis != null)
             Text(item!.synopsis!,
                 style: Theme.of(context).textTheme.bodyMedium),
@@ -2249,6 +2252,12 @@ class _ComicInspector extends ConsumerWidget {
                 ),
               ],
             ),
+          const SizedBox(height: 16),
+          _RichMetadataInspector(
+            item: item!,
+            detail: detail,
+            libraryState: libraryState,
+          ),
         ],
       ),
     );
@@ -2390,6 +2399,188 @@ class _ComicInspector extends ConsumerWidget {
         ),
       );
     }
+  }
+}
+
+class _RichMetadataInspector extends StatelessWidget {
+  const _RichMetadataInspector({
+    required this.item,
+    required this.detail,
+    required this.libraryState,
+  });
+
+  final CatalogItem item;
+  final AsyncValue<ComicDetail>? detail;
+  final _LibraryState libraryState;
+
+  @override
+  Widget build(BuildContext context) {
+    final owned = libraryState.ownedItem;
+    final detailValue = detail?.valueOrNull;
+    final edition = detailValue?.primaryEdition;
+    final variant = detailValue?.primaryVariant;
+    final source = edition?.sourceMetadata;
+    final creators = _metadataNames(source, 'person_credits');
+    final characters = _metadataNames(source, 'character_credits');
+    final arcs = _metadataNames(source, 'story_arc_credits');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _InspectorSection(
+          title: 'Metadata',
+          children: [
+            _InspectorFact('Publisher', edition?.publisher ?? '-'),
+            _InspectorFact(
+              'Release',
+              edition?.releaseDate == null
+                  ? '-'
+                  : _formatDate(edition!.releaseDate!),
+            ),
+            _InspectorFact('Format', edition?.format ?? item.kind),
+            _InspectorFact('Barcode', edition?.upc ?? edition?.isbn ?? '-'),
+            _InspectorFact('Variant', variant?.name ?? '-'),
+          ],
+        ),
+        _InspectorSection(
+          title: 'Personal',
+          children: [
+            _InspectorFact('Quantity', owned?.quantity.toString() ?? '-'),
+            _InspectorFact('Storage box', owned?.storageBox ?? '-'),
+            _InspectorFact('Index', owned?.indexNumber?.toString() ?? '-'),
+            _InspectorFact('Read status', owned?.readStatus ?? '-'),
+            _InspectorFact('Tags', owned?.tags ?? '-'),
+          ],
+        ),
+        _InspectorSection(
+          title: 'Market',
+          children: [
+            _InspectorFact(
+              'Purchase',
+              _formatOptionalMoney(
+                owned?.pricePaidCents,
+                owned?.currency,
+              ).ifEmpty('-'),
+            ),
+            _InspectorFact(
+              'Cover price',
+              _formatOptionalMoney(
+                owned?.coverPriceCents,
+                owned?.currency,
+              ).ifEmpty('-'),
+            ),
+            _InspectorFact('Grade status', owned?.rawOrSlabbed ?? '-'),
+            _InspectorFact('Grading company', owned?.gradingCompany ?? '-'),
+            _InspectorFact('Key comic', owned?.keyComic == true ? 'Yes' : 'No'),
+          ],
+        ),
+        if (creators.isNotEmpty)
+          _InspectorChipSection(title: 'Creators', values: creators),
+        if (characters.isNotEmpty)
+          _InspectorChipSection(title: 'Characters', values: characters),
+        if (arcs.isNotEmpty)
+          _InspectorChipSection(title: 'Story arcs', values: arcs),
+        if (detail?.isLoading ?? false)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: LinearProgressIndicator(),
+          ),
+      ],
+    );
+  }
+
+  List<String> _metadataNames(Map<String, dynamic>? source, String key) {
+    final values = source?[key];
+    if (values is! List) {
+      return const [];
+    }
+    return [
+      for (final value in values)
+        if (value is Map && value['name'] != null) value['name'].toString(),
+    ];
+  }
+}
+
+class _InspectorSection extends StatelessWidget {
+  const _InspectorSection({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: colorScheme.outlineVariant),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              ...children,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InspectorFact extends StatelessWidget {
+  const _InspectorFact(this.label, this.value);
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 104,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+}
+
+class _InspectorChipSection extends StatelessWidget {
+  const _InspectorChipSection({required this.title, required this.values});
+
+  final String title;
+  final List<String> values;
+
+  @override
+  Widget build(BuildContext context) {
+    return _InspectorSection(
+      title: title,
+      children: [
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final value in values.take(8))
+              Chip(label: Text(value), visualDensity: VisualDensity.compact),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -5361,4 +5552,8 @@ T? _enumByName<T extends Enum>(List<T> values, String? name) {
     }
   }
   return null;
+}
+
+extension _BlankStringFallback on String {
+  String ifEmpty(String fallback) => isEmpty ? fallback : this;
 }
