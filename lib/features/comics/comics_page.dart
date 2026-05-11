@@ -35,6 +35,8 @@ enum _ComicSortColumn {
   updated
 }
 
+enum _OwnershipFilter { all, owned, wishlist, missingGrade }
+
 class ComicsPage extends ConsumerStatefulWidget {
   const ComicsPage({super.key});
 
@@ -50,6 +52,9 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   _ComicSortColumn sortColumn = _ComicSortColumn.title;
   bool sortAscending = true;
   double coverSize = _kDefaultCoverSize;
+  _OwnershipFilter ownershipFilter = _OwnershipFilter.all;
+  String? gradeFilter;
+  String? conditionFilter;
   late final TextEditingController _controller;
 
   @override
@@ -75,9 +80,13 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         bottom: false,
         child: shelf.when(
           data: (state) {
-            final items = _filterLocalItems(
-              _catalogItemsFromShelf(state.entries),
-              query,
+            final entries = _filterShelfEntries(state.entries);
+            final items = _catalogItemsFromShelf(entries);
+            final gradeOptions = _filterOptions(
+              state.entries.map((entry) => entry.ownedItem?.grade),
+            );
+            final conditionOptions = _filterOptions(
+              state.entries.map((entry) => entry.ownedItem?.condition),
             );
             return _ComicsWorkspace(
               items: items,
@@ -88,6 +97,12 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               sortColumn: sortColumn,
               sortAscending: sortAscending,
               coverSize: coverSize,
+              hasActiveFilters: _hasActiveFilters,
+              onEditFilters: () => _showFiltersDialog(
+                context,
+                gradeOptions: gradeOptions,
+                conditionOptions: conditionOptions,
+              ),
               onSearch: (value) => setState(() {
                 query = value.trim();
                 selectedItemId = null;
@@ -178,21 +193,89 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     ];
   }
 
-  List<CatalogItem> _filterLocalItems(List<CatalogItem> items, String query) {
+  List<ShelfEntry> _filterShelfEntries(List<ShelfEntry> entries) {
     final normalized = query.trim().toLowerCase();
-    if (normalized.isEmpty) {
-      return items;
-    }
     return [
-      for (final item in items)
-        if (_matchesLocalQuery(item, normalized)) item,
+      for (final entry in entries)
+        if (_matchesOwnershipFilter(entry) &&
+            _matchesValueFilter(entry.ownedItem?.grade, gradeFilter) &&
+            _matchesValueFilter(entry.ownedItem?.condition, conditionFilter) &&
+            (normalized.isEmpty || _matchesEntryQuery(entry, normalized)))
+          entry,
     ];
   }
 
-  bool _matchesLocalQuery(CatalogItem item, String query) {
+  bool _matchesEntryQuery(ShelfEntry entry, String query) {
+    final item = entry.catalogItem;
+    if (entry.title.toLowerCase().contains(query)) {
+      return true;
+    }
+    if (item == null) {
+      return false;
+    }
     return item.title.toLowerCase().contains(query) ||
         (item.itemNumber?.toLowerCase().contains(query) ?? false) ||
         (item.synopsis?.toLowerCase().contains(query) ?? false);
+  }
+
+  bool _matchesOwnershipFilter(ShelfEntry entry) {
+    return switch (ownershipFilter) {
+      _OwnershipFilter.all => true,
+      _OwnershipFilter.owned => entry.isOwned,
+      _OwnershipFilter.wishlist => entry.isWishlisted,
+      _OwnershipFilter.missingGrade => entry.isMissingGrade,
+    };
+  }
+
+  bool _matchesValueFilter(String? value, String? filter) {
+    if (filter == null) {
+      return true;
+    }
+    return value == filter;
+  }
+
+  List<String> _filterOptions(Iterable<String?> values) {
+    final options = {
+      for (final value in values)
+        if (value != null && value.trim().isNotEmpty) value.trim(),
+    }.toList(growable: false)
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    return options;
+  }
+
+  bool get _hasActiveFilters {
+    return ownershipFilter != _OwnershipFilter.all ||
+        gradeFilter != null ||
+        conditionFilter != null;
+  }
+
+  Future<void> _showFiltersDialog(
+    BuildContext context, {
+    required List<String> gradeOptions,
+    required List<String> conditionOptions,
+  }) async {
+    final selection = await showDialog<_ComicsFilterSelection>(
+      context: context,
+      builder: (context) => _ComicsFilterDialog(
+        initialSelection: _ComicsFilterSelection(
+          ownershipFilter: ownershipFilter,
+          grade: gradeFilter,
+          condition: conditionFilter,
+        ),
+        gradeOptions: gradeOptions,
+        conditionOptions: conditionOptions,
+      ),
+    );
+    if (selection == null || !mounted) {
+      return;
+    }
+    setState(() {
+      ownershipFilter = selection.ownershipFilter;
+      gradeFilter = selection.grade;
+      conditionFilter = selection.condition;
+      selectedItemId = null;
+      selectedSeries = null;
+    });
   }
 
   void _handleSortChanged(_ComicSortColumn column) {
@@ -257,6 +340,8 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.coverSize,
+    required this.hasActiveFilters,
+    required this.onEditFilters,
     required this.onSearch,
     required this.onAddComic,
     required this.onSelectItem,
@@ -276,6 +361,8 @@ class _ComicsWorkspace extends StatelessWidget {
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final double coverSize;
+  final bool hasActiveFilters;
+  final VoidCallback onEditFilters;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
@@ -306,6 +393,8 @@ class _ComicsWorkspace extends StatelessWidget {
         queryController: queryController,
         onSearch: onSearch,
         onAddComic: onAddComic,
+        onEditFilters: onEditFilters,
+        hasActiveFilters: hasActiveFilters,
         coverSize: coverSize,
         onCoverSizeChanged: onCoverSizeChanged,
         onScanBarcode: onScanBarcode,
@@ -324,8 +413,10 @@ class _ComicsWorkspace extends StatelessWidget {
           selectedSeries: selectedSeries,
           viewMode: viewMode,
           coverSize: coverSize,
+          hasActiveFilters: hasActiveFilters,
           onSearch: onSearch,
           onAddComic: onAddComic,
+          onEditFilters: onEditFilters,
           onScanBarcode: onScanBarcode,
           onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
           onClearSeries: onClearSeries,
@@ -418,8 +509,10 @@ class _ComicsToolbar extends StatelessWidget {
     required this.selectedSeries,
     required this.viewMode,
     required this.coverSize,
+    required this.hasActiveFilters,
     required this.onSearch,
     required this.onAddComic,
+    required this.onEditFilters,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onClearSeries,
@@ -433,8 +526,10 @@ class _ComicsToolbar extends StatelessWidget {
   final String? selectedSeries;
   final _ComicsViewMode viewMode;
   final double coverSize;
+  final bool hasActiveFilters;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
+  final VoidCallback onEditFilters;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final VoidCallback onClearSeries;
@@ -500,6 +595,17 @@ class _ComicsToolbar extends StatelessWidget {
               ),
             ],
             const Spacer(),
+            Tooltip(
+              message: 'Filters',
+              child: Badge(
+                isLabelVisible: hasActiveFilters,
+                child: IconButton.filledTonal(
+                  onPressed: onEditFilters,
+                  icon: const Icon(Icons.filter_list),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
             _ToolbarStat(label: 'Shown', value: itemCount),
             const SizedBox(width: 8),
             _ToolbarStat(label: 'Total', value: totalCount),
@@ -1901,6 +2007,8 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
     required this.queryController,
     required this.onSearch,
     required this.onAddComic,
+    required this.onEditFilters,
+    required this.hasActiveFilters,
     required this.coverSize,
     required this.onCoverSizeChanged,
     required this.onScanBarcode,
@@ -1915,6 +2023,8 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
+  final VoidCallback onEditFilters;
+  final bool hasActiveFilters;
   final double coverSize;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback onScanBarcode;
@@ -1935,6 +2045,8 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
       queryController: queryController,
       onSearch: onSearch,
       onAddComic: onAddComic,
+      onEditFilters: onEditFilters,
+      hasActiveFilters: hasActiveFilters,
       coverSize: coverSize,
       onCoverSizeChanged: onCoverSizeChanged,
       onScanBarcode: onScanBarcode,
@@ -1955,6 +2067,8 @@ class _CompactComicsView extends StatelessWidget {
     required this.queryController,
     required this.onSearch,
     required this.onAddComic,
+    required this.onEditFilters,
+    required this.hasActiveFilters,
     required this.coverSize,
     required this.onCoverSizeChanged,
     required this.onScanBarcode,
@@ -1971,6 +2085,8 @@ class _CompactComicsView extends StatelessWidget {
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
+  final VoidCallback onEditFilters;
+  final bool hasActiveFilters;
   final double coverSize;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback onScanBarcode;
@@ -2004,6 +2120,17 @@ class _CompactComicsView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
+                Tooltip(
+                  message: 'Filters',
+                  child: Badge(
+                    isLabelVisible: hasActiveFilters,
+                    child: IconButton.filledTonal(
+                      onPressed: onEditFilters,
+                      icon: const Icon(Icons.filter_list),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
                 Tooltip(
                   message: 'Cover size',
                   child: IconButton.filledTonal(
@@ -2127,6 +2254,154 @@ void _showCompactInspector(BuildContext context, CatalogItem item) {
       );
     },
   );
+}
+
+class _ComicsFilterDialog extends StatefulWidget {
+  const _ComicsFilterDialog({
+    required this.initialSelection,
+    required this.gradeOptions,
+    required this.conditionOptions,
+  });
+
+  final _ComicsFilterSelection initialSelection;
+  final List<String> gradeOptions;
+  final List<String> conditionOptions;
+
+  @override
+  State<_ComicsFilterDialog> createState() => _ComicsFilterDialogState();
+}
+
+class _ComicsFilterDialogState extends State<_ComicsFilterDialog> {
+  late _OwnershipFilter _ownershipFilter;
+  String? _grade;
+  String? _condition;
+
+  @override
+  void initState() {
+    super.initState();
+    _ownershipFilter = widget.initialSelection.ownershipFilter;
+    _grade = widget.initialSelection.grade;
+    _condition = widget.initialSelection.condition;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Filters'),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DropdownButtonFormField<_OwnershipFilter>(
+              initialValue: _ownershipFilter,
+              decoration: const InputDecoration(
+                labelText: 'Shelf',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                for (final filter in _OwnershipFilter.values)
+                  DropdownMenuItem(
+                    value: filter,
+                    child: Text(_ownershipFilterLabel(filter)),
+                  ),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _ownershipFilter = value);
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue:
+                  widget.gradeOptions.contains(_grade) ? _grade : null,
+              decoration: const InputDecoration(
+                labelText: 'Grade',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem(value: '', child: Text('Any grade')),
+                for (final grade in widget.gradeOptions)
+                  DropdownMenuItem(value: grade, child: Text(grade)),
+              ],
+              onChanged: (value) {
+                setState(() =>
+                    _grade = value == null || value.isEmpty ? null : value);
+              },
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: widget.conditionOptions.contains(_condition)
+                  ? _condition
+                  : null,
+              decoration: const InputDecoration(
+                labelText: 'Condition',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem(value: '', child: Text('Any condition')),
+                for (final condition in widget.conditionOptions)
+                  DropdownMenuItem(value: condition, child: Text(condition)),
+              ],
+              onChanged: (value) {
+                setState(
+                  () => _condition =
+                      value == null || value.isEmpty ? null : value,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(
+              const _ComicsFilterSelection(
+                ownershipFilter: _OwnershipFilter.all,
+              ),
+            );
+          },
+          child: const Text('Clear'),
+        ),
+        FilledButton(
+          onPressed: () {
+            Navigator.of(context).pop(
+              _ComicsFilterSelection(
+                ownershipFilter: _ownershipFilter,
+                grade: _grade,
+                condition: _condition,
+              ),
+            );
+          },
+          child: const Text('Apply'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ComicsFilterSelection {
+  const _ComicsFilterSelection({
+    required this.ownershipFilter,
+    this.grade,
+    this.condition,
+  });
+
+  final _OwnershipFilter ownershipFilter;
+  final String? grade;
+  final String? condition;
+}
+
+String _ownershipFilterLabel(_OwnershipFilter filter) {
+  return switch (filter) {
+    _OwnershipFilter.all => 'All comics',
+    _OwnershipFilter.owned => 'Owned',
+    _OwnershipFilter.wishlist => 'Wishlist',
+    _OwnershipFilter.missingGrade => 'Missing grade',
+  };
 }
 
 class _AddComicDialog extends ConsumerStatefulWidget {

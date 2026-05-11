@@ -206,4 +206,60 @@ void main() {
     expect(find.text('Issue'), findsOneWidget);
     expect(find.text('Updated'), findsOneWidget);
   });
+
+  testWidgets('comics page filters local shelf by ownership', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(
+                  itemId: 'comic-1',
+                  catalogItem: catalogItems[0],
+                  ownedItem: ownedItem,
+                ),
+                ShelfEntry(
+                  itemId: 'comic-2',
+                  catalogItem: catalogItems[1],
+                ),
+              ],
+              ownedCount: 1,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 1,
+              totalPaidCents: 1299,
+              primaryCurrency: 'USD',
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => [ownedItem]),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Superman, Vol. 4 #9'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Filters'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('All comics'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Owned').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+    expect(find.text('Superman, Vol. 4 #9'), findsNothing);
+  });
 }
