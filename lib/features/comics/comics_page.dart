@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
 import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
@@ -1199,7 +1200,10 @@ class _ComicsToolbar extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       if (selectionMode) ...[
-                        _ToolbarStat(label: 'Selected', value: selectedCount),
+                        LibraryToolbarStat(
+                          label: 'Selected',
+                          value: selectedCount,
+                        ),
                         const SizedBox(width: 8),
                         PopupMenuButton<_BulkToolbarAction>(
                           tooltip: 'Bulk actions',
@@ -1287,9 +1291,9 @@ class _ComicsToolbar extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      _ToolbarStat(label: 'Shown', value: itemCount),
+                      LibraryToolbarStat(label: 'Shown', value: itemCount),
                       const SizedBox(width: 8),
-                      _ToolbarStat(label: 'Total', value: totalCount),
+                      LibraryToolbarStat(label: 'Total', value: totalCount),
                       const SizedBox(width: 8),
                       LibraryViewControls(
                         viewMode: viewMode,
@@ -1681,26 +1685,6 @@ int _missingMetadataCount(List<ShelfEntry> entries) {
     }
   }
   return count;
-}
-
-class _ToolbarStat extends StatelessWidget {
-  const _ToolbarStat({required this.label, required this.value});
-
-  final String label;
-  final int value;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(label, style: textTheme.labelSmall),
-        Text(value.toString(), style: textTheme.titleMedium),
-      ],
-    );
-  }
 }
 
 class _SeriesSidebar extends StatelessWidget {
