@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
+import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -2647,12 +2648,12 @@ class _ComicTableRow extends StatelessWidget {
 }
 
 List<LibraryTableColumn> _orderedVisibleColumns(
-    Set<LibraryTableColumn> columns) {
-  final effective = columns.isEmpty ? _defaultComicTableColumns() : columns;
-  return [
-    for (final column in effective) column,
-  ];
-}
+  Set<LibraryTableColumn> columns,
+) =>
+    orderedLibraryTableColumns(
+      columns: columns,
+      defaultColumns: _defaultComicTableColumns(),
+    );
 
 Set<LibraryTableColumn> _defaultComicTableColumns() =>
     Set.of(comicsWorkspaceConfig.defaultVisibleColumns);
@@ -2661,25 +2662,25 @@ double _tableWidthForColumns(
   Set<LibraryTableColumn> columns,
   Map<LibraryTableColumn, double> customWidths,
 ) {
-  final orderedColumns = _orderedVisibleColumns(columns);
-  final contentWidth = orderedColumns
-      .map((column) => _comicTableColumnWidth(column, customWidths))
-      .fold<double>(0, (total, width) => total + width);
-  final spacing = orderedColumns.isEmpty
-      ? 0.0
-      : (orderedColumns.length - 1) * _kComicTableColumnSpacing;
-  return contentWidth + spacing + (_kComicTableHorizontalMargin * 2);
+  return libraryTableWidthForColumns(
+    columns: columns,
+    defaultColumns: _defaultComicTableColumns(),
+    customWidths: customWidths,
+    sizing: _comicTableColumnSizing,
+    columnSpacing: _kComicTableColumnSpacing,
+    horizontalMargin: _kComicTableHorizontalMargin,
+  );
 }
 
 double _comicTableColumnWidth(
   LibraryTableColumn column,
   Map<LibraryTableColumn, double> customWidths,
 ) {
-  final customWidth = customWidths[column];
-  if (customWidth != null) {
-    return _clampComicTableColumnWidth(column, customWidth);
-  }
-  return _defaultComicTableColumnWidth(column);
+  return libraryTableColumnWidth(
+    column: column,
+    customWidths: customWidths,
+    sizing: _comicTableColumnSizing,
+  );
 }
 
 double _defaultComicTableColumnWidth(LibraryTableColumn column) {
@@ -2721,16 +2722,19 @@ double _maxComicTableColumnWidth(LibraryTableColumn column) {
   };
 }
 
+LibraryTableColumnSizing _comicTableColumnSizing(LibraryTableColumn column) {
+  return LibraryTableColumnSizing(
+    defaultWidth: _defaultComicTableColumnWidth(column),
+    minWidth: _minComicTableColumnWidth(column),
+    maxWidth: _maxComicTableColumnWidth(column),
+  );
+}
+
 double _clampComicTableColumnWidth(
   LibraryTableColumn column,
   double width,
 ) {
-  return width
-      .clamp(
-        _minComicTableColumnWidth(column),
-        _maxComicTableColumnWidth(column),
-      )
-      .toDouble();
+  return clampLibraryTableColumnWidth(width, _comicTableColumnSizing(column));
 }
 
 String _comicTableColumnLabel(LibraryTableColumn column) {
