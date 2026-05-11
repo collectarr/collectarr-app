@@ -27,6 +27,7 @@ const String _kComicsSortColumnPreferenceKey = 'comics.sort_column';
 const String _kComicsSortAscendingPreferenceKey = 'comics.sort_ascending';
 const String _kComicsCoverSizePreferenceKey = 'comics.cover_size';
 const String _kComicsVisibleColumnsPreferenceKey = 'comics.visible_columns';
+const String _kComicsDetailsLayoutPreferenceKey = 'comics.details_layout';
 const Color _kClzTopBar = Color(0xFF4DBBD5);
 const Color _kClzToolbar = Color(0xFF2B2B2B);
 const Color _kClzPanel = Color(0xFF1D1D1D);
@@ -39,7 +40,9 @@ const Color _kClzYellow = Color(0xFFFFD400);
 const Color _kClzDivider = Color(0xFF4A4A4A);
 const Color _kClzTextMuted = Color(0xFFB8B8B8);
 
-enum _ComicsViewMode { grid, list }
+enum _ComicsViewMode { grid, card, list }
+
+enum _DetailsLayout { right, bottom, hidden }
 
 enum _ComicSortColumn {
   status,
@@ -187,6 +190,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   String? selectedItemId;
   String? selectedSeries;
   _ComicsViewMode viewMode = _ComicsViewMode.grid;
+  _DetailsLayout detailsLayout = _DetailsLayout.right;
   _ComicSortColumn sortColumn = _ComicSortColumn.title;
   bool sortAscending = true;
   double coverSize = _kDefaultCoverSize;
@@ -237,8 +241,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 state.entries.map((entry) => entry.catalogItem?.publisher),
               );
               final releaseYearOptions = _filterOptions(
-                state.entries.map(
-                    (entry) => entry.catalogItem?.releaseYear?.toString()),
+                state.entries
+                    .map((entry) => entry.catalogItem?.releaseYear?.toString()),
               );
               return _ComicsWorkspace(
                 items: items,
@@ -246,6 +250,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 selectedItemId: selectedItemId,
                 selectedSeries: selectedSeries,
                 viewMode: viewMode,
+                detailsLayout: detailsLayout,
                 sortColumn: sortColumn,
                 sortAscending: sortAscending,
                 coverSize: coverSize,
@@ -281,6 +286,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 onScanBarcode: () => _handleBarcodeScan(context),
                 onEditColumns: () => _showColumnChooser(context),
                 onViewModeChanged: _handleViewModeChanged,
+                onDetailsLayoutChanged: _handleDetailsLayoutChanged,
                 onSortChanged: _handleSortChanged,
                 onCoverSizeChanged: _handleCoverSizeChanged,
                 onSelectionModeChanged: _setSelectionMode,
@@ -591,6 +597,11 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     _saveViewPreferences();
   }
 
+  void _handleDetailsLayoutChanged(_DetailsLayout value) {
+    setState(() => detailsLayout = value);
+    _saveViewPreferences();
+  }
+
   void _handleCoverSizeChanged(double value) {
     setState(() => coverSize = value);
     _saveViewPreferences();
@@ -615,6 +626,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   Future<void> _loadViewPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final storedViewMode = prefs.getString(_kComicsViewModePreferenceKey);
+    final storedDetailsLayout =
+        prefs.getString(_kComicsDetailsLayoutPreferenceKey);
     final storedSortColumn = prefs.getString(_kComicsSortColumnPreferenceKey);
     final storedCoverSize = prefs.getDouble(_kComicsCoverSizePreferenceKey);
     final storedColumns =
@@ -625,6 +638,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     setState(() {
       viewMode =
           _enumByName(_ComicsViewMode.values, storedViewMode) ?? viewMode;
+      detailsLayout = _enumByName(_DetailsLayout.values, storedDetailsLayout) ??
+          detailsLayout;
       sortColumn =
           _enumByName(_ComicSortColumn.values, storedSortColumn) ?? sortColumn;
       sortAscending =
@@ -639,6 +654,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   Future<void> _saveViewPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kComicsViewModePreferenceKey, viewMode.name);
+    await prefs.setString(
+      _kComicsDetailsLayoutPreferenceKey,
+      detailsLayout.name,
+    );
     await prefs.setString(_kComicsSortColumnPreferenceKey, sortColumn.name);
     await prefs.setBool(_kComicsSortAscendingPreferenceKey, sortAscending);
     await prefs.setDouble(_kComicsCoverSizePreferenceKey, coverSize);
@@ -656,6 +675,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.selectedItemId,
     required this.selectedSeries,
     required this.viewMode,
+    required this.detailsLayout,
     required this.sortColumn,
     required this.sortAscending,
     required this.coverSize,
@@ -672,6 +692,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.onClearSeries,
     required this.onScanBarcode,
     required this.onViewModeChanged,
+    required this.onDetailsLayoutChanged,
     required this.onSortChanged,
     required this.onCoverSizeChanged,
     required this.onSelectionModeChanged,
@@ -686,6 +707,7 @@ class _ComicsWorkspace extends StatelessWidget {
   final String? selectedItemId;
   final String? selectedSeries;
   final _ComicsViewMode viewMode;
+  final _DetailsLayout detailsLayout;
   final _ComicSortColumn sortColumn;
   final bool sortAscending;
   final double coverSize;
@@ -702,6 +724,7 @@ class _ComicsWorkspace extends StatelessWidget {
   final VoidCallback onClearSeries;
   final VoidCallback onScanBarcode;
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
+  final ValueChanged<_DetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<_ComicSortColumn> onSortChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<bool> onSelectionModeChanged;
@@ -753,6 +776,7 @@ class _ComicsWorkspace extends StatelessWidget {
           totalCount: items.length,
           selectedSeries: selectedSeries,
           viewMode: viewMode,
+          detailsLayout: detailsLayout,
           coverSize: coverSize,
           hasActiveFilters: hasActiveFilters,
           missingIssues: missingIssues,
@@ -766,6 +790,7 @@ class _ComicsWorkspace extends StatelessWidget {
           onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
           onClearSeries: onClearSeries,
           onViewModeChanged: onViewModeChanged,
+          onDetailsLayoutChanged: onDetailsLayoutChanged,
           onCoverSizeChanged: onCoverSizeChanged,
           onSelectionModeChanged: onSelectionModeChanged,
           onClearSelection: onClearSelection,
@@ -786,31 +811,23 @@ class _ComicsWorkspace extends StatelessWidget {
               ),
               const VerticalDivider(width: 1),
               Expanded(
-                child: viewMode == _ComicsViewMode.grid
-                    ? _LibraryAwareCoverGrid(
-                        items: visibleItems,
-                        selectedItemId: selectedItem?.id,
-                        selectedItemIds: selectedItemIds,
-                        coverSize: coverSize,
-                        onAddComic: onAddComic,
-                        onSelectItem: onSelectItem,
-                      )
-                    : _LibraryAwareComicList(
-                        items: visibleItems,
-                        selectedItemId: selectedItem?.id,
-                        selectedItemIds: selectedItemIds,
-                        sortColumn: sortColumn,
-                        sortAscending: sortAscending,
-                        visibleColumns: visibleColumns,
-                        onSortChanged: onSortChanged,
-                        onAddComic: onAddComic,
-                        onSelectItem: onSelectItem,
-                      ),
-              ),
-              const VerticalDivider(width: 1),
-              SizedBox(
-                width: 340,
-                child: _LibraryAwareComicInspector(item: selectedItem),
+                child: _DetailsAwareComicsLayout(
+                  content: _LibraryAwareShelfContent(
+                    viewMode: viewMode,
+                    items: visibleItems,
+                    selectedItemId: selectedItem?.id,
+                    selectedItemIds: selectedItemIds,
+                    coverSize: coverSize,
+                    sortColumn: sortColumn,
+                    sortAscending: sortAscending,
+                    visibleColumns: visibleColumns,
+                    onSortChanged: onSortChanged,
+                    onAddComic: onAddComic,
+                    onSelectItem: onSelectItem,
+                  ),
+                  detailsLayout: detailsLayout,
+                  inspector: _LibraryAwareComicInspector(item: selectedItem),
+                ),
               ),
             ],
           ),
@@ -875,6 +892,100 @@ class _ComicsWorkspace extends StatelessWidget {
   }
 }
 
+class _LibraryAwareShelfContent extends StatelessWidget {
+  const _LibraryAwareShelfContent({
+    required this.viewMode,
+    required this.items,
+    required this.selectedItemId,
+    required this.selectedItemIds,
+    required this.coverSize,
+    required this.sortColumn,
+    required this.sortAscending,
+    required this.visibleColumns,
+    required this.onSortChanged,
+    required this.onAddComic,
+    required this.onSelectItem,
+  });
+
+  final _ComicsViewMode viewMode;
+  final List<CatalogItem> items;
+  final String? selectedItemId;
+  final Set<String> selectedItemIds;
+  final double coverSize;
+  final _ComicSortColumn sortColumn;
+  final bool sortAscending;
+  final Set<_ComicTableColumn> visibleColumns;
+  final ValueChanged<_ComicSortColumn> onSortChanged;
+  final VoidCallback onAddComic;
+  final ValueChanged<CatalogItem> onSelectItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (viewMode) {
+      _ComicsViewMode.grid => _LibraryAwareCoverGrid(
+          items: items,
+          selectedItemId: selectedItemId,
+          selectedItemIds: selectedItemIds,
+          coverSize: coverSize,
+          onAddComic: onAddComic,
+          onSelectItem: onSelectItem,
+        ),
+      _ComicsViewMode.card => _LibraryAwareCardGrid(
+          items: items,
+          selectedItemId: selectedItemId,
+          selectedItemIds: selectedItemIds,
+          coverSize: coverSize,
+          onAddComic: onAddComic,
+          onSelectItem: onSelectItem,
+        ),
+      _ComicsViewMode.list => _LibraryAwareComicList(
+          items: items,
+          selectedItemId: selectedItemId,
+          selectedItemIds: selectedItemIds,
+          sortColumn: sortColumn,
+          sortAscending: sortAscending,
+          visibleColumns: visibleColumns,
+          onSortChanged: onSortChanged,
+          onAddComic: onAddComic,
+          onSelectItem: onSelectItem,
+        ),
+    };
+  }
+}
+
+class _DetailsAwareComicsLayout extends StatelessWidget {
+  const _DetailsAwareComicsLayout({
+    required this.content,
+    required this.detailsLayout,
+    required this.inspector,
+  });
+
+  final Widget content;
+  final _DetailsLayout detailsLayout;
+  final Widget inspector;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (detailsLayout) {
+      _DetailsLayout.right => Row(
+          children: [
+            Expanded(child: content),
+            const VerticalDivider(width: 1),
+            SizedBox(width: 340, child: inspector),
+          ],
+        ),
+      _DetailsLayout.bottom => Column(
+          children: [
+            Expanded(child: content),
+            const Divider(height: 1),
+            SizedBox(height: 310, child: inspector),
+          ],
+        ),
+      _DetailsLayout.hidden => content,
+    };
+  }
+}
+
 class _ComicsTopBar extends StatelessWidget {
   const _ComicsTopBar({required this.totalCount});
 
@@ -919,6 +1030,7 @@ class _ComicsToolbar extends StatelessWidget {
     required this.totalCount,
     required this.selectedSeries,
     required this.viewMode,
+    required this.detailsLayout,
     required this.coverSize,
     required this.hasActiveFilters,
     required this.missingIssues,
@@ -932,6 +1044,7 @@ class _ComicsToolbar extends StatelessWidget {
     required this.onRefreshMetadata,
     required this.onClearSeries,
     required this.onViewModeChanged,
+    required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
     required this.onSelectionModeChanged,
     required this.onClearSelection,
@@ -945,6 +1058,7 @@ class _ComicsToolbar extends StatelessWidget {
   final int totalCount;
   final String? selectedSeries;
   final _ComicsViewMode viewMode;
+  final _DetailsLayout detailsLayout;
   final double coverSize;
   final bool hasActiveFilters;
   final List<int> missingIssues;
@@ -958,6 +1072,7 @@ class _ComicsToolbar extends StatelessWidget {
   final VoidCallback onRefreshMetadata;
   final VoidCallback onClearSeries;
   final ValueChanged<_ComicsViewMode> onViewModeChanged;
+  final ValueChanged<_DetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<bool> onSelectionModeChanged;
   final VoidCallback onClearSelection;
@@ -1005,24 +1120,22 @@ class _ComicsToolbar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Flexible(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 360),
-                child: SearchBar(
-                  controller: controller,
-                  hintText: 'Search comics...',
-                  leading: const Icon(Icons.search),
-                  trailing: [
-                    Tooltip(
-                      message: 'Search',
-                      child: IconButton(
-                        onPressed: () => onSearch(controller.text),
-                        icon: const Icon(Icons.arrow_forward),
-                      ),
+            SizedBox(
+              width: 320,
+              child: SearchBar(
+                controller: controller,
+                hintText: 'Search comics...',
+                leading: const Icon(Icons.search),
+                trailing: [
+                  Tooltip(
+                    message: 'Search',
+                    child: IconButton(
+                      onPressed: () => onSearch(controller.text),
+                      icon: const Icon(Icons.arrow_forward),
                     ),
-                  ],
-                  onSubmitted: onSearch,
-                ),
+                  ),
+                ],
+                onSubmitted: onSearch,
               ),
             ),
             if (selectedSeries != null) ...[
@@ -1033,139 +1146,196 @@ class _ComicsToolbar extends StatelessWidget {
                 onDeleted: onClearSeries,
               ),
             ],
-            const Spacer(),
-            Tooltip(
-              message: selectionMode ? 'Exit selection' : 'Select comics',
-              child: IconButton.filledTonal(
-                onPressed: () => onSelectionModeChanged(!selectionMode),
-                icon: Icon(selectionMode ? Icons.close : Icons.checklist),
-              ),
-            ),
             const SizedBox(width: 8),
-            if (selectionMode) ...[
-              _ToolbarStat(label: 'Selected', value: selectedCount),
-              const SizedBox(width: 8),
-              PopupMenuButton<_BulkToolbarAction>(
-                tooltip: 'Bulk actions',
-                enabled: selectedCount > 0,
-                icon: const Icon(Icons.more_vert),
-                onSelected: (action) {
-                  if (action == _BulkToolbarAction.edit) {
-                    onBulkEdit();
-                  } else if (action == _BulkToolbarAction.wishlist) {
-                    onBulkMoveToWishlist();
-                  } else if (action == _BulkToolbarAction.remove) {
-                    onBulkRemove();
-                  } else if (action == _BulkToolbarAction.clear) {
-                    onClearSelection();
-                  }
-                },
-                itemBuilder: (context) => const [
-                  PopupMenuItem(
-                    value: _BulkToolbarAction.edit,
-                    child: ListTile(
-                      leading: Icon(Icons.edit_note),
-                      title: Text('Bulk edit'),
-                    ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Tooltip(
+                        message:
+                            selectionMode ? 'Exit selection' : 'Select comics',
+                        child: IconButton.filledTonal(
+                          onPressed: () =>
+                              onSelectionModeChanged(!selectionMode),
+                          icon: Icon(
+                              selectionMode ? Icons.close : Icons.checklist),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (selectionMode) ...[
+                        _ToolbarStat(label: 'Selected', value: selectedCount),
+                        const SizedBox(width: 8),
+                        PopupMenuButton<_BulkToolbarAction>(
+                          tooltip: 'Bulk actions',
+                          enabled: selectedCount > 0,
+                          icon: const Icon(Icons.more_vert),
+                          onSelected: (action) {
+                            if (action == _BulkToolbarAction.edit) {
+                              onBulkEdit();
+                            } else if (action == _BulkToolbarAction.wishlist) {
+                              onBulkMoveToWishlist();
+                            } else if (action == _BulkToolbarAction.remove) {
+                              onBulkRemove();
+                            } else if (action == _BulkToolbarAction.clear) {
+                              onClearSelection();
+                            }
+                          },
+                          itemBuilder: (context) => const [
+                            PopupMenuItem(
+                              value: _BulkToolbarAction.edit,
+                              child: ListTile(
+                                leading: Icon(Icons.edit_note),
+                                title: Text('Bulk edit'),
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: _BulkToolbarAction.wishlist,
+                              child: ListTile(
+                                leading: Icon(Icons.star_border),
+                                title: Text('Move to wishlist'),
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: _BulkToolbarAction.remove,
+                              child: ListTile(
+                                leading: Icon(Icons.delete_outline),
+                                title: Text('Remove selected'),
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: _BulkToolbarAction.clear,
+                              child: ListTile(
+                                leading: Icon(Icons.deselect),
+                                title: Text('Clear selection'),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Tooltip(
+                        message: 'Missing issues',
+                        child: Badge(
+                          isLabelVisible: missingIssues.isNotEmpty,
+                          label: Text(missingIssues.length.toString()),
+                          child: IconButton.filledTonal(
+                            onPressed: missingIssues.isEmpty
+                                ? null
+                                : () => _showMissingIssuesDialog(
+                                      context,
+                                      missingIssues,
+                                    ),
+                            icon: const Icon(Icons.format_list_numbered),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Tooltip(
+                        message: 'Filters',
+                        child: Badge(
+                          isLabelVisible: hasActiveFilters,
+                          child: IconButton.filledTonal(
+                            onPressed: onEditFilters,
+                            icon: const Icon(Icons.filter_list),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Tooltip(
+                        message: 'Select columns',
+                        child: IconButton.filledTonal(
+                          onPressed: viewMode == _ComicsViewMode.list
+                              ? onEditColumns
+                              : null,
+                          icon: const Icon(Icons.view_column),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _ToolbarStat(label: 'Shown', value: itemCount),
+                      const SizedBox(width: 8),
+                      _ToolbarStat(label: 'Total', value: totalCount),
+                      const SizedBox(width: 8),
+                      Tooltip(
+                        message: 'Cover size',
+                        child: SizedBox(
+                          width: 112,
+                          child: Slider(
+                            min: _kMinCoverSize,
+                            max: _kMaxCoverSize,
+                            divisions: 7,
+                            value: coverSize,
+                            onChanged: onCoverSizeChanged,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SegmentedButton<_ComicsViewMode>(
+                        segments: const [
+                          ButtonSegment(
+                            value: _ComicsViewMode.grid,
+                            icon: Tooltip(
+                              message: 'Cover view',
+                              child: Icon(Icons.grid_view),
+                            ),
+                          ),
+                          ButtonSegment(
+                            value: _ComicsViewMode.card,
+                            icon: Tooltip(
+                              message: 'Card view',
+                              child: Icon(Icons.view_module),
+                            ),
+                          ),
+                          ButtonSegment(
+                            value: _ComicsViewMode.list,
+                            icon: Tooltip(
+                              message: 'List view',
+                              child: Icon(Icons.view_list),
+                            ),
+                          ),
+                        ],
+                        selected: {viewMode},
+                        onSelectionChanged: (selection) =>
+                            onViewModeChanged(selection.first),
+                        showSelectedIcon: false,
+                      ),
+                      const SizedBox(width: 8),
+                      SegmentedButton<_DetailsLayout>(
+                        segments: const [
+                          ButtonSegment(
+                            value: _DetailsLayout.right,
+                            icon: Tooltip(
+                              message: 'Details right',
+                              child: Icon(Icons.view_sidebar),
+                            ),
+                          ),
+                          ButtonSegment(
+                            value: _DetailsLayout.bottom,
+                            icon: Tooltip(
+                              message: 'Details bottom',
+                              child: Icon(Icons.vertical_split),
+                            ),
+                          ),
+                          ButtonSegment(
+                            value: _DetailsLayout.hidden,
+                            icon: Tooltip(
+                              message: 'Hide details',
+                              child: Icon(Icons.visibility_off),
+                            ),
+                          ),
+                        ],
+                        selected: {detailsLayout},
+                        onSelectionChanged: (selection) =>
+                            onDetailsLayoutChanged(selection.first),
+                        showSelectedIcon: false,
+                      ),
+                    ],
                   ),
-                  PopupMenuItem(
-                    value: _BulkToolbarAction.wishlist,
-                    child: ListTile(
-                      leading: Icon(Icons.star_border),
-                      title: Text('Move to wishlist'),
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: _BulkToolbarAction.remove,
-                    child: ListTile(
-                      leading: Icon(Icons.delete_outline),
-                      title: Text('Remove selected'),
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: _BulkToolbarAction.clear,
-                    child: ListTile(
-                      leading: Icon(Icons.deselect),
-                      title: Text('Clear selection'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 8),
-            ],
-            Tooltip(
-              message: 'Missing issues',
-              child: Badge(
-                isLabelVisible: missingIssues.isNotEmpty,
-                label: Text(missingIssues.length.toString()),
-                child: IconButton.filledTonal(
-                  onPressed: missingIssues.isEmpty
-                      ? null
-                      : () => _showMissingIssuesDialog(context, missingIssues),
-                  icon: const Icon(Icons.format_list_numbered),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Tooltip(
-              message: 'Filters',
-              child: Badge(
-                isLabelVisible: hasActiveFilters,
-                child: IconButton.filledTonal(
-                  onPressed: onEditFilters,
-                  icon: const Icon(Icons.filter_list),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Tooltip(
-              message: 'Select columns',
-              child: IconButton.filledTonal(
-                onPressed:
-                    viewMode == _ComicsViewMode.list ? onEditColumns : null,
-                icon: const Icon(Icons.view_column),
-              ),
-            ),
-            const SizedBox(width: 8),
-            _ToolbarStat(label: 'Shown', value: itemCount),
-            const SizedBox(width: 8),
-            _ToolbarStat(label: 'Total', value: totalCount),
-            const SizedBox(width: 8),
-            Tooltip(
-              message: 'Cover size',
-              child: SizedBox(
-                width: 112,
-                child: Slider(
-                  min: _kMinCoverSize,
-                  max: _kMaxCoverSize,
-                  divisions: 7,
-                  value: coverSize,
-                  onChanged: onCoverSizeChanged,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            SegmentedButton<_ComicsViewMode>(
-              segments: const [
-                ButtonSegment(
-                  value: _ComicsViewMode.grid,
-                  icon: Tooltip(
-                    message: 'Grid view',
-                    child: Icon(Icons.grid_view),
-                  ),
-                ),
-                ButtonSegment(
-                  value: _ComicsViewMode.list,
-                  icon: Tooltip(
-                    message: 'List view',
-                    child: Icon(Icons.view_list),
-                  ),
-                ),
-              ],
-              selected: {viewMode},
-              onSelectionChanged: (selection) =>
-                  onViewModeChanged(selection.first),
-              showSelectedIcon: false,
             ),
           ],
         ),
@@ -1446,16 +1616,14 @@ class _SeriesRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: selected ? Colors.white : _kClzTextMuted,
-                      fontWeight:
-                          selected ? FontWeight.w800 : FontWeight.w500,
+                      fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                     ),
               ),
             ),
             const SizedBox(width: 8),
             Badge(
               label: Text(bucket.count.toString()),
-              backgroundColor:
-                  selected ? _kClzYellow : const Color(0xFF444444),
+              backgroundColor: selected ? _kClzYellow : const Color(0xFF444444),
               textColor: selected ? const Color(0xFF171717) : Colors.white,
             ),
           ],
@@ -1549,6 +1717,301 @@ class _CoverGrid extends StatelessWidget {
             onTap: () => onSelectItem(item),
           );
         },
+      ),
+    );
+  }
+}
+
+class _LibraryAwareCardGrid extends ConsumerWidget {
+  const _LibraryAwareCardGrid({
+    required this.items,
+    required this.selectedItemId,
+    required this.selectedItemIds,
+    required this.coverSize,
+    required this.onAddComic,
+    required this.onSelectItem,
+  });
+
+  final List<CatalogItem> items;
+  final String? selectedItemId;
+  final Set<String> selectedItemIds;
+  final double coverSize;
+  final VoidCallback onAddComic;
+  final ValueChanged<CatalogItem> onSelectItem;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ownedByItemId = ref.watch(collectionByCatalogItemProvider);
+    final wishlistIds = _watchWishlistIds(ref);
+    return _CardGrid(
+      items: items,
+      ownedByItemId: ownedByItemId,
+      wishlistIds: wishlistIds,
+      selectedItemId: selectedItemId,
+      selectedItemIds: selectedItemIds,
+      coverSize: coverSize,
+      onAddComic: onAddComic,
+      onSelectItem: onSelectItem,
+    );
+  }
+}
+
+class _CardGrid extends StatelessWidget {
+  const _CardGrid({
+    required this.items,
+    required this.ownedByItemId,
+    required this.wishlistIds,
+    required this.selectedItemId,
+    required this.selectedItemIds,
+    required this.coverSize,
+    required this.onAddComic,
+    required this.onSelectItem,
+  });
+
+  final List<CatalogItem> items;
+  final Map<String, OwnedItem> ownedByItemId;
+  final Set<String> wishlistIds;
+  final String? selectedItemId;
+  final Set<String> selectedItemIds;
+  final double coverSize;
+  final VoidCallback onAddComic;
+  final ValueChanged<CatalogItem> onSelectItem;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return _EmptyState(onAddComic: onAddComic);
+    }
+    final cardHeight = (coverSize * 1.12).clamp(138.0, 174.0).toDouble();
+    return ColoredBox(
+      color: _kClzGridCanvas,
+      child: GridView.builder(
+        padding: const EdgeInsets.all(10),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 430,
+          mainAxisExtent: cardHeight,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return _ComicCard(
+            item: item,
+            libraryState: _LibraryState(
+              ownedItem: ownedByItemId[item.id],
+              isWishlisted: wishlistIds.contains(item.id),
+            ),
+            selected:
+                selectedItemIds.contains(item.id) || item.id == selectedItemId,
+            onTap: () => onSelectItem(item),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ComicCard extends StatelessWidget {
+  const _ComicCard({
+    required this.item,
+    required this.libraryState,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final CatalogItem item;
+  final _LibraryState libraryState;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ownedItem = libraryState.ownedItem;
+    return InkWell(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: selected ? _kClzSelection : const Color(0xFF181818),
+          border: Border.all(
+            color: selected ? _kClzAccent : const Color(0xFF363636),
+            width: selected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 72,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _CoverImage(item: item),
+                  Positioned(
+                    left: 4,
+                    top: 4,
+                    child: _CoverBadges(libraryState: libraryState),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    color: selected
+                                        ? Colors.white
+                                        : const Color(0xFF82DDF2),
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                        ),
+                      ),
+                      if (item.itemNumber != null)
+                        _IssuePill(label: '#${item.itemNumber}'),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    [
+                      if (item.variant != null && item.variant!.isNotEmpty)
+                        item.variant,
+                      if (item.releaseDate != null)
+                        _formatDate(item.releaseDate!),
+                      if (item.publisher != null && item.publisher!.isNotEmpty)
+                        item.publisher,
+                    ].whereType<String>().join('  |  '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: _kClzTextMuted,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      if (ownedItem?.grade != null)
+                        _CompactMetaPill(
+                          icon: Icons.workspace_premium,
+                          label: ownedItem!.grade!,
+                        ),
+                      if (ownedItem?.condition != null)
+                        _CompactMetaPill(
+                          icon: Icons.fact_check_outlined,
+                          label: ownedItem!.condition!,
+                        ),
+                      if (ownedItem?.storageBox != null)
+                        _CompactMetaPill(
+                          icon: Icons.inventory_2_outlined,
+                          label: ownedItem!.storageBox!,
+                        ),
+                      if (ownedItem?.pricePaidCents != null)
+                        _CompactMetaPill(
+                          icon: Icons.attach_money,
+                          label: _formatOptionalMoney(
+                            ownedItem!.pricePaidCents,
+                            ownedItem.currency,
+                          ),
+                        ),
+                      if (libraryState.isWishlisted)
+                        const _CompactMetaPill(
+                          icon: Icons.star,
+                          label: 'Wishlist',
+                        ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text(
+                    item.barcode == null || item.barcode!.isEmpty
+                        ? 'No barcode'
+                        : item.barcode!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: const Color(0xFF9A9A9A),
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IssuePill extends StatelessWidget {
+  const _IssuePill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: _kClzYellow,
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF151515),
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CompactMetaPill extends StatelessWidget {
+  const _CompactMetaPill({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF2E2E2E),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(color: const Color(0xFF4B4B4B)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 13, color: _kClzAccent),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -2213,8 +2676,7 @@ class _CoverTile extends StatelessWidget {
                       alignment: Alignment.bottomRight,
                       child: Padding(
                         padding: const EdgeInsets.all(4),
-                        child: Icon(Icons.check_circle,
-                            color: _kClzYellow),
+                        child: Icon(Icons.check_circle, color: _kClzYellow),
                       ),
                     ),
                 ],

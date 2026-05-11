@@ -107,8 +107,12 @@ void main() {
     expect(find.widgetWithText(TextField, 'Signed copy'), findsOneWidget);
     expect(find.text('Remove'), findsOneWidget);
     expect(find.text('Move to wishlist'), findsOneWidget);
-    expect(find.byTooltip('Grid view'), findsOneWidget);
+    expect(find.byTooltip('Cover view'), findsOneWidget);
+    expect(find.byTooltip('Card view'), findsOneWidget);
     expect(find.byTooltip('List view'), findsOneWidget);
+    expect(find.byTooltip('Details right'), findsOneWidget);
+    expect(find.byTooltip('Details bottom'), findsOneWidget);
+    expect(find.byTooltip('Hide details'), findsOneWidget);
 
     await tester.tap(find.byTooltip('List view'));
     await tester.pumpAndSettle();
