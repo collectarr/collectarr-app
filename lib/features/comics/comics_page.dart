@@ -1109,25 +1109,41 @@ class _ColumnChooserDialogState extends State<_ColumnChooserDialog> {
                   ),
                   VerticalDivider(color: colorScheme.outlineVariant),
                   Expanded(
-                    child: ListView(
+                    child: ReorderableListView.builder(
                       padding: const EdgeInsets.fromLTRB(8, 0, 12, 12),
-                      children: [
-                        for (final column in selectedColumns)
-                          ListTile(
-                            dense: true,
-                            leading: const Icon(Icons.drag_indicator),
-                            title: Text(_comicTableColumnDisplayName(column)),
-                            trailing: column == _ComicTableColumn.title
-                                ? null
-                                : IconButton(
-                                    tooltip: 'Hide column',
-                                    onPressed: () => setState(
-                                      () => _selected.remove(column),
-                                    ),
-                                    icon: const Icon(Icons.close),
+                      itemCount: selectedColumns.length,
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() {
+                          final reordered =
+                              selectedColumns.toList(growable: true);
+                          if (newIndex > oldIndex) {
+                            newIndex -= 1;
+                          }
+                          final column = reordered.removeAt(oldIndex);
+                          reordered.insert(newIndex, column);
+                          _selected = {
+                            for (final column in reordered) column,
+                          };
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        final column = selectedColumns[index];
+                        return ListTile(
+                          key: ValueKey(column),
+                          dense: true,
+                          leading: const Icon(Icons.drag_indicator),
+                          title: Text(_comicTableColumnDisplayName(column)),
+                          trailing: column == _ComicTableColumn.title
+                              ? null
+                              : IconButton(
+                                  tooltip: 'Hide column',
+                                  onPressed: () => setState(
+                                    () => _selected.remove(column),
                                   ),
-                          ),
-                      ],
+                                  icon: const Icon(Icons.close),
+                                ),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -1571,8 +1587,7 @@ class _ComicDataTable extends StatelessWidget {
 List<_ComicTableColumn> _orderedVisibleColumns(Set<_ComicTableColumn> columns) {
   final effective = columns.isEmpty ? _defaultComicTableColumns() : columns;
   return [
-    for (final column in _ComicTableColumn.values)
-      if (effective.contains(column)) column,
+    for (final column in effective) column,
   ];
 }
 
