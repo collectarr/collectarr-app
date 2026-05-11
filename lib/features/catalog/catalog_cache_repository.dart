@@ -27,7 +27,10 @@ class CatalogCacheRepository {
               synopsis: Value(item.synopsis),
               coverImageUrl: Value(item.coverImageUrl),
               publisher: Value(item.publisher),
+              releaseDate: Value(item.releaseDate),
               releaseYear: Value(item.releaseYear),
+              barcode: Value(item.barcode),
+              variant: Value(item.variant),
               cachedAt: now,
             ),
         ],
@@ -63,7 +66,10 @@ class CatalogCacheRepository {
           coverImageUrl: row.coverImageUrl,
           thumbnailImageUrl: null,
           publisher: row.publisher,
+          releaseDate: row.releaseDate,
           releaseYear: row.releaseYear,
+          barcode: row.barcode,
+          variant: row.variant,
         ),
     };
   }

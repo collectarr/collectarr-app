@@ -17,7 +17,10 @@ void main() {
             title: 'Superman, Vol. 4',
             itemNumber: const Value('8A'),
             publisher: const Value('DC'),
+            releaseDate: Value(DateTime.utc(2016, 10, 5)),
             releaseYear: const Value(2016),
+            barcode: const Value('76194134192700811'),
+            variant: const Value('Regular Cover'),
             cachedAt: DateTime.utc(2026, 5, 11),
           ),
         );
@@ -25,7 +28,10 @@ void main() {
     final catalog = await db.select(db.catalogCache).getSingle();
 
     expect(catalog.publisher, 'DC');
+    expect(catalog.releaseDate?.toUtc(), DateTime.utc(2016, 10, 5));
     expect(catalog.releaseYear, 2016);
+    expect(catalog.barcode, '76194134192700811');
+    expect(catalog.variant, 'Regular Cover');
   });
 
   test('stores personal collection and wishlist data locally', () async {

@@ -20,6 +20,8 @@ const double _kDesktopBreakpoint = 980;
 const double _kMinCoverSize = 104;
 const double _kDefaultCoverSize = 128;
 const double _kMaxCoverSize = 188;
+const double _kComicTableColumnSpacing = 14;
+const double _kComicTableHorizontalMargin = 12;
 const String _kComicsViewModePreferenceKey = 'comics.view_mode';
 const String _kComicsSortColumnPreferenceKey = 'comics.sort_column';
 const String _kComicsSortAscendingPreferenceKey = 'comics.sort_ascending';
@@ -29,22 +31,34 @@ const String _kComicsVisibleColumnsPreferenceKey = 'comics.visible_columns';
 enum _ComicsViewMode { grid, list }
 
 enum _ComicSortColumn {
+  status,
   title,
   issue,
+  variant,
+  publisher,
+  releaseDate,
+  barcode,
   grade,
   condition,
   price,
+  storageBox,
   wishlist,
   updated
 }
 
 enum _ComicTableColumn {
+  status,
   cover,
   title,
   issue,
+  variant,
+  publisher,
+  releaseDate,
+  barcode,
   grade,
   condition,
   price,
+  storageBox,
   wishlist,
   updated
 }
@@ -267,6 +281,9 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     return item.title.toLowerCase().contains(query) ||
         (item.itemNumber?.toLowerCase().contains(query) ?? false) ||
         (item.publisher?.toLowerCase().contains(query) ?? false) ||
+        (item.variant?.toLowerCase().contains(query) ?? false) ||
+        (item.barcode?.toLowerCase().contains(query) ?? false) ||
+        (_formatNullableDate(item.releaseDate)?.contains(query) ?? false) ||
         (item.releaseYear?.toString().contains(query) ?? false) ||
         (item.synopsis?.toLowerCase().contains(query) ?? false);
   }
@@ -1488,9 +1505,10 @@ class _ComicDataTable extends StatelessWidget {
       sortColumnIndex: _sortColumnIndex(sortColumn, columns),
       sortAscending: sortAscending,
       headingRowColor: WidgetStatePropertyAll(colorScheme.surfaceContainerHigh),
-      dataRowMinHeight: 68,
-      dataRowMaxHeight: 76,
-      columnSpacing: 18,
+      dataRowMinHeight: 48,
+      dataRowMaxHeight: 58,
+      columnSpacing: _kComicTableColumnSpacing,
+      horizontalMargin: _kComicTableHorizontalMargin,
       showCheckboxColumn: false,
       border: TableBorder(
         horizontalInside: BorderSide(color: colorScheme.outlineVariant),
@@ -1498,7 +1516,14 @@ class _ComicDataTable extends StatelessWidget {
       columns: [
         for (final column in columns)
           DataColumn(
-            label: Text(_comicTableColumnLabel(column)),
+            label: SizedBox(
+              width: _comicTableColumnWidth(column),
+              child: Text(
+                _comicTableColumnLabel(column),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             numeric: _comicTableColumnIsNumeric(column),
             onSort: _comicTableColumnSort(column) == null
                 ? null
@@ -1506,19 +1531,22 @@ class _ComicDataTable extends StatelessWidget {
           ),
       ],
       rows: [
-        for (final entry in entries)
+        for (var index = 0; index < entries.length; index++)
           DataRow(
-            selected: selectedItemIds.contains(entry.item.id) ||
-                entry.item.id == selectedItemId,
+            selected: selectedItemIds.contains(entries[index].item.id) ||
+                entries[index].item.id == selectedItemId,
             color: WidgetStateProperty.resolveWith(
-              (states) => selectedItemIds.contains(entry.item.id) ||
-                      entry.item.id == selectedItemId
+              (states) => selectedItemIds.contains(entries[index].item.id) ||
+                      entries[index].item.id == selectedItemId
                   ? colorScheme.primaryContainer
-                  : null,
+                  : index.isOdd
+                      ? colorScheme.surfaceContainerLowest
+                      : colorScheme.surface,
             ),
-            onSelectChanged: (_) => onSelectItem(entry.item),
+            onSelectChanged: (_) => onSelectItem(entries[index].item),
             cells: [
-              for (final column in columns) _comicTableCell(entry, column),
+              for (final column in columns)
+                _comicTableCell(entries[index], column),
             ],
           ),
       ],
@@ -1535,12 +1563,18 @@ List<_ComicTableColumn> _orderedVisibleColumns(Set<_ComicTableColumn> columns) {
 }
 
 Set<_ComicTableColumn> _defaultComicTableColumns() => {
+      _ComicTableColumn.status,
       _ComicTableColumn.cover,
       _ComicTableColumn.title,
       _ComicTableColumn.issue,
+      _ComicTableColumn.variant,
+      _ComicTableColumn.publisher,
+      _ComicTableColumn.releaseDate,
+      _ComicTableColumn.barcode,
       _ComicTableColumn.grade,
       _ComicTableColumn.condition,
       _ComicTableColumn.price,
+      _ComicTableColumn.storageBox,
       _ComicTableColumn.wishlist,
       _ComicTableColumn.updated,
     };
@@ -1561,28 +1595,49 @@ Set<_ComicTableColumn> _decodeVisibleColumns(List<String>? values) {
 }
 
 double _tableWidthForColumns(Set<_ComicTableColumn> columns) {
-  return _orderedVisibleColumns(columns)
-      .map((column) => switch (column) {
-            _ComicTableColumn.cover => 76.0,
-            _ComicTableColumn.title => 340.0,
-            _ComicTableColumn.issue => 92.0,
-            _ComicTableColumn.grade => 120.0,
-            _ComicTableColumn.condition => 150.0,
-            _ComicTableColumn.price => 120.0,
-            _ComicTableColumn.wishlist => 112.0,
-            _ComicTableColumn.updated => 132.0,
-          })
+  final orderedColumns = _orderedVisibleColumns(columns);
+  final contentWidth = orderedColumns
+      .map(_comicTableColumnWidth)
       .fold<double>(0, (total, width) => total + width);
+  final spacing = orderedColumns.isEmpty
+      ? 0.0
+      : (orderedColumns.length - 1) * _kComicTableColumnSpacing;
+  return contentWidth + spacing + (_kComicTableHorizontalMargin * 2);
+}
+
+double _comicTableColumnWidth(_ComicTableColumn column) {
+  return switch (column) {
+    _ComicTableColumn.status => 58.0,
+    _ComicTableColumn.cover => 52.0,
+    _ComicTableColumn.title => 280.0,
+    _ComicTableColumn.issue => 72.0,
+    _ComicTableColumn.variant => 180.0,
+    _ComicTableColumn.publisher => 150.0,
+    _ComicTableColumn.releaseDate => 132.0,
+    _ComicTableColumn.barcode => 170.0,
+    _ComicTableColumn.grade => 104.0,
+    _ComicTableColumn.condition => 138.0,
+    _ComicTableColumn.price => 104.0,
+    _ComicTableColumn.storageBox => 132.0,
+    _ComicTableColumn.wishlist => 96.0,
+    _ComicTableColumn.updated => 124.0,
+  };
 }
 
 String _comicTableColumnLabel(_ComicTableColumn column) {
   return switch (column) {
+    _ComicTableColumn.status => '',
     _ComicTableColumn.cover => '',
     _ComicTableColumn.title => 'Series',
     _ComicTableColumn.issue => 'Issue',
+    _ComicTableColumn.variant => 'Variant',
+    _ComicTableColumn.publisher => 'Publisher',
+    _ComicTableColumn.releaseDate => 'Release Date',
+    _ComicTableColumn.barcode => 'Barcode',
     _ComicTableColumn.grade => 'Grade',
     _ComicTableColumn.condition => 'Condition',
     _ComicTableColumn.price => 'Price',
+    _ComicTableColumn.storageBox => 'Storage Box',
     _ComicTableColumn.wishlist => 'Wishlist',
     _ComicTableColumn.updated => 'Updated',
   };
@@ -1590,12 +1645,18 @@ String _comicTableColumnLabel(_ComicTableColumn column) {
 
 String _comicTableColumnDisplayName(_ComicTableColumn column) {
   return switch (column) {
+    _ComicTableColumn.status => 'Status',
     _ComicTableColumn.cover => 'Cover',
     _ComicTableColumn.title => 'Series',
     _ComicTableColumn.issue => 'Issue',
+    _ComicTableColumn.variant => 'Variant',
+    _ComicTableColumn.publisher => 'Publisher',
+    _ComicTableColumn.releaseDate => 'Release Date',
+    _ComicTableColumn.barcode => 'Barcode',
     _ComicTableColumn.grade => 'Grade',
     _ComicTableColumn.condition => 'Condition',
     _ComicTableColumn.price => 'Price',
+    _ComicTableColumn.storageBox => 'Storage Box',
     _ComicTableColumn.wishlist => 'Wishlist',
     _ComicTableColumn.updated => 'Updated',
   };
@@ -1611,11 +1672,17 @@ bool _comicTableColumnIsNumeric(_ComicTableColumn column) {
 _ComicSortColumn? _comicTableColumnSort(_ComicTableColumn column) {
   return switch (column) {
     _ComicTableColumn.cover => null,
+    _ComicTableColumn.status => _ComicSortColumn.status,
     _ComicTableColumn.title => _ComicSortColumn.title,
     _ComicTableColumn.issue => _ComicSortColumn.issue,
+    _ComicTableColumn.variant => _ComicSortColumn.variant,
+    _ComicTableColumn.publisher => _ComicSortColumn.publisher,
+    _ComicTableColumn.releaseDate => _ComicSortColumn.releaseDate,
+    _ComicTableColumn.barcode => _ComicSortColumn.barcode,
     _ComicTableColumn.grade => _ComicSortColumn.grade,
     _ComicTableColumn.condition => _ComicSortColumn.condition,
     _ComicTableColumn.price => _ComicSortColumn.price,
+    _ComicTableColumn.storageBox => _ComicSortColumn.storageBox,
     _ComicTableColumn.wishlist => _ComicSortColumn.wishlist,
     _ComicTableColumn.updated => _ComicSortColumn.updated,
   };
@@ -1623,6 +1690,7 @@ _ComicSortColumn? _comicTableColumnSort(_ComicTableColumn column) {
 
 DataCell _comicTableCell(_ComicTableEntry entry, _ComicTableColumn column) {
   return switch (column) {
+    _ComicTableColumn.status => DataCell(_StatusCell(entry: entry)),
     _ComicTableColumn.cover => DataCell(
         SizedBox(
           width: 36,
@@ -1641,6 +1709,11 @@ DataCell _comicTableCell(_ComicTableEntry entry, _ComicTableColumn column) {
         ),
       ),
     _ComicTableColumn.issue => DataCell(Text(entry.item.itemNumber ?? '')),
+    _ComicTableColumn.variant => DataCell(_CellText(entry.item.variant)),
+    _ComicTableColumn.publisher => DataCell(_CellText(entry.item.publisher)),
+    _ComicTableColumn.releaseDate =>
+      DataCell(_CellText(_formatNullableDate(entry.item.releaseDate))),
+    _ComicTableColumn.barcode => DataCell(_CellText(entry.item.barcode)),
     _ComicTableColumn.grade => DataCell(_CellText(entry.ownedItem?.grade)),
     _ComicTableColumn.condition =>
       DataCell(_CellText(entry.ownedItem?.condition)),
@@ -1652,6 +1725,8 @@ DataCell _comicTableCell(_ComicTableEntry entry, _ComicTableColumn column) {
           ),
         ),
       ),
+    _ComicTableColumn.storageBox =>
+      DataCell(_CellText(entry.ownedItem?.storageBox)),
     _ComicTableColumn.wishlist => DataCell(
         entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
       ),
@@ -1678,6 +1753,31 @@ class _CellText extends StatelessWidget {
   }
 }
 
+class _StatusCell extends StatelessWidget {
+  const _StatusCell({required this.entry});
+
+  final _ComicTableEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          entry.isOwned ? Icons.check_box : Icons.check_box_outline_blank,
+          size: 18,
+          color: entry.isOwned ? colorScheme.primary : colorScheme.outline,
+        ),
+        if (entry.isWishlisted) ...[
+          const SizedBox(width: 4),
+          Icon(Icons.star, size: 17, color: colorScheme.tertiary),
+        ],
+      ],
+    );
+  }
+}
+
 class _ComicTableEntry {
   const _ComicTableEntry({
     required this.item,
@@ -1689,6 +1789,7 @@ class _ComicTableEntry {
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
 
+  bool get isOwned => ownedItem != null;
   bool get isWishlisted => wishlistItem != null;
 
   DateTime get updatedAt {
@@ -1711,11 +1812,28 @@ int _compareEntries(
   bool ascending,
 ) {
   final result = switch (column) {
+    _ComicSortColumn.status => _compareBools(a.isOwned, b.isOwned),
     _ComicSortColumn.title =>
       _compareNullableStrings(a.item.title, b.item.title),
     _ComicSortColumn.issue => _compareIssueNumbers(
         a.item.itemNumber,
         b.item.itemNumber,
+      ),
+    _ComicSortColumn.variant => _compareNullableStrings(
+        a.item.variant,
+        b.item.variant,
+      ),
+    _ComicSortColumn.publisher => _compareNullableStrings(
+        a.item.publisher,
+        b.item.publisher,
+      ),
+    _ComicSortColumn.releaseDate => _compareNullableDates(
+        a.item.releaseDate,
+        b.item.releaseDate,
+      ),
+    _ComicSortColumn.barcode => _compareNullableStrings(
+        a.item.barcode,
+        b.item.barcode,
       ),
     _ComicSortColumn.grade => _compareNullableStrings(
         a.ownedItem?.grade,
@@ -1728,6 +1846,10 @@ int _compareEntries(
     _ComicSortColumn.price => _compareNullableInts(
         a.ownedItem?.pricePaidCents,
         b.ownedItem?.pricePaidCents,
+      ),
+    _ComicSortColumn.storageBox => _compareNullableStrings(
+        a.ownedItem?.storageBox,
+        b.ownedItem?.storageBox,
       ),
     _ComicSortColumn.wishlist => _compareBools(a.isWishlisted, b.isWishlisted),
     _ComicSortColumn.updated => a.updatedAt.compareTo(b.updatedAt),
@@ -1786,6 +1908,18 @@ int _compareNullableInts(int? left, int? right) {
     return -1;
   }
   return (left ?? 0).compareTo(right ?? 0);
+}
+
+int _compareNullableDates(DateTime? left, DateTime? right) {
+  if (left == null && right != null) {
+    return 1;
+  }
+  if (left != null && right == null) {
+    return -1;
+  }
+  return (left ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(
+    right ?? DateTime.fromMillisecondsSinceEpoch(0),
+  );
 }
 
 int _compareBools(bool left, bool right) {
@@ -5614,6 +5748,10 @@ _LibraryState _libraryStateFor(
 String _formatDate(DateTime value) {
   final local = value.toLocal();
   return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+}
+
+String? _formatNullableDate(DateTime? value) {
+  return value == null ? null : _formatDate(value);
 }
 
 T? _enumByName<T extends Enum>(List<T> values, String? name) {

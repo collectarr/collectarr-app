@@ -11,7 +11,10 @@ class CatalogCache extends Table {
   TextColumn get synopsis => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
   TextColumn get publisher => text().nullable()();
+  DateTimeColumn get releaseDate => dateTime().nullable()();
   IntColumn get releaseYear => integer().nullable()();
+  TextColumn get barcode => text().nullable()();
+  TextColumn get variant => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override

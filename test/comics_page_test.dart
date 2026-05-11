@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  const catalogItems = [
+  final catalogItems = [
     CatalogItem(
       id: 'comic-1',
       kind: 'comic',
@@ -17,7 +17,10 @@ void main() {
       itemNumber: '8A',
       synopsis: 'Escape From Dinosaur Island, Part One',
       publisher: 'DC',
+      releaseDate: DateTime.utc(2016, 10, 5),
       releaseYear: 2016,
+      barcode: '76194134192700811',
+      variant: 'Regular Cover',
     ),
     CatalogItem(
       id: 'comic-2',
@@ -26,7 +29,10 @@ void main() {
       itemNumber: '9',
       synopsis: 'A follow-up issue.',
       publisher: 'Marvel',
+      releaseDate: DateTime.utc(2017, 1, 4),
       releaseYear: 2017,
+      barcode: '76194134192700911',
+      variant: 'Variant Cover',
     ),
   ];
 
@@ -39,6 +45,7 @@ void main() {
     pricePaidCents: 1299,
     currency: 'USD',
     personalNotes: 'Signed copy',
+    storageBox: 'Box 6',
     updatedAt: DateTime.utc(2026, 5, 11),
   );
 
@@ -107,9 +114,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Issue'), findsOneWidget);
+    expect(find.text('Variant'), findsOneWidget);
+    expect(find.text('Publisher'), findsWidgets);
+    expect(find.text('Release Date'), findsOneWidget);
+    expect(find.text('Barcode'), findsOneWidget);
     expect(find.text('Grade'), findsWidgets);
     expect(find.text('Condition'), findsWidgets);
     expect(find.text('Price'), findsOneWidget);
+    expect(find.text('Storage Box'), findsOneWidget);
     expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('Updated'), findsOneWidget);
   });
@@ -303,7 +315,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Select columns'), findsOneWidget);
-    expect(find.widgetWithText(CheckboxListTile, 'Grade'), findsOneWidget);
+    expect(find.widgetWithText(CheckboxListTile, 'Variant'), findsOneWidget);
+    expect(find.widgetWithText(CheckboxListTile, 'Barcode'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).last, 'price');
+    await tester.pumpAndSettle();
     expect(find.widgetWithText(CheckboxListTile, 'Price'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(CheckboxListTile, 'Price'));

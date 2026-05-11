@@ -8,7 +8,10 @@ class CatalogItem {
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.publisher,
+    this.releaseDate,
     this.releaseYear,
+    this.barcode,
+    this.variant,
   });
 
   final String id;
@@ -19,7 +22,10 @@ class CatalogItem {
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? publisher;
+  final DateTime? releaseDate;
   final int? releaseYear;
+  final String? barcode;
+  final String? variant;
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
@@ -33,7 +39,17 @@ class CatalogItem {
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       publisher: json['publisher'] as String?,
+      releaseDate: _parseDate(json['release_date'] as String?),
       releaseYear: json['release_year'] as int?,
+      barcode: json['barcode'] as String?,
+      variant: json['variant'] as String?,
     );
+  }
+
+  static DateTime? _parseDate(String? value) {
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(value);
   }
 }
