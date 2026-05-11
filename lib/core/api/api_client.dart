@@ -58,6 +58,47 @@ class ApiClient {
     return response.data!.cast<Map<String, dynamic>>();
   }
 
+  Future<List<Map<String, dynamic>>> searchProvider({
+    required String provider,
+    required String query,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/providers/$provider/search',
+      queryParameters: {'q': query},
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data.cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> createMetadataProposal({
+    required String provider,
+    required String query,
+    String? providerItemId,
+    String? title,
+    String? summary,
+    String? imageUrl,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/metadata/proposals',
+      data: {
+        'provider': provider,
+        'query': query,
+        if (providerItemId != null) 'provider_item_id': providerItemId,
+        if (title != null) 'title': title,
+        if (summary != null) 'summary': summary,
+        if (imageUrl != null) 'image_url': imageUrl,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/metadata/proposals returned an empty response body');
+    }
+    return data;
+  }
+
   Future<Map<String, dynamic>> getComic(String id) async {
     final response = await _dio.get<Map<String, dynamic>>('/comics/$id');
     return response.data!;

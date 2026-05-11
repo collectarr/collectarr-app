@@ -5,8 +5,8 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comic_detail_page.dart';
-import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ class ComicsPage extends ConsumerStatefulWidget {
 }
 
 class _ComicsPageState extends ConsumerState<ComicsPage> {
-  String query = 'spider-man';
+  String query = '';
   String? selectedItemId;
   String? selectedSeries;
   _ComicsViewMode viewMode = _ComicsViewMode.grid;
@@ -44,33 +44,40 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final results = ref.watch(comicsSearchProvider(query));
+    final shelf = ref.watch(shelfProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F6),
       body: SafeArea(
         bottom: false,
-        child: results.when(
-          data: (items) => _ComicsWorkspace(
-            items: items,
-            queryController: _controller,
-            selectedItemId: selectedItemId,
-            selectedSeries: selectedSeries,
-            viewMode: viewMode,
-            onSearch: (value) => setState(() {
-              query = value.trim();
-              selectedItemId = null;
-              selectedSeries = null;
-            }),
-            onSelectItem: (item) => setState(() => selectedItemId = item.id),
-            onSelectSeries: (series) => setState(() {
-              selectedSeries = series;
-              selectedItemId = null;
-            }),
-            onClearSeries: () => setState(() => selectedSeries = null),
-            onScanBarcode: () => _handleBarcodeScan(context),
-            onViewModeChanged: (value) => setState(() => viewMode = value),
-          ),
+        child: shelf.when(
+          data: (state) {
+            final items = _filterLocalItems(
+              _catalogItemsFromShelf(state.entries),
+              query,
+            );
+            return _ComicsWorkspace(
+              items: items,
+              queryController: _controller,
+              selectedItemId: selectedItemId,
+              selectedSeries: selectedSeries,
+              viewMode: viewMode,
+              onSearch: (value) => setState(() {
+                query = value.trim();
+                selectedItemId = null;
+                selectedSeries = null;
+              }),
+              onAddComic: () => _showAddComicDialog(context),
+              onSelectItem: (item) => setState(() => selectedItemId = item.id),
+              onSelectSeries: (series) => setState(() {
+                selectedSeries = series;
+                selectedItemId = null;
+              }),
+              onClearSeries: () => setState(() => selectedSeries = null),
+              onScanBarcode: () => _handleBarcodeScan(context),
+              onViewModeChanged: (value) => setState(() => viewMode = value),
+            );
+          },
           error: (error, stackTrace) => _ErrorState(message: error.toString()),
           loading: () => const Center(child: CircularProgressIndicator()),
         ),
@@ -95,15 +102,21 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
       final item = CatalogItem.fromJson(result);
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
           .upsertAll([item]);
+      await ref.read(collectionMutationsProvider).addItem(
+            item.id,
+            condition: 'Near Mint',
+            grade: 'Ungraded',
+          );
+      ref.invalidate(shelfProvider);
       setState(() {
-        query = item.title;
+        query = '';
         selectedSeries = null;
         selectedItemId = item.id;
-        _controller.text = item.title;
+        _controller.clear();
       });
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Found ${item.title}')),
+          SnackBar(content: Text('Added ${item.title} to local collection')),
         );
       }
     } catch (_) {
@@ -113,6 +126,45 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         );
       }
     }
+  }
+
+  Future<void> _showAddComicDialog(BuildContext context) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => const _AddComicDialog(),
+    );
+    if (mounted) {
+      ref.invalidate(shelfProvider);
+    }
+  }
+
+  List<CatalogItem> _catalogItemsFromShelf(List<ShelfEntry> entries) {
+    return [
+      for (final entry in entries)
+        entry.catalogItem ??
+            CatalogItem(
+              id: entry.itemId,
+              kind: 'comic',
+              title: entry.title,
+            ),
+    ];
+  }
+
+  List<CatalogItem> _filterLocalItems(List<CatalogItem> items, String query) {
+    final normalized = query.trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return items;
+    }
+    return [
+      for (final item in items)
+        if (_matchesLocalQuery(item, normalized)) item,
+    ];
+  }
+
+  bool _matchesLocalQuery(CatalogItem item, String query) {
+    return item.title.toLowerCase().contains(query) ||
+        (item.itemNumber?.toLowerCase().contains(query) ?? false) ||
+        (item.synopsis?.toLowerCase().contains(query) ?? false);
   }
 }
 
@@ -124,6 +176,7 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.selectedSeries,
     required this.viewMode,
     required this.onSearch,
+    required this.onAddComic,
     required this.onSelectItem,
     required this.onSelectSeries,
     required this.onClearSeries,
@@ -137,6 +190,7 @@ class _ComicsWorkspace extends StatelessWidget {
   final String? selectedSeries;
   final _ComicsViewMode viewMode;
   final ValueChanged<String> onSearch;
+  final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
   final ValueChanged<String> onSelectSeries;
   final VoidCallback onClearSeries;
@@ -162,6 +216,7 @@ class _ComicsWorkspace extends StatelessWidget {
         selectedSeries: selectedSeries,
         queryController: queryController,
         onSearch: onSearch,
+        onAddComic: onAddComic,
         onScanBarcode: onScanBarcode,
         onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
         onSelectItem: onSelectItem,
@@ -178,6 +233,7 @@ class _ComicsWorkspace extends StatelessWidget {
           selectedSeries: selectedSeries,
           viewMode: viewMode,
           onSearch: onSearch,
+          onAddComic: onAddComic,
           onScanBarcode: onScanBarcode,
           onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
           onClearSeries: onClearSeries,
@@ -265,6 +321,7 @@ class _ComicsToolbar extends StatelessWidget {
     required this.selectedSeries,
     required this.viewMode,
     required this.onSearch,
+    required this.onAddComic,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onClearSeries,
@@ -277,6 +334,7 @@ class _ComicsToolbar extends StatelessWidget {
   final String? selectedSeries;
   final _ComicsViewMode viewMode;
   final ValueChanged<String> onSearch;
+  final VoidCallback onAddComic;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final VoidCallback onClearSeries;
@@ -295,7 +353,7 @@ class _ComicsToolbar extends StatelessWidget {
         child: Row(
           children: [
             FilledButton.icon(
-              onPressed: () {},
+              onPressed: onAddComic,
               icon: const Icon(Icons.add),
               label: const Text('Add Comics'),
             ),
@@ -1564,6 +1622,7 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
     required this.selectedSeries,
     required this.queryController,
     required this.onSearch,
+    required this.onAddComic,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onSelectItem,
@@ -1575,6 +1634,7 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
   final String? selectedSeries;
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
+  final VoidCallback onAddComic;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<CatalogItem> onSelectItem;
@@ -1592,6 +1652,7 @@ class _LibraryAwareCompactComicsView extends ConsumerWidget {
       selectedSeries: selectedSeries,
       queryController: queryController,
       onSearch: onSearch,
+      onAddComic: onAddComic,
       onScanBarcode: onScanBarcode,
       onRefreshMetadata: onRefreshMetadata,
       onSelectItem: onSelectItem,
@@ -1609,6 +1670,7 @@ class _CompactComicsView extends StatelessWidget {
     required this.selectedSeries,
     required this.queryController,
     required this.onSearch,
+    required this.onAddComic,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onSelectItem,
@@ -1622,6 +1684,7 @@ class _CompactComicsView extends StatelessWidget {
   final String? selectedSeries;
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
+  final VoidCallback onAddComic;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<CatalogItem> onSelectItem;
@@ -1636,6 +1699,14 @@ class _CompactComicsView extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
+                Tooltip(
+                  message: 'Add comics',
+                  child: IconButton.filled(
+                    onPressed: onAddComic,
+                    icon: const Icon(Icons.add),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: SearchBar(
                     controller: queryController,
@@ -1716,6 +1787,579 @@ void _showCompactInspector(BuildContext context, CatalogItem item) {
       );
     },
   );
+}
+
+class _AddComicDialog extends ConsumerStatefulWidget {
+  const _AddComicDialog();
+
+  @override
+  ConsumerState<_AddComicDialog> createState() => _AddComicDialogState();
+}
+
+class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
+  final _controller = TextEditingController();
+  var _serverResults = const <CatalogItem>[];
+  var _providerResults = const <_ProviderCandidate>[];
+  bool _searchedServer = false;
+  bool _searchedProvider = false;
+  bool _isSearchingServer = false;
+  bool _isSearchingProvider = false;
+  bool _isSubmitting = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    return Dialog(
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: width < 720 ? 12 : 32,
+        vertical: 24,
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 12, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Add comic',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SearchBar(
+                      controller: _controller,
+                      hintText: 'Search server metadata...',
+                      leading: const Icon(Icons.search),
+                      onSubmitted: (_) => _searchServer(),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  FilledButton.icon(
+                    onPressed: _isSearchingServer ? null : _searchServer,
+                    icon: _isSearchingServer
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.search),
+                    label: const Text('Search'),
+                  ),
+                ],
+              ),
+            ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _DialogMessage(icon: Icons.error_outline, text: _error!),
+              ),
+            Expanded(
+              child: _buildResults(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResults(BuildContext context) {
+    if (!_searchedServer && !_isSearchingServer) {
+      return const _AddComicPrompt();
+    }
+    if (_isSearchingServer) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_serverResults.isNotEmpty) {
+      return ListView.separated(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+        itemCount: _serverResults.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (context, index) {
+          final item = _serverResults[index];
+          return _ServerComicResult(
+            item: item,
+            isSubmitting: _isSubmitting,
+            onAddOwned: () => _addServerComic(item, wishlist: false),
+            onAddWishlist: () => _addServerComic(item, wishlist: true),
+          );
+        },
+      );
+    }
+    return _NoServerResults(
+      isSearchingProvider: _isSearchingProvider,
+      searchedProvider: _searchedProvider,
+      providerResults: _providerResults,
+      isSubmitting: _isSubmitting,
+      onSearchProvider: _searchComicVine,
+      onPropose: _proposeCandidate,
+    );
+  }
+
+  Future<void> _searchServer() async {
+    final query = _controller.text.trim();
+    if (query.isEmpty) {
+      return;
+    }
+    setState(() {
+      _isSearchingServer = true;
+      _searchedServer = true;
+      _searchedProvider = false;
+      _providerResults = const [];
+      _error = null;
+    });
+    try {
+      final rows =
+          await ref.read(apiClientProvider).search(query, kind: 'comic');
+      final items = rows.map(CatalogItem.fromJson).toList(growable: false);
+      await CatalogCacheRepository(ref.read(localDatabaseProvider))
+          .upsertAll(items);
+      if (!mounted) {
+        return;
+      }
+      setState(() => _serverResults = items);
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _serverResults = const [];
+        _error = 'Server metadata search failed: $error';
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isSearchingServer = false);
+      }
+    }
+  }
+
+  Future<void> _searchComicVine() async {
+    final query = _controller.text.trim();
+    if (query.isEmpty) {
+      return;
+    }
+    setState(() {
+      _isSearchingProvider = true;
+      _searchedProvider = true;
+      _error = null;
+    });
+    try {
+      final rows = await ref
+          .read(apiClientProvider)
+          .searchProvider(provider: 'comicvine', query: query);
+      final results =
+          rows.map(_ProviderCandidate.fromJson).toList(growable: false);
+      if (!mounted) {
+        return;
+      }
+      setState(() => _providerResults = results);
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _providerResults = const [];
+        _error = 'ComicVine search failed: $error';
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isSearchingProvider = false);
+      }
+    }
+  }
+
+  Future<void> _addServerComic(
+    CatalogItem item, {
+    required bool wishlist,
+  }) async {
+    setState(() => _isSubmitting = true);
+    await CatalogCacheRepository(ref.read(localDatabaseProvider))
+        .upsertAll([item]);
+    final mutations = ref.read(collectionMutationsProvider);
+    if (wishlist) {
+      await mutations.addToWishlist(item.id);
+    } else {
+      await mutations.addItem(
+        item.id,
+        condition: 'Near Mint',
+        grade: 'Ungraded',
+      );
+    }
+    ref.invalidate(shelfProvider);
+    if (!mounted) {
+      return;
+    }
+    setState(() => _isSubmitting = false);
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          wishlist
+              ? 'Saved ${item.title} to local wishlist'
+              : 'Added ${item.title} to local collection',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _proposeCandidate(_ProviderCandidate candidate) async {
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+    try {
+      await ref.read(apiClientProvider).createMetadataProposal(
+            provider: candidate.provider,
+            providerItemId: candidate.providerItemId,
+            query: _controller.text.trim(),
+            title: candidate.title,
+            summary: candidate.summary,
+            imageUrl: candidate.imageUrl,
+          );
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Metadata proposal sent for review')),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _error = 'Metadata proposal failed: $error');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+}
+
+class _AddComicPrompt extends StatelessWidget {
+  const _AddComicPrompt();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.menu_book_outlined,
+              size: 48,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Search the server catalog to add comics to your local library.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ServerComicResult extends StatelessWidget {
+  const _ServerComicResult({
+    required this.item,
+    required this.isSubmitting,
+    required this.onAddOwned,
+    required this.onAddWishlist,
+  });
+
+  final CatalogItem item;
+  final bool isSubmitting;
+  final VoidCallback onAddOwned;
+  final VoidCallback onAddWishlist;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 58,
+              height: 86,
+              child: _CoverImage(item: item),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.itemNumber == null
+                        ? item.title
+                        : '${item.title} #${item.itemNumber}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  if (item.synopsis != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      item.synopsis!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: isSubmitting ? null : onAddOwned,
+              icon: const Icon(Icons.inventory_2_outlined),
+              label: const Text('Add'),
+            ),
+            const SizedBox(width: 6),
+            IconButton.filledTonal(
+              tooltip: 'Add to wishlist',
+              onPressed: isSubmitting ? null : onAddWishlist,
+              icon: const Icon(Icons.star_border),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NoServerResults extends StatelessWidget {
+  const _NoServerResults({
+    required this.isSearchingProvider,
+    required this.searchedProvider,
+    required this.providerResults,
+    required this.isSubmitting,
+    required this.onSearchProvider,
+    required this.onPropose,
+  });
+
+  final bool isSearchingProvider;
+  final bool searchedProvider;
+  final List<_ProviderCandidate> providerResults;
+  final bool isSubmitting;
+  final VoidCallback onSearchProvider;
+  final ValueChanged<_ProviderCandidate> onPropose;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isSearchingProvider) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      children: [
+        _DialogMessage(
+          icon: Icons.manage_search,
+          text: searchedProvider
+              ? 'No server match. ComicVine candidates can be proposed for admin review.'
+              : 'No server match. Search ComicVine and propose metadata for review.',
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FilledButton.icon(
+            onPressed: onSearchProvider,
+            icon: const Icon(Icons.manage_search),
+            label: const Text('Search ComicVine'),
+          ),
+        ),
+        const SizedBox(height: 16),
+        for (final candidate in providerResults) ...[
+          _ProviderResult(
+            candidate: candidate,
+            isSubmitting: isSubmitting,
+            onPropose: () => onPropose(candidate),
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (searchedProvider && providerResults.isEmpty)
+          const _DialogMessage(
+            icon: Icons.info_outline,
+            text: 'ComicVine did not return candidates for this search.',
+          ),
+      ],
+    );
+  }
+}
+
+class _ProviderResult extends StatelessWidget {
+  const _ProviderResult({
+    required this.candidate,
+    required this.isSubmitting,
+    required this.onPropose,
+  });
+
+  final _ProviderCandidate candidate;
+  final bool isSubmitting;
+  final VoidCallback onPropose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 58,
+              height: 86,
+              child: _ProviderCandidateImage(candidate: candidate),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    candidate.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  if (candidate.summary != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      candidate.summary!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: isSubmitting ? null : onPropose,
+              icon: const Icon(Icons.outbox_outlined),
+              label: const Text('Propose'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderCandidateImage extends StatelessWidget {
+  const _ProviderCandidateImage({required this.candidate});
+
+  final _ProviderCandidate candidate;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = candidate.imageUrl;
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return _GeneratedCover(
+        item: CatalogItem(
+          id: candidate.providerItemId,
+          kind: 'comic',
+          title: candidate.title,
+        ),
+      );
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
+        fit: BoxFit.cover,
+        errorWidget: (context, url, error) => _GeneratedCover(
+          item: CatalogItem(
+            id: candidate.providerItemId,
+            kind: 'comic',
+            title: candidate.title,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DialogMessage extends StatelessWidget {
+  const _DialogMessage({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(icon, color: colorScheme.primary),
+            const SizedBox(width: 10),
+            Expanded(child: Text(text)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderCandidate {
+  const _ProviderCandidate({
+    required this.provider,
+    required this.providerItemId,
+    required this.title,
+    this.summary,
+    this.imageUrl,
+  });
+
+  factory _ProviderCandidate.fromJson(Map<String, dynamic> json) {
+    return _ProviderCandidate(
+      provider: json['provider'] as String,
+      providerItemId: json['provider_item_id'] as String,
+      title: json['title'] as String,
+      summary: json['summary'] as String?,
+      imageUrl: json['image_url'] as String?,
+    );
+  }
+
+  final String provider;
+  final String providerItemId;
+  final String title;
+  final String? summary;
+  final String? imageUrl;
 }
 
 class _ErrorState extends StatelessWidget {

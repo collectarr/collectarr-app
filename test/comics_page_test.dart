@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/comics/comics_controller.dart';
+import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,7 +25,20 @@ void main() {
     ),
   ];
 
-  testWidgets('comics page shows desktop catalog workspace', (tester) async {
+  final ownedItem = OwnedItem(
+    id: 'owned-1',
+    itemId: 'comic-1',
+    condition: 'Near Mint',
+    grade: '9.8',
+    purchaseDate: DateTime.utc(2026, 5, 10),
+    pricePaidCents: 1299,
+    currency: 'USD',
+    personalNotes: 'Signed copy',
+    updatedAt: DateTime.utc(2026, 5, 11),
+  );
+
+  testWidgets('comics page shows desktop local library workspace',
+      (tester) async {
     tester.view.physicalSize = const Size(1400, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -34,24 +47,29 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          comicsSearchProvider.overrideWith((ref, query) async {
-            return catalogItems;
-          }),
-          collectionProvider.overrideWith((ref) async {
-            return [
-              OwnedItem(
-                id: 'owned-1',
-                itemId: 'comic-1',
-                condition: 'Near Mint',
-                grade: '9.8',
-                purchaseDate: DateTime.utc(2026, 5, 10),
-                pricePaidCents: 1299,
-                currency: 'USD',
-                personalNotes: 'Signed copy',
-                updatedAt: DateTime.utc(2026, 5, 11),
-              ),
-            ];
-          }),
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(
+                  itemId: 'comic-1',
+                  catalogItem: catalogItems[0],
+                  ownedItem: ownedItem,
+                ),
+                ShelfEntry(
+                  itemId: 'comic-2',
+                  catalogItem: catalogItems[1],
+                ),
+              ],
+              ownedCount: 1,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 1,
+              totalPaidCents: 1299,
+              primaryCurrency: 'USD',
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => [ownedItem]),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
         child: const MaterialApp(home: ComicsPage()),
@@ -81,7 +99,8 @@ void main() {
     expect(find.text('Catalog'), findsOneWidget);
   });
 
-  testWidgets('compact comics page keeps scan and metadata refresh actions',
+  testWidgets(
+      'compact comics page keeps add, scan, and metadata refresh actions',
       (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
@@ -91,9 +110,27 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          comicsSearchProvider.overrideWith((ref, query) async {
-            return catalogItems;
-          }),
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(
+                  itemId: 'comic-1',
+                  catalogItem: catalogItems[0],
+                ),
+                ShelfEntry(
+                  itemId: 'comic-2',
+                  catalogItem: catalogItems[1],
+                ),
+              ],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
@@ -103,6 +140,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    expect(find.byIcon(Icons.add), findsOneWidget);
     expect(find.byIcon(Icons.qr_code_scanner), findsOneWidget);
     expect(find.byIcon(Icons.sync), findsOneWidget);
     expect(find.text('Superman, Vol. 4'), findsNothing);
