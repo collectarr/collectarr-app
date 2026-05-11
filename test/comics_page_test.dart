@@ -193,9 +193,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Add Comics from Collectarr Core'), findsOneWidget);
-    expect(find.text('Add Series'), findsOneWidget);
+    expect(find.text('Add Comics'), findsWidgets);
     expect(find.text('Search Collectarr Core'), findsOneWidget);
     expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
+
+    await tester.tap(find.text('Filters'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Series'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Issue #'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Publisher'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Barcode / UPC'), findsOneWidget);
   });
 
   testWidgets('comics page restores persisted list view preferences',

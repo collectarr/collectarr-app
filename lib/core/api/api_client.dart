@@ -46,13 +46,30 @@ class ApiClient {
     return data;
   }
 
-  Future<List<Map<String, dynamic>>> search(String query,
-      {String? kind}) async {
+  Future<List<Map<String, dynamic>>> search(
+    String query, {
+    String? kind,
+    String? series,
+    String? issueNumber,
+    String? publisher,
+    int? year,
+    String? barcode,
+    int? limit,
+  }) async {
     final response = await _dio.get<List<dynamic>>(
       '/search',
       queryParameters: {
-        'q': query,
+        if (query.trim().isNotEmpty) 'q': query,
         if (kind != null) 'kind': kind,
+        if (series != null && series.trim().isNotEmpty) 'series': series,
+        if (issueNumber != null && issueNumber.trim().isNotEmpty)
+          'issue_number': issueNumber,
+        if (publisher != null && publisher.trim().isNotEmpty)
+          'publisher': publisher,
+        if (year != null) 'year': year,
+        if (barcode != null && barcode.trim().isNotEmpty)
+          'barcode': _normalizeBarcode(barcode),
+        if (limit != null) 'limit': limit,
       },
     );
     return response.data!.cast<Map<String, dynamic>>();

@@ -2789,6 +2789,11 @@ class _AddComicDialog extends ConsumerStatefulWidget {
 
 class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   final _controller = TextEditingController();
+  final _seriesController = TextEditingController();
+  final _issueController = TextEditingController();
+  final _publisherController = TextEditingController();
+  final _yearController = TextEditingController();
+  final _barcodeController = TextEditingController();
   var _serverResults = const <CatalogItem>[];
   var _providerResults = const <_ProviderCandidate>[];
   String? _selectedServerId;
@@ -2800,11 +2805,17 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   bool _isSubmitting = false;
   bool _includeVariants = true;
   bool _hideOwned = true;
+  bool _showAdvancedFilters = false;
   String? _error;
 
   @override
   void dispose() {
     _controller.dispose();
+    _seriesController.dispose();
+    _issueController.dispose();
+    _publisherController.dispose();
+    _yearController.dispose();
+    _barcodeController.dispose();
     super.dispose();
   }
 
@@ -2856,8 +2867,17 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                 _AddComicTitleBar(onClose: () => Navigator.of(context).pop()),
                 _AddComicModeBar(
                   queryController: _controller,
+                  seriesController: _seriesController,
+                  issueController: _issueController,
+                  publisherController: _publisherController,
+                  yearController: _yearController,
+                  barcodeController: _barcodeController,
+                  showAdvancedFilters: _showAdvancedFilters,
                   isSearching: _isSearchingServer,
+                  onAdvancedChanged: (value) =>
+                      setState(() => _showAdvancedFilters = value),
                   onSearch: _searchServer,
+                  onScanBarcode: _scanBarcode,
                 ),
                 if (_error != null)
                   Padding(
@@ -2874,7 +2894,6 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                             SizedBox(
                               height: 300,
                               child: _AddComicResultPane(
-                                queryController: _controller,
                                 serverResults: _serverResults,
                                 providerResults: _providerResults,
                                 ownedItemIds: ownedItemIds,
@@ -2918,7 +2937,6 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
                             SizedBox(
                               width: 320,
                               child: _AddComicResultPane(
-                                queryController: _controller,
                                 serverResults: _serverResults,
                                 providerResults: _providerResults,
                                 ownedItemIds: ownedItemIds,
@@ -3011,7 +3029,17 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
 
   Future<void> _searchServer() async {
     final query = _controller.text.trim();
-    if (query.isEmpty) {
+    final series = _seriesController.text.trim();
+    final issueNumber = _issueController.text.trim();
+    final publisher = _publisherController.text.trim();
+    final year = int.tryParse(_yearController.text.trim());
+    final barcode = _barcodeController.text.trim();
+    if (query.isEmpty &&
+        series.isEmpty &&
+        issueNumber.isEmpty &&
+        publisher.isEmpty &&
+        barcode.isEmpty &&
+        year == null) {
       return;
     }
     setState(() {
@@ -3025,8 +3053,16 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       _error = null;
     });
     try {
-      final rows =
-          await ref.read(apiClientProvider).search(query, kind: 'comic');
+      final rows = await ref.read(apiClientProvider).search(
+            query,
+            kind: 'comic',
+            series: series,
+            issueNumber: issueNumber,
+            publisher: publisher,
+            year: year,
+            barcode: barcode,
+            limit: 50,
+          );
       final items = rows.map(CatalogItem.fromJson).toList(growable: false);
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
           .upsertAll(items);
@@ -3050,7 +3086,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   }
 
   Future<void> _searchComicVine() async {
-    final query = _controller.text.trim();
+    final query = _providerQuery;
     if (query.isEmpty) {
       return;
     }
@@ -3083,6 +3119,67 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
     } finally {
       if (mounted) {
         setState(() => _isSearchingProvider = false);
+      }
+    }
+  }
+
+  String get _providerQuery {
+    return [
+      _controller.text.trim(),
+      _seriesController.text.trim(),
+      _issueController.text.trim(),
+      _publisherController.text.trim(),
+      _yearController.text.trim(),
+    ].where((part) => part.isNotEmpty).join(' ');
+  }
+
+  Future<void> _scanBarcode() async {
+    final code = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => const BarcodeScanSheet(),
+    );
+    if (code == null || !mounted) {
+      return;
+    }
+    _barcodeController.text = code;
+    await _lookupBarcode(code);
+  }
+
+  Future<void> _lookupBarcode(String code) async {
+    setState(() {
+      _isSearchingServer = true;
+      _searchedServer = true;
+      _searchedProvider = false;
+      _serverResults = const [];
+      _providerResults = const [];
+      _selectedServerId = null;
+      _selectedProviderId = null;
+      _error = null;
+    });
+    try {
+      final result =
+          await ref.read(apiClientProvider).lookupBarcode(code, kind: 'comic');
+      final item = CatalogItem.fromJson(result);
+      await CatalogCacheRepository(ref.read(localDatabaseProvider))
+          .upsertAll([item]);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _serverResults = [item];
+        _selectedServerId = item.id;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(
+          () => _error = 'No Collectarr Core comic found for barcode $code');
+    } finally {
+      if (mounted) {
+        setState(() => _isSearchingServer = false);
       }
     }
   }
@@ -3130,7 +3227,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       await ref.read(apiClientProvider).createMetadataProposal(
             provider: candidate.provider,
             providerItemId: candidate.providerItemId,
-            query: _controller.text.trim(),
+            query: _providerQuery,
             title: candidate.title,
             summary: candidate.summary,
             imageUrl: candidate.imageUrl,
@@ -3194,13 +3291,29 @@ class _AddComicTitleBar extends StatelessWidget {
 class _AddComicModeBar extends StatelessWidget {
   const _AddComicModeBar({
     required this.queryController,
+    required this.seriesController,
+    required this.issueController,
+    required this.publisherController,
+    required this.yearController,
+    required this.barcodeController,
+    required this.showAdvancedFilters,
     required this.isSearching,
+    required this.onAdvancedChanged,
     required this.onSearch,
+    required this.onScanBarcode,
   });
 
   final TextEditingController queryController;
+  final TextEditingController seriesController;
+  final TextEditingController issueController;
+  final TextEditingController publisherController;
+  final TextEditingController yearController;
+  final TextEditingController barcodeController;
+  final bool showAdvancedFilters;
   final bool isSearching;
+  final ValueChanged<bool> onAdvancedChanged;
   final VoidCallback onSearch;
+  final VoidCallback onScanBarcode;
 
   @override
   Widget build(BuildContext context) {
@@ -3219,13 +3332,8 @@ class _AddComicModeBar extends StatelessWidget {
                       children: [
                         _AddModeTab(
                           icon: Icons.view_list,
-                          label: 'Add Series',
+                          label: 'Add Comics',
                           selected: true,
-                        ),
-                        _AddModeTab(icon: Icons.grid_on, label: 'Add Issue'),
-                        _AddModeTab(
-                          icon: Icons.barcode_reader,
-                          label: 'Add by Barcode',
                         ),
                         _AddModeTab(
                             icon: Icons.star_border, label: 'Pull List'),
@@ -3236,6 +3344,12 @@ class _AddComicModeBar extends StatelessWidget {
                       ],
                     ),
                   ),
+                ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: onScanBarcode,
+                  icon: const Icon(Icons.barcode_reader, size: 18),
+                  label: const Text('Scan barcode'),
                 ),
                 const SizedBox(width: 8),
                 const Icon(Icons.menu, size: 28),
@@ -3255,10 +3369,17 @@ class _AddComicModeBar extends StatelessWidget {
                         filled: true,
                         fillColor: Color(0xFF4A4A4A),
                         border: OutlineInputBorder(),
-                        hintText: 'Search title, series, barcode...',
+                        hintText: 'Search title, series, issue, publisher...',
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(width: 10),
+                FilterChip(
+                  selected: showAdvancedFilters,
+                  onSelected: onAdvancedChanged,
+                  avatar: const Icon(Icons.tune, size: 18),
+                  label: const Text('Filters'),
                 ),
                 const SizedBox(width: 10),
                 FilledButton(
@@ -3272,7 +3393,114 @@ class _AddComicModeBar extends StatelessWidget {
                 ),
               ],
             ),
+            if (showAdvancedFilters) ...[
+              const SizedBox(height: 8),
+              _AdvancedSearchFilters(
+                seriesController: seriesController,
+                issueController: issueController,
+                publisherController: publisherController,
+                yearController: yearController,
+                barcodeController: barcodeController,
+                onSubmitted: onSearch,
+              ),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AdvancedSearchFilters extends StatelessWidget {
+  const _AdvancedSearchFilters({
+    required this.seriesController,
+    required this.issueController,
+    required this.publisherController,
+    required this.yearController,
+    required this.barcodeController,
+    required this.onSubmitted,
+  });
+
+  final TextEditingController seriesController;
+  final TextEditingController issueController;
+  final TextEditingController publisherController;
+  final TextEditingController yearController;
+  final TextEditingController barcodeController;
+  final VoidCallback onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _FilterField(
+          width: 210,
+          controller: seriesController,
+          label: 'Series',
+          onSubmitted: onSubmitted,
+        ),
+        _FilterField(
+          width: 92,
+          controller: issueController,
+          label: 'Issue #',
+          onSubmitted: onSubmitted,
+        ),
+        _FilterField(
+          width: 150,
+          controller: publisherController,
+          label: 'Publisher',
+          onSubmitted: onSubmitted,
+        ),
+        _FilterField(
+          width: 92,
+          controller: yearController,
+          label: 'Year',
+          keyboardType: TextInputType.number,
+          onSubmitted: onSubmitted,
+        ),
+        _FilterField(
+          width: 210,
+          controller: barcodeController,
+          label: 'Barcode / UPC',
+          keyboardType: TextInputType.number,
+          onSubmitted: onSubmitted,
+        ),
+      ],
+    );
+  }
+}
+
+class _FilterField extends StatelessWidget {
+  const _FilterField({
+    required this.width,
+    required this.controller,
+    required this.label,
+    required this.onSubmitted,
+    this.keyboardType,
+  });
+
+  final double width;
+  final TextEditingController controller;
+  final String label;
+  final VoidCallback onSubmitted;
+  final TextInputType? keyboardType;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: 38,
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        onSubmitted: (_) => onSubmitted(),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: const Color(0xFF4A4A4A),
+          border: const OutlineInputBorder(),
+          labelText: label,
         ),
       ),
     );
@@ -3314,7 +3542,6 @@ class _AddModeTab extends StatelessWidget {
 
 class _AddComicResultPane extends StatelessWidget {
   const _AddComicResultPane({
-    required this.queryController,
     required this.serverResults,
     required this.providerResults,
     required this.ownedItemIds,
@@ -3334,7 +3561,6 @@ class _AddComicResultPane extends StatelessWidget {
     required this.onSearchProvider,
   });
 
-  final TextEditingController queryController;
   final List<CatalogItem> serverResults;
   final List<_ProviderCandidate> providerResults;
   final Set<String> ownedItemIds;
@@ -3385,19 +3611,13 @@ class _AddComicResultPane extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
-            child: SizedBox(
-              height: 28,
-              child: TextField(
-                controller: queryController,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  filled: true,
-                  fillColor: Color(0xFFF2F2F2),
-                  border: OutlineInputBorder(),
-                ),
-                style: const TextStyle(color: Colors.black),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(8, 0, 8, 6),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Collectarr Core results',
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
           ),
