@@ -12,11 +12,11 @@ import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const double _kDesktopBreakpoint = 980;
 const double _kMinCoverSize = 104;
@@ -24,13 +24,6 @@ const double _kDefaultCoverSize = 128;
 const double _kMaxCoverSize = 188;
 const double _kComicTableColumnSpacing = 14;
 const double _kComicTableHorizontalMargin = 12;
-const String _kComicsViewModePreferenceKey = 'comics.view_mode';
-const String _kComicsSortColumnPreferenceKey = 'comics.sort_column';
-const String _kComicsSortAscendingPreferenceKey = 'comics.sort_ascending';
-const String _kComicsCoverSizePreferenceKey = 'comics.cover_size';
-const String _kComicsVisibleColumnsPreferenceKey = 'comics.visible_columns';
-const String _kComicsColumnWidthsPreferenceKey = 'comics.column_widths';
-const String _kComicsDetailsLayoutPreferenceKey = 'comics.details_layout';
 const Color _kClzTopBar = Color(0xFF4DBBD5);
 const Color _kClzToolbar = Color(0xFF2B2B2B);
 const Color _kClzPanel = Color(0xFF1D1D1D);
@@ -659,54 +652,40 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   }
 
   Future<void> _loadViewPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    final storedViewMode = prefs.getString(_kComicsViewModePreferenceKey);
-    final storedDetailsLayout =
-        prefs.getString(_kComicsDetailsLayoutPreferenceKey);
-    final storedSortColumn = prefs.getString(_kComicsSortColumnPreferenceKey);
-    final storedCoverSize = prefs.getDouble(_kComicsCoverSizePreferenceKey);
-    final storedColumns =
-        prefs.getStringList(_kComicsVisibleColumnsPreferenceKey);
-    final storedColumnWidths =
-        prefs.getStringList(_kComicsColumnWidthsPreferenceKey);
+    final preferences =
+        await LibraryWorkspacePreferences(_comicsWorkspaceConfig).read(
+      defaultCoverSize: _kDefaultCoverSize,
+      minCoverSize: _kMinCoverSize,
+      maxCoverSize: _kMaxCoverSize,
+    );
     if (!mounted) {
       return;
     }
     setState(() {
-      viewMode =
-          _enumByName(LibraryViewMode.values, storedViewMode) ?? viewMode;
-      detailsLayout =
-          _enumByName(LibraryDetailsLayout.values, storedDetailsLayout) ??
-              detailsLayout;
-      sortColumn =
-          _enumByName(LibrarySortColumn.values, storedSortColumn) ?? sortColumn;
-      sortAscending =
-          prefs.getBool(_kComicsSortAscendingPreferenceKey) ?? sortAscending;
-      coverSize = (storedCoverSize ?? coverSize)
-          .clamp(_kMinCoverSize, _kMaxCoverSize)
-          .toDouble();
-      visibleColumns = _decodeVisibleColumns(storedColumns);
-      columnWidths = _decodeColumnWidths(storedColumnWidths);
+      viewMode = preferences.viewMode;
+      detailsLayout = preferences.detailsLayout;
+      sortColumn = preferences.sortColumn;
+      sortAscending = preferences.sortAscending;
+      coverSize = preferences.coverSize;
+      visibleColumns = preferences.visibleColumns;
+      columnWidths = preferences.columnWidths.map(
+        (column, width) =>
+            MapEntry(column, _clampComicTableColumnWidth(column, width)),
+      );
     });
   }
 
   Future<void> _saveViewPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kComicsViewModePreferenceKey, viewMode.name);
-    await prefs.setString(
-      _kComicsDetailsLayoutPreferenceKey,
-      detailsLayout.name,
-    );
-    await prefs.setString(_kComicsSortColumnPreferenceKey, sortColumn.name);
-    await prefs.setBool(_kComicsSortAscendingPreferenceKey, sortAscending);
-    await prefs.setDouble(_kComicsCoverSizePreferenceKey, coverSize);
-    await prefs.setStringList(
-      _kComicsVisibleColumnsPreferenceKey,
-      visibleColumns.map((column) => column.name).toList(growable: false),
-    );
-    await prefs.setStringList(
-      _kComicsColumnWidthsPreferenceKey,
-      _encodeColumnWidths(columnWidths),
+    await LibraryWorkspacePreferences(_comicsWorkspaceConfig).write(
+      LibraryWorkspacePreferenceSnapshot(
+        viewMode: viewMode,
+        detailsLayout: detailsLayout,
+        sortColumn: sortColumn,
+        sortAscending: sortAscending,
+        coverSize: coverSize,
+        visibleColumns: visibleColumns,
+        columnWidths: columnWidths,
+      ),
     );
   }
 }
@@ -2861,21 +2840,6 @@ List<LibraryTableColumn> _orderedVisibleColumns(
 Set<LibraryTableColumn> _defaultComicTableColumns() =>
     Set.of(_comicsWorkspaceConfig.defaultVisibleColumns);
 
-Set<LibraryTableColumn> _decodeVisibleColumns(List<String>? values) {
-  if (values == null || values.isEmpty) {
-    return _defaultComicTableColumns();
-  }
-  final columns = {
-    for (final value in values)
-      if (_enumByName(LibraryTableColumn.values, value) != null)
-        _enumByName(LibraryTableColumn.values, value)!,
-  };
-  if (!columns.contains(LibraryTableColumn.title)) {
-    columns.add(LibraryTableColumn.title);
-  }
-  return columns.isEmpty ? _defaultComicTableColumns() : columns;
-}
-
 double _tableWidthForColumns(
   Set<LibraryTableColumn> columns,
   Map<LibraryTableColumn, double> customWidths,
@@ -2950,33 +2914,6 @@ double _clampComicTableColumnWidth(
         _maxComicTableColumnWidth(column),
       )
       .toDouble();
-}
-
-List<String> _encodeColumnWidths(Map<LibraryTableColumn, double> widths) {
-  return [
-    for (final entry in widths.entries)
-      if ((entry.value - _defaultComicTableColumnWidth(entry.key)).abs() > 0.5)
-        '${entry.key.name}:${entry.value.round()}',
-  ];
-}
-
-Map<LibraryTableColumn, double> _decodeColumnWidths(List<String>? values) {
-  if (values == null || values.isEmpty) {
-    return const {};
-  }
-  final widths = <LibraryTableColumn, double>{};
-  for (final value in values) {
-    final parts = value.split(':');
-    if (parts.length != 2) {
-      continue;
-    }
-    final column = _enumByName(LibraryTableColumn.values, parts[0]);
-    final width = double.tryParse(parts[1]);
-    if (column != null && width != null) {
-      widths[column] = _clampComicTableColumnWidth(column, width);
-    }
-  }
-  return widths;
 }
 
 String _comicTableColumnLabel(LibraryTableColumn column) {
@@ -8257,18 +8194,6 @@ String _formatDate(DateTime value) {
 
 String? _formatNullableDate(DateTime? value) {
   return value == null ? null : _formatDate(value);
-}
-
-T? _enumByName<T extends Enum>(List<T> values, String? name) {
-  if (name == null) {
-    return null;
-  }
-  for (final value in values) {
-    if (value.name == name) {
-      return value;
-    }
-  }
-  return null;
 }
 
 extension _BlankStringFallback on String {
