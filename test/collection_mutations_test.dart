@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
@@ -74,5 +75,39 @@ void main() {
     expect(updated.pricePaidCents, isNull);
     expect(updated.currency, isNull);
     expect(updated.personalNotes, isNull);
+  });
+
+  test('collection import enqueues rows and refreshes pending count once',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final imported =
+        await container.read(collectionMutationsProvider).importRows(
+      [
+        CollectionCsvRow(
+          itemId: 'comic-1',
+          status: 'owned',
+          condition: 'Near Mint',
+          grade: '9.8',
+          pricePaidCents: 1299,
+          currency: 'USD',
+        ),
+        const CollectionCsvRow(itemId: 'comic-2', status: 'wishlist'),
+      ],
+    );
+
+    final owned = await db.select(db.ownedItemsCache).get();
+    final wishlist = await db.select(db.wishlistItemsCache).get();
+    final queued = await db.select(db.syncQueue).get();
+    expect(imported, 2);
+    expect(owned, hasLength(1));
+    expect(wishlist, hasLength(1));
+    expect(queued, hasLength(2));
+    expect(container.read(syncControllerProvider).pendingCount, 2);
   });
 }

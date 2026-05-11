@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
@@ -40,6 +41,7 @@ class CollectionMutations {
     int? rating,
     String? readStatus,
     String? tags,
+    bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
     final ownedItem = OwnedItem(
@@ -78,12 +80,10 @@ class CollectionMutations {
         'delete',
         now,
       );
-      ref.invalidate(wishlistIdsProvider);
-      ref.invalidate(wishlistProvider);
     }
-    await ref.read(syncControllerProvider.notifier).refreshPendingCount();
-    ref.invalidate(collectionProvider);
-    ref.invalidate(shelfProvider);
+    if (notify) {
+      await _notifyCollectionChanged(wishlistChanged: wishlistItem != null);
+    }
   }
 
   Future<void> updateItem(
@@ -107,6 +107,7 @@ class CollectionMutations {
     int? rating,
     String? readStatus,
     String? tags,
+    bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
     final updated = OwnedItem(
@@ -138,25 +139,26 @@ class CollectionMutations {
     );
     await _ownedCache().upsert(updated);
     await _enqueueOwnedItem(updated, 'upsert', now);
-    await ref.read(syncControllerProvider.notifier).refreshPendingCount();
-    ref.invalidate(collectionProvider);
-    ref.invalidate(shelfProvider);
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
   }
 
-  Future<void> removeItem(OwnedItem item) async {
+  Future<void> removeItem(OwnedItem item, {bool notify = true}) async {
     final now = DateTime.now().toUtc();
     await _ownedCache().markDeleted(item, now);
     await _enqueueOwnedItem(
         item.copyWith(updatedAt: now, deletedAt: now), 'delete', now);
-    await ref.read(syncControllerProvider.notifier).refreshPendingCount();
-    ref.invalidate(collectionProvider);
-    ref.invalidate(shelfProvider);
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
   }
 
   Future<void> addToWishlist(
     String itemId, {
     String? editionId,
     String? variantId,
+    bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
     final existing = await _wishlistCache().findActiveByItemId(itemId);
@@ -172,13 +174,12 @@ class CollectionMutations {
       await _wishlistCache().upsert(item);
       await _enqueueWishlistItem(item, 'upsert', now);
     }
-    await ref.read(syncControllerProvider.notifier).refreshPendingCount();
-    ref.invalidate(wishlistIdsProvider);
-    ref.invalidate(wishlistProvider);
-    ref.invalidate(shelfProvider);
+    if (notify) {
+      await _notifyWishlistChanged();
+    }
   }
 
-  Future<void> removeFromWishlist(String itemId) async {
+  Future<void> removeFromWishlist(String itemId, {bool notify = true}) async {
     final now = DateTime.now().toUtc();
     final existing = await _wishlistCache().findActiveByItemId(itemId);
     if (existing != null) {
@@ -189,10 +190,9 @@ class CollectionMutations {
         now,
       );
     }
-    await ref.read(syncControllerProvider.notifier).refreshPendingCount();
-    ref.invalidate(wishlistIdsProvider);
-    ref.invalidate(wishlistProvider);
-    ref.invalidate(shelfProvider);
+    if (notify) {
+      await _notifyWishlistChanged();
+    }
   }
 
   Future<void> toggleWishlist(String itemId) async {
@@ -202,6 +202,54 @@ class CollectionMutations {
     } else {
       await removeFromWishlist(itemId);
     }
+  }
+
+  Future<int> importRows(List<CollectionCsvRow> rows) async {
+    var imported = 0;
+    for (final row in rows) {
+      var changed = false;
+      if (row.isOwned) {
+        await addItem(
+          row.itemId,
+          condition: row.condition,
+          grade: row.grade,
+          purchaseDate: row.purchaseDate,
+          pricePaidCents: row.pricePaidCents,
+          currency: row.currency,
+          personalNotes: row.notes,
+          notify: false,
+        );
+        changed = true;
+      }
+      if (row.isWishlisted) {
+        await addToWishlist(row.itemId, notify: false);
+        changed = true;
+      }
+      if (changed) {
+        imported++;
+      }
+    }
+    if (imported > 0) {
+      await _notifyCollectionChanged(wishlistChanged: true);
+    }
+    return imported;
+  }
+
+  Future<void> _notifyCollectionChanged({bool wishlistChanged = false}) async {
+    await ref.read(syncControllerProvider.notifier).refreshPendingCount();
+    ref.invalidate(collectionProvider);
+    if (wishlistChanged) {
+      ref.invalidate(wishlistIdsProvider);
+      ref.invalidate(wishlistProvider);
+    }
+    ref.invalidate(shelfProvider);
+  }
+
+  Future<void> _notifyWishlistChanged() async {
+    await ref.read(syncControllerProvider.notifier).refreshPendingCount();
+    ref.invalidate(wishlistIdsProvider);
+    ref.invalidate(wishlistProvider);
+    ref.invalidate(shelfProvider);
   }
 
   OwnedItemsCacheRepository _ownedCache() {

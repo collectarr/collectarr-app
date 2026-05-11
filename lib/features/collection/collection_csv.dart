@@ -72,18 +72,7 @@ class CollectionCsv {
       for (var i = 0; i < parsedHeader.length; i++) parsedHeader[i]: i,
     };
     return [
-      for (final line in lines.skip(1))
-        CollectionCsvRow(
-          itemId: _value(index, line, 'item_id'),
-          status: _value(index, line, 'status').toLowerCase(),
-          condition: _optionalValue(index, line, 'condition'),
-          grade: _optionalValue(index, line, 'grade'),
-          purchaseDate:
-              DateTime.tryParse(_value(index, line, 'purchase_date'))?.toUtc(),
-          pricePaidCents: int.tryParse(_value(index, line, 'price_paid_cents')),
-          currency: _optionalValue(index, line, 'currency'),
-          notes: _optionalValue(index, line, 'notes'),
-        ),
+      for (final line in lines.skip(1)) _rowFromValues(index, _parseLine(line)),
     ].where((row) => row.itemId.isNotEmpty).toList(growable: false);
   }
 
@@ -97,8 +86,21 @@ class CollectionCsv {
     return 'wishlist';
   }
 
-  String _value(Map<String, int> index, String line, String column) {
-    final values = _parseLine(line);
+  CollectionCsvRow _rowFromValues(Map<String, int> index, List<String> values) {
+    return CollectionCsvRow(
+      itemId: _value(index, values, 'item_id'),
+      status: _value(index, values, 'status').toLowerCase(),
+      condition: _optionalValue(index, values, 'condition'),
+      grade: _optionalValue(index, values, 'grade'),
+      purchaseDate:
+          DateTime.tryParse(_value(index, values, 'purchase_date'))?.toUtc(),
+      pricePaidCents: int.tryParse(_value(index, values, 'price_paid_cents')),
+      currency: _optionalValue(index, values, 'currency'),
+      notes: _optionalValue(index, values, 'notes'),
+    );
+  }
+
+  String _value(Map<String, int> index, List<String> values, String column) {
     final columnIndex = index[column];
     if (columnIndex == null || columnIndex >= values.length) {
       return '';
@@ -106,8 +108,9 @@ class CollectionCsv {
     return values[columnIndex];
   }
 
-  String? _optionalValue(Map<String, int> index, String line, String column) {
-    final value = _value(index, line, column).trim();
+  String? _optionalValue(
+      Map<String, int> index, List<String> values, String column) {
+    final value = _value(index, values, column).trim();
     return value.isEmpty ? null : value;
   }
 

@@ -158,25 +158,10 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
           FilledButton(
             onPressed: () async {
               final rows = csv.parse(controller.text);
-              final mutations = ref.read(collectionMutationsProvider);
-              for (final row in rows) {
-                if (row.isOwned) {
-                  await mutations.addItem(
-                    row.itemId,
-                    condition: row.condition,
-                    grade: row.grade,
-                    purchaseDate: row.purchaseDate,
-                    pricePaidCents: row.pricePaidCents,
-                    currency: row.currency,
-                    personalNotes: row.notes,
-                  );
-                }
-                if (row.isWishlisted) {
-                  await mutations.addToWishlist(row.itemId);
-                }
-              }
+              final imported =
+                  await ref.read(collectionMutationsProvider).importRows(rows);
               if (context.mounted) {
-                Navigator.of(context).pop(rows.length);
+                Navigator.of(context).pop(imported);
               }
             },
             child: const Text('Import'),
