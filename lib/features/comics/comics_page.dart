@@ -1096,6 +1096,10 @@ class _ComicInspector extends ConsumerWidget {
                       grade: value,
                     ),
           ),
+          if (ownedItem != null) ...[
+            const SizedBox(height: 12),
+            _PersonalDetailsEditor(ownedItem: ownedItem),
+          ],
           const SizedBox(height: 16),
           if (item!.synopsis != null)
             Text(item!.synopsis!,
@@ -1290,6 +1294,204 @@ class _CollectionFields extends StatelessWidget {
   }
 }
 
+class _PersonalDetailsEditor extends ConsumerStatefulWidget {
+  const _PersonalDetailsEditor({required this.ownedItem});
+
+  final OwnedItem ownedItem;
+
+  @override
+  ConsumerState<_PersonalDetailsEditor> createState() =>
+      _PersonalDetailsEditorState();
+}
+
+class _PersonalDetailsEditorState
+    extends ConsumerState<_PersonalDetailsEditor> {
+  late final TextEditingController _priceController;
+  late final TextEditingController _currencyController;
+  late final TextEditingController _notesController;
+  DateTime? _purchaseDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _priceController = TextEditingController();
+    _currencyController = TextEditingController();
+    _notesController = TextEditingController();
+    _syncFromItem(widget.ownedItem);
+  }
+
+  @override
+  void didUpdateWidget(covariant _PersonalDetailsEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.ownedItem.id != widget.ownedItem.id ||
+        oldWidget.ownedItem.updatedAt != widget.ownedItem.updatedAt) {
+      _syncFromItem(widget.ownedItem);
+    }
+  }
+
+  @override
+  void dispose() {
+    _priceController.dispose();
+    _currencyController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.edit_note, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'Personal details',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _pickPurchaseDate,
+              icon: const Icon(Icons.event),
+              label: Text(
+                _purchaseDate == null
+                    ? 'Set purchase date'
+                    : 'Purchased ${_formatDate(_purchaseDate!)}',
+              ),
+            ),
+            if (_purchaseDate != null) ...[
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => setState(() => _purchaseDate = null),
+                  icon: const Icon(Icons.clear),
+                  label: const Text('Clear purchase date'),
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: _priceController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(
+                      labelText: 'Price paid',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    controller: _currencyController,
+                    textCapitalization: TextCapitalization.characters,
+                    decoration: const InputDecoration(
+                      labelText: 'Currency',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _notesController,
+              minLines: 2,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Personal notes',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.icon(
+                onPressed: _save,
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Save personal details'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _syncFromItem(OwnedItem item) {
+    _purchaseDate = item.purchaseDate;
+    _priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    _currencyController.text = item.currency ?? 'USD';
+    _notesController.text = item.personalNotes ?? '';
+  }
+
+  Future<void> _pickPurchaseDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _purchaseDate ?? now,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(now.year + 1),
+    );
+    if (picked != null && mounted) {
+      setState(() => _purchaseDate = picked);
+    }
+  }
+
+  Future<void> _save() async {
+    final price = _parsePriceCents(_priceController.text);
+    final currency = _currencyController.text.trim().toUpperCase();
+    await ref.read(collectionMutationsProvider).updateItem(
+          widget.ownedItem,
+          condition: widget.ownedItem.condition,
+          grade: widget.ownedItem.grade,
+          purchaseDate: _purchaseDate,
+          pricePaidCents: price,
+          currency: currency.isEmpty ? null : currency,
+          personalNotes: _emptyToNull(_notesController.text),
+        );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Personal details saved')),
+      );
+    }
+  }
+
+  int? _parsePriceCents(String value) {
+    final normalized = value.trim().replaceAll(',', '.');
+    if (normalized.isEmpty) {
+      return null;
+    }
+    final parsed = double.tryParse(normalized);
+    if (parsed == null) {
+      return widget.ownedItem.pricePaidCents;
+    }
+    return (parsed * 100).round();
+  }
+
+  String? _emptyToNull(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+}
+
 class _MetaChip extends StatelessWidget {
   const _MetaChip({required this.icon, required this.label});
 
@@ -1440,7 +1642,10 @@ class _CompactComicsView extends StatelessWidget {
                   isWishlisted: wishlistIds.contains(item.id),
                 ),
                 selected: item.id == selectedItem?.id,
-                onTap: () => onSelectItem(item),
+                onTap: () {
+                  onSelectItem(item);
+                  _showCompactInspector(context, item);
+                },
               );
             },
           ),
@@ -1448,6 +1653,20 @@ class _CompactComicsView extends StatelessWidget {
       ],
     );
   }
+}
+
+void _showCompactInspector(BuildContext context, CatalogItem item) {
+  showModalBottomSheet<void>(
+    context: context,
+    useSafeArea: true,
+    isScrollControlled: true,
+    builder: (context) {
+      return SizedBox(
+        height: MediaQuery.sizeOf(context).height * 0.9,
+        child: _LibraryAwareComicInspector(item: item),
+      );
+    },
+  );
 }
 
 class _ErrorState extends StatelessWidget {
@@ -1514,4 +1733,9 @@ _LibraryState _libraryStateFor(
     ownedItem: ownedByItemId[item.id],
     isWishlisted: wishlistIds.contains(item.id),
   );
+}
+
+String _formatDate(DateTime value) {
+  final local = value.toLocal();
+  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
 }

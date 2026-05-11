@@ -26,7 +26,7 @@ void main() {
   ];
 
   testWidgets('comics page shows desktop catalog workspace', (tester) async {
-    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.physicalSize = const Size(1400, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -44,6 +44,10 @@ void main() {
                 itemId: 'comic-1',
                 condition: 'Near Mint',
                 grade: '9.8',
+                purchaseDate: DateTime.utc(2026, 5, 10),
+                pricePaidCents: 1299,
+                currency: 'USD',
+                personalNotes: 'Signed copy',
                 updatedAt: DateTime.utc(2026, 5, 11),
               ),
             ];
@@ -62,6 +66,10 @@ void main() {
     expect(find.text('Owned'), findsWidgets);
     expect(find.text('Near Mint'), findsOneWidget);
     expect(find.text('9.8'), findsWidgets);
+    expect(find.text('Personal details'), findsOneWidget);
+    expect(find.text('Purchased 2026-05-10'), findsOneWidget);
+    expect(find.widgetWithText(TextField, '12.99'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Signed copy'), findsOneWidget);
     expect(find.text('Remove'), findsOneWidget);
     expect(find.text('Move to wishlist'), findsOneWidget);
     expect(find.byTooltip('Grid view'), findsOneWidget);

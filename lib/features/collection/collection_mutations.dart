@@ -66,7 +66,11 @@ class CollectionMutations {
     String? personalNotes,
   }) async {
     final now = DateTime.now().toUtc();
-    final updated = item.copyWith(
+    final updated = OwnedItem(
+      id: item.id,
+      itemId: item.itemId,
+      editionId: item.editionId,
+      variantId: item.variantId,
       condition: condition,
       grade: grade,
       purchaseDate: purchaseDate,
@@ -74,6 +78,7 @@ class CollectionMutations {
       currency: currency,
       personalNotes: personalNotes,
       updatedAt: now,
+      deletedAt: item.deletedAt,
     );
     await _ownedCache().upsert(updated);
     await _enqueueOwnedItem(updated, 'upsert', now);
