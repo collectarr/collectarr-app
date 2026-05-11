@@ -681,6 +681,7 @@ class _ComicsWorkspace extends StatelessWidget {
                         selectedItemId: selectedItem?.id,
                         selectedItemIds: selectedItemIds,
                         coverSize: coverSize,
+                        onAddComic: onAddComic,
                         onSelectItem: onSelectItem,
                       )
                     : _LibraryAwareComicList(
@@ -691,6 +692,7 @@ class _ComicsWorkspace extends StatelessWidget {
                         sortAscending: sortAscending,
                         visibleColumns: visibleColumns,
                         onSortChanged: onSortChanged,
+                        onAddComic: onAddComic,
                         onSelectItem: onSelectItem,
                       ),
               ),
@@ -1292,6 +1294,7 @@ class _LibraryAwareCoverGrid extends ConsumerWidget {
     required this.selectedItemId,
     required this.selectedItemIds,
     required this.coverSize,
+    required this.onAddComic,
     required this.onSelectItem,
   });
 
@@ -1299,6 +1302,7 @@ class _LibraryAwareCoverGrid extends ConsumerWidget {
   final String? selectedItemId;
   final Set<String> selectedItemIds;
   final double coverSize;
+  final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -1312,6 +1316,7 @@ class _LibraryAwareCoverGrid extends ConsumerWidget {
       selectedItemId: selectedItemId,
       selectedItemIds: selectedItemIds,
       coverSize: coverSize,
+      onAddComic: onAddComic,
       onSelectItem: onSelectItem,
     );
   }
@@ -1325,6 +1330,7 @@ class _CoverGrid extends StatelessWidget {
     required this.selectedItemId,
     required this.selectedItemIds,
     required this.coverSize,
+    required this.onAddComic,
     required this.onSelectItem,
   });
 
@@ -1334,12 +1340,13 @@ class _CoverGrid extends StatelessWidget {
   final String? selectedItemId;
   final Set<String> selectedItemIds;
   final double coverSize;
+  final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return const _EmptyState();
+      return _EmptyState(onAddComic: onAddComic);
     }
     return GridView.builder(
       padding: const EdgeInsets.all(12),
@@ -1376,6 +1383,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
     required this.sortAscending,
     required this.visibleColumns,
     required this.onSortChanged,
+    required this.onAddComic,
     required this.onSelectItem,
   });
 
@@ -1386,6 +1394,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
   final bool sortAscending;
   final Set<_ComicTableColumn> visibleColumns;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -1402,6 +1411,7 @@ class _LibraryAwareComicList extends ConsumerWidget {
       sortAscending: sortAscending,
       visibleColumns: visibleColumns,
       onSortChanged: onSortChanged,
+      onAddComic: onAddComic,
       onSelectItem: onSelectItem,
     );
   }
@@ -1418,6 +1428,7 @@ class _ComicList extends StatelessWidget {
     required this.sortAscending,
     required this.visibleColumns,
     required this.onSortChanged,
+    required this.onAddComic,
     required this.onSelectItem,
   });
 
@@ -1430,12 +1441,13 @@ class _ComicList extends StatelessWidget {
   final bool sortAscending;
   final Set<_ComicTableColumn> visibleColumns;
   final ValueChanged<_ComicSortColumn> onSortChanged;
+  final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return const _EmptyState();
+      return _EmptyState(onAddComic: onAddComic);
     }
     final entries = [
       for (final item in items)
@@ -3814,33 +3826,39 @@ class _CompactComicsView extends StatelessWidget {
                   label: Text(selectedSeries!), onDeleted: onClearSeries),
             ),
           ),
-        SliverPadding(
-          padding: const EdgeInsets.all(12),
-          sliver: SliverGrid.builder(
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: coverSize,
-              mainAxisExtent: coverSize * 1.53,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 12,
+        if (items.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: _EmptyState(onAddComic: onAddComic),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.all(12),
+            sliver: SliverGrid.builder(
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: coverSize,
+                mainAxisExtent: coverSize * 1.53,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return _CoverTile(
+                  item: item,
+                  libraryState: _LibraryState(
+                    ownedItem: ownedByItemId[item.id],
+                    isWishlisted: wishlistIds.contains(item.id),
+                  ),
+                  selected: item.id == selectedItem?.id,
+                  onTap: () {
+                    onSelectItem(item);
+                    _showCompactInspector(context, item);
+                  },
+                );
+              },
             ),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return _CoverTile(
-                item: item,
-                libraryState: _LibraryState(
-                  ownedItem: ownedByItemId[item.id],
-                  isWishlisted: wishlistIds.contains(item.id),
-                ),
-                selected: item.id == selectedItem?.id,
-                onTap: () {
-                  onSelectItem(item);
-                  _showCompactInspector(context, item);
-                },
-              );
-            },
           ),
-        ),
       ],
     );
   }
@@ -5738,11 +5756,51 @@ class _ErrorState extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+  const _EmptyState({required this.onAddComic});
+
+  final VoidCallback onAddComic;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('No comics found'));
+    final textTheme = Theme.of(context).textTheme;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.menu_book_outlined,
+                size: 48,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Your local comics shelf is empty',
+                textAlign: TextAlign.center,
+                style: textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Add comics from Collectarr Core or scan a barcode to save them in this device database.',
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: onAddComic,
+                icon: const Icon(Icons.add),
+                label: const Text('Add Comics'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
