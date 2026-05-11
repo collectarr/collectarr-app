@@ -506,6 +506,9 @@ class _ComicsWorkspace extends StatelessWidget {
             .where((item) => item.title == selectedSeries)
             .toList(growable: false);
     final selectedItem = _selectedItem(visibleItems, selectedItemId);
+    final missingIssues = selectedSeries == null
+        ? const <int>[]
+        : _missingIssueNumbers(visibleItems);
 
     if (!isWide) {
       return _LibraryAwareCompactComicsView(
@@ -536,6 +539,7 @@ class _ComicsWorkspace extends StatelessWidget {
           viewMode: viewMode,
           coverSize: coverSize,
           hasActiveFilters: hasActiveFilters,
+          missingIssues: missingIssues,
           selectionMode: selectionMode,
           selectedCount: selectedItemIds.length,
           onSearch: onSearch,
@@ -615,6 +619,25 @@ class _ComicsWorkspace extends StatelessWidget {
     );
   }
 
+  List<int> _missingIssueNumbers(List<CatalogItem> source) {
+    final numbers = {
+      for (final item in source)
+        if (_parseIssueNumber(item.itemNumber) != null)
+          _parseIssueNumber(item.itemNumber)!,
+    }.toList(growable: false)
+      ..sort();
+    if (numbers.length < 2) {
+      return const [];
+    }
+    final missing = <int>[];
+    for (var number = numbers.first; number <= numbers.last; number++) {
+      if (!numbers.contains(number)) {
+        missing.add(number);
+      }
+    }
+    return missing;
+  }
+
   CatalogItem? _selectedItem(
       List<CatalogItem> visibleItems, String? selectedId) {
     if (visibleItems.isEmpty) {
@@ -641,6 +664,7 @@ class _ComicsToolbar extends StatelessWidget {
     required this.viewMode,
     required this.coverSize,
     required this.hasActiveFilters,
+    required this.missingIssues,
     required this.selectionMode,
     required this.selectedCount,
     required this.onSearch,
@@ -665,6 +689,7 @@ class _ComicsToolbar extends StatelessWidget {
   final _ComicsViewMode viewMode;
   final double coverSize;
   final bool hasActiveFilters;
+  final List<int> missingIssues;
   final bool selectionMode;
   final int selectedCount;
   final ValueChanged<String> onSearch;
@@ -714,22 +739,24 @@ class _ComicsToolbar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            SizedBox(
-              width: 360,
-              child: SearchBar(
-                controller: controller,
-                hintText: 'Search comics...',
-                leading: const Icon(Icons.search),
-                trailing: [
-                  Tooltip(
-                    message: 'Search',
-                    child: IconButton(
-                      onPressed: () => onSearch(controller.text),
-                      icon: const Icon(Icons.arrow_forward),
+            Flexible(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 360),
+                child: SearchBar(
+                  controller: controller,
+                  hintText: 'Search comics...',
+                  leading: const Icon(Icons.search),
+                  trailing: [
+                    Tooltip(
+                      message: 'Search',
+                      child: IconButton(
+                        onPressed: () => onSearch(controller.text),
+                        icon: const Icon(Icons.arrow_forward),
+                      ),
                     ),
-                  ),
-                ],
-                onSubmitted: onSearch,
+                  ],
+                  onSubmitted: onSearch,
+                ),
               ),
             ),
             if (selectedSeries != null) ...[
@@ -800,6 +827,20 @@ class _ComicsToolbar extends StatelessWidget {
               const SizedBox(width: 8),
             ],
             Tooltip(
+              message: 'Missing issues',
+              child: Badge(
+                isLabelVisible: missingIssues.isNotEmpty,
+                label: Text(missingIssues.length.toString()),
+                child: IconButton.filledTonal(
+                  onPressed: missingIssues.isEmpty
+                      ? null
+                      : () => _showMissingIssuesDialog(context, missingIssues),
+                  icon: const Icon(Icons.format_list_numbered),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Tooltip(
               message: 'Filters',
               child: Badge(
                 isLabelVisible: hasActiveFilters,
@@ -817,7 +858,7 @@ class _ComicsToolbar extends StatelessWidget {
             Tooltip(
               message: 'Cover size',
               child: SizedBox(
-                width: 140,
+                width: 112,
                 child: Slider(
                   min: _kMinCoverSize,
                   max: _kMaxCoverSize,
@@ -1380,6 +1421,13 @@ int _compareIssueNumbers(String? left, String? right) {
     return leftNumber.compareTo(rightNumber);
   }
   return _compareNullableStrings(left, right);
+}
+
+int? _parseIssueNumber(String? value) {
+  if (value == null) {
+    return null;
+  }
+  return int.tryParse(value.trim());
 }
 
 int _compareNullableStrings(String? left, String? right) {
@@ -2457,6 +2505,33 @@ void _showCompactCoverSizeSheet(
             ),
           );
         },
+      );
+    },
+  );
+}
+
+void _showMissingIssuesDialog(BuildContext context, List<int> missingIssues) {
+  showDialog<void>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Missing issues'),
+        content: SizedBox(
+          width: 360,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final issue in missingIssues) Chip(label: Text('#$issue')),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Done'),
+          ),
+        ],
       );
     },
   );

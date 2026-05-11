@@ -322,4 +322,60 @@ void main() {
     expect(find.text('Condition'), findsWidgets);
     expect(find.text('Grade'), findsWidgets);
   });
+
+  testWidgets('comics page shows missing issue gaps for selected series',
+      (tester) async {
+    const gapItems = [
+      CatalogItem(
+        id: 'gap-1',
+        kind: 'comic',
+        title: 'Gap Series',
+        itemNumber: '1',
+      ),
+      CatalogItem(
+        id: 'gap-3',
+        kind: 'comic',
+        title: 'Gap Series',
+        itemNumber: '3',
+      ),
+    ];
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(itemId: 'gap-1', catalogItem: gapItems[0]),
+                ShelfEntry(itemId: 'gap-3', catalogItem: gapItems[1]),
+              ],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Gap Series').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.format_list_numbered));
+    await tester.pumpAndSettle();
+
+    expect(find.text('#2'), findsOneWidget);
+  });
 }
