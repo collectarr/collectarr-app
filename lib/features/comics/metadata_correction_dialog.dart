@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +19,7 @@ Future<void> showMetadataCorrectionDialog({
 
   try {
     await ref.read(apiClientProvider).createMetadataProposal(
-          provider: 'comicvine',
+          provider: comicsLibraryConfig.defaultMetadataProvider,
           query: draft.queryFor(item),
           title: draft.title.trim().isEmpty ? item.title : draft.title.trim(),
           summary: draft.summaryFor(item),

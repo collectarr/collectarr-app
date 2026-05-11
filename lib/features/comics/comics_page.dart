@@ -317,8 +317,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     }
 
     try {
-      final result =
-          await ref.read(apiClientProvider).lookupBarcode(code, kind: 'comic');
+      final result = await ref.read(apiClientProvider).lookupBarcode(
+            code,
+            kind: comicsLibraryConfig.workspace.kind,
+          );
       final item = CatalogItem.fromJson(result);
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
           .upsertAll([item]);
@@ -364,7 +366,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         entry.catalogItem ??
             CatalogItem(
               id: entry.itemId,
-              kind: 'comic',
+              kind: comicsLibraryConfig.workspace.kind,
               title: entry.title,
             ),
     ];
@@ -6037,7 +6039,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       final rows = await ref.read(apiClientProvider).searchMetadata(
             MetadataSearchQuery(
               query: query,
-              kind: 'comic',
+              kind: comicsLibraryConfig.workspace.kind,
               series: series,
               issueNumber: issueNumber,
               publisher: publisher,
@@ -6081,9 +6083,10 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       _error = null;
     });
     try {
-      final rows = await ref
-          .read(apiClientProvider)
-          .searchProvider(provider: 'comicvine', query: query);
+      final rows = await ref.read(apiClientProvider).searchProvider(
+            provider: comicsLibraryConfig.defaultMetadataProvider,
+            query: query,
+          );
       final results =
           rows.map(ProviderCandidate.fromJson).toList(growable: false);
       if (!mounted) {
@@ -6146,8 +6149,10 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
       _error = null;
     });
     try {
-      final result =
-          await ref.read(apiClientProvider).lookupBarcode(code, kind: 'comic');
+      final result = await ref.read(apiClientProvider).lookupBarcode(
+            code,
+            kind: comicsLibraryConfig.workspace.kind,
+          );
       final item = CatalogItem.fromJson(result);
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
           .upsertAll([item]);
@@ -6308,7 +6313,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
     });
     try {
       await ref.read(apiClientProvider).createMetadataProposal(
-            provider: 'comicvine',
+            provider: comicsLibraryConfig.defaultMetadataProvider,
             query: proposal.title,
             title: proposal.title,
             summary: proposal.notes,
@@ -7696,7 +7701,7 @@ class _ManualComicDialogState extends State<_ManualComicDialog> {
             Navigator.of(context).pop(
               CatalogItem(
                 id: 'manual-comic-${DateTime.now().microsecondsSinceEpoch}',
-                kind: 'comic',
+                kind: comicsLibraryConfig.workspace.kind,
                 title: title,
                 itemNumber: _emptyToNull(_issueController.text),
                 synopsis: _emptyToNull(_synopsisController.text),

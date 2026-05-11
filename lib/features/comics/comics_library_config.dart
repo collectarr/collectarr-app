@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -23,4 +25,12 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
     LibraryTableColumn.wishlist,
     LibraryTableColumn.updated,
   },
+);
+
+const comicsLibraryConfig = LibraryTypeConfig(
+  workspace: comicsWorkspaceConfig,
+  singularLabel: 'Comic',
+  pluralLabel: 'Comics',
+  defaultMetadataProvider: 'comicvine',
+  trackingProfile: comicTrackingProfile,
 );
