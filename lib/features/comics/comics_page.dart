@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -4104,6 +4105,7 @@ class _RichMetadataInspector extends StatelessWidget {
     final characters = _metadataNames(source, 'character_credits');
     final arcs = _metadataNames(source, 'story_arc_credits');
     final providerFacts = _providerFacts(edition);
+    final tracking = owned?.mediaTracking;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -4136,7 +4138,8 @@ class _RichMetadataInspector extends StatelessWidget {
             _InspectorFact('Quantity', owned?.quantity.toString() ?? '-'),
             _InspectorFact('Storage box', owned?.storageBox ?? '-'),
             _InspectorFact('Index', owned?.indexNumber?.toString() ?? '-'),
-            _InspectorFact('Read status', owned?.readStatus ?? '-'),
+            _InspectorFact('Tracking', tracking?.statusLabel ?? '-'),
+            _InspectorFact('Rating', tracking?.rating?.toString() ?? '-'),
             _InspectorFact('Tags', owned?.tags ?? '-'),
           ],
         ),
