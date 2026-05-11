@@ -6,6 +6,28 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('stores catalog metadata needed for local filters', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db.into(db.catalogCache).insert(
+          CatalogCacheCompanion.insert(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Superman, Vol. 4',
+            itemNumber: const Value('8A'),
+            publisher: const Value('DC'),
+            releaseYear: const Value(2016),
+            cachedAt: DateTime.utc(2026, 5, 11),
+          ),
+        );
+
+    final catalog = await db.select(db.catalogCache).getSingle();
+
+    expect(catalog.publisher, 'DC');
+    expect(catalog.releaseYear, 2016);
+  });
+
   test('stores personal collection and wishlist data locally', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);

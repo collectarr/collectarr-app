@@ -42,6 +42,18 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
       'cover_image_url', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseYearMeta =
+      const VerificationMeta('releaseYear');
+  @override
+  late final GeneratedColumn<int> releaseYear = GeneratedColumn<int>(
+      'release_year', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _cachedAtMeta =
       const VerificationMeta('cachedAt');
   @override
@@ -49,8 +61,17 @@ class $CatalogCacheTable extends CatalogCache
       'cached_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, kind, title, itemNumber, synopsis, coverImageUrl, cachedAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        kind,
+        title,
+        itemNumber,
+        synopsis,
+        coverImageUrl,
+        publisher,
+        releaseYear,
+        cachedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -94,6 +115,16 @@ class $CatalogCacheTable extends CatalogCache
           coverImageUrl.isAcceptableOrUnknown(
               data['cover_image_url']!, _coverImageUrlMeta));
     }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('release_year')) {
+      context.handle(
+          _releaseYearMeta,
+          releaseYear.isAcceptableOrUnknown(
+              data['release_year']!, _releaseYearMeta));
+    }
     if (data.containsKey('cached_at')) {
       context.handle(_cachedAtMeta,
           cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta));
@@ -121,6 +152,10 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}synopsis']),
       coverImageUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      releaseYear: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}release_year']),
       cachedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}cached_at'])!,
     );
@@ -140,6 +175,8 @@ class CatalogCacheData extends DataClass
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
+  final String? publisher;
+  final int? releaseYear;
   final DateTime cachedAt;
   const CatalogCacheData(
       {required this.id,
@@ -148,6 +185,8 @@ class CatalogCacheData extends DataClass
       this.itemNumber,
       this.synopsis,
       this.coverImageUrl,
+      this.publisher,
+      this.releaseYear,
       required this.cachedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -163,6 +202,12 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || coverImageUrl != null) {
       map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || releaseYear != null) {
+      map['release_year'] = Variable<int>(releaseYear);
     }
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
@@ -182,6 +227,12 @@ class CatalogCacheData extends DataClass
       coverImageUrl: coverImageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(coverImageUrl),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      releaseYear: releaseYear == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseYear),
       cachedAt: Value(cachedAt),
     );
   }
@@ -196,6 +247,8 @@ class CatalogCacheData extends DataClass
       itemNumber: serializer.fromJson<String?>(json['itemNumber']),
       synopsis: serializer.fromJson<String?>(json['synopsis']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      releaseYear: serializer.fromJson<int?>(json['releaseYear']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -209,6 +262,8 @@ class CatalogCacheData extends DataClass
       'itemNumber': serializer.toJson<String?>(itemNumber),
       'synopsis': serializer.toJson<String?>(synopsis),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'publisher': serializer.toJson<String?>(publisher),
+      'releaseYear': serializer.toJson<int?>(releaseYear),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -220,6 +275,8 @@ class CatalogCacheData extends DataClass
           Value<String?> itemNumber = const Value.absent(),
           Value<String?> synopsis = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> publisher = const Value.absent(),
+          Value<int?> releaseYear = const Value.absent(),
           DateTime? cachedAt}) =>
       CatalogCacheData(
         id: id ?? this.id,
@@ -229,6 +286,8 @@ class CatalogCacheData extends DataClass
         synopsis: synopsis.present ? synopsis.value : this.synopsis,
         coverImageUrl:
             coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        releaseYear: releaseYear.present ? releaseYear.value : this.releaseYear,
         cachedAt: cachedAt ?? this.cachedAt,
       );
   CatalogCacheData copyWithCompanion(CatalogCacheCompanion data) {
@@ -242,6 +301,9 @@ class CatalogCacheData extends DataClass
       coverImageUrl: data.coverImageUrl.present
           ? data.coverImageUrl.value
           : this.coverImageUrl,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      releaseYear:
+          data.releaseYear.present ? data.releaseYear.value : this.releaseYear,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -255,14 +317,16 @@ class CatalogCacheData extends DataClass
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('publisher: $publisher, ')
+          ..write('releaseYear: $releaseYear, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, kind, title, itemNumber, synopsis, coverImageUrl, cachedAt);
+  int get hashCode => Object.hash(id, kind, title, itemNumber, synopsis,
+      coverImageUrl, publisher, releaseYear, cachedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -273,6 +337,8 @@ class CatalogCacheData extends DataClass
           other.itemNumber == this.itemNumber &&
           other.synopsis == this.synopsis &&
           other.coverImageUrl == this.coverImageUrl &&
+          other.publisher == this.publisher &&
+          other.releaseYear == this.releaseYear &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -283,6 +349,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> itemNumber;
   final Value<String?> synopsis;
   final Value<String?> coverImageUrl;
+  final Value<String?> publisher;
+  final Value<int?> releaseYear;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const CatalogCacheCompanion({
@@ -292,6 +360,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.releaseYear = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -302,6 +372,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.releaseYear = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -315,6 +387,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? itemNumber,
     Expression<String>? synopsis,
     Expression<String>? coverImageUrl,
+    Expression<String>? publisher,
+    Expression<int>? releaseYear,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -325,6 +399,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (itemNumber != null) 'item_number': itemNumber,
       if (synopsis != null) 'synopsis': synopsis,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (publisher != null) 'publisher': publisher,
+      if (releaseYear != null) 'release_year': releaseYear,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -337,6 +413,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? itemNumber,
       Value<String?>? synopsis,
       Value<String?>? coverImageUrl,
+      Value<String?>? publisher,
+      Value<int?>? releaseYear,
       Value<DateTime>? cachedAt,
       Value<int>? rowid}) {
     return CatalogCacheCompanion(
@@ -346,6 +424,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       itemNumber: itemNumber ?? this.itemNumber,
       synopsis: synopsis ?? this.synopsis,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      publisher: publisher ?? this.publisher,
+      releaseYear: releaseYear ?? this.releaseYear,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -372,6 +452,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (coverImageUrl.present) {
       map['cover_image_url'] = Variable<String>(coverImageUrl.value);
     }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (releaseYear.present) {
+      map['release_year'] = Variable<int>(releaseYear.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -390,6 +476,8 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('publisher: $publisher, ')
+          ..write('releaseYear: $releaseYear, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -2452,6 +2540,8 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
+  Value<String?> publisher,
+  Value<int?> releaseYear,
   required DateTime cachedAt,
   Value<int> rowid,
 });
@@ -2463,6 +2553,8 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
+  Value<String?> publisher,
+  Value<int?> releaseYear,
   Value<DateTime> cachedAt,
   Value<int> rowid,
 });
@@ -2493,6 +2585,12 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get releaseYear => $composableBuilder(
+      column: $table.releaseYear, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnFilters(column));
@@ -2526,6 +2624,12 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.coverImageUrl,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get releaseYear => $composableBuilder(
+      column: $table.releaseYear, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
 }
@@ -2556,6 +2660,12 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<int> get releaseYear => $composableBuilder(
+      column: $table.releaseYear, builder: (column) => column);
 
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
@@ -2593,6 +2703,8 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<int?> releaseYear = const Value.absent(),
             Value<DateTime> cachedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -2603,6 +2715,8 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
+            publisher: publisher,
+            releaseYear: releaseYear,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -2613,6 +2727,8 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<int?> releaseYear = const Value.absent(),
             required DateTime cachedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -2623,6 +2739,8 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
+            publisher: publisher,
+            releaseYear: releaseYear,
             cachedAt: cachedAt,
             rowid: rowid,
           ),

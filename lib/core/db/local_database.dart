@@ -10,6 +10,8 @@ class CatalogCache extends Table {
   TextColumn get itemNumber => text().nullable()();
   TextColumn get synopsis => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
+  TextColumn get publisher => text().nullable()();
+  IntColumn get releaseYear => integer().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -86,7 +88,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -107,6 +109,10 @@ class LocalDatabase extends _$LocalDatabase {
           await m.addColumn(ownedItemsCache, ownedItemsCache.rating);
           await m.addColumn(ownedItemsCache, ownedItemsCache.readStatus);
           await m.addColumn(ownedItemsCache, ownedItemsCache.tags);
+        }
+        if (from < 3) {
+          await m.addColumn(catalogCache, catalogCache.publisher);
+          await m.addColumn(catalogCache, catalogCache.releaseYear);
         }
       },
     );

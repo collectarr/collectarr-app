@@ -72,6 +72,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   _OwnershipFilter ownershipFilter = _OwnershipFilter.all;
   String? gradeFilter;
   String? conditionFilter;
+  String? publisherFilter;
+  String? releaseYearFilter;
   bool selectionMode = false;
   final selectedItemIds = <String>{};
   late final TextEditingController _controller;
@@ -107,6 +109,13 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
             final conditionOptions = _filterOptions(
               state.entries.map((entry) => entry.ownedItem?.condition),
             );
+            final publisherOptions = _filterOptions(
+              state.entries.map((entry) => entry.catalogItem?.publisher),
+            );
+            final releaseYearOptions = _filterOptions(
+              state.entries
+                  .map((entry) => entry.catalogItem?.releaseYear?.toString()),
+            );
             return _ComicsWorkspace(
               items: items,
               queryController: _controller,
@@ -124,6 +133,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 context,
                 gradeOptions: gradeOptions,
                 conditionOptions: conditionOptions,
+                publisherOptions: publisherOptions,
+                releaseYearOptions: releaseYearOptions,
               ),
               onSearch: (value) => setState(() {
                 query = value.trim();
@@ -234,6 +245,12 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         if (_matchesOwnershipFilter(entry) &&
             _matchesValueFilter(entry.ownedItem?.grade, gradeFilter) &&
             _matchesValueFilter(entry.ownedItem?.condition, conditionFilter) &&
+            _matchesValueFilter(
+                entry.catalogItem?.publisher, publisherFilter) &&
+            _matchesValueFilter(
+              entry.catalogItem?.releaseYear?.toString(),
+              releaseYearFilter,
+            ) &&
             (normalized.isEmpty || _matchesEntryQuery(entry, normalized)))
           entry,
     ];
@@ -249,6 +266,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     }
     return item.title.toLowerCase().contains(query) ||
         (item.itemNumber?.toLowerCase().contains(query) ?? false) ||
+        (item.publisher?.toLowerCase().contains(query) ?? false) ||
+        (item.releaseYear?.toString().contains(query) ?? false) ||
         (item.synopsis?.toLowerCase().contains(query) ?? false);
   }
 
@@ -280,13 +299,17 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   bool get _hasActiveFilters {
     return ownershipFilter != _OwnershipFilter.all ||
         gradeFilter != null ||
-        conditionFilter != null;
+        conditionFilter != null ||
+        publisherFilter != null ||
+        releaseYearFilter != null;
   }
 
   Future<void> _showFiltersDialog(
     BuildContext context, {
     required List<String> gradeOptions,
     required List<String> conditionOptions,
+    required List<String> publisherOptions,
+    required List<String> releaseYearOptions,
   }) async {
     final selection = await showDialog<_ComicsFilterSelection>(
       context: context,
@@ -295,9 +318,13 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
           ownershipFilter: ownershipFilter,
           grade: gradeFilter,
           condition: conditionFilter,
+          publisher: publisherFilter,
+          releaseYear: releaseYearFilter,
         ),
         gradeOptions: gradeOptions,
         conditionOptions: conditionOptions,
+        publisherOptions: publisherOptions,
+        releaseYearOptions: releaseYearOptions,
       ),
     );
     if (selection == null || !mounted) {
@@ -307,6 +334,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
       ownershipFilter = selection.ownershipFilter;
       gradeFilter = selection.grade;
       conditionFilter = selection.condition;
+      publisherFilter = selection.publisher;
+      releaseYearFilter = selection.releaseYear;
       selectedItemId = null;
       selectedSeries = null;
       selectedItemIds.clear();
@@ -3848,11 +3877,15 @@ class _ComicsFilterDialog extends StatefulWidget {
     required this.initialSelection,
     required this.gradeOptions,
     required this.conditionOptions,
+    required this.publisherOptions,
+    required this.releaseYearOptions,
   });
 
   final _ComicsFilterSelection initialSelection;
   final List<String> gradeOptions;
   final List<String> conditionOptions;
+  final List<String> publisherOptions;
+  final List<String> releaseYearOptions;
 
   @override
   State<_ComicsFilterDialog> createState() => _ComicsFilterDialogState();
@@ -3862,6 +3895,8 @@ class _ComicsFilterDialogState extends State<_ComicsFilterDialog> {
   late _OwnershipFilter _ownershipFilter;
   String? _grade;
   String? _condition;
+  String? _publisher;
+  String? _releaseYear;
 
   @override
   void initState() {
@@ -3869,6 +3904,8 @@ class _ComicsFilterDialogState extends State<_ComicsFilterDialog> {
     _ownershipFilter = widget.initialSelection.ownershipFilter;
     _grade = widget.initialSelection.grade;
     _condition = widget.initialSelection.condition;
+    _publisher = widget.initialSelection.publisher;
+    _releaseYear = widget.initialSelection.releaseYear;
   }
 
   @override
@@ -3877,69 +3914,64 @@ class _ComicsFilterDialogState extends State<_ComicsFilterDialog> {
       title: const Text('Filters'),
       content: SizedBox(
         width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DropdownButtonFormField<_OwnershipFilter>(
-              initialValue: _ownershipFilter,
-              decoration: const InputDecoration(
-                labelText: 'Shelf',
-                border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              DropdownButtonFormField<_OwnershipFilter>(
+                initialValue: _ownershipFilter,
+                decoration: const InputDecoration(
+                  labelText: 'Shelf',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  for (final filter in _OwnershipFilter.values)
+                    DropdownMenuItem(
+                      value: filter,
+                      child: Text(_ownershipFilterLabel(filter)),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _ownershipFilter = value);
+                  }
+                },
               ),
-              items: [
-                for (final filter in _OwnershipFilter.values)
-                  DropdownMenuItem(
-                    value: filter,
-                    child: Text(_ownershipFilterLabel(filter)),
-                  ),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _ownershipFilter = value);
-                }
-              },
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue:
-                  widget.gradeOptions.contains(_grade) ? _grade : null,
-              decoration: const InputDecoration(
-                labelText: 'Grade',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 12),
+              _StringFilterDropdown(
+                label: 'Publisher',
+                emptyLabel: 'Any publisher',
+                value: _publisher,
+                options: widget.publisherOptions,
+                onChanged: (value) => setState(() => _publisher = value),
               ),
-              items: [
-                const DropdownMenuItem(value: '', child: Text('Any grade')),
-                for (final grade in widget.gradeOptions)
-                  DropdownMenuItem(value: grade, child: Text(grade)),
-              ],
-              onChanged: (value) {
-                setState(() =>
-                    _grade = value == null || value.isEmpty ? null : value);
-              },
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: widget.conditionOptions.contains(_condition)
-                  ? _condition
-                  : null,
-              decoration: const InputDecoration(
-                labelText: 'Condition',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 12),
+              _StringFilterDropdown(
+                label: 'Year',
+                emptyLabel: 'Any year',
+                value: _releaseYear,
+                options: widget.releaseYearOptions,
+                onChanged: (value) => setState(() => _releaseYear = value),
               ),
-              items: [
-                const DropdownMenuItem(value: '', child: Text('Any condition')),
-                for (final condition in widget.conditionOptions)
-                  DropdownMenuItem(value: condition, child: Text(condition)),
-              ],
-              onChanged: (value) {
-                setState(
-                  () => _condition =
-                      value == null || value.isEmpty ? null : value,
-                );
-              },
-            ),
-          ],
+              const SizedBox(height: 12),
+              _StringFilterDropdown(
+                label: 'Grade',
+                emptyLabel: 'Any grade',
+                value: _grade,
+                options: widget.gradeOptions,
+                onChanged: (value) => setState(() => _grade = value),
+              ),
+              const SizedBox(height: 12),
+              _StringFilterDropdown(
+                label: 'Condition',
+                emptyLabel: 'Any condition',
+                value: _condition,
+                options: widget.conditionOptions,
+                onChanged: (value) => setState(() => _condition = value),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -3960,6 +3992,8 @@ class _ComicsFilterDialogState extends State<_ComicsFilterDialog> {
                 ownershipFilter: _ownershipFilter,
                 grade: _grade,
                 condition: _condition,
+                publisher: _publisher,
+                releaseYear: _releaseYear,
               ),
             );
           },
@@ -3975,11 +4009,51 @@ class _ComicsFilterSelection {
     required this.ownershipFilter,
     this.grade,
     this.condition,
+    this.publisher,
+    this.releaseYear,
   });
 
   final _OwnershipFilter ownershipFilter;
   final String? grade;
   final String? condition;
+  final String? publisher;
+  final String? releaseYear;
+}
+
+class _StringFilterDropdown extends StatelessWidget {
+  const _StringFilterDropdown({
+    required this.label,
+    required this.emptyLabel,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String emptyLabel;
+  final String? value;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<String>(
+      initialValue: options.contains(value) ? value : null,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      items: [
+        DropdownMenuItem(value: '', child: Text(emptyLabel)),
+        for (final option in options)
+          DropdownMenuItem(value: option, child: Text(option)),
+      ],
+      onChanged: (value) {
+        onChanged(value == null || value.isEmpty ? null : value);
+      },
+    );
+  }
 }
 
 String _ownershipFilterLabel(_OwnershipFilter filter) {

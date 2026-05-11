@@ -7,6 +7,8 @@ class CatalogItem {
     this.synopsis,
     this.coverImageUrl,
     this.thumbnailImageUrl,
+    this.publisher,
+    this.releaseYear,
   });
 
   final String id;
@@ -16,6 +18,8 @@ class CatalogItem {
   final String? synopsis;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final String? publisher;
+  final int? releaseYear;
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
@@ -28,6 +32,8 @@ class CatalogItem {
       synopsis: json['synopsis'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      publisher: json['publisher'] as String?,
+      releaseYear: json['release_year'] as int?,
     );
   }
 }

@@ -16,6 +16,8 @@ void main() {
       title: 'Superman, Vol. 4',
       itemNumber: '8A',
       synopsis: 'Escape From Dinosaur Island, Part One',
+      publisher: 'DC',
+      releaseYear: 2016,
     ),
     CatalogItem(
       id: 'comic-2',
@@ -23,6 +25,8 @@ void main() {
       title: 'Superman, Vol. 4',
       itemNumber: '9',
       synopsis: 'A follow-up issue.',
+      publisher: 'Marvel',
+      releaseYear: 2017,
     ),
   ];
 
@@ -415,6 +419,60 @@ void main() {
     await tester.tap(find.text('All comics'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Owned').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+    expect(find.text('Superman, Vol. 4 #9'), findsNothing);
+  });
+
+  testWidgets('comics page filters local shelf by metadata', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(itemId: 'comic-1', catalogItem: catalogItems[0]),
+                ShelfEntry(itemId: 'comic-2', catalogItem: catalogItems[1]),
+              ],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+    expect(find.text('Superman, Vol. 4 #9'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Filters'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Publisher').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('DC').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Year').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('2016').last);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Apply'));
     await tester.pumpAndSettle();
