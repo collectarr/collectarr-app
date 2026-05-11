@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -1290,78 +1291,15 @@ class _ComicsToolbar extends StatelessWidget {
                       const SizedBox(width: 8),
                       _ToolbarStat(label: 'Total', value: totalCount),
                       const SizedBox(width: 8),
-                      Tooltip(
-                        message: 'Cover size',
-                        child: SizedBox(
-                          width: 112,
-                          child: Slider(
-                            min: _kMinCoverSize,
-                            max: _kMaxCoverSize,
-                            divisions: 7,
-                            value: coverSize,
-                            onChanged: onCoverSizeChanged,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SegmentedButton<LibraryViewMode>(
-                        segments: const [
-                          ButtonSegment(
-                            value: LibraryViewMode.grid,
-                            icon: Tooltip(
-                              message: 'Cover view',
-                              child: Icon(Icons.grid_view),
-                            ),
-                          ),
-                          ButtonSegment(
-                            value: LibraryViewMode.card,
-                            icon: Tooltip(
-                              message: 'Card view',
-                              child: Icon(Icons.view_module),
-                            ),
-                          ),
-                          ButtonSegment(
-                            value: LibraryViewMode.list,
-                            icon: Tooltip(
-                              message: 'List view',
-                              child: Icon(Icons.view_list),
-                            ),
-                          ),
-                        ],
-                        selected: {viewMode},
-                        onSelectionChanged: (selection) =>
-                            onViewModeChanged(selection.first),
-                        showSelectedIcon: false,
-                      ),
-                      const SizedBox(width: 8),
-                      SegmentedButton<LibraryDetailsLayout>(
-                        segments: const [
-                          ButtonSegment(
-                            value: LibraryDetailsLayout.right,
-                            icon: Tooltip(
-                              message: 'Details right',
-                              child: Icon(Icons.view_sidebar),
-                            ),
-                          ),
-                          ButtonSegment(
-                            value: LibraryDetailsLayout.bottom,
-                            icon: Tooltip(
-                              message: 'Details bottom',
-                              child: Icon(Icons.vertical_split),
-                            ),
-                          ),
-                          ButtonSegment(
-                            value: LibraryDetailsLayout.hidden,
-                            icon: Tooltip(
-                              message: 'Hide details',
-                              child: Icon(Icons.visibility_off),
-                            ),
-                          ),
-                        ],
-                        selected: {detailsLayout},
-                        onSelectionChanged: (selection) =>
-                            onDetailsLayoutChanged(selection.first),
-                        showSelectedIcon: false,
+                      LibraryViewControls(
+                        viewMode: viewMode,
+                        detailsLayout: detailsLayout,
+                        coverSize: coverSize,
+                        minCoverSize: _kMinCoverSize,
+                        maxCoverSize: _kMaxCoverSize,
+                        onViewModeChanged: onViewModeChanged,
+                        onDetailsLayoutChanged: onDetailsLayoutChanged,
+                        onCoverSizeChanged: onCoverSizeChanged,
                       ),
                     ],
                   ),
