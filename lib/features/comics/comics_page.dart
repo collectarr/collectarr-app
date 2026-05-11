@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const double _kDesktopBreakpoint = 980;
+
+enum _ComicsViewMode { grid, list }
 
 class ComicsPage extends ConsumerStatefulWidget {
   const ComicsPage({super.key});
@@ -19,6 +22,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   String query = 'spider-man';
   String? selectedItemId;
   String? selectedSeries;
+  _ComicsViewMode viewMode = _ComicsViewMode.grid;
   late final TextEditingController _controller;
 
   @override
@@ -47,6 +51,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
             queryController: _controller,
             selectedItemId: selectedItemId,
             selectedSeries: selectedSeries,
+            viewMode: viewMode,
             onSearch: (value) => setState(() {
               query = value.trim();
               selectedItemId = null;
@@ -58,6 +63,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               selectedItemId = null;
             }),
             onClearSeries: () => setState(() => selectedSeries = null),
+            onViewModeChanged: (value) => setState(() => viewMode = value),
           ),
           error: (error, stackTrace) => _ErrorState(message: error.toString()),
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -73,20 +79,24 @@ class _ComicsWorkspace extends StatelessWidget {
     required this.queryController,
     required this.selectedItemId,
     required this.selectedSeries,
+    required this.viewMode,
     required this.onSearch,
     required this.onSelectItem,
     required this.onSelectSeries,
     required this.onClearSeries,
+    required this.onViewModeChanged,
   });
 
   final List<CatalogItem> items;
   final TextEditingController queryController;
   final String? selectedItemId;
   final String? selectedSeries;
+  final _ComicsViewMode viewMode;
   final ValueChanged<String> onSearch;
   final ValueChanged<CatalogItem> onSelectItem;
   final ValueChanged<String> onSelectSeries;
   final VoidCallback onClearSeries;
+  final ValueChanged<_ComicsViewMode> onViewModeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -121,10 +131,12 @@ class _ComicsWorkspace extends StatelessWidget {
           itemCount: visibleItems.length,
           totalCount: items.length,
           selectedSeries: selectedSeries,
+          viewMode: viewMode,
           onSearch: onSearch,
           onScanBarcode: () => _showScanPlaceholder(context),
           onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
           onClearSeries: onClearSeries,
+          onViewModeChanged: onViewModeChanged,
         ),
         Expanded(
           child: Row(
@@ -139,11 +151,17 @@ class _ComicsWorkspace extends StatelessWidget {
               ),
               const VerticalDivider(width: 1),
               Expanded(
-                child: _LibraryAwareCoverGrid(
-                  items: visibleItems,
-                  selectedItemId: selectedItem?.id,
-                  onSelectItem: onSelectItem,
-                ),
+                child: viewMode == _ComicsViewMode.grid
+                    ? _LibraryAwareCoverGrid(
+                        items: visibleItems,
+                        selectedItemId: selectedItem?.id,
+                        onSelectItem: onSelectItem,
+                      )
+                    : _LibraryAwareComicList(
+                        items: visibleItems,
+                        selectedItemId: selectedItem?.id,
+                        onSelectItem: onSelectItem,
+                      ),
               ),
               const VerticalDivider(width: 1),
               SizedBox(
@@ -206,20 +224,24 @@ class _ComicsToolbar extends StatelessWidget {
     required this.itemCount,
     required this.totalCount,
     required this.selectedSeries,
+    required this.viewMode,
     required this.onSearch,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onClearSeries,
+    required this.onViewModeChanged,
   });
 
   final TextEditingController controller;
   final int itemCount;
   final int totalCount;
   final String? selectedSeries;
+  final _ComicsViewMode viewMode;
   final ValueChanged<String> onSearch;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final VoidCallback onClearSeries;
+  final ValueChanged<_ComicsViewMode> onViewModeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -284,9 +306,27 @@ class _ComicsToolbar extends StatelessWidget {
             const SizedBox(width: 8),
             _ToolbarStat(label: 'Total', value: totalCount),
             const SizedBox(width: 8),
-            const Tooltip(
-              message: 'Grid view',
-              child: Icon(Icons.grid_view),
+            SegmentedButton<_ComicsViewMode>(
+              segments: const [
+                ButtonSegment(
+                  value: _ComicsViewMode.grid,
+                  icon: Tooltip(
+                    message: 'Grid view',
+                    child: Icon(Icons.grid_view),
+                  ),
+                ),
+                ButtonSegment(
+                  value: _ComicsViewMode.list,
+                  icon: Tooltip(
+                    message: 'List view',
+                    child: Icon(Icons.view_list),
+                  ),
+                ),
+              ],
+              selected: {viewMode},
+              onSelectionChanged: (selection) =>
+                  onViewModeChanged(selection.first),
+              showSelectedIcon: false,
             ),
           ],
         ),
@@ -486,6 +526,202 @@ class _CoverGrid extends StatelessWidget {
   }
 }
 
+class _LibraryAwareComicList extends ConsumerWidget {
+  const _LibraryAwareComicList({
+    required this.items,
+    required this.selectedItemId,
+    required this.onSelectItem,
+  });
+
+  final List<CatalogItem> items;
+  final String? selectedItemId;
+  final ValueChanged<CatalogItem> onSelectItem;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ownedByItemId = ref.watch(collectionByCatalogItemProvider);
+    final wishlistIds = _watchWishlistIds(ref);
+    return _ComicList(
+      items: items,
+      ownedByItemId: ownedByItemId,
+      wishlistIds: wishlistIds,
+      selectedItemId: selectedItemId,
+      onSelectItem: onSelectItem,
+    );
+  }
+}
+
+class _ComicList extends StatelessWidget {
+  const _ComicList({
+    required this.items,
+    required this.ownedByItemId,
+    required this.wishlistIds,
+    required this.selectedItemId,
+    required this.onSelectItem,
+  });
+
+  final List<CatalogItem> items;
+  final Map<String, OwnedItem> ownedByItemId;
+  final Set<String> wishlistIds;
+  final String? selectedItemId;
+  final ValueChanged<CatalogItem> onSelectItem;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const _EmptyState();
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(12),
+      itemCount: items.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        final libraryState = _LibraryState(
+          ownedItem: ownedByItemId[item.id],
+          isWishlisted: wishlistIds.contains(item.id),
+        );
+        return _ComicListRow(
+          item: item,
+          libraryState: libraryState,
+          selected: item.id == selectedItemId,
+          onTap: () => onSelectItem(item),
+        );
+      },
+    );
+  }
+}
+
+class _ComicListRow extends StatelessWidget {
+  const _ComicListRow({
+    required this.item,
+    required this.libraryState,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final CatalogItem item;
+  final _LibraryState libraryState;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final ownedItem = libraryState.ownedItem;
+    return Material(
+      color: selected ? colorScheme.primaryContainer : colorScheme.surface,
+      borderRadius: BorderRadius.circular(6),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          height: 96,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color:
+                  selected ? colorScheme.primary : colorScheme.outlineVariant,
+              width: selected ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              AspectRatio(
+                aspectRatio: 2 / 3,
+                child: _CoverImage(item: item),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      item.itemNumber == null
+                          ? item.title
+                          : '${item.title} #${item.itemNumber}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleSmall,
+                    ),
+                    if (item.synopsis != null) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        item.synopsis!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.bodySmall,
+                      ),
+                    ],
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        if (libraryState.isOwned)
+                          _StatusPill(
+                            icon: Icons.inventory_2,
+                            label: ownedItem?.grade == null
+                                ? 'Owned'
+                                : 'Owned ${ownedItem!.grade}',
+                          ),
+                        if (libraryState.isWishlisted)
+                          const _StatusPill(
+                            icon: Icons.star,
+                            label: 'Wishlist',
+                          ),
+                        if (!libraryState.isOwned && !libraryState.isWishlisted)
+                          const _StatusPill(
+                            icon: Icons.library_add,
+                            label: 'Catalog',
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (selected)
+                Icon(Icons.check_circle, color: colorScheme.primary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 13, color: colorScheme.onSurfaceVariant),
+            const SizedBox(width: 4),
+            Text(label, style: Theme.of(context).textTheme.labelSmall),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _CoverTile extends StatelessWidget {
   const _CoverTile({
     required this.item,
@@ -523,7 +759,7 @@ class _CoverTile extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _CoverImage(url: item.coverImageUrl),
+                  _CoverImage(item: item),
                   Positioned(
                     left: 4,
                     top: 4,
@@ -612,37 +848,110 @@ class _CoverBadge extends StatelessWidget {
 }
 
 class _CoverImage extends StatelessWidget {
-  const _CoverImage({required this.url});
+  const _CoverImage({required this.item});
 
-  final String? url;
+  final CatalogItem item;
 
   @override
   Widget build(BuildContext context) {
-    final placeholder = DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Center(child: Icon(Icons.menu_book, size: 36)),
-    );
-    if (url == null || url!.isEmpty) {
+    final placeholder = _GeneratedCover(item: item);
+    final url = item.coverImageUrl;
+    if (url == null || url.isEmpty) {
       return placeholder;
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
-      child: Image.network(
-        url!,
+      child: CachedNetworkImage(
+        imageUrl: url,
         fit: BoxFit.cover,
-        cacheWidth: 300,
         filterQuality: FilterQuality.medium,
-        gaplessPlayback: true,
-        errorBuilder: (_, __, ___) => placeholder,
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) {
-            return child;
-          }
-          return placeholder;
-        },
+        placeholder: (_, __) => placeholder,
+        errorWidget: (_, __, ___) => placeholder,
+      ),
+    );
+  }
+}
+
+class _GeneratedCover extends StatelessWidget {
+  const _GeneratedCover({required this.item});
+
+  final CatalogItem item;
+
+  static const _palettes = [
+    (Color(0xFF145DA0), Color(0xFFB1D4E0), Color(0xFFFFFFFF)),
+    (Color(0xFFB22222), Color(0xFFFFD166), Color(0xFFFFFFFF)),
+    (Color(0xFF2D6A4F), Color(0xFF95D5B2), Color(0xFFFFFFFF)),
+    (Color(0xFF3D348B), Color(0xFFF7B801), Color(0xFFFFFFFF)),
+    (Color(0xFF22223B), Color(0xFFC9ADA7), Color(0xFFFFFFFF)),
+    (Color(0xFF7F5539), Color(0xFFE6CCB2), Color(0xFF201A16)),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = _palettes[item.title.hashCode.abs() % _palettes.length];
+    final title = item.title.replaceAll(', Vol.', '\nVol.');
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: palette.$1),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: Container(height: 18, color: palette.$2),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(height: 28, color: const Color(0x33000000)),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 24, 8, 34),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: 86,
+                  child: Text(
+                    title,
+                    maxLines: 4,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: palette.$3,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      height: 0.95,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (item.itemNumber != null)
+              Positioned(
+                right: 6,
+                bottom: 6,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: palette.$2,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    child: Text(
+                      '#${item.itemNumber}',
+                      style: TextStyle(
+                        color: palette.$3 == const Color(0xFFFFFFFF)
+                            ? const Color(0xFF1D1D1D)
+                            : palette.$3,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -739,7 +1048,7 @@ class _ComicInspector extends ConsumerWidget {
           const SizedBox(height: 16),
           AspectRatio(
             aspectRatio: 2 / 3,
-            child: _CoverImage(url: item!.coverImageUrl),
+            child: _CoverImage(item: item!),
           ),
           const SizedBox(height: 16),
           Wrap(

@@ -65,6 +65,12 @@ void main() {
     expect(find.text('Remove'), findsOneWidget);
     expect(find.text('Move to wishlist'), findsOneWidget);
     expect(find.byTooltip('Grid view'), findsOneWidget);
+    expect(find.byTooltip('List view'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('List view'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Catalog'), findsOneWidget);
   });
 
   testWidgets('compact comics page keeps scan and metadata refresh actions',
