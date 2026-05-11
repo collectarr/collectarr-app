@@ -827,7 +827,11 @@ class _ComicsWorkspace extends StatelessWidget {
           onBulkMoveToWishlist: onBulkMoveToWishlist,
           onBulkRemove: onBulkRemove,
         ),
-        _ComicsStatsBar(state: shelfState),
+        _ComicsStatsBar(
+          state: shelfState,
+          selectedSeries: selectedSeries,
+          missingIssues: missingIssues,
+        ),
         Expanded(
           child: Row(
             children: [
@@ -1384,15 +1388,22 @@ class _ComicsToolbar extends StatelessWidget {
 }
 
 class _ComicsStatsBar extends StatelessWidget {
-  const _ComicsStatsBar({required this.state});
+  const _ComicsStatsBar({
+    required this.state,
+    required this.selectedSeries,
+    required this.missingIssues,
+  });
 
   final ShelfState state;
+  final String? selectedSeries;
+  final List<int> missingIssues;
 
   @override
   Widget build(BuildContext context) {
     final value = state.totalPaidCents == null
         ? '-'
         : _formatOptionalMoney(state.totalPaidCents, state.primaryCurrency);
+    final missingMetadataCount = _missingMetadataCount(state.entries);
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: Color(0xFF181818),
@@ -1400,38 +1411,78 @@ class _ComicsStatsBar extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StatsTile(
-              icon: Icons.menu_book,
-              label: 'Local comics',
-              value: state.entries.length.toString(),
-            ),
-            _StatsTile(
-              icon: Icons.check_box,
-              label: 'Owned',
-              value: state.ownedCount.toString(),
-            ),
-            _StatsTile(
-              icon: Icons.star,
-              label: 'Wishlist',
-              value: state.wishlistCount.toString(),
-            ),
-            _StatsTile(
-              icon: Icons.attach_money,
-              label: 'Value',
-              value: state.hasMixedCurrencies ? '$value +' : value,
-            ),
-            _StatsTile(
-              icon: Icons.workspace_premium,
-              label: 'Graded',
-              value: '${state.ownedCount - state.missingGradeCount}',
-            ),
-            _StatsTile(
-              icon: Icons.report_gmailerrorred,
-              label: 'Missing grade',
-              value: state.missingGradeCount.toString(),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    _StatsTile(
+                      icon: Icons.menu_book,
+                      label: 'Local comics',
+                      value: state.entries.length.toString(),
+                    ),
+                    _StatsTile(
+                      icon: Icons.check_box,
+                      label: 'Owned',
+                      value: state.ownedCount.toString(),
+                    ),
+                    _StatsTile(
+                      icon: Icons.star,
+                      label: 'Wishlist',
+                      value: state.wishlistCount.toString(),
+                    ),
+                    _StatsTile(
+                      icon: Icons.attach_money,
+                      label: 'Value',
+                      value: state.hasMixedCurrencies ? '$value +' : value,
+                    ),
+                    _StatsTile(
+                      icon: Icons.workspace_premium,
+                      label: 'Graded',
+                      value: '${state.ownedCount - state.missingGradeCount}',
+                    ),
+                    _StatsTile(
+                      icon: Icons.report_gmailerrorred,
+                      label: 'Missing grade',
+                      value: state.missingGradeCount.toString(),
+                    ),
+                    _StatsTile(
+                      icon: Icons.cloud_off,
+                      label: 'Missing metadata',
+                      value: missingMetadataCount.toString(),
+                    ),
+                    _StatsTile(
+                      icon: Icons.format_list_numbered,
+                      label: selectedSeries == null
+                          ? 'Missing issues'
+                          : 'Missing in series',
+                      value: missingIssues.length.toString(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 7),
+                Row(
+                  children: [
+                    _StatsDistributionCard(
+                      title: 'Grades',
+                      values: state.gradeCounts,
+                    ),
+                    const SizedBox(width: 8),
+                    _StatsDistributionCard(
+                      title: 'Conditions',
+                      values: state.conditionCounts,
+                    ),
+                    const SizedBox(width: 8),
+                    _MissingIssuesCard(
+                      selectedSeries: selectedSeries,
+                      missingIssues: missingIssues,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -1487,6 +1538,223 @@ class _StatsTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _StatsDistributionCard extends StatelessWidget {
+  const _StatsDistributionCard({
+    required this.title,
+    required this.values,
+  });
+
+  final String title;
+  final Map<String, int> values;
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = values.entries.toList(growable: false)
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final total = entries.fold<int>(0, (sum, entry) => sum + entry.value);
+    return Container(
+      width: 260,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF242424),
+        border: Border.all(color: const Color(0xFF383838)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: _kClzAccent,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (entries.isEmpty)
+            const Text(
+              '-',
+              style: TextStyle(color: _kClzTextMuted),
+            )
+          else
+            for (final entry in entries.take(4))
+              _DistributionRow(
+                label: entry.key,
+                count: entry.value,
+                fraction: total == 0 ? 0 : entry.value / total,
+              ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DistributionRow extends StatelessWidget {
+  const _DistributionRow({
+    required this.label,
+    required this.count,
+    required this.fraction,
+  });
+
+  final String label;
+  final int count;
+  final double fraction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 74,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: fraction.clamp(0, 1),
+                minHeight: 7,
+                backgroundColor: const Color(0xFF151515),
+                valueColor: const AlwaysStoppedAnimation(_kClzAccent),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 24,
+            child: Text(
+              count.toString(),
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                color: _kClzTextMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MissingIssuesCard extends StatelessWidget {
+  const _MissingIssuesCard({
+    required this.selectedSeries,
+    required this.missingIssues,
+  });
+
+  final String? selectedSeries;
+  final List<int> missingIssues;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 260,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF242424),
+        border: Border.all(color: const Color(0xFF383838)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            selectedSeries == null ? 'Series gaps' : 'Gaps: $selectedSeries',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: _kClzAccent,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (selectedSeries == null)
+            const Text(
+              'Select a series',
+              style: TextStyle(color: _kClzTextMuted, fontSize: 12),
+            )
+          else if (missingIssues.isEmpty)
+            const Text(
+              'No gaps',
+              style: TextStyle(color: _kClzTextMuted, fontSize: 12),
+            )
+          else
+            Wrap(
+              spacing: 5,
+              runSpacing: 5,
+              children: [
+                for (final issue in missingIssues.take(10))
+                  _MissingIssuePill(issue: issue),
+                if (missingIssues.length > 10)
+                  _MissingIssuePill(
+                      issue: missingIssues.length - 10, more: true),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MissingIssuePill extends StatelessWidget {
+  const _MissingIssuePill({required this.issue, this.more = false});
+
+  final int issue;
+  final bool more;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF151515),
+        border: Border.all(color: _kClzAccent),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        child: Text(
+          more ? '+$issue' : '#$issue',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+int _missingMetadataCount(List<ShelfEntry> entries) {
+  var count = 0;
+  for (final entry in entries) {
+    final item = entry.catalogItem;
+    if (item == null ||
+        item.displayCoverUrl == null ||
+        item.publisher == null ||
+        item.releaseDate == null ||
+        item.synopsis == null) {
+      count++;
+    }
+  }
+  return count;
 }
 
 class _ColumnChooserDialog extends StatefulWidget {
@@ -3366,22 +3634,7 @@ class _ComicInspector extends ConsumerWidget {
                           grade: value,
                         ),
               ),
-              if (ownedItem != null) ...[
-                const SizedBox(height: 12),
-                _PersonalDetailsEditor(ownedItem: ownedItem),
-              ],
-              if (item!.synopsis != null) ...[
-                const SizedBox(height: 12),
-                _InspectorSection(
-                  title: 'Plot',
-                  children: [
-                    Text(
-                      item!.synopsis!,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ],
+              const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
@@ -3446,6 +3699,22 @@ class _ComicInspector extends ConsumerWidget {
                     ),
                   ],
                 ),
+              if (ownedItem != null) ...[
+                const SizedBox(height: 12),
+                _PersonalDetailsEditor(ownedItem: ownedItem),
+              ],
+              if (item!.synopsis != null) ...[
+                const SizedBox(height: 12),
+                _InspectorSection(
+                  title: 'Plot',
+                  children: [
+                    Text(
+                      item!.synopsis!,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 16),
               _RichMetadataInspector(
                 item: item!,

@@ -618,9 +618,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Gap Series').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.format_list_numbered));
+    await tester.tap(find.byTooltip('Missing issues'));
     await tester.pumpAndSettle();
 
-    expect(find.text('#2'), findsOneWidget);
+    expect(find.text('#2'), findsWidgets);
   });
 }
