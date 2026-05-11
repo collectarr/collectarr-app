@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,24 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Shelf')),
+      appBar: AppBar(
+        title: const Text('Shelf'),
+        actions: [
+          IconButton(
+            tooltip: 'Import CSV',
+            onPressed: _showImportDialog,
+            icon: const Icon(Icons.upload_file),
+          ),
+          IconButton(
+            tooltip: 'Export CSV',
+            onPressed: shelf.maybeWhen(
+              data: (state) => () => _showExportDialog(state.entries),
+              orElse: () => null,
+            ),
+            icon: const Icon(Icons.download),
+          ),
+        ],
+      ),
       body: shelf.when(
         data: (state) {
           final entries = _filteredEntries(state.entries);
@@ -92,6 +110,87 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         .read(collectionMutationsProvider)
         .removeFromWishlist(entry.itemId);
     ref.invalidate(shelfProvider);
+  }
+
+  Future<void> _showExportDialog(List<ShelfEntry> entries) async {
+    final csv = CollectionCsv().exportShelf(entries);
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export CSV'),
+        content: SizedBox(
+          width: 720,
+          child: SelectableText(csv),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showImportDialog() async {
+    final controller = TextEditingController();
+    final csv = CollectionCsv();
+    final imported = await showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Import CSV'),
+        content: SizedBox(
+          width: 720,
+          child: TextField(
+            controller: controller,
+            minLines: 10,
+            maxLines: 18,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final rows = csv.parse(controller.text);
+              final mutations = ref.read(collectionMutationsProvider);
+              for (final row in rows) {
+                if (row.isOwned) {
+                  await mutations.addItem(
+                    row.itemId,
+                    condition: row.condition,
+                    grade: row.grade,
+                    purchaseDate: row.purchaseDate,
+                    pricePaidCents: row.pricePaidCents,
+                    currency: row.currency,
+                    personalNotes: row.notes,
+                  );
+                }
+                if (row.isWishlisted) {
+                  await mutations.addToWishlist(row.itemId);
+                }
+              }
+              if (context.mounted) {
+                Navigator.of(context).pop(rows.length);
+              }
+            },
+            child: const Text('Import'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (imported != null && mounted) {
+      ref.invalidate(shelfProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Imported $imported CSV rows')),
+      );
+    }
   }
 }
 
