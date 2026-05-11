@@ -67,4 +67,29 @@ void main() {
     await queue.deleteMany(['sync-1']);
     expect(await queue.pendingCount(), 0);
   });
+
+  test('deletes large sync queue batches without exceeding SQLite variables',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final queue = SyncQueueRepository(db);
+    final ids = [for (var index = 0; index < 1005; index++) 'sync-$index'];
+
+    for (final id in ids) {
+      await queue.enqueue(
+        SyncChange(
+          id: id,
+          entityType: 'owned_item',
+          entityId: 'owned-$id',
+          action: 'upsert',
+          payload: const {'item_id': 'comic-1'},
+          clientChangedAt: DateTime.utc(2026, 5, 11),
+        ),
+      );
+    }
+
+    expect(await queue.pendingCount(), 1005);
+    await queue.deleteMany(ids);
+    expect(await queue.pendingCount(), 0);
+  });
 }

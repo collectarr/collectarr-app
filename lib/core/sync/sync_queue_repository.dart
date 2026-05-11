@@ -7,6 +7,8 @@ import 'package:drift/drift.dart';
 class SyncQueueRepository {
   const SyncQueueRepository(this._db);
 
+  static const _deleteBatchSize = 500;
+
   final LocalDatabase _db;
 
   Future<int> pendingCount() async {
@@ -42,7 +44,12 @@ class SyncQueueRepository {
     if (values.isEmpty) {
       return;
     }
-    await (_db.delete(_db.syncQueue)..where((row) => row.id.isIn(values))).go();
+    for (var index = 0; index < values.length; index += _deleteBatchSize) {
+      final end = (index + _deleteBatchSize).clamp(0, values.length);
+      final batch = values.sublist(index, end);
+      await (_db.delete(_db.syncQueue)..where((row) => row.id.isIn(batch)))
+          .go();
+    }
   }
 
   SyncChange _fromRow(SyncQueueData row) {
