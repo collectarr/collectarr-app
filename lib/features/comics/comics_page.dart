@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/comics/owned_comic_edit_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
+import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
@@ -5630,19 +5631,19 @@ class _AddComicModeBar extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        _AddModeTab(
+                        LibraryAddModeTab(
                           icon: Icons.menu_book,
                           label: 'Series',
                           selected: mode == LibraryAddMode.search,
                           onTap: () => onModeChanged(LibraryAddMode.search),
                         ),
-                        _AddModeTab(
+                        LibraryAddModeTab(
                           icon: Icons.qr_code_2,
                           label: 'Barcode',
                           selected: mode == LibraryAddMode.barcode,
                           onTap: () => onModeChanged(LibraryAddMode.barcode),
                         ),
-                        _AddModeTab(
+                        LibraryAddModeTab(
                           icon: Icons.star,
                           label: 'Pull List',
                           selected: mode == LibraryAddMode.pullList,
@@ -5867,44 +5868,6 @@ class _FilterField extends StatelessWidget {
           fillColor: const Color(0xFF4A4A4A),
           border: const OutlineInputBorder(),
           labelText: label,
-        ),
-      ),
-    );
-  }
-}
-
-class _AddModeTab extends StatelessWidget {
-  const _AddModeTab({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.selected = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFF202020) : const Color(0xFF444444),
-          border: const Border(
-            right: BorderSide(color: Color(0xFF1A1A1A)),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 16, color: const Color(0xFF18B7EB)),
-            const SizedBox(width: 6),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-          ],
         ),
       ),
     );
