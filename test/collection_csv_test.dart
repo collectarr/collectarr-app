@@ -66,4 +66,18 @@ void main() {
     expect(rows.single.readStatus, 'Read');
     expect(rows.single.tags, 'spider,key');
   });
+
+  test('collection csv parses quoted newlines', () {
+    final rows = CollectionCsv().parse(
+      [
+        CollectionCsv.header.join(','),
+        'comic-1,Title,1,owned,,,,,,'
+            '"Line one\nLine two with ""quote"""',
+      ].join('\n'),
+    );
+
+    expect(rows, hasLength(1));
+    expect(rows.single.itemId, 'comic-1');
+    expect(rows.single.notes, 'Line one\nLine two with "quote"');
+  });
 }

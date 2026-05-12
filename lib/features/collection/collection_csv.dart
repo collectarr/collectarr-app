@@ -1,3 +1,4 @@
+import 'package:csv/csv.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 
 class CollectionCsvRow {
@@ -108,23 +109,27 @@ class CollectionCsv {
           entry.ownedItem?.tags ?? '',
         ],
     ];
-    return rows.map((row) => row.map(_escape).join(',')).join('\n');
+    return const CsvEncoder(lineDelimiter: '\n').convert(rows);
   }
 
   List<CollectionCsvRow> parse(String csv) {
-    final lines = csv
-        .split(RegExp(r'\r?\n'))
-        .where((line) => line.trim().isNotEmpty)
-        .toList(growable: false);
-    if (lines.length <= 1) {
+    final rows = const CsvDecoder(
+      fieldDelimiter: ',',
+      dynamicTyping: false,
+    ).convert(csv);
+    if (rows.length <= 1) {
       return const [];
     }
-    final parsedHeader = _parseLine(lines.first);
+    final parsedHeader = rows.first.map(_cellValue).toList(growable: false);
+    if (parsedHeader.isNotEmpty) {
+      parsedHeader[0] = parsedHeader[0].replaceFirst('\ufeff', '');
+    }
     final index = {
       for (var i = 0; i < parsedHeader.length; i++) parsedHeader[i]: i,
     };
     return [
-      for (final line in lines.skip(1)) _rowFromValues(index, _parseLine(line)),
+      for (final row in rows.skip(1))
+        _rowFromValues(index, row.map(_cellValue).toList(growable: false)),
     ].where((row) => row.itemId.isNotEmpty).toList(growable: false);
   }
 
@@ -186,34 +191,5 @@ class CollectionCsv {
     };
   }
 
-  String _escape(String value) {
-    if (!value.contains(RegExp('[",\n\r]'))) {
-      return value;
-    }
-    return '"${value.replaceAll('"', '""')}"';
-  }
-
-  List<String> _parseLine(String line) {
-    final values = <String>[];
-    final buffer = StringBuffer();
-    var quoted = false;
-    for (var i = 0; i < line.length; i++) {
-      final char = line[i];
-      if (char == '"') {
-        if (quoted && i + 1 < line.length && line[i + 1] == '"') {
-          buffer.write('"');
-          i++;
-        } else {
-          quoted = !quoted;
-        }
-      } else if (char == ',' && !quoted) {
-        values.add(buffer.toString());
-        buffer.clear();
-      } else {
-        buffer.write(char);
-      }
-    }
-    values.add(buffer.toString());
-    return values;
-  }
+  String _cellValue(dynamic value) => value?.toString() ?? '';
 }
