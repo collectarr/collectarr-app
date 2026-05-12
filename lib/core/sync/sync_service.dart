@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
@@ -8,12 +9,14 @@ import 'package:collectarr_app/features/collection/wishlist_items_cache_reposito
 class SyncService {
   const SyncService({
     required this.client,
+    required this.db,
     required this.queue,
     required this.ownedItems,
     required this.wishlistItems,
   });
 
   final CollectarrSyncClient client;
+  final LocalDatabase db;
   final SyncQueueRepository queue;
   final OwnedItemsCacheRepository ownedItems;
   final WishlistItemsCacheRepository wishlistItems;
@@ -48,8 +51,10 @@ class SyncService {
         wishlist.add(_wishlistItemFromEntity(entity));
       }
     }
-    await ownedItems.upsertAll(owned);
-    await wishlistItems.upsertAll(wishlist);
+    await db.transaction(() async {
+      await ownedItems.upsertAll(owned);
+      await wishlistItems.upsertAll(wishlist);
+    });
   }
 
   OwnedItem _ownedItemFromEntity(Map<String, dynamic> entity) {

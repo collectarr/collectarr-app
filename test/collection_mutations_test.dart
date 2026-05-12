@@ -110,4 +110,31 @@ void main() {
     expect(queued, hasLength(2));
     expect(container.read(syncControllerProvider).pendingCount, 2);
   });
+
+  test('collection import moves existing wishlist rows to owned in one batch',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    final mutations = container.read(collectionMutationsProvider);
+
+    await mutations.addToWishlist('comic-1');
+    await mutations.importRows([
+      const CollectionCsvRow(itemId: 'comic-1', status: 'owned'),
+    ]);
+
+    final owned = await db.select(db.ownedItemsCache).get();
+    final wishlist = await db.select(db.wishlistItemsCache).get();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(owned, hasLength(1));
+    expect(wishlist.single.deletedAt, isNotNull);
+    expect(queued, hasLength(2));
+    expect(
+        queued.where((row) => row.entityType == 'wishlist_item').single.action,
+        'delete');
+  });
 }

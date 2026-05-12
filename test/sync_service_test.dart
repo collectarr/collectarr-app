@@ -17,6 +17,7 @@ void main() {
 
     final serverTime = await SyncService(
       client: client,
+      db: db,
       queue: SyncQueueRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),

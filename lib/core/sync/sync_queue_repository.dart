@@ -26,17 +26,20 @@ class SyncQueueRepository {
   }
 
   Future<void> enqueue(SyncChange change) {
-    return _db.into(_db.syncQueue).insert(
-          SyncQueueCompanion.insert(
-            id: change.id,
-            entityType: change.entityType,
-            entityId: change.entityId,
-            action: change.action,
-            payloadJson: change.payloadJson,
-            clientChangedAt: change.clientChangedAt,
-          ),
-          mode: InsertMode.insertOrReplace,
-        );
+    return enqueueAll([change]);
+  }
+
+  Future<void> enqueueAll(List<SyncChange> changes) async {
+    if (changes.isEmpty) {
+      return;
+    }
+    await _db.batch((batch) {
+      batch.insertAll(
+        _db.syncQueue,
+        changes.map(_toCompanion),
+        mode: InsertMode.insertOrReplace,
+      );
+    });
   }
 
   Future<void> deleteMany(Iterable<String> ids) async {
@@ -60,6 +63,17 @@ class SyncQueueRepository {
       action: row.action,
       payload: (jsonDecode(row.payloadJson) as Map).cast<String, dynamic>(),
       clientChangedAt: row.clientChangedAt,
+    );
+  }
+
+  SyncQueueCompanion _toCompanion(SyncChange change) {
+    return SyncQueueCompanion.insert(
+      id: change.id,
+      entityType: change.entityType,
+      entityId: change.entityId,
+      action: change.action,
+      payloadJson: change.payloadJson,
+      clientChangedAt: change.clientChangedAt,
     );
   }
 }

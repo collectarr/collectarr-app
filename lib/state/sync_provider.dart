@@ -74,6 +74,7 @@ class SyncController extends StateNotifier<SyncState> {
           baseUrl: settings.syncBaseUrl,
           syncKey: settings.syncKey,
         ),
+        db: db,
         queue: SyncQueueRepository(db),
         ownedItems: OwnedItemsCacheRepository(db),
         wishlistItems: WishlistItemsCacheRepository(db),

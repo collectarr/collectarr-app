@@ -205,47 +205,130 @@ class CollectionMutations {
   }
 
   Future<int> importRows(List<CollectionCsvRow> rows) async {
+    if (rows.isEmpty) {
+      return 0;
+    }
+    final db = ref.read(localDatabaseProvider);
+    final ownedCache = _ownedCache();
+    final wishlistCache = _wishlistCache();
+    final syncQueue = _syncQueue();
+    final now = DateTime.now().toUtc();
+    final existingWishlist = {
+      for (final item in await wishlistCache.findActiveByItemIds(
+        rows.map((row) => row.itemId),
+      ))
+        item.itemId: item,
+    };
+    final activeWishlistItemIds = existingWishlist.keys.toSet();
+    final ownedItems = <OwnedItem>[];
+    final wishlistDeletes = <WishlistItem>[];
+    final wishlistUpserts = <WishlistItem>[];
+    final syncChanges = <SyncChange>[];
     var imported = 0;
+
     for (final row in rows) {
-      var changed = false;
+      if (!row.isOwned && !row.isWishlisted) {
+        continue;
+      }
+      imported++;
+      final existingWishlistItem = existingWishlist[row.itemId];
       if (row.isOwned) {
-        await addItem(
-          row.itemId,
-          condition: row.condition,
-          grade: row.grade,
-          purchaseDate: row.purchaseDate,
-          pricePaidCents: row.pricePaidCents,
-          currency: row.currency,
-          personalNotes: row.notes,
-          quantity: row.quantity ?? 1,
-          storageBox: row.storageBox,
-          indexNumber: row.indexNumber,
-          coverPriceCents: row.coverPriceCents,
-          rawOrSlabbed: row.rawOrSlabbed,
-          gradingCompany: row.gradingCompany,
-          graderNotes: row.graderNotes,
-          signedBy: row.signedBy,
-          keyComic: row.keyComic,
-          keyReason: row.keyReason,
-          rating: row.rating,
-          readStatus: row.readStatus,
-          tags: row.tags,
-          notify: false,
+        final ownedItem = _ownedItemFromCsvRow(row, now);
+        ownedItems.add(ownedItem);
+        syncChanges.add(_syncChangeForOwnedItem(ownedItem, 'upsert', now));
+        if (existingWishlistItem != null &&
+            activeWishlistItemIds.contains(row.itemId)) {
+          final deleted = existingWishlistItem.copyWith(
+            updatedAt: now,
+            deletedAt: now,
+          );
+          wishlistDeletes.add(deleted);
+          syncChanges.add(_syncChangeForWishlistItem(deleted, 'delete', now));
+          activeWishlistItemIds.remove(row.itemId);
+        }
+      }
+      if (row.isWishlisted && !activeWishlistItemIds.contains(row.itemId)) {
+        final wishlistItem = WishlistItem(
+          id: _uuid.v4(),
+          itemId: row.itemId,
+          createdAt: now,
+          updatedAt: now,
         );
-        changed = true;
-      }
-      if (row.isWishlisted) {
-        await addToWishlist(row.itemId, notify: false);
-        changed = true;
-      }
-      if (changed) {
-        imported++;
+        wishlistUpserts.add(wishlistItem);
+        syncChanges
+            .add(_syncChangeForWishlistItem(wishlistItem, 'upsert', now));
+        activeWishlistItemIds.add(row.itemId);
       }
     }
-    if (imported > 0) {
-      await _notifyCollectionChanged(wishlistChanged: true);
+
+    if (imported == 0) {
+      return 0;
     }
+    await db.transaction(() async {
+      await ownedCache.upsertAll(ownedItems);
+      await wishlistCache.markDeletedAll(wishlistDeletes, now);
+      await wishlistCache.upsertAll(wishlistUpserts);
+      await syncQueue.enqueueAll(syncChanges);
+    });
+    await _notifyCollectionChanged(wishlistChanged: true);
     return imported;
+  }
+
+  OwnedItem _ownedItemFromCsvRow(CollectionCsvRow row, DateTime now) {
+    return OwnedItem(
+      id: _uuid.v4(),
+      itemId: row.itemId,
+      condition: row.condition,
+      grade: row.grade,
+      purchaseDate: row.purchaseDate,
+      pricePaidCents: row.pricePaidCents,
+      currency: row.currency,
+      personalNotes: row.notes,
+      quantity: row.quantity ?? 1,
+      storageBox: row.storageBox,
+      indexNumber: row.indexNumber,
+      coverPriceCents: row.coverPriceCents,
+      rawOrSlabbed: row.rawOrSlabbed,
+      gradingCompany: row.gradingCompany,
+      graderNotes: row.graderNotes,
+      signedBy: row.signedBy,
+      keyComic: row.keyComic,
+      keyReason: row.keyReason,
+      rating: row.rating,
+      readStatus: row.readStatus,
+      tags: row.tags,
+      updatedAt: now,
+    );
+  }
+
+  SyncChange _syncChangeForOwnedItem(
+    OwnedItem item,
+    String action,
+    DateTime changedAt,
+  ) {
+    return SyncChange(
+      id: _uuid.v4(),
+      entityType: 'owned_item',
+      entityId: item.id,
+      action: action,
+      payload: item.toSyncPayload(),
+      clientChangedAt: changedAt,
+    );
+  }
+
+  SyncChange _syncChangeForWishlistItem(
+    WishlistItem item,
+    String action,
+    DateTime changedAt,
+  ) {
+    return SyncChange(
+      id: _uuid.v4(),
+      entityType: 'wishlist_item',
+      entityId: item.id,
+      action: action,
+      payload: item.toSyncPayload(),
+      clientChangedAt: changedAt,
+    );
   }
 
   Future<void> _notifyCollectionChanged({bool wishlistChanged = false}) async {
