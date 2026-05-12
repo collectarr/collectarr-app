@@ -23,9 +23,11 @@ void main() {
     ).syncNow('android', since: since);
 
     final row = await db.select(db.ownedItemsCache).getSingle();
+    final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     expect(client.lastPullSince, since);
     expect(serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(row.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
+    expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
   });
 }
 
@@ -66,6 +68,15 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'client_changed_at': '2026-05-12T08:00:00.000Z',
           'changed_at': '2026-05-12T09:00:00.000Z',
           'payload': {'item_id': 'comic-1'},
+        },
+        {
+          'entity_type': 'wishlist_item',
+          'entity_id': 'wish-1',
+          'action': 'delete',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T08:30:00.000Z',
+          'changed_at': '2026-05-12T09:00:00.000Z',
+          'payload': {'item_id': 'comic-2'},
         },
       ],
       'changes': [],

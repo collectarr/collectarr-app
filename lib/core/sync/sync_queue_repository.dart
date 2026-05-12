@@ -26,17 +26,26 @@ class SyncQueueRepository {
   }
 
   Future<void> enqueue(SyncChange change) {
-    return _db.into(_db.syncQueue).insert(
-          SyncQueueCompanion.insert(
-            id: change.id,
-            entityType: change.entityType,
-            entityId: change.entityId,
-            action: change.action,
-            payloadJson: change.payloadJson,
-            clientChangedAt: change.clientChangedAt,
-          ),
-          mode: InsertMode.insertOrReplace,
-        );
+    return _db.transaction(() async {
+      await (_db.delete(_db.syncQueue)
+            ..where(
+              (row) =>
+                  row.entityType.equals(change.entityType) &
+                  row.entityId.equals(change.entityId),
+            ))
+          .go();
+      await _db.into(_db.syncQueue).insert(
+            SyncQueueCompanion.insert(
+              id: change.id,
+              entityType: change.entityType,
+              entityId: change.entityId,
+              action: change.action,
+              payloadJson: change.payloadJson,
+              clientChangedAt: change.clientChangedAt,
+            ),
+            mode: InsertMode.insertOrReplace,
+          );
+    });
   }
 
   Future<void> deleteMany(Iterable<String> ids) async {

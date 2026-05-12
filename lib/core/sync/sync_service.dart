@@ -32,35 +32,57 @@ class SyncService {
     }
 
     final pull = await client.pull(since: since);
-    for (final entity in _entities(pull)) {
-      await _applyEntity(entity);
-    }
+    await _applyEntities(_entities(pull));
     return _serverTime(pull);
   }
 
-  Future<void> _applyEntity(Map<String, dynamic> entity) async {
+  Future<void> _applyEntities(List<Map<String, dynamic>> entities) async {
+    final owned = <OwnedItem>[];
+    final wishlist = <WishlistItem>[];
+    for (final entity in entities) {
+      final type = entity['entity_type'] as String;
+      if (type == 'owned_item') {
+        owned.add(_ownedItemFromEntity(entity));
+      }
+      if (type == 'wishlist_item') {
+        wishlist.add(_wishlistItemFromEntity(entity));
+      }
+    }
+    await ownedItems.upsertAll(owned);
+    await wishlistItems.upsertAll(wishlist);
+  }
+
+  OwnedItem _ownedItemFromEntity(Map<String, dynamic> entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
     final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
-    if (type == 'owned_item') {
-      final item = OwnedItem.fromJson({
-        ...payload,
-        'id': entity['entity_id'],
-        'updated_at': entity['client_changed_at'],
-        'deleted_at': deletedAt,
-      });
-      await ownedItems.upsert(item);
+    if (type != 'owned_item') {
+      throw FormatException('Expected owned_item entity, got $type');
     }
-    if (type == 'wishlist_item') {
-      final item = WishlistItem.fromJson({
-        ...payload,
-        'id': entity['entity_id'],
-        'updated_at': entity['client_changed_at'],
-        'deleted_at': deletedAt,
-      });
-      await wishlistItems.upsert(item);
+    return OwnedItem.fromJson({
+      ...payload,
+      'id': entity['entity_id'],
+      'updated_at': entity['client_changed_at'],
+      'deleted_at': deletedAt,
+    });
+  }
+
+  WishlistItem _wishlistItemFromEntity(Map<String, dynamic> entity) {
+    final type = entity['entity_type'] as String;
+    final action = entity['action'] as String;
+    final payload = _payload(entity);
+    final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
+    if (type != 'wishlist_item') {
+      throw FormatException('Expected wishlist_item entity, got $type');
     }
+    return WishlistItem.fromJson({
+      ...payload,
+      'id': entity['entity_id'],
+      'created_at': payload['created_at'] ?? entity['client_changed_at'],
+      'updated_at': entity['client_changed_at'],
+      'deleted_at': deletedAt,
+    });
   }
 
   Set<String> _acceptedKeys(Map<String, dynamic> response) {

@@ -104,6 +104,38 @@ void main() {
     expect(await queue.pendingCount(), 0);
   });
 
+  test('keeps only latest pending sync change per entity', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final queue = SyncQueueRepository(db);
+
+    await queue.enqueue(
+      SyncChange(
+        id: 'sync-1',
+        entityType: 'owned_item',
+        entityId: 'owned-1',
+        action: 'upsert',
+        payload: const {'item_id': 'comic-1', 'grade': '9.8'},
+        clientChangedAt: DateTime.utc(2026, 5, 11, 10),
+      ),
+    );
+    await queue.enqueue(
+      SyncChange(
+        id: 'sync-2',
+        entityType: 'owned_item',
+        entityId: 'owned-1',
+        action: 'upsert',
+        payload: const {'item_id': 'comic-1', 'grade': '9.6'},
+        clientChangedAt: DateTime.utc(2026, 5, 11, 11),
+      ),
+    );
+
+    expect(await queue.pendingCount(), 1);
+    final pending = await queue.listPending();
+    expect(pending.single.id, 'sync-2');
+    expect(pending.single.payload['grade'], '9.6');
+  });
+
   test('deletes large sync queue batches without exceeding SQLite variables',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());

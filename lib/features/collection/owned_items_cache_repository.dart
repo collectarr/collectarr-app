@@ -28,6 +28,19 @@ class OwnedItemsCacheRepository {
     });
   }
 
+  Future<void> upsertAll(List<OwnedItem> items) async {
+    if (items.isEmpty) {
+      return;
+    }
+    await _db.batch((batch) {
+      batch.insertAll(
+        _db.ownedItemsCache,
+        items.map(_toCompanion),
+        mode: InsertMode.insertOrReplace,
+      );
+    });
+  }
+
   Future<void> upsert(OwnedItem item) {
     return _db.into(_db.ownedItemsCache).insert(
           _toCompanion(item),

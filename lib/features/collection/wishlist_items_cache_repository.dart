@@ -33,6 +33,19 @@ class WishlistItemsCacheRepository {
         );
   }
 
+  Future<void> upsertAll(List<WishlistItem> items) async {
+    if (items.isEmpty) {
+      return;
+    }
+    await _db.batch((batch) {
+      batch.insertAll(
+        _db.wishlistItemsCache,
+        items.map(_toCompanion),
+        mode: InsertMode.insertOrReplace,
+      );
+    });
+  }
+
   Future<void> markDeleted(WishlistItem item, DateTime deletedAt) {
     return _db.into(_db.wishlistItemsCache).insert(
           _toCompanion(
