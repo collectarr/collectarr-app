@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/comics/owned_comic_edit_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
+import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
@@ -6223,7 +6224,7 @@ class _AddSeriesHeader extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w900),
               ),
             ),
-            _AddResultBadge('$count issue${count == 1 ? '' : 's'}'),
+            LibraryAddResultBadge('$count issue${count == 1 ? '' : 's'}'),
           ],
         ),
       ),
@@ -6342,7 +6343,8 @@ class _AddResultRow extends StatelessWidget {
                       spacing: 4,
                       runSpacing: 4,
                       children: [
-                        for (final badge in badges) _AddResultBadge(badge),
+                        for (final badge in badges)
+                          LibraryAddResultBadge(badge),
                       ],
                     ),
                   ],
@@ -6352,29 +6354,6 @@ class _AddResultRow extends StatelessWidget {
             if (trailing.isNotEmpty)
               Text(trailing, style: const TextStyle(color: Color(0xFFBFEFFF))),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AddResultBadge extends StatelessWidget {
-  const _AddResultBadge(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF0E81A6),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
         ),
       ),
     );
