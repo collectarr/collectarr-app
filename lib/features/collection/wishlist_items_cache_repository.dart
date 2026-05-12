@@ -5,6 +5,8 @@ import 'package:drift/drift.dart';
 class WishlistItemsCacheRepository {
   const WishlistItemsCacheRepository(this._db);
 
+  static const _lookupBatchSize = 500;
+
   final LocalDatabase _db;
 
   Future<List<WishlistItem>> listActive() async {
@@ -26,11 +28,44 @@ class WishlistItemsCacheRepository {
     return _fromCache(rows.first);
   }
 
+  Future<List<WishlistItem>> findActiveByItemIds(
+      Iterable<String> itemIds) async {
+    final values = itemIds.toSet().toList(growable: false);
+    if (values.isEmpty) {
+      return const [];
+    }
+    final items = <WishlistItem>[];
+    for (var index = 0; index < values.length; index += _lookupBatchSize) {
+      final end = (index + _lookupBatchSize).clamp(0, values.length);
+      final batch = values.sublist(index, end);
+      final rows = await (_db.select(_db.wishlistItemsCache)
+            ..where(
+              (row) => row.itemId.isIn(batch) & row.deletedAt.isNull(),
+            ))
+          .get();
+      items.addAll(rows.map(_fromCache));
+    }
+    return items;
+  }
+
   Future<void> upsert(WishlistItem item) {
     return _db.into(_db.wishlistItemsCache).insert(
           _toCompanion(item),
           mode: InsertMode.insertOrReplace,
         );
+  }
+
+  Future<void> upsertAll(List<WishlistItem> items) async {
+    if (items.isEmpty) {
+      return;
+    }
+    await _db.batch((batch) {
+      batch.insertAll(
+        _db.wishlistItemsCache,
+        items.map(_toCompanion),
+        mode: InsertMode.insertOrReplace,
+      );
+    });
   }
 
   Future<void> markDeleted(WishlistItem item, DateTime deletedAt) {
@@ -39,6 +74,24 @@ class WishlistItemsCacheRepository {
               item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt)),
           mode: InsertMode.insertOrReplace,
         );
+  }
+
+  Future<void> markDeletedAll(
+      List<WishlistItem> items, DateTime deletedAt) async {
+    if (items.isEmpty) {
+      return;
+    }
+    await _db.batch((batch) {
+      batch.insertAll(
+        _db.wishlistItemsCache,
+        items.map(
+          (item) => _toCompanion(
+            item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt),
+          ),
+        ),
+        mode: InsertMode.insertOrReplace,
+      );
+    });
   }
 
   WishlistItem _fromCache(WishlistItemsCacheData row) {

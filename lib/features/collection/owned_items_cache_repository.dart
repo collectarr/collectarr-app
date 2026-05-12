@@ -28,6 +28,19 @@ class OwnedItemsCacheRepository {
     });
   }
 
+  Future<void> upsertAll(List<OwnedItem> items) async {
+    if (items.isEmpty) {
+      return;
+    }
+    await _db.batch((batch) {
+      batch.insertAll(
+        _db.ownedItemsCache,
+        items.map(_toCompanion),
+        mode: InsertMode.insertOrReplace,
+      );
+    });
+  }
+
   Future<void> upsert(OwnedItem item) {
     return _db.into(_db.ownedItemsCache).insert(
           _toCompanion(item),
@@ -55,6 +68,19 @@ class OwnedItemsCacheRepository {
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
       personalNotes: row.personalNotes,
+      quantity: row.quantity,
+      storageBox: row.storageBox,
+      indexNumber: row.indexNumber,
+      coverPriceCents: row.coverPriceCents,
+      rawOrSlabbed: row.rawOrSlabbed,
+      gradingCompany: row.gradingCompany,
+      graderNotes: row.graderNotes,
+      signedBy: row.signedBy,
+      keyComic: row.keyComic,
+      keyReason: row.keyReason,
+      rating: row.rating,
+      readStatus: row.readStatus,
+      tags: row.tags,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
@@ -72,6 +98,19 @@ class OwnedItemsCacheRepository {
       pricePaidCents: Value(item.pricePaidCents),
       currency: Value(item.currency),
       personalNotes: Value(item.personalNotes),
+      quantity: Value(item.quantity),
+      storageBox: Value(item.storageBox),
+      indexNumber: Value(item.indexNumber),
+      coverPriceCents: Value(item.coverPriceCents),
+      rawOrSlabbed: Value(item.rawOrSlabbed),
+      gradingCompany: Value(item.gradingCompany),
+      graderNotes: Value(item.graderNotes),
+      signedBy: Value(item.signedBy),
+      keyComic: Value(item.keyComic),
+      keyReason: Value(item.keyReason),
+      rating: Value(item.rating),
+      readStatus: Value(item.readStatus),
+      tags: Value(item.tags),
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
     );

@@ -4,4 +4,3 @@ import 'package:drift/native.dart';
 QueryExecutor openConnection() {
   return NativeDatabase.memory();
 }
-

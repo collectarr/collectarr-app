@@ -18,6 +18,8 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.26
   uuid: ^4.5.1
   mobile_scanner: ^6.0.2
+  cached_network_image: ^3.4.1
+  csv: ^8.0.0
 
 dev_dependencies:
   flutter_test:

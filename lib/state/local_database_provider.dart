@@ -6,4 +6,3 @@ final localDatabaseProvider = Provider<LocalDatabase>((ref) {
   ref.onDispose(db.close);
   return db;
 });
-

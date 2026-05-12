@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -20,6 +21,18 @@ final collectionByCatalogItemProvider = Provider<Map<String, OwnedItem>>((ref) {
   );
 });
 
+final wishlistByCatalogItemProvider =
+    Provider<Map<String, WishlistItem>>((ref) {
+  final wishlist = ref.watch(wishlistProvider);
+  return wishlist.maybeWhen(
+    data: (items) => {
+      for (final item in items)
+        if (!item.isDeleted) item.itemId: item,
+    },
+    orElse: () => const {},
+  );
+});
+
 final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
   final cache = WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
   final items = await cache.listActive();
@@ -27,4 +40,9 @@ final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
     for (final item in items)
       if (!item.isDeleted) item.itemId,
   };
+});
+
+final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) async {
+  final cache = WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
+  return cache.listActive();
 });

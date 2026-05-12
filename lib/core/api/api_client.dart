@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
 
 class ApiClient {
@@ -6,8 +7,14 @@ class ApiClient {
 
   final Dio _dio;
 
+  String get baseUrl => _dio.options.baseUrl;
+
   void setToken(String token) {
     _dio.options.headers['Authorization'] = 'Bearer $token';
+  }
+
+  void clearToken() {
+    _dio.options.headers.remove('Authorization');
   }
 
   Future<Map<String, dynamic>> register({
@@ -44,20 +51,107 @@ class ApiClient {
     return data;
   }
 
-  Future<List<Map<String, dynamic>>> search(String query,
-      {String? kind}) async {
+  Future<List<Map<String, dynamic>>> search(
+    String query, {
+    String? kind,
+    String? series,
+    String? issueNumber,
+    String? publisher,
+    int? year,
+    String? barcode,
+    int? limit,
+  }) async {
+    return searchMetadata(
+      MetadataSearchQuery(
+        query: query,
+        kind: kind,
+        series: series,
+        issueNumber: issueNumber,
+        publisher: publisher,
+        year: year,
+        barcode: barcode,
+        limit: limit,
+      ),
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> searchMetadata(
+    MetadataSearchQuery query,
+  ) async {
     final response = await _dio.get<List<dynamic>>(
       '/search',
-      queryParameters: {
-        'q': query,
-        if (kind != null) 'kind': kind,
-      },
+      queryParameters: query.toQueryParameters(),
     );
     return response.data!.cast<Map<String, dynamic>>();
+  }
+
+  Future<List<Map<String, dynamic>>> searchProvider({
+    required String provider,
+    required String query,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/providers/$provider/search',
+      queryParameters: {'q': query},
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data.cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> createMetadataProposal({
+    required String provider,
+    required String query,
+    String? providerItemId,
+    String? title,
+    String? summary,
+    String? imageUrl,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/metadata/proposals',
+      data: {
+        'provider': provider,
+        'query': query,
+        if (providerItemId != null) 'provider_item_id': providerItemId,
+        if (title != null) 'title': title,
+        if (summary != null) 'summary': summary,
+        if (imageUrl != null) 'image_url': imageUrl,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/metadata/proposals returned an empty response body');
+    }
+    return data;
   }
 
   Future<Map<String, dynamic>> getComic(String id) async {
     final response = await _dio.get<Map<String, dynamic>>('/comics/$id');
     return response.data!;
+  }
+
+  Future<Map<String, dynamic>> lookupBarcode(String barcode,
+      {String? kind}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/barcode/${Uri.encodeComponent(MetadataSearchQuery.normalizeBarcode(barcode))}',
+      queryParameters: {
+        if (kind != null) 'kind': kind,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/barcode returned an empty response body');
+    }
+    return data;
+  }
+
+  Future<Map<String, dynamic>> health() async {
+    final response = await _dio.get<Map<String, dynamic>>('/health');
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/health returned an empty response body');
+    }
+    return data;
   }
 }

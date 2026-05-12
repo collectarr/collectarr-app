@@ -14,4 +14,3 @@ class CollectionShelf extends StatelessWidget {
     );
   }
 }
-

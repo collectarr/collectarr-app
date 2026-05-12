@@ -42,6 +42,36 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
       'cover_image_url', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _releaseYearMeta =
+      const VerificationMeta('releaseYear');
+  @override
+  late final GeneratedColumn<int> releaseYear = GeneratedColumn<int>(
+      'release_year', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _barcodeMeta =
+      const VerificationMeta('barcode');
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+      'barcode', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantMeta =
+      const VerificationMeta('variant');
+  @override
+  late final GeneratedColumn<String> variant = GeneratedColumn<String>(
+      'variant', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _cachedAtMeta =
       const VerificationMeta('cachedAt');
   @override
@@ -49,8 +79,20 @@ class $CatalogCacheTable extends CatalogCache
       'cached_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, kind, title, itemNumber, synopsis, coverImageUrl, cachedAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        kind,
+        title,
+        itemNumber,
+        synopsis,
+        coverImageUrl,
+        publisher,
+        releaseDate,
+        releaseYear,
+        barcode,
+        variant,
+        cachedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -94,6 +136,30 @@ class $CatalogCacheTable extends CatalogCache
           coverImageUrl.isAcceptableOrUnknown(
               data['cover_image_url']!, _coverImageUrlMeta));
     }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('release_year')) {
+      context.handle(
+          _releaseYearMeta,
+          releaseYear.isAcceptableOrUnknown(
+              data['release_year']!, _releaseYearMeta));
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(_barcodeMeta,
+          barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta));
+    }
+    if (data.containsKey('variant')) {
+      context.handle(_variantMeta,
+          variant.isAcceptableOrUnknown(data['variant']!, _variantMeta));
+    }
     if (data.containsKey('cached_at')) {
       context.handle(_cachedAtMeta,
           cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta));
@@ -121,6 +187,16 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}synopsis']),
       coverImageUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      releaseYear: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}release_year']),
+      barcode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}barcode']),
+      variant: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant']),
       cachedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}cached_at'])!,
     );
@@ -140,6 +216,11 @@ class CatalogCacheData extends DataClass
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
+  final String? publisher;
+  final DateTime? releaseDate;
+  final int? releaseYear;
+  final String? barcode;
+  final String? variant;
   final DateTime cachedAt;
   const CatalogCacheData(
       {required this.id,
@@ -148,6 +229,11 @@ class CatalogCacheData extends DataClass
       this.itemNumber,
       this.synopsis,
       this.coverImageUrl,
+      this.publisher,
+      this.releaseDate,
+      this.releaseYear,
+      this.barcode,
+      this.variant,
       required this.cachedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -163,6 +249,21 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || coverImageUrl != null) {
       map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || releaseYear != null) {
+      map['release_year'] = Variable<int>(releaseYear);
+    }
+    if (!nullToAbsent || barcode != null) {
+      map['barcode'] = Variable<String>(barcode);
+    }
+    if (!nullToAbsent || variant != null) {
+      map['variant'] = Variable<String>(variant);
     }
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
@@ -182,6 +283,21 @@ class CatalogCacheData extends DataClass
       coverImageUrl: coverImageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(coverImageUrl),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      releaseYear: releaseYear == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseYear),
+      barcode: barcode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(barcode),
+      variant: variant == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variant),
       cachedAt: Value(cachedAt),
     );
   }
@@ -196,6 +312,11 @@ class CatalogCacheData extends DataClass
       itemNumber: serializer.fromJson<String?>(json['itemNumber']),
       synopsis: serializer.fromJson<String?>(json['synopsis']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      releaseYear: serializer.fromJson<int?>(json['releaseYear']),
+      barcode: serializer.fromJson<String?>(json['barcode']),
+      variant: serializer.fromJson<String?>(json['variant']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -209,6 +330,11 @@ class CatalogCacheData extends DataClass
       'itemNumber': serializer.toJson<String?>(itemNumber),
       'synopsis': serializer.toJson<String?>(synopsis),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'publisher': serializer.toJson<String?>(publisher),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'releaseYear': serializer.toJson<int?>(releaseYear),
+      'barcode': serializer.toJson<String?>(barcode),
+      'variant': serializer.toJson<String?>(variant),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -220,6 +346,11 @@ class CatalogCacheData extends DataClass
           Value<String?> itemNumber = const Value.absent(),
           Value<String?> synopsis = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> publisher = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<int?> releaseYear = const Value.absent(),
+          Value<String?> barcode = const Value.absent(),
+          Value<String?> variant = const Value.absent(),
           DateTime? cachedAt}) =>
       CatalogCacheData(
         id: id ?? this.id,
@@ -229,6 +360,11 @@ class CatalogCacheData extends DataClass
         synopsis: synopsis.present ? synopsis.value : this.synopsis,
         coverImageUrl:
             coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        releaseYear: releaseYear.present ? releaseYear.value : this.releaseYear,
+        barcode: barcode.present ? barcode.value : this.barcode,
+        variant: variant.present ? variant.value : this.variant,
         cachedAt: cachedAt ?? this.cachedAt,
       );
   CatalogCacheData copyWithCompanion(CatalogCacheCompanion data) {
@@ -242,6 +378,13 @@ class CatalogCacheData extends DataClass
       coverImageUrl: data.coverImageUrl.present
           ? data.coverImageUrl.value
           : this.coverImageUrl,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      releaseYear:
+          data.releaseYear.present ? data.releaseYear.value : this.releaseYear,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      variant: data.variant.present ? data.variant.value : this.variant,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -255,6 +398,11 @@ class CatalogCacheData extends DataClass
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('publisher: $publisher, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('releaseYear: $releaseYear, ')
+          ..write('barcode: $barcode, ')
+          ..write('variant: $variant, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
@@ -262,7 +410,18 @@ class CatalogCacheData extends DataClass
 
   @override
   int get hashCode => Object.hash(
-      id, kind, title, itemNumber, synopsis, coverImageUrl, cachedAt);
+      id,
+      kind,
+      title,
+      itemNumber,
+      synopsis,
+      coverImageUrl,
+      publisher,
+      releaseDate,
+      releaseYear,
+      barcode,
+      variant,
+      cachedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -273,6 +432,11 @@ class CatalogCacheData extends DataClass
           other.itemNumber == this.itemNumber &&
           other.synopsis == this.synopsis &&
           other.coverImageUrl == this.coverImageUrl &&
+          other.publisher == this.publisher &&
+          other.releaseDate == this.releaseDate &&
+          other.releaseYear == this.releaseYear &&
+          other.barcode == this.barcode &&
+          other.variant == this.variant &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -283,6 +447,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> itemNumber;
   final Value<String?> synopsis;
   final Value<String?> coverImageUrl;
+  final Value<String?> publisher;
+  final Value<DateTime?> releaseDate;
+  final Value<int?> releaseYear;
+  final Value<String?> barcode;
+  final Value<String?> variant;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const CatalogCacheCompanion({
@@ -292,6 +461,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.releaseYear = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.variant = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -302,6 +476,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.releaseYear = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.variant = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -315,6 +494,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? itemNumber,
     Expression<String>? synopsis,
     Expression<String>? coverImageUrl,
+    Expression<String>? publisher,
+    Expression<DateTime>? releaseDate,
+    Expression<int>? releaseYear,
+    Expression<String>? barcode,
+    Expression<String>? variant,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -325,6 +509,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (itemNumber != null) 'item_number': itemNumber,
       if (synopsis != null) 'synopsis': synopsis,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (publisher != null) 'publisher': publisher,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (releaseYear != null) 'release_year': releaseYear,
+      if (barcode != null) 'barcode': barcode,
+      if (variant != null) 'variant': variant,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -337,6 +526,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? itemNumber,
       Value<String?>? synopsis,
       Value<String?>? coverImageUrl,
+      Value<String?>? publisher,
+      Value<DateTime?>? releaseDate,
+      Value<int?>? releaseYear,
+      Value<String?>? barcode,
+      Value<String?>? variant,
       Value<DateTime>? cachedAt,
       Value<int>? rowid}) {
     return CatalogCacheCompanion(
@@ -346,6 +540,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       itemNumber: itemNumber ?? this.itemNumber,
       synopsis: synopsis ?? this.synopsis,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      publisher: publisher ?? this.publisher,
+      releaseDate: releaseDate ?? this.releaseDate,
+      releaseYear: releaseYear ?? this.releaseYear,
+      barcode: barcode ?? this.barcode,
+      variant: variant ?? this.variant,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -372,6 +571,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (coverImageUrl.present) {
       map['cover_image_url'] = Variable<String>(coverImageUrl.value);
     }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (releaseYear.present) {
+      map['release_year'] = Variable<int>(releaseYear.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (variant.present) {
+      map['variant'] = Variable<String>(variant.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -390,6 +604,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('publisher: $publisher, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('releaseYear: $releaseYear, ')
+          ..write('barcode: $barcode, ')
+          ..write('variant: $variant, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -460,6 +679,88 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
       'personal_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _quantityMeta =
+      const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+      'quantity', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _storageBoxMeta =
+      const VerificationMeta('storageBox');
+  @override
+  late final GeneratedColumn<String> storageBox = GeneratedColumn<String>(
+      'storage_box', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _indexNumberMeta =
+      const VerificationMeta('indexNumber');
+  @override
+  late final GeneratedColumn<int> indexNumber = GeneratedColumn<int>(
+      'index_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _coverPriceCentsMeta =
+      const VerificationMeta('coverPriceCents');
+  @override
+  late final GeneratedColumn<int> coverPriceCents = GeneratedColumn<int>(
+      'cover_price_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _rawOrSlabbedMeta =
+      const VerificationMeta('rawOrSlabbed');
+  @override
+  late final GeneratedColumn<String> rawOrSlabbed = GeneratedColumn<String>(
+      'raw_or_slabbed', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gradingCompanyMeta =
+      const VerificationMeta('gradingCompany');
+  @override
+  late final GeneratedColumn<String> gradingCompany = GeneratedColumn<String>(
+      'grading_company', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _graderNotesMeta =
+      const VerificationMeta('graderNotes');
+  @override
+  late final GeneratedColumn<String> graderNotes = GeneratedColumn<String>(
+      'grader_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _signedByMeta =
+      const VerificationMeta('signedBy');
+  @override
+  late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
+      'signed_by', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _keyComicMeta =
+      const VerificationMeta('keyComic');
+  @override
+  late final GeneratedColumn<bool> keyComic = GeneratedColumn<bool>(
+      'key_comic', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("key_comic" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _keyReasonMeta =
+      const VerificationMeta('keyReason');
+  @override
+  late final GeneratedColumn<String> keyReason = GeneratedColumn<String>(
+      'key_reason', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _readStatusMeta =
+      const VerificationMeta('readStatus');
+  @override
+  late final GeneratedColumn<String> readStatus = GeneratedColumn<String>(
+      'read_status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
@@ -484,6 +785,19 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         pricePaidCents,
         currency,
         personalNotes,
+        quantity,
+        storageBox,
+        indexNumber,
+        coverPriceCents,
+        rawOrSlabbed,
+        gradingCompany,
+        graderNotes,
+        signedBy,
+        keyComic,
+        keyReason,
+        rating,
+        readStatus,
+        tags,
         updatedAt,
         deletedAt
       ];
@@ -547,6 +861,72 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           personalNotes.isAcceptableOrUnknown(
               data['personal_notes']!, _personalNotesMeta));
     }
+    if (data.containsKey('quantity')) {
+      context.handle(_quantityMeta,
+          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    }
+    if (data.containsKey('storage_box')) {
+      context.handle(
+          _storageBoxMeta,
+          storageBox.isAcceptableOrUnknown(
+              data['storage_box']!, _storageBoxMeta));
+    }
+    if (data.containsKey('index_number')) {
+      context.handle(
+          _indexNumberMeta,
+          indexNumber.isAcceptableOrUnknown(
+              data['index_number']!, _indexNumberMeta));
+    }
+    if (data.containsKey('cover_price_cents')) {
+      context.handle(
+          _coverPriceCentsMeta,
+          coverPriceCents.isAcceptableOrUnknown(
+              data['cover_price_cents']!, _coverPriceCentsMeta));
+    }
+    if (data.containsKey('raw_or_slabbed')) {
+      context.handle(
+          _rawOrSlabbedMeta,
+          rawOrSlabbed.isAcceptableOrUnknown(
+              data['raw_or_slabbed']!, _rawOrSlabbedMeta));
+    }
+    if (data.containsKey('grading_company')) {
+      context.handle(
+          _gradingCompanyMeta,
+          gradingCompany.isAcceptableOrUnknown(
+              data['grading_company']!, _gradingCompanyMeta));
+    }
+    if (data.containsKey('grader_notes')) {
+      context.handle(
+          _graderNotesMeta,
+          graderNotes.isAcceptableOrUnknown(
+              data['grader_notes']!, _graderNotesMeta));
+    }
+    if (data.containsKey('signed_by')) {
+      context.handle(_signedByMeta,
+          signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
+    }
+    if (data.containsKey('key_comic')) {
+      context.handle(_keyComicMeta,
+          keyComic.isAcceptableOrUnknown(data['key_comic']!, _keyComicMeta));
+    }
+    if (data.containsKey('key_reason')) {
+      context.handle(_keyReasonMeta,
+          keyReason.isAcceptableOrUnknown(data['key_reason']!, _keyReasonMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('read_status')) {
+      context.handle(
+          _readStatusMeta,
+          readStatus.isAcceptableOrUnknown(
+              data['read_status']!, _readStatusMeta));
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
@@ -586,6 +966,32 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}currency']),
       personalNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
+      quantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+      storageBox: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_box']),
+      indexNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
+      coverPriceCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}cover_price_cents']),
+      rawOrSlabbed: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}raw_or_slabbed']),
+      gradingCompany: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grading_company']),
+      graderNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grader_notes']),
+      signedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      keyComic: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}key_comic'])!,
+      keyReason: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_reason']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      readStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}read_status']),
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags']),
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
@@ -611,6 +1017,19 @@ class OwnedItemsCacheData extends DataClass
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
+  final int quantity;
+  final String? storageBox;
+  final int? indexNumber;
+  final int? coverPriceCents;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final String? graderNotes;
+  final String? signedBy;
+  final bool keyComic;
+  final String? keyReason;
+  final int? rating;
+  final String? readStatus;
+  final String? tags;
   final DateTime updatedAt;
   final DateTime? deletedAt;
   const OwnedItemsCacheData(
@@ -624,6 +1043,19 @@ class OwnedItemsCacheData extends DataClass
       this.pricePaidCents,
       this.currency,
       this.personalNotes,
+      required this.quantity,
+      this.storageBox,
+      this.indexNumber,
+      this.coverPriceCents,
+      this.rawOrSlabbed,
+      this.gradingCompany,
+      this.graderNotes,
+      this.signedBy,
+      required this.keyComic,
+      this.keyReason,
+      this.rating,
+      this.readStatus,
+      this.tags,
       required this.updatedAt,
       this.deletedAt});
   @override
@@ -654,6 +1086,41 @@ class OwnedItemsCacheData extends DataClass
     }
     if (!nullToAbsent || personalNotes != null) {
       map['personal_notes'] = Variable<String>(personalNotes);
+    }
+    map['quantity'] = Variable<int>(quantity);
+    if (!nullToAbsent || storageBox != null) {
+      map['storage_box'] = Variable<String>(storageBox);
+    }
+    if (!nullToAbsent || indexNumber != null) {
+      map['index_number'] = Variable<int>(indexNumber);
+    }
+    if (!nullToAbsent || coverPriceCents != null) {
+      map['cover_price_cents'] = Variable<int>(coverPriceCents);
+    }
+    if (!nullToAbsent || rawOrSlabbed != null) {
+      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed);
+    }
+    if (!nullToAbsent || gradingCompany != null) {
+      map['grading_company'] = Variable<String>(gradingCompany);
+    }
+    if (!nullToAbsent || graderNotes != null) {
+      map['grader_notes'] = Variable<String>(graderNotes);
+    }
+    if (!nullToAbsent || signedBy != null) {
+      map['signed_by'] = Variable<String>(signedBy);
+    }
+    map['key_comic'] = Variable<bool>(keyComic);
+    if (!nullToAbsent || keyReason != null) {
+      map['key_reason'] = Variable<String>(keyReason);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || readStatus != null) {
+      map['read_status'] = Variable<String>(readStatus);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -689,6 +1156,38 @@ class OwnedItemsCacheData extends DataClass
       personalNotes: personalNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(personalNotes),
+      quantity: Value(quantity),
+      storageBox: storageBox == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageBox),
+      indexNumber: indexNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indexNumber),
+      coverPriceCents: coverPriceCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverPriceCents),
+      rawOrSlabbed: rawOrSlabbed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawOrSlabbed),
+      gradingCompany: gradingCompany == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gradingCompany),
+      graderNotes: graderNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(graderNotes),
+      signedBy: signedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(signedBy),
+      keyComic: Value(keyComic),
+      keyReason: keyReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keyReason),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      readStatus: readStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readStatus),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -710,6 +1209,19 @@ class OwnedItemsCacheData extends DataClass
       pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      storageBox: serializer.fromJson<String?>(json['storageBox']),
+      indexNumber: serializer.fromJson<int?>(json['indexNumber']),
+      coverPriceCents: serializer.fromJson<int?>(json['coverPriceCents']),
+      rawOrSlabbed: serializer.fromJson<String?>(json['rawOrSlabbed']),
+      gradingCompany: serializer.fromJson<String?>(json['gradingCompany']),
+      graderNotes: serializer.fromJson<String?>(json['graderNotes']),
+      signedBy: serializer.fromJson<String?>(json['signedBy']),
+      keyComic: serializer.fromJson<bool>(json['keyComic']),
+      keyReason: serializer.fromJson<String?>(json['keyReason']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      readStatus: serializer.fromJson<String?>(json['readStatus']),
+      tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
@@ -728,6 +1240,19 @@ class OwnedItemsCacheData extends DataClass
       'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
       'currency': serializer.toJson<String?>(currency),
       'personalNotes': serializer.toJson<String?>(personalNotes),
+      'quantity': serializer.toJson<int>(quantity),
+      'storageBox': serializer.toJson<String?>(storageBox),
+      'indexNumber': serializer.toJson<int?>(indexNumber),
+      'coverPriceCents': serializer.toJson<int?>(coverPriceCents),
+      'rawOrSlabbed': serializer.toJson<String?>(rawOrSlabbed),
+      'gradingCompany': serializer.toJson<String?>(gradingCompany),
+      'graderNotes': serializer.toJson<String?>(graderNotes),
+      'signedBy': serializer.toJson<String?>(signedBy),
+      'keyComic': serializer.toJson<bool>(keyComic),
+      'keyReason': serializer.toJson<String?>(keyReason),
+      'rating': serializer.toJson<int?>(rating),
+      'readStatus': serializer.toJson<String?>(readStatus),
+      'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
@@ -744,6 +1269,19 @@ class OwnedItemsCacheData extends DataClass
           Value<int?> pricePaidCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> personalNotes = const Value.absent(),
+          int? quantity,
+          Value<String?> storageBox = const Value.absent(),
+          Value<int?> indexNumber = const Value.absent(),
+          Value<int?> coverPriceCents = const Value.absent(),
+          Value<String?> rawOrSlabbed = const Value.absent(),
+          Value<String?> gradingCompany = const Value.absent(),
+          Value<String?> graderNotes = const Value.absent(),
+          Value<String?> signedBy = const Value.absent(),
+          bool? keyComic,
+          Value<String?> keyReason = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<String?> readStatus = const Value.absent(),
+          Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       OwnedItemsCacheData(
@@ -760,6 +1298,23 @@ class OwnedItemsCacheData extends DataClass
         currency: currency.present ? currency.value : this.currency,
         personalNotes:
             personalNotes.present ? personalNotes.value : this.personalNotes,
+        quantity: quantity ?? this.quantity,
+        storageBox: storageBox.present ? storageBox.value : this.storageBox,
+        indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
+        coverPriceCents: coverPriceCents.present
+            ? coverPriceCents.value
+            : this.coverPriceCents,
+        rawOrSlabbed:
+            rawOrSlabbed.present ? rawOrSlabbed.value : this.rawOrSlabbed,
+        gradingCompany:
+            gradingCompany.present ? gradingCompany.value : this.gradingCompany,
+        graderNotes: graderNotes.present ? graderNotes.value : this.graderNotes,
+        signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        keyComic: keyComic ?? this.keyComic,
+        keyReason: keyReason.present ? keyReason.value : this.keyReason,
+        rating: rating.present ? rating.value : this.rating,
+        readStatus: readStatus.present ? readStatus.value : this.readStatus,
+        tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
@@ -781,6 +1336,29 @@ class OwnedItemsCacheData extends DataClass
       personalNotes: data.personalNotes.present
           ? data.personalNotes.value
           : this.personalNotes,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      storageBox:
+          data.storageBox.present ? data.storageBox.value : this.storageBox,
+      indexNumber:
+          data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
+      coverPriceCents: data.coverPriceCents.present
+          ? data.coverPriceCents.value
+          : this.coverPriceCents,
+      rawOrSlabbed: data.rawOrSlabbed.present
+          ? data.rawOrSlabbed.value
+          : this.rawOrSlabbed,
+      gradingCompany: data.gradingCompany.present
+          ? data.gradingCompany.value
+          : this.gradingCompany,
+      graderNotes:
+          data.graderNotes.present ? data.graderNotes.value : this.graderNotes,
+      signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      keyComic: data.keyComic.present ? data.keyComic.value : this.keyComic,
+      keyReason: data.keyReason.present ? data.keyReason.value : this.keyReason,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      readStatus:
+          data.readStatus.present ? data.readStatus.value : this.readStatus,
+      tags: data.tags.present ? data.tags.value : this.tags,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
@@ -799,6 +1377,19 @@ class OwnedItemsCacheData extends DataClass
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
+          ..write('quantity: $quantity, ')
+          ..write('storageBox: $storageBox, ')
+          ..write('indexNumber: $indexNumber, ')
+          ..write('coverPriceCents: $coverPriceCents, ')
+          ..write('rawOrSlabbed: $rawOrSlabbed, ')
+          ..write('gradingCompany: $gradingCompany, ')
+          ..write('graderNotes: $graderNotes, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('keyComic: $keyComic, ')
+          ..write('keyReason: $keyReason, ')
+          ..write('rating: $rating, ')
+          ..write('readStatus: $readStatus, ')
+          ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -806,19 +1397,33 @@ class OwnedItemsCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      itemId,
-      editionId,
-      variantId,
-      condition,
-      grade,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      updatedAt,
-      deletedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        itemId,
+        editionId,
+        variantId,
+        condition,
+        grade,
+        purchaseDate,
+        pricePaidCents,
+        currency,
+        personalNotes,
+        quantity,
+        storageBox,
+        indexNumber,
+        coverPriceCents,
+        rawOrSlabbed,
+        gradingCompany,
+        graderNotes,
+        signedBy,
+        keyComic,
+        keyReason,
+        rating,
+        readStatus,
+        tags,
+        updatedAt,
+        deletedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -833,6 +1438,19 @@ class OwnedItemsCacheData extends DataClass
           other.pricePaidCents == this.pricePaidCents &&
           other.currency == this.currency &&
           other.personalNotes == this.personalNotes &&
+          other.quantity == this.quantity &&
+          other.storageBox == this.storageBox &&
+          other.indexNumber == this.indexNumber &&
+          other.coverPriceCents == this.coverPriceCents &&
+          other.rawOrSlabbed == this.rawOrSlabbed &&
+          other.gradingCompany == this.gradingCompany &&
+          other.graderNotes == this.graderNotes &&
+          other.signedBy == this.signedBy &&
+          other.keyComic == this.keyComic &&
+          other.keyReason == this.keyReason &&
+          other.rating == this.rating &&
+          other.readStatus == this.readStatus &&
+          other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -848,6 +1466,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<int?> pricePaidCents;
   final Value<String?> currency;
   final Value<String?> personalNotes;
+  final Value<int> quantity;
+  final Value<String?> storageBox;
+  final Value<int?> indexNumber;
+  final Value<int?> coverPriceCents;
+  final Value<String?> rawOrSlabbed;
+  final Value<String?> gradingCompany;
+  final Value<String?> graderNotes;
+  final Value<String?> signedBy;
+  final Value<bool> keyComic;
+  final Value<String?> keyReason;
+  final Value<int?> rating;
+  final Value<String?> readStatus;
+  final Value<String?> tags;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   final Value<int> rowid;
@@ -862,6 +1493,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.storageBox = const Value.absent(),
+    this.indexNumber = const Value.absent(),
+    this.coverPriceCents = const Value.absent(),
+    this.rawOrSlabbed = const Value.absent(),
+    this.gradingCompany = const Value.absent(),
+    this.graderNotes = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.keyComic = const Value.absent(),
+    this.keyReason = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.readStatus = const Value.absent(),
+    this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -877,6 +1521,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.pricePaidCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.personalNotes = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.storageBox = const Value.absent(),
+    this.indexNumber = const Value.absent(),
+    this.coverPriceCents = const Value.absent(),
+    this.rawOrSlabbed = const Value.absent(),
+    this.gradingCompany = const Value.absent(),
+    this.graderNotes = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.keyComic = const Value.absent(),
+    this.keyReason = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.readStatus = const Value.absent(),
+    this.tags = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -894,6 +1551,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<int>? pricePaidCents,
     Expression<String>? currency,
     Expression<String>? personalNotes,
+    Expression<int>? quantity,
+    Expression<String>? storageBox,
+    Expression<int>? indexNumber,
+    Expression<int>? coverPriceCents,
+    Expression<String>? rawOrSlabbed,
+    Expression<String>? gradingCompany,
+    Expression<String>? graderNotes,
+    Expression<String>? signedBy,
+    Expression<bool>? keyComic,
+    Expression<String>? keyReason,
+    Expression<int>? rating,
+    Expression<String>? readStatus,
+    Expression<String>? tags,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
@@ -909,6 +1579,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
       if (currency != null) 'currency': currency,
       if (personalNotes != null) 'personal_notes': personalNotes,
+      if (quantity != null) 'quantity': quantity,
+      if (storageBox != null) 'storage_box': storageBox,
+      if (indexNumber != null) 'index_number': indexNumber,
+      if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
+      if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
+      if (gradingCompany != null) 'grading_company': gradingCompany,
+      if (graderNotes != null) 'grader_notes': graderNotes,
+      if (signedBy != null) 'signed_by': signedBy,
+      if (keyComic != null) 'key_comic': keyComic,
+      if (keyReason != null) 'key_reason': keyReason,
+      if (rating != null) 'rating': rating,
+      if (readStatus != null) 'read_status': readStatus,
+      if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
@@ -926,6 +1609,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<int?>? pricePaidCents,
       Value<String?>? currency,
       Value<String?>? personalNotes,
+      Value<int>? quantity,
+      Value<String?>? storageBox,
+      Value<int?>? indexNumber,
+      Value<int?>? coverPriceCents,
+      Value<String?>? rawOrSlabbed,
+      Value<String?>? gradingCompany,
+      Value<String?>? graderNotes,
+      Value<String?>? signedBy,
+      Value<bool>? keyComic,
+      Value<String?>? keyReason,
+      Value<int?>? rating,
+      Value<String?>? readStatus,
+      Value<String?>? tags,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
       Value<int>? rowid}) {
@@ -940,6 +1636,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
+      quantity: quantity ?? this.quantity,
+      storageBox: storageBox ?? this.storageBox,
+      indexNumber: indexNumber ?? this.indexNumber,
+      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
+      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
+      gradingCompany: gradingCompany ?? this.gradingCompany,
+      graderNotes: graderNotes ?? this.graderNotes,
+      signedBy: signedBy ?? this.signedBy,
+      keyComic: keyComic ?? this.keyComic,
+      keyReason: keyReason ?? this.keyReason,
+      rating: rating ?? this.rating,
+      readStatus: readStatus ?? this.readStatus,
+      tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
@@ -979,6 +1688,45 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (personalNotes.present) {
       map['personal_notes'] = Variable<String>(personalNotes.value);
     }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (storageBox.present) {
+      map['storage_box'] = Variable<String>(storageBox.value);
+    }
+    if (indexNumber.present) {
+      map['index_number'] = Variable<int>(indexNumber.value);
+    }
+    if (coverPriceCents.present) {
+      map['cover_price_cents'] = Variable<int>(coverPriceCents.value);
+    }
+    if (rawOrSlabbed.present) {
+      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed.value);
+    }
+    if (gradingCompany.present) {
+      map['grading_company'] = Variable<String>(gradingCompany.value);
+    }
+    if (graderNotes.present) {
+      map['grader_notes'] = Variable<String>(graderNotes.value);
+    }
+    if (signedBy.present) {
+      map['signed_by'] = Variable<String>(signedBy.value);
+    }
+    if (keyComic.present) {
+      map['key_comic'] = Variable<bool>(keyComic.value);
+    }
+    if (keyReason.present) {
+      map['key_reason'] = Variable<String>(keyReason.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (readStatus.present) {
+      map['read_status'] = Variable<String>(readStatus.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -1004,6 +1752,19 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('pricePaidCents: $pricePaidCents, ')
           ..write('currency: $currency, ')
           ..write('personalNotes: $personalNotes, ')
+          ..write('quantity: $quantity, ')
+          ..write('storageBox: $storageBox, ')
+          ..write('indexNumber: $indexNumber, ')
+          ..write('coverPriceCents: $coverPriceCents, ')
+          ..write('rawOrSlabbed: $rawOrSlabbed, ')
+          ..write('gradingCompany: $gradingCompany, ')
+          ..write('graderNotes: $graderNotes, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('keyComic: $keyComic, ')
+          ..write('keyReason: $keyReason, ')
+          ..write('rating: $rating, ')
+          ..write('readStatus: $readStatus, ')
+          ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
@@ -1529,6 +2290,362 @@ class WishlistItemsCacheCompanion
   }
 }
 
+class $SyncQueueTable extends SyncQueue
+    with TableInfo<$SyncQueueTable, SyncQueueData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncQueueTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _entityTypeMeta =
+      const VerificationMeta('entityType');
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+      'entity_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _entityIdMeta =
+      const VerificationMeta('entityId');
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+      'entity_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _actionMeta = const VerificationMeta('action');
+  @override
+  late final GeneratedColumn<String> action = GeneratedColumn<String>(
+      'action', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadJsonMeta =
+      const VerificationMeta('payloadJson');
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+      'payload_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _clientChangedAtMeta =
+      const VerificationMeta('clientChangedAt');
+  @override
+  late final GeneratedColumn<DateTime> clientChangedAt =
+      GeneratedColumn<DateTime>('client_changed_at', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, entityType, entityId, action, payloadJson, clientChangedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_queue';
+  @override
+  VerificationContext validateIntegrity(Insertable<SyncQueueData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(
+          _entityTypeMeta,
+          entityType.isAcceptableOrUnknown(
+              data['entity_type']!, _entityTypeMeta));
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(_entityIdMeta,
+          entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta));
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('action')) {
+      context.handle(_actionMeta,
+          action.isAcceptableOrUnknown(data['action']!, _actionMeta));
+    } else if (isInserting) {
+      context.missing(_actionMeta);
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+          _payloadJsonMeta,
+          payloadJson.isAcceptableOrUnknown(
+              data['payload_json']!, _payloadJsonMeta));
+    } else if (isInserting) {
+      context.missing(_payloadJsonMeta);
+    }
+    if (data.containsKey('client_changed_at')) {
+      context.handle(
+          _clientChangedAtMeta,
+          clientChangedAt.isAcceptableOrUnknown(
+              data['client_changed_at']!, _clientChangedAtMeta));
+    } else if (isInserting) {
+      context.missing(_clientChangedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entityType, entityId};
+  @override
+  SyncQueueData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncQueueData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      entityType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entity_type'])!,
+      entityId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entity_id'])!,
+      action: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}action'])!,
+      payloadJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload_json'])!,
+      clientChangedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}client_changed_at'])!,
+    );
+  }
+
+  @override
+  $SyncQueueTable createAlias(String alias) {
+    return $SyncQueueTable(attachedDatabase, alias);
+  }
+}
+
+class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
+  final String id;
+  final String entityType;
+  final String entityId;
+  final String action;
+  final String payloadJson;
+  final DateTime clientChangedAt;
+  const SyncQueueData(
+      {required this.id,
+      required this.entityType,
+      required this.entityId,
+      required this.action,
+      required this.payloadJson,
+      required this.clientChangedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
+    map['action'] = Variable<String>(action);
+    map['payload_json'] = Variable<String>(payloadJson);
+    map['client_changed_at'] = Variable<DateTime>(clientChangedAt);
+    return map;
+  }
+
+  SyncQueueCompanion toCompanion(bool nullToAbsent) {
+    return SyncQueueCompanion(
+      id: Value(id),
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+      action: Value(action),
+      payloadJson: Value(payloadJson),
+      clientChangedAt: Value(clientChangedAt),
+    );
+  }
+
+  factory SyncQueueData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncQueueData(
+      id: serializer.fromJson<String>(json['id']),
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      action: serializer.fromJson<String>(json['action']),
+      payloadJson: serializer.fromJson<String>(json['payloadJson']),
+      clientChangedAt: serializer.fromJson<DateTime>(json['clientChangedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
+      'action': serializer.toJson<String>(action),
+      'payloadJson': serializer.toJson<String>(payloadJson),
+      'clientChangedAt': serializer.toJson<DateTime>(clientChangedAt),
+    };
+  }
+
+  SyncQueueData copyWith(
+          {String? id,
+          String? entityType,
+          String? entityId,
+          String? action,
+          String? payloadJson,
+          DateTime? clientChangedAt}) =>
+      SyncQueueData(
+        id: id ?? this.id,
+        entityType: entityType ?? this.entityType,
+        entityId: entityId ?? this.entityId,
+        action: action ?? this.action,
+        payloadJson: payloadJson ?? this.payloadJson,
+        clientChangedAt: clientChangedAt ?? this.clientChangedAt,
+      );
+  SyncQueueData copyWithCompanion(SyncQueueCompanion data) {
+    return SyncQueueData(
+      id: data.id.present ? data.id.value : this.id,
+      entityType:
+          data.entityType.present ? data.entityType.value : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      action: data.action.present ? data.action.value : this.action,
+      payloadJson:
+          data.payloadJson.present ? data.payloadJson.value : this.payloadJson,
+      clientChangedAt: data.clientChangedAt.present
+          ? data.clientChangedAt.value
+          : this.clientChangedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncQueueData(')
+          ..write('id: $id, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('action: $action, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('clientChangedAt: $clientChangedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, entityType, entityId, action, payloadJson, clientChangedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncQueueData &&
+          other.id == this.id &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
+          other.action == this.action &&
+          other.payloadJson == this.payloadJson &&
+          other.clientChangedAt == this.clientChangedAt);
+}
+
+class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
+  final Value<String> id;
+  final Value<String> entityType;
+  final Value<String> entityId;
+  final Value<String> action;
+  final Value<String> payloadJson;
+  final Value<DateTime> clientChangedAt;
+  final Value<int> rowid;
+  const SyncQueueCompanion({
+    this.id = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.action = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.clientChangedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncQueueCompanion.insert({
+    required String id,
+    required String entityType,
+    required String entityId,
+    required String action,
+    required String payloadJson,
+    required DateTime clientChangedAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        entityType = Value(entityType),
+        entityId = Value(entityId),
+        action = Value(action),
+        payloadJson = Value(payloadJson),
+        clientChangedAt = Value(clientChangedAt);
+  static Insertable<SyncQueueData> custom({
+    Expression<String>? id,
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<String>? action,
+    Expression<String>? payloadJson,
+    Expression<DateTime>? clientChangedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (action != null) 'action': action,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (clientChangedAt != null) 'client_changed_at': clientChangedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncQueueCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? entityType,
+      Value<String>? entityId,
+      Value<String>? action,
+      Value<String>? payloadJson,
+      Value<DateTime>? clientChangedAt,
+      Value<int>? rowid}) {
+    return SyncQueueCompanion(
+      id: id ?? this.id,
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      action: action ?? this.action,
+      payloadJson: payloadJson ?? this.payloadJson,
+      clientChangedAt: clientChangedAt ?? this.clientChangedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (action.present) {
+      map['action'] = Variable<String>(action.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
+    if (clientChangedAt.present) {
+      map['client_changed_at'] = Variable<DateTime>(clientChangedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncQueueCompanion(')
+          ..write('id: $id, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('action: $action, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('clientChangedAt: $clientChangedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -1537,12 +2654,13 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $OwnedItemsCacheTable(this);
   late final $WishlistItemsCacheTable wishlistItemsCache =
       $WishlistItemsCacheTable(this);
+  late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [catalogCache, ownedItemsCache, wishlistItemsCache];
+      [catalogCache, ownedItemsCache, wishlistItemsCache, syncQueue];
 }
 
 typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
@@ -1553,6 +2671,11 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
+  Value<String?> publisher,
+  Value<DateTime?> releaseDate,
+  Value<int?> releaseYear,
+  Value<String?> barcode,
+  Value<String?> variant,
   required DateTime cachedAt,
   Value<int> rowid,
 });
@@ -1564,6 +2687,11 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
+  Value<String?> publisher,
+  Value<DateTime?> releaseDate,
+  Value<int?> releaseYear,
+  Value<String?> barcode,
+  Value<String?> variant,
   Value<DateTime> cachedAt,
   Value<int> rowid,
 });
@@ -1594,6 +2722,21 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get releaseYear => $composableBuilder(
+      column: $table.releaseYear, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+      column: $table.barcode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variant => $composableBuilder(
+      column: $table.variant, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnFilters(column));
@@ -1627,6 +2770,21 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.coverImageUrl,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get releaseYear => $composableBuilder(
+      column: $table.releaseYear, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+      column: $table.barcode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variant => $composableBuilder(
+      column: $table.variant, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
 }
@@ -1657,6 +2815,21 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<int> get releaseYear => $composableBuilder(
+      column: $table.releaseYear, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get variant =>
+      $composableBuilder(column: $table.variant, builder: (column) => column);
 
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
@@ -1694,6 +2867,11 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<int?> releaseYear = const Value.absent(),
+            Value<String?> barcode = const Value.absent(),
+            Value<String?> variant = const Value.absent(),
             Value<DateTime> cachedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -1704,6 +2882,11 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
+            publisher: publisher,
+            releaseDate: releaseDate,
+            releaseYear: releaseYear,
+            barcode: barcode,
+            variant: variant,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -1714,6 +2897,11 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<int?> releaseYear = const Value.absent(),
+            Value<String?> barcode = const Value.absent(),
+            Value<String?> variant = const Value.absent(),
             required DateTime cachedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -1724,6 +2912,11 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
+            publisher: publisher,
+            releaseDate: releaseDate,
+            releaseYear: releaseYear,
+            barcode: barcode,
+            variant: variant,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -1761,6 +2954,19 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
+  Value<int> quantity,
+  Value<String?> storageBox,
+  Value<int?> indexNumber,
+  Value<int?> coverPriceCents,
+  Value<String?> rawOrSlabbed,
+  Value<String?> gradingCompany,
+  Value<String?> graderNotes,
+  Value<String?> signedBy,
+  Value<bool> keyComic,
+  Value<String?> keyReason,
+  Value<int?> rating,
+  Value<String?> readStatus,
+  Value<String?> tags,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -1777,6 +2983,19 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<int?> pricePaidCents,
   Value<String?> currency,
   Value<String?> personalNotes,
+  Value<int> quantity,
+  Value<String?> storageBox,
+  Value<int?> indexNumber,
+  Value<int?> coverPriceCents,
+  Value<String?> rawOrSlabbed,
+  Value<String?> gradingCompany,
+  Value<String?> graderNotes,
+  Value<String?> signedBy,
+  Value<bool> keyComic,
+  Value<String?> keyReason,
+  Value<int?> rating,
+  Value<String?> readStatus,
+  Value<String?> tags,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -1821,6 +3040,47 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageBox => $composableBuilder(
+      column: $table.storageBox, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get keyComic => $composableBuilder(
+      column: $table.keyComic, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keyReason => $composableBuilder(
+      column: $table.keyReason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get readStatus => $composableBuilder(
+      column: $table.readStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
@@ -1871,6 +3131,48 @@ class $$OwnedItemsCacheTableOrderingComposer
       column: $table.personalNotes,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageBox => $composableBuilder(
+      column: $table.storageBox, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get keyComic => $composableBuilder(
+      column: $table.keyComic, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keyReason => $composableBuilder(
+      column: $table.keyReason, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get readStatus => $composableBuilder(
+      column: $table.readStatus, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
@@ -1917,6 +3219,45 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get personalNotes => $composableBuilder(
       column: $table.personalNotes, builder: (column) => column);
 
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get storageBox => $composableBuilder(
+      column: $table.storageBox, builder: (column) => column);
+
+  GeneratedColumn<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents, builder: (column) => column);
+
+  GeneratedColumn<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed, builder: (column) => column);
+
+  GeneratedColumn<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany, builder: (column) => column);
+
+  GeneratedColumn<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get signedBy =>
+      $composableBuilder(column: $table.signedBy, builder: (column) => column);
+
+  GeneratedColumn<bool> get keyComic =>
+      $composableBuilder(column: $table.keyComic, builder: (column) => column);
+
+  GeneratedColumn<String> get keyReason =>
+      $composableBuilder(column: $table.keyReason, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<String> get readStatus => $composableBuilder(
+      column: $table.readStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
@@ -1962,6 +3303,19 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<String?> storageBox = const Value.absent(),
+            Value<int?> indexNumber = const Value.absent(),
+            Value<int?> coverPriceCents = const Value.absent(),
+            Value<String?> rawOrSlabbed = const Value.absent(),
+            Value<String?> gradingCompany = const Value.absent(),
+            Value<String?> graderNotes = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> keyComic = const Value.absent(),
+            Value<String?> keyReason = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<String?> readStatus = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -1977,6 +3331,19 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
+            quantity: quantity,
+            storageBox: storageBox,
+            indexNumber: indexNumber,
+            coverPriceCents: coverPriceCents,
+            rawOrSlabbed: rawOrSlabbed,
+            gradingCompany: gradingCompany,
+            graderNotes: graderNotes,
+            signedBy: signedBy,
+            keyComic: keyComic,
+            keyReason: keyReason,
+            rating: rating,
+            readStatus: readStatus,
+            tags: tags,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -1992,6 +3359,19 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<int?> pricePaidCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> personalNotes = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<String?> storageBox = const Value.absent(),
+            Value<int?> indexNumber = const Value.absent(),
+            Value<int?> coverPriceCents = const Value.absent(),
+            Value<String?> rawOrSlabbed = const Value.absent(),
+            Value<String?> gradingCompany = const Value.absent(),
+            Value<String?> graderNotes = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> keyComic = const Value.absent(),
+            Value<String?> keyReason = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<String?> readStatus = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -2007,6 +3387,19 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             pricePaidCents: pricePaidCents,
             currency: currency,
             personalNotes: personalNotes,
+            quantity: quantity,
+            storageBox: storageBox,
+            indexNumber: indexNumber,
+            coverPriceCents: coverPriceCents,
+            rawOrSlabbed: rawOrSlabbed,
+            gradingCompany: gradingCompany,
+            graderNotes: graderNotes,
+            signedBy: signedBy,
+            keyComic: keyComic,
+            keyReason: keyReason,
+            rating: rating,
+            readStatus: readStatus,
+            tags: tags,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -2288,6 +3681,194 @@ typedef $$WishlistItemsCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     WishlistItemsCacheData,
     PrefetchHooks Function()>;
+typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
+  required String id,
+  required String entityType,
+  required String entityId,
+  required String action,
+  required String payloadJson,
+  required DateTime clientChangedAt,
+  Value<int> rowid,
+});
+typedef $$SyncQueueTableUpdateCompanionBuilder = SyncQueueCompanion Function({
+  Value<String> id,
+  Value<String> entityType,
+  Value<String> entityId,
+  Value<String> action,
+  Value<String> payloadJson,
+  Value<DateTime> clientChangedAt,
+  Value<int> rowid,
+});
+
+class $$SyncQueueTableFilterComposer
+    extends Composer<_$LocalDatabase, $SyncQueueTable> {
+  $$SyncQueueTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get action => $composableBuilder(
+      column: $table.action, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get clientChangedAt => $composableBuilder(
+      column: $table.clientChangedAt,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncQueueTableOrderingComposer
+    extends Composer<_$LocalDatabase, $SyncQueueTable> {
+  $$SyncQueueTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get action => $composableBuilder(
+      column: $table.action, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get clientChangedAt => $composableBuilder(
+      column: $table.clientChangedAt,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncQueueTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $SyncQueueTable> {
+  $$SyncQueueTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<String> get action =>
+      $composableBuilder(column: $table.action, builder: (column) => column);
+
+  GeneratedColumn<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get clientChangedAt => $composableBuilder(
+      column: $table.clientChangedAt, builder: (column) => column);
+}
+
+class $$SyncQueueTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $SyncQueueTable,
+    SyncQueueData,
+    $$SyncQueueTableFilterComposer,
+    $$SyncQueueTableOrderingComposer,
+    $$SyncQueueTableAnnotationComposer,
+    $$SyncQueueTableCreateCompanionBuilder,
+    $$SyncQueueTableUpdateCompanionBuilder,
+    (
+      SyncQueueData,
+      BaseReferences<_$LocalDatabase, $SyncQueueTable, SyncQueueData>
+    ),
+    SyncQueueData,
+    PrefetchHooks Function()> {
+  $$SyncQueueTableTableManager(_$LocalDatabase db, $SyncQueueTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncQueueTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncQueueTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncQueueTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> entityType = const Value.absent(),
+            Value<String> entityId = const Value.absent(),
+            Value<String> action = const Value.absent(),
+            Value<String> payloadJson = const Value.absent(),
+            Value<DateTime> clientChangedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SyncQueueCompanion(
+            id: id,
+            entityType: entityType,
+            entityId: entityId,
+            action: action,
+            payloadJson: payloadJson,
+            clientChangedAt: clientChangedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String entityType,
+            required String entityId,
+            required String action,
+            required String payloadJson,
+            required DateTime clientChangedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SyncQueueCompanion.insert(
+            id: id,
+            entityType: entityType,
+            entityId: entityId,
+            action: action,
+            payloadJson: payloadJson,
+            clientChangedAt: clientChangedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SyncQueueTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $SyncQueueTable,
+    SyncQueueData,
+    $$SyncQueueTableFilterComposer,
+    $$SyncQueueTableOrderingComposer,
+    $$SyncQueueTableAnnotationComposer,
+    $$SyncQueueTableCreateCompanionBuilder,
+    $$SyncQueueTableUpdateCompanionBuilder,
+    (
+      SyncQueueData,
+      BaseReferences<_$LocalDatabase, $SyncQueueTable, SyncQueueData>
+    ),
+    SyncQueueData,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -2298,4 +3879,6 @@ class $LocalDatabaseManager {
       $$OwnedItemsCacheTableTableManager(_db, _db.ownedItemsCache);
   $$WishlistItemsCacheTableTableManager get wishlistItemsCache =>
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
+  $$SyncQueueTableTableManager get syncQueue =>
+      $$SyncQueueTableTableManager(_db, _db.syncQueue);
 }

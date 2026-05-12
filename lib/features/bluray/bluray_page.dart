@@ -8,4 +8,3 @@ class BlurayPage extends StatelessWidget {
     return const Scaffold(body: Center(child: Text('Blu-ray')));
   }
 }
-

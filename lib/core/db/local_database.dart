@@ -10,6 +10,11 @@ class CatalogCache extends Table {
   TextColumn get itemNumber => text().nullable()();
   TextColumn get synopsis => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
+  TextColumn get publisher => text().nullable()();
+  DateTimeColumn get releaseDate => dateTime().nullable()();
+  IntColumn get releaseYear => integer().nullable()();
+  TextColumn get barcode => text().nullable()();
+  TextColumn get variant => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -27,6 +32,19 @@ class OwnedItemsCache extends Table {
   IntColumn get pricePaidCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get personalNotes => text().nullable()();
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+  TextColumn get storageBox => text().nullable()();
+  IntColumn get indexNumber => integer().nullable()();
+  IntColumn get coverPriceCents => integer().nullable()();
+  TextColumn get rawOrSlabbed => text().nullable()();
+  TextColumn get gradingCompany => text().nullable()();
+  TextColumn get graderNotes => text().nullable()();
+  TextColumn get signedBy => text().nullable()();
+  BoolColumn get keyComic => boolean().withDefault(const Constant(false))();
+  TextColumn get keyReason => text().nullable()();
+  IntColumn get rating => integer().nullable()();
+  TextColumn get readStatus => text().nullable()();
+  TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
@@ -50,33 +68,35 @@ class WishlistItemsCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class SyncQueue extends Table {
+  TextColumn get id => text()();
+  TextColumn get entityType => text()();
+  TextColumn get entityId => text()();
+  TextColumn get action => text()();
+  TextColumn get payloadJson => text()();
+  DateTimeColumn get clientChangedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {entityType, entityId};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
   WishlistItemsCache,
+  SyncQueue,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
-      onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          await m.addColumn(ownedItemsCache, ownedItemsCache.purchaseDate);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.pricePaidCents);
-          await m.addColumn(ownedItemsCache, ownedItemsCache.currency);
-          await m.createTable(wishlistItemsCache);
-        }
-        if (from < 3) {
-          await m.deleteTable('sync_queue');
-        }
-      },
     );
   }
 }
