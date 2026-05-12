@@ -77,7 +77,7 @@ class SyncQueue extends Table {
   DateTimeColumn get clientChangedAt => dateTime()();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {entityType, entityId};
 }
 
 @DriftDatabase(tables: [
