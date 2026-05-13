@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
@@ -2491,7 +2492,10 @@ class _ComicCard extends StatelessWidget {
                   Positioned(
                     left: 4,
                     top: 4,
-                    child: _CoverBadges(libraryState: libraryState),
+                    child: LibraryCoverBadges(
+                      isOwned: libraryState.isOwned,
+                      isWishlisted: libraryState.isWishlisted,
+                    ),
                   ),
                 ],
               ),
@@ -3238,7 +3242,10 @@ Widget _comicTableCellContent(
   LibraryTableColumn column,
 ) {
   return switch (column) {
-    LibraryTableColumn.status => _StatusCell(entry: entry),
+    LibraryTableColumn.status => LibraryItemStatusIcons(
+        isOwned: entry.isOwned,
+        isWishlisted: entry.isWishlisted,
+      ),
     LibraryTableColumn.cover => SizedBox(
         width: 28,
         height: 36,
@@ -3295,31 +3302,6 @@ class _CellText extends StatelessWidget {
       style: value == null || value!.isEmpty
           ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
           : const TextStyle(fontSize: 12),
-    );
-  }
-}
-
-class _StatusCell extends StatelessWidget {
-  const _StatusCell({required this.entry});
-
-  final _ComicTableEntry entry;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          entry.isOwned ? Icons.check_box : Icons.check_box_outline_blank,
-          size: 17,
-          color: entry.isOwned ? colorScheme.primary : colorScheme.outline,
-        ),
-        if (entry.isWishlisted) ...[
-          const SizedBox(width: 4),
-          Icon(Icons.star, size: 16, color: colorScheme.tertiary),
-        ],
-      ],
     );
   }
 }
@@ -3507,7 +3489,10 @@ class _CoverTile extends StatelessWidget {
                   Positioned(
                     left: 4,
                     top: 4,
-                    child: _CoverBadges(libraryState: libraryState),
+                    child: LibraryCoverBadges(
+                      isOwned: libraryState.isOwned,
+                      isWishlisted: libraryState.isWishlisted,
+                    ),
                   ),
                   if (selected)
                     Align(
@@ -3533,60 +3518,6 @@ class _CoverTile extends StatelessWidget {
                   ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CoverBadges extends StatelessWidget {
-  const _CoverBadges({required this.libraryState});
-
-  final LibraryItemState libraryState;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!libraryState.isOwned && !libraryState.isWishlisted) {
-      return const SizedBox.shrink();
-    }
-    return Wrap(
-      spacing: 4,
-      children: [
-        if (libraryState.isOwned)
-          const _CoverBadge(icon: Icons.inventory_2, label: 'Owned'),
-        if (libraryState.isWishlisted)
-          const _CoverBadge(icon: Icons.star, label: 'Wishlist'),
-      ],
-    );
-  }
-}
-
-class _CoverBadge extends StatelessWidget {
-  const _CoverBadge({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Tooltip(
-      message: label,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.primary,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: const [
-            BoxShadow(
-              blurRadius: 8,
-              color: Color(0x33000000),
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Icon(icon, size: 13, color: colorScheme.onPrimary),
         ),
       ),
     );
