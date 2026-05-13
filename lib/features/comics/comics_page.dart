@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_query.
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
+import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
@@ -3922,7 +3923,7 @@ class _ComicInspector extends ConsumerWidget {
               ],
               if (item!.synopsis != null) ...[
                 const SizedBox(height: 10),
-                _InspectorSection(
+                LibraryInspectorSection(
                   title: 'Plot',
                   children: [
                     Text(
@@ -4471,16 +4472,16 @@ class _RichMetadataInspector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _InspectorSection(
+        LibraryInspectorSection(
           title: 'Product Details',
           children: [
-            _InspectorFact(
+            LibraryInspectorFact(
               'Series',
               detailValue?.seriesTitle ?? detailValue?.volumeName ?? item.title,
             ),
-            _InspectorFact(
+            LibraryInspectorFact(
                 'Publisher', edition?.publisher ?? item.publisher ?? '-'),
-            _InspectorFact(
+            LibraryInspectorFact(
               'Release',
               _formatNullableDate(
                     edition?.releaseDate ??
@@ -4489,13 +4490,14 @@ class _RichMetadataInspector extends StatelessWidget {
                   ) ??
                   '-',
             ),
-            _InspectorFact(
+            LibraryInspectorFact(
               'Cover date',
               _formatNullableDate(detailValue?.coverDate) ?? '-',
             ),
-            _InspectorFact('Format', edition?.format ?? item.kind),
-            _InspectorFact('UPC / ISBN', edition?.upc ?? edition?.isbn ?? '-'),
-            _InspectorFact(
+            LibraryInspectorFact('Format', edition?.format ?? item.kind),
+            LibraryInspectorFact(
+                'UPC / ISBN', edition?.upc ?? edition?.isbn ?? '-'),
+            LibraryInspectorFact(
               'Pages / Price',
               [
                 if (detailValue?.pageCount != null)
@@ -4509,90 +4511,94 @@ class _RichMetadataInspector extends StatelessWidget {
           ],
         ),
         if (variantFacts.isNotEmpty || releaseFacts.isNotEmpty)
-          _InspectorSection(
+          LibraryInspectorSection(
             title: 'Edition',
             children: [
               for (final fact in variantFacts)
-                _InspectorFact(fact.label, fact.value),
+                LibraryInspectorFact(fact.label, fact.value),
               if (releaseFacts.isNotEmpty) ...[
                 const SizedBox(height: 4),
-                _InspectorChipWrap(values: releaseFacts),
+                LibraryInspectorChipWrap(values: releaseFacts),
               ],
             ],
           ),
-        _InspectorSection(
+        LibraryInspectorSection(
           title: 'Personal',
           children: [
-            _InspectorFactGrid(
+            LibraryInspectorFactGrid(
               facts: [
-                _InspectorFactData(
+                LibraryInspectorFactData(
                     'Quantity', owned?.quantity.toString() ?? '-'),
-                _InspectorFactData('Storage box', owned?.storageBox ?? '-'),
-                _InspectorFactData(
+                LibraryInspectorFactData(
+                    'Storage box', owned?.storageBox ?? '-'),
+                LibraryInspectorFactData(
                     'Index', owned?.indexNumber?.toString() ?? '-'),
-                _InspectorFactData('Tracking', tracking?.statusLabel ?? '-'),
-                _InspectorFactData(
+                LibraryInspectorFactData(
+                    'Tracking', tracking?.statusLabel ?? '-'),
+                LibraryInspectorFactData(
                     'Rating', tracking?.rating?.toString() ?? '-'),
-                _InspectorFactData('Read status', owned?.readStatus ?? '-'),
-                _InspectorFactData('Tags', owned?.tags ?? '-'),
+                LibraryInspectorFactData(
+                    'Read status', owned?.readStatus ?? '-'),
+                LibraryInspectorFactData('Tags', owned?.tags ?? '-'),
               ],
             ),
             if (owned?.signedBy != null && owned!.signedBy!.isNotEmpty)
-              _InspectorFact('Signed by', owned.signedBy!),
+              LibraryInspectorFact('Signed by', owned.signedBy!),
           ],
         ),
-        _InspectorSection(
+        LibraryInspectorSection(
           title: 'Value',
           children: [
-            _InspectorFactGrid(
+            LibraryInspectorFactGrid(
               facts: [
-                _InspectorFactData(
+                LibraryInspectorFactData(
                   'Purchase',
                   _formatOptionalMoney(
                     owned?.pricePaidCents,
                     owned?.currency,
                   ).ifEmpty('-'),
                 ),
-                _InspectorFactData(
+                LibraryInspectorFactData(
                   'Cover price',
                   _formatOptionalMoney(
                     owned?.coverPriceCents,
                     owned?.currency,
                   ).ifEmpty('-'),
                 ),
-                _InspectorFactData('Grade status', owned?.rawOrSlabbed ?? '-'),
-                _InspectorFactData(
+                LibraryInspectorFactData(
+                    'Grade status', owned?.rawOrSlabbed ?? '-'),
+                LibraryInspectorFactData(
                   'Grading company',
                   owned?.gradingCompany ?? '-',
                 ),
-                _InspectorFactData(
+                LibraryInspectorFactData(
                   'Key issue',
                   owned?.keyComic == true ? 'Yes' : 'No',
                 ),
               ],
             ),
             if (owned?.keyReason != null && owned!.keyReason!.isNotEmpty)
-              _InspectorFact('Key reason', owned.keyReason!),
+              LibraryInspectorFact('Key reason', owned.keyReason!),
           ],
         ),
         if (creators.isNotEmpty)
-          _InspectorSection(
+          LibraryInspectorSection(
             title: 'Creators',
             children: [
               for (final fact in creators.take(8))
-                _InspectorFact(fact.label, fact.value),
+                LibraryInspectorFact(fact.label, fact.value),
             ],
           ),
         if (characters.isNotEmpty)
-          _InspectorChipSection(title: 'Characters', values: characters),
+          LibraryInspectorChipSection(title: 'Characters', values: characters),
         if (arcs.isNotEmpty)
-          _InspectorChipSection(title: 'Story arcs', values: arcs),
+          LibraryInspectorChipSection(title: 'Story arcs', values: arcs),
         if (providerFacts.isNotEmpty)
-          _InspectorSection(
+          LibraryInspectorSection(
             title: 'Provider Links',
             children: [
               for (final fact in providerFacts)
-                _InspectorFact(fact.label, fact.value),
+                LibraryInspectorFact(fact.label, fact.value),
             ],
           ),
         if (detail?.isLoading ?? false)
@@ -4615,14 +4621,14 @@ class _RichMetadataInspector extends StatelessWidget {
     ];
   }
 
-  List<_InspectorFactData> _creditFacts(
+  List<LibraryInspectorFactData> _creditFacts(
     List<ComicCredit> credits, {
     required List<String> fallbackValues,
   }) {
     if (credits.isEmpty) {
       return [
         for (final value in fallbackValues)
-          _InspectorFactData('Creator', value),
+          LibraryInspectorFactData('Creator', value),
       ];
     }
     final byRole = <String, List<String>>{};
@@ -4634,7 +4640,7 @@ class _RichMetadataInspector extends StatelessWidget {
     }
     return [
       for (final entry in byRole.entries)
-        _InspectorFactData(entry.key, entry.value.take(4).join(', ')),
+        LibraryInspectorFactData(entry.key, entry.value.take(4).join(', ')),
     ];
   }
 
@@ -4650,19 +4656,20 @@ class _RichMetadataInspector extends StatelessWidget {
     ];
   }
 
-  List<_InspectorFactData> _variantFacts(ComicVariant? variant) {
+  List<LibraryInspectorFactData> _variantFacts(ComicVariant? variant) {
     if (variant == null) {
       return const [];
     }
     return [
-      _InspectorFactData('Variant cover', variant.name),
+      LibraryInspectorFactData('Variant cover', variant.name),
       if (variant.variantType != null)
-        _InspectorFactData('Variant type', variant.variantType!),
-      if (variant.region != null) _InspectorFactData('Region', variant.region!),
+        LibraryInspectorFactData('Variant type', variant.variantType!),
+      if (variant.region != null)
+        LibraryInspectorFactData('Region', variant.region!),
       if (variant.barcode != null)
-        _InspectorFactData('Barcode', variant.barcode!),
+        LibraryInspectorFactData('Barcode', variant.barcode!),
       if (variant.description != null && variant.description!.isNotEmpty)
-        _InspectorFactData('Description', variant.description!),
+        LibraryInspectorFactData('Description', variant.description!),
     ];
   }
 
@@ -4679,7 +4686,7 @@ class _RichMetadataInspector extends StatelessWidget {
     ];
   }
 
-  List<_InspectorFactData> _providerFacts(
+  List<LibraryInspectorFactData> _providerFacts(
     ComicDetail? detail,
     ComicEdition? edition,
   ) {
@@ -4695,7 +4702,7 @@ class _RichMetadataInspector extends StatelessWidget {
         '';
     return [
       for (final link in detail?.providerLinks ?? const <ComicProviderLink>[])
-        _InspectorFactData(
+        LibraryInspectorFactData(
           link.provider,
           [
             '${link.entityType}: ${link.providerItemId}',
@@ -4703,235 +4710,21 @@ class _RichMetadataInspector extends StatelessWidget {
           ].whereType<String>().join(' | '),
         ),
       if (metadata?['provider'] != null)
-        _InspectorFactData('Provider', metadata!['provider'].toString()),
+        LibraryInspectorFactData('Provider', metadata!['provider'].toString()),
       if (metadata?['provider_item_id'] != null)
-        _InspectorFactData(
+        LibraryInspectorFactData(
           'Provider ID',
           metadata!['provider_item_id'].toString(),
         ),
       if (source?['site_detail_url'] != null)
-        _InspectorFactData('Source URL', source!['site_detail_url'].toString()),
+        LibraryInspectorFactData(
+            'Source URL', source!['site_detail_url'].toString()),
       if (source?['api_detail_url'] != null)
-        _InspectorFactData('API URL', source!['api_detail_url'].toString()),
-      if (releaseIds.isNotEmpty) _InspectorFactData('Release IDs', releaseIds),
+        LibraryInspectorFactData(
+            'API URL', source!['api_detail_url'].toString()),
+      if (releaseIds.isNotEmpty)
+        LibraryInspectorFactData('Release IDs', releaseIds),
     ];
-  }
-}
-
-class _InspectorFactData {
-  const _InspectorFactData(this.label, this.value);
-
-  final String label;
-  final String value;
-}
-
-class _InspectorSection extends StatelessWidget {
-  const _InspectorSection({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: const Color(0xD51C1F21),
-          border: const Border(
-            left: BorderSide(color: _kClzAccent, width: 2),
-            top: BorderSide(color: Color(0x444DBBD5)),
-            right: BorderSide(color: Color(0x33222222)),
-            bottom: BorderSide(color: Color(0x33222222)),
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x66000000),
-              blurRadius: 8,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(9, 7, 9, 9),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DecoratedBox(
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Color(0x224DBBD5)),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: _kClzAccent,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 13,
-                            ),
-                      ),
-                      const Spacer(),
-                      const Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 16,
-                        color: _kClzTextMuted,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 7),
-              ...children,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _InspectorFactGrid extends StatelessWidget {
-  const _InspectorFactGrid({required this.facts});
-
-  final List<_InspectorFactData> facts;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final twoColumns = constraints.maxWidth >= 420;
-        if (!twoColumns) {
-          return Column(
-            children: [
-              for (final fact in facts) _InspectorFact(fact.label, fact.value),
-            ],
-          );
-        }
-        return Wrap(
-          runSpacing: 0,
-          children: [
-            for (final fact in facts)
-              SizedBox(
-                width: constraints.maxWidth / 2,
-                child: _InspectorFact(fact.label, fact.value),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _InspectorFact extends StatelessWidget {
-  const _InspectorFact(this.label, this.value);
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 104,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: _kClzTextMuted,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                  ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InspectorChipSection extends StatelessWidget {
-  const _InspectorChipSection({required this.title, required this.values});
-
-  final String title;
-  final List<String> values;
-
-  @override
-  Widget build(BuildContext context) {
-    return _InspectorSection(
-      title: title,
-      children: [
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final value in values.take(10)) _InspectorChip(value),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _InspectorChipWrap extends StatelessWidget {
-  const _InspectorChipWrap({required this.values});
-
-  final List<String> values;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: [
-        for (final value in values) _InspectorChip(value),
-      ],
-    );
-  }
-}
-
-class _InspectorChip extends StatelessWidget {
-  const _InspectorChip(this.value);
-
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF183B44),
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: const Color(0x8837C7E8)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-        child: Text(
-          value,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-      ),
-    );
   }
 }
 
