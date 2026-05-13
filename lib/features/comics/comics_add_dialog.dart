@@ -5,9 +5,12 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/comics/comics_barcode_lookup.dart';
+import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/comics_inspector.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/comics/comics_manual_metadata_dialogs.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
@@ -21,111 +24,13 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const Color _kClzToolbar = Color(0xFF2B2B2B);
-const Color _kClzPanel = Color(0xFF1D1D1D);
-const Color _kClzPanelRaised = Color(0xFF2F2F2F);
-const Color _kClzCanvas = Color(0xFF141414);
-const Color _kClzAccent = Color(0xFF10A8D8);
-const Color _kClzSelection = Color(0xFF075F75);
-const Color _kClzYellow = Color(0xFFFFD400);
-const Color _kClzDivider = Color(0xFF4A4A4A);
-final ThemeData _kClzComicsTheme = _buildClzComicsTheme();
-final ThemeData _kClzAddComicDialogTheme = _kClzComicsTheme.copyWith(
-  inputDecorationTheme: const InputDecorationTheme(
-    filled: true,
-    fillColor: Color(0xFF111111),
-    isDense: true,
-    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-    border: OutlineInputBorder(
-      borderSide: BorderSide(color: _kClzDivider),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: _kClzDivider),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: _kClzAccent),
-    ),
-  ),
-);
-
-ThemeData _buildClzComicsTheme() {
-  final base = ThemeData.dark(useMaterial3: true);
-  final scheme = ColorScheme.fromSeed(
-    seedColor: _kClzAccent,
-    brightness: Brightness.dark,
-    surface: _kClzPanel,
-  );
-  return base.copyWith(
-    colorScheme: scheme.copyWith(
-      primary: _kClzAccent,
-      secondary: _kClzYellow,
-      surface: _kClzPanel,
-      surfaceContainerLowest: _kClzCanvas,
-      surfaceContainerLow: _kClzPanel,
-      surfaceContainer: _kClzToolbar,
-      surfaceContainerHigh: _kClzPanelRaised,
-      surfaceContainerHighest: const Color(0xFF3A3A3A),
-      outline: _kClzDivider,
-      outlineVariant: const Color(0xFF373737),
-    ),
-    scaffoldBackgroundColor: _kClzCanvas,
-    dividerTheme: const DividerThemeData(
-      color: _kClzDivider,
-      thickness: 1,
-      space: 1,
-    ),
-    iconButtonTheme: IconButtonThemeData(
-      style: IconButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF343434),
-        disabledForegroundColor: const Color(0xFF777777),
-        disabledBackgroundColor: const Color(0xFF252525),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      ),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: _kClzAccent,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-        visualDensity: VisualDensity.compact,
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: const BorderSide(color: _kClzDivider),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-        visualDensity: VisualDensity.compact,
-      ),
-    ),
-    inputDecorationTheme: const InputDecorationTheme(
-      filled: true,
-      fillColor: Color(0xFF101010),
-      isDense: true,
-      border: OutlineInputBorder(
-        borderSide: BorderSide(color: _kClzDivider),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: _kClzDivider),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: _kClzAccent),
-      ),
-    ),
-    chipTheme: base.chipTheme.copyWith(
-      backgroundColor: const Color(0xFF343434),
-      selectedColor: _kClzSelection,
-      labelStyle: const TextStyle(color: Colors.white),
-      side: const BorderSide(color: _kClzDivider),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-    ),
-    dialogTheme: DialogThemeData(
-      backgroundColor: _kClzPanel,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-    ),
-  );
-}
+const Color _kClzToolbar = kClzToolbar;
+const Color _kClzPanel = kClzPanel;
+const Color _kClzAccent = kClzAccent;
+const Color _kClzSelection = kClzSelection;
+const Color _kClzYellow = kClzYellow;
+const Color _kClzDivider = kClzDivider;
+final ThemeData _kClzAddComicDialogTheme = kClzAddComicDialogTheme;
 
 class _CoverImage extends StatelessWidget {
   const _CoverImage({required this.item});
@@ -185,104 +90,11 @@ String _formatDate(DateTime value) {
   return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
 }
 
-String? _emptyToNull(String value) {
-  final trimmed = value.trim();
-  return trimmed.isEmpty ? null : trimmed;
-}
-
 class AddComicDialog extends ConsumerStatefulWidget {
   const AddComicDialog({super.key});
 
   @override
   ConsumerState<AddComicDialog> createState() => AddComicDialogState();
-}
-
-enum _BarcodeLookupStatus {
-  pending,
-  lookingUp,
-  found,
-  missing;
-
-  String get label => switch (this) {
-        _BarcodeLookupStatus.pending => 'Pending',
-        _BarcodeLookupStatus.lookingUp => 'Looking up',
-        _BarcodeLookupStatus.found => 'Found',
-        _BarcodeLookupStatus.missing => 'Not found',
-      };
-
-  IconData get icon => switch (this) {
-        _BarcodeLookupStatus.pending => Icons.schedule,
-        _BarcodeLookupStatus.lookingUp => Icons.sync,
-        _BarcodeLookupStatus.found => Icons.check_circle,
-        _BarcodeLookupStatus.missing => Icons.error_outline,
-      };
-
-  Color get color => switch (this) {
-        _BarcodeLookupStatus.pending => const Color(0xFFB8B8B8),
-        _BarcodeLookupStatus.lookingUp => const Color(0xFF18B7EB),
-        _BarcodeLookupStatus.found => const Color(0xFF59D17D),
-        _BarcodeLookupStatus.missing => const Color(0xFFFFC857),
-      };
-}
-
-class _BarcodeLookupEntry {
-  const _BarcodeLookupEntry({
-    required this.code,
-    required this.status,
-    this.item,
-    this.error,
-  });
-
-  factory _BarcodeLookupEntry.pending(String code) {
-    return _BarcodeLookupEntry(
-      code: code,
-      status: _BarcodeLookupStatus.pending,
-    );
-  }
-
-  factory _BarcodeLookupEntry.lookingUp(String code) {
-    return _BarcodeLookupEntry(
-      code: code,
-      status: _BarcodeLookupStatus.lookingUp,
-    );
-  }
-
-  factory _BarcodeLookupEntry.found({
-    required String code,
-    required CatalogItem item,
-  }) {
-    return _BarcodeLookupEntry(
-      code: code,
-      status: _BarcodeLookupStatus.found,
-      item: item,
-    );
-  }
-
-  factory _BarcodeLookupEntry.missing(String code) {
-    return _BarcodeLookupEntry(
-      code: code,
-      status: _BarcodeLookupStatus.missing,
-      error: 'No match',
-    );
-  }
-
-  final String code;
-  final _BarcodeLookupStatus status;
-  final CatalogItem? item;
-  final String? error;
-
-  _BarcodeLookupEntry copyWith({
-    _BarcodeLookupStatus? status,
-    CatalogItem? item,
-    String? error,
-  }) {
-    return _BarcodeLookupEntry(
-      code: code,
-      status: status ?? this.status,
-      item: item ?? this.item,
-      error: error,
-    );
-  }
 }
 
 class AddComicDialogState extends ConsumerState<AddComicDialog> {
@@ -299,7 +111,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   String? _selectedProviderId;
   final _checkedServerIds = <String>{};
   final _collapsedAddSeries = <String>{};
-  final _barcodeBatch = <_BarcodeLookupEntry>[];
+  final _barcodeBatch = <BarcodeLookupEntry>[];
   final _barcodeHistory = <String>[];
   bool _searchedServer = false;
   bool _searchedProvider = false;
@@ -771,7 +583,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       return false;
     }
     setState(() {
-      _barcodeBatch.add(_BarcodeLookupEntry.pending(code));
+      _barcodeBatch.add(BarcodeLookupEntry.pending(code));
     });
     return true;
   }
@@ -807,10 +619,10 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         for (final code in normalizedCodes) {
           final index = _barcodeBatch.indexWhere((entry) => entry.code == code);
           if (index == -1) {
-            _barcodeBatch.add(_BarcodeLookupEntry.lookingUp(code));
+            _barcodeBatch.add(BarcodeLookupEntry.lookingUp(code));
           } else {
             _barcodeBatch[index] = _barcodeBatch[index].copyWith(
-              status: _BarcodeLookupStatus.lookingUp,
+              status: BarcodeLookupStatus.lookingUp,
               error: null,
             );
           }
@@ -830,7 +642,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
           }
           _updateBarcodeBatchEntry(
             code,
-            _BarcodeLookupEntry.found(code: code, item: item),
+            BarcodeLookupEntry.found(code: code, item: item),
           );
         } catch (_) {
           if (!mounted) {
@@ -838,7 +650,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
           }
           _updateBarcodeBatchEntry(
             code,
-            _BarcodeLookupEntry.missing(code),
+            BarcodeLookupEntry.missing(code),
           );
         }
       }
@@ -870,7 +682,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     }
   }
 
-  void _updateBarcodeBatchEntry(String code, _BarcodeLookupEntry entry) {
+  void _updateBarcodeBatchEntry(String code, BarcodeLookupEntry entry) {
     setState(() {
       final index = _barcodeBatch.indexWhere((row) => row.code == code);
       if (index == -1) {
@@ -1040,7 +852,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   Future<void> _addManualComic() async {
     final item = await showDialog<CatalogItem>(
       context: context,
-      builder: (context) => const _ManualComicDialog(),
+      builder: (context) => const ManualComicDialog(),
     );
     if (item == null || !mounted) {
       return;
@@ -1064,9 +876,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   }
 
   Future<void> _proposeManualComic() async {
-    final proposal = await showDialog<_ManualProposalDraft>(
+    final proposal = await showDialog<ManualProposalDraft>(
       context: context,
-      builder: (context) => const _ManualProposalDialog(),
+      builder: (context) => const ManualProposalDialog(),
     );
     if (proposal == null || !mounted) {
       return;
@@ -1173,7 +985,7 @@ class _AddComicModeBar extends StatelessWidget {
   final TextEditingController publisherController;
   final TextEditingController yearController;
   final TextEditingController barcodeController;
-  final List<_BarcodeLookupEntry> barcodeBatch;
+  final List<BarcodeLookupEntry> barcodeBatch;
   final List<String> barcodeHistory;
   final bool showAdvancedFilters;
   final bool isSearching;
@@ -1334,18 +1146,18 @@ class _AddComicModeBar extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const _BarcodeLookupStrip(),
+                          const BarcodeLookupStrip(),
                           if (barcodeHistory.isNotEmpty &&
                               barcodeBatch.isEmpty) ...[
                             const SizedBox(height: 8),
-                            _BarcodeHistoryStrip(
+                            BarcodeHistoryStrip(
                               codes: barcodeHistory,
                               onUse: onUseBarcodeHistory,
                             ),
                           ],
                           if (barcodeBatch.isNotEmpty) ...[
                             const SizedBox(height: 8),
-                            _BarcodeBatchPanel(
+                            BarcodeBatchPanel(
                               entries: barcodeBatch,
                               isLookingUp: isSearching,
                               onLookupAll: onLookupBarcodeBatch,
@@ -1378,212 +1190,6 @@ class _AddComicModeBar extends StatelessWidget {
             },
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _BarcodeLookupStrip extends StatelessWidget {
-  const _BarcodeLookupStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: const Color(0xFF242424),
-        border: Border.all(color: const Color(0xFF555555)),
-      ),
-      child: const Wrap(
-        spacing: 8,
-        runSpacing: 6,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          _AddInfoChip(icon: Icons.radio_button_checked, label: 'Connected'),
-          _AddInfoChip(icon: Icons.center_focus_strong, label: 'Camera scan'),
-          _AddInfoChip(icon: Icons.keyboard, label: 'Manual UPC/EAN'),
-          _AddInfoChip(icon: Icons.cleaning_services, label: 'Auto-normalize'),
-        ],
-      ),
-    );
-  }
-}
-
-class _BarcodeHistoryStrip extends StatelessWidget {
-  const _BarcodeHistoryStrip({
-    required this.codes,
-    required this.onUse,
-  });
-
-  final List<String> codes;
-  final ValueChanged<String> onUse;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(top: 5),
-          child: Text(
-            'Recent',
-            style: TextStyle(
-              color: Color(0xFFB8B8B8),
-              fontSize: 11,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Wrap(
-            spacing: 5,
-            runSpacing: 5,
-            children: [
-              for (final code in codes)
-                ActionChip(
-                  visualDensity: VisualDensity.compact,
-                  label: Text(code),
-                  avatar: const Icon(Icons.history, size: 16),
-                  onPressed: () => onUse(code),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _BarcodeBatchPanel extends StatelessWidget {
-  const _BarcodeBatchPanel({
-    required this.entries,
-    required this.isLookingUp,
-    required this.onLookupAll,
-    required this.onRemove,
-    required this.onClear,
-  });
-
-  final List<_BarcodeLookupEntry> entries;
-  final bool isLookingUp;
-  final VoidCallback onLookupAll;
-  final ValueChanged<String> onRemove;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final found = entries.where((entry) => entry.item != null).length;
-    final missing = entries
-        .where((entry) => entry.status == _BarcodeLookupStatus.missing)
-        .length;
-    return Container(
-      constraints: const BoxConstraints(maxHeight: 168),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F1F1F),
-        border: Border.all(color: const Color(0xFF555555)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
-            decoration: const BoxDecoration(
-              color: Color(0xFF282828),
-              border: Border(bottom: BorderSide(color: Color(0xFF444444))),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      LibraryAddResultBadge('${entries.length} scanned'),
-                      LibraryAddResultBadge('$found found'),
-                      if (missing > 0)
-                        LibraryAddResultBadge('$missing missing'),
-                    ],
-                  ),
-                ),
-                TextButton(
-                  onPressed: isLookingUp ? null : onLookupAll,
-                  child: const Text('Lookup all'),
-                ),
-                TextButton(
-                  onPressed: isLookingUp ? null : onClear,
-                  child: const Text('Clear'),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: entries.length,
-              itemBuilder: (context, index) {
-                final entry = entries[index];
-                return _BarcodeBatchRow(
-                  entry: entry,
-                  onRemove: () => onRemove(entry.code),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BarcodeBatchRow extends StatelessWidget {
-  const _BarcodeBatchRow({required this.entry, required this.onRemove});
-
-  final _BarcodeLookupEntry entry;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    final item = entry.item;
-    final label = item == null
-        ? entry.status.label
-        : item.itemNumber == null
-            ? item.title
-            : '${item.title} #${item.itemNumber}';
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 5, 4, 5),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFF333333))),
-      ),
-      child: Row(
-        children: [
-          Icon(entry.status.icon, size: 16, color: entry.status.color),
-          const SizedBox(width: 7),
-          SizedBox(
-            width: 128,
-            child: Text(
-              entry.code,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontFeatures: []),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: item == null ? const Color(0xFFCCCCCC) : Colors.white,
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Remove barcode',
-            visualDensity: VisualDensity.compact,
-            onPressed: onRemove,
-            icon: const Icon(Icons.close, size: 16),
-          ),
-        ],
       ),
     );
   }
@@ -3196,230 +2802,6 @@ class _SmallDropdown extends StatelessWidget {
             DropdownMenuItem(value: item, child: Text(item)),
         ],
         onChanged: onChanged,
-      ),
-    );
-  }
-}
-
-class _ManualComicDialog extends StatefulWidget {
-  const _ManualComicDialog();
-
-  @override
-  State<_ManualComicDialog> createState() => _ManualComicDialogState();
-}
-
-class _ManualComicDialogState extends State<_ManualComicDialog> {
-  final _titleController = TextEditingController();
-  final _issueController = TextEditingController();
-  final _publisherController = TextEditingController();
-  final _yearController = TextEditingController();
-  final _barcodeController = TextEditingController();
-  final _variantController = TextEditingController();
-  final _synopsisController = TextEditingController();
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _issueController.dispose();
-    _publisherController.dispose();
-    _yearController.dispose();
-    _barcodeController.dispose();
-    _variantController.dispose();
-    _synopsisController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Add manual comic'),
-      content: SizedBox(
-        width: 520,
-        child: SingleChildScrollView(
-          child: Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              _DialogTextField(
-                width: 320,
-                controller: _titleController,
-                label: 'Series / title',
-              ),
-              _DialogTextField(
-                width: 110,
-                controller: _issueController,
-                label: 'Issue #',
-              ),
-              _DialogTextField(
-                width: 220,
-                controller: _publisherController,
-                label: 'Publisher',
-              ),
-              _DialogTextField(
-                width: 100,
-                controller: _yearController,
-                label: 'Year',
-                keyboardType: TextInputType.number,
-              ),
-              _DialogTextField(
-                width: 220,
-                controller: _barcodeController,
-                label: 'Barcode / UPC',
-                keyboardType: TextInputType.number,
-              ),
-              _DialogTextField(
-                width: 220,
-                controller: _variantController,
-                label: 'Variant',
-              ),
-              _DialogTextField(
-                width: 500,
-                controller: _synopsisController,
-                label: 'Plot / notes',
-                maxLines: 4,
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () {
-            final title = _titleController.text.trim();
-            if (title.isEmpty) {
-              return;
-            }
-            Navigator.of(context).pop(
-              CatalogItem(
-                id: 'manual-comic-${DateTime.now().microsecondsSinceEpoch}',
-                kind: comicsLibraryConfig.workspace.kind,
-                title: title,
-                itemNumber: _emptyToNull(_issueController.text),
-                synopsis: _emptyToNull(_synopsisController.text),
-                publisher: _emptyToNull(_publisherController.text),
-                releaseYear: int.tryParse(_yearController.text.trim()),
-                barcode: _emptyToNull(_barcodeController.text),
-                variant: _emptyToNull(_variantController.text),
-              ),
-            );
-          },
-          child: const Text('Add to results'),
-        ),
-      ],
-    );
-  }
-}
-
-class _ManualProposalDialog extends StatefulWidget {
-  const _ManualProposalDialog();
-
-  @override
-  State<_ManualProposalDialog> createState() => _ManualProposalDialogState();
-}
-
-class _ManualProposalDialogState extends State<_ManualProposalDialog> {
-  final _titleController = TextEditingController();
-  final _notesController = TextEditingController();
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Propose manual metadata'),
-      content: SizedBox(
-        width: 480,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Comic title / issue',
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _notesController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Source notes',
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () {
-            final title = _titleController.text.trim();
-            if (title.isEmpty) {
-              return;
-            }
-            Navigator.of(context).pop(
-              _ManualProposalDraft(
-                title: title,
-                notes: _emptyToNull(_notesController.text),
-              ),
-            );
-          },
-          child: const Text('Send proposal'),
-        ),
-      ],
-    );
-  }
-}
-
-class _ManualProposalDraft {
-  const _ManualProposalDraft({required this.title, required this.notes});
-
-  final String title;
-  final String? notes;
-}
-
-class _DialogTextField extends StatelessWidget {
-  const _DialogTextField({
-    required this.width,
-    required this.controller,
-    required this.label,
-    this.keyboardType,
-    this.maxLines = 1,
-  });
-
-  final double width;
-  final TextEditingController controller;
-  final String label;
-  final TextInputType? keyboardType;
-  final int maxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          isDense: true,
-          border: const OutlineInputBorder(),
-          labelText: label,
-        ),
       ),
     );
   }
