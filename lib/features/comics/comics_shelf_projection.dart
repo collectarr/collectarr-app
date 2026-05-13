@@ -32,17 +32,26 @@ class ComicsFilterOptions {
   final List<String> releaseYears;
 
   factory ComicsFilterOptions.fromEntries(List<ShelfEntry> entries) {
+    final grades = <String>{};
+    final conditions = <String>{};
+    final publishers = <String>{};
+    final releaseYears = <String>{};
+
+    for (final entry in entries) {
+      _addFilterOption(grades, entry.ownedItem?.grade);
+      _addFilterOption(conditions, entry.ownedItem?.condition);
+      _addFilterOption(publishers, entry.catalogItem?.publisher);
+      _addFilterOption(
+        releaseYears,
+        entry.catalogItem?.releaseYear?.toString(),
+      );
+    }
+
     return ComicsFilterOptions(
-      grades: _filterOptions(entries.map((entry) => entry.ownedItem?.grade)),
-      conditions: _filterOptions(
-        entries.map((entry) => entry.ownedItem?.condition),
-      ),
-      publishers: _filterOptions(
-        entries.map((entry) => entry.catalogItem?.publisher),
-      ),
-      releaseYears: _filterOptions(
-        entries.map((entry) => entry.catalogItem?.releaseYear?.toString()),
-      ),
+      grades: _sortedFilterOptions(grades),
+      conditions: _sortedFilterOptions(conditions),
+      publishers: _sortedFilterOptions(publishers),
+      releaseYears: _sortedFilterOptions(releaseYears),
     );
   }
 }
@@ -136,11 +145,15 @@ bool _matchesValueFilter(String? value, String? filter) {
   return value == filter;
 }
 
-List<String> _filterOptions(Iterable<String?> values) {
-  final options = {
-    for (final value in values)
-      if (value != null && value.trim().isNotEmpty) value.trim(),
-  }.toList(growable: false)
+void _addFilterOption(Set<String> options, String? value) {
+  final normalized = value?.trim();
+  if (normalized != null && normalized.isNotEmpty) {
+    options.add(normalized);
+  }
+}
+
+List<String> _sortedFilterOptions(Set<String> values) {
+  final options = values.toList(growable: false)
     ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
   return options;
 }

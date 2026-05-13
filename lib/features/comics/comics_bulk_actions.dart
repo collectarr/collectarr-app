@@ -11,11 +11,12 @@ class ComicsBulkActions {
     required List<ShelfEntry> entries,
     required ComicsBulkEditSelection selection,
   }) async {
-    for (final entry in entries) {
-      final ownedItem = entry.ownedItem;
-      if (ownedItem == null) {
-        continue;
-      }
+    final ownedEntries = [
+      for (final entry in entries)
+        if (entry.ownedItem != null) entry,
+    ];
+    for (var index = 0; index < ownedEntries.length; index++) {
+      final ownedItem = ownedEntries[index].ownedItem!;
       await mutations.updateItem(
         ownedItem,
         condition: selection.condition ?? ownedItem.condition,
@@ -37,42 +38,69 @@ class ComicsBulkActions {
         rating: ownedItem.rating,
         readStatus: selection.readStatus ?? ownedItem.readStatus,
         tags: selection.tags ?? ownedItem.tags,
+        notify: index == ownedEntries.length - 1,
       );
     }
   }
 
   Future<void> moveSelectedToOwned(List<ShelfEntry> entries) async {
-    for (final entry in entries) {
-      if (entry.ownedItem != null) {
-        continue;
-      }
+    final entriesToOwn = [
+      for (final entry in entries)
+        if (entry.ownedItem == null) entry,
+    ];
+    final lastWishlistedIndex =
+        entriesToOwn.lastIndexWhere((entry) => entry.isWishlisted);
+    for (var index = 0; index < entriesToOwn.length; index++) {
+      final entry = entriesToOwn[index];
       await mutations.addItem(
         entry.itemId,
         condition: 'Near Mint',
         grade: 'Ungraded',
+        notify:
+            index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
       );
     }
   }
 
   Future<void> moveSelectedToWishlist(List<ShelfEntry> entries) async {
-    for (final entry in entries) {
-      await mutations.addToWishlist(entry.itemId);
-      final ownedItem = entry.ownedItem;
-      if (ownedItem != null) {
-        await mutations.removeItem(ownedItem);
-      }
+    for (var index = 0; index < entries.length; index++) {
+      await mutations.addToWishlist(
+        entries[index].itemId,
+        notify: index == entries.length - 1,
+      );
+    }
+    final ownedEntries = [
+      for (final entry in entries)
+        if (entry.ownedItem != null) entry,
+    ];
+    for (var index = 0; index < ownedEntries.length; index++) {
+      await mutations.removeItem(
+        ownedEntries[index].ownedItem!,
+        notify: index == ownedEntries.length - 1,
+      );
     }
   }
 
   Future<void> removeSelected(List<ShelfEntry> entries) async {
-    for (final entry in entries) {
-      final ownedItem = entry.ownedItem;
-      if (ownedItem != null) {
-        await mutations.removeItem(ownedItem);
-      }
-      if (entry.isWishlisted) {
-        await mutations.removeFromWishlist(entry.itemId);
-      }
+    final ownedEntries = [
+      for (final entry in entries)
+        if (entry.ownedItem != null) entry,
+    ];
+    for (var index = 0; index < ownedEntries.length; index++) {
+      await mutations.removeItem(
+        ownedEntries[index].ownedItem!,
+        notify: index == ownedEntries.length - 1,
+      );
+    }
+    final wishlistedEntries = [
+      for (final entry in entries)
+        if (entry.isWishlisted) entry,
+    ];
+    for (var index = 0; index < wishlistedEntries.length; index++) {
+      await mutations.removeFromWishlist(
+        wishlistedEntries[index].itemId,
+        notify: index == wishlistedEntries.length - 1,
+      );
     }
   }
 }
