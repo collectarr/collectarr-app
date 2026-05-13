@@ -1,14 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
-import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_compact_view.dart';
-import 'package:collectarr_app/features/comics/comics_inspector.dart';
-import 'package:collectarr_app/features/comics/comics_shelf_views.dart';
-import 'package:collectarr_app/features/comics/comics_stats.dart';
-import 'package:collectarr_app/features/comics/comics_toolbar.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_chrome.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_controls.dart';
-import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
+import 'package:collectarr_app/features/comics/comics_workspace_desktop.dart';
+import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -95,21 +89,16 @@ class ComicsWorkspace extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final isWide = width >= _kDesktopBreakpoint;
-    final series = _seriesBuckets(items);
-    final visibleItems = selectedSeries == null
-        ? items
-        : items
-            .where((item) => item.title == selectedSeries)
-            .toList(growable: false);
-    final selectedItem = _selectedItem(visibleItems, selectedItemId);
-    final missingIssues = selectedSeries == null
-        ? const <int>[]
-        : _missingIssueNumbers(visibleItems);
+    final projection = ComicsWorkspaceProjection.fromItems(
+      items: items,
+      selectedSeries: selectedSeries,
+      selectedItemId: selectedItemId,
+    );
 
     if (!isWide) {
       return ComicsCompactView(
-        items: visibleItems,
-        selectedItem: selectedItem,
+        items: projection.visibleItems,
+        selectedItem: projection.selectedItem,
         selectedSeries: selectedSeries,
         queryController: queryController,
         onSearch: onSearch,
@@ -125,178 +114,48 @@ class ComicsWorkspace extends StatelessWidget {
       );
     }
 
-    return Column(
-      children: [
-        ComicsTopBar(totalCount: items.length),
-        ComicsToolbar(
-          controller: queryController,
-          controlState: ComicsWorkspaceControlState(
-            selection: ComicsSelectionControlState(
-              enabled: selectionMode,
-              selectedCount: selectedItemIds.length,
-            ),
-            utility: ComicsWorkspaceUtilityState(
-              selectedSeries: selectedSeries,
-              hasActiveFilters: hasActiveFilters,
-              missingIssues: missingIssues,
-            ),
-            view: ComicsViewTableControlState(
-              counts: ComicsWorkspaceCounts(
-                shown: visibleItems.length,
-                total: items.length,
-              ),
-              viewMode: viewMode,
-              detailsLayout: detailsLayout,
-              coverSize: coverSize,
-            ),
-          ),
-          controlCallbacks: ComicsWorkspaceControlCallbacks(
-            selection: ComicsSelectionControlCallbacks(
-              onSelectionModeChanged: onSelectionModeChanged,
-              onClearSelection: onClearSelection,
-              onBulkEdit: onBulkEdit,
-              onBulkMoveToOwned: onBulkMoveToOwned,
-              onBulkMoveToWishlist: onBulkMoveToWishlist,
-              onBulkRemove: onBulkRemove,
-            ),
-            utility: ComicsWorkspaceUtilityCallbacks(
-              onShowStats: () => showComicsStatsDashboardDialog(
-                context,
-                state: shelfState,
-                selectedSeries: selectedSeries,
-                missingIssues: missingIssues,
-              ),
-              onEditFilters: onEditFilters,
-            ),
-            view: ComicsViewTableControlCallbacks(
-              onEditColumns: onEditColumns,
-              onViewModeChanged: onViewModeChanged,
-              onDetailsLayoutChanged: onDetailsLayoutChanged,
-              onViewPresetSelected: onViewPresetSelected,
-              onCoverSizeChanged: onCoverSizeChanged,
-            ),
-          ),
-          onSearch: onSearch,
-          onAddComic: onAddComic,
-          onScanBarcode: onScanBarcode,
-          onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
-          onClearSeries: onClearSeries,
-        ),
-        ComicsStatsBar(
-          state: shelfState,
-          selectedSeries: selectedSeries,
-          missingIssues: missingIssues,
-        ),
-        Expanded(
-          child: Row(
-            children: [
-              SizedBox(
-                width: 250,
-                child: LibrarySeriesSidebar(
-                  series: series,
-                  selectedSeries: selectedSeries,
-                  onSelectSeries: onSelectSeries,
-                  backgroundColor: kClzPanel,
-                  headerColor: const Color(0xFF303030),
-                  dividerColor: kClzDivider,
-                  accentColor: kClzAccent,
-                  selectionColor: kClzSelection,
-                  selectedBadgeColor: kClzYellow,
-                  mutedTextColor: kClzTextMuted,
-                ),
-              ),
-              const VerticalDivider(width: 1),
-              Expanded(
-                child: ComicsDetailsAwareLayout(
-                  content: ComicsShelfContent(
-                    viewMode: viewMode,
-                    items: visibleItems,
-                    selectedItemId: selectedItem?.id,
-                    selectedItemIds: selectedItemIds,
-                    coverSize: coverSize,
-                    sortColumn: sortColumn,
-                    sortAscending: sortAscending,
-                    visibleColumns: visibleColumns,
-                    columnWidths: columnWidths,
-                    onSortChanged: onSortChanged,
-                    onColumnWidthChanged: onColumnWidthChanged,
-                    onAddComic: onAddComic,
-                    onSelectItem: onSelectItem,
-                  ),
-                  detailsLayout: detailsLayout,
-                  inspector: LibraryAwareComicInspector(item: selectedItem),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return ComicsWorkspaceDesktopLayout(
+      projection: projection,
+      shelfState: shelfState,
+      queryController: queryController,
+      selectedSeries: selectedSeries,
+      viewMode: viewMode,
+      detailsLayout: detailsLayout,
+      sortColumn: sortColumn,
+      sortAscending: sortAscending,
+      coverSize: coverSize,
+      visibleColumns: visibleColumns,
+      columnWidths: columnWidths,
+      selectionMode: selectionMode,
+      selectedItemIds: selectedItemIds,
+      hasActiveFilters: hasActiveFilters,
+      onEditFilters: onEditFilters,
+      onEditColumns: onEditColumns,
+      onSearch: onSearch,
+      onAddComic: onAddComic,
+      onSelectItem: onSelectItem,
+      onSelectSeries: onSelectSeries,
+      onClearSeries: onClearSeries,
+      onScanBarcode: onScanBarcode,
+      onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
+      onViewModeChanged: onViewModeChanged,
+      onDetailsLayoutChanged: onDetailsLayoutChanged,
+      onViewPresetSelected: onViewPresetSelected,
+      onSortChanged: onSortChanged,
+      onColumnWidthChanged: onColumnWidthChanged,
+      onCoverSizeChanged: onCoverSizeChanged,
+      onSelectionModeChanged: onSelectionModeChanged,
+      onClearSelection: onClearSelection,
+      onBulkEdit: onBulkEdit,
+      onBulkMoveToOwned: onBulkMoveToOwned,
+      onBulkMoveToWishlist: onBulkMoveToWishlist,
+      onBulkRemove: onBulkRemove,
     );
   }
-}
-
-List<LibrarySeriesBucket> _seriesBuckets(List<CatalogItem> source) {
-  final counts = <String, int>{};
-  for (final item in source) {
-    counts[item.title] = (counts[item.title] ?? 0) + 1;
-  }
-  final buckets = counts.entries
-      .map(
-        (entry) => LibrarySeriesBucket(
-          title: entry.key,
-          count: entry.value,
-        ),
-      )
-      .toList(growable: false)
-    ..sort(
-      (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
-    );
-  return buckets;
 }
 
 void _showMetadataRefreshPlaceholder(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(content: Text('Metadata refresh is not wired yet')),
   );
-}
-
-List<int> _missingIssueNumbers(List<CatalogItem> source) {
-  final numbers = {
-    for (final item in source)
-      if (_parseIssueNumber(item.itemNumber) != null)
-        _parseIssueNumber(item.itemNumber)!,
-  }.toList(growable: false)
-    ..sort();
-  if (numbers.length < 2) {
-    return const [];
-  }
-  final missing = <int>[];
-  for (var number = numbers.first; number <= numbers.last; number++) {
-    if (!numbers.contains(number)) {
-      missing.add(number);
-    }
-  }
-  return missing;
-}
-
-CatalogItem? _selectedItem(List<CatalogItem> visibleItems, String? selectedId) {
-  if (visibleItems.isEmpty) {
-    return null;
-  }
-  if (selectedId == null) {
-    return visibleItems.first;
-  }
-  for (final item in visibleItems) {
-    if (item.id == selectedId) {
-      return item;
-    }
-  }
-  return visibleItems.first;
-}
-
-int? _parseIssueNumber(String? value) {
-  if (value == null) {
-    return null;
-  }
-  return int.tryParse(value.trim());
 }
