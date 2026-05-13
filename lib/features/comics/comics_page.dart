@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.d
 import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -2437,10 +2438,12 @@ class _CardGrid extends StatelessWidget {
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
+          final ownedItem = ownedByItemId[item.id];
           return _ComicCard(
-            item: item,
-            libraryState: LibraryItemState(
-              ownedItem: ownedByItemId[item.id],
+            entry: _comicWorkspaceEntry(
+              item,
+              ownedItem,
+              null,
               isWishlisted: wishlistIds.contains(item.id),
             ),
             selected:
@@ -2455,145 +2458,26 @@ class _CardGrid extends StatelessWidget {
 
 class _ComicCard extends StatelessWidget {
   const _ComicCard({
-    required this.item,
-    required this.libraryState,
+    required this.entry,
     required this.selected,
     required this.onTap,
   });
 
-  final CatalogItem item;
-  final LibraryItemState libraryState;
+  final LibraryWorkspaceEntry entry;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final ownedItem = libraryState.ownedItem;
-    return InkWell(
+    return LibraryWorkspaceCard(
+      entry: entry,
+      selected: selected,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: selected ? _kClzSelection : const Color(0xFF181818),
-          border: Border.all(
-            color: selected ? _kClzAccent : const Color(0xFF363636),
-            width: selected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 72,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _CoverImage(item: item),
-                  Positioned(
-                    left: 4,
-                    top: 4,
-                    child: LibraryCoverBadges(
-                      isOwned: libraryState.isOwned,
-                      isWishlisted: libraryState.isWishlisted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: selected
-                                        ? Colors.white
-                                        : const Color(0xFF82DDF2),
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                        ),
-                      ),
-                      if (item.itemNumber != null)
-                        _IssuePill(label: '#${item.itemNumber}'),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    [
-                      if (item.variant != null && item.variant!.isNotEmpty)
-                        item.variant,
-                      if (item.releaseDate != null)
-                        _formatDate(item.releaseDate!),
-                      if (item.publisher != null && item.publisher!.isNotEmpty)
-                        item.publisher,
-                    ].whereType<String>().join('  |  '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: _kClzTextMuted,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      if (ownedItem?.grade != null)
-                        _CompactMetaPill(
-                          icon: Icons.workspace_premium,
-                          label: ownedItem!.grade!,
-                        ),
-                      if (ownedItem?.condition != null)
-                        _CompactMetaPill(
-                          icon: Icons.fact_check_outlined,
-                          label: ownedItem!.condition!,
-                        ),
-                      if (ownedItem?.storageBox != null)
-                        _CompactMetaPill(
-                          icon: Icons.inventory_2_outlined,
-                          label: ownedItem!.storageBox!,
-                        ),
-                      if (ownedItem?.pricePaidCents != null)
-                        _CompactMetaPill(
-                          icon: Icons.attach_money,
-                          label: _formatOptionalMoney(
-                            ownedItem!.pricePaidCents,
-                            ownedItem.currency,
-                          ),
-                        ),
-                      if (libraryState.isWishlisted)
-                        const _CompactMetaPill(
-                          icon: Icons.star,
-                          label: 'Wishlist',
-                        ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Text(
-                    item.barcode == null || item.barcode!.isEmpty
-                        ? 'No barcode'
-                        : item.barcode!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: const Color(0xFF9A9A9A),
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      dateFormatter: _formatDate,
+      moneyFormatter: _formatOptionalMoney,
+      selectedColor: _kClzSelection,
+      accentColor: _kClzAccent,
+      mutedTextColor: _kClzTextMuted,
     );
   }
 }
@@ -2619,42 +2503,6 @@ class _IssuePill extends StatelessWidget {
             fontSize: 11,
             fontWeight: FontWeight.w900,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CompactMetaPill extends StatelessWidget {
-  const _CompactMetaPill({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF2E2E2E),
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: const Color(0xFF4B4B4B)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 13, color: _kClzAccent),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -3329,8 +3177,9 @@ int _compareEntries(
 LibraryWorkspaceEntry _comicWorkspaceEntry(
   CatalogItem item,
   OwnedItem? ownedItem,
-  WishlistItem? wishlistItem,
-) {
+  WishlistItem? wishlistItem, {
+  bool? isWishlisted,
+}) {
   return LibraryWorkspaceEntry(
     id: item.id,
     mediaType: item.kind,
@@ -3345,7 +3194,7 @@ LibraryWorkspaceEntry _comicWorkspaceEntry(
     barcode: item.barcode,
     variant: item.variant,
     isOwned: ownedItem != null,
-    isWishlisted: wishlistItem != null,
+    isWishlisted: isWishlisted ?? wishlistItem != null,
     condition: ownedItem?.condition,
     grade: ownedItem?.grade,
     pricePaidCents: ownedItem?.pricePaidCents,
