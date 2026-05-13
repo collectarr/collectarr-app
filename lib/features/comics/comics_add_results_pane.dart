@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/comics/comics_add_core_results.dart';
 import 'package:collectarr_app/features/comics/comics_add_images.dart';
 import 'package:collectarr_app/features/comics/comics_add_pull_list.dart';
+import 'package:collectarr_app/features/comics/comics_add_result_row.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
