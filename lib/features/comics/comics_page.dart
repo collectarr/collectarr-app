@@ -25,8 +25,10 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
 import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -1276,19 +1278,19 @@ class _ComicsToolbar extends StatelessWidget {
             const SizedBox(width: 6),
             Tooltip(
               message: 'Scan barcode',
-              child: _ToolbarIconButton(
+              child: LibraryWorkspaceIconButton(
                 icon: Icons.qr_code_scanner,
                 onPressed: onScanBarcode,
               ),
             ),
             Tooltip(
               message: 'Refresh metadata',
-              child: _ToolbarIconButton(
+              child: LibraryWorkspaceIconButton(
                 icon: Icons.sync,
                 onPressed: onRefreshMetadata,
               ),
             ),
-            const _ToolbarSeparator(),
+            const LibraryWorkspaceSeparator(color: _kClzDivider),
             SizedBox(
               width: 320,
               child: SearchBar(
@@ -1318,7 +1320,7 @@ class _ComicsToolbar extends StatelessWidget {
                 onDeleted: onClearSeries,
               ),
             ],
-            const _ToolbarSeparator(),
+            const LibraryWorkspaceSeparator(color: _kClzDivider),
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
@@ -1330,7 +1332,7 @@ class _ComicsToolbar extends StatelessWidget {
                       Tooltip(
                         message:
                             selectionMode ? 'Exit selection' : 'Select comics',
-                        child: _ToolbarIconButton(
+                        child: LibraryWorkspaceIconButton(
                           onPressed: () =>
                               onSelectionModeChanged(!selectionMode),
                           icon: selectionMode ? Icons.close : Icons.checklist,
@@ -1402,7 +1404,7 @@ class _ComicsToolbar extends StatelessWidget {
                       ],
                       Tooltip(
                         message: 'Local statistics',
-                        child: _ToolbarIconButton(
+                        child: LibraryWorkspaceIconButton(
                           onPressed: onShowStats,
                           icon: Icons.query_stats,
                         ),
@@ -1413,7 +1415,7 @@ class _ComicsToolbar extends StatelessWidget {
                         child: Badge(
                           isLabelVisible: missingIssues.isNotEmpty,
                           label: Text(missingIssues.length.toString()),
-                          child: _ToolbarIconButton(
+                          child: LibraryWorkspaceIconButton(
                             onPressed: missingIssues.isEmpty
                                 ? null
                                 : () => _showMissingIssuesDialog(
@@ -1430,7 +1432,7 @@ class _ComicsToolbar extends StatelessWidget {
                         message: 'Filters',
                         child: Badge(
                           isLabelVisible: hasActiveFilters,
-                          child: _ToolbarIconButton(
+                          child: LibraryWorkspaceIconButton(
                             onPressed: onEditFilters,
                             icon: Icons.filter_list,
                           ),
@@ -1439,7 +1441,7 @@ class _ComicsToolbar extends StatelessWidget {
                       const SizedBox(width: 6),
                       Tooltip(
                         message: 'Select columns',
-                        child: _ToolbarIconButton(
+                        child: LibraryWorkspaceIconButton(
                           onPressed: viewMode == LibraryViewMode.list
                               ? onEditColumns
                               : null,
@@ -1469,44 +1471,6 @@ class _ComicsToolbar extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ToolbarIconButton extends StatelessWidget {
-  const _ToolbarIconButton({
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: 30,
-      child: IconButton.filledTonal(
-        visualDensity: VisualDensity.compact,
-        padding: EdgeInsets.zero,
-        onPressed: onPressed,
-        icon: Icon(icon, size: 17),
-      ),
-    );
-  }
-}
-
-class _ToolbarSeparator extends StatelessWidget {
-  const _ToolbarSeparator();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 7),
-      child: SizedBox(
-        height: 24,
-        child: VerticalDivider(width: 1, thickness: 1, color: _kClzDivider),
       ),
     );
   }
@@ -3047,50 +3011,35 @@ class _ComicTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Ink(
-      decoration: BoxDecoration(
-        color: selected
-            ? _kClzSelection
-            : odd
-                ? const Color(0xFF202428)
-                : const Color(0xFF181B1E),
-        border: Border(
-          left: BorderSide(
-            color: selected ? _kClzYellow : Colors.transparent,
-            width: _kComicTableSelectionRailWidth,
-          ),
-          bottom: const BorderSide(color: Color(0xFF2E2E2E)),
-        ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        hoverColor: const Color(0xFF263940),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            _kComicTableHorizontalMargin,
-            2,
-            _kComicTableHorizontalMargin - _kComicTableSelectionRailWidth,
-            2,
-          ),
-          child: Row(
-            children: [
-              for (final column in columns) ...[
-                SizedBox(
-                  width: _comicTableColumnWidth(column, columnWidths),
-                  height: _kComicTableRowHeight,
-                  child: Align(
-                    alignment: _comicTableColumnIsNumeric(column)
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: _comicTableCellContent(entry, column),
-                  ),
-                ),
-                if (column != columns.last)
-                  const SizedBox(width: _kComicTableColumnSpacing),
-              ],
-            ],
-          ),
-        ),
+    return LibraryTableInkRow(
+      selected: selected,
+      odd: odd,
+      onTap: onTap,
+      selectedColor: _kClzSelection,
+      oddColor: const Color(0xFF202428),
+      evenColor: const Color(0xFF181B1E),
+      selectionRailColor: _kClzYellow,
+      bottomBorderColor: const Color(0xFF2E2E2E),
+      hoverColor: const Color(0xFF263940),
+      selectionRailWidth: _kComicTableSelectionRailWidth,
+      horizontalMargin: _kComicTableHorizontalMargin,
+      child: Row(
+        children: [
+          for (final column in columns) ...[
+            SizedBox(
+              width: _comicTableColumnWidth(column, columnWidths),
+              height: _kComicTableRowHeight,
+              child: Align(
+                alignment: _comicTableColumnIsNumeric(column)
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: _comicTableCellContent(entry, column),
+              ),
+            ),
+            if (column != columns.last)
+              const SizedBox(width: _kComicTableColumnSpacing),
+          ],
+        ],
       ),
     );
   }
