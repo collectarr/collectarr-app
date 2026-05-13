@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/comics/comics_bulk_edit.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/comics_inspector.dart';
+import 'package:collectarr_app/features/comics/comics_shelf_views.dart';
 import 'package:collectarr_app/features/comics/comics_workspace.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
