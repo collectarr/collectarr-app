@@ -1084,6 +1084,7 @@ class _PersonalDetailsEditorState
   late final TextEditingController _currencyController;
   late final TextEditingController _notesController;
   DateTime? _purchaseDate;
+  String? _priceError;
 
   @override
   void initState() {
@@ -1171,6 +1172,11 @@ class _PersonalDetailsEditorState
                       labelText: 'Price paid',
                       border: OutlineInputBorder(),
                     ),
+                    onChanged: (_) {
+                      if (_priceError != null) {
+                        setState(() => _priceError = null);
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -1197,6 +1203,13 @@ class _PersonalDetailsEditorState
               ),
             ),
             const SizedBox(height: 9),
+            if (_priceError != null) ...[
+              Text(
+                _priceError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 9),
+            ],
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
@@ -1235,6 +1248,12 @@ class _PersonalDetailsEditorState
 
   Future<void> _save() async {
     final price = _parsePriceCents(_priceController.text);
+    if (price == null && _priceController.text.trim().isNotEmpty) {
+      setState(() {
+        _priceError = 'Enter a valid price, for example 3.99';
+      });
+      return;
+    }
     final currency = _currencyController.text.trim().toUpperCase();
     await ref.read(collectionMutationsProvider).updateItem(
           widget.ownedItem,
@@ -1272,7 +1291,7 @@ class _PersonalDetailsEditorState
     }
     final parsed = double.tryParse(normalized);
     if (parsed == null) {
-      return widget.ownedItem.pricePaidCents;
+      return null;
     }
     return (parsed * 100).round();
   }
