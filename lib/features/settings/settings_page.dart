@@ -134,6 +134,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       label: sync.isOffline ? 'Offline' : 'Ready',
                       isError: sync.isOffline,
                     ),
+                    if (sync.warningMessage != null)
+                      _StatusChip(
+                        icon: Icons.sync_problem_outlined,
+                        label: sync.warningMessage!,
+                      ),
                     _StatusChip(
                       icon: Icons.schedule,
                       label: sync.lastSyncedAt == null
@@ -361,13 +366,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final sync = ref.read(syncControllerProvider);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          sync.errorMessage == null
-              ? 'Personal sync complete'
-              : 'Personal sync unavailable: ${sync.errorMessage}',
-        ),
+        content: Text(_syncResultMessage(sync)),
       ),
     );
+  }
+
+  String _syncResultMessage(SyncState sync) {
+    if (sync.errorMessage != null) {
+      return 'Personal sync unavailable: ${sync.errorMessage}';
+    }
+    return sync.warningMessage ?? 'Personal sync complete';
   }
 
   Future<void> _copyBackup({required bool clzFriendly}) async {

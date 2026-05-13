@@ -59,9 +59,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       return;
     }
     final sync = ref.read(syncControllerProvider);
-    final message = sync.errorMessage == null
-        ? 'Personal sync complete'
-        : 'Personal sync unavailable: ${sync.errorMessage}';
+    final message = _syncResultMessage(sync);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
@@ -70,6 +68,9 @@ class _AppShellState extends ConsumerState<AppShell> {
     if (sync.isOffline) {
       return sync.errorMessage ?? 'Sync unavailable';
     }
+    if (sync.warningMessage != null) {
+      return sync.warningMessage!;
+    }
     final pending = sync.pendingCount == 0
         ? 'no pending changes'
         : '${sync.pendingCount} pending';
@@ -77,6 +78,13 @@ class _AppShellState extends ConsumerState<AppShell> {
         ? 'never synced'
         : 'last sync ${_formatSyncTime(sync.lastSyncedAt!)}';
     return 'Sync personal data - $pending, $last';
+  }
+
+  String _syncResultMessage(SyncState sync) {
+    if (sync.errorMessage != null) {
+      return 'Personal sync unavailable: ${sync.errorMessage}';
+    }
+    return sync.warningMessage ?? 'Personal sync complete';
   }
 
   String _formatSyncTime(DateTime value) {
