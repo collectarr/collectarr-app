@@ -796,7 +796,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
       context: context,
       initialDate: _purchaseDate ?? now,
       firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 1),
+      lastDate: DateTime(now.year + 10),
     );
     if (picked != null && mounted) {
       setState(() => _purchaseDate = picked);

@@ -281,7 +281,9 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onHorizontalDragUpdate: (details) {
-                  onColumnWidthChanged(column, width + details.delta.dx);
+                  final nextWidth =
+                      (width + details.delta.dx).clamp(40.0, double.infinity);
+                  onColumnWidthChanged(column, nextWidth.toDouble());
                 },
                 onDoubleTap: () => onColumnWidthChanged(column, defaultWidth),
                 child: SizedBox(
