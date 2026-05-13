@@ -1,8 +1,14 @@
+import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_page.dart';
+import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -113,6 +119,16 @@ void main() {
     expect(find.byTooltip('Details right'), findsOneWidget);
     expect(find.byTooltip('Details bottom'), findsOneWidget);
     expect(find.byTooltip('Hide details'), findsOneWidget);
+    expect(find.byTooltip('Local statistics'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Local statistics'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Local Comics Statistics'), findsOneWidget);
+    expect(find.text('Top Series'), findsOneWidget);
+    expect(find.text('Data Health'), findsOneWidget);
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('List view'));
     await tester.pumpAndSettle();
@@ -234,6 +250,189 @@ void main() {
     expect(find.widgetWithText(TextField, 'Barcode / UPC'), findsOneWidget);
   });
 
+  testWidgets('add comics treats barcode in search box as barcode query',
+      (tester) async {
+    final api = _FakeApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          shelfProvider.overrideWith(
+            (ref) async => const ShelfState(
+              entries: [],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Add Comics'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is TextField &&
+            widget.decoration?.hintText?.startsWith('Search title') == true,
+      ),
+      '76194134192700811',
+    );
+    await tester.tap(find.text('Search Collectarr Core'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastSearchQuery?.query, '');
+    expect(api.lastSearchQuery?.barcode, '76194134192700811');
+    expect(api.lastDetailId, 'comic-8a');
+    expect(find.text('Pages'), findsOneWidget);
+  });
+
+  testWidgets('add comics batches barcode lookups for collection add',
+      (tester) async {
+    final api = _FakeApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          shelfProvider.overrideWith(
+            (ref) async => const ShelfState(
+              entries: [],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Add Comics'));
+    await tester.pumpAndSettle();
+
+    final barcodeTab =
+        tester.widget(find.byKey(const ValueKey('add-comics-barcode-tab')))
+            as dynamic;
+    barcodeTab.onTap();
+    await tester.pumpAndSettle();
+
+    final barcodeField = find.byWidgetPredicate(
+      (widget) =>
+          widget is TextField &&
+          widget.decoration?.hintText == 'Scan or enter barcode / UPC...',
+    );
+    await tester.enterText(barcodeField, '76194134192700811');
+    await tester.tap(find.text('Lookup barcode'));
+    await tester.pumpAndSettle();
+    await tester.enterText(barcodeField, '76194134192700911');
+    await tester.tap(find.text('Lookup barcode'));
+    await tester.pumpAndSettle();
+
+    expect(api.lookupBarcodes, [
+      '76194134192700811',
+      '76194134192700911',
+    ]);
+    expect(find.text('2 scanned'), findsOneWidget);
+    expect(find.text('2 found'), findsOneWidget);
+    expect(find.text('Add 2 Comics to Collection'), findsOneWidget);
+  });
+
+  testWidgets('add comics pull list searches next local issue', (tester) async {
+    final api = _FakeApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(
+                  itemId: 'comic-1',
+                  catalogItem: catalogItems[0],
+                  ownedItem: ownedItem,
+                ),
+                ShelfEntry(itemId: 'comic-2', catalogItem: catalogItems[1]),
+              ],
+              ownedCount: 1,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 1,
+              totalPaidCents: 1299,
+              primaryCurrency: 'USD',
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => [ownedItem]),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Add Comics'));
+    await tester.pumpAndSettle();
+
+    final pullListTab =
+        tester.widget(find.byKey(const ValueKey('add-comics-pull-list-tab')))
+            as dynamic;
+    pullListTab.onTap();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Local Pull List'), findsOneWidget);
+    expect(find.text('#9'), findsWidgets);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Search Core').first);
+    await tester.pumpAndSettle();
+
+    expect(api.lastSearchQuery?.series, 'Superman, Vol. 4');
+    expect(api.lastSearchQuery?.issueNumber, '9');
+    expect(find.text('Collectarr Core results'), findsOneWidget);
+  });
+
   testWidgets('comics page restores persisted list view preferences',
       (tester) async {
     SharedPreferences.setMockInitialValues({
@@ -327,8 +526,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Select columns'), findsOneWidget);
-    expect(find.widgetWithText(CheckboxListTile, 'Variant'), findsOneWidget);
-    expect(find.widgetWithText(CheckboxListTile, 'Barcode'), findsOneWidget);
+    expect(find.text('Main'), findsWidgets);
+    expect(find.text('Edition'), findsWidgets);
+    expect(find.text('Value'), findsWidgets);
+    expect(find.text('Personal'), findsWidgets);
     await tester.enterText(find.byType(TextField).last, 'price');
     await tester.pumpAndSettle();
     expect(find.widgetWithText(CheckboxListTile, 'Price'), findsOneWidget);
@@ -566,6 +767,9 @@ void main() {
     expect(find.text('Bulk edit'), findsOneWidget);
     expect(find.text('Condition'), findsWidgets);
     expect(find.text('Grade'), findsWidgets);
+    expect(find.text('Storage box'), findsOneWidget);
+    expect(find.text('Tags'), findsOneWidget);
+    expect(find.text('Read status'), findsOneWidget);
   });
 
   testWidgets('comics page shows missing issue gaps for selected series',
@@ -623,4 +827,149 @@ void main() {
 
     expect(find.text('#2'), findsWidgets);
   });
+}
+
+class _FakeApiClient extends ApiClient {
+  _FakeApiClient() : super(baseUrl: 'http://unused');
+
+  MetadataSearchQuery? lastSearchQuery;
+  String? lastDetailId;
+  final lookupBarcodes = <String>[];
+
+  @override
+  Future<List<Map<String, dynamic>>> searchMetadata(
+    MetadataSearchQuery query,
+  ) async {
+    lastSearchQuery = query;
+    return [
+      {
+        'id': 'comic-8a',
+        'kind': 'comic',
+        'title': 'Superman, Vol. 4',
+        'item_number': '8A',
+        'synopsis': 'Escape From Dinosaur Island, Part One',
+        'publisher': 'DC',
+        'release_date': '2016-10-05',
+        'release_year': 2016,
+        'barcode': '76194134192700811',
+        'variant': 'Regular Cover',
+      },
+    ];
+  }
+
+  @override
+  Future<Map<String, dynamic>> getComic(String id) async {
+    lastDetailId = id;
+    return {
+      'id': id,
+      'kind': 'comic',
+      'title': 'Superman, Vol. 4',
+      'item_number': '8A',
+      'sort_key': 'superman-vol-4-000008a',
+      'synopsis': 'Escape From Dinosaur Island, Part One',
+      'series_title': 'Superman',
+      'volume_name': 'Superman, Vol. 4',
+      'volume_number': 4,
+      'volume_start_year': 2016,
+      'publisher': 'DC',
+      'barcode': '76194134192700811',
+      'cover_date': '2016-12-01',
+      'store_date': '2016-10-05',
+      'page_count': 32,
+      'cover_price_cents': 299,
+      'currency': 'USD',
+      'creators': [
+        {'name': 'Patrick Gleason', 'role': 'Writer'},
+      ],
+      'characters': [
+        {'name': 'Superman'},
+      ],
+      'story_arcs': [],
+      'provider_links': [
+        {
+          'provider': 'comicvine',
+          'entity_type': 'item',
+          'provider_item_id': '4000-1',
+        },
+      ],
+      'metadata_json': null,
+      'release_type': null,
+      'season_number': null,
+      'episode_number': null,
+      'runtime_minutes': null,
+      'editions': [
+        {
+          'id': 'edition-1',
+          'title': 'Regular Edition',
+          'format': 'Comic',
+          'publisher': 'DC',
+          'isbn': null,
+          'upc': '76194134192700811',
+          'language': 'en',
+          'region': 'US',
+          'release_date': '2016-10-05',
+          'metadata_json': null,
+          'variants': [
+            {
+              'id': 'variant-1',
+              'name': 'Regular Cover',
+              'variant_type': 'regular',
+              'sku': null,
+              'barcode': '76194134192700811',
+              'isbn': null,
+              'region': 'US',
+              'cover_price_cents': 299,
+              'currency': 'USD',
+              'cover_image_url': null,
+              'thumbnail_image_url': null,
+              'description': null,
+              'is_primary': true,
+            },
+          ],
+          'releases': [
+            {
+              'id': 'release-1',
+              'region': 'US',
+              'release_date': '2016-10-05',
+              'publisher': 'DC',
+              'external_ids': {'comicvine': '4000-1'},
+              'metadata_json': null,
+            },
+          ],
+        },
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> lookupBarcode(String barcode,
+      {String? kind}) async {
+    lookupBarcodes.add(MetadataSearchQuery.normalizeBarcode(barcode));
+    if (MetadataSearchQuery.normalizeBarcode(barcode).endsWith('911')) {
+      return {
+        'id': 'comic-9',
+        'kind': 'comic',
+        'title': 'Superman, Vol. 4',
+        'item_number': '9',
+        'synopsis': 'A follow-up issue.',
+        'publisher': 'DC',
+        'release_date': '2017-01-04',
+        'release_year': 2017,
+        'barcode': '76194134192700911',
+        'variant': 'Regular Cover',
+      };
+    }
+    return {
+      'id': 'comic-8a',
+      'kind': 'comic',
+      'title': 'Superman, Vol. 4',
+      'item_number': '8A',
+      'synopsis': 'Escape From Dinosaur Island, Part One',
+      'publisher': 'DC',
+      'release_date': '2016-10-05',
+      'release_year': 2016,
+      'barcode': '76194134192700811',
+      'variant': 'Regular Cover',
+    };
+  }
 }

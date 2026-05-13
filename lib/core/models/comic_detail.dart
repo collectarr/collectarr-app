@@ -7,6 +7,21 @@ class ComicDetail {
     this.itemNumber,
     this.sortKey,
     this.synopsis,
+    this.seriesTitle,
+    this.volumeName,
+    this.volumeNumber,
+    this.volumeStartYear,
+    this.publisher,
+    this.barcode,
+    this.coverDate,
+    this.storeDate,
+    this.pageCount,
+    this.coverPriceCents,
+    this.currency,
+    this.creators = const [],
+    this.characters = const [],
+    this.storyArcs = const [],
+    this.providerLinks = const [],
   });
 
   final String id;
@@ -15,6 +30,21 @@ class ComicDetail {
   final String? itemNumber;
   final String? sortKey;
   final String? synopsis;
+  final String? seriesTitle;
+  final String? volumeName;
+  final int? volumeNumber;
+  final int? volumeStartYear;
+  final String? publisher;
+  final String? barcode;
+  final DateTime? coverDate;
+  final DateTime? storeDate;
+  final int? pageCount;
+  final int? coverPriceCents;
+  final String? currency;
+  final List<ComicCredit> creators;
+  final List<ComicCredit> characters;
+  final List<ComicCredit> storyArcs;
+  final List<ComicProviderLink> providerLinks;
   final List<ComicEdition> editions;
 
   ComicEdition? get primaryEdition => editions.isEmpty ? null : editions.first;
@@ -40,6 +70,33 @@ class ComicDetail {
       itemNumber: json['item_number'] as String?,
       sortKey: json['sort_key'] as String?,
       synopsis: json['synopsis'] as String?,
+      seriesTitle: json['series_title'] as String?,
+      volumeName: json['volume_name'] as String?,
+      volumeNumber: json['volume_number'] as int?,
+      volumeStartYear: json['volume_start_year'] as int?,
+      publisher: json['publisher'] as String?,
+      barcode: json['barcode'] as String?,
+      coverDate: ComicEdition.parseDate(json['cover_date'] as String?),
+      storeDate: ComicEdition.parseDate(json['store_date'] as String?),
+      pageCount: json['page_count'] as int?,
+      coverPriceCents: json['cover_price_cents'] as int?,
+      currency: json['currency'] as String?,
+      creators: [
+        for (final credit in (json['creators'] as List<dynamic>? ?? []))
+          ComicCredit.fromJson(credit as Map<String, dynamic>),
+      ],
+      characters: [
+        for (final credit in (json['characters'] as List<dynamic>? ?? []))
+          ComicCredit.fromJson(credit as Map<String, dynamic>),
+      ],
+      storyArcs: [
+        for (final credit in (json['story_arcs'] as List<dynamic>? ?? []))
+          ComicCredit.fromJson(credit as Map<String, dynamic>),
+      ],
+      providerLinks: [
+        for (final link in (json['provider_links'] as List<dynamic>? ?? []))
+          ComicProviderLink.fromJson(link as Map<String, dynamic>),
+      ],
       editions: [
         for (final edition in (json['editions'] as List<dynamic>? ?? []))
           ComicEdition.fromJson(edition as Map<String, dynamic>),
@@ -59,6 +116,7 @@ class ComicEdition {
     this.isbn,
     this.upc,
     this.language,
+    this.region,
     this.releaseDate,
     this.metadataJson,
   });
@@ -70,6 +128,7 @@ class ComicEdition {
   final String? isbn;
   final String? upc;
   final String? language;
+  final String? region;
   final DateTime? releaseDate;
   final Map<String, dynamic>? metadataJson;
   final List<ComicVariant> variants;
@@ -98,7 +157,8 @@ class ComicEdition {
       isbn: json['isbn'] as String?,
       upc: json['upc'] as String?,
       language: json['language'] as String?,
-      releaseDate: _parseDate(json['release_date'] as String?),
+      region: json['region'] as String?,
+      releaseDate: parseDate(json['release_date'] as String?),
       metadataJson: json['metadata_json'] as Map<String, dynamic>?,
       variants: [
         for (final variant in (json['variants'] as List<dynamic>? ?? []))
@@ -111,7 +171,7 @@ class ComicEdition {
     );
   }
 
-  static DateTime? _parseDate(String? value) {
+  static DateTime? parseDate(String? value) {
     if (value == null || value.isEmpty) {
       return null;
     }
@@ -147,7 +207,7 @@ class ComicRelease {
     return ComicRelease(
       id: json['id'] as String,
       region: json['region'] as String,
-      releaseDate: ComicEdition._parseDate(json['release_date'] as String?),
+      releaseDate: ComicEdition.parseDate(json['release_date'] as String?),
       publisher: json['publisher'] as String?,
       externalIds: json['external_ids'] as Map<String, dynamic>?,
     );
@@ -160,15 +220,29 @@ class ComicVariant {
     required this.name,
     required this.isPrimary,
     this.sku,
+    this.barcode,
+    this.isbn,
+    this.variantType,
+    this.region,
+    this.coverPriceCents,
+    this.currency,
     this.coverImageUrl,
     this.thumbnailImageUrl,
+    this.description,
   });
 
   final String id;
   final String name;
   final String? sku;
+  final String? barcode;
+  final String? isbn;
+  final String? variantType;
+  final String? region;
+  final int? coverPriceCents;
+  final String? currency;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final String? description;
   final bool isPrimary;
 
   factory ComicVariant.fromJson(Map<String, dynamic> json) {
@@ -176,9 +250,65 @@ class ComicVariant {
       id: json['id'] as String,
       name: json['name'] as String,
       sku: json['sku'] as String?,
+      barcode: json['barcode'] as String?,
+      isbn: json['isbn'] as String?,
+      variantType: json['variant_type'] as String?,
+      region: json['region'] as String?,
+      coverPriceCents: json['cover_price_cents'] as int?,
+      currency: json['currency'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      description: json['description'] as String?,
       isPrimary: json['is_primary'] as bool? ?? false,
+    );
+  }
+}
+
+class ComicCredit {
+  const ComicCredit({
+    required this.name,
+    this.role,
+    this.apiDetailUrl,
+    this.siteDetailUrl,
+  });
+
+  final String name;
+  final String? role;
+  final String? apiDetailUrl;
+  final String? siteDetailUrl;
+
+  factory ComicCredit.fromJson(Map<String, dynamic> json) {
+    return ComicCredit(
+      name: json['name'] as String,
+      role: json['role'] as String?,
+      apiDetailUrl: json['api_detail_url'] as String?,
+      siteDetailUrl: json['site_detail_url'] as String?,
+    );
+  }
+}
+
+class ComicProviderLink {
+  const ComicProviderLink({
+    required this.provider,
+    required this.entityType,
+    required this.providerItemId,
+    this.siteUrl,
+    this.apiUrl,
+  });
+
+  final String provider;
+  final String entityType;
+  final String providerItemId;
+  final String? siteUrl;
+  final String? apiUrl;
+
+  factory ComicProviderLink.fromJson(Map<String, dynamic> json) {
+    return ComicProviderLink(
+      provider: json['provider'] as String,
+      entityType: json['entity_type'] as String,
+      providerItemId: json['provider_item_id'] as String,
+      siteUrl: json['site_url'] as String?,
+      apiUrl: json['api_url'] as String?,
     );
   }
 }

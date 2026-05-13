@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -47,6 +48,8 @@ void main() {
 
     final rows = csv.parse(exported);
     expect(rows.single.itemId, 'comic-1');
+    expect(rows.single.title, 'Spider-Man, "Vol. 1"');
+    expect(rows.single.itemNumber, '1');
     expect(rows.single.isOwned, isTrue);
     expect(rows.single.condition, 'Near Mint');
     expect(rows.single.grade, '9.8');
@@ -65,6 +68,148 @@ void main() {
     expect(rows.single.rating, 5);
     expect(rows.single.readStatus, 'Read');
     expect(rows.single.tags, 'spider,key');
+  });
+
+  test('collection csv exports clz-friendly shelf rows', () {
+    final exported = CollectionCsv().exportClzFriendlyShelf([
+      ShelfEntry(
+        itemId: 'comic-1',
+        catalogItem: CatalogItem(
+          id: 'comic-1',
+          kind: 'comic',
+          title: 'The Amazing Spider-Man, Vol. 2',
+          itemNumber: '520',
+          publisher: 'Marvel Comics',
+          releaseDate: DateTime.utc(2005, 7, 1),
+          barcode: '75960604716152011',
+          variant: 'Regular Cover',
+        ),
+        ownedItem: OwnedItem(
+          id: 'owned-1',
+          itemId: 'comic-1',
+          condition: 'Very Fine',
+          grade: '7.5',
+          pricePaidCents: 900,
+          currency: 'USD',
+          quantity: 1,
+          storageBox: 'Box 6',
+          updatedAt: DateTime.utc(2026, 5, 12),
+        ),
+      ),
+    ]);
+
+    expect(exported, contains('Collectarr Item ID'));
+    expect(exported, contains('Collection Status'));
+    expect(exported, contains('The Amazing Spider-Man, Vol. 2'));
+    expect(exported, contains('9.00'));
+  });
+
+  test('collection csv parses clz-style aliases and money fields', () {
+    final rows = CollectionCsv().parse(
+      const CsvEncoder(lineDelimiter: '\n').convert([
+        [
+          'Collectarr Item ID',
+          'Series',
+          'Issue',
+          'Collection Status',
+          'Grade',
+          'Condition',
+          'Purchase Price',
+          'Currency',
+          'Storage Box',
+          'Read It',
+          'Key Comic',
+          'Notes',
+        ],
+        [
+          'comic-1',
+          'The Amazing Spider-Man, Vol. 2',
+          '520',
+          'In Collection',
+          '7.5',
+          'Very Fine',
+          r'$9.00',
+          'USD',
+          'Box 6',
+          'Read',
+          'Yes',
+          'CLZ import',
+        ],
+      ]),
+    );
+
+    expect(rows.single.itemId, 'comic-1');
+    expect(rows.single.status, 'owned');
+    expect(rows.single.title, 'The Amazing Spider-Man, Vol. 2');
+    expect(rows.single.itemNumber, '520');
+    expect(rows.single.grade, '7.5');
+    expect(rows.single.condition, 'Very Fine');
+    expect(rows.single.pricePaidCents, 900);
+    expect(rows.single.storageBox, 'Box 6');
+    expect(rows.single.readStatus, 'Read');
+    expect(rows.single.keyComic, isTrue);
+    expect(rows.single.notes, 'CLZ import');
+  });
+
+  test('collection csv parses decimal and thousands money separators', () {
+    final rows = CollectionCsv().parse(
+      const CsvEncoder(lineDelimiter: '\n').convert([
+        [
+          'Collectarr Item ID',
+          'Series',
+          'Collection Status',
+          'Purchase Price',
+          'Cover Price',
+        ],
+        [
+          'comic-1',
+          'US formatted price',
+          'In Collection',
+          r'$1,234.56',
+          r'$2,500',
+        ],
+        [
+          'comic-2',
+          'EU formatted price',
+          'In Collection',
+          '€1.234,56',
+          '€2.500',
+        ],
+      ]),
+    );
+
+    expect(rows[0].pricePaidCents, 123456);
+    expect(rows[0].coverPriceCents, 250000);
+    expect(rows[1].pricePaidCents, 123456);
+    expect(rows[1].coverPriceCents, 250000);
+  });
+
+  test('collection csv keeps clz rows without collectarr ids for matching', () {
+    final rows = CollectionCsv().parse(
+      const CsvEncoder(lineDelimiter: '\n').convert([
+        [
+          'Collectarr Item ID',
+          'Series',
+          'Issue',
+          'Barcode',
+          'Collection Status',
+        ],
+        [
+          '',
+          'The Amazing Spider-Man, Vol. 2',
+          '520',
+          '75960604716152011',
+          'In Collection',
+        ],
+      ]),
+    );
+
+    expect(rows, hasLength(1));
+    expect(rows.single.itemId, isEmpty);
+    expect(rows.single.title, 'The Amazing Spider-Man, Vol. 2');
+    expect(rows.single.itemNumber, '520');
+    expect(rows.single.barcode, '75960604716152011');
+    expect(rows.single.isOwned, isTrue);
   });
 
   test('collection csv parses quoted newlines', () {

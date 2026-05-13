@@ -59,6 +59,10 @@ void main() {
       LibraryTableColumn.title,
       LibraryTableColumn.grade,
     });
+    expect(restored.visibleColumns.toList(), [
+      LibraryTableColumn.title,
+      LibraryTableColumn.grade,
+    ]);
     expect(restored.columnWidths[LibraryTableColumn.title], 320);
     expect(restored.columnWidths[LibraryTableColumn.grade], 120);
   });

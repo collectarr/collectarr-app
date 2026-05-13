@@ -5,6 +5,9 @@ class CollectionCsvRow {
   const CollectionCsvRow({
     required this.itemId,
     required this.status,
+    this.title,
+    this.itemNumber,
+    this.barcode,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -28,6 +31,9 @@ class CollectionCsvRow {
 
   final String itemId;
   final String status;
+  final String? title;
+  final String? itemNumber;
+  final String? barcode;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -50,6 +56,60 @@ class CollectionCsvRow {
 
   bool get isOwned => status == 'owned' || status == 'both';
   bool get isWishlisted => status == 'wishlist' || status == 'both';
+
+  CollectionCsvRow copyWith({
+    String? itemId,
+    String? status,
+    String? title,
+    String? itemNumber,
+    String? barcode,
+    String? condition,
+    String? grade,
+    DateTime? purchaseDate,
+    int? pricePaidCents,
+    String? currency,
+    String? notes,
+    int? quantity,
+    String? storageBox,
+    int? indexNumber,
+    int? coverPriceCents,
+    String? rawOrSlabbed,
+    String? gradingCompany,
+    String? graderNotes,
+    String? signedBy,
+    bool? keyComic,
+    String? keyReason,
+    int? rating,
+    String? readStatus,
+    String? tags,
+  }) {
+    return CollectionCsvRow(
+      itemId: itemId ?? this.itemId,
+      status: status ?? this.status,
+      title: title ?? this.title,
+      itemNumber: itemNumber ?? this.itemNumber,
+      barcode: barcode ?? this.barcode,
+      condition: condition ?? this.condition,
+      grade: grade ?? this.grade,
+      purchaseDate: purchaseDate ?? this.purchaseDate,
+      pricePaidCents: pricePaidCents ?? this.pricePaidCents,
+      currency: currency ?? this.currency,
+      notes: notes ?? this.notes,
+      quantity: quantity ?? this.quantity,
+      storageBox: storageBox ?? this.storageBox,
+      indexNumber: indexNumber ?? this.indexNumber,
+      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
+      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
+      gradingCompany: gradingCompany ?? this.gradingCompany,
+      graderNotes: graderNotes ?? this.graderNotes,
+      signedBy: signedBy ?? this.signedBy,
+      keyComic: keyComic ?? this.keyComic,
+      keyReason: keyReason ?? this.keyReason,
+      rating: rating ?? this.rating,
+      readStatus: readStatus ?? this.readStatus,
+      tags: tags ?? this.tags,
+    );
+  }
 }
 
 class CollectionCsv {
@@ -77,6 +137,36 @@ class CollectionCsv {
     'rating',
     'read_status',
     'tags',
+  ];
+
+  static const clzFriendlyHeader = [
+    'Collectarr Item ID',
+    'Series',
+    'Issue',
+    'Variant Description',
+    'Publisher',
+    'Release Date',
+    'Barcode',
+    'Collection Status',
+    'Condition',
+    'Grade',
+    'Purchase Date',
+    'Purchase Price',
+    'Currency',
+    'Cover Price',
+    'Quantity',
+    'Storage Box',
+    'Index',
+    'Raw / Slabbed',
+    'Grading Company',
+    'Grader Notes',
+    'Signed By',
+    'Key Comic',
+    'Key Reason',
+    'Rating',
+    'Read It',
+    'Tags',
+    'Notes',
   ];
 
   String exportShelf(List<ShelfEntry> entries) {
@@ -112,6 +202,43 @@ class CollectionCsv {
     return const CsvEncoder(lineDelimiter: '\n').convert(rows);
   }
 
+  String exportClzFriendlyShelf(List<ShelfEntry> entries) {
+    final rows = [
+      clzFriendlyHeader,
+      for (final entry in entries)
+        [
+          entry.itemId,
+          entry.catalogItem?.title ?? '',
+          entry.catalogItem?.itemNumber ?? '',
+          entry.catalogItem?.variant ?? '',
+          entry.catalogItem?.publisher ?? '',
+          entry.catalogItem?.releaseDate?.toUtc().toIso8601String() ?? '',
+          entry.catalogItem?.barcode ?? '',
+          _clzStatus(entry),
+          entry.ownedItem?.condition ?? '',
+          entry.ownedItem?.grade ?? '',
+          entry.ownedItem?.purchaseDate?.toUtc().toIso8601String() ?? '',
+          _formatMoney(entry.ownedItem?.pricePaidCents),
+          entry.ownedItem?.currency ?? entry.wishlistItem?.currency ?? '',
+          _formatMoney(entry.ownedItem?.coverPriceCents),
+          entry.ownedItem?.quantity.toString() ?? '',
+          entry.ownedItem?.storageBox ?? '',
+          entry.ownedItem?.indexNumber?.toString() ?? '',
+          entry.ownedItem?.rawOrSlabbed ?? '',
+          entry.ownedItem?.gradingCompany ?? '',
+          entry.ownedItem?.graderNotes ?? '',
+          entry.ownedItem?.signedBy ?? '',
+          entry.ownedItem == null ? '' : entry.ownedItem!.keyComic.toString(),
+          entry.ownedItem?.keyReason ?? '',
+          entry.ownedItem?.rating?.toString() ?? '',
+          entry.ownedItem?.readStatus ?? '',
+          entry.ownedItem?.tags ?? '',
+          entry.ownedItem?.personalNotes ?? entry.wishlistItem?.notes ?? '',
+        ],
+    ];
+    return const CsvEncoder(lineDelimiter: '\n').convert(rows);
+  }
+
   List<CollectionCsvRow> parse(String csv) {
     final rows = const CsvDecoder(
       fieldDelimiter: ',',
@@ -124,13 +251,11 @@ class CollectionCsv {
     if (parsedHeader.isNotEmpty) {
       parsedHeader[0] = parsedHeader[0].replaceFirst('\ufeff', '');
     }
-    final index = {
-      for (var i = 0; i < parsedHeader.length; i++) parsedHeader[i]: i,
-    };
+    final index = _headerIndex(parsedHeader);
     return [
       for (final row in rows.skip(1))
         _rowFromValues(index, row.map(_cellValue).toList(growable: false)),
-    ].where((row) => row.itemId.isNotEmpty).toList(growable: false);
+    ].where(_isMeaningfulRow).toList(growable: false);
   }
 
   String _status(ShelfEntry entry) {
@@ -143,21 +268,34 @@ class CollectionCsv {
     return 'wishlist';
   }
 
+  String _clzStatus(ShelfEntry entry) {
+    if (entry.isOwned && entry.isWishlisted) {
+      return 'In Collection + Wishlist';
+    }
+    if (entry.isOwned) {
+      return 'In Collection';
+    }
+    return 'Wishlist';
+  }
+
   CollectionCsvRow _rowFromValues(Map<String, int> index, List<String> values) {
     return CollectionCsvRow(
       itemId: _value(index, values, 'item_id'),
-      status: _value(index, values, 'status').toLowerCase(),
+      status: _normalizedStatus(_value(index, values, 'status')),
+      title: _optionalValue(index, values, 'title'),
+      itemNumber: _optionalValue(index, values, 'item_number'),
+      barcode: _optionalValue(index, values, 'barcode'),
       condition: _optionalValue(index, values, 'condition'),
       grade: _optionalValue(index, values, 'grade'),
       purchaseDate:
           DateTime.tryParse(_value(index, values, 'purchase_date'))?.toUtc(),
-      pricePaidCents: int.tryParse(_value(index, values, 'price_paid_cents')),
+      pricePaidCents: _moneyCents(_value(index, values, 'price_paid_cents')),
       currency: _optionalValue(index, values, 'currency'),
       notes: _optionalValue(index, values, 'notes'),
       quantity: int.tryParse(_value(index, values, 'quantity')),
       storageBox: _optionalValue(index, values, 'storage_box'),
       indexNumber: int.tryParse(_value(index, values, 'index_number')),
-      coverPriceCents: int.tryParse(_value(index, values, 'cover_price_cents')),
+      coverPriceCents: _moneyCents(_value(index, values, 'cover_price_cents')),
       rawOrSlabbed: _optionalValue(index, values, 'raw_or_slabbed'),
       gradingCompany: _optionalValue(index, values, 'grading_company'),
       graderNotes: _optionalValue(index, values, 'grader_notes'),
@@ -170,8 +308,25 @@ class CollectionCsv {
     );
   }
 
+  bool _isMeaningfulRow(CollectionCsvRow row) {
+    return row.itemId.trim().isNotEmpty ||
+        row.status.trim().isNotEmpty ||
+        (row.title?.trim().isNotEmpty ?? false) ||
+        (row.itemNumber?.trim().isNotEmpty ?? false) ||
+        (row.barcode?.trim().isNotEmpty ?? false);
+  }
+
+  Map<String, int> _headerIndex(List<String> header) {
+    final index = <String, int>{};
+    for (var i = 0; i < header.length; i++) {
+      final canonical = _canonicalColumn(header[i]);
+      index[canonical] = i;
+    }
+    return index;
+  }
+
   String _value(Map<String, int> index, List<String> values, String column) {
-    final columnIndex = index[column];
+    final columnIndex = index[_normalizeColumn(column)];
     if (columnIndex == null || columnIndex >= values.length) {
       return '';
     }
@@ -192,4 +347,141 @@ class CollectionCsv {
   }
 
   String _cellValue(dynamic value) => value?.toString() ?? '';
+
+  String _normalizedStatus(String value) {
+    final normalized = value.trim().toLowerCase();
+    return switch (normalized) {
+      'in collection + wishlist' || 'owned + wishlist' => 'both',
+      'in collection' || 'collection' || 'owned' => 'owned',
+      'wanted' || 'wish list' || 'wishlist' => 'wishlist',
+      'both' => 'both',
+      _ => normalized,
+    };
+  }
+
+  int? _moneyCents(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+    final asInt = int.tryParse(trimmed);
+    if (asInt != null) {
+      return asInt;
+    }
+    final cleaned = _normalizeMoney(trimmed);
+    final parsed = double.tryParse(cleaned);
+    return parsed == null ? null : (parsed * 100).round();
+  }
+
+  String _normalizeMoney(String value) {
+    final isNegative = value.contains('-') ||
+        (value.trim().startsWith('(') && value.trim().endsWith(')'));
+    final numeric = value.replaceAll(RegExp(r'[^0-9,.]'), '');
+    if (numeric.isEmpty) {
+      return '';
+    }
+    final decimalSeparatorIndex = _decimalSeparatorIndex(numeric);
+    final buffer = StringBuffer();
+    for (var i = 0; i < numeric.length; i++) {
+      final char = numeric[i];
+      if (char == '.' || char == ',') {
+        if (decimalSeparatorIndex != null && i == decimalSeparatorIndex) {
+          buffer.write('.');
+        }
+      } else {
+        buffer.write(char);
+      }
+    }
+    final normalized = buffer.toString();
+    return isNegative ? '-$normalized' : normalized;
+  }
+
+  int? _decimalSeparatorIndex(String value) {
+    final lastComma = value.lastIndexOf(',');
+    final lastDot = value.lastIndexOf('.');
+    final separatorIndex = lastComma > lastDot ? lastComma : lastDot;
+    if (separatorIndex < 0) {
+      return null;
+    }
+    final separator = value[separatorIndex];
+    final separatorCount =
+        RegExp(RegExp.escape(separator)).allMatches(value).length;
+    final digitsAfter = value.length - separatorIndex - 1;
+    if (separatorCount > 1) {
+      return null;
+    }
+    if (lastComma >= 0 && lastDot >= 0) {
+      return separatorIndex;
+    }
+    if (digitsAfter == 1 || digitsAfter == 2) {
+      return separatorIndex;
+    }
+    return null;
+  }
+
+  String _formatMoney(int? cents) {
+    if (cents == null) {
+      return '';
+    }
+    final absolute = cents.abs();
+    final sign = cents < 0 ? '-' : '';
+    final whole = absolute ~/ 100;
+    final fraction = (absolute % 100).toString().padLeft(2, '0');
+    return '$sign$whole.$fraction';
+  }
+
+  String _normalizeColumn(String value) {
+    return value
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'^_+|_+$'), '');
+  }
+
+  String _canonicalColumn(String value) {
+    final normalized = _normalizeColumn(value);
+    if (_columnAliases.containsKey(normalized)) {
+      return normalized;
+    }
+    for (final entry in _columnAliases.entries) {
+      for (final alias in entry.value) {
+        if (_normalizeColumn(alias) == normalized) {
+          return entry.key;
+        }
+      }
+    }
+    return normalized;
+  }
+
+  static const _columnAliases = {
+    'item_id': [
+      'Collectarr Item ID',
+      'Core ComicID',
+      'Core SeriesID',
+      'ComicID',
+    ],
+    'title': ['Series', 'Full Title'],
+    'item_number': ['Issue', 'Issue No.', 'Issue Number'],
+    'barcode': ['Barcode', 'UPC', 'ISBN'],
+    'status': ['Collection Status', 'Status'],
+    'condition': ['Condition'],
+    'grade': ['Grade', 'Grade and Value'],
+    'purchase_date': ['Purchase Date', 'Bought Date'],
+    'price_paid_cents': ['Purchase Price', 'Price Paid', 'Value'],
+    'currency': ['Currency'],
+    'notes': ['Notes', 'Personal Notes'],
+    'quantity': ['Quantity', 'Qty'],
+    'storage_box': ['Storage Box', 'Storage'],
+    'index_number': ['Index', 'Index Number'],
+    'cover_price_cents': ['Cover Price'],
+    'raw_or_slabbed': ['Raw / Slabbed', 'Grade Status'],
+    'grading_company': ['Grading Company'],
+    'grader_notes': ['Grader Notes'],
+    'signed_by': ['Signed By'],
+    'key_comic': ['Key Comic'],
+    'key_reason': ['Key Reason'],
+    'rating': ['Rating'],
+    'read_status': ['Read It', 'Read Status'],
+    'tags': ['Tags'],
+  };
 }

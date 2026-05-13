@@ -36,6 +36,10 @@ void main() {
             pricePaidCents: const Value(1299),
             currency: const Value('USD'),
             personalNotes: const Value('Signed copy'),
+            quantity: const Value(2),
+            storageBox: const Value('Box 6'),
+            keyComic: const Value(true),
+            readStatus: const Value('read'),
             updatedAt: DateTime.utc(2026, 5, 11),
           ),
         );
@@ -58,8 +62,16 @@ void main() {
 
     expect(find.text('Shelf'), findsOneWidget);
     expect(find.text('Owned'), findsWidgets);
+    expect(find.text('Quantity'), findsOneWidget);
+    expect(find.text('Key comics'), findsOneWidget);
+    expect(find.text('2'), findsWidgets);
     expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('USD 12.99'), findsWidgets);
+    expect(find.text('Read status'), findsOneWidget);
+    expect(find.text('Storage boxes'), findsOneWidget);
+    expect(find.text('Top series'), findsOneWidget);
+    expect(find.text('read: 1'), findsOneWidget);
+    expect(find.text('Box 6: 1'), findsOneWidget);
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
     expect(find.text('Signed copy'), findsOneWidget);
 

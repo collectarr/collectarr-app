@@ -8,6 +8,7 @@ void main() {
     var viewMode = LibraryViewMode.grid;
     var detailsLayout = LibraryDetailsLayout.right;
     var coverSize = 128.0;
+    LibraryWorkspacePreset? preset;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -23,6 +24,7 @@ void main() {
               onDetailsLayoutChanged: (value) =>
                   setState(() => detailsLayout = value),
               onCoverSizeChanged: (value) => setState(() => coverSize = value),
+              onPresetSelected: (value) => preset = value,
             ),
           ),
         ),
@@ -36,5 +38,10 @@ void main() {
     await tester.tap(find.byTooltip('Hide details'));
     await tester.pumpAndSettle();
     expect(detailsLayout, LibraryDetailsLayout.hidden);
+
+    await tester.tap(find.byTooltip('View presets'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('List preset'));
+    expect(preset, LibraryWorkspacePreset.list);
   });
 }

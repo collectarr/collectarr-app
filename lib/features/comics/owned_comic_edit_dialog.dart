@@ -98,10 +98,16 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     _readStatusController =
         TextEditingController(text: widget.ownedItem.readStatus ?? '');
     _tagsController = TextEditingController(text: widget.ownedItem.tags ?? '');
+    _quantityController.addListener(_refreshFooter);
+    _storageBoxController.addListener(_refreshFooter);
+    _indexNumberController.addListener(_refreshFooter);
   }
 
   @override
   void dispose() {
+    _quantityController.removeListener(_refreshFooter);
+    _storageBoxController.removeListener(_refreshFooter);
+    _indexNumberController.removeListener(_refreshFooter);
     _tabController.dispose();
     _priceController.dispose();
     _currencyController.dispose();
@@ -120,17 +126,28 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     super.dispose();
   }
 
+  void _refreshFooter() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Dialog(
       clipBehavior: Clip.antiAlias,
       child: Theme(
-        data: Theme.of(context).copyWith(
-          dialogTheme: Theme.of(context).dialogTheme.copyWith(
-                backgroundColor: _kClzPanel,
-                surfaceTintColor: Colors.transparent,
-              ),
+        data: ThemeData.dark(useMaterial3: true).copyWith(
+          visualDensity: VisualDensity.compact,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: _kClzAccent,
+            brightness: Brightness.dark,
+            surface: _kClzPanel,
+          ),
+          dialogTheme: const DialogThemeData(
+            backgroundColor: _kClzPanel,
+            surfaceTintColor: Colors.transparent,
+          ),
           inputDecorationTheme: const InputDecorationTheme(
             filled: true,
             fillColor: Color(0xFF101010),
@@ -149,14 +166,14 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
           ),
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 860, maxHeight: 720),
+          constraints: const BoxConstraints(maxWidth: 980, maxHeight: 760),
           child: Column(
             children: [
               _titleBar(context),
               _tabs(),
               Expanded(
                 child: ColoredBox(
-                  color: colorScheme.surfaceContainerLowest,
+                  color: _kClzPanel,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
@@ -180,13 +197,29 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
 
   Widget _titleBar(BuildContext context) {
     return Container(
-      height: 54,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: 76,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       color: _kClzToolbar,
       child: Row(
         children: [
-          const Icon(Icons.edit_note, color: _kClzAccent),
-          const SizedBox(width: 10),
+          SizedBox(
+            width: 36,
+            height: 52,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0x884DBBD5)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0xAA000000),
+                    blurRadius: 8,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: ClipRect(child: widget.cover),
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -201,10 +234,29 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                       .titleMedium
                       ?.copyWith(fontWeight: FontWeight.w900),
                 ),
+                const SizedBox(height: 5),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    const _MiniBadge('Owned'),
+                    if (_grade != null && _grade!.isNotEmpty)
+                      _MiniBadge(_grade!),
+                    if (_condition != null && _condition!.isNotEmpty)
+                      _MiniBadge(_condition!),
+                    _MiniBadge('Qty ${_quantityController.text}'),
+                    if (_storageBoxController.text.trim().isNotEmpty)
+                      _MiniBadge(_storageBoxController.text.trim()),
+                  ],
+                ),
+                const SizedBox(height: 3),
                 Text(
-                  widget.item.itemNumber == null
-                      ? 'Personal local copy'
-                      : 'Issue #${widget.item.itemNumber} - local copy',
+                  [
+                    if (widget.item.itemNumber != null)
+                      'Issue #${widget.item.itemNumber}',
+                    'local personal copy',
+                    if (widget.item.barcode != null) widget.item.barcode,
+                  ].whereType<String>().join(' | '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -233,139 +285,206 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
       child: TabBar(
         controller: _tabController,
         isScrollable: true,
+        tabAlignment: TabAlignment.start,
         labelColor: Colors.white,
         unselectedLabelColor: _kClzTextMuted,
         indicatorColor: _kClzAccent,
         dividerColor: _kClzDivider,
+        labelPadding: const EdgeInsets.symmetric(horizontal: 13),
         tabs: const [
-          Tab(icon: Icon(Icons.article), text: 'Main'),
-          Tab(icon: Icon(Icons.search), text: 'Details'),
-          Tab(icon: Icon(Icons.attach_money), text: 'Value'),
-          Tab(icon: Icon(Icons.person), text: 'Personal'),
-          Tab(icon: Icon(Icons.image), text: 'Cover'),
-          Tab(icon: Icon(Icons.notes), text: 'Plot'),
+          _EditTab(icon: Icons.article, label: 'Main'),
+          _EditTab(icon: Icons.search, label: 'Details'),
+          _EditTab(icon: Icons.attach_money, label: 'Value'),
+          _EditTab(icon: Icons.person, label: 'Personal'),
+          _EditTab(icon: Icons.image, label: 'Cover'),
+          _EditTab(icon: Icons.notes, label: 'Plot'),
         ],
       ),
     );
   }
 
   Widget _footer(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLowest,
-        border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
-      ),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        alignment: WrapAlignment.end,
+    final currentTab = _tabController.index + 1;
+    final totalTabs = _tabController.length;
+    final summary = SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
         children: [
-          OutlinedButton.icon(
+          const _FooterReadonlyField(
+            label: 'Collection Status',
+            value: 'Owned',
+            width: 150,
+          ),
+          const SizedBox(width: 8),
+          _FooterReadonlyField(
+            label: 'Tab',
+            value: '$currentTab / $totalTabs',
+            width: 72,
+          ),
+          const SizedBox(width: 8),
+          _FooterTextField(
+            label: 'Index',
+            controller: _indexNumberController,
+            width: 86,
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(width: 8),
+          _FooterTextField(
+            label: 'Qty',
+            controller: _quantityController,
+            width: 92,
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(width: 8),
+          _FooterTextField(
+            label: 'Box',
+            controller: _storageBoxController,
+            width: 180,
+          ),
+        ],
+      ),
+    );
+    final actions = Wrap(
+      alignment: WrapAlignment.end,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        Tooltip(
+          message: 'Previous tab',
+          child: OutlinedButton.icon(
             onPressed: _tabController.index == 0 ? null : _previousTab,
             icon: const Icon(Icons.chevron_left),
             label: const Text('Previous'),
           ),
-          OutlinedButton.icon(
+        ),
+        Tooltip(
+          message: 'Next tab',
+          child: OutlinedButton.icon(
             onPressed: _tabController.index == _tabController.length - 1
                 ? null
                 : _nextTab,
             icon: const Icon(Icons.chevron_right),
             label: const Text('Next'),
           ),
-          OutlinedButton.icon(
-            onPressed: _pickPurchaseDate,
-            icon: const Icon(Icons.event),
-            label: Text(
-              _purchaseDate == null
-                  ? 'Set purchase date'
-                  : _formatDate(_purchaseDate!),
-            ),
+        ),
+        OutlinedButton.icon(
+          onPressed: _pickPurchaseDate,
+          icon: const Icon(Icons.event),
+          label: Text(
+            _purchaseDate == null
+                ? 'Set purchase date'
+                : _formatDate(_purchaseDate!),
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: _submit,
-            child: const Text('OK'),
-          ),
-        ],
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: const Text('OK'),
+        ),
+      ],
+    );
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
+      decoration: const BoxDecoration(
+        color: _kClzToolbar,
+        border: Border(top: BorderSide(color: _kClzDivider)),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 850) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                summary,
+                const SizedBox(height: 8),
+                Align(alignment: Alignment.centerRight, child: actions),
+              ],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(child: summary),
+              actions,
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _editMainTab() {
-    return ListView(
-      padding: const EdgeInsets.all(20),
+    return _EditTabShell(
+      cover: widget.cover,
       children: [
-        TextFormField(
-          initialValue: widget.item.title,
-          readOnly: true,
-          decoration: const InputDecoration(
-            labelText: 'Series',
-            border: OutlineInputBorder(),
+        _EditSection(
+          title: 'Comic',
+          child: Column(
+            children: [
+              _EditGrid(
+                children: [
+                  _readonlyField('Series', widget.item.title, flex: 2),
+                  _readonlyField('Issue No.', widget.item.itemNumber ?? ''),
+                  _readonlyField('Variant', widget.item.variant ?? ''),
+                  _readonlyField('Publisher', widget.item.publisher ?? ''),
+                  _readonlyField('Barcode', widget.item.barcode ?? ''),
+                  _readonlyField(
+                    'Release Date',
+                    widget.item.releaseDate == null
+                        ? ''
+                        : _formatDate(widget.item.releaseDate!),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      initialValue: widget.conditions.contains(_condition)
+                          ? _condition
+                          : null,
+                      decoration: const InputDecoration(labelText: 'Condition'),
+                      items: [
+                        for (final option in widget.conditions)
+                          DropdownMenuItem(value: option, child: Text(option)),
+                      ],
+                      onChanged: (value) => setState(() => _condition = value),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      initialValue:
+                          widget.grades.contains(_grade) ? _grade : null,
+                      decoration: const InputDecoration(labelText: 'Grade'),
+                      items: [
+                        for (final option in widget.grades)
+                          DropdownMenuItem(value: option, child: Text(option)),
+                      ],
+                      onChanged: (value) => setState(() => _grade = value),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                initialValue: widget.item.itemNumber ?? '',
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Issue No.',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+        _EditSection(
+          title: 'Notes',
+          child: TextField(
+            controller: _notesController,
+            minLines: 5,
+            maxLines: 8,
+            decoration: const InputDecoration(
+              labelText: 'Personal notes',
+              alignLabelWithHint: true,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                isExpanded: true,
-                initialValue:
-                    widget.conditions.contains(_condition) ? _condition : null,
-                decoration: const InputDecoration(
-                  labelText: 'Condition',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final option in widget.conditions)
-                    DropdownMenuItem(value: option, child: Text(option)),
-                ],
-                onChanged: (value) => setState(() => _condition = value),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                isExpanded: true,
-                initialValue: widget.grades.contains(_grade) ? _grade : null,
-                decoration: const InputDecoration(
-                  labelText: 'Grade',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final option in widget.grades)
-                    DropdownMenuItem(value: option, child: Text(option)),
-                ],
-                onChanged: (value) => setState(() => _grade = value),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _notesController,
-          minLines: 5,
-          maxLines: 8,
-          decoration: const InputDecoration(
-            labelText: 'Personal notes',
-            alignLabelWithHint: true,
-            border: OutlineInputBorder(),
           ),
         ),
       ],
@@ -373,24 +492,23 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   }
 
   Widget _editDetailsTab() {
-    return ListView(
-      padding: const EdgeInsets.all(20),
+    return _EditTabShell(
       children: [
-        TextFormField(
-          initialValue: widget.item.id,
-          readOnly: true,
-          decoration: const InputDecoration(
-            labelText: 'Collectarr Item ID',
-            border: OutlineInputBorder(),
+        _EditSection(
+          title: 'Catalog Details',
+          child: _EditGrid(
+            children: [
+              _readonlyField('Collectarr Item ID', widget.item.id, flex: 2),
+              _readonlyField('Format', widget.item.kind),
+              _readonlyField('Year', widget.item.releaseYear?.toString() ?? ''),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        TextFormField(
-          initialValue: widget.item.kind,
-          readOnly: true,
-          decoration: const InputDecoration(
-            labelText: 'Format',
-            border: OutlineInputBorder(),
+        _EditSection(
+          title: 'Local Metadata Boundary',
+          child: const Text(
+            'Title, covers, barcode, release metadata, creators, and provider links come from Collectarr Core. Grade, value, notes, tags, storage, and progress stay local.',
+            style: TextStyle(color: _kClzTextMuted),
           ),
         ),
       ],
@@ -398,73 +516,72 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   }
 
   Widget _editValueTab() {
-    return ListView(
-      padding: const EdgeInsets.all(20),
+    return _EditTabShell(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _priceController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Purchase price',
-                  prefixText: r'$ ',
-                  border: OutlineInputBorder(),
-                ),
+        _EditSection(
+          title: 'Value',
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _priceController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                        labelText: 'Purchase price',
+                        prefixText: r'$ ',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 120,
+                    child: TextField(
+                      controller: _currencyController,
+                      textCapitalization: TextCapitalization.characters,
+                      decoration: const InputDecoration(labelText: 'Currency'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _coverPriceController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                        labelText: 'Cover price',
+                        prefixText: r'$ ',
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 140,
-              child: TextField(
-                controller: _currencyController,
-                textCapitalization: TextCapitalization.characters,
-                decoration: const InputDecoration(
-                  labelText: 'Currency',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              const _ValueByGradePanel(),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _coverPriceController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Cover price',
-                  prefixText: r'$ ',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
+        _EditSection(
+          title: 'Grading',
+          child: Column(
+            children: [
+              TextField(
                 controller: _gradingCompanyController,
+                decoration: const InputDecoration(labelText: 'Grading company'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _graderNotesController,
+                minLines: 4,
+                maxLines: 6,
                 decoration: const InputDecoration(
-                  labelText: 'Grading company',
-                  border: OutlineInputBorder(),
+                  labelText: 'Grader notes',
+                  alignLabelWithHint: true,
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _graderNotesController,
-          minLines: 4,
-          maxLines: 6,
-          decoration: const InputDecoration(
-            labelText: 'Grader notes',
-            alignLabelWithHint: true,
-            border: OutlineInputBorder(),
+            ],
           ),
         ),
       ],
@@ -472,146 +589,173 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   }
 
   Widget _editPersonalTab() {
-    return ListView(
-      padding: const EdgeInsets.all(20),
+    return _EditTabShell(
       children: [
-        Row(
-          children: [
-            SizedBox(
-              width: 140,
-              child: TextField(
-                controller: _quantityController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Quantity',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _storageBoxController,
-                decoration: const InputDecoration(
-                  labelText: 'Storage box',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            SizedBox(
-              width: 140,
-              child: TextField(
-                controller: _indexNumberController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Index',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'Raw', label: Text('Raw')),
-                  ButtonSegment(value: 'Slabbed', label: Text('Slabbed')),
+        _EditSection(
+          title: 'Personal',
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: 120,
+                    child: TextField(
+                      controller: _quantityController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Quantity'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _storageBoxController,
+                      decoration:
+                          const InputDecoration(labelText: 'Storage box'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 120,
+                    child: TextField(
+                      controller: _indexNumberController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Index'),
+                    ),
+                  ),
                 ],
-                selected: {_rawOrSlabbed ?? 'Raw'},
-                onSelectionChanged: (selection) =>
-                    setState(() => _rawOrSlabbed = selection.first),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _signedByController,
-                decoration: const InputDecoration(
-                  labelText: 'Signed by',
-                  border: OutlineInputBorder(),
-                ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'Raw', label: Text('Raw')),
+                        ButtonSegment(
+                          value: 'Slabbed',
+                          label: Text('Slabbed'),
+                        ),
+                      ],
+                      selected: {_rawOrSlabbed ?? 'Raw'},
+                      onSelectionChanged: (selection) =>
+                          setState(() => _rawOrSlabbed = selection.first),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: MediaTrackingStatusField(
+                      profile: comicsLibraryConfig.trackingProfile,
+                      value: _readStatusController.text,
+                      label: 'Read status',
+                      onChanged: (value) {
+                        _readStatusController.text = value ?? '';
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 120,
+                    child: MediaRatingField(controller: _ratingController),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 120,
-              child: MediaRatingField(controller: _ratingController),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        SwitchListTile(
-          value: _keyComic,
-          onChanged: (value) => setState(() => _keyComic = value),
-          title: const Text('Key comic'),
-          contentPadding: EdgeInsets.zero,
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _keyReasonController,
-          decoration: const InputDecoration(
-            labelText: 'Key reason',
-            border: OutlineInputBorder(),
+            ],
           ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: MediaTrackingStatusField(
-                profile: comicsLibraryConfig.trackingProfile,
-                value: _readStatusController.text,
-                label: 'Read status',
-                onChanged: (value) {
-                  _readStatusController.text = value ?? '';
-                },
+        _EditSection(
+          title: 'Flags & Tags',
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _signedByController,
+                      decoration: const InputDecoration(labelText: 'Signed by'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 180,
+                    child: SwitchListTile(
+                      value: _keyComic,
+                      onChanged: (value) => setState(() => _keyComic = value),
+                      title: const Text('Key comic'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
+              const SizedBox(height: 12),
+              TextField(
+                controller: _keyReasonController,
+                decoration: const InputDecoration(labelText: 'Key reason'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
                 controller: _tagsController,
-                decoration: const InputDecoration(
-                  labelText: 'Tags',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Tags'),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
   }
 
   Widget _editCoverTab() {
-    return Center(
-      child: SizedBox(
-        width: 220,
-        child: AspectRatio(
-          aspectRatio: 2 / 3,
-          child: widget.cover,
+    return _EditTabShell(
+      children: [
+        _EditSection(
+          title: 'Cover',
+          child: Center(
+            child: SizedBox(
+              width: 260,
+              child: Column(
+                children: [
+                  AspectRatio(
+                    aspectRatio: 2 / 3,
+                    child: widget.cover,
+                  ),
+                  const SizedBox(height: 12),
+                  const Wrap(
+                    spacing: 8,
+                    children: [
+                      _MiniBadge('Local cover cache'),
+                      _MiniBadge('Core metadata'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _editPlotTab() {
-    return ListView(
-      padding: const EdgeInsets.all(20),
+    return _EditTabShell(
       children: [
-        Text(
-          widget.item.synopsis ?? 'No plot metadata available yet.',
-          style: Theme.of(context).textTheme.bodyLarge,
+        _EditSection(
+          title: 'Plot',
+          child: Text(
+            widget.item.synopsis ?? 'No plot metadata available yet.',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _readonlyField(String label, String value, {int flex = 1}) {
+    return Expanded(
+      flex: flex,
+      child: TextFormField(
+        initialValue: value,
+        readOnly: true,
+        decoration: InputDecoration(labelText: label),
+      ),
     );
   }
 
@@ -669,6 +813,304 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
         rating: int.tryParse(_ratingController.text.trim()),
         readStatus: _emptyToNull(_readStatusController.text),
         tags: _emptyToNull(_tagsController.text),
+      ),
+    );
+  }
+}
+
+class _EditTabShell extends StatelessWidget {
+  const _EditTabShell({
+    required this.children,
+    this.cover,
+  });
+
+  final List<Widget> children;
+  final Widget? cover;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final content = ListView(
+          padding: const EdgeInsets.all(18),
+          children: children,
+        );
+        if (cover == null || constraints.maxWidth < 720) {
+          return content;
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 210,
+              padding: const EdgeInsets.all(18),
+              decoration: const BoxDecoration(
+                color: Color(0xFF151515),
+                border: Border(right: BorderSide(color: _kClzDivider)),
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: AspectRatio(aspectRatio: 2 / 3, child: cover!),
+                    ),
+                  ),
+                  if (constraints.maxHeight >= 360) ...[
+                    const SizedBox(height: 12),
+                    const _MiniBadge('Local item'),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Personal fields stay on this device or your sync service.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: _kClzTextMuted, fontSize: 12),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            Expanded(child: content),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _EditSection extends StatelessWidget {
+  const _EditSection({required this.title, required this.child});
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF242424),
+        border: Border.all(color: const Color(0xFF3D3D3D)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: _kClzAccent,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _EditTab extends StatelessWidget {
+  const _EditTab({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tab(
+      height: 42,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 17),
+          const SizedBox(width: 6),
+          Text(label),
+        ],
+      ),
+    );
+  }
+}
+
+class _EditGrid extends StatelessWidget {
+  const _EditGrid({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = <Widget>[];
+    for (var i = 0; i < children.length; i += 2) {
+      rows.add(
+        Row(
+          children: [
+            children[i],
+            if (i + 1 < children.length) ...[
+              const SizedBox(width: 10),
+              children[i + 1],
+            ],
+          ],
+        ),
+      );
+      if (i + 2 < children.length) {
+        rows.add(const SizedBox(height: 10));
+      }
+    }
+    return Column(children: rows);
+  }
+}
+
+class _ValueByGradePanel extends StatelessWidget {
+  const _ValueByGradePanel();
+
+  @override
+  Widget build(BuildContext context) {
+    const values = [8, 12, 18, 26, 34, 44, 58, 74, 96, 130];
+    return Container(
+      height: 190,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF101010),
+        border: Border.all(color: _kClzDivider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Value by grade',
+            style: TextStyle(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (var i = 0; i < values.length; i++) ...[
+                  Expanded(
+                    child: Tooltip(
+                      message: '${(i + 1) * 1.0}',
+                      child: Container(
+                        height: values[i].toDouble(),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF7EDAF3),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (i != values.length - 1) const SizedBox(width: 5),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Research integration placeholder',
+            style: TextStyle(color: _kClzTextMuted, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FooterReadonlyField extends StatelessWidget {
+  const _FooterReadonlyField({
+    required this.label,
+    required this.value,
+    required this.width,
+  });
+
+  final String label;
+  final String value;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final display = value.trim().isEmpty ? '-' : value.trim();
+    return SizedBox(
+      width: width,
+      height: 48,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: const Color(0xFF191919),
+          border: Border.all(color: const Color(0xFF3D3D3D)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: _kClzTextMuted, fontSize: 10),
+              ),
+              Text(
+                display,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FooterTextField extends StatelessWidget {
+  const _FooterTextField({
+    required this.label,
+    required this.controller,
+    required this.width,
+    this.keyboardType,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final double width;
+  final TextInputType? keyboardType;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: 48,
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+        decoration: InputDecoration(
+          labelText: label,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniBadge extends StatelessWidget {
+  const _MiniBadge(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF0E81A6),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
+        ),
       ),
     );
   }

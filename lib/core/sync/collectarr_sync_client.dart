@@ -53,6 +53,18 @@ class CollectarrSyncClient {
     return _responseData(response, '/sync/status');
   }
 
+  Future<List<Map<String, dynamic>>> devices() async {
+    final response = await _dio.get<List<dynamic>>(
+      '/sync/devices',
+      options: _options(),
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/sync/devices returned an empty response body');
+    }
+    return data.whereType<Map<String, dynamic>>().toList(growable: false);
+  }
+
   Options _options() {
     return Options(headers: {'X-Collectarr-Sync-Key': _syncKey});
   }

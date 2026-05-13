@@ -5,6 +5,8 @@ import 'package:drift/drift.dart';
 class OwnedItemsCacheRepository {
   const OwnedItemsCacheRepository(this._db);
 
+  static const _lookupBatchSize = 500;
+
   final LocalDatabase _db;
 
   Future<List<OwnedItem>> listActive() async {
@@ -46,6 +48,25 @@ class OwnedItemsCacheRepository {
           _toCompanion(item),
           mode: InsertMode.insertOrReplace,
         );
+  }
+
+  Future<List<OwnedItem>> findActiveByItemIds(Iterable<String> itemIds) async {
+    final values = itemIds.toSet().toList(growable: false);
+    if (values.isEmpty) {
+      return const [];
+    }
+    final items = <OwnedItem>[];
+    for (var index = 0; index < values.length; index += _lookupBatchSize) {
+      final end = (index + _lookupBatchSize).clamp(0, values.length);
+      final batch = values.sublist(index, end);
+      final rows = await (_db.select(_db.ownedItemsCache)
+            ..where(
+              (row) => row.itemId.isIn(batch) & row.deletedAt.isNull(),
+            ))
+          .get();
+      items.addAll(rows.map(_fromCache));
+    }
+    return items;
   }
 
   Future<void> markDeleted(OwnedItem item, DateTime deletedAt) {

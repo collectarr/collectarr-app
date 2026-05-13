@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -136,5 +138,148 @@ void main() {
     expect(
         queued.where((row) => row.entityType == 'wishlist_item').single.action,
         'delete');
+  });
+
+  test('collection import resolves clz rows from local catalog cache',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'The Amazing Spider-Man, Vol. 2',
+        itemNumber: '520',
+        barcode: '75960604716152011',
+      ),
+    ]);
+
+    final imported =
+        await container.read(collectionMutationsProvider).importRows(
+      const [
+        CollectionCsvRow(
+          itemId: '',
+          status: 'owned',
+          title: 'Different title from CSV',
+          itemNumber: '520',
+          barcode: '75960604716152011',
+          grade: '7.5',
+        ),
+      ],
+    );
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    expect(imported, 1);
+    expect(owned.itemId, 'comic-1');
+    expect(owned.grade, '7.5');
+  });
+
+  test('collection import preview reports matched unresolved and skipped rows',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'The Amazing Spider-Man, Vol. 2',
+        itemNumber: '520',
+        barcode: '75960604716152011',
+      ),
+    ]);
+
+    final preview =
+        await container.read(collectionMutationsProvider).previewImportRows(
+      const [
+        CollectionCsvRow(
+          itemId: '',
+          status: 'owned',
+          title: 'The Amazing Spider-Man, Vol. 2',
+          itemNumber: '520',
+        ),
+        CollectionCsvRow(
+          itemId: '',
+          status: 'owned',
+          title: 'Unknown Series',
+          itemNumber: '1',
+        ),
+        CollectionCsvRow(itemId: '', status: ''),
+      ],
+    );
+
+    expect(preview.totalRows, 3);
+    expect(preview.resolvedCount, 1);
+    expect(preview.unresolvedCount, 1);
+    expect(preview.skippedCount, 1);
+    expect(preview.resolvedRows.single.itemId, 'comic-1');
+  });
+
+  test('collection import preview reports existing owned conflicts', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    final mutations = container.read(collectionMutationsProvider);
+
+    await mutations.addItem('comic-1', grade: '4.0');
+
+    final preview = await mutations.previewImportRows(
+      const [
+        CollectionCsvRow(
+          itemId: 'comic-1',
+          status: 'owned',
+          grade: '7.5',
+        ),
+      ],
+    );
+
+    expect(preview.resolvedCount, 0);
+    expect(preview.conflictCount, 1);
+    expect(preview.conflictRows.single.itemId, 'comic-1');
+  });
+
+  test('collection import updates existing owned conflict without duplicate',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    final mutations = container.read(collectionMutationsProvider);
+
+    await mutations.addItem('comic-1', condition: 'Good', grade: '4.0');
+    final original = await db.select(db.ownedItemsCache).getSingle();
+
+    final imported = await mutations.importRows(
+      const [
+        CollectionCsvRow(
+          itemId: 'comic-1',
+          status: 'owned',
+          grade: '7.5',
+          storageBox: 'Box 6',
+        ),
+      ],
+    );
+
+    final owned = await db.select(db.ownedItemsCache).get();
+    expect(imported, 1);
+    expect(owned, hasLength(1));
+    expect(owned.single.id, original.id);
+    expect(owned.single.condition, 'Good');
+    expect(owned.single.grade, '7.5');
+    expect(owned.single.storageBox, 'Box 6');
   });
 }

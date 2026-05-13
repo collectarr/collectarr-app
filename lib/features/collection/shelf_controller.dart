@@ -34,9 +34,14 @@ class ShelfState {
     required this.totalPaidCents,
     required this.primaryCurrency,
     required this.hasMixedCurrencies,
+    this.totalQuantity = 0,
+    this.keyComicCount = 0,
     this.missingMetadataCount = 0,
     this.gradeCounts = const {},
     this.conditionCounts = const {},
+    this.readStatusCounts = const {},
+    this.storageBoxCounts = const {},
+    this.seriesCounts = const {},
   });
 
   factory ShelfState.from({
@@ -73,7 +78,7 @@ class ShelfState {
       for (final item in pricedOwned) item.currency!,
     };
     final hasMixedCurrencies = currencies.length > 1;
-    final activeOwned = ownedByItemId.values;
+    final activeOwned = ownedByItemId.values.toList(growable: false);
     return ShelfState(
       entries: entries,
       ownedCount: ownedByItemId.length,
@@ -89,11 +94,28 @@ class ShelfState {
             ),
       primaryCurrency: currencies.length == 1 ? currencies.single : null,
       hasMixedCurrencies: hasMixedCurrencies,
+      totalQuantity: activeOwned.fold<int>(
+        0,
+        (total, item) => total + item.quantity,
+      ),
+      keyComicCount: activeOwned.where((item) => item.keyComic).length,
       missingMetadataCount:
           entries.where((entry) => entry.catalogItem == null).length,
       gradeCounts: _counts(activeOwned.map((item) => item.grade ?? 'Ungraded')),
       conditionCounts: _counts(
         activeOwned.map((item) => item.condition ?? 'Unknown'),
+      ),
+      readStatusCounts: _counts(
+        activeOwned.map((item) => item.readStatus ?? 'Unknown'),
+      ),
+      storageBoxCounts: _counts(
+        activeOwned.map((item) => item.storageBox ?? 'No box'),
+      ),
+      seriesCounts: _counts(
+        entries
+            .map((entry) => entry.catalogItem?.title)
+            .whereType<String>()
+            .where((title) => title.trim().isNotEmpty),
       ),
     );
   }
@@ -106,9 +128,14 @@ class ShelfState {
   final int? totalPaidCents;
   final String? primaryCurrency;
   final bool hasMixedCurrencies;
+  final int totalQuantity;
+  final int keyComicCount;
   final int missingMetadataCount;
   final Map<String, int> gradeCounts;
   final Map<String, int> conditionCounts;
+  final Map<String, int> readStatusCounts;
+  final Map<String, int> storageBoxCounts;
+  final Map<String, int> seriesCounts;
 
   static Map<String, int> _counts(Iterable<String> values) {
     final counts = <String, int>{};

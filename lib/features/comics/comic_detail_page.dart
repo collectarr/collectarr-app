@@ -49,11 +49,6 @@ class _ComicDetailBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final edition = comic.primaryEdition;
     final variant = comic.primaryVariant;
-    final source = edition?.sourceMetadata;
-    final providerUrl = source?['site_detail_url']?.toString();
-    final creators = _metadataNames(source, 'person_credits');
-    final characters = _metadataNames(source, 'character_credits');
-    final arcs = _metadataNames(source, 'story_arc_credits');
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -67,38 +62,68 @@ class _ComicDetailBody extends ConsumerWidget {
           runSpacing: 8,
           children: [
             _MetadataChip(label: comic.kind),
-            if (edition?.publisher != null)
-              _MetadataChip(label: edition!.publisher!),
+            if (comic.publisher != null) _MetadataChip(label: comic.publisher!),
             if (edition?.format != null) _MetadataChip(label: edition!.format!),
             if (edition?.releaseDate != null)
               _MetadataChip(label: _dateLabel(edition!.releaseDate!)),
+            if (comic.pageCount != null)
+              _MetadataChip(label: '${comic.pageCount} pages'),
+            if (comic.barcode != null) _MetadataChip(label: comic.barcode!),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _MetadataSection(
+          title: 'Catalog',
+          children: [
+            _InfoGrid(
+              rows: [
+                ('Series', comic.seriesTitle),
+                ('Volume', comic.volumeName),
+                ('Volume Year', comic.volumeStartYear?.toString()),
+                ('Cover Date', _optionalDateLabel(comic.coverDate)),
+                ('Store Date', _optionalDateLabel(comic.storeDate)),
+                ('Barcode', comic.barcode),
+                (
+                  'Cover Price',
+                  _moneyLabel(comic.coverPriceCents, comic.currency)
+                ),
+              ],
+            ),
           ],
         ),
         if (comic.synopsis != null) ...[
           const SizedBox(height: 16),
           Text(comic.synopsis!),
         ],
-        if (providerUrl != null) ...[
-          const SizedBox(height: 16),
+        if (comic.providerLinks.isNotEmpty)
           _MetadataSection(
             title: 'Provider links',
-            children: [SelectableText(providerUrl)],
+            children: [
+              for (final link in comic.providerLinks)
+                SelectableText(
+                  [
+                    link.provider,
+                    link.entityType,
+                    link.providerItemId,
+                    link.siteUrl ?? link.apiUrl,
+                  ].whereType<String>().join(' - '),
+                ),
+            ],
           ),
-        ],
-        if (creators.isNotEmpty)
+        if (comic.creators.isNotEmpty)
           _MetadataSection(
             title: 'Creators',
-            children: [_NameWrap(names: creators)],
+            children: [_CreditWrap(credits: comic.creators)],
           ),
-        if (characters.isNotEmpty)
+        if (comic.characters.isNotEmpty)
           _MetadataSection(
             title: 'Characters',
-            children: [_NameWrap(names: characters)],
+            children: [_CreditWrap(credits: comic.characters)],
           ),
-        if (arcs.isNotEmpty)
+        if (comic.storyArcs.isNotEmpty)
           _MetadataSection(
             title: 'Story arcs',
-            children: [_NameWrap(names: arcs)],
+            children: [_CreditWrap(credits: comic.storyArcs)],
           ),
         const SizedBox(height: 16),
         FilledButton.icon(
@@ -143,15 +168,18 @@ class _ComicDetailBody extends ConsumerWidget {
         '${value.day.toString().padLeft(2, '0')}';
   }
 
-  List<String> _metadataNames(Map<String, dynamic>? source, String key) {
-    final values = source?[key];
-    if (values is! List) {
-      return const [];
+  String? _optionalDateLabel(DateTime? value) =>
+      value == null ? null : _dateLabel(value);
+
+  String? _moneyLabel(int? cents, String? currency) {
+    if (cents == null) {
+      return null;
     }
-    return [
-      for (final value in values)
-        if (value is Map && value['name'] != null) value['name'].toString(),
-    ];
+    final sign = cents < 0 ? '-' : '';
+    final absolute = cents.abs();
+    final whole = absolute ~/ 100;
+    final fraction = (absolute % 100).toString().padLeft(2, '0');
+    return '${currency ?? ''} $sign$whole.$fraction'.trim();
   }
 }
 
@@ -236,8 +264,12 @@ class _EditionPanel extends StatelessWidget {
                   _MetadataChip(label: edition.publisher!),
                 if (edition.language != null)
                   _MetadataChip(label: edition.language!),
+                if (edition.region != null)
+                  _MetadataChip(label: edition.region!),
                 if (edition.upc != null)
                   _MetadataChip(label: 'UPC ${edition.upc!}'),
+                if (edition.isbn != null)
+                  _MetadataChip(label: 'ISBN ${edition.isbn!}'),
               ],
             ),
             if (edition.variants.isNotEmpty) ...[
@@ -251,7 +283,14 @@ class _EditionPanel extends StatelessWidget {
                     variant.isPrimary ? Icons.check_circle : Icons.album,
                   ),
                   title: Text(variant.name),
-                  subtitle: variant.sku == null ? null : Text(variant.sku!),
+                  subtitle: Text(
+                    [
+                      variant.variantType,
+                      variant.sku,
+                      variant.barcode,
+                      _moneyLabel(variant.coverPriceCents, variant.currency),
+                    ].whereType<String>().join(' - '),
+                  ),
                 ),
             ],
             if (edition.releases.isNotEmpty) ...[
@@ -283,6 +322,17 @@ class _EditionPanel extends StatelessWidget {
         '${value.month.toString().padLeft(2, '0')}-'
         '${value.day.toString().padLeft(2, '0')}';
   }
+
+  String? _moneyLabel(int? cents, String? currency) {
+    if (cents == null) {
+      return null;
+    }
+    final sign = cents < 0 ? '-' : '';
+    final absolute = cents.abs();
+    final whole = absolute ~/ 100;
+    final fraction = (absolute % 100).toString().padLeft(2, '0');
+    return '${currency ?? ''} $sign$whole.$fraction'.trim();
+  }
 }
 
 class _MetadataSection extends StatelessWidget {
@@ -307,10 +357,48 @@ class _MetadataSection extends StatelessWidget {
   }
 }
 
-class _NameWrap extends StatelessWidget {
-  const _NameWrap({required this.names});
+class _InfoGrid extends StatelessWidget {
+  const _InfoGrid({required this.rows});
 
-  final List<String> names;
+  final List<(String, String?)> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final visibleRows = rows.where((row) {
+      final value = row.$2;
+      return value != null && value.isNotEmpty;
+    }).toList(growable: false);
+    if (visibleRows.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      children: [
+        for (final row in visibleRows)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 112,
+                  child: Text(
+                    row.$1,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                ),
+                Expanded(child: SelectableText(row.$2!)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CreditWrap extends StatelessWidget {
+  const _CreditWrap({required this.credits});
+
+  final List<ComicCredit> credits;
 
   @override
   Widget build(BuildContext context) {
@@ -318,7 +406,12 @@ class _NameWrap extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        for (final name in names) _MetadataChip(label: name),
+        for (final credit in credits)
+          _MetadataChip(
+            label: credit.role == null
+                ? credit.name
+                : '${credit.name} - ${credit.role}',
+          ),
       ],
     );
   }

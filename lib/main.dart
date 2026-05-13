@@ -152,9 +152,7 @@ class AuthGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
     if (auth.isRestoring) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const CollectarrRestoreScreen();
     }
     return auth.isAuthenticated ? const AppShell() : const AuthPage();
   }

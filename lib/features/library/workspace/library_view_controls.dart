@@ -12,6 +12,7 @@ class LibraryViewControls extends StatelessWidget {
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
+    this.onPresetSelected,
   });
 
   final LibraryViewMode viewMode;
@@ -22,6 +23,7 @@ class LibraryViewControls extends StatelessWidget {
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
+  final ValueChanged<LibraryWorkspacePreset>? onPresetSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +71,24 @@ class LibraryViewControls extends StatelessWidget {
           selected: {viewMode},
           onSelectionChanged: (selection) => onViewModeChanged(selection.first),
           showSelectedIcon: false,
+        ),
+        const SizedBox(width: 8),
+        PopupMenuButton<LibraryWorkspacePreset>(
+          tooltip: 'View presets',
+          enabled: onPresetSelected != null,
+          icon: const Icon(Icons.dashboard_customize),
+          onSelected: onPresetSelected,
+          itemBuilder: (context) => [
+            for (final preset in LibraryWorkspacePreset.values)
+              PopupMenuItem(
+                value: preset,
+                child: ListTile(
+                  leading: Icon(preset.icon),
+                  title: Text('${preset.label} preset'),
+                  dense: true,
+                ),
+              ),
+          ],
         ),
         const SizedBox(width: 8),
         SegmentedButton<LibraryDetailsLayout>(

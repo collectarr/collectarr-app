@@ -4,6 +4,28 @@ enum LibraryViewMode { grid, card, list }
 
 enum LibraryDetailsLayout { right, bottom, hidden }
 
+enum LibraryWorkspacePreset { cover, card, list, details }
+
+extension LibraryWorkspacePresetLabels on LibraryWorkspacePreset {
+  String get label {
+    return switch (this) {
+      LibraryWorkspacePreset.cover => 'Cover',
+      LibraryWorkspacePreset.card => 'Card',
+      LibraryWorkspacePreset.list => 'List',
+      LibraryWorkspacePreset.details => 'Details',
+    };
+  }
+
+  IconData get icon {
+    return switch (this) {
+      LibraryWorkspacePreset.cover => Icons.grid_view,
+      LibraryWorkspacePreset.card => Icons.view_module,
+      LibraryWorkspacePreset.list => Icons.view_list,
+      LibraryWorkspacePreset.details => Icons.view_sidebar,
+    };
+  }
+}
+
 enum LibrarySortColumn {
   status,
   title,
@@ -36,6 +58,8 @@ enum LibraryTableColumn {
   wishlist,
   updated
 }
+
+enum LibraryTableColumnGroup { main, edition, value, personal }
 
 class LibraryWorkspaceConfig {
   const LibraryWorkspaceConfig({

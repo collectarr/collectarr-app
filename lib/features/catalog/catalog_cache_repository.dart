@@ -73,4 +73,52 @@ class CatalogCacheRepository {
         ),
     };
   }
+
+  Future<CatalogItem?> findByBarcode(String barcode) async {
+    final normalized = barcode.trim();
+    if (normalized.isEmpty) {
+      return null;
+    }
+    final row = await (_db.select(_db.catalogCache)
+          ..where((row) => row.barcode.equals(normalized))
+          ..limit(1))
+        .getSingleOrNull();
+    return row == null ? null : _itemFromRow(row);
+  }
+
+  Future<CatalogItem?> findByTitleAndIssue({
+    required String title,
+    required String? itemNumber,
+  }) async {
+    final normalizedTitle = title.trim();
+    if (normalizedTitle.isEmpty) {
+      return null;
+    }
+    final query = _db.select(_db.catalogCache)
+      ..where((row) => row.title.equals(normalizedTitle));
+    final normalizedIssue = itemNumber?.trim();
+    if (normalizedIssue != null && normalizedIssue.isNotEmpty) {
+      query.where((row) => row.itemNumber.equals(normalizedIssue));
+    }
+    query.limit(1);
+    final row = await query.getSingleOrNull();
+    return row == null ? null : _itemFromRow(row);
+  }
+
+  CatalogItem _itemFromRow(CatalogCacheData row) {
+    return CatalogItem(
+      id: row.id,
+      kind: row.kind,
+      title: row.title,
+      itemNumber: row.itemNumber,
+      synopsis: row.synopsis,
+      coverImageUrl: row.coverImageUrl,
+      thumbnailImageUrl: null,
+      publisher: row.publisher,
+      releaseDate: row.releaseDate,
+      releaseYear: row.releaseYear,
+      barcode: row.barcode,
+      variant: row.variant,
+    );
+  }
 }

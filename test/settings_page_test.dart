@@ -27,8 +27,17 @@ void main() {
     expect(find.text('Metadata server'), findsOneWidget);
     expect(find.text('Personal sync service'), findsOneWidget);
     expect(find.text('Device identity'), findsOneWidget);
+    expect(find.text('Local backup'), findsOneWidget);
     expect(find.text('Check metadata server'), findsOneWidget);
     expect(find.text('Check sync service'), findsOneWidget);
+    expect(find.text('Sync now'), findsOneWidget);
+    expect(find.text('Copy Collectarr CSV'), findsOneWidget);
+    expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Save settings'),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Save settings'), findsOneWidget);
   });
 }

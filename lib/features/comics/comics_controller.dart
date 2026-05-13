@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +14,7 @@ final comicsSearchProvider =
   }
   final api = ref.watch(apiClientProvider);
   final results = await api.searchMetadata(
-    MetadataSearchQuery(query: query, kind: comicsLibraryConfig.workspace.kind),
+    libraryMetadataSearchQuery(comicsLibraryConfig, query: query),
   );
   final items = results.map(CatalogItem.fromJson).toList();
   await CatalogCacheRepository(ref.watch(localDatabaseProvider))

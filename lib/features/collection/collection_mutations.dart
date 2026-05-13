@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
@@ -208,6 +210,11 @@ class CollectionMutations {
     if (rows.isEmpty) {
       return 0;
     }
+    final preview = await previewImportRows(rows);
+    final resolvedRows = [...preview.resolvedRows, ...preview.conflictRows];
+    if (resolvedRows.isEmpty) {
+      return 0;
+    }
     final db = ref.read(localDatabaseProvider);
     final ownedCache = _ownedCache();
     final wishlistCache = _wishlistCache();
@@ -215,7 +222,13 @@ class CollectionMutations {
     final now = DateTime.now().toUtc();
     final existingWishlist = {
       for (final item in await wishlistCache.findActiveByItemIds(
-        rows.map((row) => row.itemId),
+        resolvedRows.map((row) => row.itemId),
+      ))
+        item.itemId: item,
+    };
+    final existingOwned = {
+      for (final item in await ownedCache.findActiveByItemIds(
+        resolvedRows.map((row) => row.itemId),
       ))
         item.itemId: item,
     };
@@ -226,14 +239,18 @@ class CollectionMutations {
     final syncChanges = <SyncChange>[];
     var imported = 0;
 
-    for (final row in rows) {
+    for (final row in resolvedRows) {
       if (!row.isOwned && !row.isWishlisted) {
         continue;
       }
       imported++;
       final existingWishlistItem = existingWishlist[row.itemId];
       if (row.isOwned) {
-        final ownedItem = _ownedItemFromCsvRow(row, now);
+        final ownedItem = _ownedItemFromCsvRow(
+          row,
+          now,
+          existing: existingOwned[row.itemId],
+        );
         ownedItems.add(ownedItem);
         syncChanges.add(_syncChangeForOwnedItem(ownedItem, 'upsert', now));
         if (existingWishlistItem != null &&
@@ -274,30 +291,105 @@ class CollectionMutations {
     return imported;
   }
 
-  OwnedItem _ownedItemFromCsvRow(CollectionCsvRow row, DateTime now) {
+  Future<CollectionImportPreview> previewImportRows(
+    List<CollectionCsvRow> rows,
+  ) async {
+    final catalog = CatalogCacheRepository(ref.read(localDatabaseProvider));
+    final resolved = <CollectionCsvRow>[];
+    final conflicts = <CollectionCsvRow>[];
+    final unresolved = <CollectionCsvRow>[];
+    final skipped = <CollectionCsvRow>[];
+    final ownedCache = _ownedCache();
+    for (final row in rows) {
+      if (!row.isOwned && !row.isWishlisted) {
+        skipped.add(row);
+        continue;
+      }
+      final resolvedRow = await _resolveCsvRow(row, catalog);
+      if (resolvedRow != null) {
+        final existingOwned =
+            await ownedCache.findActiveByItemIds([resolvedRow.itemId]);
+        if (resolvedRow.isOwned && existingOwned.isNotEmpty) {
+          conflicts.add(resolvedRow);
+        } else {
+          resolved.add(resolvedRow);
+        }
+      } else {
+        unresolved.add(row);
+      }
+    }
+    return CollectionImportPreview(
+      totalRows: rows.length,
+      resolvedRows: resolved,
+      conflictRows: conflicts,
+      unresolvedRows: unresolved,
+      skippedRows: skipped,
+    );
+  }
+
+  Future<CollectionCsvRow?> _resolveCsvRow(
+    CollectionCsvRow row,
+    CatalogCacheRepository catalog,
+  ) async {
+    if (row.itemId.trim().isNotEmpty) {
+      return row;
+    }
+    final matched = await _matchCsvRowToCatalog(row, catalog);
+    return matched == null ? null : row.copyWith(itemId: matched.id);
+  }
+
+  Future<CatalogItem?> _matchCsvRowToCatalog(
+    CollectionCsvRow row,
+    CatalogCacheRepository catalog,
+  ) async {
+    final barcode = row.barcode?.trim();
+    if (barcode != null && barcode.isNotEmpty) {
+      final match = await catalog.findByBarcode(barcode);
+      if (match != null) {
+        return match;
+      }
+    }
+    final title = row.title?.trim();
+    if (title == null || title.isEmpty) {
+      return null;
+    }
+    return catalog.findByTitleAndIssue(
+      title: title,
+      itemNumber: row.itemNumber,
+    );
+  }
+
+  OwnedItem _ownedItemFromCsvRow(
+    CollectionCsvRow row,
+    DateTime now, {
+    OwnedItem? existing,
+  }) {
     return OwnedItem(
-      id: _uuid.v4(),
+      id: existing?.id ?? _uuid.v4(),
       itemId: row.itemId,
-      condition: row.condition,
-      grade: row.grade,
-      purchaseDate: row.purchaseDate,
-      pricePaidCents: row.pricePaidCents,
-      currency: row.currency,
-      personalNotes: row.notes,
-      quantity: row.quantity ?? 1,
-      storageBox: row.storageBox,
-      indexNumber: row.indexNumber,
-      coverPriceCents: row.coverPriceCents,
-      rawOrSlabbed: row.rawOrSlabbed,
-      gradingCompany: row.gradingCompany,
-      graderNotes: row.graderNotes,
-      signedBy: row.signedBy,
-      keyComic: row.keyComic,
-      keyReason: row.keyReason,
-      rating: row.rating,
-      readStatus: row.readStatus,
-      tags: row.tags,
+      editionId: existing?.editionId,
+      variantId: existing?.variantId,
+      condition: row.condition ?? existing?.condition,
+      grade: row.grade ?? existing?.grade,
+      purchaseDate: row.purchaseDate ?? existing?.purchaseDate,
+      pricePaidCents: row.pricePaidCents ?? existing?.pricePaidCents,
+      currency: row.currency ?? existing?.currency,
+      personalNotes: row.notes ?? existing?.personalNotes,
+      quantity: row.quantity ?? existing?.quantity ?? 1,
+      storageBox: row.storageBox ?? existing?.storageBox,
+      indexNumber: row.indexNumber ?? existing?.indexNumber,
+      coverPriceCents: row.coverPriceCents ?? existing?.coverPriceCents,
+      rawOrSlabbed: row.rawOrSlabbed ?? existing?.rawOrSlabbed,
+      gradingCompany: row.gradingCompany ?? existing?.gradingCompany,
+      graderNotes: row.graderNotes ?? existing?.graderNotes,
+      signedBy: row.signedBy ?? existing?.signedBy,
+      keyComic: row.keyComic || (existing?.keyComic ?? false),
+      keyReason: row.keyReason ?? existing?.keyReason,
+      rating: row.rating ?? existing?.rating,
+      readStatus: row.readStatus ?? existing?.readStatus,
+      tags: row.tags ?? existing?.tags,
       updatedAt: now,
+      deletedAt: existing?.deletedAt,
     );
   }
 
@@ -387,6 +479,28 @@ class CollectionMutations {
       ),
     );
   }
+}
+
+class CollectionImportPreview {
+  const CollectionImportPreview({
+    required this.totalRows,
+    required this.resolvedRows,
+    this.conflictRows = const [],
+    required this.unresolvedRows,
+    required this.skippedRows,
+  });
+
+  final int totalRows;
+  final List<CollectionCsvRow> resolvedRows;
+  final List<CollectionCsvRow> conflictRows;
+  final List<CollectionCsvRow> unresolvedRows;
+  final List<CollectionCsvRow> skippedRows;
+
+  int get resolvedCount => resolvedRows.length;
+  int get conflictCount => conflictRows.length;
+  int get unresolvedCount => unresolvedRows.length;
+  int get skippedCount => skippedRows.length;
+  bool get hasImportableRows => resolvedRows.isNotEmpty;
 }
 
 final collectionMutationsProvider = Provider<CollectionMutations>((ref) {

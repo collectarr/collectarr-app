@@ -2,10 +2,13 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
+import 'package:collectarr_app/features/collection/collection_csv.dart';
+import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -22,6 +25,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<String>? _deviceIdFuture;
   _DiagnosticState? _metadataDiagnostic;
   _DiagnosticState? _syncDiagnostic;
+  Map<String, dynamic>? _syncStatusDetails;
+  List<Map<String, dynamic>> _syncDevices = const [];
   ConnectionSettings? _lastSyncedSettings;
 
   @override
@@ -42,6 +47,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final settings = ref.watch(connectionSettingsProvider);
     final auth = ref.watch(authControllerProvider);
+    final sync = ref.watch(syncControllerProvider);
     _syncTextControllers(settings);
 
     return Scaffold(
@@ -107,14 +113,56 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   diagnostic: _syncDiagnostic,
                   idleLabel: 'Not checked',
                 ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton.icon(
-                    onPressed: _checkSync,
-                    icon: const Icon(Icons.health_and_safety_outlined),
-                    label: const Text('Check sync service'),
+                if (_syncStatusDetails != null) ...[
+                  const SizedBox(height: 12),
+                  _SyncServiceSummary(
+                    status: _syncStatusDetails!,
+                    devices: _syncDevices,
                   ),
+                ],
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _StatusChip(
+                      icon: Icons.pending_actions,
+                      label: '${sync.pendingCount} pending',
+                    ),
+                    _StatusChip(
+                      icon: sync.isOffline ? Icons.cloud_off : Icons.cloud_done,
+                      label: sync.isOffline ? 'Offline' : 'Ready',
+                      isError: sync.isOffline,
+                    ),
+                    _StatusChip(
+                      icon: Icons.schedule,
+                      label: sync.lastSyncedAt == null
+                          ? 'Never synced'
+                          : 'Last ${_formatSyncTime(sync.lastSyncedAt!)}',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: _checkSync,
+                      icon: const Icon(Icons.health_and_safety_outlined),
+                      label: const Text('Check sync service'),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: sync.isSyncing ? null : _syncNow,
+                      icon: sync.isSyncing
+                          ? const SizedBox.square(
+                              dimension: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.sync),
+                      label: const Text('Sync now'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -146,6 +194,36 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ],
                 );
               },
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SettingsPanel(
+            icon: Icons.backup_outlined,
+            title: 'Local backup',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Copy a CSV snapshot of the local shelf. This includes personal fields stored on this device.',
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () => _copyBackup(clzFriendly: false),
+                      icon: const Icon(Icons.copy_all),
+                      label: const Text('Copy Collectarr CSV'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => _copyBackup(clzFriendly: true),
+                      icon: const Icon(Icons.table_view),
+                      label: const Text('Copy CLZ-friendly CSV'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
@@ -223,6 +301,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     setState(() {
       _metadataDiagnostic = null;
       _syncDiagnostic = null;
+      _syncStatusDetails = null;
+      _syncDevices = const [];
     });
   }
 
@@ -248,10 +328,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _syncDiagnostic = const _DiagnosticState.checking();
     });
     try {
-      final data = await CollectarrSyncClient(
+      final client = CollectarrSyncClient(
         baseUrl: _syncController.text,
         syncKey: _syncKeyController.text,
-      ).status();
+      );
+      final data = await client.status();
+      final devices = await client.devices();
       final version = data['schema_version']?.toString() ?? 'unknown';
       final entities = data['entity_count']?.toString() ?? 'unknown';
       final changes = data['change_count']?.toString() ?? 'unknown';
@@ -259,12 +341,54 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _syncDiagnostic = _DiagnosticState.ok(
           'Sync schema: $version, entities: $entities, changes: $changes',
         );
+        _syncStatusDetails = data;
+        _syncDevices = devices;
       });
     } catch (error) {
       setState(() {
         _syncDiagnostic = _DiagnosticState.error(error.toString());
+        _syncStatusDetails = null;
+        _syncDevices = const [];
       });
     }
+  }
+
+  Future<void> _syncNow() async {
+    await ref.read(syncControllerProvider.notifier).syncNow();
+    if (!mounted) {
+      return;
+    }
+    final sync = ref.read(syncControllerProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          sync.errorMessage == null
+              ? 'Personal sync complete'
+              : 'Personal sync unavailable: ${sync.errorMessage}',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _copyBackup({required bool clzFriendly}) async {
+    final state = await ref.read(shelfProvider.future);
+    final csv = CollectionCsv();
+    final data = clzFriendly
+        ? csv.exportClzFriendlyShelf(state.entries)
+        : csv.exportShelf(state.entries);
+    await Clipboard.setData(ClipboardData(text: data));
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          clzFriendly
+              ? 'CLZ-friendly CSV backup copied'
+              : 'Collectarr CSV backup copied',
+        ),
+      ),
+    );
   }
 
   Future<void> _regenerateDeviceId() async {
@@ -278,6 +402,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         const SnackBar(content: Text('Device id regenerated')),
       );
     }
+  }
+
+  String _formatSyncTime(DateTime value) {
+    final local = value.toLocal();
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hour:$minute';
   }
 }
 
@@ -347,6 +478,107 @@ class _DiagnosticRow extends StatelessWidget {
       icon: state.isOk ? Icons.check_circle_outline : Icons.error_outline,
       label: state.message,
       isError: !state.isOk,
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({
+    required this.icon,
+    required this.label,
+    this.isError = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isError;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Chip(
+      avatar: Icon(
+        icon,
+        size: 18,
+        color: isError ? colorScheme.error : colorScheme.primary,
+      ),
+      label: Text(label),
+      visualDensity: VisualDensity.compact,
+    );
+  }
+}
+
+class _SyncServiceSummary extends StatelessWidget {
+  const _SyncServiceSummary({
+    required this.status,
+    required this.devices,
+  });
+
+  final Map<String, dynamic> status;
+  final List<Map<String, dynamic>> devices;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+        border: Border.all(color: colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _StatusChip(
+                  icon: Icons.storage_outlined,
+                  label: '${status['entity_count'] ?? '-'} entities',
+                ),
+                _StatusChip(
+                  icon: Icons.delete_sweep_outlined,
+                  label: '${status['tombstone_count'] ?? '-'} tombstones',
+                ),
+                _StatusChip(
+                  icon: Icons.history,
+                  label: '${status['change_count'] ?? '-'} events',
+                ),
+                _StatusChip(
+                  icon: Icons.event_repeat,
+                  label: '${status['retention_days'] ?? '-'}d retention',
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text('Devices seen', style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 6),
+            if (devices.isEmpty)
+              const Text('No synced devices yet.')
+            else
+              for (final device in devices.take(5))
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.devices_other, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${device['device_id']}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text('${device['change_count'] ?? 0} events'),
+                    ],
+                  ),
+                ),
+          ],
+        ),
+      ),
     );
   }
 }
