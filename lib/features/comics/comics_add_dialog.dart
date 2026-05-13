@@ -24,7 +24,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 const Color _kClzToolbar = kClzToolbar;
 const Color _kClzPanel = kClzPanel;
 const Color _kClzAccent = kClzAccent;
-const Color _kClzDivider = kClzDivider;
 final ThemeData _kClzAddComicDialogTheme = kClzAddComicDialogTheme;
 
 class AddComicDialog extends ConsumerStatefulWidget {
