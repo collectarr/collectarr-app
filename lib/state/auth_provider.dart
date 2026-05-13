@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _authTokenKey = 'collectarr.auth.token';

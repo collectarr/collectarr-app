@@ -18,7 +18,7 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
       BarcodeFormat.upcE,
       BarcodeFormat.code128,
       BarcodeFormat.code39,
-      BarcodeFormat.itf,
+      BarcodeFormat.itf14,
       BarcodeFormat.qrCode,
     ],
   );
@@ -72,7 +72,7 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
                   child: MobileScanner(
                     controller: _scannerController,
                     onDetect: _onDetect,
-                    errorBuilder: (context, error, child) => Center(
+                    errorBuilder: (context, error) => Center(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Text(

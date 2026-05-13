@@ -4335,7 +4335,7 @@ class _RichMetadataInspector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final owned = libraryState.ownedItem;
-    final detailValue = detail?.valueOrNull;
+    final detailValue = detail?.value;
     final edition = detailValue?.primaryEdition;
     final variant = detailValue?.primaryVariant;
     final source = edition?.sourceMetadata;
@@ -6018,7 +6018,7 @@ class _AddComicDialogState extends ConsumerState<_AddComicDialog> {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final compact = width < 760;
-    final shelf = ref.watch(shelfProvider).valueOrNull;
+    final shelf = ref.watch(shelfProvider).value;
     final ownedItemIds = shelf == null
         ? const <String>{}
         : {
@@ -8330,7 +8330,7 @@ class _AddComicPreviewPane extends ConsumerWidget {
     }
     final detail = selectedItem == null
         ? null
-        : ref.watch(comicDetailProvider(selectedItem.id)).valueOrNull;
+        : ref.watch(comicDetailProvider(selectedItem.id)).value;
     final title = selectedItem?.title ?? selectedCandidate!.title;
     final issue = selectedItem?.itemNumber;
     final synopsis = selectedItem?.synopsis ?? selectedCandidate?.summary;

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final connectionSettingsProvider =
     StateNotifierProvider<ConnectionSettingsController, ConnectionSettings>(

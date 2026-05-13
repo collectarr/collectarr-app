@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/wishlist_items_cache_reposito
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 class SyncState {
   const SyncState({
