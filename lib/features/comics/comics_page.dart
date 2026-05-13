@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
@@ -2348,15 +2349,21 @@ class _CoverGrid extends StatelessWidget {
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
-          return _CoverTile(
-            item: item,
-            libraryState: LibraryItemState(
-              ownedItem: ownedByItemId[item.id],
+          final ownedItem = ownedByItemId[item.id];
+          return LibraryCoverTile(
+            entry: _comicWorkspaceEntry(
+              item,
+              ownedItem,
+              null,
               isWishlisted: wishlistIds.contains(item.id),
             ),
             selected:
                 selectedItemIds.contains(item.id) || item.id == selectedItemId,
             onTap: () => onSelectItem(item),
+            selectedColor: _kClzSelection,
+            accentColor: _kClzAccent,
+            selectionColor: _kClzYellow,
+            mutedTextColor: _kClzTextMuted,
           );
         },
       ),
@@ -3089,88 +3096,6 @@ String _formatOptionalMoney(int? cents, String? currency) {
 String? _emptyToNull(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
-}
-
-class _CoverTile extends StatelessWidget {
-  const _CoverTile({
-    required this.item,
-    required this.libraryState,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final CatalogItem item;
-  final LibraryItemState libraryState;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(2),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: selected ? _kClzSelection : const Color(0xFF111111),
-          borderRadius: BorderRadius.circular(2),
-          border: Border.all(
-            color: selected ? _kClzAccent : const Color(0xFF3C3C3C),
-            width: selected ? 2 : 1,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x99000000),
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _CoverImage(item: item),
-                  Positioned(
-                    left: 4,
-                    top: 4,
-                    child: LibraryCoverBadges(
-                      isOwned: libraryState.isOwned,
-                      isWishlisted: libraryState.isWishlisted,
-                    ),
-                  ),
-                  if (selected)
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(Icons.check_circle, color: _kClzYellow),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              item.itemNumber == null
-                  ? item.title
-                  : '${item.title} #${item.itemNumber}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: selected ? Colors.white : _kClzTextMuted,
-                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _CoverImage extends StatelessWidget {
@@ -4675,10 +4600,12 @@ class _CompactComicsView extends StatelessWidget {
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
-                return _CoverTile(
-                  item: item,
-                  libraryState: LibraryItemState(
-                    ownedItem: ownedByItemId[item.id],
+                final ownedItem = ownedByItemId[item.id];
+                return LibraryCoverTile(
+                  entry: _comicWorkspaceEntry(
+                    item,
+                    ownedItem,
+                    null,
                     isWishlisted: wishlistIds.contains(item.id),
                   ),
                   selected: item.id == selectedItem?.id,
@@ -4686,6 +4613,10 @@ class _CompactComicsView extends StatelessWidget {
                     onSelectItem(item);
                     _showCompactInspector(context, item);
                   },
+                  selectedColor: _kClzSelection,
+                  accentColor: _kClzAccent,
+                  selectionColor: _kClzYellow,
+                  mutedTextColor: _kClzTextMuted,
                 );
               },
             ),
