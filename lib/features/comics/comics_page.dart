@@ -28,6 +28,7 @@ import 'package:collectarr_app/features/library/workspace/library_cover_image.da
 import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
@@ -963,10 +964,17 @@ class _ComicsWorkspace extends StatelessWidget {
             children: [
               SizedBox(
                 width: 250,
-                child: _SeriesSidebar(
+                child: LibrarySeriesSidebar(
                   series: series,
                   selectedSeries: selectedSeries,
                   onSelectSeries: onSelectSeries,
+                  backgroundColor: _kClzPanel,
+                  headerColor: const Color(0xFF303030),
+                  dividerColor: _kClzDivider,
+                  accentColor: _kClzAccent,
+                  selectionColor: _kClzSelection,
+                  selectedBadgeColor: _kClzYellow,
+                  mutedTextColor: _kClzTextMuted,
                 ),
               ),
               const VerticalDivider(width: 1),
@@ -998,13 +1006,18 @@ class _ComicsWorkspace extends StatelessWidget {
     );
   }
 
-  List<_SeriesBucket> _seriesBuckets(List<CatalogItem> source) {
+  List<LibrarySeriesBucket> _seriesBuckets(List<CatalogItem> source) {
     final counts = <String, int>{};
     for (final item in source) {
       counts[item.title] = (counts[item.title] ?? 0) + 1;
     }
     final buckets = counts.entries
-        .map((entry) => _SeriesBucket(title: entry.key, count: entry.value))
+        .map(
+          (entry) => LibrarySeriesBucket(
+            title: entry.key,
+            count: entry.value,
+          ),
+        )
         .toList(growable: false)
       ..sort(
         (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
@@ -1476,110 +1489,6 @@ class _ComicsToolbar extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SeriesSidebar extends StatelessWidget {
-  const _SeriesSidebar({
-    required this.series,
-    required this.selectedSeries,
-    required this.onSelectSeries,
-  });
-
-  final List<_SeriesBucket> series;
-  final String? selectedSeries;
-  final ValueChanged<String> onSelectSeries;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(color: _kClzPanel),
-      child: Column(
-        children: [
-          Container(
-            height: 42,
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: const BoxDecoration(
-              color: Color(0xFF303030),
-              border: Border(bottom: BorderSide(color: _kClzDivider)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.folder, size: 18, color: _kClzAccent),
-                const SizedBox(width: 8),
-                Text(
-                  'Series',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w800),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: series.length,
-              itemBuilder: (context, index) {
-                final bucket = series[index];
-                final selected = bucket.title == selectedSeries;
-                return _SeriesRow(
-                  bucket: bucket,
-                  selected: selected,
-                  onTap: () => onSelectSeries(bucket.title),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SeriesRow extends StatelessWidget {
-  const _SeriesRow({
-    required this.bucket,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final _SeriesBucket bucket;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 32,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        color: selected ? _kClzSelection : Colors.transparent,
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                bucket.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: selected ? Colors.white : _kClzTextMuted,
-                      fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                    ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Badge(
-              label: Text(bucket.count.toString()),
-              backgroundColor: selected ? _kClzYellow : const Color(0xFF444444),
-              textColor: selected ? const Color(0xFF171717) : Colors.white,
             ),
           ],
         ),
@@ -7886,13 +7795,6 @@ class _EmptyInspector extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(child: Text('No comic selected'));
   }
-}
-
-class _SeriesBucket {
-  const _SeriesBucket({required this.title, required this.count});
-
-  final String title;
-  final int count;
 }
 
 Set<String> _watchWishlistIds(WidgetRef ref) {
