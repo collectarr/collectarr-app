@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
@@ -24,6 +23,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_query.
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
+import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_row.dart';
@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.d
 import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -3246,30 +3247,30 @@ Widget _comicTableCellContent(
     LibraryTableColumn.title => SizedBox(
         width: 280,
         child: Text(
-          entry.item.title,
+          entry.workspaceEntry.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
         ),
       ),
     LibraryTableColumn.issue => Text(
-        entry.item.itemNumber ?? '',
+        entry.workspaceEntry.itemNumber ?? '',
         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
       ),
-    LibraryTableColumn.variant => _CellText(entry.item.variant),
-    LibraryTableColumn.publisher => _CellText(entry.item.publisher),
+    LibraryTableColumn.variant => _CellText(entry.workspaceEntry.variant),
+    LibraryTableColumn.publisher => _CellText(entry.workspaceEntry.publisher),
     LibraryTableColumn.releaseDate =>
-      _CellText(_formatNullableDate(entry.item.releaseDate)),
-    LibraryTableColumn.barcode => _CellText(entry.item.barcode),
-    LibraryTableColumn.grade => _CellText(entry.ownedItem?.grade),
-    LibraryTableColumn.condition => _CellText(entry.ownedItem?.condition),
+      _CellText(_formatNullableDate(entry.workspaceEntry.releaseDate)),
+    LibraryTableColumn.barcode => _CellText(entry.workspaceEntry.barcode),
+    LibraryTableColumn.grade => _CellText(entry.workspaceEntry.grade),
+    LibraryTableColumn.condition => _CellText(entry.workspaceEntry.condition),
     LibraryTableColumn.price => Text(
         _formatOptionalMoney(
-          entry.ownedItem?.pricePaidCents,
-          entry.ownedItem?.currency,
+          entry.workspaceEntry.pricePaidCents,
+          entry.workspaceEntry.currency,
         ),
       ),
-    LibraryTableColumn.storageBox => _CellText(entry.ownedItem?.storageBox),
+    LibraryTableColumn.storageBox => _CellText(entry.workspaceEntry.storageBox),
     LibraryTableColumn.wishlist =>
       entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
     LibraryTableColumn.updated => Text(
@@ -3324,30 +3325,21 @@ class _StatusCell extends StatelessWidget {
 }
 
 class _ComicTableEntry {
-  const _ComicTableEntry({
+  _ComicTableEntry({
     required this.item,
     this.ownedItem,
     this.wishlistItem,
-  });
+  }) : workspaceEntry = _comicWorkspaceEntry(item, ownedItem, wishlistItem);
 
   final CatalogItem item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
+  final LibraryWorkspaceEntry workspaceEntry;
 
-  bool get isOwned => ownedItem != null;
-  bool get isWishlisted => wishlistItem != null;
+  bool get isOwned => workspaceEntry.isOwned;
+  bool get isWishlisted => workspaceEntry.isWishlisted;
 
-  DateTime get updatedAt {
-    final ownedUpdated = ownedItem?.updatedAt;
-    final wishUpdated = wishlistItem?.updatedAt;
-    if (ownedUpdated == null) {
-      return wishUpdated ?? DateTime.fromMillisecondsSinceEpoch(0);
-    }
-    if (wishUpdated == null) {
-      return ownedUpdated;
-    }
-    return ownedUpdated.isAfter(wishUpdated) ? ownedUpdated : wishUpdated;
-  }
+  DateTime get updatedAt => workspaceEntry.updatedAt;
 }
 
 int _compareEntries(
@@ -3356,53 +3348,54 @@ int _compareEntries(
   LibrarySortColumn column,
   bool ascending,
 ) {
-  final result = switch (column) {
-    LibrarySortColumn.status => _compareBools(a.isOwned, b.isOwned),
-    LibrarySortColumn.title =>
-      _compareNullableStrings(a.item.title, b.item.title),
-    LibrarySortColumn.issue => _compareIssueNumbers(
-        a.item.itemNumber,
-        b.item.itemNumber,
-      ),
-    LibrarySortColumn.variant => _compareNullableStrings(
-        a.item.variant,
-        b.item.variant,
-      ),
-    LibrarySortColumn.publisher => _compareNullableStrings(
-        a.item.publisher,
-        b.item.publisher,
-      ),
-    LibrarySortColumn.releaseDate => _compareNullableDates(
-        a.item.releaseDate,
-        b.item.releaseDate,
-      ),
-    LibrarySortColumn.barcode => _compareNullableStrings(
-        a.item.barcode,
-        b.item.barcode,
-      ),
-    LibrarySortColumn.grade => _compareNullableStrings(
-        a.ownedItem?.grade,
-        b.ownedItem?.grade,
-      ),
-    LibrarySortColumn.condition => _compareNullableStrings(
-        a.ownedItem?.condition,
-        b.ownedItem?.condition,
-      ),
-    LibrarySortColumn.price => _compareNullableInts(
-        a.ownedItem?.pricePaidCents,
-        b.ownedItem?.pricePaidCents,
-      ),
-    LibrarySortColumn.storageBox => _compareNullableStrings(
-        a.ownedItem?.storageBox,
-        b.ownedItem?.storageBox,
-      ),
-    LibrarySortColumn.wishlist => _compareBools(a.isWishlisted, b.isWishlisted),
-    LibrarySortColumn.updated => a.updatedAt.compareTo(b.updatedAt),
-  };
-  if (result != 0) {
-    return ascending ? result : -result;
+  return compareLibraryWorkspaceEntries(
+    a.workspaceEntry,
+    b.workspaceEntry,
+    column,
+    ascending,
+  );
+}
+
+LibraryWorkspaceEntry _comicWorkspaceEntry(
+  CatalogItem item,
+  OwnedItem? ownedItem,
+  WishlistItem? wishlistItem,
+) {
+  return LibraryWorkspaceEntry(
+    id: item.id,
+    mediaType: item.kind,
+    title: item.title,
+    itemNumber: item.itemNumber,
+    synopsis: item.synopsis,
+    coverImageUrl: item.coverImageUrl,
+    thumbnailImageUrl: item.thumbnailImageUrl,
+    publisher: item.publisher,
+    releaseDate: item.releaseDate,
+    releaseYear: item.releaseYear,
+    barcode: item.barcode,
+    variant: item.variant,
+    isOwned: ownedItem != null,
+    isWishlisted: wishlistItem != null,
+    condition: ownedItem?.condition,
+    grade: ownedItem?.grade,
+    pricePaidCents: ownedItem?.pricePaidCents,
+    currency: ownedItem?.currency,
+    storageBox: ownedItem?.storageBox,
+    updatedAt: _latestLibraryUpdate(ownedItem, wishlistItem),
+  );
+}
+
+DateTime _latestLibraryUpdate(
+    OwnedItem? ownedItem, WishlistItem? wishlistItem) {
+  final ownedUpdated = ownedItem?.updatedAt;
+  final wishUpdated = wishlistItem?.updatedAt;
+  if (ownedUpdated == null) {
+    return wishUpdated ?? DateTime.fromMillisecondsSinceEpoch(0);
   }
-  return _compareNullableStrings(a.item.title, b.item.title);
+  if (wishUpdated == null) {
+    return ownedUpdated;
+  }
+  return ownedUpdated.isAfter(wishUpdated) ? ownedUpdated : wishUpdated;
 }
 
 int _compareIssueNumbers(String? left, String? right) {
@@ -3448,35 +3441,6 @@ int _compareNullableStrings(String? left, String? right) {
     return -1;
   }
   return leftValue.compareTo(rightValue);
-}
-
-int _compareNullableInts(int? left, int? right) {
-  if (left == null && right != null) {
-    return 1;
-  }
-  if (left != null && right == null) {
-    return -1;
-  }
-  return (left ?? 0).compareTo(right ?? 0);
-}
-
-int _compareNullableDates(DateTime? left, DateTime? right) {
-  if (left == null && right != null) {
-    return 1;
-  }
-  if (left != null && right == null) {
-    return -1;
-  }
-  return (left ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(
-    right ?? DateTime.fromMillisecondsSinceEpoch(0),
-  );
-}
-
-int _compareBools(bool left, bool right) {
-  if (left == right) {
-    return 0;
-  }
-  return left ? -1 : 1;
 }
 
 String _formatOptionalMoney(int? cents, String? currency) {
@@ -3636,105 +3600,10 @@ class _CoverImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final placeholder = _GeneratedCover(item: item);
-    final url = item.displayCoverUrl;
-    if (url == null || url.isEmpty) {
-      return placeholder;
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: CachedNetworkImage(
-        imageUrl: url,
-        fit: BoxFit.cover,
-        filterQuality: FilterQuality.medium,
-        placeholder: (_, __) => placeholder,
-        errorWidget: (_, __, ___) => placeholder,
-      ),
-    );
-  }
-}
-
-class _GeneratedCover extends StatelessWidget {
-  const _GeneratedCover({required this.item});
-
-  final CatalogItem item;
-
-  static const _palettes = [
-    (Color(0xFF145DA0), Color(0xFFB1D4E0), Color(0xFFFFFFFF)),
-    (Color(0xFFB22222), Color(0xFFFFD166), Color(0xFFFFFFFF)),
-    (Color(0xFF2D6A4F), Color(0xFF95D5B2), Color(0xFFFFFFFF)),
-    (Color(0xFF3D348B), Color(0xFFF7B801), Color(0xFFFFFFFF)),
-    (Color(0xFF22223B), Color(0xFFC9ADA7), Color(0xFFFFFFFF)),
-    (Color(0xFF7F5539), Color(0xFFE6CCB2), Color(0xFF201A16)),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = _palettes[item.title.hashCode.abs() % _palettes.length];
-    final title = item.title.replaceAll(', Vol.', '\nVol.');
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: palette.$1),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(height: 18, color: palette.$2),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(height: 28, color: const Color(0x33000000)),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 24, 8, 34),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: SizedBox(
-                  width: 86,
-                  child: Text(
-                    title,
-                    maxLines: 4,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: palette.$3,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      height: 0.95,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            if (item.itemNumber != null)
-              Positioned(
-                right: 6,
-                bottom: 6,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: palette.$2,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    child: Text(
-                      '#${item.itemNumber}',
-                      style: TextStyle(
-                        color: palette.$3 == const Color(0xFFFFFFFF)
-                            ? const Color(0xFF1D1D1D)
-                            : palette.$3,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
+    return LibraryCoverImage(
+      title: item.title,
+      itemNumber: item.itemNumber,
+      imageUrl: item.displayCoverUrl,
     );
   }
 }
@@ -9112,18 +8981,9 @@ class _ProviderCandidateImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = candidate.imageUrl;
-    if (imageUrl == null || imageUrl.isEmpty) {
-      return _GeneratedCover(item: candidate.placeholderCatalogItem());
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        fit: BoxFit.cover,
-        errorWidget: (context, url, error) =>
-            _GeneratedCover(item: candidate.placeholderCatalogItem()),
-      ),
+    return LibraryCoverImage(
+      title: candidate.title,
+      imageUrl: candidate.imageUrl,
     );
   }
 }
