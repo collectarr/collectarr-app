@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiClient {
   ApiClient({String baseUrl = 'http://localhost:8010'})
@@ -8,6 +9,10 @@ class ApiClient {
   final Dio _dio;
 
   String get baseUrl => _dio.options.baseUrl;
+
+  @visibleForTesting
+  String? get authorizationHeader =>
+      _dio.options.headers['Authorization'] as String?;
 
   void setToken(String token) {
     _dio.options.headers['Authorization'] = 'Bearer $token';

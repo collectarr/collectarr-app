@@ -88,6 +88,7 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_authTokenKey);
+    ref.read(apiAuthTokenProvider.notifier).state = null;
     ref.read(apiClientProvider).clearToken();
     state = AuthState(email: prefs.getString(_authEmailKey));
   }
@@ -101,6 +102,7 @@ class AuthController extends StateNotifier<AuthState> {
         final expiresAt = _jwtExpiresAt(token);
         if (_isExpired(expiresAt)) {
           await prefs.remove(_authTokenKey);
+          ref.read(apiAuthTokenProvider.notifier).state = null;
           ref.read(apiClientProvider).clearToken();
           state = AuthState(
             email: email,
@@ -108,12 +110,15 @@ class AuthController extends StateNotifier<AuthState> {
           );
           return;
         }
+        ref.read(apiAuthTokenProvider.notifier).state = token;
         ref.read(apiClientProvider).setToken(token);
         state = AuthState(token: token, email: email, expiresAt: expiresAt);
       } else {
+        ref.read(apiAuthTokenProvider.notifier).state = null;
         state = AuthState(email: email);
       }
     } catch (error) {
+      ref.read(apiAuthTokenProvider.notifier).state = null;
       state = AuthState(error: error.toString());
     }
   }
@@ -125,6 +130,7 @@ class AuthController extends StateNotifier<AuthState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_authTokenKey, token);
     await prefs.setString(_authEmailKey, email);
+    ref.read(apiAuthTokenProvider.notifier).state = token;
     ref.read(apiClientProvider).setToken(token);
     state = AuthState(
       token: token,
