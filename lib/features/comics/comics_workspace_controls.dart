@@ -9,6 +9,120 @@ import 'package:flutter/material.dart';
 
 enum _ComicsBulkToolbarAction { edit, owned, wishlist, remove, clear }
 
+class ComicsWorkspaceControlState {
+  const ComicsWorkspaceControlState({
+    required this.selection,
+    required this.utility,
+    required this.view,
+  });
+
+  final ComicsSelectionControlState selection;
+  final ComicsWorkspaceUtilityState utility;
+  final ComicsViewTableControlState view;
+}
+
+class ComicsWorkspaceControlCallbacks {
+  const ComicsWorkspaceControlCallbacks({
+    required this.selection,
+    required this.utility,
+    required this.view,
+  });
+
+  final ComicsSelectionControlCallbacks selection;
+  final ComicsWorkspaceUtilityCallbacks utility;
+  final ComicsViewTableControlCallbacks view;
+}
+
+class ComicsWorkspaceCounts {
+  const ComicsWorkspaceCounts({
+    required this.shown,
+    required this.total,
+  });
+
+  final int shown;
+  final int total;
+}
+
+class ComicsSelectionControlState {
+  const ComicsSelectionControlState({
+    required this.enabled,
+    required this.selectedCount,
+  });
+
+  final bool enabled;
+  final int selectedCount;
+}
+
+class ComicsSelectionControlCallbacks {
+  const ComicsSelectionControlCallbacks({
+    required this.onSelectionModeChanged,
+    required this.onClearSelection,
+    required this.onBulkEdit,
+    required this.onBulkMoveToOwned,
+    required this.onBulkMoveToWishlist,
+    required this.onBulkRemove,
+  });
+
+  final ValueChanged<bool> onSelectionModeChanged;
+  final VoidCallback onClearSelection;
+  final VoidCallback onBulkEdit;
+  final VoidCallback onBulkMoveToOwned;
+  final VoidCallback onBulkMoveToWishlist;
+  final VoidCallback onBulkRemove;
+}
+
+class ComicsWorkspaceUtilityState {
+  const ComicsWorkspaceUtilityState({
+    required this.selectedSeries,
+    required this.hasActiveFilters,
+    required this.missingIssues,
+  });
+
+  final String? selectedSeries;
+  final bool hasActiveFilters;
+  final List<int> missingIssues;
+}
+
+class ComicsWorkspaceUtilityCallbacks {
+  const ComicsWorkspaceUtilityCallbacks({
+    required this.onShowStats,
+    required this.onEditFilters,
+  });
+
+  final VoidCallback onShowStats;
+  final VoidCallback onEditFilters;
+}
+
+class ComicsViewTableControlState {
+  const ComicsViewTableControlState({
+    required this.counts,
+    required this.viewMode,
+    required this.detailsLayout,
+    required this.coverSize,
+  });
+
+  final ComicsWorkspaceCounts counts;
+  final LibraryViewMode viewMode;
+  final LibraryDetailsLayout detailsLayout;
+  final double coverSize;
+}
+
+class ComicsViewTableControlCallbacks {
+  const ComicsViewTableControlCallbacks({
+    required this.onEditColumns,
+    required this.onViewModeChanged,
+    required this.onDetailsLayoutChanged,
+    required this.onViewPresetSelected,
+    required this.onCoverSizeChanged,
+  });
+
+  final VoidCallback onEditColumns;
+  final ValueChanged<LibraryViewMode> onViewModeChanged;
+  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<LibraryWorkspacePreset> onViewPresetSelected;
+  final ValueChanged<double> onCoverSizeChanged;
+}
+
 class ComicsToolbarPrimaryActions extends StatelessWidget {
   const ComicsToolbarPrimaryActions({
     super.key,
@@ -119,54 +233,12 @@ class ComicsToolbarSearch extends StatelessWidget {
 class ComicsWorkspaceControlStrip extends StatelessWidget {
   const ComicsWorkspaceControlStrip({
     super.key,
-    required this.itemCount,
-    required this.totalCount,
-    required this.selectedSeries,
-    required this.viewMode,
-    required this.detailsLayout,
-    required this.coverSize,
-    required this.hasActiveFilters,
-    required this.missingIssues,
-    required this.selectionMode,
-    required this.selectedCount,
-    required this.onEditFilters,
-    required this.onEditColumns,
-    required this.onShowStats,
-    required this.onViewModeChanged,
-    required this.onDetailsLayoutChanged,
-    required this.onViewPresetSelected,
-    required this.onCoverSizeChanged,
-    required this.onSelectionModeChanged,
-    required this.onClearSelection,
-    required this.onBulkEdit,
-    required this.onBulkMoveToOwned,
-    required this.onBulkMoveToWishlist,
-    required this.onBulkRemove,
+    required this.state,
+    required this.callbacks,
   });
 
-  final int itemCount;
-  final int totalCount;
-  final String? selectedSeries;
-  final LibraryViewMode viewMode;
-  final LibraryDetailsLayout detailsLayout;
-  final double coverSize;
-  final bool hasActiveFilters;
-  final List<int> missingIssues;
-  final bool selectionMode;
-  final int selectedCount;
-  final VoidCallback onEditFilters;
-  final VoidCallback onEditColumns;
-  final VoidCallback onShowStats;
-  final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
-  final ValueChanged<LibraryWorkspacePreset> onViewPresetSelected;
-  final ValueChanged<double> onCoverSizeChanged;
-  final ValueChanged<bool> onSelectionModeChanged;
-  final VoidCallback onClearSelection;
-  final VoidCallback onBulkEdit;
-  final VoidCallback onBulkMoveToOwned;
-  final VoidCallback onBulkMoveToWishlist;
-  final VoidCallback onBulkRemove;
+  final ComicsWorkspaceControlState state;
+  final ComicsWorkspaceControlCallbacks callbacks;
 
   @override
   Widget build(BuildContext context) {
@@ -179,35 +251,18 @@ class ComicsWorkspaceControlStrip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ComicsSelectionControls(
-                selectionMode: selectionMode,
-                selectedCount: selectedCount,
-                onSelectionModeChanged: onSelectionModeChanged,
-                onClearSelection: onClearSelection,
-                onBulkEdit: onBulkEdit,
-                onBulkMoveToOwned: onBulkMoveToOwned,
-                onBulkMoveToWishlist: onBulkMoveToWishlist,
-                onBulkRemove: onBulkRemove,
+                state: state.selection,
+                callbacks: callbacks.selection,
               ),
               const SizedBox(width: 6),
               ComicsWorkspaceUtilityControls(
-                selectedSeries: selectedSeries,
-                hasActiveFilters: hasActiveFilters,
-                missingIssues: missingIssues,
-                onShowStats: onShowStats,
-                onEditFilters: onEditFilters,
+                state: state.utility,
+                callbacks: callbacks.utility,
               ),
               const SizedBox(width: 6),
               ComicsViewTableControls(
-                itemCount: itemCount,
-                totalCount: totalCount,
-                viewMode: viewMode,
-                detailsLayout: detailsLayout,
-                coverSize: coverSize,
-                onEditColumns: onEditColumns,
-                onViewModeChanged: onViewModeChanged,
-                onDetailsLayoutChanged: onDetailsLayoutChanged,
-                onViewPresetSelected: onViewPresetSelected,
-                onCoverSizeChanged: onCoverSizeChanged,
+                state: state.view,
+                callbacks: callbacks.view,
               ),
             ],
           ),
@@ -220,24 +275,12 @@ class ComicsWorkspaceControlStrip extends StatelessWidget {
 class ComicsSelectionControls extends StatelessWidget {
   const ComicsSelectionControls({
     super.key,
-    required this.selectionMode,
-    required this.selectedCount,
-    required this.onSelectionModeChanged,
-    required this.onClearSelection,
-    required this.onBulkEdit,
-    required this.onBulkMoveToOwned,
-    required this.onBulkMoveToWishlist,
-    required this.onBulkRemove,
+    required this.state,
+    required this.callbacks,
   });
 
-  final bool selectionMode;
-  final int selectedCount;
-  final ValueChanged<bool> onSelectionModeChanged;
-  final VoidCallback onClearSelection;
-  final VoidCallback onBulkEdit;
-  final VoidCallback onBulkMoveToOwned;
-  final VoidCallback onBulkMoveToWishlist;
-  final VoidCallback onBulkRemove;
+  final ComicsSelectionControlState state;
+  final ComicsSelectionControlCallbacks callbacks;
 
   @override
   Widget build(BuildContext context) {
@@ -245,23 +288,19 @@ class ComicsSelectionControls extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Tooltip(
-          message: selectionMode ? 'Exit selection' : 'Select comics',
+          message: state.enabled ? 'Exit selection' : 'Select comics',
           child: LibraryWorkspaceIconButton(
-            onPressed: () => onSelectionModeChanged(!selectionMode),
-            icon: selectionMode ? Icons.close : Icons.checklist,
+            onPressed: () => callbacks.onSelectionModeChanged(!state.enabled),
+            icon: state.enabled ? Icons.close : Icons.checklist,
           ),
         ),
-        if (selectionMode) ...[
+        if (state.enabled) ...[
           const SizedBox(width: 6),
-          LibraryToolbarStat(label: 'Selected', value: selectedCount),
+          LibraryToolbarStat(label: 'Selected', value: state.selectedCount),
           const SizedBox(width: 6),
           ComicsBulkActionsMenu(
-            selectedCount: selectedCount,
-            onBulkEdit: onBulkEdit,
-            onBulkMoveToOwned: onBulkMoveToOwned,
-            onBulkMoveToWishlist: onBulkMoveToWishlist,
-            onBulkRemove: onBulkRemove,
-            onClearSelection: onClearSelection,
+            state: state,
+            callbacks: callbacks,
           ),
         ],
       ],
@@ -272,38 +311,31 @@ class ComicsSelectionControls extends StatelessWidget {
 class ComicsBulkActionsMenu extends StatelessWidget {
   const ComicsBulkActionsMenu({
     super.key,
-    required this.selectedCount,
-    required this.onBulkEdit,
-    required this.onBulkMoveToOwned,
-    required this.onBulkMoveToWishlist,
-    required this.onBulkRemove,
-    required this.onClearSelection,
+    required this.state,
+    required this.callbacks,
   });
 
-  final int selectedCount;
-  final VoidCallback onBulkEdit;
-  final VoidCallback onBulkMoveToOwned;
-  final VoidCallback onBulkMoveToWishlist;
-  final VoidCallback onBulkRemove;
-  final VoidCallback onClearSelection;
+  final ComicsSelectionControlState state;
+  final ComicsSelectionControlCallbacks callbacks;
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<_ComicsBulkToolbarAction>(
       tooltip: 'Bulk actions',
-      enabled: selectedCount > 0,
+      enabled: state.selectedCount > 0,
       icon: const Icon(Icons.more_vert),
       onSelected: (action) {
-        if (action == _ComicsBulkToolbarAction.edit) {
-          onBulkEdit();
-        } else if (action == _ComicsBulkToolbarAction.owned) {
-          onBulkMoveToOwned();
-        } else if (action == _ComicsBulkToolbarAction.wishlist) {
-          onBulkMoveToWishlist();
-        } else if (action == _ComicsBulkToolbarAction.remove) {
-          onBulkRemove();
-        } else if (action == _ComicsBulkToolbarAction.clear) {
-          onClearSelection();
+        switch (action) {
+          case _ComicsBulkToolbarAction.edit:
+            callbacks.onBulkEdit();
+          case _ComicsBulkToolbarAction.owned:
+            callbacks.onBulkMoveToOwned();
+          case _ComicsBulkToolbarAction.wishlist:
+            callbacks.onBulkMoveToWishlist();
+          case _ComicsBulkToolbarAction.remove:
+            callbacks.onBulkRemove();
+          case _ComicsBulkToolbarAction.clear:
+            callbacks.onClearSelection();
         }
       },
       itemBuilder: (context) => const [
@@ -350,18 +382,12 @@ class ComicsBulkActionsMenu extends StatelessWidget {
 class ComicsWorkspaceUtilityControls extends StatelessWidget {
   const ComicsWorkspaceUtilityControls({
     super.key,
-    required this.selectedSeries,
-    required this.hasActiveFilters,
-    required this.missingIssues,
-    required this.onShowStats,
-    required this.onEditFilters,
+    required this.state,
+    required this.callbacks,
   });
 
-  final String? selectedSeries;
-  final bool hasActiveFilters;
-  final List<int> missingIssues;
-  final VoidCallback onShowStats;
-  final VoidCallback onEditFilters;
+  final ComicsWorkspaceUtilityState state;
+  final ComicsWorkspaceUtilityCallbacks callbacks;
 
   @override
   Widget build(BuildContext context) {
@@ -371,7 +397,7 @@ class ComicsWorkspaceUtilityControls extends StatelessWidget {
         Tooltip(
           message: 'Local statistics',
           child: LibraryWorkspaceIconButton(
-            onPressed: onShowStats,
+            onPressed: callbacks.onShowStats,
             icon: Icons.query_stats,
           ),
         ),
@@ -379,15 +405,15 @@ class ComicsWorkspaceUtilityControls extends StatelessWidget {
         Tooltip(
           message: 'Missing issues',
           child: Badge(
-            isLabelVisible: missingIssues.isNotEmpty,
-            label: Text(missingIssues.length.toString()),
+            isLabelVisible: state.missingIssues.isNotEmpty,
+            label: Text(state.missingIssues.length.toString()),
             child: LibraryWorkspaceIconButton(
-              onPressed: missingIssues.isEmpty
+              onPressed: state.missingIssues.isEmpty
                   ? null
                   : () => showComicsMissingIssuesDialog(
                         context,
-                        selectedSeries: selectedSeries,
-                        missingIssues: missingIssues,
+                        selectedSeries: state.selectedSeries,
+                        missingIssues: state.missingIssues,
                       ),
               icon: Icons.format_list_numbered,
             ),
@@ -397,9 +423,9 @@ class ComicsWorkspaceUtilityControls extends StatelessWidget {
         Tooltip(
           message: 'Filters',
           child: Badge(
-            isLabelVisible: hasActiveFilters,
+            isLabelVisible: state.hasActiveFilters,
             child: LibraryWorkspaceIconButton(
-              onPressed: onEditFilters,
+              onPressed: callbacks.onEditFilters,
               icon: Icons.filter_list,
             ),
           ),
@@ -412,28 +438,12 @@ class ComicsWorkspaceUtilityControls extends StatelessWidget {
 class ComicsViewTableControls extends StatelessWidget {
   const ComicsViewTableControls({
     super.key,
-    required this.itemCount,
-    required this.totalCount,
-    required this.viewMode,
-    required this.detailsLayout,
-    required this.coverSize,
-    required this.onEditColumns,
-    required this.onViewModeChanged,
-    required this.onDetailsLayoutChanged,
-    required this.onViewPresetSelected,
-    required this.onCoverSizeChanged,
+    required this.state,
+    required this.callbacks,
   });
 
-  final int itemCount;
-  final int totalCount;
-  final LibraryViewMode viewMode;
-  final LibraryDetailsLayout detailsLayout;
-  final double coverSize;
-  final VoidCallback onEditColumns;
-  final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
-  final ValueChanged<LibraryWorkspacePreset> onViewPresetSelected;
-  final ValueChanged<double> onCoverSizeChanged;
+  final ComicsViewTableControlState state;
+  final ComicsViewTableControlCallbacks callbacks;
 
   @override
   Widget build(BuildContext context) {
@@ -443,25 +453,27 @@ class ComicsViewTableControls extends StatelessWidget {
         Tooltip(
           message: 'Select columns',
           child: LibraryWorkspaceIconButton(
-            onPressed: viewMode == LibraryViewMode.list ? onEditColumns : null,
+            onPressed: state.viewMode == LibraryViewMode.list
+                ? callbacks.onEditColumns
+                : null,
             icon: Icons.view_column,
           ),
         ),
         const SizedBox(width: 6),
-        LibraryToolbarStat(label: 'Shown', value: itemCount),
+        LibraryToolbarStat(label: 'Shown', value: state.counts.shown),
         const SizedBox(width: 6),
-        LibraryToolbarStat(label: 'Total', value: totalCount),
+        LibraryToolbarStat(label: 'Total', value: state.counts.total),
         const SizedBox(width: 6),
         LibraryViewControls(
-          viewMode: viewMode,
-          detailsLayout: detailsLayout,
-          coverSize: coverSize,
+          viewMode: state.viewMode,
+          detailsLayout: state.detailsLayout,
+          coverSize: state.coverSize,
           minCoverSize: kComicsMinCoverSize,
           maxCoverSize: kComicsMaxCoverSize,
-          onViewModeChanged: onViewModeChanged,
-          onDetailsLayoutChanged: onDetailsLayoutChanged,
-          onCoverSizeChanged: onCoverSizeChanged,
-          onPresetSelected: onViewPresetSelected,
+          onViewModeChanged: callbacks.onViewModeChanged,
+          onDetailsLayoutChanged: callbacks.onDetailsLayoutChanged,
+          onCoverSizeChanged: callbacks.onCoverSizeChanged,
+          onPresetSelected: callbacks.onViewPresetSelected,
         ),
       ],
     );

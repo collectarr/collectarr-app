@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/comics/comics_shelf_views.dart';
 import 'package:collectarr_app/features/comics/comics_stats.dart';
 import 'package:collectarr_app/features/comics/comics_toolbar.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_chrome.dart';
+import 'package:collectarr_app/features/comics/comics_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -129,39 +130,57 @@ class ComicsWorkspace extends StatelessWidget {
         ComicsTopBar(totalCount: items.length),
         ComicsToolbar(
           controller: queryController,
-          itemCount: visibleItems.length,
-          totalCount: items.length,
-          selectedSeries: selectedSeries,
-          viewMode: viewMode,
-          detailsLayout: detailsLayout,
-          coverSize: coverSize,
-          hasActiveFilters: hasActiveFilters,
-          missingIssues: missingIssues,
-          selectionMode: selectionMode,
-          selectedCount: selectedItemIds.length,
+          controlState: ComicsWorkspaceControlState(
+            selection: ComicsSelectionControlState(
+              enabled: selectionMode,
+              selectedCount: selectedItemIds.length,
+            ),
+            utility: ComicsWorkspaceUtilityState(
+              selectedSeries: selectedSeries,
+              hasActiveFilters: hasActiveFilters,
+              missingIssues: missingIssues,
+            ),
+            view: ComicsViewTableControlState(
+              counts: ComicsWorkspaceCounts(
+                shown: visibleItems.length,
+                total: items.length,
+              ),
+              viewMode: viewMode,
+              detailsLayout: detailsLayout,
+              coverSize: coverSize,
+            ),
+          ),
+          controlCallbacks: ComicsWorkspaceControlCallbacks(
+            selection: ComicsSelectionControlCallbacks(
+              onSelectionModeChanged: onSelectionModeChanged,
+              onClearSelection: onClearSelection,
+              onBulkEdit: onBulkEdit,
+              onBulkMoveToOwned: onBulkMoveToOwned,
+              onBulkMoveToWishlist: onBulkMoveToWishlist,
+              onBulkRemove: onBulkRemove,
+            ),
+            utility: ComicsWorkspaceUtilityCallbacks(
+              onShowStats: () => showComicsStatsDashboardDialog(
+                context,
+                state: shelfState,
+                selectedSeries: selectedSeries,
+                missingIssues: missingIssues,
+              ),
+              onEditFilters: onEditFilters,
+            ),
+            view: ComicsViewTableControlCallbacks(
+              onEditColumns: onEditColumns,
+              onViewModeChanged: onViewModeChanged,
+              onDetailsLayoutChanged: onDetailsLayoutChanged,
+              onViewPresetSelected: onViewPresetSelected,
+              onCoverSizeChanged: onCoverSizeChanged,
+            ),
+          ),
           onSearch: onSearch,
           onAddComic: onAddComic,
-          onEditFilters: onEditFilters,
-          onEditColumns: onEditColumns,
           onScanBarcode: onScanBarcode,
           onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
-          onShowStats: () => showComicsStatsDashboardDialog(
-            context,
-            state: shelfState,
-            selectedSeries: selectedSeries,
-            missingIssues: missingIssues,
-          ),
           onClearSeries: onClearSeries,
-          onViewModeChanged: onViewModeChanged,
-          onDetailsLayoutChanged: onDetailsLayoutChanged,
-          onViewPresetSelected: onViewPresetSelected,
-          onCoverSizeChanged: onCoverSizeChanged,
-          onSelectionModeChanged: onSelectionModeChanged,
-          onClearSelection: onClearSelection,
-          onBulkEdit: onBulkEdit,
-          onBulkMoveToOwned: onBulkMoveToOwned,
-          onBulkMoveToWishlist: onBulkMoveToWishlist,
-          onBulkRemove: onBulkRemove,
         ),
         ComicsStatsBar(
           state: shelfState,
