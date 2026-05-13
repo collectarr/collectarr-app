@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comic_detail_page.dart';
+import 'package:collectarr_app/features/comics/comics_bulk_edit.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
@@ -551,9 +552,12 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     BuildContext context,
     List<ShelfEntry> visibleEntries,
   ) async {
-    final selection = await showDialog<_BulkEditSelection>(
+    final selection = await showDialog<ComicsBulkEditSelection>(
       context: context,
-      builder: (context) => const _BulkEditDialog(),
+      builder: (context) => ComicsBulkEditDialog(
+        conditions: _ComicInspector._conditions,
+        grades: _ComicInspector._grades,
+      ),
     );
     if (selection == null) {
       return;
@@ -3879,153 +3883,6 @@ void _showCompactInspector(BuildContext context, CatalogItem item) {
       );
     },
   );
-}
-
-class _BulkEditDialog extends StatefulWidget {
-  const _BulkEditDialog();
-
-  @override
-  State<_BulkEditDialog> createState() => _BulkEditDialogState();
-}
-
-class _BulkEditDialogState extends State<_BulkEditDialog> {
-  String? _condition;
-  String? _grade;
-  String? _readStatus;
-  final _storageBoxController = TextEditingController();
-  final _tagsController = TextEditingController();
-
-  @override
-  void dispose() {
-    _storageBoxController.dispose();
-    _tagsController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Bulk edit'),
-      content: SizedBox(
-        width: 460,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButtonFormField<String>(
-              initialValue: _condition,
-              decoration: const InputDecoration(
-                labelText: 'Condition',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem(value: '', child: Text('Keep current')),
-                for (final option in _ComicInspector._conditions)
-                  DropdownMenuItem(value: option, child: Text(option)),
-              ],
-              onChanged: (value) {
-                setState(
-                  () => _condition =
-                      value == null || value.isEmpty ? null : value,
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _grade,
-              decoration: const InputDecoration(
-                labelText: 'Grade',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem(value: '', child: Text('Keep current')),
-                for (final option in _ComicInspector._grades)
-                  DropdownMenuItem(value: option, child: Text(option)),
-              ],
-              onChanged: (value) {
-                setState(() =>
-                    _grade = value == null || value.isEmpty ? null : value);
-              },
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _storageBoxController,
-              decoration: const InputDecoration(
-                labelText: 'Storage box',
-                hintText: 'Leave blank to keep current',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _tagsController,
-              decoration: const InputDecoration(
-                labelText: 'Tags',
-                hintText: 'Leave blank to keep current',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _readStatus,
-              decoration: const InputDecoration(
-                labelText: 'Read status',
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: '', child: Text('Keep current')),
-                DropdownMenuItem(value: 'Unread', child: Text('Unread')),
-                DropdownMenuItem(value: 'Reading', child: Text('Reading')),
-                DropdownMenuItem(value: 'Read', child: Text('Read')),
-              ],
-              onChanged: (value) {
-                setState(() => _readStatus =
-                    value == null || value.isEmpty ? null : value);
-              },
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(
-            _BulkEditSelection(
-              condition: _condition,
-              grade: _grade,
-              storageBox: _emptyToNull(_storageBoxController.text),
-              tags: _emptyToNull(_tagsController.text),
-              readStatus: _readStatus,
-            ),
-          ),
-          child: const Text('Apply'),
-        ),
-      ],
-    );
-  }
-
-  String? _emptyToNull(String value) {
-    final trimmed = value.trim();
-    return trimmed.isEmpty ? null : trimmed;
-  }
-}
-
-class _BulkEditSelection {
-  const _BulkEditSelection({
-    this.condition,
-    this.grade,
-    this.storageBox,
-    this.tags,
-    this.readStatus,
-  });
-
-  final String? condition;
-  final String? grade;
-  final String? storageBox;
-  final String? tags;
-  final String? readStatus;
 }
 
 class _AddComicDialog extends ConsumerStatefulWidget {
