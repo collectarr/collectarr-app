@@ -15,7 +15,7 @@ void main() {
     final client = _FakeSyncClient();
     final since = DateTime.utc(2026, 5, 11);
 
-    final serverTime = await SyncService(
+    final result = await SyncService(
       client: client,
       db: db,
       queue: SyncQueueRepository(db),
@@ -26,9 +26,42 @@ void main() {
     final row = await db.select(db.ownedItemsCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     expect(client.lastPullSince, since);
-    expect(serverTime, DateTime.utc(2026, 5, 12, 9));
+    expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
+    expect(result.rejectedCount, 0);
     expect(row.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
+  });
+
+  test('sync removes rejected stale changes and applies server state',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final queue = SyncQueueRepository(db);
+    await queue.enqueue(
+      SyncChange(
+        id: 'sync-1',
+        entityType: 'owned_item',
+        entityId: 'owned-1',
+        action: 'upsert',
+        payload: const {'item_id': 'comic-1', 'grade': '7.5'},
+        clientChangedAt: DateTime.utc(2026, 5, 12, 8),
+      ),
+    );
+
+    final result = await SyncService(
+      client: _RejectedSyncClient(),
+      db: db,
+      queue: queue,
+      ownedItems: OwnedItemsCacheRepository(db),
+      wishlistItems: WishlistItemsCacheRepository(db),
+    ).syncNow('android', since: DateTime.utc(2026, 5, 11));
+
+    final row = await db.select(db.ownedItemsCache).getSingle();
+    expect(result.rejectedCount, 1);
+    expect(result.rejectedChanges.single.entityId, 'owned-1');
+    expect(await queue.pendingCount(), 0);
+    expect(row.grade, '9.8');
+    expect(row.updatedAt.toUtc(), DateTime.utc(2026, 5, 12, 9));
   });
 }
 
@@ -78,6 +111,48 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'client_changed_at': '2026-05-12T08:30:00.000Z',
           'changed_at': '2026-05-12T09:00:00.000Z',
           'payload': {'item_id': 'comic-2'},
+        },
+      ],
+      'changes': [],
+    };
+  }
+}
+
+class _RejectedSyncClient extends CollectarrSyncClient {
+  _RejectedSyncClient() : super(baseUrl: 'http://unused', syncKey: 'test');
+
+  @override
+  Future<Map<String, dynamic>> push({
+    required String deviceId,
+    required List<SyncChange> changes,
+  }) async {
+    return {
+      'server_time': '2026-05-12T09:00:00.000Z',
+      'accepted': [],
+      'rejected': [
+        {
+          'entity_type': 'owned_item',
+          'entity_id': 'owned-1',
+          'reason': 'server_has_newer_client_change',
+          'current_client_changed_at': '2026-05-12T09:00:00.000Z',
+        },
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> pull({DateTime? since}) async {
+    return {
+      'server_time': '2026-05-12T09:05:00.000Z',
+      'entities': [
+        {
+          'entity_type': 'owned_item',
+          'entity_id': 'owned-1',
+          'action': 'upsert',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T09:00:00.000Z',
+          'changed_at': '2026-05-12T09:05:00.000Z',
+          'payload': {'item_id': 'comic-1', 'grade': '9.8'},
         },
       ],
       'changes': [],

@@ -21,22 +21,30 @@ class SyncService {
   final OwnedItemsCacheRepository ownedItems;
   final WishlistItemsCacheRepository wishlistItems;
 
-  Future<DateTime> syncNow(String deviceId, {DateTime? since}) async {
+  Future<SyncResult> syncNow(String deviceId, {DateTime? since}) async {
+    var rejectedChanges = const <SyncRejectedChange>[];
     final pending = await queue.listPending();
     if (pending.isNotEmpty) {
       final response = await client.push(deviceId: deviceId, changes: pending);
       final acceptedIds = _acceptedKeys(response);
+      rejectedChanges = _rejectedChanges(response);
+      final completedKeys = {
+        ...acceptedIds,
+        for (final rejected in rejectedChanges) rejected.key,
+      };
       await queue.deleteMany(
         pending
-            .where((change) =>
-                acceptedIds.contains('${change.entityType}:${change.entityId}'))
+            .where((change) => completedKeys.contains(_changeKey(change)))
             .map((change) => change.id),
       );
     }
 
     final pull = await client.pull(since: since);
     await _applyEntities(_entities(pull));
-    return _serverTime(pull);
+    return SyncResult(
+      serverTime: _serverTime(pull),
+      rejectedChanges: rejectedChanges,
+    );
   }
 
   Future<void> _applyEntities(List<Map<String, dynamic>> entities) async {
@@ -108,6 +116,24 @@ class SyncService {
         .toSet();
   }
 
+  List<SyncRejectedChange> _rejectedChanges(Map<String, dynamic> response) {
+    final rejected = response['rejected'];
+    if (rejected == null) {
+      return const [];
+    }
+    if (rejected is! List) {
+      throw const FormatException(
+        'Sync push response has invalid rejected changes',
+      );
+    }
+    return rejected
+        .whereType<Map>()
+        .map((item) => SyncRejectedChange.fromJson(
+              item.cast<String, dynamic>(),
+            ))
+        .toList(growable: false);
+  }
+
   List<Map<String, dynamic>> _entities(Map<String, dynamic> response) {
     final entities = response['entities'];
     if (entities is! List) {
@@ -133,5 +159,51 @@ class SyncService {
       throw const FormatException('Sync response is missing server_time');
     }
     return DateTime.parse(value).toUtc();
+  }
+
+  String _changeKey(SyncChange change) {
+    return '${change.entityType}:${change.entityId}';
+  }
+}
+
+class SyncResult {
+  const SyncResult({
+    required this.serverTime,
+    this.rejectedChanges = const [],
+  });
+
+  final DateTime serverTime;
+  final List<SyncRejectedChange> rejectedChanges;
+
+  int get rejectedCount => rejectedChanges.length;
+
+  bool get hasRejectedChanges => rejectedChanges.isNotEmpty;
+}
+
+class SyncRejectedChange {
+  const SyncRejectedChange({
+    required this.entityType,
+    required this.entityId,
+    required this.reason,
+    this.currentClientChangedAt,
+  });
+
+  final String entityType;
+  final String entityId;
+  final String reason;
+  final DateTime? currentClientChangedAt;
+
+  String get key => '$entityType:$entityId';
+
+  factory SyncRejectedChange.fromJson(Map<String, dynamic> json) {
+    final currentClientChangedAt = json['current_client_changed_at'];
+    return SyncRejectedChange(
+      entityType: json['entity_type'] as String,
+      entityId: json['entity_id'] as String,
+      reason: json['reason'] as String? ?? 'rejected',
+      currentClientChangedAt: currentClientChangedAt is String
+          ? DateTime.parse(currentClientChangedAt).toUtc()
+          : null,
+    );
   }
 }

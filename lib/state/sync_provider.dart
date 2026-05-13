@@ -20,6 +20,7 @@ class SyncState {
     this.isOffline = false,
     this.lastSyncedAt,
     this.errorMessage,
+    this.warningMessage,
   });
 
   final int pendingCount;
@@ -27,6 +28,7 @@ class SyncState {
   final bool isOffline;
   final DateTime? lastSyncedAt;
   final String? errorMessage;
+  final String? warningMessage;
 
   SyncState copyWith({
     int? pendingCount,
@@ -34,7 +36,9 @@ class SyncState {
     bool? isOffline,
     DateTime? lastSyncedAt,
     String? errorMessage,
+    String? warningMessage,
     bool clearError = false,
+    bool clearWarning = false,
   }) {
     return SyncState(
       pendingCount: pendingCount ?? this.pendingCount,
@@ -42,6 +46,8 @@ class SyncState {
       isOffline: isOffline ?? this.isOffline,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
+      warningMessage:
+          clearWarning ? null : warningMessage ?? this.warningMessage,
     );
   }
 }
@@ -63,14 +69,19 @@ class SyncController extends StateNotifier<SyncState> {
   }
 
   Future<void> syncNow() async {
-    state = state.copyWith(isSyncing: true, isOffline: false, clearError: true);
+    state = state.copyWith(
+      isSyncing: true,
+      isOffline: false,
+      clearError: true,
+      clearWarning: true,
+    );
     try {
       final deviceId = await DeviceIdentity().getOrCreate();
       final cursor = SyncCursorStore();
       final since = await cursor.read();
       final db = ref.read(localDatabaseProvider);
       final settings = ref.read(connectionSettingsProvider);
-      final serverTime = await SyncService(
+      final result = await SyncService(
         client: CollectarrSyncClient(
           baseUrl: settings.syncBaseUrl,
           syncKey: settings.syncKey,
@@ -80,12 +91,16 @@ class SyncController extends StateNotifier<SyncState> {
         ownedItems: OwnedItemsCacheRepository(db),
         wishlistItems: WishlistItemsCacheRepository(db),
       ).syncNow(deviceId, since: since);
-      await cursor.write(serverTime);
+      await cursor.write(result.serverTime);
       ref.invalidate(collectionProvider);
       ref.invalidate(wishlistIdsProvider);
       ref.invalidate(wishlistProvider);
       final count = await _queue().pendingCount();
-      state = SyncState(pendingCount: count, lastSyncedAt: serverTime);
+      state = SyncState(
+        pendingCount: count,
+        lastSyncedAt: result.serverTime,
+        warningMessage: _syncWarningMessage(result),
+      );
     } catch (error, stackTrace) {
       developer.log(
         'Collectarr personal sync failed',
@@ -101,6 +116,14 @@ class SyncController extends StateNotifier<SyncState> {
         errorMessage: error.toString(),
       );
     }
+  }
+
+  String? _syncWarningMessage(SyncResult result) {
+    if (!result.hasRejectedChanges) {
+      return null;
+    }
+    final noun = result.rejectedCount == 1 ? 'conflict' : 'conflicts';
+    return '${result.rejectedCount} sync $noun resolved with service data.';
   }
 
   SyncQueueRepository _queue() {
