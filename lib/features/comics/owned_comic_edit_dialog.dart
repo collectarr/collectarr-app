@@ -167,28 +167,41 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 980, maxHeight: 760),
-          child: Column(
-            children: [
-              _titleBar(context),
-              _tabs(),
-              Expanded(
-                child: ColoredBox(
-                  color: _kClzPanel,
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _editMainTab(),
-                      _editDetailsTab(),
-                      _editValueTab(),
-                      _editPersonalTab(),
-                      _editCoverTab(),
-                      _editPlotTab(),
-                    ],
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: _kClzPanel,
+              border: Border.all(color: const Color(0xFF666666)),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0xCC000000),
+                  blurRadius: 22,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                _titleBar(context),
+                _tabs(),
+                Expanded(
+                  child: ColoredBox(
+                    color: _kClzPanel,
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _editMainTab(),
+                        _editDetailsTab(),
+                        _editValueTab(),
+                        _editPersonalTab(),
+                        _editCoverTab(),
+                        _editPlotTab(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _footer(context),
-            ],
+                _footer(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -197,9 +210,14 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
 
   Widget _titleBar(BuildContext context) {
     return Container(
-      height: 76,
+      height: 70,
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      color: _kClzToolbar,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF343434), Color(0xFF161616)],
+        ),
+        border: Border(bottom: BorderSide(color: _kClzAccent)),
+      ),
       child: Row(
         children: [
           SizedBox(
@@ -232,7 +250,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w900),
+                      ?.copyWith(fontWeight: FontWeight.w900, fontSize: 15),
                 ),
                 const SizedBox(height: 5),
                 Wrap(
@@ -272,6 +290,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
           IconButton(
             tooltip: 'Close',
             onPressed: () => Navigator.of(context).pop(),
+            visualDensity: VisualDensity.compact,
             icon: const Icon(Icons.close),
           ),
         ],
@@ -290,7 +309,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
         unselectedLabelColor: _kClzTextMuted,
         indicatorColor: _kClzAccent,
         dividerColor: _kClzDivider,
-        labelPadding: const EdgeInsets.symmetric(horizontal: 13),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 11),
         tabs: const [
           _EditTab(icon: Icons.article, label: 'Main'),
           _EditTab(icon: Icons.search, label: 'Details'),
@@ -388,7 +407,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
       ],
     );
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
+      padding: const EdgeInsets.fromLTRB(10, 7, 10, 8),
       decoration: const BoxDecoration(
         color: _kClzToolbar,
         border: Border(top: BorderSide(color: _kClzDivider)),
@@ -439,7 +458,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Expanded(
@@ -456,7 +475,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                       onChanged: (value) => setState(() => _condition = value),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       isExpanded: true,
@@ -535,7 +554,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   SizedBox(
                     width: 120,
                     child: TextField(
@@ -544,7 +563,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                       decoration: const InputDecoration(labelText: 'Currency'),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: _coverPriceController,
@@ -558,7 +577,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               const _ValueByGradePanel(),
             ],
           ),
@@ -571,7 +590,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                 controller: _gradingCompanyController,
                 decoration: const InputDecoration(labelText: 'Grading company'),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               TextField(
                 controller: _graderNotesController,
                 minLines: 4,
@@ -605,7 +624,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                       decoration: const InputDecoration(labelText: 'Quantity'),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: _storageBoxController,
@@ -613,7 +632,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                           const InputDecoration(labelText: 'Storage box'),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   SizedBox(
                     width: 120,
                     child: TextField(
@@ -624,7 +643,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 11),
               Row(
                 children: [
                   Expanded(
@@ -641,7 +660,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                           setState(() => _rawOrSlabbed = selection.first),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: MediaTrackingStatusField(
                       profile: comicsLibraryConfig.trackingProfile,
@@ -652,7 +671,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                       },
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   SizedBox(
                     width: 120,
                     child: MediaRatingField(controller: _ratingController),
@@ -686,12 +705,12 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               TextField(
                 controller: _keyReasonController,
                 decoration: const InputDecoration(labelText: 'Key reason'),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               TextField(
                 controller: _tagsController,
                 decoration: const InputDecoration(labelText: 'Tags'),
@@ -832,7 +851,7 @@ class _EditTabShell extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final content = ListView(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(14),
           children: children,
         );
         if (cover == null || constraints.maxWidth < 720) {
@@ -842,10 +861,10 @@ class _EditTabShell extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              width: 210,
-              padding: const EdgeInsets.all(18),
+              width: 204,
+              padding: const EdgeInsets.all(14),
               decoration: const BoxDecoration(
-                color: Color(0xFF151515),
+                color: Color(0xFF101010),
                 border: Border(right: BorderSide(color: _kClzDivider)),
               ),
               child: Column(
@@ -856,7 +875,7 @@ class _EditTabShell extends StatelessWidget {
                     ),
                   ),
                   if (constraints.maxHeight >= 360) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     const _MiniBadge('Local item'),
                     const SizedBox(height: 8),
                     const Text(
@@ -885,11 +904,16 @@ class _EditSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: const Color(0xFF242424),
-        border: Border.all(color: const Color(0xFF3D3D3D)),
+        color: const Color(0xFF202426),
+        border: const Border(
+          left: BorderSide(color: _kClzAccent, width: 2),
+          top: BorderSide(color: Color(0xFF3D3D3D)),
+          right: BorderSide(color: Color(0xFF3D3D3D)),
+          bottom: BorderSide(color: Color(0xFF3D3D3D)),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -899,9 +923,10 @@ class _EditSection extends StatelessWidget {
             style: const TextStyle(
               color: _kClzAccent,
               fontWeight: FontWeight.w900,
+              fontSize: 13,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 9),
           child,
         ],
       ),
@@ -918,12 +943,12 @@ class _EditTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tab(
-      height: 42,
+      height: 36,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 17),
-          const SizedBox(width: 6),
+          const SizedBox(width: 5),
           Text(label),
         ],
       ),
@@ -945,14 +970,14 @@ class _EditGrid extends StatelessWidget {
           children: [
             children[i],
             if (i + 1 < children.length) ...[
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               children[i + 1],
             ],
           ],
         ),
       );
       if (i + 2 < children.length) {
-        rows.add(const SizedBox(height: 10));
+        rows.add(const SizedBox(height: 8));
       }
     }
     return Column(children: rows);
@@ -967,7 +992,7 @@ class _ValueByGradePanel extends StatelessWidget {
     const values = [8, 12, 18, 26, 34, 44, 58, 74, 96, 130];
     return Container(
       height: 190,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: const Color(0xFF101010),
         border: Border.all(color: _kClzDivider),
