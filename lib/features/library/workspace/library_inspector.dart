@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 const Color _kDefaultAccent = Color(0xFF10A8D8);
 const Color _kDefaultMutedText = Color(0xFFB8B8B8);
+const double _kTwoColumnBreakpoint = 420;
 
 class LibraryInspectorFactData {
   const LibraryInspectorFactData(this.label, this.value);
@@ -26,22 +27,29 @@ class LibraryInspectorSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final sectionColor = Color.alphaBlend(
+      colorScheme.surfaceContainerHigh.withValues(alpha: 0.84),
+      colorScheme.surface,
+    );
+    final borderColor = colorScheme.outlineVariant.withValues(alpha: 0.42);
+    final accentBorderColor = accentColor.withValues(alpha: 0.28);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: const Color(0xD51C1F21),
+          color: sectionColor,
           border: Border(
             left: BorderSide(color: accentColor, width: 2),
-            top: const BorderSide(color: Color(0x444DBBD5)),
-            right: const BorderSide(color: Color(0x33222222)),
-            bottom: const BorderSide(color: Color(0x33222222)),
+            top: BorderSide(color: accentBorderColor),
+            right: BorderSide(color: borderColor),
+            bottom: BorderSide(color: borderColor),
           ),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Color(0x66000000),
+              color: colorScheme.shadow.withValues(alpha: 0.35),
               blurRadius: 8,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -51,9 +59,11 @@ class LibraryInspectorSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DecoratedBox(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(color: Color(0x224DBBD5)),
+                    bottom: BorderSide(
+                      color: accentColor.withValues(alpha: 0.14),
+                    ),
                   ),
                 ),
                 child: Padding(
@@ -97,7 +107,7 @@ class LibraryInspectorFactGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final twoColumns = constraints.maxWidth >= 420;
+        final twoColumns = constraints.maxWidth >= _kTwoColumnBreakpoint;
         if (!twoColumns) {
           return Column(
             children: [

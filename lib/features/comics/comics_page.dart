@@ -54,6 +54,10 @@ const Color _kClzSelection = Color(0xFF075F75);
 const Color _kClzYellow = Color(0xFFFFD400);
 const Color _kClzDivider = Color(0xFF4A4A4A);
 const Color _kClzTextMuted = Color(0xFFB8B8B8);
+const Color _kClzTableOddRow = Color(0xFF202428);
+const Color _kClzTableEvenRow = Color(0xFF181B1E);
+const Color _kClzTableBottomBorder = Color(0xFF2E2E2E);
+const Color _kClzTableHover = Color(0xFF263940);
 
 enum _BulkToolbarAction { edit, owned, wishlist, remove, clear }
 
@@ -1856,11 +1860,11 @@ class _ComicTableView extends StatelessWidget {
       headerColor: const Color(0xFF303030),
       dividerColor: _kClzDivider,
       selectedColor: _kClzSelection,
-      oddColor: const Color(0xFF202428),
-      evenColor: const Color(0xFF181B1E),
+      oddColor: _kClzTableOddRow,
+      evenColor: _kClzTableEvenRow,
       selectionRailColor: _kClzYellow,
-      bottomBorderColor: const Color(0xFF2E2E2E),
-      hoverColor: const Color(0xFF263940),
+      bottomBorderColor: _kClzTableBottomBorder,
+      hoverColor: _kClzTableHover,
       accentColor: _kClzAccent,
     );
   }
