@@ -35,6 +35,7 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_card
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -2333,40 +2334,30 @@ class _CoverGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return _EmptyState(onAddComic: onAddComic);
-    }
-    return ColoredBox(
-      color: _kClzGridCanvas,
-      child: GridView.builder(
-        padding: const EdgeInsets.all(10),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: coverSize,
-          mainAxisExtent: coverSize * 1.53,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final item = items[index];
-          final ownedItem = ownedByItemId[item.id];
-          return LibraryCoverTile(
-            entry: _comicWorkspaceEntry(
-              item,
-              ownedItem,
-              null,
-              isWishlisted: wishlistIds.contains(item.id),
-            ),
-            selected:
-                selectedItemIds.contains(item.id) || item.id == selectedItemId,
-            onTap: () => onSelectItem(item),
-            selectedColor: _kClzSelection,
-            accentColor: _kClzAccent,
-            selectionColor: _kClzYellow,
-            mutedTextColor: _kClzTextMuted,
-          );
-        },
-      ),
+    return LibraryWorkspaceGrid<CatalogItem>(
+      items: items,
+      emptyBuilder: (_) => _EmptyState(onAddComic: onAddComic),
+      maxCrossAxisExtent: coverSize,
+      mainAxisExtent: coverSize * 1.53,
+      backgroundColor: _kClzGridCanvas,
+      itemBuilder: (context, item) {
+        final ownedItem = ownedByItemId[item.id];
+        return LibraryCoverTile(
+          entry: _comicWorkspaceEntry(
+            item,
+            ownedItem,
+            null,
+            isWishlisted: wishlistIds.contains(item.id),
+          ),
+          selected:
+              selectedItemIds.contains(item.id) || item.id == selectedItemId,
+          onTap: () => onSelectItem(item),
+          selectedColor: _kClzSelection,
+          accentColor: _kClzAccent,
+          selectionColor: _kClzYellow,
+          mutedTextColor: _kClzTextMuted,
+        );
+      },
     );
   }
 }
@@ -2428,37 +2419,27 @@ class _CardGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return _EmptyState(onAddComic: onAddComic);
-    }
     final cardHeight = (coverSize * 1.12).clamp(138.0, 174.0).toDouble();
-    return ColoredBox(
-      color: _kClzGridCanvas,
-      child: GridView.builder(
-        padding: const EdgeInsets.all(10),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 430,
-          mainAxisExtent: cardHeight,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final item = items[index];
-          final ownedItem = ownedByItemId[item.id];
-          return _ComicCard(
-            entry: _comicWorkspaceEntry(
-              item,
-              ownedItem,
-              null,
-              isWishlisted: wishlistIds.contains(item.id),
-            ),
-            selected:
-                selectedItemIds.contains(item.id) || item.id == selectedItemId,
-            onTap: () => onSelectItem(item),
-          );
-        },
-      ),
+    return LibraryWorkspaceGrid<CatalogItem>(
+      items: items,
+      emptyBuilder: (_) => _EmptyState(onAddComic: onAddComic),
+      maxCrossAxisExtent: 430,
+      mainAxisExtent: cardHeight,
+      backgroundColor: _kClzGridCanvas,
+      itemBuilder: (context, item) {
+        final ownedItem = ownedByItemId[item.id];
+        return _ComicCard(
+          entry: _comicWorkspaceEntry(
+            item,
+            ownedItem,
+            null,
+            isWishlisted: wishlistIds.contains(item.id),
+          ),
+          selected:
+              selectedItemIds.contains(item.id) || item.id == selectedItemId,
+          onTap: () => onSelectItem(item),
+        );
+      },
     );
   }
 }
