@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
+import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_missing_issues.dart';
 import 'package:collectarr_app/features/comics/comics_stats.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
@@ -66,8 +67,6 @@ const Color _kClzSelection = Color(0xFF075F75);
 const Color _kClzYellow = Color(0xFFFFD400);
 const Color _kClzDivider = Color(0xFF4A4A4A);
 const Color _kClzTextMuted = Color(0xFFB8B8B8);
-
-enum _OwnershipFilter { all, owned, wishlist, missingGrade }
 
 enum _BulkToolbarAction { edit, owned, wishlist, remove, clear }
 
@@ -232,7 +231,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   double coverSize = _kDefaultCoverSize;
   Set<LibraryTableColumn> visibleColumns = _defaultComicTableColumns();
   Map<LibraryTableColumn, double> columnWidths = const {};
-  _OwnershipFilter ownershipFilter = _OwnershipFilter.all;
+  ComicsOwnershipFilter ownershipFilter = ComicsOwnershipFilter.all;
   String? gradeFilter;
   String? conditionFilter;
   String? publisherFilter;
@@ -452,10 +451,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
 
   bool _matchesOwnershipFilter(ShelfEntry entry) {
     return switch (ownershipFilter) {
-      _OwnershipFilter.all => true,
-      _OwnershipFilter.owned => entry.isOwned,
-      _OwnershipFilter.wishlist => entry.isWishlisted,
-      _OwnershipFilter.missingGrade => entry.isMissingGrade,
+      ComicsOwnershipFilter.all => true,
+      ComicsOwnershipFilter.owned => entry.isOwned,
+      ComicsOwnershipFilter.wishlist => entry.isWishlisted,
+      ComicsOwnershipFilter.missingGrade => entry.isMissingGrade,
     };
   }
 
@@ -476,7 +475,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   }
 
   bool get _hasActiveFilters {
-    return ownershipFilter != _OwnershipFilter.all ||
+    return ownershipFilter != ComicsOwnershipFilter.all ||
         gradeFilter != null ||
         conditionFilter != null ||
         publisherFilter != null ||
@@ -490,10 +489,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     required List<String> publisherOptions,
     required List<String> releaseYearOptions,
   }) async {
-    final selection = await showDialog<_ComicsFilterSelection>(
+    final selection = await showDialog<ComicsFilterSelection>(
       context: context,
-      builder: (context) => _ComicsFilterDialog(
-        initialSelection: _ComicsFilterSelection(
+      builder: (context) => ComicsFilterDialog(
+        initialSelection: ComicsFilterSelection(
           ownershipFilter: ownershipFilter,
           grade: gradeFilter,
           condition: conditionFilter,
@@ -4027,199 +4026,6 @@ class _BulkEditSelection {
   final String? storageBox;
   final String? tags;
   final String? readStatus;
-}
-
-class _ComicsFilterDialog extends StatefulWidget {
-  const _ComicsFilterDialog({
-    required this.initialSelection,
-    required this.gradeOptions,
-    required this.conditionOptions,
-    required this.publisherOptions,
-    required this.releaseYearOptions,
-  });
-
-  final _ComicsFilterSelection initialSelection;
-  final List<String> gradeOptions;
-  final List<String> conditionOptions;
-  final List<String> publisherOptions;
-  final List<String> releaseYearOptions;
-
-  @override
-  State<_ComicsFilterDialog> createState() => _ComicsFilterDialogState();
-}
-
-class _ComicsFilterDialogState extends State<_ComicsFilterDialog> {
-  late _OwnershipFilter _ownershipFilter;
-  String? _grade;
-  String? _condition;
-  String? _publisher;
-  String? _releaseYear;
-
-  @override
-  void initState() {
-    super.initState();
-    _ownershipFilter = widget.initialSelection.ownershipFilter;
-    _grade = widget.initialSelection.grade;
-    _condition = widget.initialSelection.condition;
-    _publisher = widget.initialSelection.publisher;
-    _releaseYear = widget.initialSelection.releaseYear;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Filters'),
-      content: SizedBox(
-        width: 420,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              DropdownButtonFormField<_OwnershipFilter>(
-                initialValue: _ownershipFilter,
-                decoration: const InputDecoration(
-                  labelText: 'Shelf',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final filter in _OwnershipFilter.values)
-                    DropdownMenuItem(
-                      value: filter,
-                      child: Text(_ownershipFilterLabel(filter)),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _ownershipFilter = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              _StringFilterDropdown(
-                label: 'Publisher',
-                emptyLabel: 'Any publisher',
-                value: _publisher,
-                options: widget.publisherOptions,
-                onChanged: (value) => setState(() => _publisher = value),
-              ),
-              const SizedBox(height: 12),
-              _StringFilterDropdown(
-                label: 'Year',
-                emptyLabel: 'Any year',
-                value: _releaseYear,
-                options: widget.releaseYearOptions,
-                onChanged: (value) => setState(() => _releaseYear = value),
-              ),
-              const SizedBox(height: 12),
-              _StringFilterDropdown(
-                label: 'Grade',
-                emptyLabel: 'Any grade',
-                value: _grade,
-                options: widget.gradeOptions,
-                onChanged: (value) => setState(() => _grade = value),
-              ),
-              const SizedBox(height: 12),
-              _StringFilterDropdown(
-                label: 'Condition',
-                emptyLabel: 'Any condition',
-                value: _condition,
-                options: widget.conditionOptions,
-                onChanged: (value) => setState(() => _condition = value),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(
-              const _ComicsFilterSelection(
-                ownershipFilter: _OwnershipFilter.all,
-              ),
-            );
-          },
-          child: const Text('Clear'),
-        ),
-        FilledButton(
-          onPressed: () {
-            Navigator.of(context).pop(
-              _ComicsFilterSelection(
-                ownershipFilter: _ownershipFilter,
-                grade: _grade,
-                condition: _condition,
-                publisher: _publisher,
-                releaseYear: _releaseYear,
-              ),
-            );
-          },
-          child: const Text('Apply'),
-        ),
-      ],
-    );
-  }
-}
-
-class _ComicsFilterSelection {
-  const _ComicsFilterSelection({
-    required this.ownershipFilter,
-    this.grade,
-    this.condition,
-    this.publisher,
-    this.releaseYear,
-  });
-
-  final _OwnershipFilter ownershipFilter;
-  final String? grade;
-  final String? condition;
-  final String? publisher;
-  final String? releaseYear;
-}
-
-class _StringFilterDropdown extends StatelessWidget {
-  const _StringFilterDropdown({
-    required this.label,
-    required this.emptyLabel,
-    required this.value,
-    required this.options,
-    required this.onChanged,
-  });
-
-  final String label;
-  final String emptyLabel;
-  final String? value;
-  final List<String> options;
-  final ValueChanged<String?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      initialValue: options.contains(value) ? value : null,
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
-      items: [
-        DropdownMenuItem(value: '', child: Text(emptyLabel)),
-        for (final option in options)
-          DropdownMenuItem(value: option, child: Text(option)),
-      ],
-      onChanged: (value) {
-        onChanged(value == null || value.isEmpty ? null : value);
-      },
-    );
-  }
-}
-
-String _ownershipFilterLabel(_OwnershipFilter filter) {
-  return switch (filter) {
-    _OwnershipFilter.all => 'All comics',
-    _OwnershipFilter.owned => 'Owned',
-    _OwnershipFilter.wishlist => 'Wishlist',
-    _OwnershipFilter.missingGrade => 'Missing grade',
-  };
 }
 
 class _AddComicDialog extends ConsumerStatefulWidget {
