@@ -11,11 +11,23 @@ class ComicsFilterSelection {
     this.releaseYear,
   });
 
+  static const none = ComicsFilterSelection(
+    ownershipFilter: ComicsOwnershipFilter.all,
+  );
+
   final ComicsOwnershipFilter ownershipFilter;
   final String? grade;
   final String? condition;
   final String? publisher;
   final String? releaseYear;
+
+  bool get hasActiveFilters {
+    return ownershipFilter != ComicsOwnershipFilter.all ||
+        grade != null ||
+        condition != null ||
+        publisher != null ||
+        releaseYear != null;
+  }
 }
 
 class ComicsFilterDialog extends StatefulWidget {

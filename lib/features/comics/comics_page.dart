@@ -4,17 +4,19 @@ import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_add_dialog.dart';
+import 'package:collectarr_app/features/comics/comics_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_edit.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_inspector.dart';
-import 'package:collectarr_app/features/comics/comics_shelf_views.dart';
+import 'package:collectarr_app/features/comics/comics_page_selection_state.dart';
+import 'package:collectarr_app/features/comics/comics_shelf_projection.dart';
 import 'package:collectarr_app/features/comics/comics_workspace.dart';
+import 'package:collectarr_app/features/comics/comics_workspace_state.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -35,20 +37,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   String query = '';
   String? selectedItemId;
   String? selectedSeries;
-  LibraryViewMode viewMode = LibraryViewMode.grid;
-  LibraryDetailsLayout detailsLayout = LibraryDetailsLayout.right;
-  LibrarySortColumn sortColumn = comicsWorkspaceConfig.defaultSortColumn;
-  bool sortAscending = true;
-  double coverSize = kComicsDefaultCoverSize;
-  Set<LibraryTableColumn> visibleColumns = defaultComicTableColumns();
-  Map<LibraryTableColumn, double> columnWidths = const {};
-  ComicsOwnershipFilter ownershipFilter = ComicsOwnershipFilter.all;
-  String? gradeFilter;
-  String? conditionFilter;
-  String? publisherFilter;
-  String? releaseYearFilter;
-  bool selectionMode = false;
-  final selectedItemIds = <String>{};
+  ComicsWorkspaceViewState workspaceViewState =
+      ComicsWorkspaceViewState.defaults();
+  ComicsFilterSelection filterSelection = ComicsFilterSelection.none;
+  ComicsPageSelectionState selectionState = ComicsPageSelectionState.empty();
   late final TextEditingController _controller;
 
   @override
@@ -76,43 +68,32 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
           data: _kClzComicsTheme,
           child: shelf.when(
             data: (state) {
-              final entries = _filterShelfEntries(state.entries);
-              final items = _catalogItemsFromShelf(entries);
-              final gradeOptions = _filterOptions(
-                state.entries.map((entry) => entry.ownedItem?.grade),
+              final viewState = workspaceViewState;
+              final shelfProjection = projectComicsShelf(
+                state: state,
+                query: query,
+                filters: filterSelection,
               );
-              final conditionOptions = _filterOptions(
-                state.entries.map((entry) => entry.ownedItem?.condition),
-              );
-              final publisherOptions = _filterOptions(
-                state.entries.map((entry) => entry.catalogItem?.publisher),
-              );
-              final releaseYearOptions = _filterOptions(
-                state.entries
-                    .map((entry) => entry.catalogItem?.releaseYear?.toString()),
-              );
+              final entries = shelfProjection.entries;
               return ComicsWorkspace(
                 shelfState: state,
-                items: items,
+                items: shelfProjection.items,
                 queryController: _controller,
                 selectedItemId: selectedItemId,
                 selectedSeries: selectedSeries,
-                viewMode: viewMode,
-                detailsLayout: detailsLayout,
-                sortColumn: sortColumn,
-                sortAscending: sortAscending,
-                coverSize: coverSize,
-                visibleColumns: visibleColumns,
-                columnWidths: columnWidths,
-                selectionMode: selectionMode,
-                selectedItemIds: selectedItemIds,
-                hasActiveFilters: _hasActiveFilters,
+                viewMode: viewState.viewMode,
+                detailsLayout: viewState.detailsLayout,
+                sortColumn: viewState.sortColumn,
+                sortAscending: viewState.sortAscending,
+                coverSize: viewState.coverSize,
+                visibleColumns: viewState.visibleColumns,
+                columnWidths: viewState.columnWidths,
+                selectionMode: selectionState.enabled,
+                selectedItemIds: selectionState.itemIds,
+                hasActiveFilters: shelfProjection.hasActiveFilters,
                 onEditFilters: () => _showFiltersDialog(
                   context,
-                  gradeOptions: gradeOptions,
-                  conditionOptions: conditionOptions,
-                  publisherOptions: publisherOptions,
-                  releaseYearOptions: releaseYearOptions,
+                  options: shelfProjection.filterOptions,
                 ),
                 onSearch: (value) => setState(() {
                   query = value.trim();
@@ -121,7 +102,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 }),
                 onAddComic: () => _showAddComicDialog(context),
                 onSelectItem: (item) {
-                  if (selectionMode) {
+                  if (selectionState.enabled) {
                     _toggleSelection(item.id);
                   } else {
                     setState(() => selectedItemId = item.id);
@@ -212,150 +193,41 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     }
   }
 
-  List<CatalogItem> _catalogItemsFromShelf(List<ShelfEntry> entries) {
-    return [
-      for (final entry in entries)
-        entry.catalogItem ??
-            CatalogItem(
-              id: entry.itemId,
-              kind: comicsLibraryConfig.workspace.kind,
-              title: entry.title,
-            ),
-    ];
-  }
-
-  List<ShelfEntry> _filterShelfEntries(List<ShelfEntry> entries) {
-    final normalized = query.trim().toLowerCase();
-    return [
-      for (final entry in entries)
-        if (_matchesOwnershipFilter(entry) &&
-            _matchesValueFilter(entry.ownedItem?.grade, gradeFilter) &&
-            _matchesValueFilter(entry.ownedItem?.condition, conditionFilter) &&
-            _matchesValueFilter(
-                entry.catalogItem?.publisher, publisherFilter) &&
-            _matchesValueFilter(
-              entry.catalogItem?.releaseYear?.toString(),
-              releaseYearFilter,
-            ) &&
-            (normalized.isEmpty || _matchesEntryQuery(entry, normalized)))
-          entry,
-    ];
-  }
-
-  bool _matchesEntryQuery(ShelfEntry entry, String query) {
-    final item = entry.catalogItem;
-    if (entry.title.toLowerCase().contains(query)) {
-      return true;
-    }
-    if (item == null) {
-      return false;
-    }
-    return item.title.toLowerCase().contains(query) ||
-        (item.itemNumber?.toLowerCase().contains(query) ?? false) ||
-        (item.publisher?.toLowerCase().contains(query) ?? false) ||
-        (item.variant?.toLowerCase().contains(query) ?? false) ||
-        (item.barcode?.toLowerCase().contains(query) ?? false) ||
-        (formatNullableComicDate(item.releaseDate)?.contains(query) ?? false) ||
-        (item.releaseYear?.toString().contains(query) ?? false) ||
-        (item.synopsis?.toLowerCase().contains(query) ?? false);
-  }
-
-  bool _matchesOwnershipFilter(ShelfEntry entry) {
-    return switch (ownershipFilter) {
-      ComicsOwnershipFilter.all => true,
-      ComicsOwnershipFilter.owned => entry.isOwned,
-      ComicsOwnershipFilter.wishlist => entry.isWishlisted,
-      ComicsOwnershipFilter.missingGrade => entry.isMissingGrade,
-    };
-  }
-
-  bool _matchesValueFilter(String? value, String? filter) {
-    if (filter == null) {
-      return true;
-    }
-    return value == filter;
-  }
-
-  List<String> _filterOptions(Iterable<String?> values) {
-    final options = {
-      for (final value in values)
-        if (value != null && value.trim().isNotEmpty) value.trim(),
-    }.toList(growable: false)
-      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-    return options;
-  }
-
-  bool get _hasActiveFilters {
-    return ownershipFilter != ComicsOwnershipFilter.all ||
-        gradeFilter != null ||
-        conditionFilter != null ||
-        publisherFilter != null ||
-        releaseYearFilter != null;
-  }
-
   Future<void> _showFiltersDialog(
     BuildContext context, {
-    required List<String> gradeOptions,
-    required List<String> conditionOptions,
-    required List<String> publisherOptions,
-    required List<String> releaseYearOptions,
+    required ComicsFilterOptions options,
   }) async {
     final selection = await showDialog<ComicsFilterSelection>(
       context: context,
       builder: (context) => ComicsFilterDialog(
-        initialSelection: ComicsFilterSelection(
-          ownershipFilter: ownershipFilter,
-          grade: gradeFilter,
-          condition: conditionFilter,
-          publisher: publisherFilter,
-          releaseYear: releaseYearFilter,
-        ),
-        gradeOptions: gradeOptions,
-        conditionOptions: conditionOptions,
-        publisherOptions: publisherOptions,
-        releaseYearOptions: releaseYearOptions,
+        initialSelection: filterSelection,
+        gradeOptions: options.grades,
+        conditionOptions: options.conditions,
+        publisherOptions: options.publishers,
+        releaseYearOptions: options.releaseYears,
       ),
     );
     if (selection == null || !mounted) {
       return;
     }
     setState(() {
-      ownershipFilter = selection.ownershipFilter;
-      gradeFilter = selection.grade;
-      conditionFilter = selection.condition;
-      publisherFilter = selection.publisher;
-      releaseYearFilter = selection.releaseYear;
+      filterSelection = selection;
       selectedItemId = null;
       selectedSeries = null;
-      selectedItemIds.clear();
+      selectionState = selectionState.clear();
     });
   }
 
   void _toggleSelection(String itemId) {
-    setState(() {
-      if (!selectedItemIds.add(itemId)) {
-        selectedItemIds.remove(itemId);
-      }
-      if (selectedItemIds.isEmpty) {
-        selectionMode = false;
-      }
-    });
+    setState(() => selectionState = selectionState.toggle(itemId));
   }
 
   void _setSelectionMode(bool value) {
-    setState(() {
-      selectionMode = value;
-      if (!value) {
-        selectedItemIds.clear();
-      }
-    });
+    setState(() => selectionState = selectionState.setEnabled(value));
   }
 
   void _clearSelection() {
-    setState(() {
-      selectedItemIds.clear();
-      selectionMode = false;
-    });
+    setState(() => selectionState = selectionState.clear());
   }
 
   Future<void> _showBulkEditDialog(
@@ -372,62 +244,29 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     if (selection == null) {
       return;
     }
-    final mutations = ref.read(collectionMutationsProvider);
-    for (final entry in _selectedEntries(visibleEntries)) {
-      final ownedItem = entry.ownedItem;
-      if (ownedItem == null) {
-        continue;
-      }
-      await mutations.updateItem(
-        ownedItem,
-        condition: selection.condition ?? ownedItem.condition,
-        grade: selection.grade ?? ownedItem.grade,
-        purchaseDate: ownedItem.purchaseDate,
-        pricePaidCents: ownedItem.pricePaidCents,
-        currency: ownedItem.currency,
-        personalNotes: ownedItem.personalNotes,
-        quantity: ownedItem.quantity,
-        storageBox: selection.storageBox ?? ownedItem.storageBox,
-        indexNumber: ownedItem.indexNumber,
-        coverPriceCents: ownedItem.coverPriceCents,
-        rawOrSlabbed: ownedItem.rawOrSlabbed,
-        gradingCompany: ownedItem.gradingCompany,
-        graderNotes: ownedItem.graderNotes,
-        signedBy: ownedItem.signedBy,
-        keyComic: ownedItem.keyComic,
-        keyReason: ownedItem.keyReason,
-        rating: ownedItem.rating,
-        readStatus: selection.readStatus ?? ownedItem.readStatus,
-        tags: selection.tags ?? ownedItem.tags,
-      );
-    }
+    await ComicsBulkActions(ref.read(collectionMutationsProvider)).editSelected(
+      entries: selectedComicsShelfEntries(
+        visibleEntries,
+        selectionState.itemIds,
+      ),
+      selection: selection,
+    );
     _clearSelection();
   }
 
   Future<void> _bulkMoveToOwned(List<ShelfEntry> visibleEntries) async {
-    final mutations = ref.read(collectionMutationsProvider);
-    for (final entry in _selectedEntries(visibleEntries)) {
-      if (entry.ownedItem != null) {
-        continue;
-      }
-      await mutations.addItem(
-        entry.itemId,
-        condition: 'Near Mint',
-        grade: 'Ungraded',
-      );
-    }
+    await ComicsBulkActions(ref.read(collectionMutationsProvider))
+        .moveSelectedToOwned(
+      selectedComicsShelfEntries(visibleEntries, selectionState.itemIds),
+    );
     _clearSelection();
   }
 
   Future<void> _bulkMoveToWishlist(List<ShelfEntry> visibleEntries) async {
-    final mutations = ref.read(collectionMutationsProvider);
-    for (final entry in _selectedEntries(visibleEntries)) {
-      await mutations.addToWishlist(entry.itemId);
-      final ownedItem = entry.ownedItem;
-      if (ownedItem != null) {
-        await mutations.removeItem(ownedItem);
-      }
-    }
+    await ComicsBulkActions(ref.read(collectionMutationsProvider))
+        .moveSelectedToWishlist(
+      selectedComicsShelfEntries(visibleEntries, selectionState.itemIds),
+    );
     _clearSelection();
   }
 
@@ -435,7 +274,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     BuildContext context,
     List<ShelfEntry> visibleEntries,
   ) async {
-    final entries = _selectedEntries(visibleEntries);
+    final entries = selectedComicsShelfEntries(
+      visibleEntries,
+      selectionState.itemIds,
+    );
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -458,85 +300,50 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     if (confirmed != true) {
       return;
     }
-    final mutations = ref.read(collectionMutationsProvider);
-    for (final entry in entries) {
-      final ownedItem = entry.ownedItem;
-      if (ownedItem != null) {
-        await mutations.removeItem(ownedItem);
-      }
-      if (entry.isWishlisted) {
-        await mutations.removeFromWishlist(entry.itemId);
-      }
-    }
+    await ComicsBulkActions(ref.read(collectionMutationsProvider))
+        .removeSelected(entries);
     _clearSelection();
   }
 
-  List<ShelfEntry> _selectedEntries(List<ShelfEntry> visibleEntries) {
-    return [
-      for (final entry in visibleEntries)
-        if (selectedItemIds.contains(entry.itemId)) entry,
-    ];
-  }
-
   void _handleSortChanged(LibrarySortColumn column) {
-    setState(() {
-      if (sortColumn == column) {
-        sortAscending = !sortAscending;
-      } else {
-        sortColumn = column;
-        sortAscending = column == LibrarySortColumn.updated ? false : true;
-      }
-    });
-    _saveViewPreferences();
+    _setWorkspaceViewState(workspaceViewState.withSortColumn(column));
   }
 
   void _handleViewModeChanged(LibraryViewMode value) {
-    setState(() => viewMode = value);
-    _saveViewPreferences();
+    _setWorkspaceViewState(workspaceViewState.copyWith(viewMode: value));
   }
 
   void _handleDetailsLayoutChanged(LibraryDetailsLayout value) {
-    setState(() => detailsLayout = value);
-    _saveViewPreferences();
+    _setWorkspaceViewState(
+      workspaceViewState.copyWith(detailsLayout: value),
+    );
   }
 
   void _handleViewPresetSelected(LibraryWorkspacePreset preset) {
-    final config = comicsViewPresetConfig(preset);
-    setState(() {
-      viewMode = config.viewMode;
-      detailsLayout = config.detailsLayout;
-      coverSize = config.coverSize;
-      visibleColumns = Set.of(config.visibleColumns);
-      columnWidths = const {};
-    });
-    _saveViewPreferences();
+    _setWorkspaceViewState(workspaceViewState.withPreset(preset));
   }
 
   void _handleCoverSizeChanged(double value) {
-    setState(() => coverSize = value);
-    _saveViewPreferences();
+    _setWorkspaceViewState(workspaceViewState.copyWith(coverSize: value));
   }
 
   void _handleVisibleColumnsChanged(Set<LibraryTableColumn> columns) {
-    setState(() => visibleColumns = columns);
-    _saveViewPreferences();
+    _setWorkspaceViewState(
+      workspaceViewState.copyWith(visibleColumns: columns),
+    );
   }
 
   void _handleColumnWidthChanged(LibraryTableColumn column, double width) {
-    setState(() {
-      columnWidths = {
-        ...columnWidths,
-        column: clampComicTableColumnWidth(column, width),
-      };
-    });
-    _saveViewPreferences();
+    _setWorkspaceViewState(
+      workspaceViewState.withColumnWidth(column, width),
+    );
   }
 
   Future<void> _showColumnChooser(BuildContext context) async {
     final selected = await showDialog<Set<LibraryTableColumn>>(
       context: context,
       builder: (context) => LibraryColumnChooserDialog(
-        selectedColumns: visibleColumns,
+        selectedColumns: workspaceViewState.visibleColumns,
         defaultColumns: defaultComicTableColumns(),
         columnLabel: comicTableColumnDisplayName,
         columnGroup: comicTableColumnGroup,
@@ -549,41 +356,16 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   }
 
   Future<void> _loadViewPreferences() async {
-    final preferences =
-        await LibraryWorkspacePreferences(comicsWorkspaceConfig).read(
-      defaultCoverSize: kComicsDefaultCoverSize,
-      minCoverSize: kComicsMinCoverSize,
-      maxCoverSize: kComicsMaxCoverSize,
-    );
+    final preferences = await loadComicsWorkspaceViewState();
     if (!mounted) {
       return;
     }
-    setState(() {
-      viewMode = preferences.viewMode;
-      detailsLayout = preferences.detailsLayout;
-      sortColumn = preferences.sortColumn;
-      sortAscending = preferences.sortAscending;
-      coverSize = preferences.coverSize;
-      visibleColumns = preferences.visibleColumns;
-      columnWidths = preferences.columnWidths.map(
-        (column, width) =>
-            MapEntry(column, clampComicTableColumnWidth(column, width)),
-      );
-    });
+    setState(() => workspaceViewState = preferences);
   }
 
-  Future<void> _saveViewPreferences() async {
-    await LibraryWorkspacePreferences(comicsWorkspaceConfig).write(
-      LibraryWorkspacePreferenceSnapshot(
-        viewMode: viewMode,
-        detailsLayout: detailsLayout,
-        sortColumn: sortColumn,
-        sortAscending: sortAscending,
-        coverSize: coverSize,
-        visibleColumns: visibleColumns,
-        columnWidths: columnWidths,
-      ),
-    );
+  void _setWorkspaceViewState(ComicsWorkspaceViewState next) {
+    setState(() => workspaceViewState = next);
+    saveComicsWorkspaceViewState(next);
   }
 }
 
