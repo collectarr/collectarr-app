@@ -146,7 +146,7 @@ const _pullListPlaceholderRows = [
   PullListCandidate(
     series: 'New releases',
     issue: 'weekly',
-    release: 'ComicVine',
+    release: 'GCD',
     status: 'planned',
   ),
 ];

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/comics/comics_add_pull_list.dart';
 import 'package:collectarr_app/features/comics/comics_add_result_row.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
+import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -29,8 +30,12 @@ class AddComicResultPane extends StatelessWidget {
     required this.searchedProvider,
     required this.isSearchingServer,
     required this.isSearchingProvider,
+    required this.metadataProviders,
+    required this.selectedProvider,
+    required this.providerLabel,
     required this.onIncludeVariantsChanged,
     required this.onHideInShelfChanged,
+    required this.onProviderChanged,
     required this.onSelectServer,
     required this.onToggleServerCheck,
     required this.collapsedSeries,
@@ -58,8 +63,12 @@ class AddComicResultPane extends StatelessWidget {
   final bool searchedProvider;
   final bool isSearchingServer;
   final bool isSearchingProvider;
+  final List<LibraryMetadataProviderOption> metadataProviders;
+  final String selectedProvider;
+  final String Function(String provider) providerLabel;
   final ValueChanged<bool> onIncludeVariantsChanged;
   final ValueChanged<bool> onHideInShelfChanged;
+  final ValueChanged<String> onProviderChanged;
   final ValueChanged<String> onSelectServer;
   final ValueChanged<String> onToggleServerCheck;
   final Set<String> collapsedSeries;
@@ -73,6 +82,7 @@ class AddComicResultPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedProviderLabel = providerLabel(selectedProvider);
     if (mode == LibraryAddMode.pullList) {
       return PullListResultsPane(
         rows: pullListRows,
@@ -108,6 +118,14 @@ class AddComicResultPane extends StatelessWidget {
                   const SizedBox(width: 4),
                   const _IssueSortButton(label: 'III', selected: true),
                   const _IssueSortButton(label: 'Asc'),
+                  const SizedBox(width: 10),
+                  if (metadataProviders.length > 1)
+                    _ProviderMenu(
+                      providers: metadataProviders,
+                      selectedProvider: selectedProvider,
+                      isEnabled: !isSearchingProvider,
+                      onChanged: onProviderChanged,
+                    ),
                 ],
               ),
             ),
@@ -134,8 +152,8 @@ class AddComicResultPane extends StatelessWidget {
                 icon: const Icon(Icons.manage_search),
                 label: Text(
                   searchedProvider
-                      ? 'Search ComicVine again'
-                      : 'Search ComicVine',
+                      ? 'Search $selectedProviderLabel again'
+                      : 'Search $selectedProviderLabel',
                 ),
               ),
             ),
@@ -178,6 +196,7 @@ class AddComicResultPane extends StatelessWidget {
         itemCount: providerResults.length,
         itemBuilder: (context, index) {
           final item = providerResults[index];
+          final itemProviderLabel = providerLabel(item.provider);
           return AddResultRow(
             selected: item.providerItemId == selectedProviderId,
             checked: false,
@@ -188,8 +207,8 @@ class AddComicResultPane extends StatelessWidget {
               child: ProviderCandidateImage(candidate: item),
             ),
             title: item.title,
-            subtitle: item.summary ?? 'ComicVine candidate',
-            badges: const ['ComicVine'],
+            subtitle: item.summary ?? '$itemProviderLabel candidate',
+            badges: [itemProviderLabel],
             trailing: 'propose',
             onTap: () => onSelectProvider(item.providerItemId),
             onToggleCheck: null,
@@ -197,10 +216,56 @@ class AddComicResultPane extends StatelessWidget {
         },
       );
     }
-    return const Center(
+    return Center(
       child: Text(
-        'No Collectarr Core matches yet. Try ComicVine to propose metadata.',
+        'No Collectarr Core matches yet. Try ${providerLabel(selectedProvider)} to propose metadata.',
         textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class _ProviderMenu extends StatelessWidget {
+  const _ProviderMenu({
+    required this.providers,
+    required this.selectedProvider,
+    required this.isEnabled,
+    required this.onChanged,
+  });
+
+  final List<LibraryMetadataProviderOption> providers;
+  final String selectedProvider;
+  final bool isEnabled;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 120,
+      height: 30,
+      child: DropdownButtonFormField<String>(
+        key: ValueKey(selectedProvider),
+        initialValue: selectedProvider,
+        isExpanded: true,
+        decoration: const InputDecoration(
+          isDense: true,
+          border: OutlineInputBorder(),
+          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        ),
+        items: [
+          for (final provider in providers)
+            DropdownMenuItem(
+              value: provider.id,
+              child: Text(provider.label, overflow: TextOverflow.ellipsis),
+            ),
+        ],
+        onChanged: isEnabled
+            ? (value) {
+                if (value != null) {
+                  onChanged(value);
+                }
+              }
+            : null,
       ),
     );
   }

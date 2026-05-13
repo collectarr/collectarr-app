@@ -45,6 +45,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   var _providerResults = const <ProviderCandidate>[];
   String? _selectedServerId;
   String? _selectedProviderId;
+  String _metadataProvider = comicsLibraryConfig.defaultMetadataProvider;
   final _checkedServerIds = <String>{};
   final _collapsedAddSeries = <String>{};
   final _barcodeBatch = <BarcodeLookupEntry>[];
@@ -95,6 +96,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
           };
     final selectedItem = _selectedServerItem;
     final selectedCandidate = _selectedProviderCandidate;
+    final selectedProviderLabel = _metadataProviderLabel(_metadataProvider);
     final pullListRows = pullListCandidates(shelf);
     final selectedIsOwned =
         selectedItem != null && ownedItemIds.contains(selectedItem.id);
@@ -195,10 +197,15 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 searchedProvider: _searchedProvider,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: _isSearchingProvider,
+                                metadataProviders:
+                                    comicsLibraryConfig.metadataProviders,
+                                selectedProvider: _metadataProvider,
+                                providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
                                     setState(() => _includeVariants = value),
                                 onHideInShelfChanged: (value) =>
                                     setState(() => _hideInShelf = value),
+                                onProviderChanged: _changeMetadataProvider,
                                 onSelectServer: (id) => setState(() {
                                   _selectedServerId = id;
                                   _selectedProviderId = null;
@@ -215,7 +222,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                   _selectedProviderId = id;
                                   _selectedServerId = null;
                                 }),
-                                onSearchProvider: _searchComicVine,
+                                onSearchProvider: _searchProvider,
                                 onSearchPullListRow: _searchPullListRow,
                               ),
                             ),
@@ -223,6 +230,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                               child: AddComicPreviewPane(
                                 item: selectedItem,
                                 candidate: selectedCandidate,
+                                selectedProviderLabel: selectedProviderLabel,
                                 selectedIsOwned: selectedIsOwned,
                                 selectedIsWishlisted: selectedIsWishlisted,
                                 searchedServer: _searchedServer,
@@ -250,10 +258,15 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 searchedProvider: _searchedProvider,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: _isSearchingProvider,
+                                metadataProviders:
+                                    comicsLibraryConfig.metadataProviders,
+                                selectedProvider: _metadataProvider,
+                                providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
                                     setState(() => _includeVariants = value),
                                 onHideInShelfChanged: (value) =>
                                     setState(() => _hideInShelf = value),
+                                onProviderChanged: _changeMetadataProvider,
                                 onSelectServer: (id) => setState(() {
                                   _selectedServerId = id;
                                   _selectedProviderId = null;
@@ -270,7 +283,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                   _selectedProviderId = id;
                                   _selectedServerId = null;
                                 }),
-                                onSearchProvider: _searchComicVine,
+                                onSearchProvider: _searchProvider,
                                 onSearchPullListRow: _searchPullListRow,
                               ),
                             ),
@@ -279,6 +292,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                               child: AddComicPreviewPane(
                                 item: selectedItem,
                                 candidate: selectedCandidate,
+                                selectedProviderLabel: selectedProviderLabel,
                                 selectedIsOwned: selectedIsOwned,
                                 selectedIsWishlisted: selectedIsWishlisted,
                                 searchedServer: _searchedServer,
@@ -292,6 +306,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                   selectedCandidate: selectedCandidate,
                   selectedIsOwned: selectedIsOwned,
                   selectedIsWishlisted: selectedIsWishlisted,
+                  proposalProviderLabel: selectedCandidate == null
+                      ? selectedProviderLabel
+                      : _metadataProviderLabel(selectedCandidate.provider),
                   addTarget: _addTarget,
                   addCount: addItems.length,
                   isSubmitting: _isSubmitting,
@@ -430,7 +447,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     await _searchServer();
   }
 
-  Future<void> _searchComicVine() async {
+  Future<void> _searchProvider() async {
     final query = _providerQuery;
     if (query.isEmpty) {
       return;
@@ -444,7 +461,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     });
     try {
       final rows = await ref.read(apiClientProvider).searchProvider(
-            provider: comicsLibraryConfig.defaultMetadataProvider,
+            provider: _metadataProvider,
             query: query,
           );
       final results =
@@ -461,7 +478,10 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       if (!mounted) {
         return;
       }
-      setState(() => _error = 'ComicVine search failed: $error');
+      setState(
+        () => _error =
+            '${_metadataProviderLabel(_metadataProvider)} search failed: $error',
+      );
     } finally {
       if (mounted) {
         setState(() => _isSearchingProvider = false);
@@ -477,6 +497,23 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _publisherController.text.trim(),
       _yearController.text.trim(),
     ].where((part) => part.isNotEmpty).join(' ');
+  }
+
+  void _changeMetadataProvider(String provider) {
+    if (provider == _metadataProvider) {
+      return;
+    }
+    setState(() {
+      _metadataProvider = provider;
+      _providerResults = const [];
+      _selectedProviderId = null;
+      _searchedProvider = false;
+      _error = null;
+    });
+  }
+
+  String _metadataProviderLabel(String provider) {
+    return comicsLibraryConfig.metadataProviderLabel(provider);
   }
 
   bool _looksLikeBarcode(String value) {
@@ -825,7 +862,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     });
     try {
       await ref.read(apiClientProvider).createMetadataProposal(
-            provider: comicsLibraryConfig.defaultMetadataProvider,
+            provider: _metadataProvider,
             query: proposal.title,
             title: proposal.title,
             summary: proposal.notes,

@@ -15,6 +15,7 @@ class AddComicBottomBar extends StatelessWidget {
     required this.selectedCandidate,
     required this.selectedIsOwned,
     required this.selectedIsWishlisted,
+    required this.proposalProviderLabel,
     required this.addTarget,
     required this.addCount,
     required this.isSubmitting,
@@ -34,6 +35,7 @@ class AddComicBottomBar extends StatelessWidget {
   final ProviderCandidate? selectedCandidate;
   final bool selectedIsOwned;
   final bool selectedIsWishlisted;
+  final String proposalProviderLabel;
   final LibraryAddTarget addTarget;
   final int addCount;
   final bool isSubmitting;
@@ -55,7 +57,7 @@ class AddComicBottomBar extends StatelessWidget {
         ? selectedIsOwned
         : selectedIsWishlisted;
     final label = isProposal
-        ? 'Propose ComicVine Metadata'
+        ? 'Propose $proposalProviderLabel Metadata'
         : disabledByLocalStatus
             ? addTarget == LibraryAddTarget.owned
                 ? 'Already in Collection'

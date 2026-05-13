@@ -31,6 +31,18 @@ const comicsLibraryConfig = LibraryTypeConfig(
   workspace: comicsWorkspaceConfig,
   singularLabel: 'Comic',
   pluralLabel: 'Comics',
-  defaultMetadataProvider: 'comicvine',
+  defaultMetadataProvider: 'gcd',
+  metadataProviders: [
+    LibraryMetadataProviderOption(
+      id: 'gcd',
+      label: 'GCD',
+      description: 'Grand Comics Database',
+    ),
+    LibraryMetadataProviderOption(
+      id: 'comicvine',
+      label: 'Comic Vine',
+      description: 'Personal non-commercial enrichment',
+    ),
+  ],
   trackingProfile: comicTrackingProfile,
 );

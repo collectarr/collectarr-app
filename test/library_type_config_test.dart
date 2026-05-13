@@ -7,7 +7,16 @@ void main() {
     expect(comicsLibraryConfig.workspace.kind, 'comic');
     expect(comicsLibraryConfig.singularLabel, 'Comic');
     expect(comicsLibraryConfig.pluralLabel, 'Comics');
-    expect(comicsLibraryConfig.defaultMetadataProvider, 'comicvine');
+    expect(comicsLibraryConfig.defaultMetadataProvider, 'gcd');
+    expect(comicsLibraryConfig.metadataProviderLabel('gcd'), 'GCD');
+    expect(
+      comicsLibraryConfig.metadataProviderLabel('comicvine'),
+      'Comic Vine',
+    );
+    expect(
+      comicsLibraryConfig.metadataProviderLabel('unknown-provider'),
+      'unknown-provider',
+    );
     expect(comicsLibraryConfig.trackingProfile, comicTrackingProfile);
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
     expect(comicsLibraryConfig.countLabel(2), 'Comics');

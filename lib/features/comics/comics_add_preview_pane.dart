@@ -11,6 +11,7 @@ class AddComicPreviewPane extends ConsumerWidget {
     super.key,
     required this.item,
     required this.candidate,
+    required this.selectedProviderLabel,
     required this.selectedIsOwned,
     required this.selectedIsWishlisted,
     required this.searchedServer,
@@ -18,6 +19,7 @@ class AddComicPreviewPane extends ConsumerWidget {
 
   final CatalogItem? item;
   final ProviderCandidate? candidate;
+  final String selectedProviderLabel;
   final bool selectedIsOwned;
   final bool selectedIsWishlisted;
   final bool searchedServer;
@@ -32,7 +34,7 @@ class AddComicPreviewPane extends ConsumerWidget {
         child: Center(
           child: Text(
             searchedServer
-                ? 'Select a result or search ComicVine.'
+                ? 'Select a result or search $selectedProviderLabel.'
                 : 'Search Collectarr Core to preview metadata.',
           ),
         ),
@@ -87,7 +89,7 @@ class AddComicPreviewPane extends ConsumerWidget {
                       const SizedBox(height: 3),
                       Text(
                         selectedItem == null
-                            ? 'ComicVine candidate'
+                            ? '$selectedProviderLabel candidate'
                             : 'Collectarr Core metadata',
                         style: const TextStyle(fontSize: 16),
                       ),
