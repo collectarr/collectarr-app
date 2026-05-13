@@ -26,6 +26,7 @@ import 'package:collectarr_app/features/library/workspace/library_column_chooser
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
@@ -3264,20 +3265,26 @@ Widget _comicTableCellContent(
         entry.workspaceEntry.itemNumber ?? '',
         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
       ),
-    LibraryTableColumn.variant => _CellText(entry.workspaceEntry.variant),
-    LibraryTableColumn.publisher => _CellText(entry.workspaceEntry.publisher),
-    LibraryTableColumn.releaseDate =>
-      _CellText(_formatNullableDate(entry.workspaceEntry.releaseDate)),
-    LibraryTableColumn.barcode => _CellText(entry.workspaceEntry.barcode),
-    LibraryTableColumn.grade => _CellText(entry.workspaceEntry.grade),
-    LibraryTableColumn.condition => _CellText(entry.workspaceEntry.condition),
+    LibraryTableColumn.variant =>
+      LibraryTableCellText(entry.workspaceEntry.variant),
+    LibraryTableColumn.publisher =>
+      LibraryTableCellText(entry.workspaceEntry.publisher),
+    LibraryTableColumn.releaseDate => LibraryTableCellText(
+        _formatNullableDate(entry.workspaceEntry.releaseDate)),
+    LibraryTableColumn.barcode =>
+      LibraryTableCellText(entry.workspaceEntry.barcode),
+    LibraryTableColumn.grade =>
+      LibraryTableCellText(entry.workspaceEntry.grade),
+    LibraryTableColumn.condition =>
+      LibraryTableCellText(entry.workspaceEntry.condition),
     LibraryTableColumn.price => Text(
         _formatOptionalMoney(
           entry.workspaceEntry.pricePaidCents,
           entry.workspaceEntry.currency,
         ),
       ),
-    LibraryTableColumn.storageBox => _CellText(entry.workspaceEntry.storageBox),
+    LibraryTableColumn.storageBox =>
+      LibraryTableCellText(entry.workspaceEntry.storageBox),
     LibraryTableColumn.wishlist =>
       entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
     LibraryTableColumn.updated => Text(
@@ -3285,25 +3292,6 @@ Widget _comicTableCellContent(
         style: const TextStyle(fontSize: 12),
       ),
   };
-}
-
-class _CellText extends StatelessWidget {
-  const _CellText(this.value);
-
-  final String? value;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = value == null || value!.isEmpty ? '-' : value!;
-    return Text(
-      text,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: value == null || value!.isEmpty
-          ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
-          : const TextStyle(fontSize: 12),
-    );
-  }
 }
 
 class _ComicTableEntry {
