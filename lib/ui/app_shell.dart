@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/comics/comics_page.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
@@ -18,6 +19,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   static const pages = [
     ComicsPage(),
     CollectionPage(),
+    AdminPage(),
     SettingsPage(),
   ];
 
@@ -46,6 +48,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.menu_book), label: 'Comics'),
           NavigationDestination(icon: Icon(Icons.inventory_2), label: 'Shelf'),
+          NavigationDestination(
+              icon: Icon(Icons.admin_panel_settings_outlined), label: 'Admin'),
           NavigationDestination(
               icon: Icon(Icons.settings_outlined), label: 'Settings'),
         ],

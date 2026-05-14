@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -105,6 +106,166 @@ class ApiClient {
     return data.cast<Map<String, dynamic>>();
   }
 
+  Future<List<AdminProviderStatus>> adminProviderStatuses() async {
+    final response = await _dio.get<List<dynamic>>('/admin/providers');
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(AdminProviderStatus.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<AdminCatalogSummary> adminCatalogSummary() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/admin/catalog/summary',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/catalog/summary returned an empty response body');
+    }
+    return AdminCatalogSummary.fromJson(data);
+  }
+
+  Future<AdminSearchStatus> adminSearchStatus() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/admin/search/status',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/admin/search/status returned an empty response body');
+    }
+    return AdminSearchStatus.fromJson(data);
+  }
+
+  Future<AdminSearchReindexResult> adminReindexSearch() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/search/reindex',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/admin/search/reindex returned an empty response body');
+    }
+    return AdminSearchReindexResult.fromJson(data);
+  }
+
+  Future<List<AdminSearchHistoryEntry>> adminSearchHistory() async {
+    final response = await _dio.get<List<dynamic>>(
+      '/admin/search/history',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(AdminSearchHistoryEntry.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<List<AdminDuplicateCandidate>> adminDuplicateCandidates({
+    int limit = 10,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/admin/duplicates',
+      queryParameters: {'limit': limit},
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(AdminDuplicateCandidate.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<AdminDuplicateActionResult> adminIgnoreDuplicateCandidate({
+    required List<String> itemIds,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/duplicates/ignore',
+      data: {'item_ids': itemIds},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/duplicates/ignore returned an empty response body');
+    }
+    return AdminDuplicateActionResult.fromJson(data);
+  }
+
+  Future<AdminDuplicateActionResult> adminMergeDuplicateCandidate({
+    required String targetItemId,
+    required List<String> sourceItemIds,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/duplicates/merge',
+      data: {
+        'target_item_id': targetItemId,
+        'source_item_ids': sourceItemIds,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/duplicates/merge returned an empty response body');
+    }
+    return AdminDuplicateActionResult.fromJson(data);
+  }
+
+  Future<AdminMetadataItem> adminGetMetadataItem({
+    required String kind,
+    required String id,
+  }) async {
+    final route = _metadataRouteForKind(kind);
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/metadata/$route/$id',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/metadata/$route/$id returned an empty response body');
+    }
+    return AdminMetadataItem.fromJson(data);
+  }
+
+  Future<List<Map<String, dynamic>>> adminProviderSearch({
+    required String provider,
+    required String query,
+  }) async {
+    final response = await _dio.post<List<dynamic>>(
+      '/admin/providers/search',
+      data: {'provider': provider, 'query': query},
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data.cast<Map<String, dynamic>>();
+  }
+
+  Future<AdminProviderIngestResult> adminProviderIngest({
+    required String provider,
+    required String providerItemId,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/providers/ingest',
+      data: {
+        'provider': provider,
+        'provider_item_id': providerItemId,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/providers/ingest returned an empty response body');
+    }
+    return AdminProviderIngestResult.fromJson(data);
+  }
+
   Future<Map<String, dynamic>> createMetadataProposal({
     required String provider,
     required String query,
@@ -159,4 +320,16 @@ class ApiClient {
     }
     return data;
   }
+}
+
+String _metadataRouteForKind(String kind) {
+  return switch (kind) {
+    'comic' => 'comics',
+    'game' => 'games',
+    'bluray' => 'blu-ray',
+    'movie' => 'movies',
+    'book' => 'books',
+    'boardgame' => 'board-games',
+    _ => kind,
+  };
 }
