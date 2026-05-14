@@ -32,16 +32,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Connection presets'), findsOneWidget);
+    expect(find.text('Use Local desktop'), findsOneWidget);
+    expect(find.text('Use Android emulator'), findsOneWidget);
+    expect(find.text('Use LAN template'), findsOneWidget);
     expect(find.text('Metadata server'), findsOneWidget);
     expect(find.text('Personal sync service'), findsOneWidget);
-    expect(find.text('Device pairing'), findsOneWidget);
-    expect(find.text('Device identity'), findsOneWidget);
-    expect(find.text('Local backup'), findsOneWidget);
     expect(find.text('Check metadata server'), findsOneWidget);
     expect(find.text('Check sync service'), findsOneWidget);
     expect(find.text('Sync now'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Device pairing'),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Device pairing'), findsOneWidget);
+    expect(find.text('Device identity'), findsOneWidget);
     expect(find.text('Copy pairing code'), findsOneWidget);
     expect(find.text('Apply pairing code'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Local backup'),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Local backup'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
     await tester.scrollUntilVisible(
@@ -50,6 +64,35 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Save settings'), findsOneWidget);
+  });
+
+  testWidgets('settings page applies Android emulator endpoint preset',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: SettingsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Use Android emulator'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Android emulator endpoints applied. Save settings next.'),
+      findsOneWidget,
+    );
+    expect(find.text('http://10.0.2.2:8010'), findsOneWidget);
+    expect(find.text('http://10.0.2.2:8020'), findsOneWidget);
   });
 
   testWidgets('settings page applies pasted pairing code', (tester) async {

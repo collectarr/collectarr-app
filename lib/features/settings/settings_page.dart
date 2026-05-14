@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
+import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
+import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/features/collection/collection_csv.dart';
@@ -56,6 +58,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _SettingsPanel(
+            icon: Icons.route_outlined,
+            title: 'Connection presets',
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final preset in ConnectionPreset.values)
+                  OutlinedButton.icon(
+                    onPressed: () => _applyConnectionPreset(preset),
+                    icon: Icon(_presetIcon(preset)),
+                    label: Text('Use ${preset.label}'),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
           _SettingsPanel(
             icon: Icons.dns_outlined,
             title: 'Metadata server',
@@ -309,6 +328,31 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     _lastSyncedSettings = settings;
   }
 
+  void _applyConnectionPreset(ConnectionPreset preset) {
+    final settings = preset.applyTo(ref.read(connectionSettingsProvider));
+    setState(() {
+      _metadataController.text = settings.metadataBaseUrl;
+      _syncController.text = settings.syncBaseUrl;
+      _metadataDiagnostic = null;
+      _syncDiagnostic = null;
+      _syncStatusDetails = null;
+      _syncDevices = const [];
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${preset.label} endpoints applied. Save settings next.'),
+      ),
+    );
+  }
+
+  IconData _presetIcon(ConnectionPreset preset) {
+    return switch (preset.id) {
+      'local-desktop' => Icons.computer_outlined,
+      'android-emulator' => Icons.android_outlined,
+      _ => Icons.router_outlined,
+    };
+  }
+
   Future<void> _save() async {
     await ref.read(connectionSettingsProvider.notifier).save(
           metadataBaseUrl: _metadataController.text,
@@ -412,7 +456,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       });
     } catch (error) {
       setState(() {
-        _metadataDiagnostic = _DiagnosticState.error(error.toString());
+        _metadataDiagnostic = _DiagnosticState.error(
+          ConnectionDiagnostics.metadataError(
+            error,
+            _metadataController.text,
+          ),
+        );
       });
     }
   }
@@ -433,14 +482,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       final changes = data['change_count']?.toString() ?? 'unknown';
       setState(() {
         _syncDiagnostic = _DiagnosticState.ok(
-          'Sync schema: $version, entities: $entities, changes: $changes',
+          'Sync connected: schema $version, $entities entities, $changes events',
         );
         _syncStatusDetails = data;
         _syncDevices = devices;
       });
     } catch (error) {
       setState(() {
-        _syncDiagnostic = _DiagnosticState.error(error.toString());
+        _syncDiagnostic = _DiagnosticState.error(
+          ConnectionDiagnostics.syncError(
+            error,
+            _syncController.text,
+          ),
+        );
         _syncStatusDetails = null;
         _syncDevices = const [];
       });
