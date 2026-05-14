@@ -261,6 +261,42 @@ void main() {
     expect(preview.resolvedRows.single.itemId, 'comic-1');
   });
 
+  test('collection import preview skips duplicate csv targets', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final mutations = container.read(collectionMutationsProvider);
+    final preview = await mutations.previewImportRows(
+      const [
+        CollectionCsvRow(
+          itemId: 'comic-1',
+          status: 'owned',
+          grade: '9.8',
+        ),
+        CollectionCsvRow(
+          itemId: 'comic-1',
+          status: 'owned',
+          grade: '7.5',
+        ),
+      ],
+    );
+
+    expect(preview.resolvedCount, 1);
+    expect(preview.duplicateCount, 1);
+    expect(preview.duplicateRows.single.grade, '7.5');
+    expect(preview.reviewCount, 1);
+
+    final imported = await mutations.importRows(preview.resolvedRows);
+    final owned = await db.select(db.ownedItemsCache).get();
+    expect(imported, 1);
+    expect(owned, hasLength(1));
+    expect(owned.single.grade, '9.8');
+  });
+
   test('collection import preview reports existing owned conflicts', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);

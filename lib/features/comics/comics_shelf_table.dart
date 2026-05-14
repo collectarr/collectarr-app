@@ -227,6 +227,8 @@ Widget _comicTableCellContent(
     LibraryTableColumn.status => LibraryItemStatusIcons(
         isOwned: entry.isOwned,
         isWishlisted: entry.isWishlisted,
+        hasMissingCover: entry.workspaceEntry.hasMissingCover,
+        hasMissingMetadata: entry.workspaceEntry.hasMissingMetadata,
       ),
     LibraryTableColumn.cover => SizedBox(
         width: 28,

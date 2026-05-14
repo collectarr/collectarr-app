@@ -27,6 +27,24 @@ void main() {
     expect(find.byIcon(Icons.star), findsOneWidget);
   });
 
+  testWidgets('cover badges renders missing cover and metadata markers',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: LibraryCoverBadges(
+          isOwned: false,
+          isWishlisted: false,
+          hasMissingCover: true,
+          hasMissingMetadata: true,
+        ),
+      ),
+    );
+
+    expect(find.byType(LibraryCoverBadge), findsNWidgets(2));
+    expect(find.byIcon(Icons.image_not_supported_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.manage_search), findsOneWidget);
+  });
+
   testWidgets('status icons shows wishlist marker only when present',
       (tester) async {
     await tester.pumpWidget(
@@ -37,5 +55,21 @@ void main() {
 
     expect(find.byIcon(Icons.check_box), findsOneWidget);
     expect(find.byIcon(Icons.star), findsNothing);
+  });
+
+  testWidgets('status icons include metadata warnings', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: LibraryItemStatusIcons(
+          isOwned: true,
+          isWishlisted: false,
+          hasMissingCover: true,
+          hasMissingMetadata: true,
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.image_not_supported_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.manage_search), findsOneWidget);
   });
 }

@@ -11,11 +11,15 @@ void main() {
     final exported = csv.exportShelf([
       ShelfEntry(
         itemId: 'comic-1',
-        catalogItem: const CatalogItem(
+        catalogItem: CatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man, "Vol. 1"',
           itemNumber: '1',
+          variant: 'Newsstand',
+          publisher: 'Marvel',
+          releaseDate: DateTime.utc(1963, 3, 1),
+          barcode: '071486024576',
         ),
         ownedItem: OwnedItem(
           id: 'owned-1',
@@ -50,6 +54,10 @@ void main() {
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.title, 'Spider-Man, "Vol. 1"');
     expect(rows.single.itemNumber, '1');
+    expect(rows.single.variant, 'Newsstand');
+    expect(rows.single.publisher, 'Marvel');
+    expect(rows.single.releaseDate, DateTime.utc(1963, 3, 1));
+    expect(rows.single.barcode, '071486024576');
     expect(rows.single.isOwned, isTrue);
     expect(rows.single.condition, 'Near Mint');
     expect(rows.single.grade, '9.8');
@@ -112,6 +120,9 @@ void main() {
           'Series',
           'Issue',
           'Collection Status',
+          'Variant Description',
+          'Publisher',
+          'Release Date',
           'Grade',
           'Condition',
           'Purchase Price',
@@ -126,6 +137,9 @@ void main() {
           'The Amazing Spider-Man, Vol. 2',
           '520',
           'In Collection',
+          'Direct Edition',
+          'Marvel Comics',
+          '07/01/2005',
           '7.5',
           'Very Fine',
           r'$9.00',
@@ -142,6 +156,9 @@ void main() {
     expect(rows.single.status, 'owned');
     expect(rows.single.title, 'The Amazing Spider-Man, Vol. 2');
     expect(rows.single.itemNumber, '520');
+    expect(rows.single.variant, 'Direct Edition');
+    expect(rows.single.publisher, 'Marvel Comics');
+    expect(rows.single.releaseDate, DateTime.utc(2005, 7, 1));
     expect(rows.single.grade, '7.5');
     expect(rows.single.condition, 'Very Fine');
     expect(rows.single.pricePaidCents, 900);
@@ -213,16 +230,41 @@ void main() {
   });
 
   test('collection csv parses quoted newlines', () {
+    final values = List<String>.filled(CollectionCsv.header.length, '');
+    values[0] = 'comic-1';
+    values[1] = 'Title';
+    values[2] = '1';
+    values[7] = 'owned';
+    values[13] = 'Line one\nLine two with "quote"';
     final rows = CollectionCsv().parse(
-      [
-        CollectionCsv.header.join(','),
-        'comic-1,Title,1,owned,,,,,,'
-            '"Line one\nLine two with ""quote"""',
-      ].join('\n'),
+      const CsvEncoder(lineDelimiter: '\n').convert([
+        CollectionCsv.header,
+        values,
+      ]),
     );
 
     expect(rows, hasLength(1));
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.notes, 'Line one\nLine two with "quote"');
+  });
+
+  test('collection csv parses non-iso date formats', () {
+    final rows = CollectionCsv().parse(
+      const CsvEncoder(lineDelimiter: '\n').convert([
+        [
+          'Collectarr Item ID',
+          'Series',
+          'Collection Status',
+          'Release Date',
+          'Purchase Date',
+        ],
+        ['comic-1', 'US date', 'In Collection', '05/11/2026', '5/12/26'],
+        ['comic-2', 'Day first date', 'In Collection', '31/12/2025', ''],
+      ]),
+    );
+
+    expect(rows[0].releaseDate, DateTime.utc(2026, 5, 11));
+    expect(rows[0].purchaseDate, DateTime.utc(2026, 5, 12));
+    expect(rows[1].releaseDate, DateTime.utc(2025, 12, 31));
   });
 }

@@ -7,12 +7,15 @@ import 'package:collectarr_app/features/comics/comics_add_dialog.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_edit.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/comics/comics_filter_store.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/comics_grouping_store.dart';
 import 'package:collectarr_app/features/comics/comics_inspector.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_page_selection_state.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_projection.dart';
 import 'package:collectarr_app/features/comics/comics_workspace.dart';
+import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_state.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
@@ -36,7 +39,8 @@ class ComicsPage extends ConsumerStatefulWidget {
 class _ComicsPageState extends ConsumerState<ComicsPage> {
   String query = '';
   String? selectedItemId;
-  String? selectedSeries;
+  String? selectedGroup;
+  ComicsShelfGroupMode groupMode = ComicsShelfGroupMode.series;
   ComicsWorkspaceViewState workspaceViewState =
       comicsWorkspaceViewProfile.defaults();
   ComicsFilterSelection filterSelection = ComicsFilterSelection.none;
@@ -48,6 +52,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     super.initState();
     _controller = TextEditingController(text: query);
     _loadViewPreferences();
+    _loadFilterPreferences();
+    _loadGroupingPreference();
   }
 
   @override
@@ -77,10 +83,11 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
               final entries = shelfProjection.entries;
               return ComicsWorkspace(
                 shelfState: state,
-                items: shelfProjection.items,
+                entries: entries,
                 queryController: _controller,
                 selectedItemId: selectedItemId,
-                selectedSeries: selectedSeries,
+                selectedGroup: selectedGroup,
+                groupMode: groupMode,
                 viewMode: viewState.viewMode,
                 detailsLayout: viewState.detailsLayout,
                 sortColumn: viewState.sortColumn,
@@ -91,14 +98,16 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 selectionMode: selectionState.enabled,
                 selectedItemIds: selectionState.itemIds,
                 hasActiveFilters: shelfProjection.hasActiveFilters,
+                activeFilterCount: filterSelection.activeFilterCount,
                 onEditFilters: () => _showFiltersDialog(
                   context,
                   options: shelfProjection.filterOptions,
                 ),
+                onClearFilters: _clearFilters,
                 onSearch: (value) => setState(() {
                   query = value.trim();
                   selectedItemId = null;
-                  selectedSeries = null;
+                  selectedGroup = null;
                 }),
                 onAddComic: () => _showAddComicDialog(context),
                 onSelectItem: (item) {
@@ -108,11 +117,12 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                     setState(() => selectedItemId = item.id);
                   }
                 },
-                onSelectSeries: (series) => setState(() {
-                  selectedSeries = series;
+                onSelectGroup: (group) => setState(() {
+                  selectedGroup = group;
                   selectedItemId = null;
                 }),
-                onClearSeries: () => setState(() => selectedSeries = null),
+                onClearGroup: () => setState(() => selectedGroup = null),
+                onGroupModeChanged: _handleGroupModeChanged,
                 onScanBarcode: () => _handleBarcodeScan(context),
                 onEditColumns: () => _showColumnChooser(context),
                 onViewModeChanged: _handleViewModeChanged,
@@ -165,7 +175,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
       ref.invalidate(shelfProvider);
       setState(() {
         query = '';
-        selectedSeries = null;
+        selectedGroup = null;
         selectedItemId = item.id;
         _controller.clear();
       });
@@ -210,12 +220,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     if (selection == null || !mounted) {
       return;
     }
-    setState(() {
-      filterSelection = selection;
-      selectedItemId = null;
-      selectedSeries = null;
-      selectionState = selectionState.clear();
-    });
+    _setFilterSelection(selection);
   }
 
   void _toggleSelection(String itemId) {
@@ -371,9 +376,48 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     setState(() => workspaceViewState = preferences);
   }
 
+  Future<void> _loadFilterPreferences() async {
+    final filters = await const ComicsFilterPreferenceStore().read();
+    if (!mounted) {
+      return;
+    }
+    setState(() => filterSelection = filters);
+  }
+
   void _setWorkspaceViewState(ComicsWorkspaceViewState next) {
     setState(() => workspaceViewState = next);
     saveComicsWorkspaceViewState(next);
+  }
+
+  void _clearFilters() {
+    _setFilterSelection(ComicsFilterSelection.none);
+  }
+
+  void _setFilterSelection(ComicsFilterSelection next) {
+    setState(() {
+      filterSelection = next;
+      selectedItemId = null;
+      selectedGroup = null;
+      selectionState = selectionState.clear();
+    });
+    const ComicsFilterPreferenceStore().write(next);
+  }
+
+  Future<void> _loadGroupingPreference() async {
+    final mode = await const ComicsGroupingPreferenceStore().read();
+    if (!mounted) {
+      return;
+    }
+    setState(() => groupMode = mode);
+  }
+
+  void _handleGroupModeChanged(ComicsShelfGroupMode mode) {
+    setState(() {
+      groupMode = mode;
+      selectedGroup = null;
+      selectedItemId = null;
+    });
+    const ComicsGroupingPreferenceStore().write(mode);
   }
 }
 

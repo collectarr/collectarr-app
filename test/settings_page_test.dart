@@ -60,6 +60,13 @@ void main() {
     expect(find.text('Local backup'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Metadata proposals'),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Metadata proposals'), findsOneWidget);
+    expect(find.text('No local proposal submissions yet.'), findsOneWidget);
     expect(find.text('Session expiry unavailable'), findsNothing);
     await tester.scrollUntilVisible(
       find.text('Save settings'),

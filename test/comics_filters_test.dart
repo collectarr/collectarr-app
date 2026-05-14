@@ -1,8 +1,16 @@
 import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/comics_filter_store.dart';
+import 'package:collectarr_app/features/comics/comics_grouping_store.dart';
+import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('comics filter dialog returns selected filters', (tester) async {
     ComicsFilterSelection? selection;
 
@@ -50,5 +58,51 @@ void main() {
       comicsOwnershipFilterLabel(ComicsOwnershipFilter.missingGrade),
       'Missing grade',
     );
+  });
+
+  test('filter selection counts active filters', () {
+    const selection = ComicsFilterSelection(
+      ownershipFilter: ComicsOwnershipFilter.owned,
+      publisher: 'DC',
+      releaseYear: '2026',
+    );
+
+    expect(selection.hasActiveFilters, isTrue);
+    expect(selection.activeFilterCount, 3);
+    expect(ComicsFilterSelection.none.activeFilterCount, 0);
+  });
+
+  test('filter store restores and clears persisted filters', () async {
+    const store = ComicsFilterPreferenceStore();
+
+    await store.write(
+      const ComicsFilterSelection(
+        ownershipFilter: ComicsOwnershipFilter.wishlist,
+        grade: '9.8',
+        publisher: 'DC',
+      ),
+    );
+
+    final restored = await store.read();
+
+    expect(restored.ownershipFilter, ComicsOwnershipFilter.wishlist);
+    expect(restored.grade, '9.8');
+    expect(restored.publisher, 'DC');
+    expect(restored.activeFilterCount, 3);
+
+    await store.write(ComicsFilterSelection.none);
+    final cleared = await store.read();
+    final prefs = await SharedPreferences.getInstance();
+
+    expect(cleared.hasActiveFilters, isFalse);
+    expect(prefs.getString('comics.filters.publisher'), isNull);
+  });
+
+  test('grouping store restores selected shelf grouping mode', () async {
+    const store = ComicsGroupingPreferenceStore();
+
+    await store.write(ComicsShelfGroupMode.publisher);
+
+    expect(await store.read(), ComicsShelfGroupMode.publisher);
   });
 }

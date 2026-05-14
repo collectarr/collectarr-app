@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -795,7 +796,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _error = null;
     });
     try {
-      await ref.read(apiClientProvider).createMetadataProposal(
+      final response = await ref.read(apiClientProvider).createMetadataProposal(
             provider: candidate.provider,
             providerItemId: candidate.providerItemId,
             query: _providerQuery,
@@ -803,6 +804,13 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
             summary: candidate.summary,
             imageUrl: candidate.imageUrl,
           );
+      await const MetadataProposalStore().recordResponse(
+        response: response,
+        provider: candidate.provider,
+        query: _providerQuery,
+        title: candidate.title,
+        source: 'Add Comics provider result',
+      );
       if (!mounted) {
         return;
       }
@@ -861,12 +869,19 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _error = null;
     });
     try {
-      await ref.read(apiClientProvider).createMetadataProposal(
+      final response = await ref.read(apiClientProvider).createMetadataProposal(
             provider: _metadataProvider,
             query: proposal.title,
             title: proposal.title,
             summary: proposal.notes,
           );
+      await const MetadataProposalStore().recordResponse(
+        response: response,
+        provider: _metadataProvider,
+        query: proposal.title,
+        title: proposal.title,
+        source: 'Add Comics manual proposal',
+      );
       if (!mounted) {
         return;
       }

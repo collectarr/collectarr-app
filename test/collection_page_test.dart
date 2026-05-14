@@ -75,6 +75,19 @@ void main() {
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
     expect(find.text('Signed copy'), findsOneWidget);
 
+    await tester.tap(find.byTooltip('Export CSV'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Export CSV'), findsOneWidget);
+    expect(find.text('Copy Collectarr'), findsOneWidget);
+    expect(find.text('Copy CLZ'), findsOneWidget);
+    expect(find.text('Rows: 2'), findsOneWidget);
+    expect(find.text('Owned: 1'), findsOneWidget);
+    expect(find.text('Wishlist: 1'), findsOneWidget);
+
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.byKey(const ValueKey('shelf-filter-wishlist')));
     await tester.pumpAndSettle();
 

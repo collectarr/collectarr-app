@@ -28,6 +28,26 @@ class ComicsFilterSelection {
         publisher != null ||
         releaseYear != null;
   }
+
+  int get activeFilterCount {
+    var count = 0;
+    if (ownershipFilter != ComicsOwnershipFilter.all) {
+      count++;
+    }
+    if (grade != null) {
+      count++;
+    }
+    if (condition != null) {
+      count++;
+    }
+    if (publisher != null) {
+      count++;
+    }
+    if (releaseYear != null) {
+      count++;
+    }
+    return count;
+  }
 }
 
 class ComicsFilterDialog extends StatefulWidget {

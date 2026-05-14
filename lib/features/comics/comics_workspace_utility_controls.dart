@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/comics/comics_duplicate_items.dart';
 import 'package:collectarr_app/features/comics/comics_missing_issues.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_control_models.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
@@ -45,15 +46,43 @@ class ComicsWorkspaceUtilityControls extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Tooltip(
+          message: 'Duplicate candidates',
+          child: Badge(
+            isLabelVisible: state.duplicateGroups.isNotEmpty,
+            label: Text(state.duplicateGroups.length.toString()),
+            child: LibraryWorkspaceIconButton(
+              onPressed: state.duplicateGroups.isEmpty
+                  ? null
+                  : () => showComicsDuplicateItemsDialog(
+                        context,
+                        duplicateGroups: state.duplicateGroups,
+                      ),
+              icon: Icons.content_copy,
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Tooltip(
           message: 'Filters',
           child: Badge(
             isLabelVisible: state.hasActiveFilters,
+            label: Text(state.activeFilterCount.toString()),
             child: LibraryWorkspaceIconButton(
               onPressed: callbacks.onEditFilters,
               icon: Icons.filter_list,
             ),
           ),
         ),
+        if (state.hasActiveFilters) ...[
+          const SizedBox(width: 6),
+          Tooltip(
+            message: 'Clear filters',
+            child: LibraryWorkspaceIconButton(
+              onPressed: callbacks.onClearFilters,
+              icon: Icons.filter_alt_off_outlined,
+            ),
+          ),
+        ],
       ],
     );
   }

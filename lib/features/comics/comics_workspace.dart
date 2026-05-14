@@ -11,11 +11,12 @@ const double _kDesktopBreakpoint = 980;
 class ComicsWorkspace extends StatelessWidget {
   const ComicsWorkspace({
     super.key,
-    required this.items,
+    required this.entries,
     required this.shelfState,
     required this.queryController,
     required this.selectedItemId,
-    required this.selectedSeries,
+    required this.selectedGroup,
+    required this.groupMode,
     required this.viewMode,
     required this.detailsLayout,
     required this.sortColumn,
@@ -26,13 +27,16 @@ class ComicsWorkspace extends StatelessWidget {
     required this.selectionMode,
     required this.selectedItemIds,
     required this.hasActiveFilters,
+    required this.activeFilterCount,
     required this.onEditFilters,
+    required this.onClearFilters,
     required this.onEditColumns,
     required this.onSearch,
     required this.onAddComic,
     required this.onSelectItem,
-    required this.onSelectSeries,
-    required this.onClearSeries,
+    required this.onSelectGroup,
+    required this.onClearGroup,
+    required this.onGroupModeChanged,
     required this.onScanBarcode,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
@@ -48,11 +52,12 @@ class ComicsWorkspace extends StatelessWidget {
     required this.onBulkRemove,
   });
 
-  final List<CatalogItem> items;
+  final List<ShelfEntry> entries;
   final ShelfState shelfState;
   final TextEditingController queryController;
   final String? selectedItemId;
-  final String? selectedSeries;
+  final String? selectedGroup;
+  final ComicsShelfGroupMode groupMode;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final LibrarySortColumn sortColumn;
@@ -63,13 +68,16 @@ class ComicsWorkspace extends StatelessWidget {
   final bool selectionMode;
   final Set<String> selectedItemIds;
   final bool hasActiveFilters;
+  final int activeFilterCount;
   final VoidCallback onEditFilters;
+  final VoidCallback onClearFilters;
   final VoidCallback onEditColumns;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
-  final ValueChanged<String> onSelectSeries;
-  final VoidCallback onClearSeries;
+  final ValueChanged<String> onSelectGroup;
+  final VoidCallback onClearGroup;
+  final ValueChanged<ComicsShelfGroupMode> onGroupModeChanged;
   final VoidCallback onScanBarcode;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
@@ -89,9 +97,10 @@ class ComicsWorkspace extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final isWide = width >= _kDesktopBreakpoint;
-    final projection = ComicsWorkspaceProjection.fromItems(
-      items: items,
-      selectedSeries: selectedSeries,
+    final projection = ComicsWorkspaceProjection.fromEntries(
+      entries: entries,
+      groupMode: groupMode,
+      selectedGroup: selectedGroup,
       selectedItemId: selectedItemId,
     );
 
@@ -99,18 +108,21 @@ class ComicsWorkspace extends StatelessWidget {
       return ComicsCompactView(
         items: projection.visibleItems,
         selectedItem: projection.selectedItem,
-        selectedSeries: selectedSeries,
+        selectedGroup: selectedGroup,
         queryController: queryController,
         onSearch: onSearch,
         onAddComic: onAddComic,
         onEditFilters: onEditFilters,
         hasActiveFilters: hasActiveFilters,
+        activeFilterCount: activeFilterCount,
+        duplicateGroups: projection.duplicateGroups,
+        onClearFilters: onClearFilters,
         coverSize: coverSize,
         onCoverSizeChanged: onCoverSizeChanged,
         onScanBarcode: onScanBarcode,
         onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
         onSelectItem: onSelectItem,
-        onClearSeries: onClearSeries,
+        onClearGroup: onClearGroup,
       );
     }
 
@@ -118,7 +130,8 @@ class ComicsWorkspace extends StatelessWidget {
       projection: projection,
       shelfState: shelfState,
       queryController: queryController,
-      selectedSeries: selectedSeries,
+      selectedGroup: selectedGroup,
+      onGroupModeChanged: onGroupModeChanged,
       viewMode: viewMode,
       detailsLayout: detailsLayout,
       sortColumn: sortColumn,
@@ -129,13 +142,15 @@ class ComicsWorkspace extends StatelessWidget {
       selectionMode: selectionMode,
       selectedItemIds: selectedItemIds,
       hasActiveFilters: hasActiveFilters,
+      activeFilterCount: activeFilterCount,
       onEditFilters: onEditFilters,
+      onClearFilters: onClearFilters,
       onEditColumns: onEditColumns,
       onSearch: onSearch,
       onAddComic: onAddComic,
       onSelectItem: onSelectItem,
-      onSelectSeries: onSelectSeries,
-      onClearSeries: onClearSeries,
+      onSelectGroup: onSelectGroup,
+      onClearGroup: onClearGroup,
       onScanBarcode: onScanBarcode,
       onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
       onViewModeChanged: onViewModeChanged,

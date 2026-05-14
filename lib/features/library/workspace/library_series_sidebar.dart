@@ -15,6 +15,7 @@ class LibrarySeriesSidebar extends StatelessWidget {
     required this.onSelectSeries,
     this.title = 'Series',
     this.icon = Icons.folder,
+    this.trailing,
     this.backgroundColor = const Color(0xFF1D1D1D),
     this.headerColor = const Color(0xFF303030),
     this.dividerColor = const Color(0xFF4A4A4A),
@@ -30,6 +31,7 @@ class LibrarySeriesSidebar extends StatelessWidget {
   final ValueChanged<String> onSelectSeries;
   final String title;
   final IconData icon;
+  final Widget? trailing;
   final Color backgroundColor;
   final Color headerColor;
   final Color dividerColor;
@@ -64,6 +66,8 @@ class LibrarySeriesSidebar extends StatelessWidget {
                       .titleSmall
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
+                const Spacer(),
+                if (trailing != null) trailing!,
               ],
             ),
           ),

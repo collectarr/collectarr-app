@@ -312,6 +312,8 @@ class CollectionMutations {
     final conflicts = <CollectionCsvRow>[];
     final unresolved = <CollectionCsvRow>[];
     final skipped = <CollectionCsvRow>[];
+    final duplicates = <CollectionCsvRow>[];
+    final seenItemIds = <String>{};
     final ownedCache = _ownedCache();
     for (final row in rows) {
       if (!row.isOwned && !row.isWishlisted) {
@@ -320,6 +322,10 @@ class CollectionMutations {
       }
       final resolvedRow = await _resolveCsvRow(row, catalog);
       if (resolvedRow != null) {
+        if (!seenItemIds.add(resolvedRow.itemId)) {
+          duplicates.add(resolvedRow);
+          continue;
+        }
         final existingOwned =
             await ownedCache.findActiveByItemIds([resolvedRow.itemId]);
         if (resolvedRow.isOwned && existingOwned.isNotEmpty) {
@@ -337,6 +343,7 @@ class CollectionMutations {
       conflictRows: conflicts,
       unresolvedRows: unresolved,
       skippedRows: skipped,
+      duplicateRows: duplicates,
     );
   }
 
@@ -541,6 +548,7 @@ class CollectionImportPreview {
     this.conflictRows = const [],
     required this.unresolvedRows,
     required this.skippedRows,
+    this.duplicateRows = const [],
   });
 
   final int totalRows;
@@ -548,11 +556,14 @@ class CollectionImportPreview {
   final List<CollectionCsvRow> conflictRows;
   final List<CollectionCsvRow> unresolvedRows;
   final List<CollectionCsvRow> skippedRows;
+  final List<CollectionCsvRow> duplicateRows;
 
   int get resolvedCount => resolvedRows.length;
   int get conflictCount => conflictRows.length;
   int get unresolvedCount => unresolvedRows.length;
   int get skippedCount => skippedRows.length;
+  int get duplicateCount => duplicateRows.length;
+  int get reviewCount => conflictCount + unresolvedCount + duplicateCount;
   bool get hasImportableRows => resolvedRows.isNotEmpty;
 }
 

@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/comics/comics_duplicate_items.dart';
 import 'package:collectarr_app/features/comics/comics_inspector.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_views.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
@@ -14,34 +15,40 @@ class ComicsCompactView extends ConsumerWidget {
     super.key,
     required this.items,
     required this.selectedItem,
-    required this.selectedSeries,
+    required this.selectedGroup,
     required this.queryController,
     required this.onSearch,
     required this.onAddComic,
     required this.onEditFilters,
     required this.hasActiveFilters,
+    required this.activeFilterCount,
+    required this.duplicateGroups,
+    required this.onClearFilters,
     required this.coverSize,
     required this.onCoverSizeChanged,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onSelectItem,
-    required this.onClearSeries,
+    required this.onClearGroup,
   });
 
   final List<CatalogItem> items;
   final CatalogItem? selectedItem;
-  final String? selectedSeries;
+  final String? selectedGroup;
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final VoidCallback onEditFilters;
   final bool hasActiveFilters;
+  final int activeFilterCount;
+  final List<ComicsDuplicateGroup> duplicateGroups;
+  final VoidCallback onClearFilters;
   final double coverSize;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<CatalogItem> onSelectItem;
-  final VoidCallback onClearSeries;
+  final VoidCallback onClearGroup;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,18 +59,21 @@ class ComicsCompactView extends ConsumerWidget {
       ownedByItemId: ownedByItemId,
       wishlistIds: wishlistIds,
       selectedItem: selectedItem,
-      selectedSeries: selectedSeries,
+      selectedGroup: selectedGroup,
       queryController: queryController,
       onSearch: onSearch,
       onAddComic: onAddComic,
       onEditFilters: onEditFilters,
       hasActiveFilters: hasActiveFilters,
+      activeFilterCount: activeFilterCount,
+      duplicateGroups: duplicateGroups,
+      onClearFilters: onClearFilters,
       coverSize: coverSize,
       onCoverSizeChanged: onCoverSizeChanged,
       onScanBarcode: onScanBarcode,
       onRefreshMetadata: onRefreshMetadata,
       onSelectItem: onSelectItem,
-      onClearSeries: onClearSeries,
+      onClearGroup: onClearGroup,
     );
   }
 }
@@ -74,36 +84,42 @@ class _CompactComicsView extends StatelessWidget {
     required this.ownedByItemId,
     required this.wishlistIds,
     required this.selectedItem,
-    required this.selectedSeries,
+    required this.selectedGroup,
     required this.queryController,
     required this.onSearch,
     required this.onAddComic,
     required this.onEditFilters,
     required this.hasActiveFilters,
+    required this.activeFilterCount,
+    required this.duplicateGroups,
+    required this.onClearFilters,
     required this.coverSize,
     required this.onCoverSizeChanged,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onSelectItem,
-    required this.onClearSeries,
+    required this.onClearGroup,
   });
 
   final List<CatalogItem> items;
   final Map<String, OwnedItem> ownedByItemId;
   final Set<String> wishlistIds;
   final CatalogItem? selectedItem;
-  final String? selectedSeries;
+  final String? selectedGroup;
   final TextEditingController queryController;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final VoidCallback onEditFilters;
   final bool hasActiveFilters;
+  final int activeFilterCount;
+  final List<ComicsDuplicateGroup> duplicateGroups;
+  final VoidCallback onClearFilters;
   final double coverSize;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<CatalogItem> onSelectItem;
-  final VoidCallback onClearSeries;
+  final VoidCallback onClearGroup;
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +151,7 @@ class _CompactComicsView extends StatelessWidget {
                   message: 'Filters',
                   child: Badge(
                     isLabelVisible: hasActiveFilters,
+                    label: Text(activeFilterCount.toString()),
                     child: IconButton.filledTonal(
                       onPressed: onEditFilters,
                       icon: const Icon(Icons.filter_list),
@@ -142,6 +159,32 @@ class _CompactComicsView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
+                if (hasActiveFilters) ...[
+                  Tooltip(
+                    message: 'Clear filters',
+                    child: IconButton.filledTonal(
+                      onPressed: onClearFilters,
+                      icon: const Icon(Icons.filter_alt_off_outlined),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                if (duplicateGroups.isNotEmpty) ...[
+                  Tooltip(
+                    message: 'Duplicate candidates',
+                    child: Badge(
+                      label: Text(duplicateGroups.length.toString()),
+                      child: IconButton.filledTonal(
+                        onPressed: () => showComicsDuplicateItemsDialog(
+                          context,
+                          duplicateGroups: duplicateGroups,
+                        ),
+                        icon: const Icon(Icons.content_copy),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 Tooltip(
                   message: 'Cover size',
                   child: IconButton.filledTonal(
@@ -173,13 +216,13 @@ class _CompactComicsView extends StatelessWidget {
             ),
           ),
         ),
-        if (selectedSeries != null)
+        if (selectedGroup != null)
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: InputChip(
-                label: Text(selectedSeries!),
-                onDeleted: onClearSeries,
+                label: Text(selectedGroup!),
+                onDeleted: onClearGroup,
               ),
             ),
           ),

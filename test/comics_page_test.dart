@@ -655,6 +655,109 @@ void main() {
     expect(find.text('Superman, Vol. 4 #9'), findsNothing);
   });
 
+  testWidgets('comics page restores and clears persisted filters',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'comics.filters.publisher': 'DC',
+      'comics.filters.release_year': '2016',
+    });
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(itemId: 'comic-1', catalogItem: catalogItems[0]),
+                ShelfEntry(itemId: 'comic-2', catalogItem: catalogItems[1]),
+              ],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+    expect(find.text('Superman, Vol. 4 #9'), findsNothing);
+    expect(find.byTooltip('Clear filters'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Clear filters'));
+    await tester.pumpAndSettle();
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(find.text('Superman, Vol. 4 #9'), findsOneWidget);
+    expect(prefs.getString('comics.filters.publisher'), isNull);
+    expect(prefs.getString('comics.filters.release_year'), isNull);
+  });
+
+  testWidgets('comics page groups local shelf by publisher', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(itemId: 'comic-1', catalogItem: catalogItems[0]),
+                ShelfEntry(itemId: 'comic-2', catalogItem: catalogItems[1]),
+              ],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Publisher').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('DC'), findsWidgets);
+    expect(find.text('Marvel'), findsOneWidget);
+    expect(find.text('Superman, Vol. 4 #9'), findsOneWidget);
+
+    await tester.tap(find.text('DC').first);
+    await tester.pumpAndSettle();
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('comics.grouping.mode'), 'publisher');
+    expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+    expect(find.text('Superman, Vol. 4 #9'), findsNothing);
+  });
+
   testWidgets('comics page filters local shelf by metadata', (tester) async {
     tester.view.physicalSize = const Size(1400, 1400);
     tester.view.devicePixelRatio = 1;

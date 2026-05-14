@@ -6,10 +6,12 @@ import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum _ShelfFilter { all, owned, wishlist, missingGrade, notes }
@@ -124,6 +126,8 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     final csv = CollectionCsv();
     final collectarrCsv = csv.exportShelf(entries);
     final clzCsv = csv.exportClzFriendlyShelf(entries);
+    final ownedCount = entries.where((entry) => entry.isOwned).length;
+    final wishlistCount = entries.where((entry) => entry.isWishlisted).length;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -143,6 +147,16 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _PreviewChip('Rows', entries.length),
+                    _PreviewChip('Owned', ownedCount),
+                    _PreviewChip('Wishlist', wishlistCount),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 Expanded(
                   child: TabBarView(
                     children: [
@@ -156,6 +170,24 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
           ),
         ),
         actions: [
+          TextButton.icon(
+            onPressed: () => _copyCsvFromDialog(
+              context,
+              collectarrCsv,
+              'Collectarr CSV copied',
+            ),
+            icon: const Icon(Icons.copy_all),
+            label: const Text('Copy Collectarr'),
+          ),
+          TextButton.icon(
+            onPressed: () => _copyCsvFromDialog(
+              context,
+              clzCsv,
+              'CLZ-friendly CSV copied',
+            ),
+            icon: const Icon(Icons.table_view),
+            label: const Text('Copy CLZ'),
+          ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Done'),
@@ -163,6 +195,19 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _copyCsvFromDialog(
+    BuildContext dialogContext,
+    String data,
+    String message,
+  ) async {
+    final messenger = ScaffoldMessenger.of(dialogContext);
+    await Clipboard.setData(ClipboardData(text: data));
+    if (!mounted) {
+      return;
+    }
+    messenger.showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _showImportDialog() async {
@@ -346,6 +391,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
             if (!identical(candidate, row)) candidate,
         ],
         skippedRows: preview.skippedRows,
+        duplicateRows: preview.duplicateRows,
       );
     });
   }
@@ -385,6 +431,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
           conflictRows: preview.conflictRows,
           unresolvedRows: unresolvedRows,
           skippedRows: preview.skippedRows,
+          duplicateRows: preview.duplicateRows,
         );
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -420,6 +467,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
             if (!identical(candidate, row)) candidate,
         ],
         skippedRows: [...preview.skippedRows, row],
+        duplicateRows: preview.duplicateRows,
       );
     });
   }
@@ -439,6 +487,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         ],
         unresolvedRows: preview.unresolvedRows,
         skippedRows: preview.skippedRows,
+        duplicateRows: preview.duplicateRows,
       );
     });
   }
@@ -461,6 +510,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         ],
         unresolvedRows: preview.unresolvedRows,
         skippedRows: preview.skippedRows,
+        duplicateRows: preview.duplicateRows,
       );
     });
   }
@@ -480,6 +530,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         ],
         unresolvedRows: preview.unresolvedRows,
         skippedRows: [...preview.skippedRows, row],
+        duplicateRows: preview.duplicateRows,
       );
     });
   }
@@ -497,12 +548,19 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       _error = null;
     });
     try {
-      await ref.read(apiClientProvider).createMetadataProposal(
+      final response = await ref.read(apiClientProvider).createMetadataProposal(
             provider: comicsLibraryConfig.defaultMetadataProvider,
             query: draft.query,
             title: draft.title.trim().isEmpty ? null : draft.title.trim(),
             summary: draft.summary,
           );
+      await const MetadataProposalStore().recordResponse(
+        response: response,
+        provider: comicsLibraryConfig.defaultMetadataProvider,
+        query: draft.query,
+        title: draft.title,
+        source: 'CSV import',
+      );
       if (!mounted) {
         return;
       }
@@ -565,8 +623,16 @@ class _ImportPreviewPanel extends StatelessWidget {
                 _PreviewChip('Matched', preview.resolvedCount),
                 _PreviewChip('Conflicts', preview.conflictCount),
                 _PreviewChip('Unresolved', preview.unresolvedCount),
+                _PreviewChip('Duplicates', preview.duplicateCount),
                 _PreviewChip('Skipped', preview.skippedCount),
               ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              preview.reviewCount == 0
+                  ? 'Ready to import ${preview.resolvedCount} matched rows.'
+                  : 'Ready to import ${preview.resolvedCount} rows. Review ${preview.reviewCount} rows before import.',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             if (preview.conflictRows.isNotEmpty) ...[
               const SizedBox(height: 10),
@@ -619,8 +685,57 @@ class _ImportPreviewPanel extends StatelessWidget {
               if (preview.unresolvedRows.length > 8)
                 Text('+${preview.unresolvedRows.length - 8} more unresolved'),
             ],
+            if (preview.duplicateRows.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                'Duplicate CSV rows',
+                style: Theme.of(context)
+                    .textTheme
+                    .labelLarge
+                    ?.copyWith(fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 6),
+              for (final row in preview.duplicateRows.take(8))
+                _DuplicateImportRow(row: row),
+              if (preview.duplicateRows.length > 8)
+                Text('+${preview.duplicateRows.length - 8} more duplicates'),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DuplicateImportRow extends StatelessWidget {
+  const _DuplicateImportRow({required this.row});
+
+  final CollectionCsvRow row;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = [
+      row.title ?? 'Catalog item ${row.itemId}',
+      if (row.itemNumber != null) '#${row.itemNumber}',
+      if (row.publisher != null) row.publisher,
+      if (row.barcode != null) row.barcode,
+    ].join(' | ');
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          const Icon(Icons.content_copy, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text('Skipped duplicate target'),
+        ],
       ),
     );
   }
@@ -644,6 +759,7 @@ class _UnresolvedImportRow extends StatelessWidget {
     final text = [
       row.title ?? 'Unknown title',
       if (row.itemNumber != null) '#${row.itemNumber}',
+      if (row.publisher != null) row.publisher,
       if (row.barcode != null) row.barcode,
     ].join(' | ');
     return Padding(
@@ -698,6 +814,7 @@ class _ConflictImportRow extends StatelessWidget {
     final text = [
       row.title ?? 'Catalog item ${row.itemId}',
       if (row.itemNumber != null) '#${row.itemNumber}',
+      if (row.publisher != null) row.publisher,
       if (row.grade != null) 'grade ${row.grade}',
       if (row.condition != null) row.condition,
     ].join(' | ');
@@ -890,6 +1007,7 @@ class _ResolveImportRowDialogState
     return [
       row.title ?? 'Unknown title',
       if (row.itemNumber != null) 'Issue ${row.itemNumber}',
+      if (row.publisher != null) row.publisher,
       if (row.barcode != null) 'Barcode ${row.barcode}',
     ].join(' | ');
   }
@@ -911,7 +1029,8 @@ class _ImportProposalDialogState extends State<_ImportProposalDialog> {
       TextEditingController(text: widget.row.itemNumber ?? '');
   late final _barcodeController =
       TextEditingController(text: widget.row.barcode ?? '');
-  final _publisherController = TextEditingController();
+  late final _publisherController =
+      TextEditingController(text: widget.row.publisher ?? '');
   final _sourceController = TextEditingController();
   final _notesController = TextEditingController();
 

@@ -66,6 +66,8 @@ class LibraryCoverTile extends StatelessWidget {
                       child: LibraryCoverBadges(
                         isOwned: entry.isOwned,
                         isWishlisted: entry.isWishlisted,
+                        hasMissingCover: entry.hasMissingCover,
+                        hasMissingMetadata: entry.hasMissingMetadata,
                       ),
                     ),
                     if (selected)

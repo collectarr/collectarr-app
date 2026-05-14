@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/comics/comics_metadata_gaps.dart';
 
 Map<String, int> topComicsSeriesCounts(List<ShelfEntry> entries) {
   return _countBy(entries, (entry) => entry.catalogItem?.title ?? 'Missing');
@@ -14,12 +15,7 @@ Map<String, int> topComicsPublisherCounts(List<ShelfEntry> entries) {
 int missingComicsMetadataCount(List<ShelfEntry> entries) {
   var count = 0;
   for (final entry in entries) {
-    final item = entry.catalogItem;
-    if (item == null ||
-        item.displayCoverUrl == null ||
-        item.publisher == null ||
-        item.releaseDate == null ||
-        item.synopsis == null) {
+    if (comicEntryHasMissingMetadata(entry)) {
       count++;
     }
   }

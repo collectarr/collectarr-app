@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -203,9 +204,10 @@ class _MissingIssuesDialogState extends ConsumerState<_MissingIssuesDialog> {
       _error = null;
     });
     try {
-      await ref.read(apiClientProvider).createMetadataProposal(
+      final query = '$series #$issue';
+      final response = await ref.read(apiClientProvider).createMetadataProposal(
             provider: comicsLibraryConfig.defaultMetadataProvider,
-            query: '$series #$issue',
+            query: query,
             title: series,
             summary: [
               'Metadata proposal from missing issues workflow',
@@ -214,6 +216,13 @@ class _MissingIssuesDialogState extends ConsumerState<_MissingIssuesDialog> {
               'issue: $issue',
             ].join('\n'),
           );
+      await const MetadataProposalStore().recordResponse(
+        response: response,
+        provider: comicsLibraryConfig.defaultMetadataProvider,
+        query: query,
+        title: series,
+        source: 'Missing issues',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Proposal sent for $series #$issue')),

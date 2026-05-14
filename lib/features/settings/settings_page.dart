@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
@@ -270,6 +271,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ],
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SettingsPanel(
+            icon: Icons.outbox_outlined,
+            title: 'Metadata proposals',
+            child: FutureBuilder<List<MetadataProposalRecord>>(
+              future: const MetadataProposalStore().read(),
+              builder: (context, snapshot) {
+                return _MetadataProposalHistory(
+                  records: snapshot.data ?? const [],
+                  isLoading:
+                      snapshot.connectionState == ConnectionState.waiting,
+                  onClear: _clearProposalHistory,
+                );
+              },
             ),
           ),
           const SizedBox(height: 12),
@@ -557,6 +574,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
+  Future<void> _clearProposalHistory() async {
+    await const MetadataProposalStore().clear();
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Local proposal history cleared')),
+      );
+    }
+  }
+
   Future<void> _regenerateDeviceId() async {
     final future = DeviceIdentity().regenerate();
     setState(() {
@@ -675,6 +702,82 @@ class _SettingsPanel extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MetadataProposalHistory extends StatelessWidget {
+  const _MetadataProposalHistory({
+    required this.records,
+    required this.isLoading,
+    required this.onClear,
+  });
+
+  final List<MetadataProposalRecord> records;
+  final bool isLoading;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const LinearProgressIndicator();
+    }
+    if (records.isEmpty) {
+      return const Text('No local proposal submissions yet.');
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _StatusChip(
+              icon: Icons.outbox_outlined,
+              label: '${records.length} submitted locally',
+            ),
+            _StatusChip(
+              icon: Icons.pending_actions,
+              label:
+                  "${records.where((row) => row.status == 'pending').length} pending",
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        for (final record in records.take(5))
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.fact_check_outlined),
+            title: Text(record.title ?? record.query),
+            subtitle: Text(
+              [
+                record.source,
+                record.provider,
+                record.status,
+                _formatProposalTime(record.createdAt),
+              ].join(' | '),
+            ),
+          ),
+        if (records.length > 5)
+          Text('+${records.length - 5} older proposal submissions'),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: onClear,
+            icon: const Icon(Icons.clear_all),
+            label: const Text('Clear local history'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+String _formatProposalTime(DateTime value) {
+  final local = value.toLocal();
+  final hour = local.hour.toString().padLeft(2, '0');
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hour:$minute';
 }
 
 class _DiagnosticRow extends StatelessWidget {

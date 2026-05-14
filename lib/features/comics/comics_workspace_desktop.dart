@@ -18,7 +18,8 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
     required this.projection,
     required this.shelfState,
     required this.queryController,
-    required this.selectedSeries,
+    required this.selectedGroup,
+    required this.onGroupModeChanged,
     required this.viewMode,
     required this.detailsLayout,
     required this.sortColumn,
@@ -29,13 +30,15 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
     required this.selectionMode,
     required this.selectedItemIds,
     required this.hasActiveFilters,
+    required this.activeFilterCount,
     required this.onEditFilters,
+    required this.onClearFilters,
     required this.onEditColumns,
     required this.onSearch,
     required this.onAddComic,
     required this.onSelectItem,
-    required this.onSelectSeries,
-    required this.onClearSeries,
+    required this.onSelectGroup,
+    required this.onClearGroup,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
     required this.onViewModeChanged,
@@ -55,7 +58,8 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
   final ComicsWorkspaceProjection projection;
   final ShelfState shelfState;
   final TextEditingController queryController;
-  final String? selectedSeries;
+  final String? selectedGroup;
+  final ValueChanged<ComicsShelfGroupMode> onGroupModeChanged;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final LibrarySortColumn sortColumn;
@@ -66,13 +70,15 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
   final bool selectionMode;
   final Set<String> selectedItemIds;
   final bool hasActiveFilters;
+  final int activeFilterCount;
   final VoidCallback onEditFilters;
+  final VoidCallback onClearFilters;
   final VoidCallback onEditColumns;
   final ValueChanged<String> onSearch;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
-  final ValueChanged<String> onSelectSeries;
-  final VoidCallback onClearSeries;
+  final ValueChanged<String> onSelectGroup;
+  final VoidCallback onClearGroup;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
@@ -102,9 +108,11 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
               selectedCount: selectedItemIds.length,
             ),
             utility: ComicsWorkspaceUtilityState(
-              selectedSeries: selectedSeries,
+              selectedSeries: projection.selectedSeries,
               hasActiveFilters: hasActiveFilters,
+              activeFilterCount: activeFilterCount,
               missingIssues: projection.missingIssues,
+              duplicateGroups: projection.duplicateGroups,
             ),
             view: ComicsViewTableControlState(
               counts: ComicsWorkspaceCounts(
@@ -129,10 +137,11 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
               onShowStats: () => showComicsStatsDashboardDialog(
                 context,
                 state: shelfState,
-                selectedSeries: selectedSeries,
+                selectedSeries: projection.selectedSeries,
                 missingIssues: projection.missingIssues,
               ),
               onEditFilters: onEditFilters,
+              onClearFilters: onClearFilters,
             ),
             view: ComicsViewTableControlCallbacks(
               onEditColumns: onEditColumns,
@@ -146,11 +155,11 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
           onAddComic: onAddComic,
           onScanBarcode: onScanBarcode,
           onRefreshMetadata: onRefreshMetadata,
-          onClearSeries: onClearSeries,
+          onClearSeries: onClearGroup,
         ),
         ComicsStatsBar(
           state: shelfState,
-          selectedSeries: selectedSeries,
+          selectedSeries: projection.selectedSeries,
           missingIssues: projection.missingIssues,
         ),
         Expanded(
@@ -159,9 +168,15 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
               SizedBox(
                 width: 250,
                 child: LibrarySeriesSidebar(
-                  series: projection.series,
-                  selectedSeries: selectedSeries,
-                  onSelectSeries: onSelectSeries,
+                  series: projection.groups,
+                  selectedSeries: selectedGroup,
+                  onSelectSeries: onSelectGroup,
+                  title: projection.groupMode.label,
+                  icon: projection.groupMode.icon,
+                  trailing: _ComicsGroupingMenu(
+                    groupMode: projection.groupMode,
+                    onChanged: onGroupModeChanged,
+                  ),
                   backgroundColor: kClzPanel,
                   headerColor: const Color(0xFF303030),
                   dividerColor: kClzDivider,
@@ -198,6 +213,37 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
             ],
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _ComicsGroupingMenu extends StatelessWidget {
+  const _ComicsGroupingMenu({
+    required this.groupMode,
+    required this.onChanged,
+  });
+
+  final ComicsShelfGroupMode groupMode;
+  final ValueChanged<ComicsShelfGroupMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<ComicsShelfGroupMode>(
+      tooltip: 'Group by',
+      icon: const Icon(Icons.tune, size: 18),
+      initialValue: groupMode,
+      onSelected: onChanged,
+      itemBuilder: (context) => [
+        for (final mode in ComicsShelfGroupMode.values)
+          PopupMenuItem(
+            value: mode,
+            child: ListTile(
+              dense: true,
+              leading: Icon(mode.icon),
+              title: Text(mode.label),
+            ),
+          ),
       ],
     );
   }

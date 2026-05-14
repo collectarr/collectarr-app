@@ -16,6 +16,8 @@ class LibraryWorkspaceEntry {
     this.variant,
     this.isOwned = false,
     this.isWishlisted = false,
+    this.hasMissingCover = false,
+    this.hasMissingMetadata = false,
     this.condition,
     this.grade,
     this.pricePaidCents,
@@ -38,6 +40,8 @@ class LibraryWorkspaceEntry {
   final String? variant;
   final bool isOwned;
   final bool isWishlisted;
+  final bool hasMissingCover;
+  final bool hasMissingMetadata;
   final String? condition;
   final String? grade;
   final int? pricePaidCents;

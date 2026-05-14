@@ -7,6 +7,9 @@ class CollectionCsvRow {
     required this.status,
     this.title,
     this.itemNumber,
+    this.variant,
+    this.publisher,
+    this.releaseDate,
     this.barcode,
     this.condition,
     this.grade,
@@ -33,6 +36,9 @@ class CollectionCsvRow {
   final String status;
   final String? title;
   final String? itemNumber;
+  final String? variant;
+  final String? publisher;
+  final DateTime? releaseDate;
   final String? barcode;
   final String? condition;
   final String? grade;
@@ -62,6 +68,9 @@ class CollectionCsvRow {
     String? status,
     String? title,
     String? itemNumber,
+    String? variant,
+    String? publisher,
+    DateTime? releaseDate,
     String? barcode,
     String? condition,
     String? grade,
@@ -88,6 +97,9 @@ class CollectionCsvRow {
       status: status ?? this.status,
       title: title ?? this.title,
       itemNumber: itemNumber ?? this.itemNumber,
+      variant: variant ?? this.variant,
+      publisher: publisher ?? this.publisher,
+      releaseDate: releaseDate ?? this.releaseDate,
       barcode: barcode ?? this.barcode,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
@@ -117,6 +129,10 @@ class CollectionCsv {
     'item_id',
     'title',
     'item_number',
+    'variant',
+    'publisher',
+    'release_date',
+    'barcode',
     'status',
     'condition',
     'grade',
@@ -177,10 +193,14 @@ class CollectionCsv {
           entry.itemId,
           entry.catalogItem?.title ?? '',
           entry.catalogItem?.itemNumber ?? '',
+          entry.catalogItem?.variant ?? '',
+          entry.catalogItem?.publisher ?? '',
+          _formatDate(entry.catalogItem?.releaseDate),
+          entry.catalogItem?.barcode ?? '',
           _status(entry),
           entry.ownedItem?.condition ?? '',
           entry.ownedItem?.grade ?? '',
-          entry.ownedItem?.purchaseDate?.toUtc().toIso8601String() ?? '',
+          _formatDate(entry.ownedItem?.purchaseDate),
           entry.ownedItem?.pricePaidCents?.toString() ?? '',
           entry.ownedItem?.currency ?? entry.wishlistItem?.currency ?? '',
           entry.ownedItem?.personalNotes ?? entry.wishlistItem?.notes ?? '',
@@ -212,12 +232,12 @@ class CollectionCsv {
           entry.catalogItem?.itemNumber ?? '',
           entry.catalogItem?.variant ?? '',
           entry.catalogItem?.publisher ?? '',
-          entry.catalogItem?.releaseDate?.toUtc().toIso8601String() ?? '',
+          _formatDate(entry.catalogItem?.releaseDate),
           entry.catalogItem?.barcode ?? '',
           _clzStatus(entry),
           entry.ownedItem?.condition ?? '',
           entry.ownedItem?.grade ?? '',
-          entry.ownedItem?.purchaseDate?.toUtc().toIso8601String() ?? '',
+          _formatDate(entry.ownedItem?.purchaseDate),
           _formatMoney(entry.ownedItem?.pricePaidCents),
           entry.ownedItem?.currency ?? entry.wishlistItem?.currency ?? '',
           _formatMoney(entry.ownedItem?.coverPriceCents),
@@ -284,11 +304,13 @@ class CollectionCsv {
       status: _normalizedStatus(_value(index, values, 'status')),
       title: _optionalValue(index, values, 'title'),
       itemNumber: _optionalValue(index, values, 'item_number'),
+      variant: _optionalValue(index, values, 'variant'),
+      publisher: _optionalValue(index, values, 'publisher'),
+      releaseDate: _parseDate(_value(index, values, 'release_date')),
       barcode: _optionalValue(index, values, 'barcode'),
       condition: _optionalValue(index, values, 'condition'),
       grade: _optionalValue(index, values, 'grade'),
-      purchaseDate:
-          DateTime.tryParse(_value(index, values, 'purchase_date'))?.toUtc(),
+      purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
       pricePaidCents: _moneyCents(_value(index, values, 'price_paid_cents')),
       currency: _optionalValue(index, values, 'currency'),
       notes: _optionalValue(index, values, 'notes'),
@@ -313,6 +335,7 @@ class CollectionCsv {
         row.status.trim().isNotEmpty ||
         (row.title?.trim().isNotEmpty ?? false) ||
         (row.itemNumber?.trim().isNotEmpty ?? false) ||
+        (row.publisher?.trim().isNotEmpty ?? false) ||
         (row.barcode?.trim().isNotEmpty ?? false);
   }
 
@@ -430,6 +453,74 @@ class CollectionCsv {
     return '$sign$whole.$fraction';
   }
 
+  String _formatDate(DateTime? value) {
+    if (value == null) {
+      return '';
+    }
+    final utc = value.toUtc();
+    return '${utc.year.toString().padLeft(4, '0')}-'
+        '${utc.month.toString().padLeft(2, '0')}-'
+        '${utc.day.toString().padLeft(2, '0')}';
+  }
+
+  DateTime? _parseDate(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+    final parsed = DateTime.tryParse(trimmed);
+    if (parsed != null) {
+      return DateTime.utc(parsed.year, parsed.month, parsed.day);
+    }
+    final yearFirst =
+        RegExp(r'^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$').firstMatch(trimmed);
+    if (yearFirst != null) {
+      return _dateFromParts(
+        yearFirst.group(1)!,
+        yearFirst.group(2)!,
+        yearFirst.group(3)!,
+      );
+    }
+    final shortDate =
+        RegExp(r'^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$').firstMatch(trimmed);
+    if (shortDate == null) {
+      return null;
+    }
+    final first = int.parse(shortDate.group(1)!);
+    final second = int.parse(shortDate.group(2)!);
+    final year = _fourDigitYear(shortDate.group(3)!);
+    final month = first > 12 ? second : first;
+    final day = first > 12 ? first : second;
+    return _validDate(year, month, day);
+  }
+
+  DateTime? _dateFromParts(String year, String month, String day) {
+    return _validDate(
+      int.parse(year),
+      int.parse(month),
+      int.parse(day),
+    );
+  }
+
+  int _fourDigitYear(String value) {
+    final parsed = int.parse(value);
+    if (value.length == 4) {
+      return parsed;
+    }
+    return parsed >= 70 ? 1900 + parsed : 2000 + parsed;
+  }
+
+  DateTime? _validDate(int year, int month, int day) {
+    if (month < 1 || month > 12 || day < 1 || day > 31) {
+      return null;
+    }
+    final value = DateTime.utc(year, month, day);
+    if (value.year != year || value.month != month || value.day != day) {
+      return null;
+    }
+    return value;
+  }
+
   String _normalizeColumn(String value) {
     return value
         .trim()
@@ -462,6 +553,9 @@ class CollectionCsv {
     ],
     'title': ['Series', 'Full Title'],
     'item_number': ['Issue', 'Issue No.', 'Issue Number'],
+    'variant': ['Variant', 'Variant Description'],
+    'publisher': ['Publisher'],
+    'release_date': ['Release Date', 'Cover Date'],
     'barcode': ['Barcode', 'UPC', 'ISBN'],
     'status': ['Collection Status', 'Status'],
     'condition': ['Condition'],
@@ -481,7 +575,7 @@ class CollectionCsv {
     'key_comic': ['Key Comic'],
     'key_reason': ['Key Reason'],
     'rating': ['Rating'],
-    'read_status': ['Read It', 'Read Status'],
+    'read_status': ['Read It', 'Read Status', 'Read'],
     'tags': ['Tags'],
   };
 }
