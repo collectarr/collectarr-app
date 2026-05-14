@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -557,16 +558,17 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       _error = null;
     });
     try {
+      final type = ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig));
       final response = await createLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
-        type: comicsLibraryConfig,
+        type: type,
         query: draft.query,
         title: draft.title.trim().isEmpty ? null : draft.title.trim(),
         summary: draft.summary,
       );
       await recordLibraryMetadataProposalResponse(
         response: response,
-        type: comicsLibraryConfig,
+        type: type,
         query: draft.query,
         title: draft.title,
         source: 'CSV import',
@@ -1278,9 +1280,10 @@ Future<List<CatalogItem>> _searchCoreForRow(
   String? queryOverride,
   int limit = 20,
 }) async {
+  final resolvedType = ref.read(resolvedLibraryTypeProvider(type));
   return searchLibraryMetadata(
     ref.read(apiClientProvider),
-    type,
+    resolvedType,
     query: _searchQueryForRow(row, queryOverride: queryOverride),
     barcode: row.barcode,
     issueNumber: row.itemNumber,

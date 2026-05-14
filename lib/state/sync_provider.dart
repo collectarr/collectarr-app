@@ -1,7 +1,9 @@
 import 'dart:developer' as developer;
 
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
+import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
@@ -15,6 +17,7 @@ import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:uuid/uuid.dart';
 
 class SyncState {
   const SyncState({
@@ -152,6 +155,22 @@ class SyncController extends StateNotifier<SyncState> {
     );
   }
 
+  Future<bool> keepLocalRejectedChange(SyncRejectedChange change) async {
+    final db = ref.read(localDatabaseProvider);
+    final queued = await _queue().enqueueLocalRetry(
+      change,
+      db: db,
+      changedAt: DateTime.now().toUtc(),
+      uuid: const Uuid(),
+    );
+    if (!queued) {
+      return false;
+    }
+    dismissRejectedChange(change.key);
+    await refreshPendingCount();
+    return true;
+  }
+
   String? _syncWarningMessage(SyncResult result) {
     return SyncWarningFormatter.rejectedChanges(result.rejectedChanges);
   }
@@ -171,6 +190,82 @@ class SyncController extends StateNotifier<SyncState> {
         stackTrace: stackTrace,
       );
       return state.lastSyncedAt;
+    }
+  }
+}
+
+extension on SyncQueueRepository {
+  Future<bool> enqueueLocalRetry(
+    SyncRejectedChange change, {
+    required LocalDatabase db,
+    required DateTime changedAt,
+    required Uuid uuid,
+  }) async {
+    final syncChange = await _localRetryChange(
+      change,
+      db: db,
+      changedAt: changedAt,
+      uuid: uuid,
+    );
+    if (syncChange == null) {
+      return false;
+    }
+    await enqueue(syncChange);
+    return true;
+  }
+
+  Future<SyncChange?> _localRetryChange(
+    SyncRejectedChange change, {
+    required LocalDatabase db,
+    required DateTime changedAt,
+    required Uuid uuid,
+  }) async {
+    switch (change.entityType) {
+      case 'owned_item':
+        final item = await OwnedItemsCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (item == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: item.id,
+          action: item.isDeleted ? 'delete' : 'upsert',
+          payload: item.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'wishlist_item':
+        final item = await WishlistItemsCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (item == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: item.id,
+          action: item.isDeleted ? 'delete' : 'upsert',
+          payload: item.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'library_item_snapshot':
+        final item = await CatalogCacheRepository(db).findById(change.entityId);
+        if (item == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: item.id,
+          action: 'upsert',
+          payload: item.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      default:
+        return null;
     }
   }
 }

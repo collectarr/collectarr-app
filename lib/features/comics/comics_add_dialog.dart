@@ -16,6 +16,8 @@ import 'package:collectarr_app/features/library/add/library_add_collection_workf
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
@@ -65,6 +67,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   String? _defaultCondition = 'Near Mint';
   String? _defaultGrade = 'Ungraded';
   DateTime? _defaultPurchaseDate;
+  bool _metadataProviderChangedByUser = false;
   String? _error;
 
   @override
@@ -83,6 +86,10 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final compact = width < 760;
+    final libraryType = ref.watch(
+      resolvedLibraryTypeProvider(comicsLibraryConfig),
+    );
+    _syncDefaultMetadataProvider(libraryType);
     final shelf = ref.watch(shelfProvider).value;
     final ownedItemIds = shelf == null
         ? const <String>{}
@@ -213,8 +220,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 searchedProvider: providerState.searched,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: providerState.isSearching,
-                                metadataProviders: comicsLibraryConfig
-                                    .supportedMetadataProviders,
+                                metadataProviders:
+                                    libraryType.supportedMetadataProviders,
                                 selectedProvider: providerState.provider,
                                 providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
@@ -275,8 +282,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 searchedProvider: providerState.searched,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: providerState.isSearching,
-                                metadataProviders: comicsLibraryConfig
-                                    .supportedMetadataProviders,
+                                metadataProviders:
+                                    libraryType.supportedMetadataProviders,
                                 selectedProvider: providerState.provider,
                                 providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
@@ -373,6 +380,33 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     return null;
   }
 
+  LibraryTypeConfig get _libraryType {
+    return ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig));
+  }
+
+  void _syncDefaultMetadataProvider(LibraryTypeConfig libraryType) {
+    final providerIds = {
+      for (final provider in libraryType.supportedMetadataProviders)
+        provider.id,
+    };
+    final defaultProvider = libraryType.defaultSupportedMetadataProvider;
+    final providerIsUnsupported =
+        !providerIds.contains(_providerState.provider);
+    final shouldUseCatalogDefault = !_metadataProviderChangedByUser &&
+        _providerState.provider != defaultProvider;
+    if (!providerIsUnsupported && !shouldUseCatalogDefault) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _providerState = _providerState.changeProvider(defaultProvider);
+      });
+    });
+  }
+
   List<CatalogItem> _barcodeFoundAddItems({
     required Set<String> ownedItemIds,
     required Set<String> wishlistItemIds,
@@ -430,7 +464,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     try {
       final items = await searchAndCacheLibraryMetadata(
         api: ref.read(apiClientProvider),
-        type: comicsLibraryConfig,
+        type: _libraryType,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
         input: input,
       );
@@ -478,7 +512,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     try {
       final results = await searchLibraryProviderCandidates(
         ref.read(apiClientProvider),
-        comicsLibraryConfig,
+        _libraryType,
         provider: provider,
         query: query,
       );
@@ -509,13 +543,14 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
 
   void _changeMetadataProvider(String provider) {
     setState(() {
+      _metadataProviderChangedByUser = true;
       _providerState = _providerState.changeProvider(provider);
       _error = null;
     });
   }
 
   String _metadataProviderLabel(String provider) {
-    return comicsLibraryConfig.metadataProviderLabel(provider);
+    return _libraryType.metadataProviderLabel(provider);
   }
 
   bool _looksLikeBarcode(String value) {
@@ -604,7 +639,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       });
       final results = await lookupAndCacheLibraryBarcodes(
         api: ref.read(apiClientProvider),
-        type: comicsLibraryConfig,
+        type: _libraryType,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
         barcodes: normalizedCodes,
         onResult: (result) {
@@ -787,7 +822,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     try {
       await createAndRecordLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
-        type: comicsLibraryConfig,
+        type: _libraryType,
         provider: candidate.provider,
         providerItemId: candidate.providerItemId,
         query: _providerQuery,
@@ -856,7 +891,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     try {
       await createAndRecordLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
-        type: comicsLibraryConfig,
+        type: _libraryType,
         provider: _providerState.provider,
         query: proposal.title,
         title: proposal.title,

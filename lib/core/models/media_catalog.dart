@@ -1,0 +1,75 @@
+class CatalogPhysicalFormat {
+  const CatalogPhysicalFormat({
+    required this.id,
+    required this.label,
+    required this.mediaFamily,
+    required this.variantType,
+    this.aliases = const [],
+  });
+
+  final String id;
+  final String label;
+  final String mediaFamily;
+  final String variantType;
+  final List<String> aliases;
+
+  factory CatalogPhysicalFormat.fromJson(Map<String, dynamic> json) {
+    return CatalogPhysicalFormat(
+      id: json['id'] as String? ?? '',
+      label: json['label'] as String? ?? '',
+      mediaFamily: json['media_family'] as String? ?? '',
+      variantType: json['variant_type'] as String? ?? '',
+      aliases: [
+        for (final alias in (json['aliases'] as List<dynamic>? ?? []))
+          alias.toString(),
+      ],
+    );
+  }
+}
+
+class CatalogMediaType {
+  const CatalogMediaType({
+    required this.kind,
+    required this.singularLabel,
+    required this.pluralLabel,
+    this.routeSegments = const [],
+    this.defaultProvider,
+    this.providers = const [],
+    this.isTopLevel = true,
+    this.legacyOf,
+    this.physicalFormats = const [],
+  });
+
+  final String kind;
+  final String singularLabel;
+  final String pluralLabel;
+  final List<String> routeSegments;
+  final String? defaultProvider;
+  final List<String> providers;
+  final bool isTopLevel;
+  final String? legacyOf;
+  final List<CatalogPhysicalFormat> physicalFormats;
+
+  factory CatalogMediaType.fromJson(Map<String, dynamic> json) {
+    return CatalogMediaType(
+      kind: json['kind'] as String? ?? '',
+      singularLabel: json['singular_label'] as String? ?? '',
+      pluralLabel: json['plural_label'] as String? ?? '',
+      routeSegments: [
+        for (final segment in (json['route_segments'] as List<dynamic>? ?? []))
+          segment.toString(),
+      ],
+      defaultProvider: json['default_provider'] as String?,
+      providers: [
+        for (final provider in (json['providers'] as List<dynamic>? ?? []))
+          provider.toString(),
+      ],
+      isTopLevel: json['is_top_level'] as bool? ?? true,
+      legacyOf: json['legacy_of'] as String?,
+      physicalFormats: [
+        for (final format in (json['physical_formats'] as List<dynamic>? ?? []))
+          CatalogPhysicalFormat.fromJson(format as Map<String, dynamic>),
+      ],
+    );
+  }
+}

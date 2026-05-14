@@ -23,8 +23,8 @@ class LibraryCoverImage extends StatelessWidget {
       itemNumber: itemNumber,
       borderRadius: borderRadius,
     );
-    final url = imageUrl;
-    if (url == null || url.isEmpty) {
+    final url = _normalizedImageUrl(imageUrl);
+    if (url == null) {
       return placeholder;
     }
     if (kIsWeb) {
@@ -52,6 +52,21 @@ class LibraryCoverImage extends StatelessWidget {
         errorWidget: (_, __, ___) => placeholder,
       ),
     );
+  }
+
+  String? _normalizedImageUrl(String? value) {
+    final url = value?.trim();
+    if (url == null || url.isEmpty) {
+      return null;
+    }
+    final parsed = Uri.tryParse(url);
+    if (parsed == null || !parsed.hasScheme) {
+      return null;
+    }
+    if (parsed.scheme != 'http' && parsed.scheme != 'https') {
+      return null;
+    }
+    return url;
   }
 }
 

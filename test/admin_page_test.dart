@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
@@ -45,21 +46,34 @@ void main() {
     expect(find.text('Search index history'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
 
-    await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Covers'));
-    await tester.pumpAndSettle();
+    await _scrollUntilVisible(tester, find.text('Admin audit log'));
+    expect(find.text('metadata.correction'), findsOneWidget);
+    expect(find.text('admin@example.com'), findsOneWidget);
+
+    await _scrollUntilVisible(
+      tester,
+      find.widgetWithText(OutlinedButton, 'Covers'),
+      delta: -500,
+    );
     await tester.tap(find.widgetWithText(OutlinedButton, 'Covers').first);
     await tester.pumpAndSettle();
     expect(find.textContaining('cover:'), findsOneWidget);
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Edit'));
-    await tester.pumpAndSettle();
+    await _scrollUntilVisible(
+      tester,
+      find.widgetWithText(FilledButton, 'Edit'),
+      delta: -500,
+    );
     await tester.tap(find.widgetWithText(FilledButton, 'Edit').first);
     await tester.pumpAndSettle();
     await tester.enterText(
         find.widgetWithText(TextField, 'Title'), 'Absolute Batman Deluxe');
     await tester.tap(find.widgetWithText(FilledButton, 'Save correction'));
+    await tester.pumpAndSettle();
+    expect(find.text('Preview metadata correction'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Save correction').last);
     await tester.pumpAndSettle();
 
     expect(api.lastCatalogUpdateTitle, 'Absolute Batman Deluxe');
@@ -67,6 +81,9 @@ void main() {
 
     await _scrollUntilVisible(tester, find.text('Provider ingest jobs'));
     expect(find.text('Provider ingest jobs'), findsOneWidget);
+    expect(find.text('1 queued'), findsOneWidget);
+    expect(find.text('1 failed'), findsOneWidget);
+    expect(find.text('1 due'), findsOneWidget);
     expect(find.text('gcd queued-123'), findsOneWidget);
 
     await tester
@@ -116,6 +133,11 @@ void main() {
     await tester.tap(find.text('Merge into first'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Merge review:'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Type MERGE to confirm'),
+      'MERGE',
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Merge selected'));
     await tester.pumpAndSettle();
 
@@ -191,6 +213,7 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastInspectId;
   String? lastMergeTargetItemId;
   String? lastCatalogUpdateTitle;
+  String? lastCatalogUpdatePhysicalFormat;
   String? lastQueuedProviderItemId;
   int? lastRetryHistoryId;
   List<String>? lastMergeSourceItemIds;
@@ -200,6 +223,36 @@ class _FakeAdminApiClient extends ApiClient {
   bool queuedJobCreated = false;
   int runPendingCount = 0;
   int reindexCount = 0;
+
+  @override
+  Future<List<CatalogMediaType>> metadataMediaTypes() async {
+    return const [
+      CatalogMediaType(
+        kind: 'comic',
+        singularLabel: 'Comic',
+        pluralLabel: 'Comics',
+        routeSegments: ['comics', 'comic'],
+        defaultProvider: 'gcd',
+        providers: ['gcd', 'comicvine'],
+      ),
+      CatalogMediaType(
+        kind: 'manga',
+        singularLabel: 'Manga',
+        pluralLabel: 'Manga',
+        routeSegments: ['manga'],
+        defaultProvider: 'anilist',
+        providers: ['anilist', 'comicvine'],
+      ),
+      CatalogMediaType(
+        kind: 'anime',
+        singularLabel: 'Anime',
+        pluralLabel: 'Anime',
+        routeSegments: ['anime'],
+        defaultProvider: 'anilist',
+        providers: ['anilist', 'tmdb'],
+      ),
+    ];
+  }
 
   @override
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {
@@ -215,6 +268,7 @@ class _FakeAdminApiClient extends ApiClient {
         requiresUserKey: false,
         nonCommercialOnly: false,
         allowsRedistribution: true,
+        allowsImageMirroring: false,
         requiresAttribution: true,
         licenseName: 'CC BY-SA',
         message: 'Ready',
@@ -223,6 +277,7 @@ class _FakeAdminApiClient extends ApiClient {
         name: 'comicvine',
         displayName: 'ComicVine',
         kind: 'comic',
+        supportedKinds: ['comic', 'manga'],
         status: 'stub',
         isConfigured: false,
         supportsSearch: true,
@@ -230,6 +285,7 @@ class _FakeAdminApiClient extends ApiClient {
         requiresUserKey: true,
         nonCommercialOnly: true,
         allowsRedistribution: false,
+        allowsImageMirroring: false,
         requiresAttribution: true,
         message: 'Set COMICVINE_API_KEY',
       ),
@@ -244,6 +300,7 @@ class _FakeAdminApiClient extends ApiClient {
         requiresUserKey: true,
         nonCommercialOnly: false,
         allowsRedistribution: false,
+        allowsImageMirroring: false,
         requiresAttribution: true,
         message: 'Planned game provider',
       ),
@@ -326,12 +383,15 @@ class _FakeAdminApiClient extends ApiClient {
     int? pageCount,
     String? publisher,
     DateTime? releaseDate,
+    String? physicalFormat,
     String? variantName,
     String? barcode,
     String? coverImageUrl,
     String? thumbnailImageUrl,
+    bool includeNulls = false,
   }) async {
     lastCatalogUpdateTitle = title;
+    lastCatalogUpdatePhysicalFormat = physicalFormat;
     catalogUpdated = true;
     return (await adminCatalogItems()).single;
   }
@@ -357,6 +417,27 @@ class _FakeAdminApiClient extends ApiClient {
         ok: true,
         indexName: 'items',
         indexedDocuments: 12,
+      ),
+    ];
+  }
+
+  @override
+  Future<List<AdminAuditLogEntry>> adminAuditLogs({
+    String? action,
+    String? entityType,
+    int limit = 10,
+  }) async {
+    return [
+      AdminAuditLogEntry(
+        id: 'audit-1',
+        action: 'metadata.correction',
+        actorEmail: 'admin@example.com',
+        entityType: 'item',
+        entityId: 'item-1',
+        detailsJson: const {
+          'fields': ['title'],
+        },
+        createdAt: DateTime.utc(2026, 5, 14, 9, 15),
       ),
     ];
   }
@@ -391,8 +472,24 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
+  Future<AdminProviderIngestJobSummary> adminProviderIngestJobSummary() async {
+    return AdminProviderIngestJobSummary(
+      queued: runPendingCount > 0 ? (queuedJobCreated ? 1 : 0) : 1,
+      running: 0,
+      failed: retryResolved ? 0 : 1,
+      done: runPendingCount > 0 ? 1 : 0,
+      dueQueued: runPendingCount > 0 ? 0 : 1,
+      staleRunning: 0,
+      nextRunAt: runPendingCount > 0 ? null : DateTime.utc(2026, 5, 14, 9, 15),
+      latestFailureAt: retryResolved ? null : DateTime.utc(2026, 5, 14, 9, 5),
+    );
+  }
+
+  @override
   Future<List<AdminProviderIngestJob>> adminProviderIngestJobs({
     String? status,
+    String? provider,
+    String? query,
     int limit = 25,
   }) async {
     final jobs = [
@@ -420,9 +517,31 @@ class _FakeAdminApiClient extends ApiClient {
         ),
     ];
     if (status == null || status.isEmpty) {
-      return jobs;
+      return _filterJobs(jobs, provider, query);
     }
-    return jobs.where((job) => job.status == status).toList(growable: false);
+    return _filterJobs(
+      jobs.where((job) => job.status == status).toList(growable: false),
+      provider,
+      query,
+    );
+  }
+
+  List<AdminProviderIngestJob> _filterJobs(
+    List<AdminProviderIngestJob> jobs,
+    String? provider,
+    String? query,
+  ) {
+    final normalizedQuery = query?.trim().toLowerCase();
+    return jobs.where((job) {
+      if (provider != null && provider.isNotEmpty && job.provider != provider) {
+        return false;
+      }
+      if (normalizedQuery != null && normalizedQuery.isNotEmpty) {
+        return job.providerItemId.toLowerCase().contains(normalizedQuery) ||
+            (job.lastError?.toLowerCase().contains(normalizedQuery) ?? false);
+      }
+      return true;
+    }).toList(growable: false);
   }
 
   @override
@@ -655,6 +774,7 @@ class _FakeAdminApiClient extends ApiClient {
     runPendingCount += 1;
     return AdminProviderIngestJobRunResult(
       processed: 1,
+      recovered: 0,
       jobs: await adminProviderIngestJobs(),
     );
   }

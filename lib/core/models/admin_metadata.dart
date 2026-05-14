@@ -3,6 +3,7 @@ class AdminProviderStatus {
     required this.name,
     required this.displayName,
     required this.kind,
+    this.supportedKinds = const [],
     required this.status,
     required this.isConfigured,
     required this.supportsSearch,
@@ -10,6 +11,7 @@ class AdminProviderStatus {
     required this.requiresUserKey,
     required this.nonCommercialOnly,
     required this.allowsRedistribution,
+    required this.allowsImageMirroring,
     required this.requiresAttribution,
     this.licenseName,
     this.termsUrl,
@@ -22,6 +24,7 @@ class AdminProviderStatus {
   final String name;
   final String displayName;
   final String kind;
+  final List<String> supportedKinds;
   final String status;
   final bool isConfigured;
   final bool supportsSearch;
@@ -29,6 +32,7 @@ class AdminProviderStatus {
   final bool requiresUserKey;
   final bool nonCommercialOnly;
   final bool allowsRedistribution;
+  final bool allowsImageMirroring;
   final bool requiresAttribution;
   final String? licenseName;
   final String? termsUrl;
@@ -37,11 +41,18 @@ class AdminProviderStatus {
   final String? cachePolicy;
   final String message;
 
+  List<String> get effectiveKinds =>
+      supportedKinds.isEmpty && kind.isNotEmpty ? [kind] : supportedKinds;
+
   factory AdminProviderStatus.fromJson(Map<String, dynamic> json) {
     return AdminProviderStatus(
       name: json['name'] as String,
       displayName: json['display_name'] as String? ?? json['name'] as String,
       kind: json['kind'] as String? ?? '',
+      supportedKinds: [
+        for (final kind in (json['supported_kinds'] as List<dynamic>? ?? []))
+          kind.toString(),
+      ],
       status: json['status'] as String? ?? 'unknown',
       isConfigured: json['is_configured'] as bool? ?? false,
       supportsSearch: json['supports_search'] as bool? ?? true,
@@ -49,6 +60,7 @@ class AdminProviderStatus {
       requiresUserKey: json['requires_user_key'] as bool? ?? false,
       nonCommercialOnly: json['non_commercial_only'] as bool? ?? false,
       allowsRedistribution: json['allows_redistribution'] as bool? ?? false,
+      allowsImageMirroring: json['allows_image_mirroring'] as bool? ?? false,
       requiresAttribution: json['requires_attribution'] as bool? ?? false,
       licenseName: json['license_name'] as String?,
       termsUrl: json['terms_url'] as String?,
@@ -261,18 +273,61 @@ class AdminProviderIngestJobRunResult {
   const AdminProviderIngestJobRunResult({
     required this.processed,
     required this.jobs,
+    required this.recovered,
   });
 
   final int processed;
   final List<AdminProviderIngestJob> jobs;
+  final int recovered;
 
   factory AdminProviderIngestJobRunResult.fromJson(Map<String, dynamic> json) {
     return AdminProviderIngestJobRunResult(
       processed: json['processed'] as int? ?? 0,
+      recovered: json['recovered'] as int? ?? 0,
       jobs: [
         for (final row in (json['jobs'] as List<dynamic>? ?? []))
           AdminProviderIngestJob.fromJson(row as Map<String, dynamic>),
       ],
+    );
+  }
+}
+
+class AdminProviderIngestJobSummary {
+  const AdminProviderIngestJobSummary({
+    required this.queued,
+    required this.running,
+    required this.failed,
+    required this.done,
+    required this.dueQueued,
+    required this.staleRunning,
+    this.oldestQueuedAt,
+    this.nextRunAt,
+    this.latestFailureAt,
+  });
+
+  final int queued;
+  final int running;
+  final int failed;
+  final int done;
+  final int dueQueued;
+  final int staleRunning;
+  final DateTime? oldestQueuedAt;
+  final DateTime? nextRunAt;
+  final DateTime? latestFailureAt;
+
+  int get total => queued + running + failed + done;
+
+  factory AdminProviderIngestJobSummary.fromJson(Map<String, dynamic> json) {
+    return AdminProviderIngestJobSummary(
+      queued: json['queued'] as int? ?? 0,
+      running: json['running'] as int? ?? 0,
+      failed: json['failed'] as int? ?? 0,
+      done: json['done'] as int? ?? 0,
+      dueQueued: json['due_queued'] as int? ?? 0,
+      staleRunning: json['stale_running'] as int? ?? 0,
+      oldestQueuedAt: _parseDateTime(json['oldest_queued_at'] as String?),
+      nextRunAt: _parseDateTime(json['next_run_at'] as String?),
+      latestFailureAt: _parseDateTime(json['latest_failure_at'] as String?),
     );
   }
 }
@@ -349,6 +404,65 @@ class AdminSearchHistoryEntry {
       indexName: json['index_name'] as String? ?? 'items',
       indexedDocuments: json['indexed_documents'] as int? ?? 0,
       error: json['error'] as String?,
+    );
+  }
+}
+
+class AdminAuditLogEntry {
+  const AdminAuditLogEntry({
+    required this.id,
+    required this.action,
+    required this.entityType,
+    required this.createdAt,
+    this.actorUserId,
+    this.actorEmail,
+    this.entityId,
+    this.detailsJson = const {},
+  });
+
+  final String id;
+  final String action;
+  final String? actorUserId;
+  final String? actorEmail;
+  final String entityType;
+  final String? entityId;
+  final Map<String, dynamic> detailsJson;
+  final DateTime createdAt;
+
+  String get displayEntity =>
+      entityId == null ? entityType : '$entityType ${_shortModelId(entityId!)}';
+
+  String get displayActor => actorEmail ?? 'system';
+
+  String get detailsSummary {
+    final fields = detailsJson['fields'];
+    if (fields is List && fields.isNotEmpty) {
+      return 'fields: ${fields.join(', ')}';
+    }
+    final providerItemId = detailsJson['provider_item_id'];
+    if (providerItemId != null) {
+      return 'provider item $providerItemId';
+    }
+    final sourceItemIds = detailsJson['source_item_ids'];
+    if (sourceItemIds is List && sourceItemIds.isNotEmpty) {
+      return '${sourceItemIds.length} source items';
+    }
+    final keys = detailsJson.keys.take(3).join(', ');
+    return keys.isEmpty ? 'no details' : keys;
+  }
+
+  factory AdminAuditLogEntry.fromJson(Map<String, dynamic> json) {
+    return AdminAuditLogEntry(
+      id: json['id']?.toString() ?? '',
+      action: json['action'] as String? ?? '',
+      actorUserId: json['actor_user_id']?.toString(),
+      actorEmail: json['actor_email'] as String?,
+      entityType: json['entity_type'] as String? ?? '',
+      entityId: json['entity_id']?.toString(),
+      detailsJson: (json['details_json'] as Map?)?.cast<String, dynamic>() ??
+          const <String, dynamic>{},
+      createdAt: _parseDateTime(json['created_at'] as String?) ??
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
   }
 }
@@ -481,6 +595,8 @@ class AdminMetadataItem {
     return null;
   }
 
+  AdminEdition? get primaryEdition => editions.isEmpty ? null : editions.first;
+
   String? get displayCoverUrl =>
       primaryVariant?.thumbnailImageUrl ?? primaryVariant?.coverImageUrl;
 
@@ -519,6 +635,8 @@ class AdminEdition {
     required this.title,
     this.publisher,
     this.releaseDate,
+    this.physicalFormat,
+    this.physicalFormatLabel,
     this.variants = const [],
     this.releases = const [],
   });
@@ -527,6 +645,8 @@ class AdminEdition {
   final String title;
   final String? publisher;
   final DateTime? releaseDate;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
   final List<AdminVariant> variants;
   final List<AdminRelease> releases;
 
@@ -536,6 +656,8 @@ class AdminEdition {
       title: json['title'] as String? ?? '',
       publisher: json['publisher'] as String?,
       releaseDate: _parseDate(json['release_date'] as String?),
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
       variants: [
         for (final variant in (json['variants'] as List<dynamic>? ?? []))
           AdminVariant.fromJson(variant as Map<String, dynamic>),
@@ -559,6 +681,8 @@ class AdminVariant {
     this.currency,
     this.coverImageUrl,
     this.thumbnailImageUrl,
+    this.physicalFormat,
+    this.physicalFormatLabel,
   });
 
   final String id;
@@ -570,6 +694,8 @@ class AdminVariant {
   final String? currency;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
 
   factory AdminVariant.fromJson(Map<String, dynamic> json) {
     return AdminVariant(
@@ -582,6 +708,8 @@ class AdminVariant {
       currency: json['currency'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
     );
   }
 }
@@ -657,3 +785,5 @@ DateTime? _parseDateTime(String? value) {
   }
   return DateTime.tryParse(value)?.toUtc();
 }
+
+String _shortModelId(String id) => id.length <= 8 ? id : id.substring(0, 8);

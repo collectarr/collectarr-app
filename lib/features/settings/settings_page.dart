@@ -184,6 +184,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   const SizedBox(height: 12),
                   _SyncConflictSummary(
                     changes: sync.rejectedChanges,
+                    onKeepLocal: _keepLocalConflict,
                     onDismiss: (change) => ref
                         .read(syncControllerProvider.notifier)
                         .dismissRejectedChange(change.key),
@@ -594,6 +595,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
+  Future<void> _keepLocalConflict(SyncRejectedChange change) async {
+    final queued = await ref
+        .read(syncControllerProvider.notifier)
+        .keepLocalRejectedChange(change);
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          queued
+              ? 'Local version queued for the next sync.'
+              : 'Local version is no longer available for that conflict.',
+        ),
+      ),
+    );
+  }
+
   String _syncResultMessage(SyncState sync) {
     if (sync.errorMessage != null) {
       return 'Personal sync unavailable: ${sync.errorMessage}';
@@ -629,11 +648,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       '2. Copy collectarr-sync.db plus -wal/-shm sidecars if present.',
       '3. Store the backup with the SYNC_API_KEY used by your devices.',
       '4. Restore while collectarr-sync is stopped, then run Check sync service.',
+      '5. If conflicts appear after restore, choose Keep service or Keep local in Settings.',
       '',
       'Docker:',
       'docker compose --profile sync stop sync',
       'docker compose --profile sync cp sync:/data ./collectarr-sync-data',
       'Compress-Archive -Path .\\collectarr-sync-data\\* -DestinationPath .\\collectarr-sync-data.zip -Force',
+      '',
+      'Restore:',
+      'docker compose --profile sync stop sync',
+      'docker compose --profile sync cp ./collectarr-sync-data/. sync:/data',
+      'docker compose --profile sync start sync',
     ].join('\n');
     await Clipboard.setData(ClipboardData(text: guide));
     if (!mounted) {
@@ -1074,11 +1099,13 @@ class _SyncServiceSummary extends StatelessWidget {
 class _SyncConflictSummary extends StatelessWidget {
   const _SyncConflictSummary({
     required this.changes,
+    required this.onKeepLocal,
     required this.onDismiss,
     required this.onDismissAll,
   });
 
   final List<SyncRejectedChange> changes;
+  final Future<void> Function(SyncRejectedChange change) onKeepLocal;
   final ValueChanged<SyncRejectedChange> onDismiss;
   final VoidCallback onDismissAll;
 
@@ -1114,6 +1141,10 @@ class _SyncConflictSummary extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
+            const Text(
+              'Use Keep local when this device should overwrite the service on the next sync. Use Keep service when the service version is correct.',
+            ),
+            const SizedBox(height: 8),
             for (final change in changes.take(5))
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 3),
@@ -1142,6 +1173,11 @@ class _SyncConflictSummary extends StatelessWidget {
                         ClipboardData(text: change.key),
                       ),
                       icon: const Icon(Icons.copy_outlined, size: 18),
+                    ),
+                    IconButton(
+                      tooltip: 'Keep local version',
+                      onPressed: () => onKeepLocal(change),
+                      icon: const Icon(Icons.cloud_upload_outlined, size: 18),
                     ),
                     IconButton(
                       tooltip: 'Keep service version',

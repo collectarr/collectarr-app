@@ -17,6 +17,14 @@ class WishlistItemsCacheRepository {
     return rows.map(_fromCache).toList(growable: false);
   }
 
+  Future<WishlistItem?> findById(String id) async {
+    final row = await (_db.select(_db.wishlistItemsCache)
+          ..where((row) => row.id.equals(id))
+          ..limit(1))
+        .getSingleOrNull();
+    return row == null ? null : _fromCache(row);
+  }
+
   Future<WishlistItem?> findActiveByItemId(String itemId) async {
     final rows = await (_db.select(_db.wishlistItemsCache)
           ..where((row) => row.itemId.equals(itemId) & row.deletedAt.isNull())

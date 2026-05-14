@@ -32,8 +32,41 @@ const mangaLibraryConfig = LibraryTypeConfig(
   defaultMetadataProvider: 'anilist',
   metadataProviders: [
     anilistMetadataProvider,
+    comicVineMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
+);
+
+const animeWorkspaceConfig = LibraryWorkspaceConfig(
+  kind: 'anime',
+  title: 'Anime',
+  icon: Icons.animation,
+  preferencePrefix: 'anime',
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: {
+    LibraryTableColumn.status,
+    LibraryTableColumn.cover,
+    LibraryTableColumn.title,
+    LibraryTableColumn.publisher,
+    LibraryTableColumn.releaseDate,
+    LibraryTableColumn.condition,
+    LibraryTableColumn.price,
+    LibraryTableColumn.storageBox,
+    LibraryTableColumn.wishlist,
+    LibraryTableColumn.updated,
+  },
+);
+
+const animeLibraryConfig = LibraryTypeConfig(
+  workspace: animeWorkspaceConfig,
+  singularLabel: 'Anime',
+  pluralLabel: 'Anime',
+  defaultMetadataProvider: 'anilist',
+  metadataProviders: [
+    anilistMetadataProvider,
+    tmdbMetadataProvider,
+  ],
+  trackingProfile: videoTrackingProfile,
 );
 
 const booksWorkspaceConfig = LibraryWorkspaceConfig(
@@ -100,6 +133,38 @@ const gamesLibraryConfig = LibraryTypeConfig(
   trackingProfile: gameTrackingProfile,
 );
 
+const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
+  kind: 'boardgame',
+  title: 'Board Games',
+  icon: Icons.casino_outlined,
+  preferencePrefix: 'boardgames',
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: {
+    LibraryTableColumn.status,
+    LibraryTableColumn.cover,
+    LibraryTableColumn.title,
+    LibraryTableColumn.publisher,
+    LibraryTableColumn.releaseDate,
+    LibraryTableColumn.barcode,
+    LibraryTableColumn.condition,
+    LibraryTableColumn.price,
+    LibraryTableColumn.storageBox,
+    LibraryTableColumn.wishlist,
+    LibraryTableColumn.updated,
+  },
+);
+
+const boardGamesLibraryConfig = LibraryTypeConfig(
+  workspace: boardGamesWorkspaceConfig,
+  singularLabel: 'Board Game',
+  pluralLabel: 'Board Games',
+  defaultMetadataProvider: 'bgg',
+  metadataProviders: [
+    bggMetadataProvider,
+  ],
+  trackingProfile: gameTrackingProfile,
+);
+
 const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: 'movie',
   title: 'Movies',
@@ -132,11 +197,11 @@ const moviesLibraryConfig = LibraryTypeConfig(
   trackingProfile: videoTrackingProfile,
 );
 
-const blurayWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'bluray',
-  title: 'Blu-rays',
-  icon: Icons.album,
-  preferencePrefix: 'bluray',
+const musicWorkspaceConfig = LibraryWorkspaceConfig(
+  kind: 'music',
+  title: 'Music',
+  icon: Icons.album_outlined,
+  preferencePrefix: 'music',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
@@ -153,10 +218,42 @@ const blurayWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const blurayLibraryConfig = LibraryTypeConfig(
-  workspace: blurayWorkspaceConfig,
-  singularLabel: 'Blu-ray',
-  pluralLabel: 'Blu-rays',
+const musicLibraryConfig = LibraryTypeConfig(
+  workspace: musicWorkspaceConfig,
+  singularLabel: 'Music Release',
+  pluralLabel: 'Music Releases',
+  defaultMetadataProvider: 'musicbrainz',
+  metadataProviders: [
+    musicBrainzMetadataProvider,
+  ],
+  trackingProfile: readingTrackingProfile,
+);
+
+const tvWorkspaceConfig = LibraryWorkspaceConfig(
+  kind: 'tv',
+  title: 'TV Shows',
+  icon: Icons.tv,
+  preferencePrefix: 'tv',
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: {
+    LibraryTableColumn.status,
+    LibraryTableColumn.cover,
+    LibraryTableColumn.title,
+    LibraryTableColumn.publisher,
+    LibraryTableColumn.releaseDate,
+    LibraryTableColumn.barcode,
+    LibraryTableColumn.condition,
+    LibraryTableColumn.price,
+    LibraryTableColumn.storageBox,
+    LibraryTableColumn.wishlist,
+    LibraryTableColumn.updated,
+  },
+);
+
+const tvLibraryConfig = LibraryTypeConfig(
+  workspace: tvWorkspaceConfig,
+  singularLabel: 'TV show',
+  pluralLabel: 'TV shows',
   defaultMetadataProvider: 'tmdb',
   metadataProviders: [
     tmdbMetadataProvider,

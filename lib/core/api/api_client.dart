@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -91,6 +92,18 @@ class ApiClient {
     return response.data!.cast<Map<String, dynamic>>();
   }
 
+  Future<List<CatalogMediaType>> metadataMediaTypes() async {
+    final response = await _dio.get<List<dynamic>>('/metadata/media-types');
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(CatalogMediaType.fromJson)
+        .toList(growable: false);
+  }
+
   Future<List<Map<String, dynamic>>> searchProvider({
     required String provider,
     required String query,
@@ -166,22 +179,28 @@ class ApiClient {
     int? pageCount,
     String? publisher,
     DateTime? releaseDate,
+    String? physicalFormat,
     String? variantName,
     String? barcode,
     String? coverImageUrl,
     String? thumbnailImageUrl,
+    bool includeNulls = false,
   }) async {
     final data = <String, dynamic>{
-      if (title != null) 'title': title,
-      if (itemNumber != null) 'item_number': itemNumber,
-      if (synopsis != null) 'synopsis': synopsis,
-      if (pageCount != null) 'page_count': pageCount,
-      if (publisher != null) 'publisher': publisher,
-      if (releaseDate != null) 'release_date': _dateForApi(releaseDate.toUtc()),
-      if (variantName != null) 'variant_name': variantName,
-      if (barcode != null) 'barcode': barcode,
-      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (includeNulls || title != null) 'title': title,
+      if (includeNulls || itemNumber != null) 'item_number': itemNumber,
+      if (includeNulls || synopsis != null) 'synopsis': synopsis,
+      if (includeNulls || pageCount != null) 'page_count': pageCount,
+      if (includeNulls || publisher != null) 'publisher': publisher,
+      if (includeNulls || releaseDate != null)
+        'release_date':
+            releaseDate == null ? null : _dateForApi(releaseDate.toUtc()),
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (includeNulls || variantName != null) 'variant_name': variantName,
+      if (includeNulls || barcode != null) 'barcode': barcode,
+      if (includeNulls || coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (includeNulls || thumbnailImageUrl != null)
+        'thumbnail_image_url': thumbnailImageUrl,
     };
     final response = await _dio.patch<Map<String, dynamic>>(
       '/admin/catalog/items/$kind/$id',
@@ -228,6 +247,30 @@ class ApiClient {
     return data
         .cast<Map<String, dynamic>>()
         .map(AdminSearchHistoryEntry.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<List<AdminAuditLogEntry>> adminAuditLogs({
+    String? action,
+    String? entityType,
+    int limit = 10,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/admin/audit/logs',
+      queryParameters: {
+        if (action != null && action.isNotEmpty) 'action': action,
+        if (entityType != null && entityType.isNotEmpty)
+          'entity_type': entityType,
+        'limit': limit,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(AdminAuditLogEntry.fromJson)
         .toList(growable: false);
   }
 
@@ -286,13 +329,12 @@ class ApiClient {
     required String kind,
     required String id,
   }) async {
-    final route = _metadataRouteForKind(kind);
     final response = await _dio.get<Map<String, dynamic>>(
-      '/metadata/$route/$id',
+      '/metadata/$kind/$id',
     );
     final data = response.data;
     if (data == null) {
-      throw StateError('/metadata/$route/$id returned an empty response body');
+      throw StateError('/metadata/$kind/$id returned an empty response body');
     }
     return AdminMetadataItem.fromJson(data);
   }
@@ -368,12 +410,16 @@ class ApiClient {
 
   Future<List<AdminProviderIngestJob>> adminProviderIngestJobs({
     String? status,
+    String? provider,
+    String? query,
     int limit = 25,
   }) async {
     final response = await _dio.get<List<dynamic>>(
       '/admin/providers/ingest/jobs',
       queryParameters: {
         if (status != null && status.isNotEmpty) 'status': status,
+        if (provider != null && provider.isNotEmpty) 'provider': provider,
+        if (query != null && query.isNotEmpty) 'q': query,
         'limit': limit,
       },
     );
@@ -385,6 +431,18 @@ class ApiClient {
         .cast<Map<String, dynamic>>()
         .map(AdminProviderIngestJob.fromJson)
         .toList(growable: false);
+  }
+
+  Future<AdminProviderIngestJobSummary> adminProviderIngestJobSummary() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/admin/providers/ingest/jobs/summary',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/providers/ingest/jobs/summary returned an empty response body');
+    }
+    return AdminProviderIngestJobSummary.fromJson(data);
   }
 
   Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
@@ -478,7 +536,8 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> getComic(String id) async {
-    final response = await _dio.get<Map<String, dynamic>>('/comics/$id');
+    final response =
+        await _dio.get<Map<String, dynamic>>('/metadata/comic/$id');
     return response.data!;
   }
 
@@ -505,18 +564,6 @@ class ApiClient {
     }
     return data;
   }
-}
-
-String _metadataRouteForKind(String kind) {
-  return switch (kind) {
-    'comic' => 'comics',
-    'game' => 'games',
-    'bluray' => 'blu-ray',
-    'movie' => 'movies',
-    'book' => 'books',
-    'boardgame' => 'board-games',
-    _ => kind,
-  };
 }
 
 String _dateForApi(DateTime value) {

@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -138,7 +139,7 @@ class _MissingIssuesDialogState extends ConsumerState<_MissingIssuesDialog> {
     try {
       final items = await searchLibraryMetadata(
         ref.read(apiClientProvider),
-        comicsLibraryConfig,
+        ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig)),
         query: series,
         issueNumber: issue.toString(),
         limit: 10,
@@ -205,7 +206,7 @@ class _MissingIssuesDialogState extends ConsumerState<_MissingIssuesDialog> {
       final query = '$series #$issue';
       final response = await createLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
-        type: comicsLibraryConfig,
+        type: ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig)),
         query: query,
         title: series,
         summary: [
@@ -217,7 +218,7 @@ class _MissingIssuesDialogState extends ConsumerState<_MissingIssuesDialog> {
       );
       await recordLibraryMetadataProposalResponse(
         response: response,
-        type: comicsLibraryConfig,
+        type: ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig)),
         query: query,
         title: series,
         source: 'Missing issues',

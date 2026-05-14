@@ -1,10 +1,39 @@
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('media catalog parses provider defaults and physical formats', () {
+    final mediaType = CatalogMediaType.fromJson({
+      'kind': 'movie',
+      'singular_label': 'Movie',
+      'plural_label': 'Movies',
+      'route_segments': ['movies', 'movie'],
+      'default_provider': 'tmdb',
+      'providers': ['tmdb'],
+      'is_top_level': true,
+      'physical_formats': [
+        {
+          'id': 'blu-ray',
+          'label': 'Blu-ray',
+          'media_family': 'video',
+          'variant_type': 'physical',
+          'aliases': ['bluray', 'blu ray'],
+        }
+      ],
+    });
+
+    expect(mediaType.kind, 'movie');
+    expect(mediaType.defaultProvider, 'tmdb');
+    expect(mediaType.providers, ['tmdb']);
+    expect(mediaType.routeSegments, ['movies', 'movie']);
+    expect(mediaType.physicalFormats.single.id, 'blu-ray');
+    expect(mediaType.physicalFormats.single.aliases, ['bluray', 'blu ray']);
+  });
+
   test('catalog item parses search json', () {
     final item = CatalogItem.fromJson({
       'id': 'id-1',
@@ -96,6 +125,8 @@ void main() {
           'id': 'edition-1',
           'title': 'Regular Edition',
           'format': 'Single Issue',
+          'physical_format': 'blu-ray',
+          'physical_format_label': 'Blu-ray',
           'publisher': 'Marvel',
           'isbn': null,
           'upc': '75960604716100111',
@@ -124,6 +155,8 @@ void main() {
               'cover_image_url': 'https://cdn.example/full.jpg',
               'thumbnail_image_url': 'https://cdn.example/thumb.jpg',
               'description': 'Regular cover',
+              'physical_format': 'blu-ray',
+              'physical_format_label': 'Blu-ray',
               'is_primary': true,
             }
           ],
@@ -156,8 +189,11 @@ void main() {
     expect(detail.providerLinks.single.providerItemId, '4000-1');
     expect(detail.primaryEdition?.releaseDate, DateTime.utc(2026, 5, 11));
     expect(detail.primaryEdition?.region, 'US');
+    expect(detail.primaryEdition?.physicalFormat, 'blu-ray');
+    expect(detail.primaryEdition?.physicalFormatLabel, 'Blu-ray');
     expect(detail.primaryEdition?.releases.single.region, 'US');
     expect(detail.primaryVariant?.barcode, '75960604716100111');
+    expect(detail.primaryVariant?.physicalFormatLabel, 'Blu-ray');
     expect(detail.primaryVariant?.coverPriceCents, 399);
     expect(
       detail.primaryEdition?.sourceMetadata?['site_detail_url'],

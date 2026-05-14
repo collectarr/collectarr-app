@@ -17,10 +17,29 @@ void main() {
     );
     expect(
       collectarrMetadataProviderRegistry
-          .forKind('bluray')
+          .forKind('manga')
+          .map((provider) => provider.id),
+      ['comicvine', 'anilist'],
+    );
+    expect(
+      collectarrMetadataProviderRegistry
+          .forKind('anime')
+          .map((provider) => provider.id),
+      ['anilist', 'tmdb'],
+    );
+    expect(
+      collectarrMetadataProviderRegistry
+          .forKind('movie')
           .map((provider) => provider.id),
       ['tmdb'],
     );
+    expect(
+      collectarrMetadataProviderRegistry
+          .forKind('tv')
+          .map((provider) => provider.id),
+      ['tmdb'],
+    );
+    expect(collectarrMetadataProviderRegistry.forKind('bluray'), isEmpty);
   });
 
   test('known metadata provider registry resolves provider details', () {

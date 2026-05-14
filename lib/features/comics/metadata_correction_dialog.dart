@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
@@ -23,14 +24,14 @@ Future<void> showMetadataCorrectionDialog({
     final title = draft.title.trim().isEmpty ? item.title : draft.title.trim();
     final response = await createLibraryMetadataProposal(
       api: ref.read(apiClientProvider),
-      type: comicsLibraryConfig,
+      type: ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig)),
       query: query,
       title: title,
       summary: draft.summaryFor(item),
     );
     await recordLibraryMetadataProposalResponse(
       response: response,
-      type: comicsLibraryConfig,
+      type: ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig)),
       query: query,
       title: title,
       source: 'Metadata correction',

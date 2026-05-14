@@ -69,7 +69,10 @@ class ComicsRichMetadataInspector extends StatelessWidget {
               'Cover date',
               formatNullableComicInspectorDate(detailValue?.coverDate) ?? '-',
             ),
-            LibraryInspectorFact('Format', edition?.format ?? item.kind),
+            LibraryInspectorFact(
+              'Format',
+              edition?.physicalFormatLabel ?? edition?.format ?? item.kind,
+            ),
             LibraryInspectorFact(
               'UPC / ISBN',
               edition?.upc ?? edition?.isbn ?? '-',
@@ -253,6 +256,8 @@ class ComicsRichMetadataInspector extends StatelessWidget {
     }
     return [
       LibraryInspectorFactData('Variant cover', variant.name),
+      if (variant.physicalFormatLabel != null)
+        LibraryInspectorFactData('Physical format', variant.physicalFormatLabel!),
       if (variant.variantType != null)
         LibraryInspectorFactData('Variant type', variant.variantType!),
       if (variant.region != null)

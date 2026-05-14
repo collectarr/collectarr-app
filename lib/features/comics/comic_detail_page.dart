@@ -485,6 +485,9 @@ class _EditionPanel extends StatelessWidget {
               children: [
                 if (edition.format != null)
                   _MetadataChip(label: edition.format!),
+                if (edition.physicalFormatLabel != null &&
+                    edition.physicalFormatLabel != edition.format)
+                  _MetadataChip(label: edition.physicalFormatLabel!),
                 if (edition.publisher != null)
                   _MetadataChip(label: edition.publisher!),
                 if (edition.language != null)
@@ -511,6 +514,7 @@ class _EditionPanel extends StatelessWidget {
                   subtitle: Text(
                     [
                       variant.variantType,
+                      variant.physicalFormatLabel,
                       variant.sku,
                       variant.barcode,
                       _moneyLabel(variant.coverPriceCents, variant.currency),

@@ -12,17 +12,23 @@ const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
 final mangaMediaAdapter = plannedMediaAdapter(mangaLibraryConfig);
+final animeMediaAdapter = plannedMediaAdapter(animeLibraryConfig);
 final booksMediaAdapter = plannedMediaAdapter(booksLibraryConfig);
 final gamesMediaAdapter = plannedMediaAdapter(gamesLibraryConfig);
+final boardGamesMediaAdapter = plannedMediaAdapter(boardGamesLibraryConfig);
 final moviesMediaAdapter = plannedMediaAdapter(moviesLibraryConfig);
-final blurayMediaAdapter = plannedMediaAdapter(blurayLibraryConfig);
+final tvMediaAdapter = plannedMediaAdapter(tvLibraryConfig);
+final musicMediaAdapter = plannedMediaAdapter(musicLibraryConfig);
 
 final plannedMediaAdapters = LibraryMediaAdapterRegistry([
   mangaMediaAdapter,
+  animeMediaAdapter,
   booksMediaAdapter,
   gamesMediaAdapter,
+  boardGamesMediaAdapter,
   moviesMediaAdapter,
-  blurayMediaAdapter,
+  tvMediaAdapter,
+  musicMediaAdapter,
 ]);
 
 LibraryMediaAdapter plannedMediaAdapter(LibraryTypeConfig type) {

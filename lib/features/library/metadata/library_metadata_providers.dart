@@ -14,8 +14,8 @@ const gcdMetadataProvider = LibraryMetadataProviderOption(
 const comicVineMetadataProvider = LibraryMetadataProviderOption(
   id: 'comicvine',
   label: 'Comic Vine',
-  description: 'Personal non-commercial enrichment',
-  supportedKinds: {'comic'},
+  description: 'Personal non-commercial comics and manga enrichment',
+  supportedKinds: {'comic', 'manga'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary: 'Personal non-commercial use only',
@@ -27,11 +27,24 @@ const comicVineMetadataProvider = LibraryMetadataProviderOption(
 const igdbMetadataProvider = LibraryMetadataProviderOption(
   id: 'igdb',
   label: 'IGDB',
-  description: 'Planned games metadata provider',
+  description: 'Live games metadata provider',
   supportedKinds: {'game'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
-    summary: 'Planned provider with attribution and commercial-use constraints',
+    summary:
+        'Game metadata with attribution and non-commercial API constraints',
+    requiresAttribution: true,
+  ),
+);
+
+const bggMetadataProvider = LibraryMetadataProviderOption(
+  id: 'bgg',
+  label: 'BoardGameGeek',
+  description: 'Live board game metadata provider',
+  supportedKinds: {'boardgame'},
+  requiresApiKey: true,
+  usagePolicy: LibraryMetadataProviderUsagePolicy(
+    summary: 'Board game metadata with attribution and API constraints',
     requiresAttribution: true,
   ),
 );
@@ -39,10 +52,10 @@ const igdbMetadataProvider = LibraryMetadataProviderOption(
 const openLibraryMetadataProvider = LibraryMetadataProviderOption(
   id: 'openlibrary',
   label: 'Open Library',
-  description: 'Planned books metadata provider',
+  description: 'Live books metadata provider',
   supportedKinds: {'book'},
   usagePolicy: LibraryMetadataProviderUsagePolicy(
-    summary: 'Planned books metadata provider with attribution requirements',
+    summary: 'Book metadata with attribution requirements',
     requiresAttribution: true,
   ),
 );
@@ -50,11 +63,10 @@ const openLibraryMetadataProvider = LibraryMetadataProviderOption(
 const anilistMetadataProvider = LibraryMetadataProviderOption(
   id: 'anilist',
   label: 'AniList',
-  description: 'Planned manga metadata provider',
-  supportedKinds: {'manga'},
-  requiresApiKey: true,
+  description: 'Live anime and manga metadata provider',
+  supportedKinds: {'manga', 'anime'},
   usagePolicy: LibraryMetadataProviderUsagePolicy(
-    summary: 'Planned manga metadata provider with attribution requirements',
+    summary: 'Public anime/manga metadata with attribution requirements',
     requiresAttribution: true,
   ),
 );
@@ -62,11 +74,23 @@ const anilistMetadataProvider = LibraryMetadataProviderOption(
 const tmdbMetadataProvider = LibraryMetadataProviderOption(
   id: 'tmdb',
   label: 'TMDb',
-  description: 'Planned movie and Blu-ray metadata provider',
-  supportedKinds: {'movie', 'bluray'},
+  description: 'Live movie, TV, and anime metadata provider',
+  supportedKinds: {'movie', 'tv', 'anime'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
-    summary: 'Planned provider with attribution and redistribution constraints',
+    summary:
+        'Live movie/TV/anime metadata provider; physical media is tracked as editions',
+    requiresAttribution: true,
+  ),
+);
+
+const musicBrainzMetadataProvider = LibraryMetadataProviderOption(
+  id: 'musicbrainz',
+  label: 'MusicBrainz',
+  description: 'Live music release metadata provider',
+  supportedKinds: {'music'},
+  usagePolicy: LibraryMetadataProviderUsagePolicy(
+    summary: 'Music metadata with attribution requirements',
     requiresAttribution: true,
   ),
 );
@@ -75,9 +99,11 @@ const collectarrKnownMetadataProviders = [
   gcdMetadataProvider,
   comicVineMetadataProvider,
   igdbMetadataProvider,
+  bggMetadataProvider,
   openLibraryMetadataProvider,
   anilistMetadataProvider,
   tmdbMetadataProvider,
+  musicBrainzMetadataProvider,
 ];
 
 class LibraryMetadataProviderRegistry {

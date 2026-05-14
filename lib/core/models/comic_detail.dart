@@ -118,6 +118,8 @@ class ComicEdition {
     this.language,
     this.region,
     this.releaseDate,
+    this.physicalFormat,
+    this.physicalFormatLabel,
     this.metadataJson,
   });
 
@@ -130,6 +132,8 @@ class ComicEdition {
   final String? language;
   final String? region;
   final DateTime? releaseDate;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
   final Map<String, dynamic>? metadataJson;
   final List<ComicVariant> variants;
   final List<ComicRelease> releases;
@@ -159,6 +163,8 @@ class ComicEdition {
       language: json['language'] as String?,
       region: json['region'] as String?,
       releaseDate: parseDate(json['release_date'] as String?),
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
       metadataJson: json['metadata_json'] as Map<String, dynamic>?,
       variants: [
         for (final variant in (json['variants'] as List<dynamic>? ?? []))
@@ -229,6 +235,8 @@ class ComicVariant {
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.description,
+    this.physicalFormat,
+    this.physicalFormatLabel,
   });
 
   final String id;
@@ -243,6 +251,8 @@ class ComicVariant {
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? description;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
   final bool isPrimary;
 
   factory ComicVariant.fromJson(Map<String, dynamic> json) {
@@ -259,6 +269,8 @@ class ComicVariant {
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       description: json['description'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
       isPrimary: json['is_primary'] as bool? ?? false,
     );
   }

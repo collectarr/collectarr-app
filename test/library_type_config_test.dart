@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/planned_library_configs.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -49,30 +50,44 @@ void main() {
     expect(collectarrLibraryTypes.supportedKinds, [
       'comic',
       'manga',
+      'anime',
       'book',
       'game',
+      'boardgame',
       'movie',
-      'bluray',
+      'tv',
+      'music',
     ]);
     expect(collectarrLibraryTypes.byKind('comic'), comicsLibraryConfig);
     expect(collectarrLibraryTypes.byKind(' Comic '), comicsLibraryConfig);
     expect(
         collectarrLibraryTypes.byKind('game')?.defaultMetadataProvider, 'igdb');
+    expect(collectarrLibraryTypes.byKind('boardgame')?.defaultMetadataProvider,
+        'bgg');
     expect(collectarrLibraryTypes.byKind('manga')?.defaultMetadataProvider,
+        'anilist');
+    expect(collectarrLibraryTypes.byKind('anime')?.defaultMetadataProvider,
         'anilist');
     expect(collectarrLibraryTypes.byKind('book')?.defaultMetadataProvider,
         'openlibrary');
     expect(collectarrLibraryTypes.byKind('movie')?.defaultMetadataProvider,
         'tmdb');
-    expect(collectarrLibraryTypes.byKind('bluray')?.defaultMetadataProvider,
-        'tmdb');
+    expect(
+        collectarrLibraryTypes.byKind('tv')?.defaultMetadataProvider, 'tmdb');
+    expect(collectarrLibraryTypes.byKind('music')?.defaultMetadataProvider,
+        'musicbrainz');
+    expect(collectarrLibraryTypes.byKind('bluray'), isNull);
     expect(
       collectarrLibraryTypes.providersForKind('comic').map((row) => row.id),
       ['gcd', 'comicvine'],
     );
     expect(
       collectarrLibraryTypes.providersForKind('manga').map((row) => row.id),
-      ['anilist'],
+      ['anilist', 'comicvine'],
+    );
+    expect(
+      collectarrLibraryTypes.providersForKind('anime').map((row) => row.id),
+      ['anilist', 'tmdb'],
     );
     expect(
       collectarrLibraryTypes.providersForKind('book').map((row) => row.id),
@@ -83,13 +98,33 @@ void main() {
       ['igdb'],
     );
     expect(
+      collectarrLibraryTypes.providersForKind('boardgame').map((row) => row.id),
+      ['bgg'],
+    );
+    expect(
       collectarrLibraryTypes.providersForKind('movie').map((row) => row.id),
       ['tmdb'],
     );
     expect(
-      collectarrLibraryTypes.providersForKind('bluray').map((row) => row.id),
+      collectarrLibraryTypes.providersForKind('tv').map((row) => row.id),
       ['tmdb'],
     );
+    expect(
+      collectarrLibraryTypes.providersForKind('music').map((row) => row.id),
+      ['musicbrainz'],
+    );
+    expect(collectarrLibraryTypes.providersForKind('bluray'), isEmpty);
+  });
+
+  test('video physical formats are variants under movies and tv', () {
+    expect(
+      videoPhysicalMediaFormats.map((format) => format.id),
+      ['dvd', 'blu-ray', '4k-uhd', 'vhs', 'laserdisc', 'digital'],
+    );
+    expect(physicalMediaFormatById(' blu-ray ')?.label, 'Blu-ray');
+    expect(physicalMediaFormatById('bluray')?.label, 'Blu-ray');
+    expect(physicalMediaFormatById('4k blu-ray')?.label, '4K UHD');
+    expect(physicalMediaFormatById('digital')?.variantType, 'digital');
   });
 
   test('comics media adapter exposes reusable workspace table behavior', () {
@@ -123,22 +158,31 @@ void main() {
   test('planned media adapters cover non-comics workspace defaults', () {
     expect(plannedMediaAdapters.supportedKinds, [
       'manga',
+      'anime',
       'book',
       'game',
+      'boardgame',
       'movie',
-      'bluray',
+      'tv',
+      'music',
     ]);
     expect(collectarrMediaAdapters.supportedKinds, [
       'comic',
       'manga',
+      'anime',
       'book',
       'game',
+      'boardgame',
       'movie',
-      'bluray',
+      'tv',
+      'music',
     ]);
     expect(collectarrMediaAdapters.byKind(' Comic '), comicsMediaAdapter);
     expect(collectarrMediaAdapters.byKind('manga'), mangaMediaAdapter);
+    expect(collectarrMediaAdapters.byKind('anime'), animeMediaAdapter);
     expect(collectarrMediaAdapters.byKind('book')?.type, booksLibraryConfig);
+    expect(collectarrMediaAdapters.byKind('boardgame')?.type,
+        boardGamesLibraryConfig);
     expect(
       collectarrMediaAdapters
           .byKind('movie')
@@ -148,10 +192,8 @@ void main() {
           .contains(LibraryTableColumn.title),
       isTrue,
     );
-    expect(
-      blurayMediaAdapter.columnDisplayName(LibraryTableColumn.title),
-      'Title',
-    );
+    expect(collectarrMediaAdapters.byKind('tv')?.type, tvLibraryConfig);
+    expect(collectarrMediaAdapters.byKind('music')?.type, musicLibraryConfig);
     expect(
       gamesMediaAdapter.columnSort(LibraryTableColumn.releaseDate),
       LibrarySortColumn.releaseDate,

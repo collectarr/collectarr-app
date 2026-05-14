@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/features/library/collectarr_library_types.dart';
+import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
@@ -19,13 +21,17 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   final _queryController = TextEditingController();
   final _providerItemIdController = TextEditingController();
   final _jobProviderItemIdController = TextEditingController();
+  final _ingestJobQueryController = TextEditingController();
+  var _mediaTypes = const <CatalogMediaType>[];
   var _providers = const <AdminProviderStatus>[];
   AdminCatalogSummary? _summary;
   AdminSearchStatus? _searchStatus;
   AdminSearchReindexResult? _lastReindex;
   var _searchHistory = const <AdminSearchHistoryEntry>[];
+  var _auditLogs = const <AdminAuditLogEntry>[];
   var _ingestHistory = const <AdminProviderIngestHistoryEntry>[];
   var _ingestJobs = const <AdminProviderIngestJob>[];
+  AdminProviderIngestJobSummary? _ingestJobSummary;
   var _catalogItems = const <AdminMetadataItem>[];
   AdminMetadataItem? _inspectedItem;
   var _duplicates = const <AdminDuplicateCandidate>[];
@@ -34,6 +40,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _selectedProvider = '';
   String? _selectedProviderKindFilter;
   String? _ingestJobStatusFilter;
+  String? _ingestJobProviderFilter;
   AdminProviderIngestResult? _lastIngest;
   String? _statusMessage;
   String? _errorMessage;
@@ -61,6 +68,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   void initState() {
     super.initState();
     _loadDashboard();
+    _loadMediaTypes();
     _loadProviders();
     _searchCatalog();
   }
@@ -71,6 +79,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     _queryController.dispose();
     _providerItemIdController.dispose();
     _jobProviderItemIdController.dispose();
+    _ingestJobQueryController.dispose();
     super.dispose();
   }
 
@@ -142,6 +151,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     final kindField = _ProviderKindSelector(
                       value: _catalogKindFilter,
                       kinds: _catalogKindOptions(),
+                      kindLabels: _catalogKindLabels(),
                       isLoading: _isLoadingProviders,
                       onChanged: (value) {
                         setState(() {
@@ -229,6 +239,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           ),
           const SizedBox(height: 12),
           _AdminPanel(
+            icon: Icons.manage_history_outlined,
+            title: 'Admin audit log',
+            child: _AdminAuditLogList(logs: _auditLogs),
+          ),
+          const SizedBox(height: 12),
+          _AdminPanel(
             icon: Icons.report_problem_outlined,
             title: 'Provider ingest history',
             child: _ProviderIngestHistoryList(
@@ -248,15 +264,20 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             ),
             child: _ProviderIngestJobPanel(
               jobs: _ingestJobs,
+              summary: _ingestJobSummary,
               statusFilter: _ingestJobStatusFilter,
+              providerFilter: _ingestJobProviderFilter,
               selectedProvider: _selectedProvider,
               providers: _providerOptions(forIngest: true),
               isLoadingProviders: _isLoadingProviders,
               providerItemIdController: _jobProviderItemIdController,
+              queryController: _ingestJobQueryController,
               isRunningJobs: _isRunningJobs,
               actionJobId: _jobActionId,
               onProviderChanged: _changeSelectedProvider,
               onStatusFilterChanged: _changeIngestJobStatusFilter,
+              onProviderFilterChanged: _changeIngestJobProviderFilter,
+              onApplyFilters: _loadDashboard,
               onQueueCurrent: _queueCurrentProviderItemId,
               onRunPending: _runPendingIngestJobs,
               onRun: _runIngestJob,
@@ -336,6 +357,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     final kindField = _ProviderKindSelector(
                       value: _selectedProviderKindFilter,
                       kinds: _providerKindOptions(forSearch: true),
+                      kindLabels: _catalogKindLabels(),
                       isLoading: _isLoadingProviders,
                       onChanged: _changeProviderKindFilter,
                     );
@@ -469,9 +491,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final summary = await api.adminCatalogSummary();
       final searchStatus = await api.adminSearchStatus();
       final searchHistory = await api.adminSearchHistory();
+      final auditLogs = await api.adminAuditLogs(limit: 8);
       final ingestHistory = await api.adminProviderIngestHistory();
+      final ingestJobSummary = await api.adminProviderIngestJobSummary();
+      final ingestJobQuery = _ingestJobQueryController.text.trim();
       final ingestJobs = await api.adminProviderIngestJobs(
         status: _ingestJobStatusFilter,
+        provider: _ingestJobProviderFilter,
+        query: ingestJobQuery.isEmpty ? null : ingestJobQuery,
         limit: 8,
       );
       final duplicates = await api.adminDuplicateCandidates(limit: 5);
@@ -482,8 +509,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _summary = summary;
         _searchStatus = searchStatus;
         _searchHistory = searchHistory;
+        _auditLogs = auditLogs;
         _ingestHistory = ingestHistory;
         _ingestJobs = ingestJobs;
+        _ingestJobSummary = ingestJobSummary;
         _duplicates = duplicates;
         _isLoadingDashboard = false;
       });
@@ -597,9 +626,16 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _showMetadataCorrectionDialog(AdminMetadataItem item) async {
+    final physicalFormats = physicalMediaFormatsForKind(
+      _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
+      item.kind,
+    );
     final correction = await showDialog<_CatalogCorrection>(
       context: context,
-      builder: (context) => _MetadataCorrectionDialog(item: item),
+      builder: (context) => _MetadataCorrectionDialog(
+        item: item,
+        physicalFormats: physicalFormats,
+      ),
     );
     if (correction == null || !mounted) {
       return;
@@ -620,10 +656,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             pageCount: correction.pageCount,
             publisher: correction.publisher,
             releaseDate: correction.releaseDate,
+            physicalFormat: correction.physicalFormat,
             variantName: correction.variantName,
             barcode: correction.barcode,
             coverImageUrl: correction.coverImageUrl,
             thumbnailImageUrl: correction.thumbnailImageUrl,
+            includeNulls: true,
           );
       if (!mounted) {
         return;
@@ -720,7 +758,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _isRunningJobs = false;
-        _statusMessage = 'Processed ${result.processed} ingest jobs.';
+        _statusMessage = result.recovered > 0
+            ? 'Processed ${result.processed} ingest jobs; recovered ${result.recovered} stale jobs.'
+            : 'Processed ${result.processed} ingest jobs.';
       });
       await _loadDashboard();
     } catch (error) {
@@ -781,6 +821,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   void _changeIngestJobStatusFilter(String? status) {
     setState(() {
       _ingestJobStatusFilter = status == null || status.isEmpty ? null : status;
+    });
+    _loadDashboard();
+  }
+
+  void _changeIngestJobProviderFilter(String? provider) {
+    setState(() {
+      _ingestJobProviderFilter =
+          provider == null || provider.isEmpty ? null : provider;
     });
     _loadDashboard();
   }
@@ -854,6 +902,45 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     AdminDuplicateCandidate candidate,
   ) async {
     if (candidate.itemIds.length < 2) {
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Ignore duplicate group?'),
+            content: SizedBox(
+              width: 440,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _DestructiveWarning(
+                    icon: Icons.visibility_off_outlined,
+                    message:
+                        'This hides the duplicate group from admin review. No catalog records are deleted, but the decision is audit logged.',
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${candidate.itemIds.length} items will be marked as reviewed for ${candidate.displayTitle}.',
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton.tonalIcon(
+                onPressed: () => Navigator.of(context).pop(true),
+                icon: const Icon(Icons.visibility_off_outlined),
+                label: const Text('Ignore group'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    if (!confirmed || !mounted) {
       return;
     }
     setState(() {
@@ -965,6 +1052,25 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       setState(() {
         _isLoadingProviders = false;
         _errorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _loadMediaTypes() async {
+    try {
+      final mediaTypes = await ref.read(mediaCatalogProvider.future);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _mediaTypes = mediaTypes;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _mediaTypes = const [];
       });
     }
   }
@@ -1146,6 +1252,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   String? _selectedProviderKind() {
     for (final provider in _providers) {
       if (provider.name == _selectedProvider) {
+        final filterKind = _selectedProviderKindFilter;
+        if (filterKind != null &&
+            provider.effectiveKinds.contains(filterKind)) {
+          return filterKind;
+        }
         return provider.kind;
       }
     }
@@ -1153,19 +1264,27 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   String _fallbackProviderKind() {
+    final catalogOptions = _catalogKindOptions();
     return _selectedProviderKind() ??
         _catalogKindFilter ??
-        collectarrLibraryTypes.supportedKinds.first;
+        (catalogOptions.isEmpty ? 'comic' : catalogOptions.first);
   }
 
   List<String> _catalogKindOptions() {
-    final kinds = <String>{...collectarrLibraryTypes.supportedKinds};
+    final kinds = <String>{
+      for (final type in _mediaTypes)
+        if (type.isTopLevel && type.kind.isNotEmpty) type.kind,
+    };
     for (final provider in _providers) {
-      if (provider.kind.isNotEmpty) {
-        kinds.add(provider.kind);
+      for (final kind in provider.effectiveKinds) {
+        if (kind.isNotEmpty) {
+          kinds.add(kind);
+        }
       }
     }
-    return kinds.toList(growable: false)..sort(_compareMediaKinds);
+    final labels = _catalogKindLabels();
+    return kinds.toList(growable: false)
+      ..sort((left, right) => _compareMediaKinds(left, right, labels));
   }
 
   List<String> _providerKindOptions({required bool forSearch}) {
@@ -1173,11 +1292,25 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     for (final provider in _providers) {
       final supported =
           forSearch ? provider.supportsSearch : provider.supportsIngest;
-      if (supported && provider.kind.isNotEmpty) {
-        kinds.add(provider.kind);
+      if (!supported) {
+        continue;
+      }
+      for (final kind in provider.effectiveKinds) {
+        if (kind.isNotEmpty) {
+          kinds.add(kind);
+        }
       }
     }
-    return kinds.toList(growable: false)..sort(_compareMediaKinds);
+    final labels = _catalogKindLabels();
+    return kinds.toList(growable: false)
+      ..sort((left, right) => _compareMediaKinds(left, right, labels));
+  }
+
+  Map<String, String> _catalogKindLabels() {
+    return {
+      for (final type in _mediaTypes)
+        if (type.kind.isNotEmpty) type.kind: _mediaTypeDisplayLabel(type),
+    };
   }
 
   List<AdminProviderStatus> _providerOptions({
@@ -1188,7 +1321,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return [
       for (final provider in _providers)
         if ((forIngest ? provider.supportsIngest : provider.supportsSearch) &&
-            (filterKind == null || provider.kind == filterKind))
+            (filterKind == null ||
+                provider.effectiveKinds.contains(filterKind)))
           provider,
     ];
   }
@@ -1453,12 +1587,14 @@ class _ProviderKindSelector extends StatelessWidget {
   const _ProviderKindSelector({
     required this.value,
     required this.kinds,
+    required this.kindLabels,
     required this.isLoading,
     required this.onChanged,
   });
 
   final String? value;
   final List<String> kinds;
+  final Map<String, String> kindLabels;
   final bool isLoading;
   final ValueChanged<String?> onChanged;
 
@@ -1493,8 +1629,8 @@ class _ProviderKindSelector extends StatelessWidget {
         for (final kind in kinds)
           DropdownMenuItem(
             value: kind,
-            child:
-                Text(_providerKindLabel(kind), overflow: TextOverflow.ellipsis),
+            child: Text(_providerKindLabel(kind, kindLabels),
+                overflow: TextOverflow.ellipsis),
           ),
       ],
       onChanged: onChanged,
@@ -1678,15 +1814,20 @@ class _CatalogItemTile extends StatelessWidget {
 class _ProviderIngestJobPanel extends StatelessWidget {
   const _ProviderIngestJobPanel({
     required this.jobs,
+    required this.summary,
     required this.statusFilter,
+    required this.providerFilter,
     required this.selectedProvider,
     required this.providers,
     required this.isLoadingProviders,
     required this.providerItemIdController,
+    required this.queryController,
     required this.isRunningJobs,
     required this.actionJobId,
     required this.onProviderChanged,
     required this.onStatusFilterChanged,
+    required this.onProviderFilterChanged,
+    required this.onApplyFilters,
     required this.onQueueCurrent,
     required this.onRunPending,
     required this.onRun,
@@ -1694,15 +1835,20 @@ class _ProviderIngestJobPanel extends StatelessWidget {
   });
 
   final List<AdminProviderIngestJob> jobs;
+  final AdminProviderIngestJobSummary? summary;
   final String? statusFilter;
+  final String? providerFilter;
   final String selectedProvider;
   final List<AdminProviderStatus> providers;
   final bool isLoadingProviders;
   final TextEditingController providerItemIdController;
+  final TextEditingController queryController;
   final bool isRunningJobs;
   final String? actionJobId;
   final ValueChanged<String?> onProviderChanged;
   final ValueChanged<String?> onStatusFilterChanged;
+  final ValueChanged<String?> onProviderFilterChanged;
+  final VoidCallback onApplyFilters;
   final VoidCallback onQueueCurrent;
   final VoidCallback onRunPending;
   final ValueChanged<AdminProviderIngestJob> onRun;
@@ -1711,9 +1857,14 @@ class _ProviderIngestJobPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filterValue = statusFilter ?? '';
+    final providerFilterValue = providerFilter ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (summary != null) ...[
+          _ProviderIngestJobSummaryBar(summary: summary!),
+          const SizedBox(height: 12),
+        ],
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -1723,6 +1874,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
               width: 190,
               child: DropdownButtonFormField<String>(
                 initialValue: filterValue,
+                isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Status filter',
                   border: OutlineInputBorder(),
@@ -1736,6 +1888,53 @@ class _ProviderIngestJobPanel extends StatelessWidget {
                 ],
                 onChanged: onStatusFilterChanged,
               ),
+            ),
+            SizedBox(
+              width: 190,
+              child: DropdownButtonFormField<String>(
+                initialValue: providerFilterValue,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Provider filter',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  const DropdownMenuItem(
+                    value: '',
+                    child: Text(
+                      'All providers',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  for (final provider in providers)
+                    DropdownMenuItem(
+                      value: provider.name,
+                      child: Text(
+                        provider.displayName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: onProviderFilterChanged,
+              ),
+            ),
+            SizedBox(
+              width: 240,
+              child: TextField(
+                controller: queryController,
+                decoration: const InputDecoration(
+                  labelText: 'Job search',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+                textInputAction: TextInputAction.search,
+                onSubmitted: (_) => onApplyFilters(),
+              ),
+            ),
+            OutlinedButton.icon(
+              onPressed: onApplyFilters,
+              icon: const Icon(Icons.filter_alt_outlined),
+              label: const Text('Apply filters'),
             ),
             SizedBox(
               width: 220,
@@ -1796,6 +1995,58 @@ class _ProviderIngestJobPanel extends StatelessWidget {
                 onRetry: () => onRetry(job),
               ),
             ),
+      ],
+    );
+  }
+}
+
+class _ProviderIngestJobSummaryBar extends StatelessWidget {
+  const _ProviderIngestJobSummaryBar({required this.summary});
+
+  final AdminProviderIngestJobSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _StatusChip(
+          icon: Icons.pending_actions_outlined,
+          label: '${summary.queued} queued',
+        ),
+        _StatusChip(
+          icon: Icons.sync_outlined,
+          label: '${summary.running} running',
+        ),
+        _StatusChip(
+          icon: Icons.error_outline,
+          label: '${summary.failed} failed',
+        ),
+        _StatusChip(
+          icon: Icons.check_circle_outline,
+          label: '${summary.done} done',
+        ),
+        if (summary.dueQueued > 0)
+          _StatusChip(
+            icon: Icons.timer_outlined,
+            label: '${summary.dueQueued} due',
+          ),
+        if (summary.staleRunning > 0)
+          _StatusChip(
+            icon: Icons.running_with_errors_outlined,
+            label: '${summary.staleRunning} stale',
+          ),
+        if (summary.nextRunAt != null)
+          _StatusChip(
+            icon: Icons.schedule_outlined,
+            label: 'next ${_formatDateTime(summary.nextRunAt!)}',
+          ),
+        if (summary.latestFailureAt != null)
+          _StatusChip(
+            icon: Icons.report_problem_outlined,
+            label: 'failed ${_formatDateTime(summary.latestFailureAt!)}',
+          ),
       ],
     );
   }
@@ -1954,6 +2205,74 @@ class _SearchHistoryList extends StatelessWidget {
                                   ),
                         ),
                       ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _AdminAuditLogList extends StatelessWidget {
+  const _AdminAuditLogList({required this.logs});
+
+  final List<AdminAuditLogEntry> logs;
+
+  @override
+  Widget build(BuildContext context) {
+    if (logs.isEmpty) {
+      return const _MessageRow(
+        message: 'No admin audit events yet.',
+        isError: false,
+      );
+    }
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final log in logs.take(8))
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.35,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorScheme.outlineVariant),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Icon(Icons.manage_history_outlined,
+                        color: colorScheme.primary),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 260),
+                      child: Text(
+                        log.action,
+                        style: Theme.of(context).textTheme.titleSmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    _MiniChip(label: log.displayActor),
+                    _MiniChip(label: log.displayEntity),
+                    _MiniChip(label: _formatDateTime(log.createdAt)),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: Text(
+                        log.detailsSummary,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -2288,6 +2607,8 @@ class _ProviderStatusTile extends StatelessWidget {
                     const _MiniChip(label: 'non-commercial'),
                   if (provider.requiresAttribution)
                     const _MiniChip(label: 'attribution'),
+                  if (provider.allowsImageMirroring)
+                    const _MiniChip(label: 'image mirror ok'),
                   if (provider.licenseName != null)
                     _MiniChip(label: provider.licenseName!),
                 ],
@@ -2465,6 +2786,7 @@ class _CanonicalItemSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final variant = item.primaryVariant;
+    final edition = item.primaryEdition;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -2516,6 +2838,8 @@ class _CanonicalItemSummary extends StatelessWidget {
                     _MiniChip(label: 'ID ${_shortId(item.id)}'),
                     if (item.seriesTitle != null)
                       _MiniChip(label: item.seriesTitle!),
+                    if (edition?.physicalFormatLabel != null)
+                      _MiniChip(label: edition!.physicalFormatLabel!),
                     if (item.publisher != null)
                       _MiniChip(label: item.publisher!),
                     if (item.barcode != null) _MiniChip(label: item.barcode!),
@@ -2655,6 +2979,8 @@ class _CoverInspectionDialog extends StatelessWidget {
                         ),
                         SelectableText(
                           [
+                            if (variant.physicalFormatLabel != null)
+                              'format: ${variant.physicalFormatLabel}',
                             if (variant.coverImageUrl != null)
                               'cover: ${variant.coverImageUrl}',
                             if (variant.thumbnailImageUrl != null)
@@ -2689,6 +3015,7 @@ class _CatalogCorrection {
     this.pageCount,
     this.publisher,
     this.releaseDate,
+    this.physicalFormat,
     this.variantName,
     this.barcode,
     this.coverImageUrl,
@@ -2701,16 +3028,33 @@ class _CatalogCorrection {
   final int? pageCount;
   final String? publisher;
   final DateTime? releaseDate;
+  final String? physicalFormat;
   final String? variantName;
   final String? barcode;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
 }
 
+class _CorrectionPreviewEntry {
+  const _CorrectionPreviewEntry({
+    required this.label,
+    required this.before,
+    required this.after,
+  });
+
+  final String label;
+  final String before;
+  final String after;
+}
+
 class _MetadataCorrectionDialog extends StatefulWidget {
-  const _MetadataCorrectionDialog({required this.item});
+  const _MetadataCorrectionDialog({
+    required this.item,
+    required this.physicalFormats,
+  });
 
   final AdminMetadataItem item;
+  final List<PhysicalMediaFormat> physicalFormats;
 
   @override
   State<_MetadataCorrectionDialog> createState() =>
@@ -2728,6 +3072,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   late final TextEditingController _coverController;
   late final TextEditingController _thumbnailController;
   late final TextEditingController _synopsisController;
+  late String _physicalFormatId;
   String? _error;
 
   @override
@@ -2757,6 +3102,13 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
         TextEditingController(text: variant?.thumbnailImageUrl ?? '');
     _synopsisController =
         TextEditingController(text: widget.item.synopsis ?? '');
+    final edition = widget.item.primaryEdition;
+    _physicalFormatId = edition?.physicalFormat ??
+        physicalMediaFormatById(
+          edition?.physicalFormatLabel ?? '',
+          formats: widget.physicalFormats,
+        )?.id ??
+        '';
   }
 
   @override
@@ -2796,6 +3148,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
               _correctionField(_pageCountController, 'Page count',
                   keyboardType: TextInputType.number),
               _correctionField(_releaseDateController, 'Release date'),
+              if (widget.physicalFormats.isNotEmpty) _physicalFormatField(),
               _correctionField(_coverController, 'Cover URL'),
               _correctionField(_thumbnailController, 'Thumbnail URL'),
               _correctionField(
@@ -2843,7 +3196,45 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     );
   }
 
-  void _submit() {
+  Widget _physicalFormatField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DropdownButtonFormField<String>(
+        initialValue: _physicalFormatId,
+        decoration: const InputDecoration(
+          labelText: 'Physical format',
+          border: OutlineInputBorder(),
+        ),
+        items: [
+          const DropdownMenuItem(value: '', child: Text('No format selected')),
+          for (final format in widget.physicalFormats)
+            DropdownMenuItem(value: format.id, child: Text(format.label)),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _physicalFormatId = value ?? '';
+          });
+        },
+      ),
+    );
+  }
+
+  Future<void> _submit() async {
+    if (_titleController.text.trim().isEmpty) {
+      setState(() {
+        _error = 'Title is required.';
+      });
+      return;
+    }
+    final currentVariantName = widget.item.primaryVariant?.name.trim();
+    if (currentVariantName != null &&
+        currentVariantName.isNotEmpty &&
+        _variantController.text.trim().isEmpty) {
+      setState(() {
+        _error = 'Primary variant cannot be cleared yet.';
+      });
+      return;
+    }
     final pageCountText = _pageCountController.text.trim();
     final pageCount =
         pageCountText.isEmpty ? null : int.tryParse(pageCountText);
@@ -2862,20 +3253,128 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       });
       return;
     }
-    Navigator.of(context).pop(
-      _CatalogCorrection(
-        title: _emptyToNull(_titleController.text),
-        itemNumber: _emptyToNull(_itemNumberController.text),
-        publisher: _emptyToNull(_publisherController.text),
-        barcode: _emptyToNull(_barcodeController.text),
-        variantName: _emptyToNull(_variantController.text),
-        pageCount: pageCount,
-        releaseDate: releaseDate,
-        coverImageUrl: _emptyToNull(_coverController.text),
-        thumbnailImageUrl: _emptyToNull(_thumbnailController.text),
-        synopsis: _emptyToNull(_synopsisController.text),
-      ),
+    final correction = _CatalogCorrection(
+      title: _emptyToNull(_titleController.text),
+      itemNumber: _emptyToNull(_itemNumberController.text),
+      publisher: _emptyToNull(_publisherController.text),
+      barcode: _emptyToNull(_barcodeController.text),
+      physicalFormat: widget.physicalFormats.isNotEmpty
+          ? _emptyToNull(_physicalFormatId)
+          : null,
+      variantName: _emptyToNull(_variantController.text),
+      pageCount: pageCount,
+      releaseDate: releaseDate,
+      coverImageUrl: _emptyToNull(_coverController.text),
+      thumbnailImageUrl: _emptyToNull(_thumbnailController.text),
+      synopsis: _emptyToNull(_synopsisController.text),
     );
+    final changes = _correctionPreview(correction);
+    if (changes.isEmpty) {
+      setState(() {
+        _error = 'Change at least one metadata field before saving.';
+      });
+      return;
+    }
+    final confirmed = await _confirmCorrectionPreview(changes);
+    if (!mounted || !confirmed) {
+      return;
+    }
+    Navigator.of(context).pop(correction);
+  }
+
+  Future<bool> _confirmCorrectionPreview(
+    List<_CorrectionPreviewEntry> changes,
+  ) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Preview metadata correction'),
+            content: SizedBox(
+              width: 620,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const _DestructiveWarning(
+                      icon: Icons.fact_check_outlined,
+                      message:
+                          'This edits canonical catalog metadata and affects every user who sees this item. Review the diff before saving.',
+                    ),
+                    const SizedBox(height: 12),
+                    for (final change in changes)
+                      _CorrectionPreviewRow(change: change),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Back to edit'),
+              ),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).pop(true),
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Save correction'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  List<_CorrectionPreviewEntry> _correctionPreview(
+    _CatalogCorrection correction,
+  ) {
+    final item = widget.item;
+    final variant = item.primaryVariant;
+    final edition = item.primaryEdition;
+    final changes = <_CorrectionPreviewEntry>[];
+    void add(String label, Object? before, Object? after) {
+      final beforeText = _previewValue(before);
+      final afterText = _previewValue(after);
+      if (beforeText == afterText) {
+        return;
+      }
+      changes.add(
+        _CorrectionPreviewEntry(
+          label: label,
+          before: beforeText,
+          after: afterText,
+        ),
+      );
+    }
+
+    add('Title', item.title, correction.title);
+    add('Item number', item.itemNumber, correction.itemNumber);
+    add('Publisher', item.publisher, correction.publisher);
+    add('Barcode', item.barcode ?? variant?.barcode, correction.barcode);
+    add('Primary variant', variant?.name, correction.variantName);
+    add('Page count', item.pageCount, correction.pageCount);
+    add('Release date', item.coverDate, correction.releaseDate);
+    if (widget.physicalFormats.isNotEmpty) {
+      add('Physical format', edition?.physicalFormat, correction.physicalFormat);
+    }
+    add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
+    add(
+      'Thumbnail URL',
+      variant?.thumbnailImageUrl,
+      correction.thumbnailImageUrl,
+    );
+    add('Synopsis', item.synopsis, correction.synopsis);
+    return changes;
+  }
+
+  String _previewValue(Object? value) {
+    if (value == null) {
+      return '(empty)';
+    }
+    if (value is DateTime) {
+      return _formatDate(value);
+    }
+    final text = value.toString().trim();
+    return text.isEmpty ? '(empty)' : text;
   }
 }
 
@@ -2903,12 +3402,29 @@ class _DuplicateMergeReviewDialogState
     extends State<_DuplicateMergeReviewDialog> {
   late String _targetItemId;
   late Set<String> _sourceItemIds;
+  late final TextEditingController _confirmController;
+  bool _typedConfirmationMatches = false;
 
   @override
   void initState() {
     super.initState();
     _targetItemId = widget.candidate.itemIds.first;
     _sourceItemIds = widget.candidate.itemIds.skip(1).toSet();
+    _confirmController = TextEditingController()
+      ..addListener(() {
+        final matches = _confirmController.text.trim() == 'MERGE';
+        if (matches != _typedConfirmationMatches) {
+          setState(() {
+            _typedConfirmationMatches = matches;
+          });
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _confirmController.dispose();
+    super.dispose();
   }
 
   @override
@@ -2918,58 +3434,76 @@ class _DuplicateMergeReviewDialogState
       title: Text('Merge review: ${candidate.displayTitle}'),
       content: SizedBox(
         width: 560,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                _MiniChip(label: candidate.reason),
-                if (candidate.hasProviderConflicts)
-                  const _MiniChip(label: 'provider conflict'),
-                if (candidate.hasCoverConflicts)
-                  const _MiniChip(label: 'cover conflict'),
-              ],
-            ),
-            const SizedBox(height: 12),
-            for (final itemId in candidate.itemIds)
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                value: _sourceItemIds.contains(itemId),
-                enabled: itemId != _targetItemId,
-                title: Text('Source ${_shortId(itemId)}'),
-                subtitle:
-                    itemId == _targetItemId ? const Text('Merge target') : null,
-                secondary: IconButton(
-                  tooltip: 'Set merge target',
-                  onPressed: () {
-                    setState(() {
-                      _targetItemId = itemId;
-                      _sourceItemIds =
-                          candidate.itemIds.where((id) => id != itemId).toSet();
-                    });
-                  },
-                  icon: Icon(
-                    itemId == _targetItemId
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                  ),
-                ),
-                onChanged: itemId == _targetItemId
-                    ? null
-                    : (value) {
-                        setState(() {
-                          if (value == true) {
-                            _sourceItemIds.add(itemId);
-                          } else {
-                            _sourceItemIds.remove(itemId);
-                          }
-                        });
-                      },
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  _MiniChip(label: candidate.reason),
+                  if (candidate.hasProviderConflicts)
+                    const _MiniChip(label: 'provider conflict'),
+                  if (candidate.hasCoverConflicts)
+                    const _MiniChip(label: 'cover conflict'),
+                ],
               ),
-          ],
+              const SizedBox(height: 12),
+              const _DestructiveWarning(
+                icon: Icons.warning_amber_outlined,
+                message:
+                    'This moves provider links, editions, variants, relationships, and admin history onto the selected target. Source catalog records are removed after merge.',
+              ),
+              const SizedBox(height: 12),
+              for (final itemId in candidate.itemIds)
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: _sourceItemIds.contains(itemId),
+                  enabled: itemId != _targetItemId,
+                  title: Text('Source ${_shortId(itemId)}'),
+                  subtitle: itemId == _targetItemId
+                      ? const Text('Merge target')
+                      : null,
+                  secondary: IconButton(
+                    tooltip: 'Set merge target',
+                    onPressed: () {
+                      setState(() {
+                        _targetItemId = itemId;
+                        _sourceItemIds = candidate.itemIds
+                            .where((id) => id != itemId)
+                            .toSet();
+                      });
+                    },
+                    icon: Icon(
+                      itemId == _targetItemId
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_unchecked,
+                    ),
+                  ),
+                  onChanged: itemId == _targetItemId
+                      ? null
+                      : (value) {
+                          setState(() {
+                            if (value == true) {
+                              _sourceItemIds.add(itemId);
+                            } else {
+                              _sourceItemIds.remove(itemId);
+                            }
+                          });
+                        },
+                ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _confirmController,
+                decoration: const InputDecoration(
+                  labelText: 'Type MERGE to confirm',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -2978,7 +3512,7 @@ class _DuplicateMergeReviewDialogState
           child: const Text('Cancel'),
         ),
         FilledButton.icon(
-          onPressed: _sourceItemIds.isEmpty
+          onPressed: _sourceItemIds.isEmpty || !_typedConfirmationMatches
               ? null
               : () => Navigator.of(context).pop(
                     _DuplicateMergeSelection(
@@ -3052,6 +3586,74 @@ class _MessageRow extends StatelessWidget {
   }
 }
 
+class _DestructiveWarning extends StatelessWidget {
+  const _DestructiveWarning({
+    required this.icon,
+    required this.message,
+  });
+
+  final IconData icon;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer.withValues(alpha: 0.34),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.42)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: colorScheme.error, size: 20),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CorrectionPreviewRow extends StatelessWidget {
+  const _CorrectionPreviewRow({required this.change});
+
+  final _CorrectionPreviewEntry change;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(color: colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                change.label,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 6),
+              Text('Before: ${change.before}'),
+              Text('After: ${change.after}'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StatusChip extends StatelessWidget {
   const _StatusChip({required this.icon, required this.label});
 
@@ -3110,10 +3712,10 @@ String _shortId(String id) {
   return id.substring(0, 8);
 }
 
-String _providerKindLabel(String kind) {
-  final type = collectarrLibraryTypes.byKind(kind);
-  if (type != null) {
-    return type.workspace.title;
+String _providerKindLabel(String kind, Map<String, String> labels) {
+  final label = labels[kind];
+  if (label != null && label.isNotEmpty) {
+    return label;
   }
   return switch (kind) {
     'bluray' => 'Blu-ray',
@@ -3123,8 +3725,17 @@ String _providerKindLabel(String kind) {
   };
 }
 
-int _compareMediaKinds(String left, String right) {
-  return _providerKindLabel(left).compareTo(_providerKindLabel(right));
+String _mediaTypeDisplayLabel(CatalogMediaType type) {
+  if (type.kind == 'tv') {
+    return 'TV';
+  }
+  return type.pluralLabel.isNotEmpty ? type.pluralLabel : type.kind;
+}
+
+int _compareMediaKinds(String left, String right, Map<String, String> labels) {
+  return _providerKindLabel(left, labels).compareTo(
+    _providerKindLabel(right, labels),
+  );
 }
 
 String _preferredProvider(

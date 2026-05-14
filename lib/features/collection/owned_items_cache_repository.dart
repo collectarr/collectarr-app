@@ -17,6 +17,14 @@ class OwnedItemsCacheRepository {
     return rows.map(_fromCache).toList(growable: false);
   }
 
+  Future<OwnedItem?> findById(String id) async {
+    final row = await (_db.select(_db.ownedItemsCache)
+          ..where((row) => row.id.equals(id))
+          ..limit(1))
+        .getSingleOrNull();
+    return row == null ? null : _fromCache(row);
+  }
+
   Future<void> replaceAll(List<OwnedItem> items) async {
     await _db.batch((batch) {
       batch.deleteAll(_db.ownedItemsCache);
