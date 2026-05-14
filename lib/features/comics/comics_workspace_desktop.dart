@@ -46,6 +46,7 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
     required this.onViewPresetSelected,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
+    required this.onColumnReordered,
     required this.onCoverSizeChanged,
     required this.onSelectionModeChanged,
     required this.onClearSelection,
@@ -87,6 +88,9 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
+  final void Function(
+          LibraryTableColumn column, LibraryTableColumn? beforeColumn)
+      onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<bool> onSelectionModeChanged;
   final VoidCallback onClearSelection;
@@ -201,6 +205,7 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
                     columnWidths: columnWidths,
                     onSortChanged: onSortChanged,
                     onColumnWidthChanged: onColumnWidthChanged,
+                    onColumnReordered: onColumnReordered,
                     onAddComic: onAddComic,
                     onSelectItem: onSelectItem,
                   ),

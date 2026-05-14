@@ -18,6 +18,7 @@ class ComicsShelfContent extends StatelessWidget {
     required this.columnWidths,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
+    required this.onColumnReordered,
     required this.onAddComic,
     required this.onSelectItem,
   });
@@ -34,6 +35,9 @@ class ComicsShelfContent extends StatelessWidget {
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
+  final void Function(
+          LibraryTableColumn column, LibraryTableColumn? beforeColumn)
+      onColumnReordered;
   final VoidCallback onAddComic;
   final ValueChanged<CatalogItem> onSelectItem;
 
@@ -66,6 +70,7 @@ class ComicsShelfContent extends StatelessWidget {
           columnWidths: columnWidths,
           onSortChanged: onSortChanged,
           onColumnWidthChanged: onColumnWidthChanged,
+          onColumnReordered: onColumnReordered,
           onAddComic: onAddComic,
           onSelectItem: onSelectItem,
         ),

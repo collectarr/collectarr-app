@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 
 class LibraryWorkspaceViewPresetConfig {
@@ -191,6 +192,22 @@ class LibraryWorkspaceViewState {
       columnWidths: {
         ...columnWidths,
         column: profile.clampColumnWidth(column, width),
+      },
+    );
+  }
+
+  LibraryWorkspaceViewState withReorderedColumn({
+    required LibraryTableColumn column,
+    required LibraryTableColumn? beforeColumn,
+  }) {
+    return copyWith(
+      visibleColumns: {
+        for (final column in reorderLibraryTableColumns(
+          columns: visibleColumns,
+          column: column,
+          beforeColumn: beforeColumn,
+        ))
+          column,
       },
     );
   }

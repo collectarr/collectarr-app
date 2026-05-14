@@ -130,6 +130,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 onViewPresetSelected: _handleViewPresetSelected,
                 onSortChanged: _handleSortChanged,
                 onColumnWidthChanged: _handleColumnWidthChanged,
+                onColumnReordered: _handleColumnReordered,
                 onCoverSizeChanged: _handleCoverSizeChanged,
                 onSelectionModeChanged: _setSelectionMode,
                 onClearSelection: _clearSelection,
@@ -348,6 +349,18 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
         column,
         width,
         comicsWorkspaceViewProfile,
+      ),
+    );
+  }
+
+  void _handleColumnReordered(
+    LibraryTableColumn column,
+    LibraryTableColumn? beforeColumn,
+  ) {
+    _setWorkspaceViewState(
+      workspaceViewState.withReorderedColumn(
+        column: column,
+        beforeColumn: beforeColumn,
       ),
     );
   }

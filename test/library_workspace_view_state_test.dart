@@ -86,6 +86,48 @@ void main() {
     expect(toggled.sortAscending, isFalse);
   });
 
+  test('workspace view state reorders visible table columns', () {
+    final state = profile.defaults().copyWith(
+      visibleColumns: {
+        LibraryTableColumn.title,
+        LibraryTableColumn.issue,
+        LibraryTableColumn.grade,
+      },
+    );
+
+    final reordered = state.withReorderedColumn(
+      column: LibraryTableColumn.grade,
+      beforeColumn: LibraryTableColumn.issue,
+    );
+
+    expect(reordered.visibleColumns.toList(), [
+      LibraryTableColumn.title,
+      LibraryTableColumn.grade,
+      LibraryTableColumn.issue,
+    ]);
+  });
+
+  test('workspace view state reorders a visible column to the end', () {
+    final state = profile.defaults().copyWith(
+      visibleColumns: {
+        LibraryTableColumn.title,
+        LibraryTableColumn.issue,
+        LibraryTableColumn.grade,
+      },
+    );
+
+    final reordered = state.withReorderedColumn(
+      column: LibraryTableColumn.title,
+      beforeColumn: null,
+    );
+
+    expect(reordered.visibleColumns.toList(), [
+      LibraryTableColumn.issue,
+      LibraryTableColumn.grade,
+      LibraryTableColumn.title,
+    ]);
+  });
+
   test('workspace view profile controls initial sort direction', () {
     final newestFirstProfile = LibraryWorkspaceViewProfile(
       config: config,

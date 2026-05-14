@@ -26,6 +26,44 @@ void main() {
     );
   });
 
+  test('reorders table columns before a target column', () {
+    expect(
+      reorderLibraryTableColumns(
+        columns: const [
+          LibraryTableColumn.title,
+          LibraryTableColumn.issue,
+          LibraryTableColumn.grade,
+        ],
+        column: LibraryTableColumn.grade,
+        beforeColumn: LibraryTableColumn.issue,
+      ),
+      [
+        LibraryTableColumn.title,
+        LibraryTableColumn.grade,
+        LibraryTableColumn.issue,
+      ],
+    );
+  });
+
+  test('reorders table columns to the end', () {
+    expect(
+      reorderLibraryTableColumns(
+        columns: const [
+          LibraryTableColumn.title,
+          LibraryTableColumn.issue,
+          LibraryTableColumn.grade,
+        ],
+        column: LibraryTableColumn.title,
+        beforeColumn: null,
+      ),
+      [
+        LibraryTableColumn.issue,
+        LibraryTableColumn.grade,
+        LibraryTableColumn.title,
+      ],
+    );
+  });
+
   test('clamps custom table column widths', () {
     expect(
       libraryTableColumnWidth(
