@@ -32,4 +32,18 @@ void main() {
     expect(candidate.placeholderCatalogItem().kind, 'comic');
     expect(candidate.placeholderCatalogItem().title, 'Legacy Candidate');
   });
+
+  test('uses caller fallback kind for older provider responses', () {
+    final candidate = ProviderCandidate.fromJson(
+      const {
+        'provider': 'openlibrary',
+        'provider_item_id': 'book-1',
+        'title': 'Legacy Book Candidate',
+      },
+      fallbackKind: 'book',
+    );
+
+    expect(candidate.kind, 'book');
+    expect(candidate.placeholderCatalogItem().kind, 'book');
+  });
 }

@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -136,15 +136,13 @@ class _MissingIssuesDialogState extends ConsumerState<_MissingIssuesDialog> {
       _error = null;
     });
     try {
-      final rows = await ref.read(apiClientProvider).searchMetadata(
-            libraryMetadataSearchQuery(
-              comicsLibraryConfig,
-              query: series,
-              issueNumber: issue.toString(),
-              limit: 10,
-            ),
-          );
-      final items = rows.map(CatalogItem.fromJson).toList(growable: false);
+      final items = await searchLibraryMetadata(
+        ref.read(apiClientProvider),
+        comicsLibraryConfig,
+        query: series,
+        issueNumber: issue.toString(),
+        limit: 10,
+      );
       if (items.isNotEmpty) {
         await CatalogCacheRepository(ref.read(localDatabaseProvider))
             .upsertAll(items);
@@ -205,20 +203,21 @@ class _MissingIssuesDialogState extends ConsumerState<_MissingIssuesDialog> {
     });
     try {
       final query = '$series #$issue';
-      final response = await ref.read(apiClientProvider).createMetadataProposal(
-            provider: comicsLibraryConfig.defaultMetadataProvider,
-            query: query,
-            title: series,
-            summary: [
-              'Metadata proposal from missing issues workflow',
-              '',
-              'series: $series',
-              'issue: $issue',
-            ].join('\n'),
-          );
-      await const MetadataProposalStore().recordResponse(
+      final response = await createLibraryMetadataProposal(
+        api: ref.read(apiClientProvider),
+        type: comicsLibraryConfig,
+        query: query,
+        title: series,
+        summary: [
+          'Metadata proposal from missing issues workflow',
+          '',
+          'series: $series',
+          'issue: $issue',
+        ].join('\n'),
+      );
+      await recordLibraryMetadataProposalResponse(
         response: response,
-        provider: comicsLibraryConfig.defaultMetadataProvider,
+        type: comicsLibraryConfig,
         query: query,
         title: series,
         source: 'Missing issues',

@@ -13,10 +13,11 @@ final comicsSearchProvider =
     return const [];
   }
   final api = ref.watch(apiClientProvider);
-  final results = await api.searchMetadata(
-    libraryMetadataSearchQuery(comicsLibraryConfig, query: query),
+  final items = await searchLibraryMetadata(
+    api,
+    comicsLibraryConfig,
+    query: query,
   );
-  final items = results.map(CatalogItem.fromJson).toList();
   await CatalogCacheRepository(ref.watch(localDatabaseProvider))
       .upsertAll(items);
   return items;

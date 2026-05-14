@@ -35,6 +35,8 @@ void main() {
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
     expect(catalogRow.title, 'Absolute Batman');
     expect(catalogRow.coverImageUrl, 'https://cdn.example/absolute.jpg');
+    expect(
+        catalogRow.thumbnailImageUrl, 'https://cdn.example/absolute-thumb.jpg');
   });
 
   test('sync removes rejected stale changes and applies server state',
@@ -112,6 +114,7 @@ class _FakeSyncClient extends CollectarrSyncClient {
             'title': 'Absolute Batman',
             'item_number': '1',
             'cover_image_url': 'https://cdn.example/absolute.jpg',
+            'thumbnail_image_url': 'https://cdn.example/absolute-thumb.jpg',
             'publisher': 'DC',
             'release_year': 2024,
           },

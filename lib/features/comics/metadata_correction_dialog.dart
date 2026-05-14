@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,15 +21,16 @@ Future<void> showMetadataCorrectionDialog({
   try {
     final query = draft.queryFor(item);
     final title = draft.title.trim().isEmpty ? item.title : draft.title.trim();
-    final response = await ref.read(apiClientProvider).createMetadataProposal(
-          provider: comicsLibraryConfig.defaultMetadataProvider,
-          query: query,
-          title: title,
-          summary: draft.summaryFor(item),
-        );
-    await const MetadataProposalStore().recordResponse(
+    final response = await createLibraryMetadataProposal(
+      api: ref.read(apiClientProvider),
+      type: comicsLibraryConfig,
+      query: query,
+      title: title,
+      summary: draft.summaryFor(item),
+    );
+    await recordLibraryMetadataProposalResponse(
       response: response,
-      provider: comicsLibraryConfig.defaultMetadataProvider,
+      type: comicsLibraryConfig,
       query: query,
       title: title,
       source: 'Metadata correction',

@@ -42,6 +42,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
       'cover_image_url', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _thumbnailImageUrlMeta =
+      const VerificationMeta('thumbnailImageUrl');
+  @override
+  late final GeneratedColumn<String> thumbnailImageUrl =
+      GeneratedColumn<String>('thumbnail_image_url', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _publisherMeta =
       const VerificationMeta('publisher');
   @override
@@ -86,6 +92,7 @@ class $CatalogCacheTable extends CatalogCache
         itemNumber,
         synopsis,
         coverImageUrl,
+        thumbnailImageUrl,
         publisher,
         releaseDate,
         releaseYear,
@@ -135,6 +142,12 @@ class $CatalogCacheTable extends CatalogCache
           _coverImageUrlMeta,
           coverImageUrl.isAcceptableOrUnknown(
               data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('thumbnail_image_url')) {
+      context.handle(
+          _thumbnailImageUrlMeta,
+          thumbnailImageUrl.isAcceptableOrUnknown(
+              data['thumbnail_image_url']!, _thumbnailImageUrlMeta));
     }
     if (data.containsKey('publisher')) {
       context.handle(_publisherMeta,
@@ -187,6 +200,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}synopsis']),
       coverImageUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      thumbnailImageUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}thumbnail_image_url']),
       publisher: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
       releaseDate: attachedDatabase.typeMapping
@@ -216,6 +231,7 @@ class CatalogCacheData extends DataClass
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
+  final String? thumbnailImageUrl;
   final String? publisher;
   final DateTime? releaseDate;
   final int? releaseYear;
@@ -229,6 +245,7 @@ class CatalogCacheData extends DataClass
       this.itemNumber,
       this.synopsis,
       this.coverImageUrl,
+      this.thumbnailImageUrl,
       this.publisher,
       this.releaseDate,
       this.releaseYear,
@@ -249,6 +266,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || coverImageUrl != null) {
       map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || thumbnailImageUrl != null) {
+      map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl);
     }
     if (!nullToAbsent || publisher != null) {
       map['publisher'] = Variable<String>(publisher);
@@ -283,6 +303,9 @@ class CatalogCacheData extends DataClass
       coverImageUrl: coverImageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(coverImageUrl),
+      thumbnailImageUrl: thumbnailImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thumbnailImageUrl),
       publisher: publisher == null && nullToAbsent
           ? const Value.absent()
           : Value(publisher),
@@ -312,6 +335,8 @@ class CatalogCacheData extends DataClass
       itemNumber: serializer.fromJson<String?>(json['itemNumber']),
       synopsis: serializer.fromJson<String?>(json['synopsis']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      thumbnailImageUrl:
+          serializer.fromJson<String?>(json['thumbnailImageUrl']),
       publisher: serializer.fromJson<String?>(json['publisher']),
       releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
       releaseYear: serializer.fromJson<int?>(json['releaseYear']),
@@ -330,6 +355,7 @@ class CatalogCacheData extends DataClass
       'itemNumber': serializer.toJson<String?>(itemNumber),
       'synopsis': serializer.toJson<String?>(synopsis),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'thumbnailImageUrl': serializer.toJson<String?>(thumbnailImageUrl),
       'publisher': serializer.toJson<String?>(publisher),
       'releaseDate': serializer.toJson<DateTime?>(releaseDate),
       'releaseYear': serializer.toJson<int?>(releaseYear),
@@ -346,6 +372,7 @@ class CatalogCacheData extends DataClass
           Value<String?> itemNumber = const Value.absent(),
           Value<String?> synopsis = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> thumbnailImageUrl = const Value.absent(),
           Value<String?> publisher = const Value.absent(),
           Value<DateTime?> releaseDate = const Value.absent(),
           Value<int?> releaseYear = const Value.absent(),
@@ -360,6 +387,9 @@ class CatalogCacheData extends DataClass
         synopsis: synopsis.present ? synopsis.value : this.synopsis,
         coverImageUrl:
             coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        thumbnailImageUrl: thumbnailImageUrl.present
+            ? thumbnailImageUrl.value
+            : this.thumbnailImageUrl,
         publisher: publisher.present ? publisher.value : this.publisher,
         releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
         releaseYear: releaseYear.present ? releaseYear.value : this.releaseYear,
@@ -378,6 +408,9 @@ class CatalogCacheData extends DataClass
       coverImageUrl: data.coverImageUrl.present
           ? data.coverImageUrl.value
           : this.coverImageUrl,
+      thumbnailImageUrl: data.thumbnailImageUrl.present
+          ? data.thumbnailImageUrl.value
+          : this.thumbnailImageUrl,
       publisher: data.publisher.present ? data.publisher.value : this.publisher,
       releaseDate:
           data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
@@ -398,6 +431,7 @@ class CatalogCacheData extends DataClass
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
           ..write('publisher: $publisher, ')
           ..write('releaseDate: $releaseDate, ')
           ..write('releaseYear: $releaseYear, ')
@@ -416,6 +450,7 @@ class CatalogCacheData extends DataClass
       itemNumber,
       synopsis,
       coverImageUrl,
+      thumbnailImageUrl,
       publisher,
       releaseDate,
       releaseYear,
@@ -432,6 +467,7 @@ class CatalogCacheData extends DataClass
           other.itemNumber == this.itemNumber &&
           other.synopsis == this.synopsis &&
           other.coverImageUrl == this.coverImageUrl &&
+          other.thumbnailImageUrl == this.thumbnailImageUrl &&
           other.publisher == this.publisher &&
           other.releaseDate == this.releaseDate &&
           other.releaseYear == this.releaseYear &&
@@ -447,6 +483,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> itemNumber;
   final Value<String?> synopsis;
   final Value<String?> coverImageUrl;
+  final Value<String?> thumbnailImageUrl;
   final Value<String?> publisher;
   final Value<DateTime?> releaseDate;
   final Value<int?> releaseYear;
@@ -461,6 +498,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
+    this.thumbnailImageUrl = const Value.absent(),
     this.publisher = const Value.absent(),
     this.releaseDate = const Value.absent(),
     this.releaseYear = const Value.absent(),
@@ -476,6 +514,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
+    this.thumbnailImageUrl = const Value.absent(),
     this.publisher = const Value.absent(),
     this.releaseDate = const Value.absent(),
     this.releaseYear = const Value.absent(),
@@ -494,6 +533,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? itemNumber,
     Expression<String>? synopsis,
     Expression<String>? coverImageUrl,
+    Expression<String>? thumbnailImageUrl,
     Expression<String>? publisher,
     Expression<DateTime>? releaseDate,
     Expression<int>? releaseYear,
@@ -509,6 +549,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (itemNumber != null) 'item_number': itemNumber,
       if (synopsis != null) 'synopsis': synopsis,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
       if (publisher != null) 'publisher': publisher,
       if (releaseDate != null) 'release_date': releaseDate,
       if (releaseYear != null) 'release_year': releaseYear,
@@ -526,6 +567,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? itemNumber,
       Value<String?>? synopsis,
       Value<String?>? coverImageUrl,
+      Value<String?>? thumbnailImageUrl,
       Value<String?>? publisher,
       Value<DateTime?>? releaseDate,
       Value<int?>? releaseYear,
@@ -540,6 +582,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       itemNumber: itemNumber ?? this.itemNumber,
       synopsis: synopsis ?? this.synopsis,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
       publisher: publisher ?? this.publisher,
       releaseDate: releaseDate ?? this.releaseDate,
       releaseYear: releaseYear ?? this.releaseYear,
@@ -570,6 +613,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (coverImageUrl.present) {
       map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (thumbnailImageUrl.present) {
+      map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl.value);
     }
     if (publisher.present) {
       map['publisher'] = Variable<String>(publisher.value);
@@ -604,6 +650,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
           ..write('publisher: $publisher, ')
           ..write('releaseDate: $releaseDate, ')
           ..write('releaseYear: $releaseYear, ')
@@ -2671,6 +2718,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
+  Value<String?> thumbnailImageUrl,
   Value<String?> publisher,
   Value<DateTime?> releaseDate,
   Value<int?> releaseYear,
@@ -2687,6 +2735,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
+  Value<String?> thumbnailImageUrl,
   Value<String?> publisher,
   Value<DateTime?> releaseDate,
   Value<int?> releaseYear,
@@ -2722,6 +2771,10 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get publisher => $composableBuilder(
       column: $table.publisher, builder: (column) => ColumnFilters(column));
@@ -2770,6 +2823,10 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.coverImageUrl,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get publisher => $composableBuilder(
       column: $table.publisher, builder: (column) => ColumnOrderings(column));
 
@@ -2815,6 +2872,9 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl, builder: (column) => column);
 
   GeneratedColumn<String> get publisher =>
       $composableBuilder(column: $table.publisher, builder: (column) => column);
@@ -2867,6 +2927,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> thumbnailImageUrl = const Value.absent(),
             Value<String?> publisher = const Value.absent(),
             Value<DateTime?> releaseDate = const Value.absent(),
             Value<int?> releaseYear = const Value.absent(),
@@ -2882,6 +2943,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
+            thumbnailImageUrl: thumbnailImageUrl,
             publisher: publisher,
             releaseDate: releaseDate,
             releaseYear: releaseYear,
@@ -2897,6 +2959,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> thumbnailImageUrl = const Value.absent(),
             Value<String?> publisher = const Value.absent(),
             Value<DateTime?> releaseDate = const Value.absent(),
             Value<int?> releaseYear = const Value.absent(),
@@ -2912,6 +2975,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
+            thumbnailImageUrl: thumbnailImageUrl,
             publisher: publisher,
             releaseDate: releaseDate,
             releaseYear: releaseYear,

@@ -5,8 +5,9 @@ import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -372,7 +373,10 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   Future<void> _resolveRow(CollectionCsvRow row) async {
     final item = await showDialog<CatalogItem>(
       context: context,
-      builder: (context) => _ResolveImportRowDialog(row: row),
+      builder: (context) => _ResolveImportRowDialog(
+        type: comicsLibraryConfig,
+        row: row,
+      ),
     );
     if (item == null || !mounted || _preview == null) {
       return;
@@ -410,7 +414,12 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       final unresolvedRows = <CollectionCsvRow>[];
       final resolvedItems = <CatalogItem>[];
       for (final row in preview.unresolvedRows) {
-        final results = await _searchCoreForRow(ref, row, limit: 5);
+        final results = await _searchCoreForRow(
+          ref,
+          comicsLibraryConfig,
+          row,
+          limit: 5,
+        );
         final match = _confidentImportMatch(row, results);
         if (match == null) {
           unresolvedRows.add(row);
@@ -548,15 +557,16 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       _error = null;
     });
     try {
-      final response = await ref.read(apiClientProvider).createMetadataProposal(
-            provider: comicsLibraryConfig.defaultMetadataProvider,
-            query: draft.query,
-            title: draft.title.trim().isEmpty ? null : draft.title.trim(),
-            summary: draft.summary,
-          );
-      await const MetadataProposalStore().recordResponse(
+      final response = await createLibraryMetadataProposal(
+        api: ref.read(apiClientProvider),
+        type: comicsLibraryConfig,
+        query: draft.query,
+        title: draft.title.trim().isEmpty ? null : draft.title.trim(),
+        summary: draft.summary,
+      );
+      await recordLibraryMetadataProposalResponse(
         response: response,
-        provider: comicsLibraryConfig.defaultMetadataProvider,
+        type: comicsLibraryConfig,
         query: draft.query,
         title: draft.title,
         source: 'CSV import',
@@ -853,8 +863,12 @@ class _ConflictImportRow extends StatelessWidget {
 }
 
 class _ResolveImportRowDialog extends ConsumerStatefulWidget {
-  const _ResolveImportRowDialog({required this.row});
+  const _ResolveImportRowDialog({
+    required this.type,
+    required this.row,
+  });
 
+  final LibraryTypeConfig type;
   final CollectionCsvRow row;
 
   @override
@@ -975,6 +989,7 @@ class _ResolveImportRowDialogState
     try {
       final items = await _searchCoreForRow(
         ref,
+        widget.type,
         widget.row,
         queryOverride: _queryController.text,
       );
@@ -1258,20 +1273,19 @@ String _catalogSubtitle(CatalogItem item) {
 
 Future<List<CatalogItem>> _searchCoreForRow(
   WidgetRef ref,
+  LibraryTypeConfig type,
   CollectionCsvRow row, {
   String? queryOverride,
   int limit = 20,
 }) async {
-  final rows = await ref.read(apiClientProvider).searchMetadata(
-        libraryMetadataSearchQuery(
-          comicsLibraryConfig,
-          query: _searchQueryForRow(row, queryOverride: queryOverride),
-          barcode: row.barcode,
-          issueNumber: row.itemNumber,
-          limit: limit,
-        ),
-      );
-  return rows.map(CatalogItem.fromJson).toList(growable: false);
+  return searchLibraryMetadata(
+    ref.read(apiClientProvider),
+    type,
+    query: _searchQueryForRow(row, queryOverride: queryOverride),
+    barcode: row.barcode,
+    issueNumber: row.itemNumber,
+    limit: limit,
+  );
 }
 
 String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {

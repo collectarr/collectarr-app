@@ -10,6 +10,7 @@ class CatalogCache extends Table {
   TextColumn get itemNumber => text().nullable()();
   TextColumn get synopsis => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
+  TextColumn get thumbnailImageUrl => text().nullable()();
   TextColumn get publisher => text().nullable()();
   DateTimeColumn get releaseDate => dateTime().nullable()();
   IntColumn get releaseYear => integer().nullable()();
@@ -97,6 +98,22 @@ class LocalDatabase extends _$LocalDatabase {
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
+      beforeOpen: (_) async {
+        await _ensureCatalogThumbnailColumn();
+      },
     );
+  }
+
+  Future<void> _ensureCatalogThumbnailColumn() async {
+    final columns =
+        await customSelect('PRAGMA table_info(catalog_cache)').get();
+    final hasThumbnailColumn = columns.any(
+      (row) => row.read<String>('name') == 'thumbnail_image_url',
+    );
+    if (!hasThumbnailColumn) {
+      await customStatement(
+        'ALTER TABLE catalog_cache ADD COLUMN thumbnail_image_url TEXT',
+      );
+    }
   }
 }

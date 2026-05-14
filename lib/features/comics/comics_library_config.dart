@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -33,16 +34,8 @@ const comicsLibraryConfig = LibraryTypeConfig(
   pluralLabel: 'Comics',
   defaultMetadataProvider: 'gcd',
   metadataProviders: [
-    LibraryMetadataProviderOption(
-      id: 'gcd',
-      label: 'GCD',
-      description: 'Grand Comics Database',
-    ),
-    LibraryMetadataProviderOption(
-      id: 'comicvine',
-      label: 'Comic Vine',
-      description: 'Personal non-commercial enrichment',
-    ),
+    gcdMetadataProvider,
+    comicVineMetadataProvider,
   ],
   trackingProfile: comicTrackingProfile,
 );

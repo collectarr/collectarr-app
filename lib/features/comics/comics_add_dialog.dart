@@ -14,8 +14,8 @@ import 'package:collectarr_app/features/comics/comics_manual_metadata_dialogs.da
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -46,7 +46,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   var _providerResults = const <ProviderCandidate>[];
   String? _selectedServerId;
   String? _selectedProviderId;
-  String _metadataProvider = comicsLibraryConfig.defaultMetadataProvider;
+  String _metadataProvider =
+      comicsLibraryConfig.defaultSupportedMetadataProvider;
   final _checkedServerIds = <String>{};
   final _collapsedAddSeries = <String>{};
   final _barcodeBatch = <BarcodeLookupEntry>[];
@@ -198,8 +199,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 searchedProvider: _searchedProvider,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: _isSearchingProvider,
-                                metadataProviders:
-                                    comicsLibraryConfig.metadataProviders,
+                                metadataProviders: comicsLibraryConfig
+                                    .supportedMetadataProviders,
                                 selectedProvider: _metadataProvider,
                                 providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
@@ -259,8 +260,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 searchedProvider: _searchedProvider,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: _isSearchingProvider,
-                                metadataProviders:
-                                    comicsLibraryConfig.metadataProviders,
+                                metadataProviders: comicsLibraryConfig
+                                    .supportedMetadataProviders,
                                 selectedProvider: _metadataProvider,
                                 providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
@@ -402,19 +403,17 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _error = null;
     });
     try {
-      final rows = await ref.read(apiClientProvider).searchMetadata(
-            libraryMetadataSearchQuery(
-              comicsLibraryConfig,
-              query: query,
-              series: series,
-              issueNumber: issueNumber,
-              publisher: publisher,
-              year: year,
-              barcode: barcode,
-              limit: 50,
-            ),
-          );
-      final items = rows.map(CatalogItem.fromJson).toList(growable: false);
+      final items = await searchLibraryMetadata(
+        ref.read(apiClientProvider),
+        comicsLibraryConfig,
+        query: query,
+        series: series,
+        issueNumber: issueNumber,
+        publisher: publisher,
+        year: year,
+        barcode: barcode,
+        limit: 50,
+      );
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
           .upsertAll(items);
       if (!mounted) {
@@ -461,12 +460,12 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _error = null;
     });
     try {
-      final rows = await ref.read(apiClientProvider).searchProvider(
-            provider: _metadataProvider,
-            query: query,
-          );
-      final results =
-          rows.map(ProviderCandidate.fromJson).toList(growable: false);
+      final results = await searchLibraryProviderCandidates(
+        ref.read(apiClientProvider),
+        comicsLibraryConfig,
+        provider: _metadataProvider,
+        query: query,
+      );
       if (!mounted) {
         return;
       }
@@ -605,11 +604,11 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       final found = <CatalogItem>[];
       for (final code in normalizedCodes) {
         try {
-          final result = await ref.read(apiClientProvider).lookupBarcode(
-                code,
-                kind: comicsLibraryConfig.workspace.kind,
-              );
-          final item = CatalogItem.fromJson(result);
+          final item = await lookupLibraryBarcode(
+            ref.read(apiClientProvider),
+            comicsLibraryConfig,
+            code,
+          );
           found.add(item);
           if (!mounted) {
             return;
@@ -796,16 +795,19 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _error = null;
     });
     try {
-      final response = await ref.read(apiClientProvider).createMetadataProposal(
-            provider: candidate.provider,
-            providerItemId: candidate.providerItemId,
-            query: _providerQuery,
-            title: candidate.title,
-            summary: candidate.summary,
-            imageUrl: candidate.imageUrl,
-          );
-      await const MetadataProposalStore().recordResponse(
+      final response = await createLibraryMetadataProposal(
+        api: ref.read(apiClientProvider),
+        type: comicsLibraryConfig,
+        provider: candidate.provider,
+        providerItemId: candidate.providerItemId,
+        query: _providerQuery,
+        title: candidate.title,
+        summary: candidate.summary,
+        imageUrl: candidate.imageUrl,
+      );
+      await recordLibraryMetadataProposalResponse(
         response: response,
+        type: comicsLibraryConfig,
         provider: candidate.provider,
         query: _providerQuery,
         title: candidate.title,
@@ -869,14 +871,17 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _error = null;
     });
     try {
-      final response = await ref.read(apiClientProvider).createMetadataProposal(
-            provider: _metadataProvider,
-            query: proposal.title,
-            title: proposal.title,
-            summary: proposal.notes,
-          );
-      await const MetadataProposalStore().recordResponse(
+      final response = await createLibraryMetadataProposal(
+        api: ref.read(apiClientProvider),
+        type: comicsLibraryConfig,
+        provider: _metadataProvider,
+        query: proposal.title,
+        title: proposal.title,
+        summary: proposal.notes,
+      );
+      await recordLibraryMetadataProposalResponse(
         response: response,
+        type: comicsLibraryConfig,
         provider: _metadataProvider,
         query: proposal.title,
         title: proposal.title,

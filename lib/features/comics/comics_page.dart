@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -18,6 +17,7 @@ import 'package:collectarr_app/features/comics/comics_workspace.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_state.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -160,11 +160,11 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     }
 
     try {
-      final result = await ref.read(apiClientProvider).lookupBarcode(
-            code,
-            kind: comicsLibraryConfig.workspace.kind,
-          );
-      final item = CatalogItem.fromJson(result);
+      final item = await lookupLibraryBarcode(
+        ref.read(apiClientProvider),
+        comicsLibraryConfig,
+        code,
+      );
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
           .upsertAll([item]);
       await ref.read(collectionMutationsProvider).addItem(

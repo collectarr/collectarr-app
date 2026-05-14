@@ -25,6 +25,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _duplicates = const <AdminDuplicateCandidate>[];
   var _results = const <ProviderCandidate>[];
   var _selectedProvider = 'gcd';
+  String? _selectedProviderKindFilter;
   AdminProviderIngestResult? _lastIngest;
   String? _statusMessage;
   String? _errorMessage;
@@ -177,6 +178,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final isNarrow = constraints.maxWidth < 720;
+                    final kindField = _ProviderKindSelector(
+                      value: _selectedProviderKindFilter,
+                      kinds: _providerKindOptions(),
+                      isLoading: _isLoadingProviders,
+                      onChanged: _changeProviderKindFilter,
+                    );
                     final searchableProviders = _providerOptions();
                     final providerField = _ProviderSelector(
                       value: _selectedProvider,
@@ -244,6 +251,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                         children: [
                           providerField,
                           const SizedBox(height: 12),
+                          kindField,
+                          const SizedBox(height: 12),
                           queryField,
                           const SizedBox(height: 12),
                           providerItemIdField,
@@ -262,6 +271,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(width: 150, child: kindField),
+                        const SizedBox(width: 12),
                         SizedBox(width: 220, child: providerField),
                         const SizedBox(width: 12),
                         Expanded(child: queryField),
@@ -523,12 +534,20 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _statusMessage = null;
     });
     try {
+      final selectedKind = _selectedProviderKind();
       final rows = await ref.read(apiClientProvider).adminProviderSearch(
             provider: _selectedProvider,
             query: query,
+            kind: selectedKind,
           );
-      final results =
-          rows.map(ProviderCandidate.fromJson).toList(growable: false);
+      final results = rows
+          .map(
+            (row) => ProviderCandidate.fromJson(
+              row,
+              fallbackKind: selectedKind ?? 'comic',
+            ),
+          )
+          .toList(growable: false);
       if (!mounted) {
         return;
       }
@@ -619,10 +638,52 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return _providers.where((provider) => provider.isConfigured).length;
   }
 
-  List<AdminProviderStatus> _providerOptions() {
-    return _providers
-        .where((provider) => provider.supportsSearch)
-        .toList(growable: false);
+  void _changeProviderKindFilter(String? kind) {
+    final normalizedKind = kind?.trim();
+    final nextKind = normalizedKind == null || normalizedKind.isEmpty
+        ? null
+        : normalizedKind;
+    final options = _providerOptions(kind: nextKind);
+    setState(() {
+      _selectedProviderKindFilter = nextKind;
+      if (!options.any((provider) => provider.name == _selectedProvider) &&
+          options.isNotEmpty) {
+        _selectedProvider = options.first.name;
+      }
+      _results = const [];
+      _lastIngest = null;
+      _statusMessage = null;
+      _errorMessage = null;
+    });
+  }
+
+  String? _selectedProviderKind() {
+    for (final provider in _providers) {
+      if (provider.name == _selectedProvider) {
+        return provider.kind;
+      }
+    }
+    return null;
+  }
+
+  List<String> _providerKindOptions() {
+    final kinds = <String>{};
+    for (final provider in _providers) {
+      if (provider.supportsSearch) {
+        kinds.add(provider.kind);
+      }
+    }
+    return kinds.toList(growable: false)..sort();
+  }
+
+  List<AdminProviderStatus> _providerOptions({String? kind}) {
+    final filterKind = kind ?? _selectedProviderKindFilter;
+    return [
+      for (final provider in _providers)
+        if (provider.supportsSearch &&
+            (filterKind == null || provider.kind == filterKind))
+          provider,
+    ];
   }
 }
 
@@ -836,6 +897,59 @@ class _ProviderSelector extends StatelessWidget {
           DropdownMenuItem(
             value: provider.name,
             child: Text(provider.displayName, overflow: TextOverflow.ellipsis),
+          ),
+      ],
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _ProviderKindSelector extends StatelessWidget {
+  const _ProviderKindSelector({
+    required this.value,
+    required this.kinds,
+    required this.isLoading,
+    required this.onChanged,
+  });
+
+  final String? value;
+  final List<String> kinds;
+  final bool isLoading;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    if (kinds.isEmpty) {
+      return TextField(
+        enabled: false,
+        decoration: InputDecoration(
+          labelText: 'Media kind',
+          prefixIcon: const Icon(Icons.category_outlined),
+          border: const OutlineInputBorder(),
+          hintText: isLoading ? 'Loading kinds...' : 'No provider kinds',
+        ),
+      );
+    }
+    final selected = value != null && kinds.contains(value) ? value! : '';
+    return DropdownButtonFormField<String>(
+      key: ValueKey('provider-kind-$selected'),
+      initialValue: selected,
+      isExpanded: true,
+      decoration: const InputDecoration(
+        labelText: 'Media kind',
+        prefixIcon: Icon(Icons.category_outlined),
+        border: OutlineInputBorder(),
+      ),
+      items: [
+        const DropdownMenuItem(
+          value: '',
+          child: Text('All media', overflow: TextOverflow.ellipsis),
+        ),
+        for (final kind in kinds)
+          DropdownMenuItem(
+            value: kind,
+            child:
+                Text(_providerKindLabel(kind), overflow: TextOverflow.ellipsis),
           ),
       ],
       onChanged: onChanged,
@@ -1555,6 +1669,15 @@ String _shortId(String id) {
     return id;
   }
   return id.substring(0, 8);
+}
+
+String _providerKindLabel(String kind) {
+  return switch (kind) {
+    'bluray' => 'Blu-ray',
+    'boardgame' => 'Board game',
+    'tv' => 'TV',
+    _ => kind.isEmpty ? kind : '${kind[0].toUpperCase()}${kind.substring(1)}',
+  };
 }
 
 String _formatDate(DateTime value) {

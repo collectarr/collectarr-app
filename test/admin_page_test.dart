@@ -26,7 +26,7 @@ void main() {
 
     expect(find.text('Metadata dashboard'), findsOneWidget);
     expect(find.text('1 providers live'), findsOneWidget);
-    expect(find.text('2 providers registered'), findsOneWidget);
+    expect(find.text('3 providers registered'), findsOneWidget);
     expect(find.text('12 items'), findsOneWidget);
     expect(find.text('1 duplicate groups'), findsOneWidget);
     expect(find.text('items: 12 docs'), findsOneWidget);
@@ -80,6 +80,7 @@ void main() {
 
     expect(api.lastSearchProvider, 'gcd');
     expect(api.lastSearchQuery, 'Batman #1');
+    expect(api.lastSearchKind, 'comic');
     expect(find.text('1 provider results.'), findsOneWidget);
     expect(find.text('Absolute Batman #1'), findsWidgets);
     expect(find.text('ID 12345'), findsOneWidget);
@@ -102,6 +103,7 @@ class _FakeAdminApiClient extends ApiClient {
 
   String? lastSearchProvider;
   String? lastSearchQuery;
+  String? lastSearchKind;
   String? lastIngestProvider;
   String? lastIngestProviderItemId;
   String? lastInspectKind;
@@ -142,6 +144,20 @@ class _FakeAdminApiClient extends ApiClient {
         allowsRedistribution: false,
         requiresAttribution: true,
         message: 'Set COMICVINE_API_KEY',
+      ),
+      AdminProviderStatus(
+        name: 'igdb',
+        displayName: 'IGDB',
+        kind: 'game',
+        status: 'stub',
+        isConfigured: false,
+        supportsSearch: true,
+        supportsIngest: true,
+        requiresUserKey: true,
+        nonCommercialOnly: false,
+        allowsRedistribution: false,
+        requiresAttribution: true,
+        message: 'Planned game provider',
       ),
     ];
   }
@@ -325,9 +341,11 @@ class _FakeAdminApiClient extends ApiClient {
   Future<List<Map<String, dynamic>>> adminProviderSearch({
     required String provider,
     required String query,
+    String? kind,
   }) async {
     lastSearchProvider = provider;
     lastSearchQuery = query;
+    lastSearchKind = kind;
     return const [
       {
         'provider': 'gcd',

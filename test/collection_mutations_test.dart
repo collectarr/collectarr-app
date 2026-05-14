@@ -52,6 +52,7 @@ void main() {
         title: 'Absolute Batman',
         itemNumber: '1',
         coverImageUrl: 'https://cdn.example/absolute.jpg',
+        thumbnailImageUrl: 'https://cdn.example/absolute-thumb.jpg',
         publisher: 'DC',
         releaseYear: 2024,
       ),
@@ -66,6 +67,8 @@ void main() {
     expect(snapshot.entityId, 'comic-1');
     expect(snapshot.payloadJson, contains('Absolute Batman'));
     expect(snapshot.payloadJson, contains('https://cdn.example/absolute.jpg'));
+    expect(snapshot.payloadJson,
+        contains('https://cdn.example/absolute-thumb.jpg'));
     expect(container.read(syncControllerProvider).pendingCount, 2);
   });
 

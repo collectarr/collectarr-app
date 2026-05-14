@@ -17,12 +17,15 @@ class ProviderCandidate {
   final String? summary;
   final String? imageUrl;
 
-  factory ProviderCandidate.fromJson(Map<String, dynamic> json) {
+  factory ProviderCandidate.fromJson(
+    Map<String, dynamic> json, {
+    String fallbackKind = 'comic',
+  }) {
     return ProviderCandidate(
       provider: json['provider'] as String,
       providerItemId: json['provider_item_id'] as String,
       title: json['title'] as String,
-      kind: json['kind'] as String? ?? 'comic',
+      kind: json['kind'] as String? ?? fallbackKind,
       summary: json['summary'] as String?,
       imageUrl: json['image_url'] as String?,
     );

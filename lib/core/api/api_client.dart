@@ -94,10 +94,14 @@ class ApiClient {
   Future<List<Map<String, dynamic>>> searchProvider({
     required String provider,
     required String query,
+    String? kind,
   }) async {
     final response = await _dio.get<List<dynamic>>(
       '/metadata/providers/$provider/search',
-      queryParameters: {'q': query},
+      queryParameters: {
+        'q': query,
+        if (kind != null) 'kind': kind,
+      },
     );
     final data = response.data;
     if (data == null) {
@@ -235,10 +239,15 @@ class ApiClient {
   Future<List<Map<String, dynamic>>> adminProviderSearch({
     required String provider,
     required String query,
+    String? kind,
   }) async {
     final response = await _dio.post<List<dynamic>>(
       '/admin/providers/search',
-      data: {'provider': provider, 'query': query},
+      data: {
+        'provider': provider,
+        'query': query,
+        if (kind != null) 'kind': kind,
+      },
     );
     final data = response.data;
     if (data == null) {
