@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_page.dart';
+import 'package:collectarr_app/features/comics/comics_shelf_grid.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
@@ -113,6 +114,11 @@ void main() {
     expect(find.widgetWithText(TextField, 'Signed copy'), findsOneWidget);
     expect(find.text('Remove'), findsOneWidget);
     expect(find.text('Move to wishlist'), findsOneWidget);
+    expect(find.byType(ComicsShelfCoverGrid), findsOneWidget);
+    expect(find.byTooltip('Edit comic'), findsOneWidget);
+    expect(find.byTooltip('Wishlist'), findsOneWidget);
+    expect(find.byTooltip('Open details'), findsOneWidget);
+    expect(find.byTooltip('Correct metadata'), findsOneWidget);
     expect(find.byTooltip('Cover view'), findsOneWidget);
     expect(find.byTooltip('Card view'), findsOneWidget);
     expect(find.byTooltip('List view'), findsOneWidget);
@@ -529,10 +535,13 @@ void main() {
     expect(find.text('Main'), findsWidgets);
     expect(find.text('Edition'), findsWidgets);
     expect(find.text('Value'), findsWidgets);
-    expect(find.text('Personal'), findsWidgets);
+    expect(find.text('Essential'), findsOneWidget);
+    expect(find.text('Ownership'), findsOneWidget);
+    expect(find.text('Full'), findsOneWidget);
     await tester.enterText(find.byType(TextField).last, 'price');
     await tester.pumpAndSettle();
     expect(find.widgetWithText(CheckboxListTile, 'Price'), findsOneWidget);
+    expect(find.text('Personal purchase price'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(CheckboxListTile, 'Price'));
     await tester.pumpAndSettle();
@@ -653,6 +662,76 @@ void main() {
 
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
     expect(find.text('Superman, Vol. 4 #9'), findsNothing);
+  });
+
+  testWidgets('comics page applies quick shelf views from toolbar',
+      (tester) async {
+    final covered = CatalogItem(
+      id: 'covered',
+      kind: 'comic',
+      title: 'Covered Series',
+      itemNumber: '1',
+      publisher: 'Image',
+      releaseYear: 2026,
+      barcode: '111',
+      coverImageUrl: 'https://cdn.example/covered.jpg',
+    );
+    final missingCover = CatalogItem(
+      id: 'missing-cover',
+      kind: 'comic',
+      title: 'Missing Cover Series',
+      itemNumber: '1',
+      publisher: 'Image',
+      releaseYear: 2026,
+      barcode: '222',
+    );
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(itemId: covered.id, catalogItem: covered),
+                ShelfEntry(
+                  itemId: missingCover.id,
+                  catalogItem: missingCover,
+                ),
+              ],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Covered Series #1'), findsWidgets);
+    expect(find.text('Missing Cover Series #1'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Shelf views'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Missing covers').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Covered Series #1'), findsNothing);
+    expect(find.text('Missing Cover Series #1'), findsWidgets);
+    expect(find.byTooltip('Clear filters'), findsOneWidget);
   });
 
   testWidgets('comics page restores and clears persisted filters',

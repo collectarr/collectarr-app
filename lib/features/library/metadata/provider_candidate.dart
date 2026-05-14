@@ -19,13 +19,19 @@ class ProviderCandidate {
 
   factory ProviderCandidate.fromJson(
     Map<String, dynamic> json, {
-    String fallbackKind = 'comic',
+    String? fallbackKind,
   }) {
+    final kind = json['kind'] as String? ?? fallbackKind;
+    if (kind == null || kind.isEmpty) {
+      throw const FormatException(
+        'Provider candidate response did not include kind',
+      );
+    }
     return ProviderCandidate(
       provider: json['provider'] as String,
       providerItemId: json['provider_item_id'] as String,
       title: json['title'] as String,
-      kind: json['kind'] as String? ?? fallbackKind,
+      kind: kind,
       summary: json['summary'] as String?,
       imageUrl: json['image_url'] as String?,
     );

@@ -38,6 +38,63 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   columnSort: comicTableColumnSort,
 );
 
+const comicsTableColumnPresets = [
+  LibraryTableColumnPreset(
+    label: 'Essential',
+    columns: {
+      LibraryTableColumn.status,
+      LibraryTableColumn.title,
+      LibraryTableColumn.issue,
+      LibraryTableColumn.publisher,
+      LibraryTableColumn.releaseDate,
+    },
+  ),
+  LibraryTableColumnPreset(
+    label: 'Ownership',
+    columns: {
+      LibraryTableColumn.status,
+      LibraryTableColumn.title,
+      LibraryTableColumn.issue,
+      LibraryTableColumn.grade,
+      LibraryTableColumn.condition,
+      LibraryTableColumn.storageBox,
+      LibraryTableColumn.updated,
+    },
+  ),
+  LibraryTableColumnPreset(
+    label: 'Value',
+    columns: {
+      LibraryTableColumn.status,
+      LibraryTableColumn.title,
+      LibraryTableColumn.issue,
+      LibraryTableColumn.variant,
+      LibraryTableColumn.grade,
+      LibraryTableColumn.condition,
+      LibraryTableColumn.price,
+      LibraryTableColumn.barcode,
+    },
+  ),
+  LibraryTableColumnPreset(
+    label: 'Full',
+    columns: {
+      LibraryTableColumn.status,
+      LibraryTableColumn.cover,
+      LibraryTableColumn.title,
+      LibraryTableColumn.issue,
+      LibraryTableColumn.variant,
+      LibraryTableColumn.publisher,
+      LibraryTableColumn.releaseDate,
+      LibraryTableColumn.barcode,
+      LibraryTableColumn.grade,
+      LibraryTableColumn.condition,
+      LibraryTableColumn.price,
+      LibraryTableColumn.storageBox,
+      LibraryTableColumn.wishlist,
+      LibraryTableColumn.updated,
+    },
+  ),
+];
+
 bool comicInitialSortAscending(LibrarySortColumn column) {
   return switch (column) {
     LibrarySortColumn.updated => false,
@@ -212,6 +269,25 @@ String comicTableColumnDisplayName(LibraryTableColumn column) {
     LibraryTableColumn.storageBox => 'Storage Box',
     LibraryTableColumn.wishlist => 'Wishlist',
     LibraryTableColumn.updated => 'Updated',
+  };
+}
+
+String comicTableColumnDescription(LibraryTableColumn column) {
+  return switch (column) {
+    LibraryTableColumn.status => 'Owned, wishlist, cover, and metadata badges',
+    LibraryTableColumn.cover => 'Small cover preview',
+    LibraryTableColumn.title => 'Series or item title',
+    LibraryTableColumn.issue => 'Issue or item number',
+    LibraryTableColumn.variant => 'Edition or variant label',
+    LibraryTableColumn.publisher => 'Publisher from catalog metadata',
+    LibraryTableColumn.releaseDate => 'Known release or store date',
+    LibraryTableColumn.barcode => 'UPC or barcode when available',
+    LibraryTableColumn.grade => 'Personal grade for owned copies',
+    LibraryTableColumn.condition => 'Personal condition for owned copies',
+    LibraryTableColumn.price => 'Personal purchase price',
+    LibraryTableColumn.storageBox => 'Local storage box or shelf',
+    LibraryTableColumn.wishlist => 'Wishlist status',
+    LibraryTableColumn.updated => 'Most recent local update',
   };
 }
 

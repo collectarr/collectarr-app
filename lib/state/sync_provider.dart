@@ -24,6 +24,7 @@ class SyncState {
     this.lastSyncedAt,
     this.errorMessage,
     this.warningMessage,
+    this.rejectedChanges = const [],
   });
 
   final int pendingCount;
@@ -32,6 +33,7 @@ class SyncState {
   final DateTime? lastSyncedAt;
   final String? errorMessage;
   final String? warningMessage;
+  final List<SyncRejectedChange> rejectedChanges;
 
   SyncState copyWith({
     int? pendingCount,
@@ -40,8 +42,10 @@ class SyncState {
     DateTime? lastSyncedAt,
     String? errorMessage,
     String? warningMessage,
+    List<SyncRejectedChange>? rejectedChanges,
     bool clearError = false,
     bool clearWarning = false,
+    bool clearRejectedChanges = false,
   }) {
     return SyncState(
       pendingCount: pendingCount ?? this.pendingCount,
@@ -51,6 +55,9 @@ class SyncState {
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
       warningMessage:
           clearWarning ? null : warningMessage ?? this.warningMessage,
+      rejectedChanges: clearRejectedChanges
+          ? const []
+          : rejectedChanges ?? this.rejectedChanges,
     );
   }
 }
@@ -77,6 +84,7 @@ class SyncController extends StateNotifier<SyncState> {
       isOffline: false,
       clearError: true,
       clearWarning: true,
+      clearRejectedChanges: true,
     );
     try {
       final deviceId = await DeviceIdentity().getOrCreate();
@@ -105,6 +113,7 @@ class SyncController extends StateNotifier<SyncState> {
         pendingCount: count,
         lastSyncedAt: result.serverTime,
         warningMessage: _syncWarningMessage(result),
+        rejectedChanges: result.rejectedChanges,
       );
     } catch (error, stackTrace) {
       developer.log(
@@ -119,8 +128,28 @@ class SyncController extends StateNotifier<SyncState> {
         isOffline: true,
         lastSyncedAt: state.lastSyncedAt,
         errorMessage: error.toString(),
+        rejectedChanges: state.rejectedChanges,
       );
     }
+  }
+
+  void dismissRejectedChange(String key) {
+    final rejectedChanges = state.rejectedChanges
+        .where((change) => change.key != key)
+        .toList(growable: false);
+    state = state.copyWith(
+      rejectedChanges: rejectedChanges,
+      warningMessage: SyncWarningFormatter.rejectedChanges(rejectedChanges),
+      clearWarning: rejectedChanges.isEmpty,
+    );
+  }
+
+  void dismissAllRejectedChanges() {
+    state = state.copyWith(
+      rejectedChanges: const [],
+      clearRejectedChanges: true,
+      clearWarning: true,
+    );
   }
 
   String? _syncWarningMessage(SyncResult result) {

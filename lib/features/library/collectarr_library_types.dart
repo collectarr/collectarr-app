@@ -4,6 +4,9 @@ import 'package:collectarr_app/features/library/planned_library_configs.dart';
 
 const collectarrLibraryTypes = LibraryTypeRegistry([
   comicsLibraryConfig,
+  mangaLibraryConfig,
+  booksLibraryConfig,
   gamesLibraryConfig,
+  moviesLibraryConfig,
   blurayLibraryConfig,
 ]);

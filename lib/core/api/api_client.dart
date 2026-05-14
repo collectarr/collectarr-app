@@ -134,6 +134,67 @@ class ApiClient {
     return AdminCatalogSummary.fromJson(data);
   }
 
+  Future<List<AdminMetadataItem>> adminCatalogItems({
+    String? query,
+    String? kind,
+    int limit = 25,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/admin/catalog/items',
+      queryParameters: {
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        if (kind != null && kind.isNotEmpty) 'kind': kind,
+        'limit': limit,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(AdminMetadataItem.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<AdminMetadataItem> adminUpdateCatalogItem({
+    required String kind,
+    required String id,
+    String? title,
+    String? itemNumber,
+    String? synopsis,
+    int? pageCount,
+    String? publisher,
+    DateTime? releaseDate,
+    String? variantName,
+    String? barcode,
+    String? coverImageUrl,
+    String? thumbnailImageUrl,
+  }) async {
+    final data = <String, dynamic>{
+      if (title != null) 'title': title,
+      if (itemNumber != null) 'item_number': itemNumber,
+      if (synopsis != null) 'synopsis': synopsis,
+      if (pageCount != null) 'page_count': pageCount,
+      if (publisher != null) 'publisher': publisher,
+      if (releaseDate != null) 'release_date': _dateForApi(releaseDate.toUtc()),
+      if (variantName != null) 'variant_name': variantName,
+      if (barcode != null) 'barcode': barcode,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+    };
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/admin/catalog/items/$kind/$id',
+      data: data,
+    );
+    final body = response.data;
+    if (body == null) {
+      throw StateError(
+          '/admin/catalog/items/$kind/$id returned an empty response body');
+    }
+    return AdminMetadataItem.fromJson(body);
+  }
+
   Future<AdminSearchStatus> adminSearchStatus() async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/admin/search/status',
@@ -275,6 +336,121 @@ class ApiClient {
     return AdminProviderIngestResult.fromJson(data);
   }
 
+  Future<List<AdminProviderIngestHistoryEntry>>
+      adminProviderIngestHistory() async {
+    final response = await _dio.get<List<dynamic>>(
+      '/admin/providers/ingest/history',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(AdminProviderIngestHistoryEntry.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<AdminProviderIngestResult> adminRetryProviderIngest({
+    required int historyId,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/providers/ingest/retry',
+      data: {'history_id': historyId},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/providers/ingest/retry returned an empty response body');
+    }
+    return AdminProviderIngestResult.fromJson(data);
+  }
+
+  Future<List<AdminProviderIngestJob>> adminProviderIngestJobs({
+    String? status,
+    int limit = 25,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/admin/providers/ingest/jobs',
+      queryParameters: {
+        if (status != null && status.isNotEmpty) 'status': status,
+        'limit': limit,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(AdminProviderIngestJob.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
+    required String provider,
+    required String providerItemId,
+    int maxAttempts = 3,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/providers/ingest/jobs',
+      data: {
+        'provider': provider,
+        'provider_item_id': providerItemId,
+        'max_attempts': maxAttempts,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/providers/ingest/jobs returned an empty response body');
+    }
+    return AdminProviderIngestJob.fromJson(data);
+  }
+
+  Future<AdminProviderIngestJobRunResult> adminRunPendingProviderIngestJobs({
+    int limit = 5,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/providers/ingest/jobs/run-pending',
+      queryParameters: {'limit': limit},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/providers/ingest/jobs/run-pending returned an empty response body');
+    }
+    return AdminProviderIngestJobRunResult.fromJson(data);
+  }
+
+  Future<AdminProviderIngestJob> adminRunProviderIngestJob({
+    required String jobId,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/providers/ingest/jobs/$jobId/run',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/providers/ingest/jobs/$jobId/run returned an empty response body');
+    }
+    return AdminProviderIngestJob.fromJson(data);
+  }
+
+  Future<AdminProviderIngestJob> adminRetryProviderIngestJob({
+    required String jobId,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/providers/ingest/jobs/$jobId/retry',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/providers/ingest/jobs/$jobId/retry returned an empty response body');
+    }
+    return AdminProviderIngestJob.fromJson(data);
+  }
+
   Future<Map<String, dynamic>> createMetadataProposal({
     required String provider,
     required String query,
@@ -341,4 +517,10 @@ String _metadataRouteForKind(String kind) {
     'boardgame' => 'board-games',
     _ => kind,
   };
+}
+
+String _dateForApi(DateTime value) {
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
 }

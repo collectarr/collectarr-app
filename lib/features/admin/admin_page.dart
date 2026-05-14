@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/features/library/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -14,45 +15,62 @@ class AdminPage extends ConsumerStatefulWidget {
 }
 
 class _AdminPageState extends ConsumerState<AdminPage> {
-  final _queryController = TextEditingController(text: 'Batman #1');
+  final _catalogQueryController = TextEditingController();
+  final _queryController = TextEditingController();
   final _providerItemIdController = TextEditingController();
+  final _jobProviderItemIdController = TextEditingController();
   var _providers = const <AdminProviderStatus>[];
   AdminCatalogSummary? _summary;
   AdminSearchStatus? _searchStatus;
   AdminSearchReindexResult? _lastReindex;
   var _searchHistory = const <AdminSearchHistoryEntry>[];
+  var _ingestHistory = const <AdminProviderIngestHistoryEntry>[];
+  var _ingestJobs = const <AdminProviderIngestJob>[];
+  var _catalogItems = const <AdminMetadataItem>[];
   AdminMetadataItem? _inspectedItem;
   var _duplicates = const <AdminDuplicateCandidate>[];
   var _results = const <ProviderCandidate>[];
-  var _selectedProvider = 'gcd';
+  String? _catalogKindFilter;
+  var _selectedProvider = '';
   String? _selectedProviderKindFilter;
+  String? _ingestJobStatusFilter;
   AdminProviderIngestResult? _lastIngest;
   String? _statusMessage;
   String? _errorMessage;
   String? _dashboardErrorMessage;
+  String? _catalogStatusMessage;
+  String? _catalogErrorMessage;
   String? _inspectErrorMessage;
   String? _duplicateStatusMessage;
   String? _duplicateErrorMessage;
   bool _isLoadingDashboard = false;
   bool _isReindexing = false;
   bool _isLoadingProviders = false;
+  bool _isSearchingCatalog = false;
+  bool _isRunningJobs = false;
   bool _isSearching = false;
   bool _isDirectIngesting = false;
   String? _inspectingItemId;
+  String? _updatingCatalogItemId;
   String? _duplicateActionItemId;
   String? _ingestingProviderItemId;
+  String? _jobActionId;
+  int? _retryingHistoryId;
 
   @override
   void initState() {
     super.initState();
     _loadDashboard();
     _loadProviders();
+    _searchCatalog();
   }
 
   @override
   void dispose() {
+    _catalogQueryController.dispose();
     _queryController.dispose();
     _providerItemIdController.dispose();
+    _jobProviderItemIdController.dispose();
     super.dispose();
   }
 
@@ -97,9 +115,110 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               lastReindex: _lastReindex,
               configuredProviders: _configuredProviderCount(),
               registeredProviders: _providers.length,
-              selectedProvider: _selectedProvider,
+              selectedProviderLabel: _selectedProviderLabel(),
               lastIngest: _lastIngest,
               errorMessage: _dashboardErrorMessage,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _AdminPanel(
+            icon: Icons.inventory_2_outlined,
+            title: 'Canonical catalog browser',
+            trailing: IconButton(
+              tooltip: 'Search catalog',
+              onPressed: _isSearchingCatalog ? null : _searchCatalog,
+              icon: _isSearchingCatalog
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.search),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final kindField = _ProviderKindSelector(
+                      value: _catalogKindFilter,
+                      kinds: _catalogKindOptions(),
+                      isLoading: _isLoadingProviders,
+                      onChanged: (value) {
+                        setState(() {
+                          _catalogKindFilter =
+                              value == null || value.isEmpty ? null : value;
+                        });
+                        _searchCatalog();
+                      },
+                    );
+                    final queryField = TextField(
+                      controller: _catalogQueryController,
+                      decoration: const InputDecoration(
+                        labelText: 'Catalog search',
+                        prefixIcon: Icon(Icons.manage_search_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (_) => _searchCatalog(),
+                    );
+                    final searchButton = FilledButton.icon(
+                      onPressed: _isSearchingCatalog ? null : _searchCatalog,
+                      icon: _isSearchingCatalog
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.search),
+                      label: const Text('Search'),
+                    );
+                    if (constraints.maxWidth < 640) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          kindField,
+                          const SizedBox(height: 12),
+                          queryField,
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: searchButton,
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(width: 180, child: kindField),
+                        const SizedBox(width: 12),
+                        Expanded(child: queryField),
+                        const SizedBox(width: 12),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: searchButton,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                if (_catalogStatusMessage != null ||
+                    _catalogErrorMessage != null) ...[
+                  const SizedBox(height: 12),
+                  _MessageRow(
+                    message: _catalogErrorMessage ?? _catalogStatusMessage!,
+                    isError: _catalogErrorMessage != null,
+                  ),
+                ],
+                const SizedBox(height: 12),
+                _CatalogItemList(
+                  items: _catalogItems,
+                  inspectingItemId: _inspectingItemId,
+                  updatingItemId: _updatingCatalogItemId,
+                  onInspect: _inspectCatalogItem,
+                  onEdit: _showMetadataCorrectionDialog,
+                  onInspectCovers: _showCoverInspectionDialog,
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
@@ -107,6 +226,42 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             icon: Icons.history_outlined,
             title: 'Search index history',
             child: _SearchHistoryList(history: _searchHistory),
+          ),
+          const SizedBox(height: 12),
+          _AdminPanel(
+            icon: Icons.report_problem_outlined,
+            title: 'Provider ingest history',
+            child: _ProviderIngestHistoryList(
+              history: _ingestHistory,
+              retryingHistoryId: _retryingHistoryId,
+              onRetry: _retryIngestHistory,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _AdminPanel(
+            icon: Icons.queue_outlined,
+            title: 'Provider ingest jobs',
+            trailing: IconButton(
+              tooltip: 'Refresh ingest jobs',
+              onPressed: _isLoadingDashboard ? null : _loadDashboard,
+              icon: const Icon(Icons.refresh),
+            ),
+            child: _ProviderIngestJobPanel(
+              jobs: _ingestJobs,
+              statusFilter: _ingestJobStatusFilter,
+              selectedProvider: _selectedProvider,
+              providers: _providerOptions(forIngest: true),
+              isLoadingProviders: _isLoadingProviders,
+              providerItemIdController: _jobProviderItemIdController,
+              isRunningJobs: _isRunningJobs,
+              actionJobId: _jobActionId,
+              onProviderChanged: _changeSelectedProvider,
+              onStatusFilterChanged: _changeIngestJobStatusFilter,
+              onQueueCurrent: _queueCurrentProviderItemId,
+              onRunPending: _runPendingIngestJobs,
+              onRun: _runIngestJob,
+              onRetry: _retryIngestJob,
+            ),
           ),
           const SizedBox(height: 12),
           _AdminPanel(
@@ -180,7 +335,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     final isNarrow = constraints.maxWidth < 720;
                     final kindField = _ProviderKindSelector(
                       value: _selectedProviderKindFilter,
-                      kinds: _providerKindOptions(),
+                      kinds: _providerKindOptions(forSearch: true),
                       isLoading: _isLoadingProviders,
                       onChanged: _changeProviderKindFilter,
                     );
@@ -190,16 +345,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                       providers: searchableProviders,
                       isLoading: _isLoadingProviders,
                       onChanged: (value) {
-                        if (value == null || value == _selectedProvider) {
-                          return;
-                        }
-                        setState(() {
-                          _selectedProvider = value;
-                          _results = const [];
-                          _lastIngest = null;
-                          _statusMessage = null;
-                          _errorMessage = null;
-                        });
+                        _changeSelectedProvider(value);
                       },
                     );
                     final queryField = TextField(
@@ -302,6 +448,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 _ProviderResultsList(
                   results: _results,
                   ingestingProviderItemId: _ingestingProviderItemId,
+                  canIngestProvider: _providerSupportsIngest,
                   onIngest: _ingestProviderItem,
                 ),
               ],
@@ -322,6 +469,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final summary = await api.adminCatalogSummary();
       final searchStatus = await api.adminSearchStatus();
       final searchHistory = await api.adminSearchHistory();
+      final ingestHistory = await api.adminProviderIngestHistory();
+      final ingestJobs = await api.adminProviderIngestJobs(
+        status: _ingestJobStatusFilter,
+        limit: 8,
+      );
       final duplicates = await api.adminDuplicateCandidates(limit: 5);
       if (!mounted) {
         return;
@@ -330,6 +482,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _summary = summary;
         _searchStatus = searchStatus;
         _searchHistory = searchHistory;
+        _ingestHistory = ingestHistory;
+        _ingestJobs = ingestJobs;
         _duplicates = duplicates;
         _isLoadingDashboard = false;
       });
@@ -342,6 +496,293 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _dashboardErrorMessage = _adminErrorMessage(error);
       });
     }
+  }
+
+  Future<void> _retryIngestHistory(
+    AdminProviderIngestHistoryEntry entry,
+  ) async {
+    setState(() {
+      _retryingHistoryId = entry.id;
+      _errorMessage = null;
+      _statusMessage = null;
+      _inspectErrorMessage = null;
+    });
+    try {
+      final result = await ref.read(apiClientProvider).adminRetryProviderIngest(
+            historyId: entry.id,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _retryingHistoryId = null;
+        _lastIngest = result;
+        _inspectedItem = null;
+        _statusMessage = result.created
+            ? 'Provider ingest retried.'
+            : 'Provider item already exists.';
+      });
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _retryingHistoryId = null;
+        _errorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _searchCatalog() async {
+    setState(() {
+      _isSearchingCatalog = true;
+      _catalogStatusMessage = null;
+      _catalogErrorMessage = null;
+    });
+    try {
+      final items = await ref.read(apiClientProvider).adminCatalogItems(
+            query: _catalogQueryController.text,
+            kind: _catalogKindFilter,
+            limit: 12,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _catalogItems = items;
+        _isSearchingCatalog = false;
+        _catalogStatusMessage = items.isEmpty
+            ? 'No catalog items found.'
+            : '${items.length} catalog items.';
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSearchingCatalog = false;
+        _catalogErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _inspectCatalogItem(AdminMetadataItem item) async {
+    setState(() {
+      _inspectingItemId = item.id;
+      _inspectErrorMessage = null;
+    });
+    try {
+      final fresh = await ref.read(apiClientProvider).adminGetMetadataItem(
+            kind: item.kind,
+            id: item.id,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _lastIngest = null;
+        _inspectedItem = fresh;
+        _inspectingItemId = null;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _inspectingItemId = null;
+        _inspectErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _showMetadataCorrectionDialog(AdminMetadataItem item) async {
+    final correction = await showDialog<_CatalogCorrection>(
+      context: context,
+      builder: (context) => _MetadataCorrectionDialog(item: item),
+    );
+    if (correction == null || !mounted) {
+      return;
+    }
+    setState(() {
+      _updatingCatalogItemId = item.id;
+      _catalogStatusMessage = null;
+      _catalogErrorMessage = null;
+      _inspectErrorMessage = null;
+    });
+    try {
+      final updated = await ref.read(apiClientProvider).adminUpdateCatalogItem(
+            kind: item.kind,
+            id: item.id,
+            title: correction.title,
+            itemNumber: correction.itemNumber,
+            synopsis: correction.synopsis,
+            pageCount: correction.pageCount,
+            publisher: correction.publisher,
+            releaseDate: correction.releaseDate,
+            variantName: correction.variantName,
+            barcode: correction.barcode,
+            coverImageUrl: correction.coverImageUrl,
+            thumbnailImageUrl: correction.thumbnailImageUrl,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _updatingCatalogItemId = null;
+        _inspectedItem = updated;
+        _lastIngest = null;
+        _catalogStatusMessage = 'Metadata correction saved.';
+        _catalogItems = [
+          for (final row in _catalogItems) row.id == updated.id ? updated : row,
+        ];
+      });
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _updatingCatalogItemId = null;
+        _catalogErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _showCoverInspectionDialog(AdminMetadataItem item) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => _CoverInspectionDialog(item: item),
+    );
+  }
+
+  Future<void> _queueCurrentProviderItemId() async {
+    final provider = _selectedProvider.trim();
+    if (provider.isEmpty ||
+        !_providerOptions(forIngest: true).any(
+          (option) => option.name == provider,
+        )) {
+      setState(() {
+        _errorMessage = 'Select an ingest provider first.';
+        _statusMessage = null;
+      });
+      return;
+    }
+    final providerItemId = _jobProviderItemIdController.text.trim();
+    if (providerItemId.isEmpty) {
+      setState(() {
+        _errorMessage = 'Enter a provider item ID.';
+        _statusMessage = null;
+      });
+      return;
+    }
+    setState(() {
+      _jobActionId = 'new';
+      _errorMessage = null;
+      _statusMessage = null;
+    });
+    try {
+      await ref.read(apiClientProvider).adminCreateProviderIngestJob(
+            provider: provider,
+            providerItemId: providerItemId,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _jobActionId = null;
+        _statusMessage = 'Provider ingest job queued.';
+      });
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _jobActionId = null;
+        _errorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _runPendingIngestJobs() async {
+    setState(() {
+      _isRunningJobs = true;
+      _errorMessage = null;
+      _statusMessage = null;
+    });
+    try {
+      final result = await ref
+          .read(apiClientProvider)
+          .adminRunPendingProviderIngestJobs(limit: 5);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isRunningJobs = false;
+        _statusMessage = 'Processed ${result.processed} ingest jobs.';
+      });
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isRunningJobs = false;
+        _errorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _runIngestJob(AdminProviderIngestJob job) async {
+    await _runSingleIngestJob(job, retry: false);
+  }
+
+  Future<void> _retryIngestJob(AdminProviderIngestJob job) async {
+    await _runSingleIngestJob(job, retry: true);
+  }
+
+  Future<void> _runSingleIngestJob(
+    AdminProviderIngestJob job, {
+    required bool retry,
+  }) async {
+    setState(() {
+      _jobActionId = job.id;
+      _errorMessage = null;
+      _statusMessage = null;
+    });
+    try {
+      final updated = retry
+          ? await ref
+              .read(apiClientProvider)
+              .adminRetryProviderIngestJob(jobId: job.id)
+          : await ref
+              .read(apiClientProvider)
+              .adminRunProviderIngestJob(jobId: job.id);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _jobActionId = null;
+        _statusMessage = 'Ingest job ${updated.status}.';
+      });
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _jobActionId = null;
+        _errorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  void _changeIngestJobStatusFilter(String? status) {
+    setState(() {
+      _ingestJobStatusFilter = status == null || status.isEmpty ? null : status;
+    });
+    _loadDashboard();
   }
 
   Future<void> _reindexSearch() async {
@@ -451,8 +892,15 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     if (candidate.itemIds.length < 2) {
       return;
     }
-    final targetItemId = candidate.itemIds.first;
-    final sourceItemIds = candidate.itemIds.skip(1).toList(growable: false);
+    final selection = await showDialog<_DuplicateMergeSelection>(
+      context: context,
+      builder: (context) => _DuplicateMergeReviewDialog(candidate: candidate),
+    );
+    if (selection == null || !mounted || selection.sourceItemIds.isEmpty) {
+      return;
+    }
+    final targetItemId = selection.targetItemId;
+    final sourceItemIds = selection.sourceItemIds;
     setState(() {
       _duplicateActionItemId = targetItemId;
       _duplicateStatusMessage = null;
@@ -498,13 +946,17 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       if (!mounted) {
         return;
       }
+      final selectableProviders = [
+        for (final provider in providers)
+          if (provider.supportsSearch || provider.supportsIngest) provider,
+      ];
       setState(() {
         _providers = providers;
         _isLoadingProviders = false;
-        if (!providers.any((provider) => provider.name == _selectedProvider) &&
-            providers.isNotEmpty) {
-          _selectedProvider = providers.first.name;
-        }
+        _selectedProvider = _preferredProvider(
+          selectableProviders,
+          current: _selectedProvider,
+        );
       });
     } catch (error) {
       if (!mounted) {
@@ -519,9 +971,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   Future<void> _searchProvider() async {
     final query = _queryController.text.trim();
+    final provider = _selectedProvider.trim();
     if (query.isEmpty) {
       setState(() {
         _errorMessage = 'Enter a provider query.';
+        _statusMessage = null;
+      });
+      return;
+    }
+    if (provider.isEmpty ||
+        !_providerOptions().any((option) => option.name == provider)) {
+      setState(() {
+        _errorMessage = 'Select a searchable provider first.';
         _statusMessage = null;
       });
       return;
@@ -536,7 +997,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     try {
       final selectedKind = _selectedProviderKind();
       final rows = await ref.read(apiClientProvider).adminProviderSearch(
-            provider: _selectedProvider,
+            provider: provider,
             query: query,
             kind: selectedKind,
           );
@@ -544,7 +1005,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           .map(
             (row) => ProviderCandidate.fromJson(
               row,
-              fallbackKind: selectedKind ?? 'comic',
+              fallbackKind: selectedKind ?? _fallbackProviderKind(),
             ),
           )
           .toList(growable: false);
@@ -570,6 +1031,17 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _ingestProviderItemId() async {
+    final provider = _selectedProvider.trim();
+    if (provider.isEmpty ||
+        !_providerOptions(forIngest: true).any(
+          (option) => option.name == provider,
+        )) {
+      setState(() {
+        _errorMessage = 'Select an ingest provider first.';
+        _statusMessage = null;
+      });
+      return;
+    }
     final providerItemId = _providerItemIdController.text.trim();
     if (providerItemId.isEmpty) {
       setState(() {
@@ -579,7 +1051,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       return;
     }
     await _ingestProvider(
-      provider: _selectedProvider,
+      provider: provider,
       providerItemId: providerItemId,
       isDirect: true,
     );
@@ -646,10 +1118,24 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     final options = _providerOptions(kind: nextKind);
     setState(() {
       _selectedProviderKindFilter = nextKind;
-      if (!options.any((provider) => provider.name == _selectedProvider) &&
-          options.isNotEmpty) {
-        _selectedProvider = options.first.name;
-      }
+      _selectedProvider = _preferredProvider(
+        options,
+        current: _selectedProvider,
+      );
+      _results = const [];
+      _lastIngest = null;
+      _statusMessage = null;
+      _errorMessage = null;
+    });
+  }
+
+  void _changeSelectedProvider(String? value) {
+    final provider = value?.trim();
+    if (provider == null || provider.isEmpty || provider == _selectedProvider) {
+      return;
+    }
+    setState(() {
+      _selectedProvider = provider;
       _results = const [];
       _lastIngest = null;
       _statusMessage = null;
@@ -666,24 +1152,63 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return null;
   }
 
-  List<String> _providerKindOptions() {
-    final kinds = <String>{};
+  String _fallbackProviderKind() {
+    return _selectedProviderKind() ??
+        _catalogKindFilter ??
+        collectarrLibraryTypes.supportedKinds.first;
+  }
+
+  List<String> _catalogKindOptions() {
+    final kinds = <String>{...collectarrLibraryTypes.supportedKinds};
     for (final provider in _providers) {
-      if (provider.supportsSearch) {
+      if (provider.kind.isNotEmpty) {
         kinds.add(provider.kind);
       }
     }
-    return kinds.toList(growable: false)..sort();
+    return kinds.toList(growable: false)..sort(_compareMediaKinds);
   }
 
-  List<AdminProviderStatus> _providerOptions({String? kind}) {
+  List<String> _providerKindOptions({required bool forSearch}) {
+    final kinds = <String>{};
+    for (final provider in _providers) {
+      final supported =
+          forSearch ? provider.supportsSearch : provider.supportsIngest;
+      if (supported && provider.kind.isNotEmpty) {
+        kinds.add(provider.kind);
+      }
+    }
+    return kinds.toList(growable: false)..sort(_compareMediaKinds);
+  }
+
+  List<AdminProviderStatus> _providerOptions({
+    String? kind,
+    bool forIngest = false,
+  }) {
     final filterKind = kind ?? _selectedProviderKindFilter;
     return [
       for (final provider in _providers)
-        if (provider.supportsSearch &&
+        if ((forIngest ? provider.supportsIngest : provider.supportsSearch) &&
             (filterKind == null || provider.kind == filterKind))
           provider,
     ];
+  }
+
+  String _selectedProviderLabel() {
+    for (final provider in _providers) {
+      if (provider.name == _selectedProvider) {
+        return provider.displayName;
+      }
+    }
+    return _selectedProvider.isEmpty ? 'No provider' : _selectedProvider;
+  }
+
+  bool _providerSupportsIngest(String providerName) {
+    for (final provider in _providers) {
+      if (provider.name == providerName) {
+        return provider.supportsIngest;
+      }
+    }
+    return false;
   }
 }
 
@@ -743,7 +1268,7 @@ class _DashboardSummary extends StatelessWidget {
     required this.lastReindex,
     required this.configuredProviders,
     required this.registeredProviders,
-    required this.selectedProvider,
+    required this.selectedProviderLabel,
     required this.lastIngest,
     required this.errorMessage,
   });
@@ -753,7 +1278,7 @@ class _DashboardSummary extends StatelessWidget {
   final AdminSearchReindexResult? lastReindex;
   final int configuredProviders;
   final int registeredProviders;
-  final String selectedProvider;
+  final String selectedProviderLabel;
   final AdminProviderIngestResult? lastIngest;
   final String? errorMessage;
 
@@ -778,7 +1303,7 @@ class _DashboardSummary extends StatelessWidget {
         ),
         _StatusChip(
           icon: Icons.source_outlined,
-          label: selectedProvider.toUpperCase(),
+          label: selectedProviderLabel,
         ),
         if (summary == null) ...[
           const _StatusChip(
@@ -799,12 +1324,34 @@ class _DashboardSummary extends StatelessWidget {
             label: '${summary.providerLinks} provider links',
           ),
           _StatusChip(
+            icon: Icons.image_search_outlined,
+            label: summary.coverCoverageLabel,
+          ),
+          _StatusChip(
+            icon: Icons.hub_outlined,
+            label: summary.providerCoverageLabel,
+          ),
+          _StatusChip(
             icon: Icons.image_outlined,
             label: '${summary.missingCoverItems} missing covers',
           ),
           _StatusChip(
+            icon: Icons.link_off_outlined,
+            label: '${summary.missingProviderLinkItems} missing IDs',
+          ),
+          _StatusChip(
             icon: Icons.join_inner_outlined,
             label: '${summary.duplicateCandidateGroups} duplicate groups',
+          ),
+          _StatusChip(
+            icon: summary.providerIngestFailures == 0
+                ? Icons.download_done_outlined
+                : Icons.error_outline,
+            label: '${summary.providerIngestFailures} ingest failures',
+          ),
+          _StatusChip(
+            icon: Icons.download_for_offline_outlined,
+            label: '${summary.providerIngestSuccesses} ingests ok',
           ),
           _StatusChip(
             icon: Icons.pending_actions_outlined,
@@ -866,11 +1413,8 @@ class _ProviderSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selected = providers.any((provider) => provider.name == value)
-        ? value
-        : providers.isEmpty
-            ? null
-            : providers.first.name;
+    final selected =
+        providers.any((provider) => provider.name == value) ? value : null;
     if (providers.isEmpty) {
       return TextField(
         enabled: false,
@@ -887,6 +1431,7 @@ class _ProviderSelector extends StatelessWidget {
       key: ValueKey(selected),
       initialValue: selected,
       isExpanded: true,
+      hint: Text(isLoading ? 'Loading providers...' : 'Select provider'),
       decoration: const InputDecoration(
         labelText: 'Provider',
         prefixIcon: Icon(Icons.extension_outlined),
@@ -957,6 +1502,398 @@ class _ProviderKindSelector extends StatelessWidget {
   }
 }
 
+class _CatalogItemList extends StatelessWidget {
+  const _CatalogItemList({
+    required this.items,
+    required this.inspectingItemId,
+    required this.updatingItemId,
+    required this.onInspect,
+    required this.onEdit,
+    required this.onInspectCovers,
+  });
+
+  final List<AdminMetadataItem> items;
+  final String? inspectingItemId;
+  final String? updatingItemId;
+  final ValueChanged<AdminMetadataItem> onInspect;
+  final ValueChanged<AdminMetadataItem> onEdit;
+  final ValueChanged<AdminMetadataItem> onInspectCovers;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const _MessageRow(
+        message: 'No catalog results loaded.',
+        isError: false,
+      );
+    }
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return _CatalogItemTile(
+          item: item,
+          isInspecting: inspectingItemId == item.id,
+          isUpdating: updatingItemId == item.id,
+          onInspect: () => onInspect(item),
+          onEdit: () => onEdit(item),
+          onInspectCovers: () => onInspectCovers(item),
+        );
+      },
+    );
+  }
+}
+
+class _CatalogItemTile extends StatelessWidget {
+  const _CatalogItemTile({
+    required this.item,
+    required this.isInspecting,
+    required this.isUpdating,
+    required this.onInspect,
+    required this.onEdit,
+    required this.onInspectCovers,
+  });
+
+  final AdminMetadataItem item;
+  final bool isInspecting;
+  final bool isUpdating;
+  final VoidCallback onInspect;
+  final VoidCallback onEdit;
+  final VoidCallback onInspectCovers;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final cover = SizedBox(
+              width: 58,
+              height: 82,
+              child: LibraryCoverImage(
+                title: item.title,
+                itemNumber: item.itemNumber,
+                imageUrl: item.displayCoverUrl,
+              ),
+            );
+            final details = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.displayTitle,
+                  style: Theme.of(context).textTheme.titleSmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    _MiniChip(label: item.kind),
+                    _MiniChip(label: 'ID ${_shortId(item.id)}'),
+                    if (item.publisher != null)
+                      _MiniChip(label: item.publisher!),
+                    if (item.barcode != null) _MiniChip(label: item.barcode!),
+                    if (item.displayCoverUrl == null)
+                      const _MiniChip(label: 'missing cover'),
+                  ],
+                ),
+              ],
+            );
+            final buttons = Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: isInspecting || isUpdating ? null : onInspect,
+                  icon: isInspecting
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.visibility_outlined),
+                  label: const Text('Inspect'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: isUpdating ? null : onInspectCovers,
+                  icon: const Icon(Icons.image_search_outlined),
+                  label: const Text('Covers'),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: isUpdating ? null : onEdit,
+                  icon: isUpdating
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.edit_outlined),
+                  label: const Text('Edit'),
+                ),
+              ],
+            );
+            if (constraints.maxWidth < 680) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      cover,
+                      const SizedBox(width: 12),
+                      Expanded(child: details),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  buttons,
+                ],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                cover,
+                const SizedBox(width: 12),
+                Expanded(child: details),
+                const SizedBox(width: 12),
+                buttons,
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderIngestJobPanel extends StatelessWidget {
+  const _ProviderIngestJobPanel({
+    required this.jobs,
+    required this.statusFilter,
+    required this.selectedProvider,
+    required this.providers,
+    required this.isLoadingProviders,
+    required this.providerItemIdController,
+    required this.isRunningJobs,
+    required this.actionJobId,
+    required this.onProviderChanged,
+    required this.onStatusFilterChanged,
+    required this.onQueueCurrent,
+    required this.onRunPending,
+    required this.onRun,
+    required this.onRetry,
+  });
+
+  final List<AdminProviderIngestJob> jobs;
+  final String? statusFilter;
+  final String selectedProvider;
+  final List<AdminProviderStatus> providers;
+  final bool isLoadingProviders;
+  final TextEditingController providerItemIdController;
+  final bool isRunningJobs;
+  final String? actionJobId;
+  final ValueChanged<String?> onProviderChanged;
+  final ValueChanged<String?> onStatusFilterChanged;
+  final VoidCallback onQueueCurrent;
+  final VoidCallback onRunPending;
+  final ValueChanged<AdminProviderIngestJob> onRun;
+  final ValueChanged<AdminProviderIngestJob> onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final filterValue = statusFilter ?? '';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            SizedBox(
+              width: 190,
+              child: DropdownButtonFormField<String>(
+                initialValue: filterValue,
+                decoration: const InputDecoration(
+                  labelText: 'Status filter',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: '', child: Text('All jobs')),
+                  DropdownMenuItem(value: 'queued', child: Text('Queued')),
+                  DropdownMenuItem(value: 'running', child: Text('Running')),
+                  DropdownMenuItem(value: 'failed', child: Text('Failed')),
+                  DropdownMenuItem(value: 'done', child: Text('Done')),
+                ],
+                onChanged: onStatusFilterChanged,
+              ),
+            ),
+            SizedBox(
+              width: 220,
+              child: _ProviderSelector(
+                value: selectedProvider,
+                providers: providers,
+                isLoading: isLoadingProviders,
+                onChanged: onProviderChanged,
+              ),
+            ),
+            SizedBox(
+              width: 240,
+              child: TextField(
+                controller: providerItemIdController,
+                decoration: const InputDecoration(
+                  labelText: 'Job provider item ID',
+                  prefixIcon: Icon(Icons.tag_outlined),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            OutlinedButton.icon(
+              onPressed: actionJobId == 'new' ? null : onQueueCurrent,
+              icon: actionJobId == 'new'
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.add_task_outlined),
+              label: const Text('Queue current ID'),
+            ),
+            FilledButton.tonalIcon(
+              onPressed: isRunningJobs ? null : onRunPending,
+              icon: isRunningJobs
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.playlist_play_outlined),
+              label: const Text('Run queued'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (jobs.isEmpty)
+          const _MessageRow(
+            message: 'No persistent ingest jobs for this filter.',
+            isError: false,
+          )
+        else
+          for (final job in jobs)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _ProviderIngestJobTile(
+                job: job,
+                isActing: actionJobId == job.id,
+                onRun: () => onRun(job),
+                onRetry: () => onRetry(job),
+              ),
+            ),
+      ],
+    );
+  }
+}
+
+class _ProviderIngestJobTile extends StatelessWidget {
+  const _ProviderIngestJobTile({
+    required this.job,
+    required this.isActing,
+    required this.onRun,
+    required this.onRetry,
+  });
+
+  final AdminProviderIngestJob job;
+  final bool isActing;
+  final VoidCallback onRun;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Icon(
+              job.isFailed
+                  ? Icons.error_outline
+                  : job.isDone
+                      ? Icons.check_circle_outline
+                      : Icons.pending_actions_outlined,
+              color: job.isFailed ? colorScheme.error : colorScheme.primary,
+            ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 260),
+              child: Text(
+                job.displayTitle,
+                style: Theme.of(context).textTheme.titleSmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            _MiniChip(label: job.status),
+            _MiniChip(label: '${job.attempts}/${job.maxAttempts} attempts'),
+            if (job.nextRunAt != null)
+              _MiniChip(label: 'next ${_formatDateTime(job.nextRunAt!)}'),
+            if (job.itemId != null)
+              _MiniChip(label: 'item ${_shortId(job.itemId!)}'),
+            if (job.lastError != null && job.lastError!.isNotEmpty)
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 360),
+                child: Text(
+                  job.lastError!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colorScheme.error,
+                      ),
+                ),
+              ),
+            if (job.isQueued)
+              OutlinedButton.icon(
+                onPressed: isActing ? null : onRun,
+                icon: isActing
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.play_arrow_outlined),
+                label: const Text('Run'),
+              ),
+            if (job.isFailed)
+              OutlinedButton.icon(
+                onPressed: isActing ? null : onRetry,
+                icon: isActing
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.replay_outlined),
+                label: const Text('Retry'),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _SearchHistoryList extends StatelessWidget {
   const _SearchHistoryList({required this.history});
 
@@ -1016,6 +1953,106 @@ class _SearchHistoryList extends StatelessWidget {
                                     color: colorScheme.error,
                                   ),
                         ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ProviderIngestHistoryList extends StatelessWidget {
+  const _ProviderIngestHistoryList({
+    required this.history,
+    required this.retryingHistoryId,
+    required this.onRetry,
+  });
+
+  final List<AdminProviderIngestHistoryEntry> history;
+  final int? retryingHistoryId;
+  final ValueChanged<AdminProviderIngestHistoryEntry> onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    if (history.isEmpty) {
+      return const _MessageRow(
+        message: 'No provider ingest attempts yet.',
+        isError: false,
+      );
+    }
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final entry in history.take(8))
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.35,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorScheme.outlineVariant),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Icon(
+                      entry.isFailed
+                          ? Icons.error_outline
+                          : Icons.check_circle_outline,
+                      color: entry.isFailed
+                          ? colorScheme.error
+                          : colorScheme.primary,
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 260),
+                      child: Text(
+                        entry.displayTitle,
+                        style: Theme.of(context).textTheme.titleSmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    _MiniChip(label: entry.status),
+                    _MiniChip(label: '${entry.attempts} attempts'),
+                    _MiniChip(label: _formatDateTime(entry.timestamp)),
+                    if (entry.itemId != null)
+                      _MiniChip(label: 'item ${_shortId(entry.itemId!)}'),
+                    if (entry.error != null && entry.error!.isNotEmpty)
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 360),
+                        child: Text(
+                          entry.error!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.error,
+                                  ),
+                        ),
+                      ),
+                    if (entry.isFailed)
+                      OutlinedButton.icon(
+                        onPressed: retryingHistoryId == entry.id
+                            ? null
+                            : () => onRetry(entry),
+                        icon: retryingHistoryId == entry.id
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.replay_outlined),
+                        label: const Text('Retry'),
                       ),
                   ],
                 ),
@@ -1117,6 +2154,11 @@ class _DuplicateCandidateTile extends StatelessWidget {
             ),
             _MiniChip(label: candidate.kind),
             _MiniChip(label: '${candidate.count} items'),
+            _MiniChip(label: candidate.reason),
+            if (candidate.hasProviderConflicts)
+              const _MiniChip(label: 'provider conflict'),
+            if (candidate.hasCoverConflicts)
+              const _MiniChip(label: 'cover conflict'),
             if (candidate.itemIds.isNotEmpty)
               _MiniChip(label: 'ID ${_shortId(candidate.itemIds.first)}'),
             OutlinedButton.icon(
@@ -1262,11 +2304,13 @@ class _ProviderResultsList extends StatelessWidget {
   const _ProviderResultsList({
     required this.results,
     required this.ingestingProviderItemId,
+    required this.canIngestProvider,
     required this.onIngest,
   });
 
   final List<ProviderCandidate> results;
   final String? ingestingProviderItemId;
+  final bool Function(String provider) canIngestProvider;
   final ValueChanged<ProviderCandidate> onIngest;
 
   @override
@@ -1285,6 +2329,7 @@ class _ProviderResultsList extends StatelessWidget {
         return _ProviderResultTile(
           candidate: candidate,
           isIngesting: isIngesting,
+          canIngest: canIngestProvider(candidate.provider),
           onIngest: () => onIngest(candidate),
         );
       },
@@ -1296,11 +2341,13 @@ class _ProviderResultTile extends StatelessWidget {
   const _ProviderResultTile({
     required this.candidate,
     required this.isIngesting,
+    required this.canIngest,
     required this.onIngest,
   });
 
   final ProviderCandidate candidate;
   final bool isIngesting;
+  final bool canIngest;
   final VoidCallback onIngest;
 
   @override
@@ -1349,14 +2396,18 @@ class _ProviderResultTile extends StatelessWidget {
           ],
         );
         final button = FilledButton.tonalIcon(
-          onPressed: isIngesting ? null : onIngest,
+          onPressed: isIngesting || !canIngest ? null : onIngest,
           icon: isIngesting
               ? const SizedBox.square(
                   dimension: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Icon(Icons.download_for_offline_outlined),
-          label: const Text('Ingest'),
+              : Icon(
+                  canIngest
+                      ? Icons.download_for_offline_outlined
+                      : Icons.search_outlined,
+                ),
+          label: Text(canIngest ? 'Ingest' : 'Search only'),
         );
         return DecoratedBox(
           decoration: BoxDecoration(
@@ -1555,6 +2606,394 @@ class _CanonicalItemSummary extends StatelessWidget {
   }
 }
 
+class _CoverInspectionDialog extends StatelessWidget {
+  const _CoverInspectionDialog({required this.item});
+
+  final AdminMetadataItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final variants = [
+      for (final edition in item.editions) ...edition.variants,
+    ];
+    return AlertDialog(
+      title: Text('Covers: ${item.displayTitle}'),
+      content: SizedBox(
+        width: 640,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 180,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: AspectRatio(
+                    aspectRatio: 2 / 3,
+                    child: LibraryCoverImage(
+                      title: item.title,
+                      itemNumber: item.itemNumber,
+                      imageUrl: item.displayCoverUrl,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (variants.isEmpty)
+                const Text('No variants attached to this item.')
+              else
+                for (final variant in variants)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          variant.name,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        SelectableText(
+                          [
+                            if (variant.coverImageUrl != null)
+                              'cover: ${variant.coverImageUrl}',
+                            if (variant.thumbnailImageUrl != null)
+                              'thumb: ${variant.thumbnailImageUrl}',
+                            if (variant.coverImageUrl == null &&
+                                variant.thumbnailImageUrl == null)
+                              'no cover URLs',
+                          ].join('\n'),
+                        ),
+                      ],
+                    ),
+                  ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+}
+
+class _CatalogCorrection {
+  const _CatalogCorrection({
+    this.title,
+    this.itemNumber,
+    this.synopsis,
+    this.pageCount,
+    this.publisher,
+    this.releaseDate,
+    this.variantName,
+    this.barcode,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+  });
+
+  final String? title;
+  final String? itemNumber;
+  final String? synopsis;
+  final int? pageCount;
+  final String? publisher;
+  final DateTime? releaseDate;
+  final String? variantName;
+  final String? barcode;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+}
+
+class _MetadataCorrectionDialog extends StatefulWidget {
+  const _MetadataCorrectionDialog({required this.item});
+
+  final AdminMetadataItem item;
+
+  @override
+  State<_MetadataCorrectionDialog> createState() =>
+      _MetadataCorrectionDialogState();
+}
+
+class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
+  late final TextEditingController _titleController;
+  late final TextEditingController _itemNumberController;
+  late final TextEditingController _publisherController;
+  late final TextEditingController _barcodeController;
+  late final TextEditingController _variantController;
+  late final TextEditingController _pageCountController;
+  late final TextEditingController _releaseDateController;
+  late final TextEditingController _coverController;
+  late final TextEditingController _thumbnailController;
+  late final TextEditingController _synopsisController;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    final variant = widget.item.primaryVariant;
+    _titleController = TextEditingController(text: widget.item.title);
+    _itemNumberController =
+        TextEditingController(text: widget.item.itemNumber ?? '');
+    _publisherController =
+        TextEditingController(text: widget.item.publisher ?? '');
+    _barcodeController = TextEditingController(
+      text: widget.item.barcode ?? variant?.barcode ?? '',
+    );
+    _variantController = TextEditingController(text: variant?.name ?? '');
+    _pageCountController = TextEditingController(
+      text: widget.item.pageCount?.toString() ?? '',
+    );
+    _releaseDateController = TextEditingController(
+      text: widget.item.coverDate == null
+          ? ''
+          : _formatDate(widget.item.coverDate!),
+    );
+    _coverController =
+        TextEditingController(text: variant?.coverImageUrl ?? '');
+    _thumbnailController =
+        TextEditingController(text: variant?.thumbnailImageUrl ?? '');
+    _synopsisController =
+        TextEditingController(text: widget.item.synopsis ?? '');
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _itemNumberController.dispose();
+    _publisherController.dispose();
+    _barcodeController.dispose();
+    _variantController.dispose();
+    _pageCountController.dispose();
+    _releaseDateController.dispose();
+    _coverController.dispose();
+    _thumbnailController.dispose();
+    _synopsisController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Edit metadata: ${widget.item.displayTitle}'),
+      content: SizedBox(
+        width: 680,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_error != null) ...[
+                _MessageRow(message: _error!, isError: true),
+                const SizedBox(height: 12),
+              ],
+              _correctionField(_titleController, 'Title'),
+              _correctionField(_itemNumberController, 'Item number'),
+              _correctionField(_publisherController, 'Publisher'),
+              _correctionField(_barcodeController, 'Barcode'),
+              _correctionField(_variantController, 'Primary variant'),
+              _correctionField(_pageCountController, 'Page count',
+                  keyboardType: TextInputType.number),
+              _correctionField(_releaseDateController, 'Release date'),
+              _correctionField(_coverController, 'Cover URL'),
+              _correctionField(_thumbnailController, 'Thumbnail URL'),
+              _correctionField(
+                _synopsisController,
+                'Synopsis',
+                minLines: 3,
+                maxLines: 5,
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: const Text('Save correction'),
+        ),
+      ],
+    );
+  }
+
+  Widget _correctionField(
+    TextEditingController controller,
+    String label, {
+    TextInputType? keyboardType,
+    int minLines = 1,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        minLines: minLines,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+
+  void _submit() {
+    final pageCountText = _pageCountController.text.trim();
+    final pageCount =
+        pageCountText.isEmpty ? null : int.tryParse(pageCountText);
+    if (pageCountText.isNotEmpty && pageCount == null) {
+      setState(() {
+        _error = 'Page count must be a number.';
+      });
+      return;
+    }
+    final releaseDateText = _releaseDateController.text.trim();
+    final releaseDate =
+        releaseDateText.isEmpty ? null : DateTime.tryParse(releaseDateText);
+    if (releaseDateText.isNotEmpty && releaseDate == null) {
+      setState(() {
+        _error = 'Release date must use YYYY-MM-DD.';
+      });
+      return;
+    }
+    Navigator.of(context).pop(
+      _CatalogCorrection(
+        title: _emptyToNull(_titleController.text),
+        itemNumber: _emptyToNull(_itemNumberController.text),
+        publisher: _emptyToNull(_publisherController.text),
+        barcode: _emptyToNull(_barcodeController.text),
+        variantName: _emptyToNull(_variantController.text),
+        pageCount: pageCount,
+        releaseDate: releaseDate,
+        coverImageUrl: _emptyToNull(_coverController.text),
+        thumbnailImageUrl: _emptyToNull(_thumbnailController.text),
+        synopsis: _emptyToNull(_synopsisController.text),
+      ),
+    );
+  }
+}
+
+class _DuplicateMergeSelection {
+  const _DuplicateMergeSelection({
+    required this.targetItemId,
+    required this.sourceItemIds,
+  });
+
+  final String targetItemId;
+  final List<String> sourceItemIds;
+}
+
+class _DuplicateMergeReviewDialog extends StatefulWidget {
+  const _DuplicateMergeReviewDialog({required this.candidate});
+
+  final AdminDuplicateCandidate candidate;
+
+  @override
+  State<_DuplicateMergeReviewDialog> createState() =>
+      _DuplicateMergeReviewDialogState();
+}
+
+class _DuplicateMergeReviewDialogState
+    extends State<_DuplicateMergeReviewDialog> {
+  late String _targetItemId;
+  late Set<String> _sourceItemIds;
+
+  @override
+  void initState() {
+    super.initState();
+    _targetItemId = widget.candidate.itemIds.first;
+    _sourceItemIds = widget.candidate.itemIds.skip(1).toSet();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final candidate = widget.candidate;
+    return AlertDialog(
+      title: Text('Merge review: ${candidate.displayTitle}'),
+      content: SizedBox(
+        width: 560,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                _MiniChip(label: candidate.reason),
+                if (candidate.hasProviderConflicts)
+                  const _MiniChip(label: 'provider conflict'),
+                if (candidate.hasCoverConflicts)
+                  const _MiniChip(label: 'cover conflict'),
+              ],
+            ),
+            const SizedBox(height: 12),
+            for (final itemId in candidate.itemIds)
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _sourceItemIds.contains(itemId),
+                enabled: itemId != _targetItemId,
+                title: Text('Source ${_shortId(itemId)}'),
+                subtitle:
+                    itemId == _targetItemId ? const Text('Merge target') : null,
+                secondary: IconButton(
+                  tooltip: 'Set merge target',
+                  onPressed: () {
+                    setState(() {
+                      _targetItemId = itemId;
+                      _sourceItemIds =
+                          candidate.itemIds.where((id) => id != itemId).toSet();
+                    });
+                  },
+                  icon: Icon(
+                    itemId == _targetItemId
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                  ),
+                ),
+                onChanged: itemId == _targetItemId
+                    ? null
+                    : (value) {
+                        setState(() {
+                          if (value == true) {
+                            _sourceItemIds.add(itemId);
+                          } else {
+                            _sourceItemIds.remove(itemId);
+                          }
+                        });
+                      },
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton.icon(
+          onPressed: _sourceItemIds.isEmpty
+              ? null
+              : () => Navigator.of(context).pop(
+                    _DuplicateMergeSelection(
+                      targetItemId: _targetItemId,
+                      sourceItemIds: _sourceItemIds.toList(growable: false),
+                    ),
+                  ),
+          icon: const Icon(Icons.merge_type_outlined),
+          label: const Text('Merge selected'),
+        ),
+      ],
+    );
+  }
+}
+
 class _Fact extends StatelessWidget {
   const _Fact({required this.label, required this.value});
 
@@ -1672,12 +3111,53 @@ String _shortId(String id) {
 }
 
 String _providerKindLabel(String kind) {
+  final type = collectarrLibraryTypes.byKind(kind);
+  if (type != null) {
+    return type.workspace.title;
+  }
   return switch (kind) {
     'bluray' => 'Blu-ray',
     'boardgame' => 'Board game',
     'tv' => 'TV',
     _ => kind.isEmpty ? kind : '${kind[0].toUpperCase()}${kind.substring(1)}',
   };
+}
+
+int _compareMediaKinds(String left, String right) {
+  return _providerKindLabel(left).compareTo(_providerKindLabel(right));
+}
+
+String _preferredProvider(
+  List<AdminProviderStatus> providers, {
+  required String current,
+}) {
+  if (current.isNotEmpty &&
+      providers.any((provider) => provider.name == current)) {
+    return current;
+  }
+  AdminProviderStatus? best;
+  for (final provider in providers) {
+    if (provider.isConfigured &&
+        provider.supportsSearch &&
+        provider.supportsIngest) {
+      best = provider;
+      break;
+    }
+  }
+  best ??= _firstWhereOrNull(providers, (provider) => provider.isConfigured);
+  best ??= _firstWhereOrNull(providers, (provider) => provider.supportsIngest);
+  best ??= _firstWhereOrNull(providers, (provider) => provider.supportsSearch);
+  best ??= providers.isEmpty ? null : providers.first;
+  return best?.name ?? '';
+}
+
+T? _firstWhereOrNull<T>(Iterable<T> items, bool Function(T) test) {
+  for (final item in items) {
+    if (test(item)) {
+      return item;
+    }
+  }
+  return null;
 }
 
 String _formatDate(DateTime value) {
@@ -1696,4 +3176,9 @@ String _formatDateTime(DateTime value) {
 String _formatMoney(int cents, String? currency) {
   final amount = (cents / 100).toStringAsFixed(2);
   return currency == null || currency.isEmpty ? amount : '$amount $currency';
+}
+
+String? _emptyToNull(String value) {
+  final text = value.trim();
+  return text.isEmpty ? null : text;
 }

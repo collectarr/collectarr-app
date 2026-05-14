@@ -20,17 +20,16 @@ void main() {
     expect(candidate.imageUrl, 'https://example.test/cover.jpg');
   });
 
-  test('defaults kind for older provider responses', () {
-    final candidate = ProviderCandidate.fromJson(const {
-      'provider': 'comicvine',
-      'provider_item_id': '4000-legacy',
-      'title': 'Legacy Candidate',
-    });
-
-    expect(candidate.kind, 'comic');
-    expect(candidate.placeholderCatalogItem().id, '4000-legacy');
-    expect(candidate.placeholderCatalogItem().kind, 'comic');
-    expect(candidate.placeholderCatalogItem().title, 'Legacy Candidate');
+  test('rejects older provider responses without an explicit fallback kind',
+      () {
+    expect(
+      () => ProviderCandidate.fromJson(const {
+        'provider': 'comicvine',
+        'provider_item_id': '4000-legacy',
+        'title': 'Legacy Candidate',
+      }),
+      throwsFormatException,
+    );
   });
 
   test('uses caller fallback kind for older provider responses', () {

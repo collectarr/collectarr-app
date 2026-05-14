@@ -178,14 +178,20 @@ class BarcodeBatchPanel extends StatelessWidget {
     super.key,
     required this.entries,
     required this.isLookingUp,
+    required this.addableCount,
+    required this.addFoundLabel,
     required this.onLookupAll,
+    required this.onAddFound,
     required this.onRemove,
     required this.onClear,
   });
 
   final List<BarcodeLookupEntry> entries;
   final bool isLookingUp;
+  final int addableCount;
+  final String addFoundLabel;
   final VoidCallback onLookupAll;
+  final VoidCallback? onAddFound;
   final ValueChanged<String> onRemove;
   final VoidCallback onClear;
 
@@ -195,8 +201,14 @@ class BarcodeBatchPanel extends StatelessWidget {
     final missing = entries
         .where((entry) => entry.status == BarcodeLookupStatus.missing)
         .length;
+    final pending = entries
+        .where((entry) => entry.status == BarcodeLookupStatus.pending)
+        .length;
+    final lookingUp = entries
+        .where((entry) => entry.status == BarcodeLookupStatus.lookingUp)
+        .length;
     return Container(
-      constraints: const BoxConstraints(maxHeight: 168),
+      constraints: const BoxConstraints(maxHeight: 190),
       decoration: BoxDecoration(
         color: const Color(0xFF1F1F1F),
         border: Border.all(color: const Color(0xFF555555)),
@@ -218,11 +230,23 @@ class BarcodeBatchPanel extends StatelessWidget {
                     children: [
                       LibraryAddResultBadge('${entries.length} scanned'),
                       LibraryAddResultBadge('$found found'),
+                      if (pending > 0)
+                        LibraryAddResultBadge('$pending pending'),
+                      if (lookingUp > 0)
+                        LibraryAddResultBadge('$lookingUp active'),
                       if (missing > 0)
                         LibraryAddResultBadge('$missing missing'),
+                      if (addableCount != found)
+                        LibraryAddResultBadge('$addableCount addable'),
                     ],
                   ),
                 ),
+                FilledButton(
+                  onPressed:
+                      isLookingUp || addableCount == 0 ? null : onAddFound,
+                  child: Text(addFoundLabel),
+                ),
+                const SizedBox(width: 6),
                 TextButton(
                   onPressed: isLookingUp ? null : onLookupAll,
                   child: const Text('Lookup all'),

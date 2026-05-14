@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_compact_view.dart';
+import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_desktop.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -26,8 +27,10 @@ class ComicsWorkspace extends StatelessWidget {
     required this.columnWidths,
     required this.selectionMode,
     required this.selectedItemIds,
+    required this.quickView,
     required this.hasActiveFilters,
     required this.activeFilterCount,
+    required this.onQuickViewSelected,
     required this.onEditFilters,
     required this.onClearFilters,
     required this.onEditColumns,
@@ -68,8 +71,10 @@ class ComicsWorkspace extends StatelessWidget {
   final Map<LibraryTableColumn, double> columnWidths;
   final bool selectionMode;
   final Set<String> selectedItemIds;
+  final ComicsShelfQuickView? quickView;
   final bool hasActiveFilters;
   final int activeFilterCount;
+  final ValueChanged<ComicsShelfQuickView> onQuickViewSelected;
   final VoidCallback onEditFilters;
   final VoidCallback onClearFilters;
   final VoidCallback onEditColumns;
@@ -145,8 +150,10 @@ class ComicsWorkspace extends StatelessWidget {
       columnWidths: columnWidths,
       selectionMode: selectionMode,
       selectedItemIds: selectedItemIds,
+      quickView: quickView,
       hasActiveFilters: hasActiveFilters,
       activeFilterCount: activeFilterCount,
+      onQuickViewSelected: onQuickViewSelected,
       onEditFilters: onEditFilters,
       onClearFilters: onClearFilters,
       onEditColumns: onEditColumns,

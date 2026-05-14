@@ -43,6 +43,40 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
   );
 }
 
+Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
+  MetadataProposalStore store = const MetadataProposalStore(),
+  required ApiClient api,
+  required LibraryTypeConfig type,
+  String? provider,
+  String? providerItemId,
+  required String query,
+  String? title,
+  String? summary,
+  String? imageUrl,
+  required String source,
+}) async {
+  final resolvedProvider = resolveLibraryMetadataProposalProvider(
+    type,
+    provider: provider,
+  );
+  final response = await api.createMetadataProposal(
+    provider: resolvedProvider,
+    providerItemId: providerItemId,
+    query: query,
+    title: title,
+    summary: summary,
+    imageUrl: imageUrl,
+  );
+  await store.recordResponse(
+    response: response,
+    provider: resolvedProvider,
+    query: query,
+    title: title,
+    source: source,
+  );
+  return response;
+}
+
 Future<void> recordLibraryMetadataProposalResponse({
   MetadataProposalStore store = const MetadataProposalStore(),
   required Map<String, dynamic> response,

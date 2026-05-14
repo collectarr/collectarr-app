@@ -36,11 +36,34 @@ const igdbMetadataProvider = LibraryMetadataProviderOption(
   ),
 );
 
+const openLibraryMetadataProvider = LibraryMetadataProviderOption(
+  id: 'openlibrary',
+  label: 'Open Library',
+  description: 'Planned books metadata provider',
+  supportedKinds: {'book'},
+  usagePolicy: LibraryMetadataProviderUsagePolicy(
+    summary: 'Planned books metadata provider with attribution requirements',
+    requiresAttribution: true,
+  ),
+);
+
+const anilistMetadataProvider = LibraryMetadataProviderOption(
+  id: 'anilist',
+  label: 'AniList',
+  description: 'Planned manga metadata provider',
+  supportedKinds: {'manga'},
+  requiresApiKey: true,
+  usagePolicy: LibraryMetadataProviderUsagePolicy(
+    summary: 'Planned manga metadata provider with attribution requirements',
+    requiresAttribution: true,
+  ),
+);
+
 const tmdbMetadataProvider = LibraryMetadataProviderOption(
   id: 'tmdb',
   label: 'TMDb',
-  description: 'Planned Blu-ray metadata provider',
-  supportedKinds: {'bluray'},
+  description: 'Planned movie and Blu-ray metadata provider',
+  supportedKinds: {'movie', 'bluray'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
     summary: 'Planned provider with attribution and redistribution constraints',
@@ -52,6 +75,8 @@ const collectarrKnownMetadataProviders = [
   gcdMetadataProvider,
   comicVineMetadataProvider,
   igdbMetadataProvider,
+  openLibraryMetadataProvider,
+  anilistMetadataProvider,
   tmdbMetadataProvider,
 ];
 

@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/comics_shelf_projection.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -220,6 +222,61 @@ void main() {
       [2, 2],
     );
   });
+
+  test('filters quick shelf views for missing covers and metadata', () {
+    final entries = [
+      ShelfEntry(
+        itemId: 'complete',
+        catalogItem: _comic(
+          id: 'complete',
+          title: 'Complete Series',
+          itemNumber: '1',
+          publisher: 'Image',
+          releaseYear: 2026,
+          barcode: '123',
+          coverImageUrl: 'https://cdn.example/complete.jpg',
+        ),
+      ),
+      ShelfEntry(
+        itemId: 'no-cover',
+        catalogItem: _comic(
+          id: 'no-cover',
+          title: 'No Cover',
+          itemNumber: '1',
+          publisher: 'Image',
+          releaseYear: 2026,
+          barcode: '456',
+        ),
+      ),
+      ShelfEntry(
+        itemId: 'thin-metadata',
+        catalogItem: _comic(
+          id: 'thin-metadata',
+          title: 'Thin Metadata',
+          itemNumber: '',
+          coverImageUrl: 'https://cdn.example/thin.jpg',
+        ),
+      ),
+    ];
+
+    final missingCovers = filterComicsShelfEntries(
+      entries: entries,
+      query: '',
+      filters: ComicsShelfQuickView.missingCovers.filters,
+    );
+    final missingMetadata = filterComicsShelfEntries(
+      entries: entries,
+      query: '',
+      filters: ComicsShelfQuickView.missingMetadata.filters,
+    );
+
+    expect(missingCovers.map((entry) => entry.itemId), [
+      'no-cover',
+    ]);
+    expect(missingMetadata.map((entry) => entry.itemId), [
+      'thin-metadata',
+    ]);
+  });
 }
 
 CatalogItem _comic({
@@ -230,6 +287,7 @@ CatalogItem _comic({
   int? releaseYear,
   String? barcode,
   String? variant,
+  String? coverImageUrl,
 }) {
   return CatalogItem(
     id: id,
@@ -240,6 +298,7 @@ CatalogItem _comic({
     releaseYear: releaseYear,
     barcode: barcode,
     variant: variant,
+    coverImageUrl: coverImageUrl,
   );
 }
 

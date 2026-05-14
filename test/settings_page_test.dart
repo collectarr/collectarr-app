@@ -4,8 +4,10 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
+import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,6 +53,7 @@ void main() {
     expect(find.text('Device pairing'), findsOneWidget);
     expect(find.text('Device identity'), findsOneWidget);
     expect(find.text('Copy pairing code'), findsOneWidget);
+    expect(find.text('Show pairing QR'), findsOneWidget);
     expect(find.text('Apply pairing code'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Local backup'),
@@ -60,6 +63,7 @@ void main() {
     expect(find.text('Local backup'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
+    expect(find.text('Copy sync backup guide'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Metadata proposals'),
       240,
@@ -74,6 +78,81 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Save settings'), findsOneWidget);
+  });
+
+  testWidgets('settings page warns that web sync can be browser-blocked',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(
+          home: SettingsPage(showWebSyncWarning: true),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('Browser CORS, HTTPS, and local-network access'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('settings page shows rejected sync changes for review',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          syncControllerProvider.overrideWith(
+            (ref) => _StaticSyncController(
+              ref,
+              SyncState(
+                warningMessage: '1 sync change rejected',
+                rejectedChanges: [
+                  SyncRejectedChange(
+                    entityType: 'owned_item',
+                    entityId: 'owned-item-123456',
+                    reason: 'stale_client_change',
+                    currentClientChangedAt: DateTime.utc(2026, 5, 14, 9, 0),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+        child: const MaterialApp(home: SettingsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Sync conflict review'),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('Sync conflict review'), findsOneWidget);
+    expect(find.text('owned_item:owned-it'), findsOneWidget);
+    expect(find.textContaining('stale_client_change'), findsOneWidget);
+    await tester.tap(find.byTooltip('Copy conflict id'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Keep service version'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sync conflict review'), findsNothing);
   });
 
   testWidgets('settings page applies Android emulator endpoint preset',
@@ -141,6 +220,35 @@ void main() {
     expect(find.text('http://sync.local:8020'), findsOneWidget);
   });
 
+  testWidgets('settings page shows pairing QR code', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: SettingsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Device pairing'),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Show pairing QR'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pairing QR'), findsOneWidget);
+    expect(find.text('Copy code'), findsOneWidget);
+  });
+
   testWidgets('settings page shows account session status', (tester) async {
     SharedPreferences.setMockInitialValues({
       'collectarr.auth.token': _jwtExpiringAt(
@@ -186,4 +294,16 @@ String _jwtExpiringAt(DateTime expiresAt) {
 
 String _base64UrlJson(Map<String, Object> value) {
   return base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+}
+
+class _StaticSyncController extends SyncController {
+  _StaticSyncController(super.ref, SyncState initial) {
+    state = initial;
+  }
+
+  @override
+  Future<void> refreshPendingCount() async {}
+
+  @override
+  Future<void> syncNow() async {}
 }

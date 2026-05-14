@@ -114,6 +114,47 @@ const gameTrackingProfile = MediaTrackingProfile(
   ],
 );
 
+const readingTrackingProfile = MediaTrackingProfile(
+  name: 'Reading',
+  options: [
+    MediaTrackingOption(
+      status: MediaTrackingStatus.none,
+      label: 'Not tracked',
+      storageValue: '',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.planned,
+      label: 'Plan to read',
+      storageValue: 'Plan to read',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.inProgress,
+      label: 'Reading',
+      storageValue: 'Reading',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.completed,
+      label: 'Read',
+      storageValue: 'Read',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.paused,
+      label: 'On hold',
+      storageValue: 'On hold',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.dropped,
+      label: 'Dropped',
+      storageValue: 'Dropped',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.repeating,
+      label: 'Rereading',
+      storageValue: 'Rereading',
+    ),
+  ],
+);
+
 const videoTrackingProfile = MediaTrackingProfile(
   name: 'Video',
   options: [

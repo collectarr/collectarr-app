@@ -25,12 +25,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Metadata dashboard'), findsOneWidget);
+    expect(find.text('Canonical catalog browser'), findsOneWidget);
     expect(find.text('1 providers live'), findsOneWidget);
     expect(find.text('3 providers registered'), findsOneWidget);
     expect(find.text('12 items'), findsOneWidget);
     expect(find.text('1 duplicate groups'), findsOneWidget);
+    expect(find.text('75% covers'), findsOneWidget);
+    expect(find.text('92% provider IDs'), findsOneWidget);
+    expect(find.text('1 ingest failures'), findsOneWidget);
+    expect(find.text('5 ingests ok'), findsOneWidget);
     expect(find.text('items: 12 docs'), findsOneWidget);
-    expect(find.text('Absolute Batman #1A'), findsOneWidget);
     expect(find.text('GCD'), findsWidgets);
 
     await tester.tap(find.byTooltip('Reindex search'));
@@ -41,8 +45,65 @@ void main() {
     expect(find.text('Search index history'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
 
+    await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Covers'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Covers').first);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('cover:'), findsOneWidget);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Edit'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Edit').first);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Title'), 'Absolute Batman Deluxe');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save correction'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastCatalogUpdateTitle, 'Absolute Batman Deluxe');
+    expect(find.text('Metadata correction saved.'), findsOneWidget);
+
+    await _scrollUntilVisible(tester, find.text('Provider ingest jobs'));
+    expect(find.text('Provider ingest jobs'), findsOneWidget);
+    expect(find.text('gcd queued-123'), findsOneWidget);
+
+    await tester
+        .ensureVisible(find.widgetWithText(OutlinedButton, 'Queue current ID'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Job provider item ID'),
+      'queued-direct',
+    );
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Queue current ID'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastQueuedProviderItemId, 'queued-direct');
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Run queued'));
+    await tester.pumpAndSettle();
+
+    expect(api.runPendingCount, 1);
+
+    await _scrollUntilVisible(
+      tester,
+      find.text('Provider ingest history'),
+      delta: -500,
+    );
+    expect(find.text('Provider ingest history'), findsOneWidget);
+    expect(find.text('gcd failed-123'), findsOneWidget);
+
+    await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Retry'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Retry'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastRetryHistoryId, 7);
+
     await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Inspect'));
     await tester.pumpAndSettle();
+    expect(find.text('Absolute Batman #1A'), findsWidgets);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Inspect'));
     await tester.pumpAndSettle();
 
@@ -53,6 +114,9 @@ void main() {
     await tester.ensureVisible(find.text('Merge into first'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Merge into first'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Merge review:'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Merge selected'));
     await tester.pumpAndSettle();
 
     expect(api.lastMergeTargetItemId, 'item-1');
@@ -75,6 +139,10 @@ void main() {
 
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Search'));
     await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Provider query'),
+      'Batman #1',
+    );
     await tester.tap(find.widgetWithText(FilledButton, 'Search'));
     await tester.pumpAndSettle();
 
@@ -98,6 +166,19 @@ void main() {
   });
 }
 
+Future<void> _scrollUntilVisible(
+  WidgetTester tester,
+  Finder finder, {
+  double delta = 500,
+}) async {
+  await tester.scrollUntilVisible(
+    finder,
+    delta,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+}
+
 class _FakeAdminApiClient extends ApiClient {
   _FakeAdminApiClient() : super(baseUrl: 'http://metadata.local');
 
@@ -109,8 +190,15 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastInspectKind;
   String? lastInspectId;
   String? lastMergeTargetItemId;
+  String? lastCatalogUpdateTitle;
+  String? lastQueuedProviderItemId;
+  int? lastRetryHistoryId;
   List<String>? lastMergeSourceItemIds;
   bool duplicateResolved = false;
+  bool retryResolved = false;
+  bool catalogUpdated = false;
+  bool queuedJobCreated = false;
+  int runPendingCount = 0;
   int reindexCount = 0;
 
   @override
@@ -178,6 +266,8 @@ class _FakeAdminApiClient extends ApiClient {
       missingCoverItems: 3,
       missingProviderLinkItems: 1,
       duplicateCandidateGroups: duplicateResolved ? 0 : 1,
+      providerIngestSuccesses: retryResolved ? 6 : 5,
+      providerIngestFailures: retryResolved ? 0 : 1,
     );
   }
 
@@ -189,6 +279,61 @@ class _FakeAdminApiClient extends ApiClient {
       documentCount: 12,
       isEmpty: false,
     );
+  }
+
+  @override
+  Future<List<AdminMetadataItem>> adminCatalogItems({
+    String? query,
+    String? kind,
+    int limit = 25,
+  }) async {
+    return [
+      AdminMetadataItem(
+        id: 'item-1',
+        kind: 'comic',
+        title: catalogUpdated ? 'Absolute Batman Deluxe' : 'Absolute Batman',
+        itemNumber: '1A',
+        seriesTitle: 'Absolute Batman',
+        publisher: 'DC Comics',
+        barcode: '76194138584600111',
+        editions: const [
+          AdminEdition(
+            id: 'edition-1',
+            title: 'Standard Edition',
+            publisher: 'DC Comics',
+            variants: [
+              AdminVariant(
+                id: 'variant-1',
+                name: 'Cover A',
+                isPrimary: true,
+                barcode: '76194138584600111',
+                coverImageUrl: 'https://cdn.example/absolute.jpg',
+              ),
+            ],
+          ),
+        ],
+      ),
+    ];
+  }
+
+  @override
+  Future<AdminMetadataItem> adminUpdateCatalogItem({
+    required String kind,
+    required String id,
+    String? title,
+    String? itemNumber,
+    String? synopsis,
+    int? pageCount,
+    String? publisher,
+    DateTime? releaseDate,
+    String? variantName,
+    String? barcode,
+    String? coverImageUrl,
+    String? thumbnailImageUrl,
+  }) async {
+    lastCatalogUpdateTitle = title;
+    catalogUpdated = true;
+    return (await adminCatalogItems()).single;
   }
 
   @override
@@ -217,6 +362,70 @@ class _FakeAdminApiClient extends ApiClient {
   }
 
   @override
+  Future<List<AdminProviderIngestHistoryEntry>>
+      adminProviderIngestHistory() async {
+    if (retryResolved) {
+      return [
+        AdminProviderIngestHistoryEntry(
+          id: 8,
+          timestamp: DateTime.utc(2026, 5, 14, 9, 10),
+          provider: 'gcd',
+          providerItemId: 'failed-123',
+          status: 'created',
+          attempts: 1,
+          itemId: 'item-1',
+        ),
+      ];
+    }
+    return [
+      AdminProviderIngestHistoryEntry(
+        id: 7,
+        timestamp: DateTime.utc(2026, 5, 14, 9, 5),
+        provider: 'gcd',
+        providerItemId: 'failed-123',
+        status: 'failed',
+        attempts: 2,
+        error: 'Provider timeout',
+      ),
+    ];
+  }
+
+  @override
+  Future<List<AdminProviderIngestJob>> adminProviderIngestJobs({
+    String? status,
+    int limit = 25,
+  }) async {
+    final jobs = [
+      AdminProviderIngestJob(
+        id: 'job-1',
+        provider: 'gcd',
+        providerItemId: 'queued-123',
+        status: runPendingCount > 0 ? 'done' : 'queued',
+        attempts: runPendingCount > 0 ? 1 : 0,
+        maxAttempts: 3,
+        createdAt: DateTime.utc(2026, 5, 14, 9, 0),
+        updatedAt: DateTime.utc(2026, 5, 14, 9, 0),
+        itemId: runPendingCount > 0 ? 'item-1' : null,
+      ),
+      if (queuedJobCreated)
+        AdminProviderIngestJob(
+          id: 'job-2',
+          provider: 'gcd',
+          providerItemId: 'queued-direct',
+          status: 'queued',
+          attempts: 0,
+          maxAttempts: 3,
+          createdAt: DateTime.utc(2026, 5, 14, 9, 2),
+          updatedAt: DateTime.utc(2026, 5, 14, 9, 2),
+        ),
+    ];
+    if (status == null || status.isEmpty) {
+      return jobs;
+    }
+    return jobs.where((job) => job.status == status).toList(growable: false);
+  }
+
+  @override
   Future<List<AdminDuplicateCandidate>> adminDuplicateCandidates({
     int limit = 10,
   }) async {
@@ -230,6 +439,7 @@ class _FakeAdminApiClient extends ApiClient {
         itemNumber: '1A',
         count: 2,
         itemIds: ['item-1', 'item-2'],
+        hasCoverConflicts: true,
       ),
     ];
   }
@@ -406,6 +616,46 @@ class _FakeAdminApiClient extends ApiClient {
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  Future<AdminProviderIngestResult> adminRetryProviderIngest({
+    required int historyId,
+  }) async {
+    lastRetryHistoryId = historyId;
+    retryResolved = true;
+    return adminProviderIngest(provider: 'gcd', providerItemId: 'failed-123');
+  }
+
+  @override
+  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
+    required String provider,
+    required String providerItemId,
+    int maxAttempts = 3,
+  }) async {
+    lastQueuedProviderItemId = providerItemId;
+    queuedJobCreated = true;
+    return AdminProviderIngestJob(
+      id: 'job-2',
+      provider: provider,
+      providerItemId: providerItemId,
+      status: 'queued',
+      attempts: 0,
+      maxAttempts: maxAttempts,
+      createdAt: DateTime.utc(2026, 5, 14, 9, 2),
+      updatedAt: DateTime.utc(2026, 5, 14, 9, 2),
+    );
+  }
+
+  @override
+  Future<AdminProviderIngestJobRunResult> adminRunPendingProviderIngestJobs({
+    int limit = 5,
+  }) async {
+    runPendingCount += 1;
+    return AdminProviderIngestJobRunResult(
+      processed: 1,
+      jobs: await adminProviderIngestJobs(),
     );
   }
 }

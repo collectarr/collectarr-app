@@ -5,18 +5,26 @@ import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
+import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/features/collection/collection_csv.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({
+    super.key,
+    this.showWebSyncWarning = kIsWeb,
+  });
+
+  final bool showWebSyncWarning;
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
@@ -113,6 +121,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (widget.showWebSyncWarning) ...[
+                  const _SyncWebWarning(),
+                  const SizedBox(height: 12),
+                ],
                 TextField(
                   controller: _syncController,
                   decoration: const InputDecoration(
@@ -168,6 +180,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ],
                 ),
+                if (sync.rejectedChanges.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _SyncConflictSummary(
+                    changes: sync.rejectedChanges,
+                    onDismiss: (change) => ref
+                        .read(syncControllerProvider.notifier)
+                        .dismissRejectedChange(change.key),
+                    onDismissAll: () => ref
+                        .read(syncControllerProvider.notifier)
+                        .dismissAllRejectedChanges(),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
@@ -205,6 +229,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   onPressed: _copyPairingCode,
                   icon: const Icon(Icons.copy_outlined),
                   label: const Text('Copy pairing code'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _showPairingQrDialog(context),
+                  icon: const Icon(Icons.qr_code_2_outlined),
+                  label: const Text('Show pairing QR'),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => _showPairingCodeDialog(context),
@@ -267,6 +296,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       onPressed: () => _copyBackup(clzFriendly: true),
                       icon: const Icon(Icons.table_view),
                       label: const Text('Copy CLZ-friendly CSV'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: _copySyncBackupGuide,
+                      icon: const Icon(Icons.description_outlined),
+                      label: const Text('Copy sync backup guide'),
                     ),
                   ],
                 ),
@@ -436,6 +470,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await _applyPairingCode(code);
   }
 
+  Future<void> _showPairingQrDialog(BuildContext context) async {
+    final settings = ConnectionSettings(
+      metadataBaseUrl: _metadataController.text,
+      syncBaseUrl: _syncController.text,
+      syncKey: _syncKeyController.text,
+      isLoaded: true,
+    );
+    final code = const ConnectionPairing().encode(settings);
+    await showDialog<void>(
+      context: context,
+      builder: (context) => _PairingQrDialog(code: code),
+    );
+  }
+
   Future<void> _applyPairingCode(String code) async {
     try {
       final settings = const ConnectionPairing().decode(code);
@@ -574,6 +622,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
+  Future<void> _copySyncBackupGuide() async {
+    final guide = [
+      'Sync backup',
+      '1. Stop collectarr-sync.',
+      '2. Copy collectarr-sync.db plus -wal/-shm sidecars if present.',
+      '3. Store the backup with the SYNC_API_KEY used by your devices.',
+      '4. Restore while collectarr-sync is stopped, then run Check sync service.',
+      '',
+      'Docker:',
+      'docker compose --profile sync stop sync',
+      'docker compose --profile sync cp sync:/data ./collectarr-sync-data',
+      'Compress-Archive -Path .\\collectarr-sync-data\\* -DestinationPath .\\collectarr-sync-data.zip -Force',
+    ].join('\n');
+    await Clipboard.setData(ClipboardData(text: guide));
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Sync backup guide copied')),
+    );
+  }
+
   Future<void> _clearProposalHistory() async {
     await const MetadataProposalStore().clear();
     if (mounted) {
@@ -663,6 +733,62 @@ class _PairingCodeDialogState extends State<_PairingCodeDialog> {
   }
 }
 
+class _PairingQrDialog extends StatelessWidget {
+  const _PairingQrDialog({required this.code});
+
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return AlertDialog(
+      title: const Text('Pairing QR'),
+      content: SizedBox(
+        width: 360,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: colorScheme.outlineVariant),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: QrImageView(
+                    data: code,
+                    version: QrVersions.auto,
+                    size: 240,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SelectableText(
+              code,
+              maxLines: 4,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Clipboard.setData(ClipboardData(text: code)),
+          child: const Text('Copy code'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+}
+
 class _SettingsPanel extends StatelessWidget {
   const _SettingsPanel({
     required this.icon,
@@ -697,6 +823,41 @@ class _SettingsPanel extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SyncWebWarning extends StatelessWidget {
+  const _SyncWebWarning();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer.withValues(alpha: 0.32),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.42)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.public_off_outlined,
+              color: colorScheme.error,
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Web sync uses your personal sync endpoint directly. Browser CORS, HTTPS, and local-network access rules can block it even when desktop or mobile sync works.',
+              ),
+            ),
           ],
         ),
       ),
@@ -910,6 +1071,95 @@ class _SyncServiceSummary extends StatelessWidget {
   }
 }
 
+class _SyncConflictSummary extends StatelessWidget {
+  const _SyncConflictSummary({
+    required this.changes,
+    required this.onDismiss,
+    required this.onDismissAll,
+  });
+
+  final List<SyncRejectedChange> changes;
+  final ValueChanged<SyncRejectedChange> onDismiss;
+  final VoidCallback onDismissAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer.withValues(alpha: 0.28),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.36)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.sync_problem_outlined, color: colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Sync conflict review',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: onDismissAll,
+                  icon: const Icon(Icons.done_all_outlined),
+                  label: const Text('Keep service'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (final change in changes.take(5))
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(
+                  children: [
+                    const Icon(Icons.rule_folder_outlined, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${change.entityType}:${_shortSyncId(change.entityId)}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        _conflictLabel(change),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Copy conflict id',
+                      onPressed: () => Clipboard.setData(
+                        ClipboardData(text: change.key),
+                      ),
+                      icon: const Icon(Icons.copy_outlined, size: 18),
+                    ),
+                    IconButton(
+                      tooltip: 'Keep service version',
+                      onPressed: () => onDismiss(change),
+                      icon: const Icon(Icons.check_outlined, size: 18),
+                    ),
+                  ],
+                ),
+              ),
+            if (changes.length > 5)
+              Text('+${changes.length - 5} older rejected changes'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _DiagnosticPill extends StatelessWidget {
   const _DiagnosticPill({
     required this.icon,
@@ -939,6 +1189,21 @@ class _DiagnosticPill extends StatelessWidget {
       ],
     );
   }
+}
+
+String _shortSyncId(String id) {
+  if (id.length <= 8) {
+    return id;
+  }
+  return id.substring(0, 8);
+}
+
+String _conflictLabel(SyncRejectedChange change) {
+  final current = change.currentClientChangedAt;
+  if (current == null) {
+    return change.reason;
+  }
+  return '${change.reason}, server kept ${_formatProposalTime(current)}';
 }
 
 class _DiagnosticState {

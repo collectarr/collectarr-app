@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/comics/comics_duplicate_items.dart';
+import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
 import 'package:flutter/material.dart';
 
@@ -67,6 +68,7 @@ class ComicsWorkspaceUtilityState {
     required this.selectedSeries,
     required this.hasActiveFilters,
     required this.activeFilterCount,
+    required this.quickView,
     required this.missingIssues,
     required this.duplicateGroups,
   });
@@ -74,6 +76,7 @@ class ComicsWorkspaceUtilityState {
   final String? selectedSeries;
   final bool hasActiveFilters;
   final int activeFilterCount;
+  final ComicsShelfQuickView? quickView;
   final List<int> missingIssues;
   final List<ComicsDuplicateGroup> duplicateGroups;
 }
@@ -81,11 +84,13 @@ class ComicsWorkspaceUtilityState {
 class ComicsWorkspaceUtilityCallbacks {
   const ComicsWorkspaceUtilityCallbacks({
     required this.onShowStats,
+    required this.onQuickViewSelected,
     required this.onEditFilters,
     required this.onClearFilters,
   });
 
   final VoidCallback onShowStats;
+  final ValueChanged<ComicsShelfQuickView> onQuickViewSelected;
   final VoidCallback onEditFilters;
   final VoidCallback onClearFilters;
 }

@@ -61,6 +61,20 @@ enum LibraryTableColumn {
 
 enum LibraryTableColumnGroup { main, edition, value, personal }
 
+class LibraryTableColumnPreset {
+  const LibraryTableColumnPreset({
+    this.id,
+    required this.label,
+    required this.columns,
+  });
+
+  final String? id;
+  final String label;
+  final Set<LibraryTableColumn> columns;
+
+  bool get isSaved => id != null;
+}
+
 class LibraryWorkspaceConfig {
   const LibraryWorkspaceConfig({
     required this.kind,

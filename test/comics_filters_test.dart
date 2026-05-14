@@ -65,11 +65,35 @@ void main() {
       ownershipFilter: ComicsOwnershipFilter.owned,
       publisher: 'DC',
       releaseYear: '2026',
+      missingCover: true,
     );
 
     expect(selection.hasActiveFilters, isTrue);
-    expect(selection.activeFilterCount, 3);
+    expect(selection.activeFilterCount, 4);
     expect(ComicsFilterSelection.none.activeFilterCount, 0);
+  });
+
+  test('quick shelf views map to reusable filter selections', () {
+    expect(
+      ComicsShelfQuickView.owned.filters.ownershipFilter,
+      ComicsOwnershipFilter.owned,
+    );
+    expect(ComicsShelfQuickView.missingCovers.filters.missingCover, isTrue);
+    expect(
+      ComicsShelfQuickView.missingMetadata.filters.missingMetadata,
+      isTrue,
+    );
+    expect(
+      ComicsShelfQuickView.missingMetadata.filters.quickView,
+      ComicsShelfQuickView.missingMetadata,
+    );
+    expect(
+      const ComicsFilterSelection(
+        ownershipFilter: ComicsOwnershipFilter.owned,
+        publisher: 'DC',
+      ).quickView,
+      isNull,
+    );
   });
 
   test('filter store restores and clears persisted filters', () async {
@@ -80,6 +104,7 @@ void main() {
         ownershipFilter: ComicsOwnershipFilter.wishlist,
         grade: '9.8',
         publisher: 'DC',
+        missingCover: true,
       ),
     );
 
@@ -88,7 +113,8 @@ void main() {
     expect(restored.ownershipFilter, ComicsOwnershipFilter.wishlist);
     expect(restored.grade, '9.8');
     expect(restored.publisher, 'DC');
-    expect(restored.activeFilterCount, 3);
+    expect(restored.missingCover, isTrue);
+    expect(restored.activeFilterCount, 4);
 
     await store.write(ComicsFilterSelection.none);
     final cleared = await store.read();

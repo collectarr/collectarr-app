@@ -19,6 +19,8 @@ class ComicsFilterPreferenceStore {
       condition: _clean(prefs.getString(_key('condition'))),
       publisher: _clean(prefs.getString(_key('publisher'))),
       releaseYear: _clean(prefs.getString(_key('release_year'))),
+      missingCover: prefs.getBool(_key('missing_cover')) ?? false,
+      missingMetadata: prefs.getBool(_key('missing_metadata')) ?? false,
     );
   }
 
@@ -30,6 +32,8 @@ class ComicsFilterPreferenceStore {
       _writeNullable(prefs, _key('condition'), selection.condition),
       _writeNullable(prefs, _key('publisher'), selection.publisher),
       _writeNullable(prefs, _key('release_year'), selection.releaseYear),
+      prefs.setBool(_key('missing_cover'), selection.missingCover),
+      prefs.setBool(_key('missing_metadata'), selection.missingMetadata),
     ]);
   }
 

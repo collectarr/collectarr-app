@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/comics/comics_duplicate_items.dart';
+import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_missing_issues.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_control_models.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
@@ -25,6 +26,27 @@ class ComicsWorkspaceUtilityControls extends StatelessWidget {
             onPressed: callbacks.onShowStats,
             icon: Icons.query_stats,
           ),
+        ),
+        const SizedBox(width: 6),
+        PopupMenuButton<ComicsShelfQuickView>(
+          tooltip: 'Shelf views',
+          initialValue: state.quickView,
+          icon: Icon(
+            state.quickView?.icon ?? Icons.saved_search_outlined,
+            size: 18,
+          ),
+          onSelected: callbacks.onQuickViewSelected,
+          itemBuilder: (context) => [
+            for (final view in ComicsShelfQuickView.values)
+              PopupMenuItem(
+                value: view,
+                child: ListTile(
+                  dense: true,
+                  leading: Icon(view.icon),
+                  title: Text(view.label),
+                ),
+              ),
+          ],
         ),
         const SizedBox(width: 6),
         Tooltip(

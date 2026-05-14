@@ -2,6 +2,62 @@ import 'package:flutter/material.dart';
 
 enum ComicsOwnershipFilter { all, owned, wishlist, missingGrade }
 
+enum ComicsShelfQuickView {
+  all,
+  owned,
+  wishlist,
+  missingGrade,
+  missingCovers,
+  missingMetadata,
+}
+
+extension ComicsShelfQuickViewLabels on ComicsShelfQuickView {
+  String get label {
+    return switch (this) {
+      ComicsShelfQuickView.all => 'All comics',
+      ComicsShelfQuickView.owned => 'Owned',
+      ComicsShelfQuickView.wishlist => 'Wishlist',
+      ComicsShelfQuickView.missingGrade => 'Missing grade',
+      ComicsShelfQuickView.missingCovers => 'Missing covers',
+      ComicsShelfQuickView.missingMetadata => 'Missing metadata',
+    };
+  }
+
+  IconData get icon {
+    return switch (this) {
+      ComicsShelfQuickView.all => Icons.library_books_outlined,
+      ComicsShelfQuickView.owned => Icons.inventory_2_outlined,
+      ComicsShelfQuickView.wishlist => Icons.star_border,
+      ComicsShelfQuickView.missingGrade => Icons.workspace_premium_outlined,
+      ComicsShelfQuickView.missingCovers => Icons.image_not_supported_outlined,
+      ComicsShelfQuickView.missingMetadata => Icons.fact_check_outlined,
+    };
+  }
+
+  ComicsFilterSelection get filters {
+    return switch (this) {
+      ComicsShelfQuickView.all => ComicsFilterSelection.none,
+      ComicsShelfQuickView.owned => const ComicsFilterSelection(
+          ownershipFilter: ComicsOwnershipFilter.owned,
+        ),
+      ComicsShelfQuickView.wishlist => const ComicsFilterSelection(
+          ownershipFilter: ComicsOwnershipFilter.wishlist,
+        ),
+      ComicsShelfQuickView.missingGrade => const ComicsFilterSelection(
+          ownershipFilter: ComicsOwnershipFilter.missingGrade,
+        ),
+      ComicsShelfQuickView.missingCovers => const ComicsFilterSelection(
+          ownershipFilter: ComicsOwnershipFilter.all,
+          missingCover: true,
+        ),
+      ComicsShelfQuickView.missingMetadata => const ComicsFilterSelection(
+          ownershipFilter: ComicsOwnershipFilter.all,
+          missingMetadata: true,
+        ),
+    };
+  }
+}
+
 class ComicsFilterSelection {
   const ComicsFilterSelection({
     required this.ownershipFilter,
@@ -9,6 +65,8 @@ class ComicsFilterSelection {
     this.condition,
     this.publisher,
     this.releaseYear,
+    this.missingCover = false,
+    this.missingMetadata = false,
   });
 
   static const none = ComicsFilterSelection(
@@ -20,13 +78,17 @@ class ComicsFilterSelection {
   final String? condition;
   final String? publisher;
   final String? releaseYear;
+  final bool missingCover;
+  final bool missingMetadata;
 
   bool get hasActiveFilters {
     return ownershipFilter != ComicsOwnershipFilter.all ||
         grade != null ||
         condition != null ||
         publisher != null ||
-        releaseYear != null;
+        releaseYear != null ||
+        missingCover ||
+        missingMetadata;
   }
 
   int get activeFilterCount {
@@ -46,8 +108,47 @@ class ComicsFilterSelection {
     if (releaseYear != null) {
       count++;
     }
+    if (missingCover) {
+      count++;
+    }
+    if (missingMetadata) {
+      count++;
+    }
     return count;
   }
+
+  ComicsShelfQuickView? get quickView {
+    for (final view in ComicsShelfQuickView.values) {
+      if (this == view.filters) {
+        return view;
+      }
+    }
+    return null;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is ComicsFilterSelection &&
+            other.ownershipFilter == ownershipFilter &&
+            other.grade == grade &&
+            other.condition == condition &&
+            other.publisher == publisher &&
+            other.releaseYear == releaseYear &&
+            other.missingCover == missingCover &&
+            other.missingMetadata == missingMetadata;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        ownershipFilter,
+        grade,
+        condition,
+        publisher,
+        releaseYear,
+        missingCover,
+        missingMetadata,
+      );
 }
 
 class ComicsFilterDialog extends StatefulWidget {
@@ -76,6 +177,8 @@ class _ComicsFilterDialogState extends State<ComicsFilterDialog> {
   String? _condition;
   String? _publisher;
   String? _releaseYear;
+  late bool _missingCover;
+  late bool _missingMetadata;
 
   @override
   void initState() {
@@ -86,6 +189,8 @@ class _ComicsFilterDialogState extends State<ComicsFilterDialog> {
     _condition = initial.condition;
     _publisher = initial.publisher;
     _releaseYear = initial.releaseYear;
+    _missingCover = initial.missingCover;
+    _missingMetadata = initial.missingMetadata;
   }
 
   @override
@@ -149,6 +254,25 @@ class _ComicsFilterDialogState extends State<ComicsFilterDialog> {
                 options: widget.conditionOptions,
                 onChanged: (value) => setState(() => _condition = value),
               ),
+              const SizedBox(height: 8),
+              CheckboxListTile(
+                value: _missingCover,
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Missing covers'),
+                controlAffinity: ListTileControlAffinity.leading,
+                onChanged: (value) {
+                  setState(() => _missingCover = value ?? false);
+                },
+              ),
+              CheckboxListTile(
+                value: _missingMetadata,
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Missing metadata'),
+                controlAffinity: ListTileControlAffinity.leading,
+                onChanged: (value) {
+                  setState(() => _missingMetadata = value ?? false);
+                },
+              ),
             ],
           ),
         ),
@@ -173,6 +297,8 @@ class _ComicsFilterDialogState extends State<ComicsFilterDialog> {
                 condition: _condition,
                 publisher: _publisher,
                 releaseYear: _releaseYear,
+                missingCover: _missingCover,
+                missingMetadata: _missingMetadata,
               ),
             );
           },

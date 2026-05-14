@@ -11,9 +11,12 @@ import 'package:collectarr_app/features/comics/comics_add_preview_pane.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_manual_metadata_dialogs.dart';
+import 'package:collectarr_app/features/comics/comics_provider_search_state.dart';
+import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -43,19 +46,16 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   final _barcodeController = TextEditingController();
   final _defaultStorageBoxController = TextEditingController();
   var _serverResults = const <CatalogItem>[];
-  var _providerResults = const <ProviderCandidate>[];
   String? _selectedServerId;
-  String? _selectedProviderId;
-  String _metadataProvider =
-      comicsLibraryConfig.defaultSupportedMetadataProvider;
+  var _providerState = ComicsProviderSearchState.initial(
+    comicsLibraryConfig.defaultSupportedMetadataProvider,
+  );
   final _checkedServerIds = <String>{};
   final _collapsedAddSeries = <String>{};
   final _barcodeBatch = <BarcodeLookupEntry>[];
   final _barcodeHistory = <String>[];
   bool _searchedServer = false;
-  bool _searchedProvider = false;
   bool _isSearchingServer = false;
-  bool _isSearchingProvider = false;
   bool _isSubmitting = false;
   bool _includeVariants = true;
   bool _hideInShelf = true;
@@ -97,8 +97,10 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
               if (entry.wishlistItem != null) entry.itemId,
           };
     final selectedItem = _selectedServerItem;
-    final selectedCandidate = _selectedProviderCandidate;
-    final selectedProviderLabel = _metadataProviderLabel(_metadataProvider);
+    final providerState = _providerState;
+    final selectedCandidate = providerState.selectedCandidate;
+    final selectedProviderLabel =
+        _metadataProviderLabel(providerState.provider);
     final pullListRows = pullListCandidates(shelf);
     final selectedIsOwned =
         selectedItem != null && ownedItemIds.contains(selectedItem.id);
@@ -119,6 +121,10 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                 !selectedIsWishlisted)
               selectedItem,
           ];
+    final barcodeAddItems = _barcodeFoundAddItems(
+      ownedItemIds: ownedItemIds,
+      wishlistItemIds: wishlistItemIds,
+    );
     return Theme(
       data: _kClzAddComicDialogTheme,
       child: Dialog(
@@ -162,6 +168,14 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                   onLookupBarcode: () =>
                       _lookupBarcode(_barcodeController.text.trim()),
                   onLookupBarcodeBatch: _lookupBarcodeBatch,
+                  barcodeAddCount: barcodeAddItems.length,
+                  barcodeAddLabel: _barcodeAddLabel(barcodeAddItems.length),
+                  onAddBarcodeFound: barcodeAddItems.isEmpty
+                      ? null
+                      : () => _addServerComics(
+                            barcodeAddItems,
+                            target: _addTarget,
+                          ),
                   onRemoveBarcodeBatchEntry: _removeBarcodeBatchEntry,
                   onClearBarcodeBatch: _clearBarcodeBatch,
                   onUseBarcodeHistory: _lookupBarcode,
@@ -186,22 +200,22 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                               child: AddComicResultPane(
                                 mode: _mode,
                                 serverResults: _serverResults,
-                                providerResults: _providerResults,
+                                providerResults: providerState.results,
                                 pullListRows: pullListRows,
                                 ownedItemIds: ownedItemIds,
                                 wishlistItemIds: wishlistItemIds,
                                 selectedServerId: _selectedServerId,
-                                selectedProviderId: _selectedProviderId,
+                                selectedProviderId: providerState.selectedId,
                                 checkedServerIds: _checkedServerIds,
                                 includeVariants: _includeVariants,
                                 hideInShelf: _hideInShelf,
                                 searchedServer: _searchedServer,
-                                searchedProvider: _searchedProvider,
+                                searchedProvider: providerState.searched,
                                 isSearchingServer: _isSearchingServer,
-                                isSearchingProvider: _isSearchingProvider,
+                                isSearchingProvider: providerState.isSearching,
                                 metadataProviders: comicsLibraryConfig
                                     .supportedMetadataProviders,
-                                selectedProvider: _metadataProvider,
+                                selectedProvider: providerState.provider,
                                 providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
                                     setState(() => _includeVariants = value),
@@ -210,7 +224,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 onProviderChanged: _changeMetadataProvider,
                                 onSelectServer: (id) => setState(() {
                                   _selectedServerId = id;
-                                  _selectedProviderId = null;
+                                  _providerState =
+                                      _providerState.clearSelection();
                                 }),
                                 onToggleServerCheck: _toggleServerCheck,
                                 collapsedSeries: _collapsedAddSeries,
@@ -221,7 +236,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 onClearServerChecks: () =>
                                     setState(_checkedServerIds.clear),
                                 onSelectProvider: (id) => setState(() {
-                                  _selectedProviderId = id;
+                                  _providerState = _providerState.select(id);
                                   _selectedServerId = null;
                                 }),
                                 onSearchProvider: _searchProvider,
@@ -247,22 +262,22 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                               child: AddComicResultPane(
                                 mode: _mode,
                                 serverResults: _serverResults,
-                                providerResults: _providerResults,
+                                providerResults: providerState.results,
                                 pullListRows: pullListRows,
                                 ownedItemIds: ownedItemIds,
                                 wishlistItemIds: wishlistItemIds,
                                 selectedServerId: _selectedServerId,
-                                selectedProviderId: _selectedProviderId,
+                                selectedProviderId: providerState.selectedId,
                                 checkedServerIds: _checkedServerIds,
                                 includeVariants: _includeVariants,
                                 hideInShelf: _hideInShelf,
                                 searchedServer: _searchedServer,
-                                searchedProvider: _searchedProvider,
+                                searchedProvider: providerState.searched,
                                 isSearchingServer: _isSearchingServer,
-                                isSearchingProvider: _isSearchingProvider,
+                                isSearchingProvider: providerState.isSearching,
                                 metadataProviders: comicsLibraryConfig
                                     .supportedMetadataProviders,
-                                selectedProvider: _metadataProvider,
+                                selectedProvider: providerState.provider,
                                 providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
                                     setState(() => _includeVariants = value),
@@ -271,7 +286,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 onProviderChanged: _changeMetadataProvider,
                                 onSelectServer: (id) => setState(() {
                                   _selectedServerId = id;
-                                  _selectedProviderId = null;
+                                  _providerState =
+                                      _providerState.clearSelection();
                                 }),
                                 onToggleServerCheck: _toggleServerCheck,
                                 collapsedSeries: _collapsedAddSeries,
@@ -282,7 +298,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 onClearServerChecks: () =>
                                     setState(_checkedServerIds.clear),
                                 onSelectProvider: (id) => setState(() {
-                                  _selectedProviderId = id;
+                                  _providerState = _providerState.select(id);
                                   _selectedServerId = null;
                                 }),
                                 onSearchProvider: _searchProvider,
@@ -330,7 +346,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                       ? null
                       : () => _addServerComics(
                             addItems,
-                            wishlist: _addTarget == LibraryAddTarget.wishlist,
+                            target: _addTarget,
                           ),
                   onPropose: selectedCandidate == null
                       ? null
@@ -357,17 +373,24 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     return null;
   }
 
-  ProviderCandidate? get _selectedProviderCandidate {
-    final id = _selectedProviderId;
-    if (id == null) {
-      return null;
-    }
-    for (final item in _providerResults) {
-      if (item.providerItemId == id) {
-        return item;
-      }
-    }
-    return null;
+  List<CatalogItem> _barcodeFoundAddItems({
+    required Set<String> ownedItemIds,
+    required Set<String> wishlistItemIds,
+  }) {
+    final seen = <String>{};
+    return [
+      for (final entry in _barcodeBatch)
+        if (entry.item != null &&
+            !ownedItemIds.contains(entry.item!.id) &&
+            !wishlistItemIds.contains(entry.item!.id) &&
+            seen.add(entry.item!.id))
+          entry.item!,
+    ];
+  }
+
+  String _barcodeAddLabel(int count) {
+    final verb = _addTarget == LibraryAddTarget.wishlist ? 'Save' : 'Add';
+    return count == 1 ? '$verb found' : '$verb $count found';
   }
 
   Future<void> _searchServer() async {
@@ -382,40 +405,35 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _barcodeController.text = query;
       query = '';
     }
-    if (query.isEmpty &&
-        series.isEmpty &&
-        issueNumber.isEmpty &&
-        publisher.isEmpty &&
-        barcode.isEmpty &&
-        year == null) {
+    final input = LibraryMetadataSearchInput(
+      query: query,
+      series: series,
+      issueNumber: issueNumber,
+      publisher: publisher,
+      year: year,
+      barcode: barcode,
+      limit: 50,
+    );
+    if (input.isEmpty) {
       return;
     }
     setState(() {
       _isSearchingServer = true;
       _searchedServer = true;
-      _searchedProvider = false;
       _serverResults = const [];
-      _providerResults = const [];
       _selectedServerId = null;
-      _selectedProviderId = null;
+      _providerState = _providerState.clearResults();
       _checkedServerIds.clear();
       _collapsedAddSeries.clear();
       _error = null;
     });
     try {
-      final items = await searchLibraryMetadata(
-        ref.read(apiClientProvider),
-        comicsLibraryConfig,
-        query: query,
-        series: series,
-        issueNumber: issueNumber,
-        publisher: publisher,
-        year: year,
-        barcode: barcode,
-        limit: 50,
+      final items = await searchAndCacheLibraryMetadata(
+        api: ref.read(apiClientProvider),
+        type: comicsLibraryConfig,
+        catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+        input: input,
       );
-      await CatalogCacheRepository(ref.read(localDatabaseProvider))
-          .upsertAll(items);
       if (!mounted) {
         return;
       }
@@ -452,40 +470,30 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     if (query.isEmpty) {
       return;
     }
+    final provider = _providerState.provider;
     setState(() {
-      _isSearchingProvider = true;
-      _searchedProvider = true;
-      _providerResults = const [];
-      _selectedProviderId = null;
+      _providerState = _providerState.startSearch();
       _error = null;
     });
     try {
       final results = await searchLibraryProviderCandidates(
         ref.read(apiClientProvider),
         comicsLibraryConfig,
-        provider: _metadataProvider,
+        provider: provider,
         query: query,
       );
-      if (!mounted) {
+      if (!mounted || _providerState.provider != provider) {
         return;
       }
-      setState(() {
-        _providerResults = results;
-        _selectedProviderId =
-            results.isEmpty ? null : results.first.providerItemId;
-      });
+      setState(() => _providerState = _providerState.withResults(results));
     } catch (error) {
       if (!mounted) {
         return;
       }
-      setState(
-        () => _error =
-            '${_metadataProviderLabel(_metadataProvider)} search failed: $error',
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _isSearchingProvider = false);
-      }
+      setState(() {
+        _providerState = _providerState.finishSearch();
+        _error = '${_metadataProviderLabel(provider)} search failed: $error';
+      });
     }
   }
 
@@ -500,14 +508,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   }
 
   void _changeMetadataProvider(String provider) {
-    if (provider == _metadataProvider) {
-      return;
-    }
     setState(() {
-      _metadataProvider = provider;
-      _providerResults = const [];
-      _selectedProviderId = null;
-      _searchedProvider = false;
+      _providerState = _providerState.changeProvider(provider);
       _error = null;
     });
   }
@@ -548,6 +550,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       return;
     }
     _recordBarcodeHistory(normalized);
+    setState(_barcodeController.clear);
     await _lookupBarcodeBatch(codes: [normalized]);
   }
 
@@ -585,9 +588,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       setState(() {
         _isSearchingServer = true;
         _searchedServer = true;
-        _searchedProvider = false;
-        _providerResults = const [];
-        _selectedProviderId = null;
+        _providerState = _providerState.clearResults();
         _error = null;
         for (final code in normalizedCodes) {
           final index = _barcodeBatch.indexWhere((entry) => entry.code == code);
@@ -601,39 +602,33 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
           }
         }
       });
-      final found = <CatalogItem>[];
-      for (final code in normalizedCodes) {
-        try {
-          final item = await lookupLibraryBarcode(
-            ref.read(apiClientProvider),
-            comicsLibraryConfig,
-            code,
-          );
-          found.add(item);
+      final results = await lookupAndCacheLibraryBarcodes(
+        api: ref.read(apiClientProvider),
+        type: comicsLibraryConfig,
+        catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+        barcodes: normalizedCodes,
+        onResult: (result) {
           if (!mounted) {
             return;
           }
           _updateBarcodeBatchEntry(
-            code,
-            BarcodeLookupEntry.found(code: code, item: item),
+            result.barcode,
+            result.found
+                ? BarcodeLookupEntry.found(
+                    code: result.barcode,
+                    item: result.item!,
+                  )
+                : BarcodeLookupEntry.missing(result.barcode),
           );
-        } catch (_) {
-          if (!mounted) {
-            return;
-          }
-          _updateBarcodeBatchEntry(
-            code,
-            BarcodeLookupEntry.missing(code),
-          );
-        }
-      }
-      if (found.isNotEmpty) {
-        await CatalogCacheRepository(ref.read(localDatabaseProvider))
-            .upsertAll(found);
-      }
+        },
+      );
       if (!mounted) {
         return;
       }
+      final found = results
+          .map((result) => result.item)
+          .whereType<CatalogItem>()
+          .toList(growable: false);
       setState(() {
         final merged = <String, CatalogItem>{
           for (final item in _serverResults) item.id: item,
@@ -700,7 +695,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   void _toggleServerCheck(String id) {
     setState(() {
       _selectedServerId = id;
-      _selectedProviderId = null;
+      _providerState = _providerState.clearSelection();
       if (_checkedServerIds.contains(id)) {
         _checkedServerIds.remove(id);
       } else {
@@ -716,7 +711,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         ..addAll(items.map((item) => item.id));
       if (items.isNotEmpty) {
         _selectedServerId = items.first.id;
-        _selectedProviderId = null;
+        _providerState = _providerState.clearSelection();
       }
     });
   }
@@ -743,7 +738,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         _checkedServerIds.addAll(addable);
         if (items.isNotEmpty) {
           _selectedServerId = items.first.id;
-          _selectedProviderId = null;
+          _providerState = _providerState.clearSelection();
         }
       }
     });
@@ -751,33 +746,28 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
 
   Future<void> _addServerComics(
     List<CatalogItem> items, {
-    required bool wishlist,
+    required LibraryAddTarget target,
   }) async {
     setState(() => _isSubmitting = true);
-    await CatalogCacheRepository(ref.read(localDatabaseProvider))
-        .upsertAll(items);
-    final mutations = ref.read(collectionMutationsProvider);
-    for (final item in items) {
-      if (wishlist) {
-        await mutations.addToWishlist(item.id);
-      } else {
-        await mutations.addItem(
-          item.id,
-          condition: _defaultCondition,
-          grade: _defaultGrade,
-          purchaseDate: _defaultPurchaseDate,
-          storageBox: _defaultStorageBoxController.text.trim().isEmpty
-              ? null
-              : _defaultStorageBoxController.text.trim(),
-        );
-      }
-    }
+    await addLibraryItemsToTarget(
+      catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+      mutations: ref.read(collectionMutationsProvider),
+      items: items,
+      target: target,
+      defaults: LibraryAddDefaults(
+        condition: _defaultCondition,
+        grade: _defaultGrade,
+        purchaseDate: _defaultPurchaseDate,
+        storageBox: _defaultStorageBoxController.text,
+      ),
+    );
     ref.invalidate(shelfProvider);
     if (!mounted) {
       return;
     }
     setState(() => _isSubmitting = false);
     Navigator.of(context).pop();
+    final wishlist = target == LibraryAddTarget.wishlist;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -795,7 +785,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _error = null;
     });
     try {
-      final response = await createLibraryMetadataProposal(
+      await createAndRecordLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
         type: comicsLibraryConfig,
         provider: candidate.provider,
@@ -804,13 +794,6 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         title: candidate.title,
         summary: candidate.summary,
         imageUrl: candidate.imageUrl,
-      );
-      await recordLibraryMetadataProposalResponse(
-        response: response,
-        type: comicsLibraryConfig,
-        provider: candidate.provider,
-        query: _providerQuery,
-        title: candidate.title,
         source: 'Add Comics provider result',
       );
       if (!mounted) {
@@ -850,7 +833,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         ..._serverResults.where((row) => row.id != item.id)
       ];
       _selectedServerId = item.id;
-      _selectedProviderId = null;
+      _providerState = _providerState.clearSelection();
       _checkedServerIds
         ..clear()
         ..add(item.id);
@@ -871,20 +854,13 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _error = null;
     });
     try {
-      final response = await createLibraryMetadataProposal(
+      await createAndRecordLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
         type: comicsLibraryConfig,
-        provider: _metadataProvider,
+        provider: _providerState.provider,
         query: proposal.title,
         title: proposal.title,
         summary: proposal.notes,
-      );
-      await recordLibraryMetadataProposalResponse(
-        response: response,
-        type: comicsLibraryConfig,
-        provider: _metadataProvider,
-        query: proposal.title,
-        title: proposal.title,
         source: 'Add Comics manual proposal',
       );
       if (!mounted) {
@@ -963,6 +939,9 @@ class _AddComicModeBar extends StatelessWidget {
     required this.onSearch,
     required this.onLookupBarcode,
     required this.onLookupBarcodeBatch,
+    required this.barcodeAddCount,
+    required this.barcodeAddLabel,
+    required this.onAddBarcodeFound,
     required this.onRemoveBarcodeBatchEntry,
     required this.onClearBarcodeBatch,
     required this.onUseBarcodeHistory,
@@ -987,6 +966,9 @@ class _AddComicModeBar extends StatelessWidget {
   final VoidCallback onSearch;
   final VoidCallback onLookupBarcode;
   final VoidCallback onLookupBarcodeBatch;
+  final int barcodeAddCount;
+  final String barcodeAddLabel;
+  final VoidCallback? onAddBarcodeFound;
   final ValueChanged<String> onRemoveBarcodeBatchEntry;
   final VoidCallback onClearBarcodeBatch;
   final ValueChanged<String> onUseBarcodeHistory;
@@ -1153,7 +1135,10 @@ class _AddComicModeBar extends StatelessWidget {
                             BarcodeBatchPanel(
                               entries: barcodeBatch,
                               isLookingUp: isSearching,
+                              addableCount: barcodeAddCount,
+                              addFoundLabel: barcodeAddLabel,
                               onLookupAll: onLookupBarcodeBatch,
+                              onAddFound: onAddBarcodeFound,
                               onRemove: onRemoveBarcodeBatchEntry,
                               onClear: onClearBarcodeBatch,
                             ),

@@ -63,3 +63,25 @@ class LibraryMediaAdapter {
     return Set.of(type.workspace.defaultVisibleColumns);
   }
 }
+
+class LibraryMediaAdapterRegistry {
+  const LibraryMediaAdapterRegistry(this.adapters);
+
+  final List<LibraryMediaAdapter> adapters;
+
+  LibraryMediaAdapter? byKind(String kind) {
+    final normalized = kind.trim().toLowerCase();
+    for (final adapter in adapters) {
+      if (adapter.type.workspace.kind == normalized) {
+        return adapter;
+      }
+    }
+    return null;
+  }
+
+  List<String> get supportedKinds {
+    return {
+      for (final adapter in adapters) adapter.type.workspace.kind,
+    }.toList(growable: false);
+  }
+}

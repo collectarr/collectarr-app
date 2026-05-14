@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ComicsShelfProjection {
   const ComicsShelfProjection({
@@ -16,6 +17,44 @@ class ComicsShelfProjection {
   final List<CatalogItem> items;
   final ComicsFilterOptions filterOptions;
   final bool hasActiveFilters;
+}
+
+final comicsShelfProjectionProvider =
+    Provider.family<ComicsShelfProjection, ComicsShelfProjectionRequest>(
+        (ref, request) {
+  return projectComicsShelf(
+    state: request.state,
+    query: request.query,
+    filters: request.filters,
+  );
+});
+
+class ComicsShelfProjectionRequest {
+  const ComicsShelfProjectionRequest({
+    required this.state,
+    required this.query,
+    required this.filters,
+  });
+
+  final ShelfState state;
+  final String query;
+  final ComicsFilterSelection filters;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is ComicsShelfProjectionRequest &&
+            identical(other.state, state) &&
+            other.query == query &&
+            other.filters == filters;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        identityHashCode(state),
+        query,
+        filters,
+      );
 }
 
 class ComicsFilterOptions {
@@ -103,6 +142,8 @@ List<ShelfEntry> filterComicsShelfEntries({
             entry.catalogItem?.releaseYear?.toString(),
             filters.releaseYear,
           ) &&
+          _matchesMissingCoverFilter(entry, filters.missingCover) &&
+          _matchesMissingMetadataFilter(entry, filters.missingMetadata) &&
           (normalized.isEmpty || _matchesEntryQuery(entry, normalized)))
         entry,
   ];
@@ -143,6 +184,33 @@ bool _matchesValueFilter(String? value, String? filter) {
     return true;
   }
   return value == filter;
+}
+
+bool _matchesMissingCoverFilter(ShelfEntry entry, bool enabled) {
+  if (!enabled) {
+    return true;
+  }
+  final coverUrl = entry.catalogItem?.displayCoverUrl?.trim();
+  return coverUrl == null || coverUrl.isEmpty;
+}
+
+bool _matchesMissingMetadataFilter(ShelfEntry entry, bool enabled) {
+  if (!enabled) {
+    return true;
+  }
+  final item = entry.catalogItem;
+  if (item == null) {
+    return true;
+  }
+  return _isBlank(item.itemNumber) ||
+      _isBlank(item.publisher) ||
+      _isBlank(item.barcode) ||
+      (item.releaseDate == null && item.releaseYear == null);
+}
+
+bool _isBlank(String? value) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty;
 }
 
 void _addFilterOption(Set<String> options, String? value) {

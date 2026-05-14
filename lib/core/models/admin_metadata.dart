@@ -41,7 +41,7 @@ class AdminProviderStatus {
     return AdminProviderStatus(
       name: json['name'] as String,
       displayName: json['display_name'] as String? ?? json['name'] as String,
-      kind: json['kind'] as String? ?? 'comic',
+      kind: json['kind'] as String? ?? '',
       status: json['status'] as String? ?? 'unknown',
       isConfigured: json['is_configured'] as bool? ?? false,
       supportsSearch: json['supports_search'] as bool? ?? true,
@@ -111,6 +111,8 @@ class AdminCatalogSummary {
     required this.missingCoverItems,
     required this.missingProviderLinkItems,
     required this.duplicateCandidateGroups,
+    this.providerIngestSuccesses = 0,
+    this.providerIngestFailures = 0,
   });
 
   final int items;
@@ -126,6 +128,19 @@ class AdminCatalogSummary {
   final int missingCoverItems;
   final int missingProviderLinkItems;
   final int duplicateCandidateGroups;
+  final int providerIngestSuccesses;
+  final int providerIngestFailures;
+
+  int get coverCoveragePercent =>
+      items == 0 ? 100 : (((items - missingCoverItems) * 100) / items).round();
+
+  int get providerCoveragePercent => items == 0
+      ? 100
+      : (((items - missingProviderLinkItems) * 100) / items).round();
+
+  String get coverCoverageLabel => '$coverCoveragePercent% covers';
+
+  String get providerCoverageLabel => '$providerCoveragePercent% provider IDs';
 
   factory AdminCatalogSummary.fromJson(Map<String, dynamic> json) {
     return AdminCatalogSummary(
@@ -143,6 +158,121 @@ class AdminCatalogSummary {
       missingProviderLinkItems:
           json['missing_provider_link_items'] as int? ?? 0,
       duplicateCandidateGroups: json['duplicate_candidate_groups'] as int? ?? 0,
+      providerIngestSuccesses: json['provider_ingest_successes'] as int? ?? 0,
+      providerIngestFailures: json['provider_ingest_failures'] as int? ?? 0,
+    );
+  }
+}
+
+class AdminProviderIngestHistoryEntry {
+  const AdminProviderIngestHistoryEntry({
+    required this.id,
+    required this.timestamp,
+    required this.provider,
+    required this.providerItemId,
+    required this.status,
+    required this.attempts,
+    this.itemId,
+    this.error,
+  });
+
+  final int id;
+  final DateTime timestamp;
+  final String provider;
+  final String providerItemId;
+  final String status;
+  final int attempts;
+  final String? itemId;
+  final String? error;
+
+  bool get isFailed => status == 'failed';
+
+  String get displayTitle => '$provider $providerItemId';
+
+  factory AdminProviderIngestHistoryEntry.fromJson(Map<String, dynamic> json) {
+    return AdminProviderIngestHistoryEntry(
+      id: json['id'] as int? ?? 0,
+      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      provider: json['provider'] as String? ?? '',
+      providerItemId: json['provider_item_id']?.toString() ?? '',
+      status: json['status'] as String? ?? 'unknown',
+      attempts: json['attempts'] as int? ?? 0,
+      itemId: json['item_id']?.toString(),
+      error: json['error'] as String?,
+    );
+  }
+}
+
+class AdminProviderIngestJob {
+  const AdminProviderIngestJob({
+    required this.id,
+    required this.provider,
+    required this.providerItemId,
+    required this.status,
+    required this.attempts,
+    required this.maxAttempts,
+    required this.createdAt,
+    required this.updatedAt,
+    this.nextRunAt,
+    this.itemId,
+    this.lastError,
+  });
+
+  final String id;
+  final String provider;
+  final String providerItemId;
+  final String status;
+  final int attempts;
+  final int maxAttempts;
+  final DateTime? nextRunAt;
+  final String? itemId;
+  final String? lastError;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  bool get isFailed => status == 'failed';
+  bool get isQueued => status == 'queued';
+  bool get isRunning => status == 'running';
+  bool get isDone => status == 'done';
+
+  String get displayTitle => '$provider $providerItemId';
+
+  factory AdminProviderIngestJob.fromJson(Map<String, dynamic> json) {
+    return AdminProviderIngestJob(
+      id: json['id']?.toString() ?? '',
+      provider: json['provider'] as String? ?? '',
+      providerItemId: json['provider_item_id']?.toString() ?? '',
+      status: json['status'] as String? ?? 'queued',
+      attempts: json['attempts'] as int? ?? 0,
+      maxAttempts: json['max_attempts'] as int? ?? 1,
+      nextRunAt: _parseDateTime(json['next_run_at'] as String?),
+      itemId: json['item_id']?.toString(),
+      lastError: json['last_error'] as String?,
+      createdAt: _parseDateTime(json['created_at'] as String?) ??
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      updatedAt: _parseDateTime(json['updated_at'] as String?) ??
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+    );
+  }
+}
+
+class AdminProviderIngestJobRunResult {
+  const AdminProviderIngestJobRunResult({
+    required this.processed,
+    required this.jobs,
+  });
+
+  final int processed;
+  final List<AdminProviderIngestJob> jobs;
+
+  factory AdminProviderIngestJobRunResult.fromJson(Map<String, dynamic> json) {
+    return AdminProviderIngestJobRunResult(
+      processed: json['processed'] as int? ?? 0,
+      jobs: [
+        for (final row in (json['jobs'] as List<dynamic>? ?? []))
+          AdminProviderIngestJob.fromJson(row as Map<String, dynamic>),
+      ],
     );
   }
 }
@@ -253,6 +383,9 @@ class AdminDuplicateCandidate {
     required this.count,
     required this.itemIds,
     this.itemNumber,
+    this.reason = 'same title and item number',
+    this.hasProviderConflicts = false,
+    this.hasCoverConflicts = false,
   });
 
   final String kind;
@@ -260,6 +393,9 @@ class AdminDuplicateCandidate {
   final String? itemNumber;
   final int count;
   final List<String> itemIds;
+  final String reason;
+  final bool hasProviderConflicts;
+  final bool hasCoverConflicts;
 
   String get displayTitle {
     if (itemNumber == null || itemNumber!.isEmpty) {
@@ -270,7 +406,7 @@ class AdminDuplicateCandidate {
 
   factory AdminDuplicateCandidate.fromJson(Map<String, dynamic> json) {
     return AdminDuplicateCandidate(
-      kind: json['kind'] as String? ?? 'comic',
+      kind: json['kind'] as String? ?? '',
       title: json['title'] as String? ?? '',
       itemNumber: json['item_number'] as String?,
       count: json['count'] as int? ?? 0,
@@ -278,6 +414,9 @@ class AdminDuplicateCandidate {
         for (final id in (json['item_ids'] as List<dynamic>? ?? []))
           id.toString(),
       ],
+      reason: json['reason'] as String? ?? 'same title and item number',
+      hasProviderConflicts: json['has_provider_conflicts'] as bool? ?? false,
+      hasCoverConflicts: json['has_cover_conflicts'] as bool? ?? false,
     );
   }
 }
@@ -348,7 +487,7 @@ class AdminMetadataItem {
   factory AdminMetadataItem.fromJson(Map<String, dynamic> json) {
     return AdminMetadataItem(
       id: json['id']?.toString() ?? '',
-      kind: json['kind'] as String? ?? 'comic',
+      kind: json['kind'] as String? ?? '',
       title: json['title'] as String? ?? '',
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
@@ -508,6 +647,13 @@ DateTime? _parseDate(String? value) {
     if (year != null && month != null && day != null) {
       return DateTime.utc(year, month, day);
     }
+  }
+  return DateTime.tryParse(value)?.toUtc();
+}
+
+DateTime? _parseDateTime(String? value) {
+  if (value == null || value.isEmpty) {
+    return null;
   }
   return DateTime.tryParse(value)?.toUtc();
 }

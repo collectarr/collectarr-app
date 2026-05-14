@@ -6,17 +6,31 @@ class LibraryColumnChooserDialog extends StatefulWidget {
     required this.selectedColumns,
     required this.defaultColumns,
     required this.columnLabel,
+    this.columnDescription,
     this.columnGroup,
     this.groupLabel,
+    this.presets = const [],
+    this.savedPresets = const [],
+    this.onSavePreset,
+    this.onDeletePreset,
     super.key,
   });
 
   final Set<LibraryTableColumn> selectedColumns;
   final Set<LibraryTableColumn> defaultColumns;
   final String Function(LibraryTableColumn column) columnLabel;
+  final String? Function(LibraryTableColumn column)? columnDescription;
   final LibraryTableColumnGroup Function(LibraryTableColumn column)?
       columnGroup;
   final String Function(LibraryTableColumnGroup group)? groupLabel;
+  final List<LibraryTableColumnPreset> presets;
+  final List<LibraryTableColumnPreset> savedPresets;
+  final Future<List<LibraryTableColumnPreset>> Function(
+    String label,
+    Set<LibraryTableColumn> columns,
+  )? onSavePreset;
+  final Future<List<LibraryTableColumnPreset>> Function(String id)?
+      onDeletePreset;
 
   @override
   State<LibraryColumnChooserDialog> createState() =>
@@ -26,6 +40,9 @@ class LibraryColumnChooserDialog extends StatefulWidget {
 class _LibraryColumnChooserDialogState
     extends State<LibraryColumnChooserDialog> {
   late var _selected = Set<LibraryTableColumn>.of(widget.selectedColumns);
+  late var _savedPresets = List<LibraryTableColumnPreset>.of(
+    widget.savedPresets,
+  );
   String _query = '';
 
   @override
@@ -34,9 +51,13 @@ class _LibraryColumnChooserDialogState
     final query = _query.trim().toLowerCase();
     final columns = LibraryTableColumn.values.where((column) {
       final label = widget.columnLabel(column).toLowerCase();
+      final description =
+          widget.columnDescription?.call(column)?.toLowerCase() ?? '';
       final group = widget.columnGroup?.call(column);
       final groupLabel = group == null ? '' : _groupLabel(group).toLowerCase();
-      return label.contains(query) || groupLabel.contains(query);
+      return label.contains(query) ||
+          description.contains(query) ||
+          groupLabel.contains(query);
     }).toList(growable: false);
     final selectedColumns = _orderedVisibleColumns(_selected);
     return Dialog(
@@ -70,16 +91,51 @@ class _LibraryColumnChooserDialogState
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: TextField(
-                decoration: const InputDecoration(
-                  isDense: true,
-                  prefixIcon: Icon(Icons.search),
-                  hintText: 'Search columns...',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) => setState(() => _query = value),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      prefixIcon: Icon(Icons.search),
+                      hintText: 'Search columns...',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) => setState(() => _query = value),
+                  ),
+                  if (widget.presets.isNotEmpty ||
+                      _savedPresets.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final preset in widget.presets)
+                          OutlinedButton(
+                            onPressed: () => _applyPreset(preset),
+                            child: Text(preset.label),
+                          ),
+                        for (final preset in _savedPresets)
+                          InputChip(
+                            avatar: const Icon(Icons.bookmark, size: 16),
+                            label: Text(preset.label),
+                            onPressed: () => _applyPreset(preset),
+                            onDeleted: preset.id == null ||
+                                    widget.onDeletePreset == null
+                                ? null
+                                : () => _deletePreset(preset.id!),
+                          ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
+            if (widget.presets.isNotEmpty)
+              Divider(
+                height: 1,
+                color: colorScheme.outlineVariant,
+              ),
             Expanded(
               child: Row(
                 children: [
@@ -168,6 +224,12 @@ class _LibraryColumnChooserDialogState
                     ),
                     child: const Text('Reset'),
                   ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: widget.onSavePreset == null ? null : _savePreset,
+                    icon: const Icon(Icons.bookmark_add_outlined, size: 18),
+                    label: const Text('Save preset'),
+                  ),
                   const Spacer(),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -198,6 +260,60 @@ class _LibraryColumnChooserDialogState
     return [
       for (final column in effective) column,
     ];
+  }
+
+  void _applyPreset(LibraryTableColumnPreset preset) {
+    setState(
+      () => _selected = {
+        ...preset.columns,
+        LibraryTableColumn.title,
+      },
+    );
+  }
+
+  Future<void> _savePreset() async {
+    final controller = TextEditingController();
+    final label = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Save preset'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Preset name'),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (value) => Navigator.of(context).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(controller.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    final normalized = label?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return;
+    }
+    final updated = await widget.onSavePreset?.call(normalized, _selected);
+    if (!mounted || updated == null) {
+      return;
+    }
+    setState(() => _savedPresets = updated);
+  }
+
+  Future<void> _deletePreset(String id) async {
+    final updated = await widget.onDeletePreset?.call(id);
+    if (!mounted || updated == null) {
+      return;
+    }
+    setState(() => _savedPresets = updated);
   }
 
   List<Widget> _availableColumnTiles(List<LibraryTableColumn> columns) {
@@ -240,8 +356,17 @@ class _LibraryColumnChooserDialogState
                 }
               }),
       title: Text(widget.columnLabel(column)),
+      subtitle: _columnDescription(column),
       controlAffinity: ListTileControlAffinity.leading,
     );
+  }
+
+  Widget? _columnDescription(LibraryTableColumn column) {
+    final description = widget.columnDescription?.call(column)?.trim();
+    if (description == null || description.isEmpty) {
+      return null;
+    }
+    return Text(description);
   }
 
   String _groupLabel(LibraryTableColumnGroup? group) {

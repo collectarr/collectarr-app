@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_inspector.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_views.dart';
 import 'package:collectarr_app/features/comics/comics_stats.dart';
@@ -29,8 +30,10 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
     required this.columnWidths,
     required this.selectionMode,
     required this.selectedItemIds,
+    required this.quickView,
     required this.hasActiveFilters,
     required this.activeFilterCount,
+    required this.onQuickViewSelected,
     required this.onEditFilters,
     required this.onClearFilters,
     required this.onEditColumns,
@@ -70,8 +73,10 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
   final Map<LibraryTableColumn, double> columnWidths;
   final bool selectionMode;
   final Set<String> selectedItemIds;
+  final ComicsShelfQuickView? quickView;
   final bool hasActiveFilters;
   final int activeFilterCount;
+  final ValueChanged<ComicsShelfQuickView> onQuickViewSelected;
   final VoidCallback onEditFilters;
   final VoidCallback onClearFilters;
   final VoidCallback onEditColumns;
@@ -115,6 +120,7 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
               selectedSeries: projection.selectedSeries,
               hasActiveFilters: hasActiveFilters,
               activeFilterCount: activeFilterCount,
+              quickView: quickView,
               missingIssues: projection.missingIssues,
               duplicateGroups: projection.duplicateGroups,
             ),
@@ -144,6 +150,7 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
                 selectedSeries: projection.selectedSeries,
                 missingIssues: projection.missingIssues,
               ),
+              onQuickViewSelected: onQuickViewSelected,
               onEditFilters: onEditFilters,
               onClearFilters: onClearFilters,
             ),

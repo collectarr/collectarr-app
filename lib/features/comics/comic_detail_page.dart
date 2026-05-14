@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/library/library_item_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +18,10 @@ class ComicDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detail = ref.watch(comicDetailProvider(item.id));
+    final libraryState = _libraryStateFor(
+      ref.watch(shelfProvider).value,
+      item.id,
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(item.title),
@@ -32,44 +38,87 @@ class ComicDetailPage extends ConsumerWidget {
         ],
       ),
       body: detail.when(
-        data: (comic) => _ComicDetailBody(item: item, comic: comic),
-        loading: () => _FallbackDetailBody(item: item, isLoading: true),
-        error: (_, __) => _FallbackDetailBody(item: item),
+        data: (comic) => _ComicDetailBody(
+          item: item,
+          comic: comic,
+          libraryState: libraryState,
+        ),
+        loading: () => _FallbackDetailBody(
+          item: item,
+          libraryState: libraryState,
+          isLoading: true,
+        ),
+        error: (_, __) => _FallbackDetailBody(
+          item: item,
+          libraryState: libraryState,
+        ),
       ),
     );
+  }
+
+  LibraryItemState _libraryStateFor(ShelfState? shelf, String itemId) {
+    for (final entry in shelf?.entries ?? const <ShelfEntry>[]) {
+      if (entry.itemId == itemId) {
+        return LibraryItemState(
+          ownedItem: entry.ownedItem,
+          isWishlisted: entry.wishlistItem != null,
+        );
+      }
+    }
+    return const LibraryItemState();
   }
 }
 
 class _ComicDetailBody extends ConsumerWidget {
-  const _ComicDetailBody({required this.item, required this.comic});
+  const _ComicDetailBody({
+    required this.item,
+    required this.comic,
+    required this.libraryState,
+  });
 
   final CatalogItem item;
   final ComicDetail comic;
+  final LibraryItemState libraryState;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final edition = comic.primaryEdition;
     final variant = comic.primaryVariant;
+    final variantsCount = comic.editions.fold<int>(
+      0,
+      (total, edition) => total + edition.variants.length,
+    );
+    final releasesCount = comic.editions.fold<int>(
+      0,
+      (total, edition) => total + edition.releases.length,
+    );
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _DetailCover(url: comic.displayCoverUrl),
-        const SizedBox(height: 16),
-        Text(comic.title, style: Theme.of(context).textTheme.headlineSmall),
-        if (comic.itemNumber != null) Text('#${comic.itemNumber}'),
+        _DetailHeader(
+          title: comic.title,
+          subtitle: [
+            if (comic.itemNumber != null) '#${comic.itemNumber}',
+            if (comic.publisher != null) comic.publisher,
+            libraryState.statusLabel,
+          ].join(' | '),
+          coverUrl: comic.displayCoverUrl,
+          chips: [
+            comic.kind,
+            if (edition?.format != null) edition!.format!,
+            if (edition?.releaseDate != null) _dateLabel(edition!.releaseDate!),
+            if (comic.pageCount != null) '${comic.pageCount} pages',
+            if (comic.barcode != null) comic.barcode!,
+          ],
+        ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _MetadataChip(label: comic.kind),
-            if (comic.publisher != null) _MetadataChip(label: comic.publisher!),
-            if (edition?.format != null) _MetadataChip(label: edition!.format!),
-            if (edition?.releaseDate != null)
-              _MetadataChip(label: _dateLabel(edition!.releaseDate!)),
-            if (comic.pageCount != null)
-              _MetadataChip(label: '${comic.pageCount} pages'),
-            if (comic.barcode != null) _MetadataChip(label: comic.barcode!),
+        _DetailStatsBar(
+          stats: [
+            ('Editions', comic.editions.length.toString()),
+            ('Variants', variantsCount.toString()),
+            ('Releases', releasesCount.toString()),
+            ('Creators', comic.creators.length.toString()),
+            ('Characters', comic.characters.length.toString()),
           ],
         ),
         const SizedBox(height: 16),
@@ -92,6 +141,28 @@ class _ComicDetailBody extends ConsumerWidget {
             ),
           ],
         ),
+        _LocalStatusSection(libraryState: libraryState),
+        if (variant != null)
+          _MetadataSection(
+            title: 'Primary variant',
+            children: [
+              _InfoGrid(
+                rows: [
+                  ('Name', variant.name),
+                  ('Type', variant.variantType),
+                  ('Region', variant.region),
+                  ('SKU', variant.sku),
+                  ('Barcode', variant.barcode),
+                  ('ISBN', variant.isbn),
+                  (
+                    'Cover Price',
+                    _moneyLabel(variant.coverPriceCents, variant.currency)
+                  ),
+                  ('Description', variant.description),
+                ],
+              ),
+            ],
+          ),
         if (comic.synopsis != null) ...[
           const SizedBox(height: 16),
           Text(comic.synopsis!),
@@ -185,9 +256,14 @@ class _ComicDetailBody extends ConsumerWidget {
 }
 
 class _FallbackDetailBody extends ConsumerWidget {
-  const _FallbackDetailBody({required this.item, this.isLoading = false});
+  const _FallbackDetailBody({
+    required this.item,
+    required this.libraryState,
+    this.isLoading = false,
+  });
 
   final CatalogItem item;
+  final LibraryItemState libraryState;
   final bool isLoading;
 
   @override
@@ -195,14 +271,25 @@ class _FallbackDetailBody extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _DetailCover(url: item.displayCoverUrl),
-        const SizedBox(height: 16),
-        Text(item.title, style: Theme.of(context).textTheme.headlineSmall),
-        if (item.itemNumber != null) Text('#${item.itemNumber}'),
+        _DetailHeader(
+          title: item.title,
+          subtitle: [
+            if (item.itemNumber != null) '#${item.itemNumber}',
+            if (item.publisher != null) item.publisher,
+            libraryState.statusLabel,
+          ].join(' | '),
+          coverUrl: item.displayCoverUrl,
+          chips: [
+            item.kind,
+            if (item.releaseDate != null) _dateLabel(item.releaseDate!),
+            if (item.barcode != null) item.barcode!,
+          ],
+        ),
         if (isLoading) ...[
           const SizedBox(height: 16),
           const LinearProgressIndicator(),
         ],
+        _LocalStatusSection(libraryState: libraryState),
         if (item.synopsis != null) ...[
           const SizedBox(height: 12),
           Text(item.synopsis!),
@@ -229,6 +316,143 @@ class _FallbackDetailBody extends ConsumerWidget {
           },
           icon: const Icon(Icons.add_circle_outline),
           label: const Text('Add to collection'),
+        ),
+      ],
+    );
+  }
+
+  String _dateLabel(DateTime value) {
+    return '${value.year.toString().padLeft(4, '0')}-'
+        '${value.month.toString().padLeft(2, '0')}-'
+        '${value.day.toString().padLeft(2, '0')}';
+  }
+}
+
+class _DetailHeader extends StatelessWidget {
+  const _DetailHeader({
+    required this.title,
+    required this.subtitle,
+    required this.coverUrl,
+    required this.chips,
+  });
+
+  final String title;
+  final String subtitle;
+  final String? coverUrl;
+  final List<String> chips;
+
+  @override
+  Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 720;
+    final cover = SizedBox(
+      width: wide ? 180 : 128,
+      child: _DetailCover(url: coverUrl),
+    );
+    final info = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.headlineSmall),
+        if (subtitle.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Text(subtitle, style: Theme.of(context).textTheme.titleSmall),
+        ],
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final chip in chips)
+              if (chip.trim().isNotEmpty) _MetadataChip(label: chip),
+          ],
+        ),
+      ],
+    );
+    if (!wide) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          cover,
+          const SizedBox(height: 16),
+          info,
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        cover,
+        const SizedBox(width: 20),
+        Expanded(child: info),
+      ],
+    );
+  }
+}
+
+class _DetailStatsBar extends StatelessWidget {
+  const _DetailStatsBar({required this.stats});
+
+  final List<(String, String)> stats;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final stat in stats)
+          Container(
+            width: 112,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  stat.$2,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Text(
+                  stat.$1,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _LocalStatusSection extends StatelessWidget {
+  const _LocalStatusSection({required this.libraryState});
+
+  final LibraryItemState libraryState;
+
+  @override
+  Widget build(BuildContext context) {
+    final owned = libraryState.ownedItem;
+    return _MetadataSection(
+      title: 'Local status',
+      children: [
+        _InfoGrid(
+          rows: [
+            ('Shelf', libraryState.statusLabel),
+            ('Condition', owned?.condition),
+            ('Grade', owned?.grade),
+            ('Quantity', owned?.quantity.toString()),
+            ('Storage Box', owned?.storageBox),
+            ('Read Status', owned?.readStatus),
+            ('Rating', owned?.rating?.toString()),
+            ('Tags', owned?.tags),
+            ('Signed By', owned?.signedBy),
+            ('Notes', owned?.personalNotes),
+          ],
         ),
       ],
     );
