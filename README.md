@@ -17,9 +17,12 @@ Run on web:
 flutter run -d chrome
 ```
 
+The web build uses Drift with sqlite3 WASM and stores the local database in
+IndexedDB. The canonical catalog cache can be rebuilt from the metadata API; old
+browser-local sql.js data is not migrated when switching to the WASM database.
+
 Run on Windows:
 
 ```powershell
 flutter run -d windows
 ```
-
