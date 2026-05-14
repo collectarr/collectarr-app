@@ -114,12 +114,12 @@ class _ComicList extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final tableWidth = comicTableWidthForColumns(
+        final tableWidth = comicsMediaAdapter.tableWidthForColumns(
           visibleColumns,
           columnWidths,
         );
         final contentWidth = tableWidth > constraints.maxWidth
-            ? tableWidth + 16
+            ? tableWidth + (kComicTableHorizontalMargin * 2)
             : constraints.maxWidth;
         return ColoredBox(
           color: kClzCanvas,
@@ -180,20 +180,20 @@ class _ComicTableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final columns = orderedComicTableColumns(visibleColumns);
+    final columns = comicsMediaAdapter.orderedTableColumns(visibleColumns);
     return LibraryWorkspaceTable<_ComicTableEntry>(
       entries: entries,
       columns: columns,
       sortColumn: sortColumn,
       sortAscending: sortAscending,
-      columnWidthFor: (column) => comicTableColumnWidth(
+      columnWidthFor: (column) => comicsMediaAdapter.tableColumnWidth(
         column,
         columnWidths,
       ),
-      defaultColumnWidthFor: defaultComicTableColumnWidth,
-      columnSortFor: comicTableColumnSort,
-      columnLabelFor: comicTableColumnLabel,
-      columnIsNumeric: comicTableColumnIsNumeric,
+      defaultColumnWidthFor: comicsMediaAdapter.defaultTableColumnWidth,
+      columnSortFor: comicsMediaAdapter.columnSort,
+      columnLabelFor: comicsMediaAdapter.columnLabel,
+      columnIsNumeric: comicsMediaAdapter.columnIsNumeric,
       cellBuilder: _comicTableCellContent,
       isSelected: (entry) =>
           selectedItemIds.contains(entry.item.id) ||

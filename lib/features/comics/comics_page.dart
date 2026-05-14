@@ -352,10 +352,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
       context: context,
       builder: (context) => LibraryColumnChooserDialog(
         selectedColumns: workspaceViewState.visibleColumns,
-        defaultColumns: defaultComicTableColumns(),
-        columnLabel: comicTableColumnDisplayName,
-        columnGroup: comicTableColumnGroup,
-        groupLabel: comicTableColumnGroupLabel,
+        defaultColumns: comicsMediaAdapter.defaultTableColumns(),
+        columnLabel: comicsMediaAdapter.columnDisplayName,
+        columnGroup: comicsMediaAdapter.columnGroup,
+        groupLabel: comicsMediaAdapter.columnGroupLabel,
       ),
     );
     if (selected != null) {

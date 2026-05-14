@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
@@ -123,11 +124,7 @@ class SyncController extends StateNotifier<SyncState> {
   }
 
   String? _syncWarningMessage(SyncResult result) {
-    if (!result.hasRejectedChanges) {
-      return null;
-    }
-    final noun = result.rejectedCount == 1 ? 'conflict' : 'conflicts';
-    return '${result.rejectedCount} sync $noun resolved with service data.';
+    return SyncWarningFormatter.rejectedChanges(result.rejectedChanges);
   }
 
   SyncQueueRepository _queue() {
