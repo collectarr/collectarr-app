@@ -1,9 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
 
@@ -12,6 +14,7 @@ class SyncService {
     required this.client,
     required this.db,
     required this.queue,
+    required this.catalog,
     required this.ownedItems,
     required this.wishlistItems,
   });
@@ -19,6 +22,7 @@ class SyncService {
   final CollectarrSyncClient client;
   final LocalDatabase db;
   final SyncQueueRepository queue;
+  final CatalogCacheRepository catalog;
   final OwnedItemsCacheRepository ownedItems;
   final WishlistItemsCacheRepository wishlistItems;
 
@@ -49,10 +53,14 @@ class SyncService {
   }
 
   Future<void> _applyEntities(List<Map<String, dynamic>> entities) async {
+    final catalogSnapshots = <CatalogItem>[];
     final owned = <OwnedItem>[];
     final wishlist = <WishlistItem>[];
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
+      if (type == 'library_item_snapshot' && entity['action'] == 'upsert') {
+        catalogSnapshots.add(_catalogItemFromEntity(entity));
+      }
       if (type == 'owned_item') {
         owned.add(_ownedItemFromEntity(entity));
       }
@@ -61,8 +69,20 @@ class SyncService {
       }
     }
     await db.transaction(() async {
+      await catalog.upsertAll(catalogSnapshots);
       await ownedItems.upsertAll(owned);
       await wishlistItems.upsertAll(wishlist);
+    });
+  }
+
+  CatalogItem _catalogItemFromEntity(Map<String, dynamic> entity) {
+    final type = entity['entity_type'] as String;
+    if (type != 'library_item_snapshot') {
+      throw FormatException('Expected library_item_snapshot entity, got $type');
+    }
+    return CatalogItem.fromJson({
+      ..._payload(entity),
+      'id': entity['entity_id'],
     });
   }
 

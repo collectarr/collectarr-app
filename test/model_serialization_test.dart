@@ -23,6 +23,32 @@ void main() {
     expect(item.displayCoverUrl, 'https://cdn.example/thumb.jpg');
   });
 
+  test('catalog item builds sync snapshot payload', () {
+    final item = CatalogItem(
+      id: 'comic-1',
+      kind: 'comic',
+      title: 'Absolute Batman',
+      itemNumber: '1',
+      synopsis: 'Absolute universe launch',
+      coverImageUrl: 'https://cdn.example/full.jpg',
+      thumbnailImageUrl: 'https://cdn.example/thumb.jpg',
+      publisher: 'DC',
+      releaseDate: DateTime.utc(2024, 10, 9),
+      releaseYear: 2024,
+      barcode: '76194138584600111',
+      variant: 'Cover A',
+    );
+
+    final payload = item.toSyncPayload();
+
+    expect(payload['snapshot_version'], 1);
+    expect(payload.containsKey('id'), isFalse);
+    expect(payload['title'], 'Absolute Batman');
+    expect(payload['cover_image_url'], 'https://cdn.example/full.jpg');
+    expect(payload['thumbnail_image_url'], 'https://cdn.example/thumb.jpg');
+    expect(payload['release_date'], '2024-10-09T00:00:00.000Z');
+  });
+
   test('comic detail parses editions and variants', () {
     final detail = ComicDetail.fromJson({
       'id': 'comic-1',

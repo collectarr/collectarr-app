@@ -37,6 +37,38 @@ void main() {
     expect(container.read(syncControllerProvider).pendingCount, 1);
   });
 
+  test('collection mutations enqueue catalog snapshots from cache', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'Absolute Batman',
+        itemNumber: '1',
+        coverImageUrl: 'https://cdn.example/absolute.jpg',
+        publisher: 'DC',
+        releaseYear: 2024,
+      ),
+    ]);
+
+    await container.read(collectionMutationsProvider).addItem('comic-1');
+
+    final queued = await db.select(db.syncQueue).get();
+    final snapshot =
+        queued.where((row) => row.entityType == 'library_item_snapshot').single;
+    expect(queued, hasLength(2));
+    expect(snapshot.entityId, 'comic-1');
+    expect(snapshot.payloadJson, contains('Absolute Batman'));
+    expect(snapshot.payloadJson, contains('https://cdn.example/absolute.jpg'));
+    expect(container.read(syncControllerProvider).pendingCount, 2);
+  });
+
   test('collection updates can clear nullable personal details', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -174,9 +206,14 @@ void main() {
     );
 
     final owned = await db.select(db.ownedItemsCache).getSingle();
+    final queued = await db.select(db.syncQueue).get();
     expect(imported, 1);
     expect(owned.itemId, 'comic-1');
     expect(owned.grade, '7.5');
+    expect(
+      queued.where((row) => row.entityType == 'library_item_snapshot'),
+      hasLength(1),
+    );
   });
 
   test('collection import preview reports matched unresolved and skipped rows',

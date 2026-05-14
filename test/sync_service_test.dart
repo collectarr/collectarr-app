@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
 import 'package:drift/native.dart';
@@ -19,17 +20,21 @@ void main() {
       client: client,
       db: db,
       queue: SyncQueueRepository(db),
+      catalog: CatalogCacheRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
 
     final row = await db.select(db.ownedItemsCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
+    final catalogRow = await db.select(db.catalogCache).getSingle();
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
     expect(row.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
+    expect(catalogRow.title, 'Absolute Batman');
+    expect(catalogRow.coverImageUrl, 'https://cdn.example/absolute.jpg');
   });
 
   test('sync removes rejected stale changes and applies server state',
@@ -52,6 +57,7 @@ void main() {
       client: _RejectedSyncClient(),
       db: db,
       queue: queue,
+      catalog: CatalogCacheRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
@@ -94,6 +100,22 @@ class _FakeSyncClient extends CollectarrSyncClient {
     return {
       'server_time': '2026-05-12T09:00:00.000Z',
       'entities': [
+        {
+          'entity_type': 'library_item_snapshot',
+          'entity_id': 'comic-1',
+          'action': 'upsert',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T07:30:00.000Z',
+          'changed_at': '2026-05-12T09:00:00.000Z',
+          'payload': {
+            'kind': 'comic',
+            'title': 'Absolute Batman',
+            'item_number': '1',
+            'cover_image_url': 'https://cdn.example/absolute.jpg',
+            'publisher': 'DC',
+            'release_year': 2024,
+          },
+        },
         {
           'entity_type': 'owned_item',
           'entity_id': 'owned-1',

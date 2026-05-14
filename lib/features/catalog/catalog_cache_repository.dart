@@ -86,6 +86,18 @@ class CatalogCacheRepository {
     return row == null ? null : _itemFromRow(row);
   }
 
+  Future<CatalogItem?> findById(String id) async {
+    final normalized = id.trim();
+    if (normalized.isEmpty) {
+      return null;
+    }
+    final row = await (_db.select(_db.catalogCache)
+          ..where((row) => row.id.equals(normalized))
+          ..limit(1))
+        .getSingleOrNull();
+    return row == null ? null : _itemFromRow(row);
+  }
+
   Future<CatalogItem?> findByTitleAndIssue({
     required String title,
     required String? itemNumber,

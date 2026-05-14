@@ -5,8 +5,10 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -88,6 +90,7 @@ class SyncController extends StateNotifier<SyncState> {
         ),
         db: db,
         queue: SyncQueueRepository(db),
+        catalog: CatalogCacheRepository(db),
         ownedItems: OwnedItemsCacheRepository(db),
         wishlistItems: WishlistItemsCacheRepository(db),
       ).syncNow(deviceId, since: since);
@@ -95,6 +98,7 @@ class SyncController extends StateNotifier<SyncState> {
       ref.invalidate(collectionProvider);
       ref.invalidate(wishlistIdsProvider);
       ref.invalidate(wishlistProvider);
+      ref.invalidate(shelfProvider);
       final count = await _queue().pendingCount();
       state = SyncState(
         pendingCount: count,

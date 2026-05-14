@@ -29,6 +29,23 @@ class CatalogItem {
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
+  Map<String, dynamic> toSyncPayload() {
+    return {
+      'snapshot_version': 1,
+      'kind': kind,
+      'title': title,
+      'item_number': itemNumber,
+      'synopsis': synopsis,
+      'cover_image_url': coverImageUrl,
+      'thumbnail_image_url': thumbnailImageUrl,
+      'publisher': publisher,
+      'release_date': releaseDate?.toUtc().toIso8601String(),
+      'release_year': releaseYear,
+      'barcode': barcode,
+      'variant': variant,
+    };
+  }
+
   factory CatalogItem.fromJson(Map<String, dynamic> json) {
     return CatalogItem(
       id: json['id'] as String,

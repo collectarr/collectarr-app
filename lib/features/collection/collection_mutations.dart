@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -74,6 +74,7 @@ class CollectionMutations {
     );
     await _ownedCache().upsert(ownedItem);
     await _enqueueOwnedItem(ownedItem, 'upsert', now);
+    await _enqueueCatalogSnapshotForItemId(itemId, now);
     final wishlistItem = await _wishlistCache().findActiveByItemId(itemId);
     if (wishlistItem != null) {
       await _wishlistCache().markDeleted(wishlistItem, now);
@@ -175,6 +176,7 @@ class CollectionMutations {
       );
       await _wishlistCache().upsert(item);
       await _enqueueWishlistItem(item, 'upsert', now);
+      await _enqueueCatalogSnapshotForItemId(itemId, now);
     }
     if (notify) {
       await _notifyWishlistChanged();
@@ -218,7 +220,11 @@ class CollectionMutations {
     final db = ref.read(localDatabaseProvider);
     final ownedCache = _ownedCache();
     final wishlistCache = _wishlistCache();
+    final catalogCache = _catalogCache();
     final syncQueue = _syncQueue();
+    final catalogItems = await catalogCache.findByIds(resolvedRows.map(
+      (row) => row.itemId,
+    ));
     final now = DateTime.now().toUtc();
     final existingWishlist = {
       for (final item in await wishlistCache.findActiveByItemIds(
@@ -237,6 +243,7 @@ class CollectionMutations {
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
+    final snapshotItemIds = <String>{};
     var imported = 0;
 
     for (final row in resolvedRows) {
@@ -244,6 +251,12 @@ class CollectionMutations {
         continue;
       }
       imported++;
+      _addCatalogSnapshotChange(
+        syncChanges,
+        snapshotItemIds,
+        catalogItems[row.itemId],
+        now,
+      );
       final existingWishlistItem = existingWishlist[row.itemId];
       if (row.isOwned) {
         final ownedItem = _ownedItemFromCsvRow(
@@ -294,7 +307,7 @@ class CollectionMutations {
   Future<CollectionImportPreview> previewImportRows(
     List<CollectionCsvRow> rows,
   ) async {
-    final catalog = CatalogCacheRepository(ref.read(localDatabaseProvider));
+    final catalog = _catalogCache();
     final resolved = <CollectionCsvRow>[];
     final conflicts = <CollectionCsvRow>[];
     final unresolved = <CollectionCsvRow>[];
@@ -423,6 +436,29 @@ class CollectionMutations {
     );
   }
 
+  SyncChange _syncChangeForCatalogItem(CatalogItem item, DateTime changedAt) {
+    return SyncChange(
+      id: _uuid.v4(),
+      entityType: 'library_item_snapshot',
+      entityId: item.id,
+      action: 'upsert',
+      payload: item.toSyncPayload(),
+      clientChangedAt: changedAt,
+    );
+  }
+
+  void _addCatalogSnapshotChange(
+    List<SyncChange> changes,
+    Set<String> snapshotItemIds,
+    CatalogItem? item,
+    DateTime changedAt,
+  ) {
+    if (item == null || !snapshotItemIds.add(item.id)) {
+      return;
+    }
+    changes.add(_syncChangeForCatalogItem(item, changedAt));
+  }
+
   Future<void> _notifyCollectionChanged({bool wishlistChanged = false}) async {
     await ref.read(syncControllerProvider.notifier).refreshPendingCount();
     ref.invalidate(collectionProvider);
@@ -446,6 +482,10 @@ class CollectionMutations {
 
   WishlistItemsCacheRepository _wishlistCache() {
     return WishlistItemsCacheRepository(ref.read(localDatabaseProvider));
+  }
+
+  CatalogCacheRepository _catalogCache() {
+    return CatalogCacheRepository(ref.read(localDatabaseProvider));
   }
 
   SyncQueueRepository _syncQueue() {
@@ -478,6 +518,19 @@ class CollectionMutations {
         clientChangedAt: changedAt,
       ),
     );
+  }
+
+  Future<void> _enqueueCatalogSnapshotForItemId(
+    String itemId,
+    DateTime changedAt,
+  ) async {
+    final item = await _catalogCache().findById(
+      itemId,
+    );
+    if (item == null) {
+      return;
+    }
+    await _syncQueue().enqueue(_syncChangeForCatalogItem(item, changedAt));
   }
 }
 
