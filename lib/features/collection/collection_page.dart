@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -1104,6 +1105,9 @@ class _CatalogThumb extends StatelessWidget {
         width: 42,
         height: 56,
         fit: BoxFit.cover,
+        webHtmlElementStrategy: kIsWeb
+            ? WebHtmlElementStrategy.prefer
+            : WebHtmlElementStrategy.never,
         errorBuilder: (_, __, ___) => const SizedBox.square(
           dimension: 42,
           child: DecoratedBox(

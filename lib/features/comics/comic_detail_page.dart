@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -452,12 +453,22 @@ class _DetailCover extends StatelessWidget {
           ? placeholder
           : ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => placeholder,
-                errorWidget: (_, __, ___) => placeholder,
-              ),
+              child: kIsWeb
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        return loadingProgress == null ? child : placeholder;
+                      },
+                      errorBuilder: (_, __, ___) => placeholder,
+                    )
+                  : CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (_, __) => placeholder,
+                      errorWidget: (_, __, ___) => placeholder,
+                    ),
             ),
     );
   }

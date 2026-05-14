@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class LibraryCoverImage extends StatelessWidget {
@@ -25,6 +26,21 @@ class LibraryCoverImage extends StatelessWidget {
     final url = imageUrl;
     if (url == null || url.isEmpty) {
       return placeholder;
+    }
+    if (kIsWeb) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: Image.network(
+          url,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.medium,
+          webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+          loadingBuilder: (context, child, loadingProgress) {
+            return loadingProgress == null ? child : placeholder;
+          },
+          errorBuilder: (_, __, ___) => placeholder,
+        ),
+      );
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
