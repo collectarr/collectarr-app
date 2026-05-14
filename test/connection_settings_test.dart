@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/settings/connection_settings.dart';
+import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,5 +39,33 @@ void main() {
     expect(settings.metadataBaseUrl, ConnectionSettings.defaultMetadataBaseUrl);
     expect(settings.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
     expect(settings.syncKey, ConnectionSettings.defaultSyncKey);
+  });
+
+  test('connection pairing code round trips endpoint settings', () {
+    const pairing = ConnectionPairing();
+    final code = pairing.encode(
+      const ConnectionSettings(
+        metadataBaseUrl: 'http://metadata.local:8010/',
+        syncBaseUrl: 'http://sync.local:8020/',
+        syncKey: ' local-key ',
+      ),
+    );
+
+    final settings = pairing.decode(code);
+
+    expect(code, startsWith(ConnectionPairing.prefix));
+    expect(settings.metadataBaseUrl, 'http://metadata.local:8010');
+    expect(settings.syncBaseUrl, 'http://sync.local:8020');
+    expect(settings.syncKey, 'local-key');
+  });
+
+  test('connection pairing code can decode raw json for manual recovery', () {
+    final settings = const ConnectionPairing().decode(
+      '{"version":1,"metadata_base_url":"http://core","sync_base_url":"http://sync","sync_key":"key"}',
+    );
+
+    expect(settings.metadataBaseUrl, 'http://core');
+    expect(settings.syncBaseUrl, 'http://sync');
+    expect(settings.syncKey, 'key');
   });
 }

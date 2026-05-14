@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
+import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/features/collection/collection_csv.dart';
@@ -174,6 +175,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
           const SizedBox(height: 12),
           _SettingsPanel(
+            icon: Icons.qr_code_2_outlined,
+            title: 'Device pairing',
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _copyPairingCode,
+                  icon: const Icon(Icons.copy_outlined),
+                  label: const Text('Copy pairing code'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _showPairingCodeDialog(context),
+                  icon: const Icon(Icons.input_outlined),
+                  label: const Text('Apply pairing code'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SettingsPanel(
             icon: Icons.devices_outlined,
             title: 'Device identity',
             child: FutureBuilder<String>(
@@ -301,6 +323,73 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
+  Future<void> _copyPairingCode() async {
+    final settings = ConnectionSettings(
+      metadataBaseUrl: _metadataController.text,
+      syncBaseUrl: _syncController.text,
+      syncKey: _syncKeyController.text,
+      isLoaded: true,
+    );
+    final code = const ConnectionPairing().encode(settings);
+    try {
+      await Clipboard.setData(ClipboardData(text: code));
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pairing code copied')),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not copy pairing code: $error')),
+      );
+    }
+  }
+
+  Future<void> _showPairingCodeDialog(BuildContext context) async {
+    final code = await showDialog<String>(
+      context: context,
+      builder: (context) => const _PairingCodeDialog(),
+    );
+    if (code == null || !mounted) {
+      return;
+    }
+    await _applyPairingCode(code);
+  }
+
+  Future<void> _applyPairingCode(String code) async {
+    try {
+      final settings = const ConnectionPairing().decode(code);
+      await ref.read(connectionSettingsProvider.notifier).save(
+            metadataBaseUrl: settings.metadataBaseUrl,
+            syncBaseUrl: settings.syncBaseUrl,
+            syncKey: settings.syncKey,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _metadataDiagnostic = null;
+        _syncDiagnostic = null;
+        _syncStatusDetails = null;
+        _syncDevices = const [];
+      });
+      ref.read(syncControllerProvider.notifier).refreshPendingCount();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pairing settings applied')),
+      );
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid pairing code: $error')),
+        );
+      }
+    }
+  }
+
   Future<void> _reset() async {
     await ref.read(connectionSettingsProvider.notifier).reset();
     setState(() {
@@ -417,6 +506,53 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final hour = local.hour.toString().padLeft(2, '0');
     final minute = local.minute.toString().padLeft(2, '0');
     return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hour:$minute';
+  }
+}
+
+class _PairingCodeDialog extends StatefulWidget {
+  const _PairingCodeDialog();
+
+  @override
+  State<_PairingCodeDialog> createState() => _PairingCodeDialogState();
+}
+
+class _PairingCodeDialogState extends State<_PairingCodeDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Apply pairing code'),
+      content: SizedBox(
+        width: 520,
+        child: TextField(
+          controller: _controller,
+          autofocus: true,
+          minLines: 4,
+          maxLines: 6,
+          decoration: const InputDecoration(
+            labelText: 'Pairing code',
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_controller.text),
+          child: const Text('Apply'),
+        ),
+      ],
+    );
   }
 }
 
