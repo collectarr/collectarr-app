@@ -38,7 +38,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   String? selectedItemId;
   String? selectedSeries;
   ComicsWorkspaceViewState workspaceViewState =
-      ComicsWorkspaceViewState.defaults();
+      comicsWorkspaceViewProfile.defaults();
   ComicsFilterSelection filterSelection = ComicsFilterSelection.none;
   ComicsPageSelectionState selectionState = ComicsPageSelectionState.empty();
   late final TextEditingController _controller;
@@ -306,7 +306,9 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   }
 
   void _handleSortChanged(LibrarySortColumn column) {
-    _setWorkspaceViewState(workspaceViewState.withSortColumn(column));
+    _setWorkspaceViewState(
+      workspaceViewState.withSortColumn(column, comicsWorkspaceViewProfile),
+    );
   }
 
   void _handleViewModeChanged(LibraryViewMode value) {
@@ -320,7 +322,9 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   }
 
   void _handleViewPresetSelected(LibraryWorkspacePreset preset) {
-    _setWorkspaceViewState(workspaceViewState.withPreset(preset));
+    _setWorkspaceViewState(
+      workspaceViewState.withPreset(preset, comicsWorkspaceViewProfile),
+    );
   }
 
   void _handleCoverSizeChanged(double value) {
@@ -335,7 +339,11 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
 
   void _handleColumnWidthChanged(LibraryTableColumn column, double width) {
     _setWorkspaceViewState(
-      workspaceViewState.withColumnWidth(column, width),
+      workspaceViewState.withColumnWidth(
+        column,
+        width,
+        comicsWorkspaceViewProfile,
+      ),
     );
   }
 

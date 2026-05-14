@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 
 const double kComicsMinCoverSize = 104;
 const double kComicsDefaultCoverSize = 128;
@@ -11,37 +12,40 @@ const double kComicTableHeaderHeight = 30;
 const double kComicTableRowHeight = 38;
 const double kComicTableSelectionRailWidth = 3;
 
-class ComicsViewPresetConfig {
-  const ComicsViewPresetConfig({
-    required this.viewMode,
-    required this.detailsLayout,
-    required this.coverSize,
-    required this.visibleColumns,
-  });
+const comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
+  config: comicsWorkspaceConfig,
+  defaultCoverSize: kComicsDefaultCoverSize,
+  minCoverSize: kComicsMinCoverSize,
+  maxCoverSize: kComicsMaxCoverSize,
+  presetConfig: comicsViewPresetConfig,
+  clampColumnWidth: clampComicTableColumnWidth,
+  sortAscendingForColumn: comicInitialSortAscending,
+);
 
-  final LibraryViewMode viewMode;
-  final LibraryDetailsLayout detailsLayout;
-  final double coverSize;
-  final Set<LibraryTableColumn> visibleColumns;
+bool comicInitialSortAscending(LibrarySortColumn column) {
+  return switch (column) {
+    LibrarySortColumn.updated => false,
+    _ => true,
+  };
 }
 
-ComicsViewPresetConfig comicsViewPresetConfig(
+LibraryWorkspaceViewPresetConfig comicsViewPresetConfig(
   LibraryWorkspacePreset preset,
 ) {
   return switch (preset) {
-    LibraryWorkspacePreset.cover => ComicsViewPresetConfig(
+    LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.right,
         coverSize: kComicsDefaultCoverSize,
         visibleColumns: defaultComicTableColumns(),
       ),
-    LibraryWorkspacePreset.card => ComicsViewPresetConfig(
+    LibraryWorkspacePreset.card => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.card,
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: 150,
         visibleColumns: defaultComicTableColumns(),
       ),
-    LibraryWorkspacePreset.list => const ComicsViewPresetConfig(
+    LibraryWorkspacePreset.list => const LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: kComicsDefaultCoverSize,
@@ -58,7 +62,7 @@ ComicsViewPresetConfig comicsViewPresetConfig(
           LibraryTableColumn.updated,
         },
       ),
-    LibraryWorkspacePreset.details => ComicsViewPresetConfig(
+    LibraryWorkspacePreset.details => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.right,
         coverSize: 144,

@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
 import 'package:flutter/material.dart';
 
 class ComicsWorkspaceControlState {
@@ -25,14 +26,11 @@ class ComicsWorkspaceControlCallbacks {
   final ComicsViewTableControlCallbacks view;
 }
 
-class ComicsWorkspaceCounts {
+class ComicsWorkspaceCounts extends LibraryWorkspaceCounts {
   const ComicsWorkspaceCounts({
-    required this.shown,
-    required this.total,
+    required super.shown,
+    required super.total,
   });
-
-  final int shown;
-  final int total;
 }
 
 class ComicsSelectionControlState {
@@ -85,32 +83,23 @@ class ComicsWorkspaceUtilityCallbacks {
   final VoidCallback onEditFilters;
 }
 
-class ComicsViewTableControlState {
+class ComicsViewTableControlState extends LibraryViewTableControlState {
   const ComicsViewTableControlState({
-    required this.counts,
-    required this.viewMode,
-    required this.detailsLayout,
-    required this.coverSize,
+    required super.counts,
+    required super.viewMode,
+    required super.detailsLayout,
+    required super.coverSize,
+    super.minCoverSize = kComicsMinCoverSize,
+    super.maxCoverSize = kComicsMaxCoverSize,
   });
-
-  final ComicsWorkspaceCounts counts;
-  final LibraryViewMode viewMode;
-  final LibraryDetailsLayout detailsLayout;
-  final double coverSize;
 }
 
-class ComicsViewTableControlCallbacks {
+class ComicsViewTableControlCallbacks extends LibraryViewTableControlCallbacks {
   const ComicsViewTableControlCallbacks({
-    required this.onEditColumns,
-    required this.onViewModeChanged,
-    required this.onDetailsLayoutChanged,
-    required this.onViewPresetSelected,
-    required this.onCoverSizeChanged,
+    required super.onEditColumns,
+    required super.onViewModeChanged,
+    required super.onDetailsLayoutChanged,
+    required super.onViewPresetSelected,
+    required super.onCoverSizeChanged,
   });
-
-  final VoidCallback onEditColumns;
-  final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
-  final ValueChanged<LibraryWorkspacePreset> onViewPresetSelected;
-  final ValueChanged<double> onCoverSizeChanged;
 }
