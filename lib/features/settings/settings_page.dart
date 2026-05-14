@@ -281,13 +281,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               children: [
                 SelectableText(auth.email ?? 'Signed in'),
                 const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (auth.token != null || auth.isExpired)
+                      _StatusChip(
+                        icon: auth.isExpired
+                            ? Icons.lock_clock_outlined
+                            : Icons.verified_user_outlined,
+                        label: _sessionStatusLabel(auth),
+                        isError: auth.isExpired,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: OutlinedButton.icon(
                     onPressed: () =>
                         ref.read(authControllerProvider.notifier).logout(),
                     icon: const Icon(Icons.logout),
-                    label: const Text('Logout'),
+                    label: const Text('Sign out'),
                   ),
                 ),
               ],
@@ -560,6 +575,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final hour = local.hour.toString().padLeft(2, '0');
     final minute = local.minute.toString().padLeft(2, '0');
     return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hour:$minute';
+  }
+
+  String _sessionStatusLabel(AuthState auth) {
+    if (auth.isExpired) {
+      return 'Session expired';
+    }
+    final expiresAt = auth.expiresAt;
+    if (expiresAt == null) {
+      return 'Session expiry unavailable';
+    }
+    return 'Session expires ${_formatSyncTime(expiresAt)}';
   }
 }
 

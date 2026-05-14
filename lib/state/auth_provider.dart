@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,7 +26,7 @@ class AuthState {
   final String? error;
   final bool isRestoring;
 
-  bool get isAuthenticated => token != null;
+  bool get isAuthenticated => token != null && !isExpired;
   bool get isExpired =>
       expiresAt != null && !expiresAt!.isAfter(DateTime.now().toUtc());
 
@@ -66,7 +67,10 @@ class AuthController extends StateNotifier<AuthState> {
         email: email,
       );
     } catch (error) {
-      state = AuthState(email: email, error: error.toString());
+      state = AuthState(
+        email: email,
+        error: _authErrorMessage(error, isRegister: false),
+      );
     }
   }
 
@@ -81,7 +85,10 @@ class AuthController extends StateNotifier<AuthState> {
         email: email,
       );
     } catch (error) {
-      state = AuthState(email: email, error: error.toString());
+      state = AuthState(
+        email: email,
+        error: _authErrorMessage(error, isRegister: true),
+      );
     }
   }
 
@@ -106,6 +113,7 @@ class AuthController extends StateNotifier<AuthState> {
           ref.read(apiClientProvider).clearToken();
           state = AuthState(
             email: email,
+            expiresAt: expiresAt,
             error: 'Session expired. Sign in again.',
           );
           return;
@@ -167,6 +175,52 @@ DateTime? _jwtExpiresAt(String token) {
 
 bool _isExpired(DateTime? expiresAt) {
   return expiresAt != null && !expiresAt.isAfter(DateTime.now().toUtc());
+}
+
+String _authErrorMessage(Object error, {required bool isRegister}) {
+  if (error is DioException) {
+    final statusCode = error.response?.statusCode;
+    if (!isRegister && (statusCode == 401 || statusCode == 403)) {
+      return 'Invalid email or password.';
+    }
+    if (isRegister && statusCode == 409) {
+      return 'An account already exists for this email.';
+    }
+    if (statusCode != null) {
+      if (statusCode == 422) {
+        return 'Check the email and password fields.';
+      }
+      if (statusCode == 429) {
+        return 'Too many sign-in attempts. Try again later.';
+      }
+      if (statusCode >= 500) {
+        return 'The metadata server could not complete authentication. Try again later.';
+      }
+      return 'Authentication request was rejected. Check Settings connection.';
+    }
+    return switch (error.type) {
+      DioExceptionType.connectionError ||
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.receiveTimeout ||
+      DioExceptionType.sendTimeout =>
+        'Could not reach the metadata server. Check Settings connection.',
+      DioExceptionType.badCertificate =>
+        'Metadata server TLS certificate was rejected.',
+      DioExceptionType.cancel => 'Authentication request was cancelled.',
+      DioExceptionType.badResponse => 'Unexpected authentication response.',
+      DioExceptionType.unknown =>
+        'Authentication failed: ${_cleanError(error.message)}',
+    };
+  }
+  return 'Authentication failed: $error';
+}
+
+String _cleanError(String? message) {
+  final value = message?.trim();
+  if (value == null || value.isEmpty) {
+    return 'unknown error';
+  }
+  return value;
 }
 
 final authControllerProvider =

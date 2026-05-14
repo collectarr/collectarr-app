@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
@@ -58,6 +60,7 @@ void main() {
     expect(find.text('Local backup'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
+    expect(find.text('Session expiry unavailable'), findsNothing);
     await tester.scrollUntilVisible(
       find.text('Save settings'),
       240,
@@ -130,4 +133,50 @@ void main() {
     expect(find.text('http://metadata.local:8010'), findsOneWidget);
     expect(find.text('http://sync.local:8020'), findsOneWidget);
   });
+
+  testWidgets('settings page shows account session status', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'user@example.com',
+    });
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: SettingsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Account'),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('user@example.com'), findsOneWidget);
+    expect(find.textContaining('Session expires'), findsOneWidget);
+    expect(find.text('Sign out'), findsOneWidget);
+  });
+}
+
+String _jwtExpiringAt(DateTime expiresAt) {
+  final encodedHeader = _base64UrlJson({'alg': 'none', 'typ': 'JWT'});
+  final encodedPayload = _base64UrlJson({
+    'sub': '00000000-0000-0000-0000-000000000001',
+    'exp': expiresAt.millisecondsSinceEpoch ~/ 1000,
+  });
+  return '$encodedHeader.$encodedPayload.signature';
+}
+
+String _base64UrlJson(Map<String, Object> value) {
+  return base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
 }
