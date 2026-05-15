@@ -7,15 +7,13 @@ import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic_library_body.dart';
+import 'package:collectarr_app/features/library/generic_library_column_chooser.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
-import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
-import 'package:collectarr_app/features/library/workspace/library_column_preset_store.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -227,26 +225,11 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
 
   Future<void> _showColumnChooser() async {
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
-    final store = LibraryColumnPresetStore(widget.type.workspace);
-    final savedPresets = await store.read();
-    if (!mounted) {
-      return;
-    }
-    final selected = await showDialog<Set<LibraryTableColumn>>(
+    final selected = await showGenericLibraryColumnChooser(
       context: context,
-      builder: (context) => LibraryColumnChooserDialog(
-        selectedColumns: viewState.visibleColumns,
-        defaultColumns: _adapter.defaultTableColumns(),
-        columnLabel: _adapter.columnDisplayName,
-        columnGroup: _adapter.columnGroup,
-        groupLabel: _adapter.columnGroupLabel,
-        savedPresets: savedPresets,
-        onSavePreset: (label, columns) => store.savePreset(
-          label: label,
-          columns: columns,
-        ),
-        onDeletePreset: store.deletePreset,
-      ),
+      type: widget.type,
+      adapter: _adapter,
+      viewState: viewState,
     );
     if (selected != null) {
       _updateViewState((state) => state.copyWith(visibleColumns: selected));
