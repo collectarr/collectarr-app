@@ -75,6 +75,13 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    final shelfState = shelf.asData?.value;
+    final projection = shelfState == null
+        ? null
+        : _projectionForShelf(
+            shelfState,
+            viewState,
+          );
     return Theme(
       data: kClzComicsTheme,
       child: Scaffold(
@@ -111,8 +118,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                 selectedBucket: _selectedBucket,
                 onClearBucket: () => setState(() => _selectedBucket = null),
                 onRefreshMetadata: () => _showMetadataRefreshDialog(
-                  shelf.asData?.value,
-                  viewState,
+                  projection,
                 ),
                 quickView: _quickView,
                 onQuickViewSelected: (view) => setState(() {
@@ -120,14 +126,14 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                 }),
                 hasActiveFilters: _hasActiveFilter,
                 onClearFilters: _clearFilters,
-                counts: shelf.maybeWhen(
-                  data: (state) => _projectionForShelf(state, viewState).counts,
-                  orElse: () => const GenericToolbarCounts(),
-                ),
+                counts: projection?.counts ?? const GenericToolbarCounts(),
               ),
               Expanded(
                 child: shelf.when(
-                  data: (state) => _buildBody(state, viewState),
+                  data: (state) => _buildBody(
+                    projection ?? _projectionForShelf(state, viewState),
+                    viewState,
+                  ),
                   error: (error, _) => Center(child: Text(error.toString())),
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
@@ -141,13 +147,13 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   }
 
   Widget _buildBody(
-    ShelfState shelf,
+    GenericLibraryProjection projection,
     LibraryWorkspaceViewState viewState,
   ) {
     return GenericLibraryBody(
       type: widget.type,
       adapter: _adapter,
-      projection: _projectionForShelf(shelf, viewState),
+      projection: projection,
       viewState: viewState,
       selectedId: _selectedId,
       selectedBucket: _selectedBucket,
@@ -281,16 +287,14 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   }
 
   Future<void> _showMetadataRefreshDialog(
-    ShelfState? shelf,
-    LibraryWorkspaceViewState viewState,
+    GenericLibraryProjection? projection,
   ) async {
-    if (shelf == null) {
+    if (projection == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Library data is still loading')),
       );
       return;
     }
-    final projection = _projectionForShelf(shelf, viewState);
     final result = await showGenericLibraryMetadataRefreshDialog(
       context: context,
       type: widget.type,

@@ -42,21 +42,16 @@ class GenericLibraryProjection {
           viewState.sortColumn,
           viewState.sortAscending,
         ));
+    final counts = _toolbarCountsForItems(
+      allItems: allItems,
+      shown: filteredItems.length,
+    );
     return GenericLibraryProjection(
       allItems: allItems,
       filteredItems: filteredItems,
       buckets: genericBucketsForItems(allItems, type),
       selectedItem: genericSelectedItem(filteredItems, selectedItemId),
-      counts: GenericToolbarCounts(
-        shown: filteredItems.length,
-        total: allItems.length,
-        owned: allItems.where((item) => item.entry.isOwned).length,
-        wishlist: allItems.where((item) => item.entry.isWishlisted).length,
-        missingCover:
-            allItems.where((item) => item.entry.hasMissingCover).length,
-        missingMetadata:
-            allItems.where((item) => item.entry.hasMissingMetadata).length,
-      ),
+      counts: counts,
     );
   }
 
@@ -158,15 +153,50 @@ bool _matchesQuery(GenericLibraryItem item, String query) {
     return true;
   }
   final entry = item.entry;
-  return [
-    entry.title,
-    entry.itemNumber,
-    entry.publisher,
-    entry.variant,
-    entry.barcode,
-    entry.releaseYear?.toString(),
-    entry.condition,
-    entry.grade,
-    entry.storageBox,
-  ].whereType<String>().any((value) => value.toLowerCase().contains(query));
+  return _containsQuery(entry.title, query) ||
+      _containsQuery(entry.itemNumber, query) ||
+      _containsQuery(entry.publisher, query) ||
+      _containsQuery(entry.variant, query) ||
+      _containsQuery(entry.barcode, query) ||
+      _containsQuery(entry.releaseYear?.toString(), query) ||
+      _containsQuery(entry.condition, query) ||
+      _containsQuery(entry.grade, query) ||
+      _containsQuery(entry.storageBox, query);
+}
+
+GenericToolbarCounts _toolbarCountsForItems({
+  required List<GenericLibraryItem> allItems,
+  required int shown,
+}) {
+  var owned = 0;
+  var wishlist = 0;
+  var missingCover = 0;
+  var missingMetadata = 0;
+  for (final item in allItems) {
+    final entry = item.entry;
+    if (entry.isOwned) {
+      owned += 1;
+    }
+    if (entry.isWishlisted) {
+      wishlist += 1;
+    }
+    if (entry.hasMissingCover) {
+      missingCover += 1;
+    }
+    if (entry.hasMissingMetadata) {
+      missingMetadata += 1;
+    }
+  }
+  return GenericToolbarCounts(
+    shown: shown,
+    total: allItems.length,
+    owned: owned,
+    wishlist: wishlist,
+    missingCover: missingCover,
+    missingMetadata: missingMetadata,
+  );
+}
+
+bool _containsQuery(String? value, String query) {
+  return value != null && value.toLowerCase().contains(query);
 }
