@@ -59,14 +59,17 @@ class LibrarySeriesSidebar extends StatelessWidget {
               children: [
                 Icon(icon, size: 18, color: accentColor),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
                 ),
-                const Spacer(),
                 if (trailing != null) trailing!,
               ],
             ),
