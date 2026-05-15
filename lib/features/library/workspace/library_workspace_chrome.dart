@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'library_workspace_config.dart';
+
 class LibraryWorkspaceIconButton extends StatelessWidget {
   const LibraryWorkspaceIconButton({
     super.key,
@@ -49,5 +51,165 @@ class LibraryWorkspaceSeparator extends StatelessWidget {
         child: VerticalDivider(width: 1, thickness: 1, color: color),
       ),
     );
+  }
+}
+
+class LibraryToolbarPrimaryActions extends StatelessWidget {
+  const LibraryToolbarPrimaryActions({
+    super.key,
+    required this.addLabel,
+    required this.onAdd,
+    required this.onScanBarcode,
+    required this.onRefreshMetadata,
+    required this.addBackgroundColor,
+    required this.addForegroundColor,
+  });
+
+  final String addLabel;
+  final VoidCallback onAdd;
+  final VoidCallback onScanBarcode;
+  final VoidCallback onRefreshMetadata;
+  final Color addBackgroundColor;
+  final Color addForegroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 30,
+          child: FilledButton.icon(
+            onPressed: onAdd,
+            style: FilledButton.styleFrom(
+              backgroundColor: addBackgroundColor,
+              foregroundColor: addForegroundColor,
+              padding: const EdgeInsets.symmetric(horizontal: 9),
+              textStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            icon: const Icon(Icons.add, size: 17),
+            label: Text(addLabel),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Tooltip(
+          message: 'Scan barcode',
+          child: LibraryWorkspaceIconButton(
+            icon: Icons.qr_code_scanner,
+            onPressed: onScanBarcode,
+          ),
+        ),
+        Tooltip(
+          message: 'Refresh metadata',
+          child: LibraryWorkspaceIconButton(
+            icon: Icons.sync,
+            onPressed: onRefreshMetadata,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class LibraryToolbarSearch extends StatelessWidget {
+  const LibraryToolbarSearch({
+    super.key,
+    required this.controller,
+    required this.hintText,
+    required this.onSearch,
+    required this.selectionColor,
+    this.selectedFilterLabel,
+    this.onClearFilter,
+    this.onChanged,
+    this.width = 320,
+  });
+
+  final TextEditingController controller;
+  final String hintText;
+  final String? selectedFilterLabel;
+  final ValueChanged<String> onSearch;
+  final VoidCallback? onClearFilter;
+  final ValueChanged<String>? onChanged;
+  final Color selectionColor;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: width,
+          child: SearchBar(
+            controller: controller,
+            constraints: const BoxConstraints.tightFor(height: 32),
+            hintText: hintText,
+            leading: const Icon(Icons.search),
+            trailing: [
+              Tooltip(
+                message: 'Search',
+                child: IconButton(
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () => onSearch(controller.text),
+                  icon: const Icon(Icons.arrow_forward, size: 18),
+                ),
+              ),
+            ],
+            onChanged: onChanged,
+            onSubmitted: onSearch,
+          ),
+        ),
+        if (selectedFilterLabel != null) ...[
+          const SizedBox(width: 6),
+          InputChip(
+            visualDensity: VisualDensity.compact,
+            backgroundColor: selectionColor,
+            label: Text(selectedFilterLabel!),
+            onDeleted: onClearFilter,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class LibraryDetailsAwareLayout extends StatelessWidget {
+  const LibraryDetailsAwareLayout({
+    super.key,
+    required this.content,
+    required this.detailsLayout,
+    required this.inspector,
+    this.rightWidth = 340,
+    this.bottomHeight = 310,
+  });
+
+  final Widget content;
+  final LibraryDetailsLayout detailsLayout;
+  final Widget inspector;
+  final double rightWidth;
+  final double bottomHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (detailsLayout) {
+      LibraryDetailsLayout.right => Row(
+          children: [
+            Expanded(child: content),
+            const VerticalDivider(width: 1),
+            SizedBox(width: rightWidth, child: inspector),
+          ],
+        ),
+      LibraryDetailsLayout.bottom => Column(
+          children: [
+            Expanded(child: content),
+            const Divider(height: 1),
+            SizedBox(height: bottomHeight, child: inspector),
+          ],
+        ),
+      LibraryDetailsLayout.hidden => content,
+    };
   }
 }

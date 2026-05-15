@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/comics/comics_workspace_chrome.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_controls.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -202,7 +203,7 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
               ),
               const VerticalDivider(width: 1),
               Expanded(
-                child: ComicsDetailsAwareLayout(
+                child: LibraryDetailsAwareLayout(
                   content: ComicsShelfContent(
                     viewMode: viewMode,
                     items: projection.visibleItems,
