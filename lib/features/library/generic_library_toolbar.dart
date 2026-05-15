@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/library_view_table_controls.dart';
@@ -8,51 +9,6 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
-
-class GenericToolbarCounts {
-  const GenericToolbarCounts({
-    this.shown = 0,
-    this.total = 0,
-    this.owned = 0,
-    this.wishlist = 0,
-    this.missingCover = 0,
-    this.missingMetadata = 0,
-  });
-
-  final int shown;
-  final int total;
-  final int owned;
-  final int wishlist;
-  final int missingCover;
-  final int missingMetadata;
-}
-
-enum GenericQuickView {
-  owned,
-  wishlist,
-  missingCovers,
-  missingMetadata,
-}
-
-extension _GenericQuickViewUi on GenericQuickView {
-  String get label {
-    return switch (this) {
-      GenericQuickView.owned => 'Owned',
-      GenericQuickView.wishlist => 'Wishlist',
-      GenericQuickView.missingCovers => 'Missing covers',
-      GenericQuickView.missingMetadata => 'Missing metadata',
-    };
-  }
-
-  IconData get icon {
-    return switch (this) {
-      GenericQuickView.owned => Icons.check_box,
-      GenericQuickView.wishlist => Icons.star,
-      GenericQuickView.missingCovers => Icons.image_not_supported_outlined,
-      GenericQuickView.missingMetadata => Icons.manage_search,
-    };
-  }
-}
 
 class GenericLibraryToolbar extends StatelessWidget {
   const GenericLibraryToolbar({

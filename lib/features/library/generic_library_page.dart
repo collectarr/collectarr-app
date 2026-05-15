@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
@@ -10,6 +9,7 @@ import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic_library_inspector.dart';
+import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
@@ -25,7 +25,6 @@ import 'package:collectarr_app/features/library/workspace/library_table_cell.dar
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -135,7 +134,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                 hasActiveFilters: _hasActiveFilter,
                 onClearFilters: _clearFilters,
                 counts: shelf.maybeWhen(
-                  data: (state) => _toolbarCounts(state),
+                  data: (state) => _projectionForShelf(state, viewState).counts,
                   orElse: () => const GenericToolbarCounts(),
                 ),
               ),
@@ -160,17 +159,18 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   ) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final allItems = _itemsForShelf(shelf);
-        final buckets = _bucketsForItems(allItems);
-        final filtered = _filteredItems(allItems, viewState);
-        final selected = _selectedItem(filtered);
+        final projection = _projectionForShelf(shelf, viewState);
+        final selected = projection.selectedItem;
         final compact = constraints.maxWidth < 860;
         final showSidebar = constraints.maxWidth >= 640;
         final detailsLayout =
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom
                 : viewState.detailsLayout;
-        final workspace = _buildWorkspaceContent(filtered, viewState);
+        final workspace = _buildWorkspaceContent(
+          projection.filteredItems,
+          viewState,
+        );
         final details = GenericLibraryInspector(
           type: widget.type,
           entry: selected?.entry,
@@ -188,15 +188,17 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
 
         final workspaceContent = Column(
           children: [
-            if (!showSidebar && buckets.length > 1)
+            if (!showSidebar && projection.buckets.length > 1)
               _CompactBucketBar(
                 type: widget.type,
                 accent: widget.accent,
-                buckets: buckets,
-                selectedBucket: _selectedBucket ?? _allBucketLabel(widget.type),
+                buckets: projection.buckets,
+                selectedBucket:
+                    _selectedBucket ?? genericAllBucketLabel(widget.type),
                 onSelected: (bucket) => setState(() {
-                  _selectedBucket =
-                      bucket == _allBucketLabel(widget.type) ? null : bucket;
+                  _selectedBucket = bucket == genericAllBucketLabel(widget.type)
+                      ? null
+                      : bucket;
                 }),
               ),
             Expanded(child: workspace),
@@ -213,13 +215,14 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                   child: LibrarySeriesSidebar(
                     title: _sidebarTitle(widget.type),
                     icon: _sidebarIcon(widget.type),
-                    series: buckets,
+                    series: projection.buckets,
                     selectedSeries:
-                        _selectedBucket ?? _allBucketLabel(widget.type),
+                        _selectedBucket ?? genericAllBucketLabel(widget.type),
                     onSelectSeries: (bucket) => setState(() {
-                      _selectedBucket = bucket == _allBucketLabel(widget.type)
-                          ? null
-                          : bucket;
+                      _selectedBucket =
+                          bucket == genericAllBucketLabel(widget.type)
+                              ? null
+                              : bucket;
                     }),
                     accentColor: widget.accent,
                     selectionColor: widget.accent.withValues(alpha: 0.36),
@@ -255,11 +258,11 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   }
 
   Widget _buildWorkspaceContent(
-    List<_GenericLibraryItem> items,
+    List<GenericLibraryItem> items,
     LibraryWorkspaceViewState viewState,
   ) {
     return switch (viewState.viewMode) {
-      LibraryViewMode.grid => LibraryWorkspaceGrid<_GenericLibraryItem>(
+      LibraryViewMode.grid => LibraryWorkspaceGrid<GenericLibraryItem>(
           items: items,
           emptyBuilder: (_) => _GenericEmptyState(
             type: widget.type,
@@ -282,7 +285,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
             mutedTextColor: kClzTextMuted,
           ),
         ),
-      LibraryViewMode.card => LibraryWorkspaceGrid<_GenericLibraryItem>(
+      LibraryViewMode.card => LibraryWorkspaceGrid<GenericLibraryItem>(
           items: items,
           emptyBuilder: (_) => _GenericEmptyState(
             type: widget.type,
@@ -312,7 +315,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   }
 
   Widget _buildTable(
-    List<_GenericLibraryItem> items,
+    List<GenericLibraryItem> items,
     LibraryWorkspaceViewState viewState,
   ) {
     if (items.isEmpty) {
@@ -341,7 +344,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                 width: contentWidth,
                 child: Padding(
                   padding: const EdgeInsets.all(8),
-                  child: LibraryWorkspaceTable<_GenericLibraryItem>(
+                  child: LibraryWorkspaceTable<GenericLibraryItem>(
                     entries: items,
                     columns:
                         _adapter.orderedTableColumns(viewState.visibleColumns),
@@ -396,7 +399,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     );
   }
 
-  Widget _tableCell(_GenericLibraryItem item, LibraryTableColumn column) {
+  Widget _tableCell(GenericLibraryItem item, LibraryTableColumn column) {
     final entry = item.entry;
     return switch (column) {
       LibraryTableColumn.status => LibraryItemStatusIcons(
@@ -440,140 +443,19 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     };
   }
 
-  List<_GenericLibraryItem> _itemsForShelf(ShelfState shelf) {
-    final kind = widget.type.workspace.kind;
-    return [
-      for (final source in shelf.entries)
-        if (source.catalogItem != null && source.catalogItem!.kind == kind)
-          _GenericLibraryItem.fromShelf(source),
-    ];
-  }
-
-  List<_GenericLibraryItem> _filteredItems(
-    List<_GenericLibraryItem> items,
+  GenericLibraryProjection _projectionForShelf(
+    ShelfState shelf,
     LibraryWorkspaceViewState viewState,
   ) {
-    final query = _searchController.text.trim().toLowerCase();
-    final filtered = [
-      for (final item in items)
-        if (_matchesBucket(item) &&
-            _matchesQuickView(item) &&
-            _matchesQuery(item, query))
-          item,
-    ]..sort((a, b) => compareLibraryWorkspaceEntries(
-          a.entry,
-          b.entry,
-          viewState.sortColumn,
-          viewState.sortAscending,
-        ));
-    return filtered;
-  }
-
-  List<LibrarySeriesBucket> _bucketsForItems(List<_GenericLibraryItem> items) {
-    final counts = <String, int>{_allBucketLabel(widget.type): items.length};
-    for (final item in items) {
-      final bucket = _bucketForItem(item);
-      counts[bucket] = (counts[bucket] ?? 0) + 1;
-    }
-    final buckets = [
-      for (final entry in counts.entries)
-        LibrarySeriesBucket(title: entry.key, count: entry.value),
-    ];
-    buckets.sort((a, b) {
-      if (a.title == _allBucketLabel(widget.type)) {
-        return -1;
-      }
-      if (b.title == _allBucketLabel(widget.type)) {
-        return 1;
-      }
-      return a.title.compareTo(b.title);
-    });
-    return buckets;
-  }
-
-  _GenericLibraryItem? _selectedItem(List<_GenericLibraryItem> items) {
-    for (final item in items) {
-      if (item.entry.id == _selectedId) {
-        return item;
-      }
-    }
-    return items.isEmpty ? null : items.first;
-  }
-
-  GenericToolbarCounts _toolbarCounts(ShelfState shelf) {
-    final all = _itemsForShelf(shelf);
-    final shown = _filteredItems(
-      all,
-      _viewState ?? _adapter.viewProfile.defaults(),
-    ).length;
-    return GenericToolbarCounts(
-      shown: shown,
-      total: all.length,
-      owned: all.where((item) => item.entry.isOwned).length,
-      wishlist: all.where((item) => item.entry.isWishlisted).length,
-      missingCover: all.where((item) => item.entry.hasMissingCover).length,
-      missingMetadata:
-          all.where((item) => item.entry.hasMissingMetadata).length,
+    return GenericLibraryProjection.fromShelf(
+      shelf: shelf,
+      type: widget.type,
+      viewState: viewState,
+      query: _searchController.text,
+      selectedBucket: _selectedBucket,
+      selectedItemId: _selectedId,
+      quickView: _quickView,
     );
-  }
-
-  bool _matchesBucket(_GenericLibraryItem item) {
-    final bucket = _selectedBucket;
-    return bucket == null || _bucketForItem(item) == bucket;
-  }
-
-  bool _matchesQuickView(_GenericLibraryItem item) {
-    return switch (_quickView) {
-      null => true,
-      GenericQuickView.owned => item.entry.isOwned,
-      GenericQuickView.wishlist => item.entry.isWishlisted,
-      GenericQuickView.missingCovers => item.entry.hasMissingCover,
-      GenericQuickView.missingMetadata => item.entry.hasMissingMetadata,
-    };
-  }
-
-  bool _matchesQuery(_GenericLibraryItem item, String query) {
-    if (query.isEmpty) {
-      return true;
-    }
-    final entry = item.entry;
-    return [
-      entry.title,
-      entry.itemNumber,
-      entry.publisher,
-      entry.variant,
-      entry.barcode,
-      entry.releaseYear?.toString(),
-      entry.condition,
-      entry.grade,
-      entry.storageBox,
-    ].whereType<String>().any((value) => value.toLowerCase().contains(query));
-  }
-
-  String _bucketForItem(_GenericLibraryItem item) {
-    final entry = item.entry;
-    final publisher = entry.publisher?.trim();
-    if (widget.type.workspace.kind == 'movie' ||
-        widget.type.workspace.kind == 'tv' ||
-        widget.type.workspace.kind == 'anime') {
-      return entry.releaseYear?.toString() ??
-          (entry.releaseDate?.year.toString() ?? 'Unknown year');
-    }
-    if (widget.type.workspace.kind == 'music' &&
-        publisher != null &&
-        publisher.isNotEmpty) {
-      return publisher;
-    }
-    if ((widget.type.workspace.kind == 'book' ||
-            widget.type.workspace.kind == 'game' ||
-            widget.type.workspace.kind == 'boardgame' ||
-            widget.type.workspace.kind == 'manga') &&
-        publisher != null &&
-        publisher.isNotEmpty) {
-      return publisher;
-    }
-    final title = entry.title.trim();
-    return title.isEmpty ? 'Unknown' : title.characters.first.toUpperCase();
   }
 
   bool get _hasActiveFilter =>
@@ -678,16 +560,14 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       );
       return;
     }
-    final allItems = _itemsForShelf(shelf);
-    final shownItems = _filteredItems(allItems, viewState);
-    final selected = _selectedItem(shownItems);
+    final projection = _projectionForShelf(shelf, viewState);
     final result = await showLibraryMetadataRefreshDialog(
       context: context,
       type: widget.type,
       accent: widget.accent,
-      allEntries: [for (final item in allItems) item.entry],
-      shownEntries: [for (final item in shownItems) item.entry],
-      selectedEntry: selected?.entry,
+      allEntries: [for (final item in projection.allItems) item.entry],
+      shownEntries: [for (final item in projection.filteredItems) item.entry],
+      selectedEntry: projection.selectedItem?.entry,
     );
     if (result == null || !mounted) {
       return;
@@ -702,14 +582,14 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     );
   }
 
-  Future<void> _addOwned(_GenericLibraryItem item) async {
+  Future<void> _addOwned(GenericLibraryItem item) async {
     await ref.read(collectionMutationsProvider).addItem(item.entry.id);
     if (mounted) {
       ref.invalidate(shelfProvider);
     }
   }
 
-  Future<void> _removeOwned(_GenericLibraryItem item) async {
+  Future<void> _removeOwned(GenericLibraryItem item) async {
     final owned = item.source.ownedItem;
     if (owned == null) {
       return;
@@ -720,14 +600,14 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     }
   }
 
-  Future<void> _addWishlist(_GenericLibraryItem item) async {
+  Future<void> _addWishlist(GenericLibraryItem item) async {
     await ref.read(collectionMutationsProvider).addToWishlist(item.entry.id);
     if (mounted) {
       ref.invalidate(shelfProvider);
     }
   }
 
-  Future<void> _removeWishlist(_GenericLibraryItem item) async {
+  Future<void> _removeWishlist(GenericLibraryItem item) async {
     await ref.read(collectionMutationsProvider).removeFromWishlist(
           item.entry.id,
         );
@@ -735,47 +615,6 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       ref.invalidate(shelfProvider);
     }
   }
-}
-
-class _GenericLibraryItem {
-  const _GenericLibraryItem({
-    required this.source,
-    required this.entry,
-  });
-
-  factory _GenericLibraryItem.fromShelf(ShelfEntry source) {
-    final item = source.catalogItem!;
-    return _GenericLibraryItem(
-      source: source,
-      entry: LibraryWorkspaceEntry(
-        id: item.id,
-        mediaType: item.kind,
-        title: item.title,
-        itemNumber: item.itemNumber,
-        synopsis: item.synopsis,
-        coverImageUrl: item.coverImageUrl,
-        thumbnailImageUrl: item.thumbnailImageUrl,
-        publisher: item.publisher,
-        releaseDate: item.releaseDate,
-        releaseYear: item.releaseYear,
-        barcode: item.barcode,
-        variant: item.variant,
-        isOwned: source.isOwned,
-        isWishlisted: source.isWishlisted,
-        hasMissingCover: item.displayCoverUrl == null,
-        hasMissingMetadata: _hasMissingCoreMetadata(item),
-        condition: source.ownedItem?.condition,
-        grade: source.ownedItem?.grade,
-        pricePaidCents: source.ownedItem?.pricePaidCents,
-        currency: source.ownedItem?.currency,
-        storageBox: source.ownedItem?.storageBox,
-        updatedAt: source.updatedAt,
-      ),
-    );
-  }
-
-  final ShelfEntry source;
-  final LibraryWorkspaceEntry entry;
 }
 
 class _CompactBucketBar extends StatelessWidget {
@@ -910,16 +749,6 @@ class _GenericEmptyState extends StatelessWidget {
     );
   }
 }
-
-bool _hasMissingCoreMetadata(CatalogItem item) {
-  return item.publisher == null &&
-      item.releaseDate == null &&
-      item.releaseYear == null &&
-      item.barcode == null &&
-      item.variant == null;
-}
-
-String _allBucketLabel(LibraryTypeConfig type) => '[All ${type.pluralLabel}]';
 
 String _sidebarTitle(LibraryTypeConfig type) {
   return switch (type.workspace.kind) {
