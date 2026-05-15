@@ -8,11 +8,11 @@ import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic_library_body.dart';
 import 'package:collectarr_app/features/library/generic_library_column_chooser.dart';
+import 'package:collectarr_app/features/library/generic_library_metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -283,13 +283,11 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       return;
     }
     final projection = _projectionForShelf(shelf, viewState);
-    final result = await showLibraryMetadataRefreshDialog(
+    final result = await showGenericLibraryMetadataRefreshDialog(
       context: context,
       type: widget.type,
       accent: widget.accent,
-      allEntries: [for (final item in projection.allItems) item.entry],
-      shownEntries: [for (final item in projection.filteredItems) item.entry],
-      selectedEntry: projection.selectedItem?.entry,
+      projection: projection,
     );
     if (result == null || !mounted) {
       return;
