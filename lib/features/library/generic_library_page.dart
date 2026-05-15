@@ -1,32 +1,24 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic_library_inspector.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
+import 'package:collectarr_app/features/library/generic_library_sidebar.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
+import 'package:collectarr_app/features/library/generic_library_workspace.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_preset_store.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
-import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
-import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
-import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -167,9 +159,33 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom
                 : viewState.detailsLayout;
-        final workspace = _buildWorkspaceContent(
-          projection.filteredItems,
-          viewState,
+        final workspace = GenericLibraryWorkspace(
+          type: widget.type,
+          adapter: _adapter,
+          items: projection.filteredItems,
+          viewState: viewState,
+          selectedId: _selectedId,
+          accent: widget.accent,
+          hasActiveFilter: _hasActiveFilter,
+          onAdd: () => _showAddDialog(),
+          onClearFilters: _clearFilters,
+          onSelectItem: (id) => setState(() => _selectedId = id),
+          onSortChanged: (column) => _updateViewState(
+            (state) => state.withSortColumn(column, _adapter.viewProfile),
+          ),
+          onColumnWidthChanged: (column, width) => _updateViewState(
+            (state) => state.withColumnWidth(
+              column,
+              width,
+              _adapter.viewProfile,
+            ),
+          ),
+          onColumnReordered: (column, beforeColumn) => _updateViewState(
+            (state) => state.withReorderedColumn(
+              column: column,
+              beforeColumn: beforeColumn,
+            ),
+          ),
         );
         final details = GenericLibraryInspector(
           type: widget.type,
@@ -189,7 +205,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         final workspaceContent = Column(
           children: [
             if (!showSidebar && projection.buckets.length > 1)
-              _CompactBucketBar(
+              GenericLibraryCompactBucketBar(
                 type: widget.type,
                 accent: widget.accent,
                 buckets: projection.buckets,
@@ -212,32 +228,21 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
               if (showSidebar) ...[
                 SizedBox(
                   width: compact ? 210 : 250,
-                  child: LibrarySeriesSidebar(
-                    title: _sidebarTitle(widget.type),
-                    icon: _sidebarIcon(widget.type),
-                    series: projection.buckets,
-                    selectedSeries:
+                  child: GenericLibrarySidebar(
+                    type: widget.type,
+                    accent: widget.accent,
+                    buckets: projection.buckets,
+                    selectedBucket:
                         _selectedBucket ?? genericAllBucketLabel(widget.type),
-                    onSelectSeries: (bucket) => setState(() {
+                    onSelected: (bucket) => setState(() {
                       _selectedBucket =
                           bucket == genericAllBucketLabel(widget.type)
                               ? null
                               : bucket;
                     }),
-                    accentColor: widget.accent,
-                    selectionColor: widget.accent.withValues(alpha: 0.36),
-                    backgroundColor: kClzPanel,
-                    headerColor: const Color(0xFF303030),
-                    dividerColor: kClzDivider,
-                    selectedBadgeColor: kClzYellow,
-                    mutedTextColor: kClzTextMuted,
-                    trailing: IconButton(
-                      tooltip: 'Clear library filter',
-                      onPressed: _selectedBucket == null
-                          ? null
-                          : () => setState(() => _selectedBucket = null),
-                      icon: const Icon(Icons.filter_alt_off, size: 18),
-                    ),
+                    onClearFilter: _selectedBucket == null
+                        ? null
+                        : () => setState(() => _selectedBucket = null),
                   ),
                 ),
                 const VerticalDivider(width: 1),
@@ -255,192 +260,6 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         );
       },
     );
-  }
-
-  Widget _buildWorkspaceContent(
-    List<GenericLibraryItem> items,
-    LibraryWorkspaceViewState viewState,
-  ) {
-    return switch (viewState.viewMode) {
-      LibraryViewMode.grid => LibraryWorkspaceGrid<GenericLibraryItem>(
-          items: items,
-          emptyBuilder: (_) => _GenericEmptyState(
-            type: widget.type,
-            icon: widget.type.workspace.icon,
-            accent: widget.accent,
-            hasActiveFilter: _hasActiveFilter,
-            onAdd: () => _showAddDialog(),
-            onClearFilter: _clearFilters,
-          ),
-          maxCrossAxisExtent: viewState.coverSize,
-          mainAxisExtent: viewState.coverSize * 1.53,
-          backgroundColor: kClzGridCanvas,
-          itemBuilder: (context, item) => LibraryCoverTile(
-            entry: item.entry,
-            selected: item.entry.id == _selectedId,
-            onTap: () => setState(() => _selectedId = item.entry.id),
-            selectedColor: kClzSelection,
-            accentColor: widget.accent,
-            selectionColor: kClzYellow,
-            mutedTextColor: kClzTextMuted,
-          ),
-        ),
-      LibraryViewMode.card => LibraryWorkspaceGrid<GenericLibraryItem>(
-          items: items,
-          emptyBuilder: (_) => _GenericEmptyState(
-            type: widget.type,
-            icon: widget.type.workspace.icon,
-            accent: widget.accent,
-            hasActiveFilter: _hasActiveFilter,
-            onAdd: () => _showAddDialog(),
-            onClearFilter: _clearFilters,
-          ),
-          maxCrossAxisExtent: 430,
-          mainAxisExtent:
-              (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
-          backgroundColor: kClzGridCanvas,
-          itemBuilder: (context, item) => LibraryWorkspaceCard(
-            entry: item.entry,
-            selected: item.entry.id == _selectedId,
-            onTap: () => setState(() => _selectedId = item.entry.id),
-            dateFormatter: formatComicDate,
-            moneyFormatter: formatComicMoney,
-            selectedColor: kClzSelection,
-            accentColor: widget.accent,
-            mutedTextColor: kClzTextMuted,
-          ),
-        ),
-      LibraryViewMode.list => _buildTable(items, viewState),
-    };
-  }
-
-  Widget _buildTable(
-    List<GenericLibraryItem> items,
-    LibraryWorkspaceViewState viewState,
-  ) {
-    if (items.isEmpty) {
-      return _GenericEmptyState(
-        type: widget.type,
-        icon: widget.type.workspace.icon,
-        accent: widget.accent,
-        hasActiveFilter: _hasActiveFilter,
-        onAdd: () => _showAddDialog(),
-        onClearFilter: _clearFilters,
-      );
-    }
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final tableWidth = _adapter.tableWidthForColumns(
-          viewState.visibleColumns,
-          viewState.columnWidths,
-        );
-        final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
-        return ColoredBox(
-          color: kClzCanvas,
-          child: Scrollbar(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: contentWidth,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: LibraryWorkspaceTable<GenericLibraryItem>(
-                    entries: items,
-                    columns:
-                        _adapter.orderedTableColumns(viewState.visibleColumns),
-                    sortColumn: viewState.sortColumn,
-                    sortAscending: viewState.sortAscending,
-                    columnWidthFor: (column) => _adapter.tableColumnWidth(
-                      column,
-                      viewState.columnWidths,
-                    ),
-                    defaultColumnWidthFor: _adapter.defaultTableColumnWidth,
-                    columnSortFor: _adapter.columnSort,
-                    columnLabelFor: _adapter.columnLabel,
-                    columnIsNumeric: _adapter.columnIsNumeric,
-                    cellBuilder: _tableCell,
-                    isSelected: (item) => item.entry.id == _selectedId,
-                    onEntryTap: (item) =>
-                        setState(() => _selectedId = item.entry.id),
-                    onSortChanged: (column) => _updateViewState(
-                      (state) =>
-                          state.withSortColumn(column, _adapter.viewProfile),
-                    ),
-                    onColumnWidthChanged: (column, width) => _updateViewState(
-                      (state) => state.withColumnWidth(
-                        column,
-                        width,
-                        _adapter.viewProfile,
-                      ),
-                    ),
-                    onColumnReordered: (column, beforeColumn) =>
-                        _updateViewState(
-                      (state) => state.withReorderedColumn(
-                        column: column,
-                        beforeColumn: beforeColumn,
-                      ),
-                    ),
-                    headerColor: const Color(0xFF303030),
-                    dividerColor: kClzDivider,
-                    selectedColor: kClzSelection,
-                    oddColor: kClzTableOddRow,
-                    evenColor: kClzTableEvenRow,
-                    selectionRailColor: kClzYellow,
-                    bottomBorderColor: kClzTableBottomBorder,
-                    hoverColor: kClzTableHover,
-                    accentColor: widget.accent,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _tableCell(GenericLibraryItem item, LibraryTableColumn column) {
-    final entry = item.entry;
-    return switch (column) {
-      LibraryTableColumn.status => LibraryItemStatusIcons(
-          isOwned: entry.isOwned,
-          isWishlisted: entry.isWishlisted,
-          hasMissingCover: entry.hasMissingCover,
-          hasMissingMetadata: entry.hasMissingMetadata,
-        ),
-      LibraryTableColumn.cover => SizedBox(
-          width: 28,
-          height: 36,
-          child: LibraryCoverImage(
-            title: entry.title,
-            itemNumber: entry.itemNumber,
-            imageUrl: entry.displayCoverUrl,
-          ),
-        ),
-      LibraryTableColumn.title => Text(
-          entry.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-        ),
-      LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
-      LibraryTableColumn.variant => LibraryTableCellText(entry.variant),
-      LibraryTableColumn.publisher => LibraryTableCellText(entry.publisher),
-      LibraryTableColumn.releaseDate =>
-        LibraryTableCellText(formatNullableComicDate(entry.releaseDate)),
-      LibraryTableColumn.barcode => LibraryTableCellText(entry.barcode),
-      LibraryTableColumn.grade => LibraryTableCellText(entry.grade),
-      LibraryTableColumn.condition => LibraryTableCellText(entry.condition),
-      LibraryTableColumn.price =>
-        Text(formatComicMoney(entry.pricePaidCents, entry.currency)),
-      LibraryTableColumn.storageBox => LibraryTableCellText(entry.storageBox),
-      LibraryTableColumn.wishlist =>
-        entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
-      LibraryTableColumn.updated => Text(
-          formatComicDate(entry.updatedAt),
-          style: const TextStyle(fontSize: 12),
-        ),
-    };
   }
 
   GenericLibraryProjection _projectionForShelf(
@@ -615,166 +434,4 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       ref.invalidate(shelfProvider);
     }
   }
-}
-
-class _CompactBucketBar extends StatelessWidget {
-  const _CompactBucketBar({
-    required this.type,
-    required this.accent,
-    required this.buckets,
-    required this.selectedBucket,
-    required this.onSelected,
-  });
-
-  final LibraryTypeConfig type;
-  final Color accent;
-  final List<LibrarySeriesBucket> buckets;
-  final String selectedBucket;
-  final ValueChanged<String> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kClzPanel,
-        border: Border(bottom: BorderSide(color: kClzDivider)),
-      ),
-      child: SizedBox(
-        height: 38,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          itemCount: buckets.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 6),
-          itemBuilder: (context, index) {
-            final bucket = buckets[index];
-            final selected = bucket.title == selectedBucket;
-            return ChoiceChip(
-              selected: selected,
-              onSelected: (_) => onSelected(bucket.title),
-              avatar: selected ? Icon(_sidebarIcon(type), size: 15) : null,
-              label: Text('${bucket.title} ${bucket.count}'),
-              selectedColor: accent.withValues(alpha: 0.42),
-              side: BorderSide(color: selected ? accent : kClzDivider),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _GenericEmptyState extends StatelessWidget {
-  const _GenericEmptyState({
-    required this.type,
-    required this.icon,
-    required this.accent,
-    required this.hasActiveFilter,
-    required this.onAdd,
-    required this.onClearFilter,
-  });
-
-  final LibraryTypeConfig type;
-  final IconData icon;
-  final Color accent;
-  final bool hasActiveFilter;
-  final VoidCallback onAdd;
-  final VoidCallback onClearFilter;
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: kClzCanvas,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 44, color: accent),
-              const SizedBox(height: 14),
-              Text(
-                hasActiveFilter
-                    ? 'No matching ${type.pluralLabel.toLowerCase()}'
-                    : 'Your local ${type.pluralLabel.toLowerCase()} shelf is empty',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                hasActiveFilter
-                    ? 'Clear filters to return to your local shelf.'
-                    : _emptyStateSummary(type),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: kClzTextMuted,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (hasActiveFilter)
-                OutlinedButton.icon(
-                  onPressed: onClearFilter,
-                  icon: const Icon(Icons.filter_alt_off),
-                  label: const Text('Clear filter'),
-                )
-              else
-                FilledButton.icon(
-                  onPressed: onAdd,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add from Collectarr Core'),
-                ),
-              if (!hasActiveFilter && type.supportedMetadataProviders.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    'Manual add is enabled even without provider search.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: kClzTextMuted,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-String _sidebarTitle(LibraryTypeConfig type) {
-  return switch (type.workspace.kind) {
-    'anime' || 'movie' || 'tv' => 'Years',
-    'music' => 'Artists',
-    'book' || 'game' || 'boardgame' || 'manga' => 'Publishers',
-    _ => 'Titles',
-  };
-}
-
-IconData _sidebarIcon(LibraryTypeConfig type) {
-  return switch (type.workspace.kind) {
-    'music' => Icons.person_2_outlined,
-    'movie' => Icons.movie_filter_outlined,
-    _ => Icons.folder,
-  };
-}
-
-String _emptyStateSummary(LibraryTypeConfig type) {
-  if (type.supportedMetadataProviders.isEmpty) {
-    return 'No providers are registered for this library yet.';
-  }
-  final providers =
-      type.supportedMetadataProviders.map((p) => p.label).join(', ');
-  final suffix = type.workspace.kind == 'movie' || type.workspace.kind == 'tv'
-      ? ' Physical formats are tracked as editions.'
-      : '';
-  return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';
 }
