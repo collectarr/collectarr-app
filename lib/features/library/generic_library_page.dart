@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
-import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic_library_body.dart';
 import 'package:collectarr_app/features/library/generic_library_column_chooser.dart';
+import 'package:collectarr_app/features/library/generic_library_collection_actions.dart';
 import 'package:collectarr_app/features/library/generic_library_metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
@@ -173,10 +173,18 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
           beforeColumn: beforeColumn,
         ),
       ),
-      onAddOwned: _addOwned,
-      onRemoveOwned: _removeOwned,
-      onAddWishlist: _addWishlist,
-      onRemoveWishlist: _removeWishlist,
+      onAddOwned: (item) => _runCollectionAction(
+        (actions) => actions.addOwned(item),
+      ),
+      onRemoveOwned: (item) => _runCollectionAction(
+        (actions) => actions.removeOwned(item),
+      ),
+      onAddWishlist: (item) => _runCollectionAction(
+        (actions) => actions.addWishlist(item),
+      ),
+      onRemoveWishlist: (item) => _runCollectionAction(
+        (actions) => actions.removeWishlist(item),
+      ),
     );
   }
 
@@ -302,35 +310,10 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     );
   }
 
-  Future<void> _addOwned(GenericLibraryItem item) async {
-    await ref.read(collectionMutationsProvider).addItem(item.entry.id);
-    if (mounted) {
-      ref.invalidate(shelfProvider);
-    }
-  }
-
-  Future<void> _removeOwned(GenericLibraryItem item) async {
-    final owned = item.source.ownedItem;
-    if (owned == null) {
-      return;
-    }
-    await ref.read(collectionMutationsProvider).removeItem(owned);
-    if (mounted) {
-      ref.invalidate(shelfProvider);
-    }
-  }
-
-  Future<void> _addWishlist(GenericLibraryItem item) async {
-    await ref.read(collectionMutationsProvider).addToWishlist(item.entry.id);
-    if (mounted) {
-      ref.invalidate(shelfProvider);
-    }
-  }
-
-  Future<void> _removeWishlist(GenericLibraryItem item) async {
-    await ref.read(collectionMutationsProvider).removeFromWishlist(
-          item.entry.id,
-        );
+  Future<void> _runCollectionAction(
+    Future<void> Function(GenericLibraryCollectionActions actions) action,
+  ) async {
+    await action(ref.read(genericLibraryCollectionActionsProvider));
     if (mounted) {
       ref.invalidate(shelfProvider);
     }
