@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/workspace/library_cover_tile.dar
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
+import 'package:collectarr_app/features/library/workspace/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/library_view_table_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
@@ -1012,8 +1013,6 @@ class _GenericLibraryToolbar extends StatelessWidget {
   }
 }
 
-enum _GenericLibraryToolAction { stats, clearFilters }
-
 class _GenericLibraryToolsButton extends StatelessWidget {
   const _GenericLibraryToolsButton({
     required this.type,
@@ -1035,81 +1034,43 @@ class _GenericLibraryToolsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Badge(
-      isLabelVisible: _utilityBadgeCount > 0,
-      label: Text(
-        _utilityBadgeCount.toString(),
-      ),
-      child: PopupMenuButton<Object>(
-        tooltip: 'Library tools',
-        icon: Icon(quickView?.icon ?? Icons.tune, size: 18),
-        onSelected: (action) {
-          if (action is _GenericQuickView) {
-            onQuickViewSelected(action);
-            return;
-          }
-          switch (action) {
-            case _GenericLibraryToolAction.stats:
-              _showGenericStatsDialog(context, type, counts);
-            case _GenericLibraryToolAction.clearFilters:
-              onClearFilters();
-          }
-        },
-        itemBuilder: (context) => [
-          const PopupMenuItem(
-            enabled: false,
-            child: Text('Quick views'),
+    return LibraryUtilityMenu<_GenericQuickView>(
+      quickViews: [
+        for (final view in _GenericQuickView.values)
+          LibraryUtilityQuickView(
+            value: view,
+            label: view.label,
+            icon: view.icon,
           ),
-          for (final view in _GenericQuickView.values)
-            PopupMenuItem<Object>(
-              value: view,
-              child: ListTile(
-                dense: true,
-                leading: Icon(view.icon),
-                title: Text(view.label),
-                trailing: quickView == view
-                    ? const Icon(Icons.check, size: 18)
-                    : null,
-              ),
-            ),
-          const PopupMenuDivider(),
-          const PopupMenuItem(
-            value: _GenericLibraryToolAction.stats,
-            child: ListTile(
-              dense: true,
-              leading: Icon(Icons.query_stats),
-              title: Text('Statistics'),
-            ),
-          ),
-          PopupMenuItem(
-            value: _GenericLibraryToolAction.clearFilters,
-            enabled: hasActiveFilters,
-            child: const ListTile(
-              dense: true,
-              leading: Icon(Icons.filter_alt_off_outlined),
-              title: Text('Clear filters'),
-            ),
-          ),
-          PopupMenuItem(
-            enabled: false,
-            child: ListTile(
-              dense: true,
-              leading: const Icon(Icons.image_not_supported_outlined),
-              title: const Text('Missing covers'),
-              trailing: Text(counts.missingCover.toString()),
-            ),
-          ),
-          PopupMenuItem(
-            enabled: false,
-            child: ListTile(
-              dense: true,
-              leading: const Icon(Icons.manage_search),
-              title: const Text('Missing metadata'),
-              trailing: Text(counts.missingMetadata.toString()),
-            ),
-          ),
-        ],
-      ),
+      ],
+      selectedQuickView: quickView,
+      onQuickViewSelected: onQuickViewSelected,
+      badgeCount: _utilityBadgeCount,
+      actions: [
+        LibraryUtilityMenuAction(
+          icon: Icons.query_stats,
+          label: 'Statistics',
+          onSelected: () => _showGenericStatsDialog(context, type, counts),
+        ),
+        LibraryUtilityMenuAction(
+          icon: Icons.filter_alt_off_outlined,
+          label: 'Clear filters',
+          enabled: hasActiveFilters,
+          onSelected: onClearFilters,
+        ),
+        LibraryUtilityMenuAction(
+          icon: Icons.image_not_supported_outlined,
+          label: 'Missing covers',
+          enabled: false,
+          trailing: Text(counts.missingCover.toString()),
+        ),
+        LibraryUtilityMenuAction(
+          icon: Icons.manage_search,
+          label: 'Missing metadata',
+          enabled: false,
+          trailing: Text(counts.missingMetadata.toString()),
+        ),
+      ],
     );
   }
 

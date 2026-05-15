@@ -2,15 +2,8 @@ import 'package:collectarr_app/features/comics/comics_duplicate_items.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_missing_issues.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_control_models.dart';
+import 'package:collectarr_app/features/library/workspace/library_utility_menu.dart';
 import 'package:flutter/material.dart';
-
-enum _ComicsUtilityAction {
-  stats,
-  filters,
-  clearFilters,
-  missingIssues,
-  duplicates,
-}
 
 class ComicsWorkspaceUtilityControls extends StatelessWidget {
   const ComicsWorkspaceUtilityControls({
@@ -24,82 +17,57 @@ class ComicsWorkspaceUtilityControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Badge(
-      isLabelVisible: _utilityBadgeCount > 0,
-      label: Text(_utilityBadgeCount.toString()),
-      child: PopupMenuButton<Object>(
-        tooltip: 'Library tools',
-        initialValue: state.quickView,
-        icon: Icon(
-          state.quickView?.icon ?? Icons.tune,
-          size: 18,
+    return LibraryUtilityMenu<ComicsShelfQuickView>(
+      quickViews: [
+        for (final view in ComicsShelfQuickView.values)
+          LibraryUtilityQuickView(
+            value: view,
+            label: view.label,
+            icon: view.icon,
+          ),
+      ],
+      selectedQuickView: state.quickView,
+      onQuickViewSelected: callbacks.onQuickViewSelected,
+      badgeCount: _utilityBadgeCount,
+      actions: [
+        LibraryUtilityMenuAction(
+          icon: Icons.filter_list,
+          label: 'Filters',
+          onSelected: callbacks.onEditFilters,
         ),
-        onSelected: (action) => _handleSelected(context, action),
-        itemBuilder: (context) => [
-          const PopupMenuItem<Object>(
-            enabled: false,
-            child: Text('Quick views'),
+        if (state.hasActiveFilters)
+          LibraryUtilityMenuAction(
+            icon: Icons.filter_alt_off_outlined,
+            label: 'Clear filters',
+            onSelected: callbacks.onClearFilters,
           ),
-          for (final view in ComicsShelfQuickView.values)
-            PopupMenuItem<Object>(
-              value: view,
-              child: ListTile(
-                dense: true,
-                leading: Icon(view.icon),
-                title: Text(view.label),
-                trailing: state.quickView == view
-                    ? const Icon(Icons.check, size: 18)
-                    : null,
-              ),
-            ),
-          const PopupMenuDivider(),
-          const PopupMenuItem<Object>(
-            value: _ComicsUtilityAction.filters,
-            child: ListTile(
-              dense: true,
-              leading: Icon(Icons.filter_list),
-              title: Text('Filters'),
-            ),
+        LibraryUtilityMenuAction(
+          icon: Icons.query_stats,
+          label: 'Statistics',
+          onSelected: callbacks.onShowStats,
+        ),
+        LibraryUtilityMenuAction(
+          icon: Icons.format_list_numbered,
+          label: 'Missing issues',
+          enabled: state.missingIssues.isNotEmpty,
+          trailing: Text(state.missingIssues.length.toString()),
+          onSelected: () => showComicsMissingIssuesDialog(
+            context,
+            selectedSeries: state.selectedSeries,
+            missingIssues: state.missingIssues,
           ),
-          if (state.hasActiveFilters)
-            const PopupMenuItem<Object>(
-              value: _ComicsUtilityAction.clearFilters,
-              child: ListTile(
-                dense: true,
-                leading: Icon(Icons.filter_alt_off_outlined),
-                title: Text('Clear filters'),
-              ),
-            ),
-          const PopupMenuItem<Object>(
-            value: _ComicsUtilityAction.stats,
-            child: ListTile(
-              dense: true,
-              leading: Icon(Icons.query_stats),
-              title: Text('Statistics'),
-            ),
+        ),
+        LibraryUtilityMenuAction(
+          icon: Icons.content_copy,
+          label: 'Duplicates',
+          enabled: state.duplicateGroups.isNotEmpty,
+          trailing: Text(state.duplicateGroups.length.toString()),
+          onSelected: () => showComicsDuplicateItemsDialog(
+            context,
+            duplicateGroups: state.duplicateGroups,
           ),
-          PopupMenuItem<Object>(
-            value: _ComicsUtilityAction.missingIssues,
-            enabled: state.missingIssues.isNotEmpty,
-            child: ListTile(
-              dense: true,
-              leading: const Icon(Icons.format_list_numbered),
-              title: const Text('Missing issues'),
-              trailing: Text(state.missingIssues.length.toString()),
-            ),
-          ),
-          PopupMenuItem<Object>(
-            value: _ComicsUtilityAction.duplicates,
-            enabled: state.duplicateGroups.isNotEmpty,
-            child: ListTile(
-              dense: true,
-              leading: const Icon(Icons.content_copy),
-              title: const Text('Duplicates'),
-              trailing: Text(state.duplicateGroups.length.toString()),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -107,33 +75,5 @@ class ComicsWorkspaceUtilityControls extends StatelessWidget {
     return state.activeFilterCount +
         state.missingIssues.length +
         state.duplicateGroups.length;
-  }
-
-  void _handleSelected(BuildContext context, Object action) {
-    if (action is ComicsShelfQuickView) {
-      callbacks.onQuickViewSelected(action);
-      return;
-    }
-    switch (action) {
-      case _ComicsUtilityAction.stats:
-        callbacks.onShowStats();
-      case _ComicsUtilityAction.filters:
-        callbacks.onEditFilters();
-      case _ComicsUtilityAction.clearFilters:
-        callbacks.onClearFilters();
-      case _ComicsUtilityAction.missingIssues:
-        showComicsMissingIssuesDialog(
-          context,
-          selectedSeries: state.selectedSeries,
-          missingIssues: state.missingIssues,
-        );
-      case _ComicsUtilityAction.duplicates:
-        showComicsDuplicateItemsDialog(
-          context,
-          duplicateGroups: state.duplicateGroups,
-        );
-      default:
-        break;
-    }
   }
 }
