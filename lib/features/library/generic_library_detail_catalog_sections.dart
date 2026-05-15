@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/library/generic_library_display.dart';
+import 'package:collectarr_app/features/library/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -20,6 +21,7 @@ class GenericDetailMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final labels = libraryMediaFieldLabels(type);
     return LibraryInspectorSection(
       title: 'Catalog metadata',
       accentColor: accent,
@@ -30,11 +32,11 @@ class GenericDetailMetadataSection extends StatelessWidget {
             LibraryInspectorFactData('ID', entry.id),
             LibraryInspectorFactData('Title', entry.title),
             LibraryInspectorFactData(
-              'Number',
+              labels.number,
               genericLibraryDash(entry.itemNumber),
             ),
             LibraryInspectorFactData(
-              'Publisher',
+              labels.publisher,
               genericLibraryDash(entry.publisher),
             ),
             LibraryInspectorFactData(
@@ -45,11 +47,11 @@ class GenericDetailMetadataSection extends StatelessWidget {
               ),
             ),
             LibraryInspectorFactData(
-              'Variant',
+              labels.variant,
               genericLibraryDash(entry.variant),
             ),
             LibraryInspectorFactData(
-              'Barcode',
+              labels.barcode,
               genericLibraryDash(entry.barcode),
             ),
           ],

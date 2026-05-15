@@ -199,6 +199,18 @@ void main() {
       LibrarySortColumn.releaseDate,
     );
     expect(
+      moviesMediaAdapter.columnLabel(LibraryTableColumn.variant),
+      'Format / Edition',
+    );
+    expect(
+      gamesMediaAdapter.columnLabel(LibraryTableColumn.variant),
+      'Platform / Edition',
+    );
+    expect(
+      booksMediaAdapter.columnLabel(LibraryTableColumn.barcode),
+      'ISBN / Barcode',
+    );
+    expect(
       booksMediaAdapter.tableColumnWidth(
         LibraryTableColumn.title,
         {LibraryTableColumn.title: 999},

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
@@ -8,11 +9,13 @@ import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic_library_body.dart';
 import 'package:collectarr_app/features/library/generic_library_column_chooser.dart';
 import 'package:collectarr_app/features/library/generic_library_collection_actions.dart';
+import 'package:collectarr_app/features/library/generic_library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/generic_library_metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -191,6 +194,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       onRemoveWishlist: (item) => _runCollectionAction(
         (actions) => actions.removeWishlist(item),
       ),
+      onEditItem: (item) => unawaited(_showEditDialog(item)),
     );
   }
 
@@ -265,6 +269,71 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         SnackBar(content: Text('${widget.type.singularLabel} added')),
       );
     }
+  }
+
+  Future<void> _showEditDialog(GenericLibraryItem item) async {
+    final catalogItem = item.source.catalogItem;
+    if (catalogItem == null) {
+      return;
+    }
+    final catalog = ref.read(mediaCatalogProvider).maybeWhen(
+          data: (value) => value,
+          orElse: () => fallbackMediaCatalog,
+        );
+    final result = await showDialog<GenericLibraryEditSelection>(
+      context: context,
+      builder: (context) => GenericLibraryEditDialog(
+        type: widget.type,
+        item: catalogItem,
+        ownedItem: item.source.ownedItem,
+        accent: widget.accent,
+        physicalFormats: physicalMediaFormatsForKind(
+          catalog,
+          widget.type.workspace.kind,
+        ),
+      ),
+    );
+    if (result == null || !mounted) {
+      return;
+    }
+    final owned = item.source.ownedItem;
+    final mutations = ref.read(collectionMutationsProvider);
+    await mutations.updateCatalogSnapshot(
+      result.catalogItem,
+      notify: owned == null,
+    );
+    final personal = result.personal;
+    if (owned != null && personal != null) {
+      await mutations.updateItem(
+        owned,
+        condition: personal.condition,
+        grade: personal.grade,
+        purchaseDate: personal.purchaseDate,
+        pricePaidCents: personal.pricePaidCents,
+        currency: personal.currency,
+        personalNotes: personal.personalNotes,
+        quantity: personal.quantity,
+        storageBox: personal.storageBox,
+        indexNumber: owned.indexNumber,
+        coverPriceCents: owned.coverPriceCents,
+        rawOrSlabbed: owned.rawOrSlabbed,
+        gradingCompany: owned.gradingCompany,
+        graderNotes: owned.graderNotes,
+        signedBy: owned.signedBy,
+        keyComic: owned.keyComic,
+        keyReason: owned.keyReason,
+        rating: personal.rating,
+        readStatus: personal.readStatus,
+        tags: personal.tags,
+      );
+    }
+    if (!mounted) {
+      return;
+    }
+    ref.invalidate(shelfProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${widget.type.singularLabel} updated')),
+    );
   }
 
   Future<void> _scanBarcode() async {

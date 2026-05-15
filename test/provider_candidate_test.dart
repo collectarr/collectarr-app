@@ -43,6 +43,9 @@ void main() {
     );
 
     expect(candidate.kind, 'book');
-    expect(candidate.placeholderCatalogItem().kind, 'book');
+    final item = candidate.placeholderCatalogItem();
+    expect(item.id, 'provider:openlibrary:book:book-1');
+    expect(item.kind, 'book');
+    expect(item.title, 'Legacy Book Candidate');
   });
 }

@@ -32,6 +32,7 @@ class GenericLibraryBody extends StatelessWidget {
     required this.onRemoveOwned,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
+    required this.onEditItem,
   });
 
   final LibraryTypeConfig type;
@@ -56,6 +57,7 @@ class GenericLibraryBody extends StatelessWidget {
   final ValueChanged<GenericLibraryItem> onRemoveOwned;
   final ValueChanged<GenericLibraryItem> onAddWishlist;
   final ValueChanged<GenericLibraryItem> onRemoveWishlist;
+  final ValueChanged<GenericLibraryItem> onEditItem;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +99,7 @@ class GenericLibraryBody extends StatelessWidget {
           onRemoveWishlist: selected?.source.isWishlisted != true
               ? null
               : () => onRemoveWishlist(selected!),
+          onEdit: selected == null ? null : () => onEditItem(selected),
         );
 
         final workspaceContent = Column(

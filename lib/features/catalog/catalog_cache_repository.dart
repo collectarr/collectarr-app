@@ -75,15 +75,19 @@ class CatalogCacheRepository {
     };
   }
 
-  Future<CatalogItem?> findByBarcode(String barcode) async {
+  Future<CatalogItem?> findByBarcode(String barcode, {String? kind}) async {
     final normalized = barcode.trim();
     if (normalized.isEmpty) {
       return null;
     }
-    final row = await (_db.select(_db.catalogCache)
-          ..where((row) => row.barcode.equals(normalized))
-          ..limit(1))
-        .getSingleOrNull();
+    final query = _db.select(_db.catalogCache)
+      ..where((row) => row.barcode.equals(normalized));
+    final normalizedKind = kind?.trim().toLowerCase();
+    if (normalizedKind != null && normalizedKind.isNotEmpty) {
+      query.where((row) => row.kind.equals(normalizedKind));
+    }
+    query.limit(1);
+    final row = await query.getSingleOrNull();
     return row == null ? null : _itemFromRow(row);
   }
 
@@ -102,6 +106,7 @@ class CatalogCacheRepository {
   Future<CatalogItem?> findByTitleAndIssue({
     required String title,
     required String? itemNumber,
+    String? kind,
   }) async {
     final normalizedTitle = title.trim();
     if (normalizedTitle.isEmpty) {
@@ -109,6 +114,10 @@ class CatalogCacheRepository {
     }
     final query = _db.select(_db.catalogCache)
       ..where((row) => row.title.equals(normalizedTitle));
+    final normalizedKind = kind?.trim().toLowerCase();
+    if (normalizedKind != null && normalizedKind.isNotEmpty) {
+      query.where((row) => row.kind.equals(normalizedKind));
+    }
     final normalizedIssue = itemNumber?.trim();
     if (normalizedIssue != null && normalizedIssue.isNotEmpty) {
       query.where((row) => row.itemNumber.equals(normalizedIssue));

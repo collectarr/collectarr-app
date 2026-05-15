@@ -1,10 +1,13 @@
 import 'package:csv/csv.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/library/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_media_field_labels.dart';
 
 class CollectionCsvRow {
   const CollectionCsvRow({
     required this.itemId,
     required this.status,
+    this.kind,
     this.title,
     this.itemNumber,
     this.variant,
@@ -34,6 +37,7 @@ class CollectionCsvRow {
 
   final String itemId;
   final String status;
+  final String? kind;
   final String? title;
   final String? itemNumber;
   final String? variant;
@@ -66,6 +70,7 @@ class CollectionCsvRow {
   CollectionCsvRow copyWith({
     String? itemId,
     String? status,
+    String? kind,
     String? title,
     String? itemNumber,
     String? variant,
@@ -95,6 +100,7 @@ class CollectionCsvRow {
     return CollectionCsvRow(
       itemId: itemId ?? this.itemId,
       status: status ?? this.status,
+      kind: kind ?? this.kind,
       title: title ?? this.title,
       itemNumber: itemNumber ?? this.itemNumber,
       variant: variant ?? this.variant,
@@ -127,6 +133,7 @@ class CollectionCsvRow {
 class CollectionCsv {
   static const header = [
     'item_id',
+    'kind',
     'title',
     'item_number',
     'variant',
@@ -157,6 +164,7 @@ class CollectionCsv {
 
   static const clzFriendlyHeader = [
     'Collectarr Item ID',
+    'Media Type',
     'Series',
     'Issue',
     'Variant Description',
@@ -191,6 +199,7 @@ class CollectionCsv {
       for (final entry in entries)
         [
           entry.itemId,
+          entry.catalogItem?.kind ?? '',
           entry.catalogItem?.title ?? '',
           entry.catalogItem?.itemNumber ?? '',
           entry.catalogItem?.variant ?? '',
@@ -223,11 +232,13 @@ class CollectionCsv {
   }
 
   String exportClzFriendlyShelf(List<ShelfEntry> entries) {
+    final header = _clzFriendlyHeaderForEntries(entries);
     final rows = [
-      clzFriendlyHeader,
+      header,
       for (final entry in entries)
         [
           entry.itemId,
+          entry.catalogItem?.kind ?? '',
           entry.catalogItem?.title ?? '',
           entry.catalogItem?.itemNumber ?? '',
           entry.catalogItem?.variant ?? '',
@@ -298,10 +309,89 @@ class CollectionCsv {
     return 'Wishlist';
   }
 
+  List<String> _clzFriendlyHeaderForEntries(List<ShelfEntry> entries) {
+    final kinds = {
+      for (final entry in entries)
+        if ((entry.catalogItem?.kind.trim().isNotEmpty ?? false))
+          entry.catalogItem!.kind.trim().toLowerCase(),
+    };
+    if (kinds.length == 1) {
+      return _clzFriendlyHeaderForKind(kinds.single);
+    }
+    return _clzFriendlyHeader(
+      title: 'Title / Series',
+      number: 'No. / Vol.',
+      variant: 'Edition / Variant / Format',
+      publisher: 'Publisher / Studio / Creator',
+      barcode: 'Barcode / UPC / ISBN',
+    );
+  }
+
+  List<String> _clzFriendlyHeaderForKind(String kind) {
+    final type = collectarrLibraryTypes.byKind(kind);
+    if (type == null) {
+      return clzFriendlyHeader;
+    }
+    final labels = libraryMediaFieldLabels(type);
+    final title = switch (type.workspace.kind) {
+      'comic' || 'manga' => 'Series',
+      'tv' => 'Show',
+      'music' => 'Release',
+      _ => 'Title',
+    };
+    return _clzFriendlyHeader(
+      title: title,
+      number: labels.number,
+      variant: labels.variant,
+      publisher: labels.publisher,
+      barcode: labels.barcode,
+    );
+  }
+
+  List<String> _clzFriendlyHeader({
+    required String title,
+    required String number,
+    required String variant,
+    required String publisher,
+    required String barcode,
+  }) {
+    return [
+      'Collectarr Item ID',
+      'Media Type',
+      title,
+      number,
+      variant,
+      publisher,
+      'Release Date',
+      barcode,
+      'Collection Status',
+      'Condition',
+      'Grade',
+      'Purchase Date',
+      'Purchase Price',
+      'Currency',
+      'Cover Price',
+      'Quantity',
+      'Storage Box',
+      'Index',
+      'Raw / Slabbed',
+      'Grading Company',
+      'Grader Notes',
+      'Signed By',
+      'Key Comic',
+      'Key Reason',
+      'Rating',
+      'Read It',
+      'Tags',
+      'Notes',
+    ];
+  }
+
   CollectionCsvRow _rowFromValues(Map<String, int> index, List<String> values) {
     return CollectionCsvRow(
       itemId: _value(index, values, 'item_id'),
       status: _normalizedStatus(_value(index, values, 'status')),
+      kind: _optionalValue(index, values, 'kind'),
       title: _optionalValue(index, values, 'title'),
       itemNumber: _optionalValue(index, values, 'item_number'),
       variant: _optionalValue(index, values, 'variant'),
@@ -332,6 +422,7 @@ class CollectionCsv {
 
   bool _isMeaningfulRow(CollectionCsvRow row) {
     return row.itemId.trim().isNotEmpty ||
+        (row.kind?.trim().isNotEmpty ?? false) ||
         row.status.trim().isNotEmpty ||
         (row.title?.trim().isNotEmpty ?? false) ||
         (row.itemNumber?.trim().isNotEmpty ?? false) ||
@@ -551,12 +642,48 @@ class CollectionCsv {
       'Core SeriesID',
       'ComicID',
     ],
-    'title': ['Series', 'Full Title'],
-    'item_number': ['Issue', 'Issue No.', 'Issue Number'],
-    'variant': ['Variant', 'Variant Description'],
-    'publisher': ['Publisher'],
+    'kind': ['Media Type', 'Kind', 'Type', 'Library', 'Media Kind'],
+    'title': ['Series', 'Show', 'Release', 'Full Title'],
+    'item_number': [
+      'Issue',
+      'Issue No.',
+      'Issue Number',
+      'No. / Vol.',
+      'Volume',
+      'Season / Volume',
+      'Edition no.',
+      'Version',
+    ],
+    'variant': [
+      'Variant',
+      'Variant Description',
+      'Format / Edition',
+      'Platform / Edition',
+      'Edition / Binding',
+      'Edition / Variant',
+      'Edition / Variant / Format',
+      'Expansion / Edition',
+    ],
+    'publisher': [
+      'Publisher',
+      'Studio',
+      'Network / Studio',
+      'Studio / Publisher',
+      'Publisher / Studio',
+      'Publisher / Designer',
+      'Label / Artist',
+      'Publisher / Studio / Creator',
+    ],
     'release_date': ['Release Date', 'Cover Date'],
-    'barcode': ['Barcode', 'UPC', 'ISBN'],
+    'barcode': [
+      'Barcode',
+      'UPC',
+      'ISBN',
+      'UPC / Barcode',
+      'ISBN / Barcode',
+      'Barcode / Catalog no.',
+      'Barcode / UPC / ISBN',
+    ],
     'status': ['Collection Status', 'Status'],
     'condition': ['Condition'],
     'grade': ['Grade', 'Grade and Value'],

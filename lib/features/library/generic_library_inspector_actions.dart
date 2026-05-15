@@ -11,6 +11,7 @@ class GenericInspectorPrimaryActions extends StatelessWidget {
     required this.onRemoveOwned,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
+    required this.onEdit,
   });
 
   final LibraryWorkspaceEntry entry;
@@ -19,6 +20,7 @@ class GenericInspectorPrimaryActions extends StatelessWidget {
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,11 @@ class GenericInspectorPrimaryActions extends StatelessWidget {
             label: Text(
               entry.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
             ),
+          ),
+          OutlinedButton.icon(
+            onPressed: onEdit,
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('Edit'),
           ),
           FilledButton.icon(
             onPressed: onRemoveOwned,
@@ -57,6 +64,12 @@ class GenericInspectorPrimaryActions extends StatelessWidget {
           label: Text(
             entry.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
           ),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: onEdit,
+          icon: const Icon(Icons.edit_outlined),
+          label: const Text('Edit metadata'),
         ),
       ],
     );

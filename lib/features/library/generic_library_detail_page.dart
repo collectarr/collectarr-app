@@ -17,6 +17,7 @@ class GenericLibraryDetailPage extends StatelessWidget {
     required this.onRemoveOwned,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
+    required this.onEdit,
   });
 
   final LibraryTypeConfig type;
@@ -27,6 +28,7 @@ class GenericLibraryDetailPage extends StatelessWidget {
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,11 @@ class GenericLibraryDetailPage extends StatelessWidget {
           foregroundColor: Colors.white,
           title: Text(entry.title),
           actions: [
+            IconButton(
+              tooltip: 'Edit metadata and collection fields',
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit_outlined),
+            ),
             IconButton(
               tooltip: entry.isWishlisted
                   ? 'Remove from wishlist'
@@ -76,6 +83,7 @@ class GenericLibraryDetailPage extends StatelessWidget {
               onRemoveOwned: onRemoveOwned,
               onAddWishlist: onAddWishlist,
               onRemoveWishlist: onRemoveWishlist,
+              onEdit: onEdit,
             ),
             const SizedBox(height: 16),
             GenericDetailStatsBar(entry: entry, ownedItem: ownedItem),

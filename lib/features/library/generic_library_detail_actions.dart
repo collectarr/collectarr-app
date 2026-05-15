@@ -14,6 +14,7 @@ class GenericDetailActionStrip extends StatelessWidget {
     required this.onRemoveOwned,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
+    required this.onEdit,
   });
 
   final LibraryTypeConfig type;
@@ -22,6 +23,7 @@ class GenericDetailActionStrip extends StatelessWidget {
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +49,11 @@ class GenericDetailActionStrip extends StatelessWidget {
           label: Text(
             entry.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
           ),
+        ),
+        OutlinedButton.icon(
+          onPressed: onEdit,
+          icon: const Icon(Icons.edit_outlined),
+          label: const Text('Edit'),
         ),
       ],
     );

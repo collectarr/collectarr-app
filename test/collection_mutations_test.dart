@@ -219,6 +219,48 @@ void main() {
     );
   });
 
+  test('collection import uses media type when matching local catalog cache',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'Dune',
+        barcode: '1234567890',
+      ),
+      CatalogItem(
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Dune',
+        barcode: '1234567890',
+      ),
+    ]);
+
+    final imported =
+        await container.read(collectionMutationsProvider).importRows(
+      const [
+        CollectionCsvRow(
+          itemId: '',
+          kind: 'movie',
+          status: 'owned',
+          title: 'Dune',
+          barcode: '1234567890',
+        ),
+      ],
+    );
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    expect(imported, 1);
+    expect(owned.itemId, 'movie-1');
+  });
+
   test('collection import preview reports matched unresolved and skipped rows',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());

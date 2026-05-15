@@ -38,6 +38,24 @@ class ProviderCandidate {
   }
 
   CatalogItem placeholderCatalogItem() {
-    return CatalogItem(id: providerItemId, kind: kind, title: title);
+    return CatalogItem(
+      id: localCatalogId,
+      kind: kind,
+      title: title,
+      synopsis: summary,
+      coverImageUrl: imageUrl,
+      thumbnailImageUrl: imageUrl,
+    );
   }
+
+  String get localCatalogId {
+    final safeProvider = _safeIdPart(provider);
+    final safeKind = _safeIdPart(kind);
+    final safeProviderItemId = Uri.encodeComponent(providerItemId);
+    return 'provider:$safeProvider:$safeKind:$safeProviderItemId';
+  }
+}
+
+String _safeIdPart(String value) {
+  return value.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9_-]+'), '-');
 }

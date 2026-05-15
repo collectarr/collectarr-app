@@ -147,6 +147,18 @@ class CollectionMutations {
     }
   }
 
+  Future<void> updateCatalogSnapshot(
+    CatalogItem item, {
+    bool notify = true,
+  }) async {
+    final now = DateTime.now().toUtc();
+    await _catalogCache().upsertAll([item]);
+    await _syncQueue().enqueue(_syncChangeForCatalogItem(item, now));
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
+  }
+
   Future<void> removeItem(OwnedItem item, {bool notify = true}) async {
     final now = DateTime.now().toUtc();
     await _ownedCache().markDeleted(item, now);
@@ -364,7 +376,7 @@ class CollectionMutations {
   ) async {
     final barcode = row.barcode?.trim();
     if (barcode != null && barcode.isNotEmpty) {
-      final match = await catalog.findByBarcode(barcode);
+      final match = await catalog.findByBarcode(barcode, kind: row.kind);
       if (match != null) {
         return match;
       }
@@ -376,6 +388,7 @@ class CollectionMutations {
     return catalog.findByTitleAndIssue(
       title: title,
       itemNumber: row.itemNumber,
+      kind: row.kind,
     );
   }
 

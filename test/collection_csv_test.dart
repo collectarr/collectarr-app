@@ -52,6 +52,7 @@ void main() {
 
     final rows = csv.parse(exported);
     expect(rows.single.itemId, 'comic-1');
+    expect(rows.single.kind, 'comic');
     expect(rows.single.title, 'Spider-Man, "Vol. 1"');
     expect(rows.single.itemNumber, '1');
     expect(rows.single.variant, 'Newsstand');
@@ -107,9 +108,47 @@ void main() {
     ]);
 
     expect(exported, contains('Collectarr Item ID'));
+    expect(exported, contains('Media Type'));
     expect(exported, contains('Collection Status'));
     expect(exported, contains('The Amazing Spider-Man, Vol. 2'));
     expect(exported, contains('9.00'));
+  });
+
+  test('collection csv exports media-aware clz-friendly headers', () {
+    final exported = CollectionCsv().exportClzFriendlyShelf([
+      ShelfEntry(
+        itemId: 'movie-1',
+        catalogItem: CatalogItem(
+          id: 'movie-1',
+          kind: 'movie',
+          title: 'Blade Runner',
+          itemNumber: 'Final Cut',
+          publisher: 'Warner Bros.',
+          releaseDate: DateTime.utc(1982, 6, 25),
+          barcode: '883929087129',
+          variant: '4K UHD',
+        ),
+        ownedItem: OwnedItem(
+          id: 'owned-1',
+          itemId: 'movie-1',
+          quantity: 1,
+          updatedAt: DateTime.utc(2026, 5, 15),
+        ),
+      ),
+    ]);
+
+    expect(exported, contains('Media Type'));
+    expect(exported, contains('Title'));
+    expect(exported, contains('Edition no.'));
+    expect(exported, contains('Studio'));
+    expect(exported, contains('UPC / Barcode'));
+
+    final rows = CollectionCsv().parse(exported);
+    expect(rows.single.kind, 'movie');
+    expect(rows.single.title, 'Blade Runner');
+    expect(rows.single.itemNumber, 'Final Cut');
+    expect(rows.single.variant, '4K UHD');
+    expect(rows.single.publisher, 'Warner Bros.');
   });
 
   test('collection csv parses clz-style aliases and money fields', () {
@@ -231,11 +270,13 @@ void main() {
 
   test('collection csv parses quoted newlines', () {
     final values = List<String>.filled(CollectionCsv.header.length, '');
-    values[0] = 'comic-1';
-    values[1] = 'Title';
-    values[2] = '1';
-    values[7] = 'owned';
-    values[13] = 'Line one\nLine two with "quote"';
+    values[CollectionCsv.header.indexOf('item_id')] = 'comic-1';
+    values[CollectionCsv.header.indexOf('kind')] = 'comic';
+    values[CollectionCsv.header.indexOf('title')] = 'Title';
+    values[CollectionCsv.header.indexOf('item_number')] = '1';
+    values[CollectionCsv.header.indexOf('status')] = 'owned';
+    values[CollectionCsv.header.indexOf('notes')] =
+        'Line one\nLine two with "quote"';
     final rows = CollectionCsv().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         CollectionCsv.header,

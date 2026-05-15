@@ -6,9 +6,13 @@ through `collectarr-sync`.
 
 ## Current Formats
 
-- Collectarr CSV: canonical app backup format for owned and wishlist rows.
+- Collectarr CSV: canonical app backup format for owned and wishlist rows. It
+  includes `kind` so imports can disambiguate comics, movies, books, games, and
+  other media when local catalog matches share a title or barcode.
 - CLZ-friendly CSV: compatibility export/import mapping for common CLZ column
-  names.
+  names. Export headers adapt to the exported media type, for example movie
+  exports use Title / Edition no. / Format / Studio / UPC labels instead of
+  comic Series / Issue labels.
 
 ## Flutter Workflow
 
@@ -16,6 +20,10 @@ The Flutter app exposes a CSV / CLZ wizard from Settings for quick local
 backup, CLZ-friendly export, paste-based import preview, and matched-row import.
 The Shelf screen keeps the deeper import flow for manual Core search,
 unresolved row handling, metadata proposals, and conflict choices.
+
+Import matching prefers explicit item IDs. When no item ID is present, it
+matches by barcode and then by title plus item/volume/edition number. If a CSV
+row has a media type, matching is scoped to that `kind`.
 
 ## ComicRack Compatibility Decision
 

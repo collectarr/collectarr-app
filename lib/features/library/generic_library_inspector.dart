@@ -18,6 +18,7 @@ class GenericLibraryInspector extends StatelessWidget {
     required this.onRemoveOwned,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
+    required this.onEdit,
   });
 
   final LibraryTypeConfig type;
@@ -28,6 +29,7 @@ class GenericLibraryInspector extends StatelessWidget {
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,7 @@ class GenericLibraryInspector extends StatelessWidget {
                 onToggleOwned: selected.isOwned ? onRemoveOwned : onAddOwned,
                 onToggleWishlist:
                     selected.isWishlisted ? onRemoveWishlist : onAddWishlist,
+                onEdit: onEdit,
                 onOpenDetails: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => GenericLibraryDetailPage(
@@ -62,6 +65,7 @@ class GenericLibraryInspector extends StatelessWidget {
                       onRemoveOwned: onRemoveOwned,
                       onAddWishlist: onAddWishlist,
                       onRemoveWishlist: onRemoveWishlist,
+                      onEdit: onEdit,
                     ),
                   ),
                 ),
@@ -81,6 +85,7 @@ class GenericLibraryInspector extends StatelessWidget {
                 onRemoveOwned: onRemoveOwned,
                 onAddWishlist: onAddWishlist,
                 onRemoveWishlist: onRemoveWishlist,
+                onEdit: onEdit,
               ),
               const SizedBox(height: 10),
               GenericMetadataSection(

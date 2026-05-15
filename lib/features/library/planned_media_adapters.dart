@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/planned_library_configs.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
@@ -48,8 +49,9 @@ LibraryMediaAdapter plannedMediaAdapter(LibraryTypeConfig type) {
     ),
     tableColumnWidth: plannedMediaTableColumnWidth,
     defaultTableColumnWidth: defaultPlannedMediaTableColumnWidth,
-    columnLabel: plannedMediaTableColumnLabel,
-    columnDisplayName: plannedMediaTableColumnDisplayName,
+    columnLabel: (column) => plannedMediaTableColumnLabelForType(type, column),
+    columnDisplayName: (column) =>
+        plannedMediaTableColumnDisplayNameForType(type, column),
     columnGroup: plannedMediaTableColumnGroup,
     columnGroupLabel: plannedMediaTableColumnGroupLabel,
     columnIsNumeric: plannedMediaTableColumnIsNumeric,
@@ -243,11 +245,36 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
   };
 }
 
+String plannedMediaTableColumnLabelForType(
+  LibraryTypeConfig type,
+  LibraryTableColumn column,
+) {
+  final labels = libraryMediaFieldLabels(type);
+  return switch (column) {
+    LibraryTableColumn.issue => labels.number,
+    LibraryTableColumn.variant => labels.variant,
+    LibraryTableColumn.publisher => labels.publisher,
+    LibraryTableColumn.barcode => labels.barcode,
+    _ => plannedMediaTableColumnLabel(column),
+  };
+}
+
 String plannedMediaTableColumnDisplayName(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 'Status',
     LibraryTableColumn.cover => 'Cover',
     _ => plannedMediaTableColumnLabel(column),
+  };
+}
+
+String plannedMediaTableColumnDisplayNameForType(
+  LibraryTypeConfig type,
+  LibraryTableColumn column,
+) {
+  return switch (column) {
+    LibraryTableColumn.status => 'Status',
+    LibraryTableColumn.cover => 'Cover',
+    _ => plannedMediaTableColumnLabelForType(type, column),
   };
 }
 

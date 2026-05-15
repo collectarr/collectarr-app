@@ -60,6 +60,7 @@ class GenericInspectorActionBar extends StatelessWidget {
     required this.entry,
     required this.onToggleOwned,
     required this.onToggleWishlist,
+    required this.onEdit,
     required this.onOpenDetails,
   });
 
@@ -67,6 +68,7 @@ class GenericInspectorActionBar extends StatelessWidget {
   final LibraryWorkspaceEntry entry;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
+  final VoidCallback? onEdit;
   final VoidCallback onOpenDetails;
 
   @override
@@ -102,6 +104,12 @@ class GenericInspectorActionBar extends StatelessWidget {
               tooltip: 'Open details',
               onPressed: onOpenDetails,
               icon: Icons.open_in_new,
+            ),
+            const SizedBox(width: 4),
+            _GenericInspectorActionButton(
+              tooltip: 'Edit metadata and collection fields',
+              onPressed: onEdit,
+              icon: Icons.edit_outlined,
             ),
             const Spacer(),
             DecoratedBox(
