@@ -27,11 +27,9 @@ class ComicsToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kClzToolbar,
-        border: Border(bottom: BorderSide(color: kClzDivider)),
-      ),
+    return LibraryToolbarFrame(
+      backgroundColor: kClzToolbar,
+      dividerColor: kClzDivider,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Row(

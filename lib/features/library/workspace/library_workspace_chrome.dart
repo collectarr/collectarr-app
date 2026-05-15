@@ -2,6 +2,30 @@ import 'package:flutter/material.dart';
 
 import 'library_workspace_config.dart';
 
+class LibraryToolbarFrame extends StatelessWidget {
+  const LibraryToolbarFrame({
+    super.key,
+    required this.child,
+    required this.backgroundColor,
+    required this.dividerColor,
+  });
+
+  final Widget child;
+  final Color backgroundColor;
+  final Color dividerColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        border: Border(bottom: BorderSide(color: dividerColor)),
+      ),
+      child: child,
+    );
+  }
+}
+
 class LibraryWorkspaceIconButton extends StatelessWidget {
   const LibraryWorkspaceIconButton({
     super.key,
@@ -51,6 +75,44 @@ class LibraryWorkspaceSeparator extends StatelessWidget {
         child: VerticalDivider(width: 1, thickness: 1, color: color),
       ),
     );
+  }
+}
+
+class LibraryWorkspaceControlStrip extends StatelessWidget {
+  const LibraryWorkspaceControlStrip({
+    super.key,
+    required this.children,
+    this.spacing = 6,
+  });
+
+  final List<Widget> children;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: _spacedChildren(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _spacedChildren() {
+    final spaced = <Widget>[];
+    for (var index = 0; index < children.length; index += 1) {
+      if (index > 0) {
+        spaced.add(SizedBox(width: spacing));
+      }
+      spaced.add(children[index]);
+    }
+    return spaced;
   }
 }
 
