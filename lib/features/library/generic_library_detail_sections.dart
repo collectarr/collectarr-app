@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
+import 'package:collectarr_app/features/library/generic_library_display.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -29,17 +30,29 @@ class GenericDetailMetadataSection extends StatelessWidget {
             LibraryInspectorFactData('Kind', type.singularLabel),
             LibraryInspectorFactData('ID', entry.id),
             LibraryInspectorFactData('Title', entry.title),
-            LibraryInspectorFactData('Number', _dash(entry.itemNumber)),
-            LibraryInspectorFactData('Publisher', _dash(entry.publisher)),
+            LibraryInspectorFactData(
+              'Number',
+              genericLibraryDash(entry.itemNumber),
+            ),
+            LibraryInspectorFactData(
+              'Publisher',
+              genericLibraryDash(entry.publisher),
+            ),
             LibraryInspectorFactData(
               'Released',
-              _dash(
+              genericLibraryDash(
                 formatNullableComicDate(entry.releaseDate) ??
                     entry.releaseYear?.toString(),
               ),
             ),
-            LibraryInspectorFactData('Variant', _dash(entry.variant)),
-            LibraryInspectorFactData('Barcode', _dash(entry.barcode)),
+            LibraryInspectorFactData(
+              'Variant',
+              genericLibraryDash(entry.variant),
+            ),
+            LibraryInspectorFactData(
+              'Barcode',
+              genericLibraryDash(entry.barcode),
+            ),
           ],
         ),
       ],
@@ -121,19 +134,33 @@ class GenericDetailPersonalSection extends StatelessWidget {
       children: [
         LibraryInspectorFactGrid(
           facts: [
-            LibraryInspectorFactData('Status', _statusLabel(entry)),
-            LibraryInspectorFactData('Owned ID', _dash(ownedItem?.id)),
-            LibraryInspectorFactData('Condition', _dash(entry.condition)),
-            LibraryInspectorFactData('Grade', _dash(entry.grade)),
+            LibraryInspectorFactData(
+              'Status',
+              genericLibraryStatusLabel(entry),
+            ),
+            LibraryInspectorFactData(
+              'Owned ID',
+              genericLibraryDash(ownedItem?.id),
+            ),
+            LibraryInspectorFactData(
+              'Condition',
+              genericLibraryDash(entry.condition),
+            ),
+            LibraryInspectorFactData('Grade', genericLibraryDash(entry.grade)),
             LibraryInspectorFactData(
               'Quantity',
               ownedItem == null ? '-' : ownedItem!.quantity.toString(),
             ),
-            LibraryInspectorFactData('Storage', _dash(entry.storageBox)),
+            LibraryInspectorFactData(
+              'Storage',
+              genericLibraryDash(entry.storageBox),
+            ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
             LibraryInspectorFactData(
               'Purchased',
-              _dash(formatNullableComicDate(ownedItem?.purchaseDate)),
+              genericLibraryDash(
+                formatNullableComicDate(ownedItem?.purchaseDate),
+              ),
             ),
             LibraryInspectorFactData(
               'Updated',
@@ -141,7 +168,7 @@ class GenericDetailPersonalSection extends StatelessWidget {
             ),
             LibraryInspectorFactData(
               'Read status',
-              _dash(ownedItem?.readStatus),
+              genericLibraryDash(ownedItem?.readStatus),
             ),
             LibraryInspectorFactData(
               'Rating',
@@ -277,21 +304,4 @@ class GenericDetailLocalSnapshotSection extends StatelessWidget {
       ],
     );
   }
-}
-
-String _statusLabel(LibraryWorkspaceEntry entry) {
-  if (entry.isOwned) {
-    return 'Owned';
-  }
-  if (entry.isWishlisted) {
-    return 'Wishlist';
-  }
-  return 'Local catalog';
-}
-
-String _dash(String? value) {
-  if (value == null || value.trim().isEmpty) {
-    return '-';
-  }
-  return value;
 }

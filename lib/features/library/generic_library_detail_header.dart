@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
+import 'package:collectarr_app/features/library/generic_library_display.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -106,17 +107,17 @@ class GenericDetailHero extends StatelessWidget {
                   runSpacing: 6,
                   alignment: wide ? WrapAlignment.start : WrapAlignment.center,
                   children: [
-                    _DetailChip(
+                    _DetailHeaderChip(
                       icon: Icons.inventory_2,
                       label: entry.isOwned ? 'Owned' : 'Not owned',
                       accent: accent,
                     ),
-                    _DetailChip(
+                    _DetailHeaderChip(
                       icon: entry.isWishlisted ? Icons.star : Icons.star_border,
                       label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
                       accent: accent,
                     ),
-                    _DetailChip(
+                    _DetailHeaderChip(
                       icon: entry.hasMissingCover
                           ? Icons.image_not_supported_outlined
                           : Icons.image_outlined,
@@ -125,7 +126,7 @@ class GenericDetailHero extends StatelessWidget {
                           : 'Cover ready',
                       accent: accent,
                     ),
-                    _DetailChip(
+                    _DetailHeaderChip(
                       icon: entry.hasMissingMetadata
                           ? Icons.manage_search
                           : Icons.fact_check_outlined,
@@ -135,13 +136,13 @@ class GenericDetailHero extends StatelessWidget {
                       accent: accent,
                     ),
                     if (ownedItem?.condition != null)
-                      _DetailChip(
+                      _DetailHeaderChip(
                         icon: Icons.fact_check_outlined,
                         label: ownedItem!.condition!,
                         accent: accent,
                       ),
                     if (ownedItem?.grade != null)
-                      _DetailChip(
+                      _DetailHeaderChip(
                         icon: Icons.workspace_premium,
                         label: ownedItem!.grade!,
                         accent: accent,
@@ -251,20 +252,23 @@ class GenericDetailStatsBar extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        _DetailStat(label: 'Status', value: _statusLabel(entry)),
-        _DetailStat(
+        GenericLibraryStatPill(
+          label: 'Status',
+          value: genericLibraryStatusLabel(entry),
+        ),
+        GenericLibraryStatPill(
           label: 'Cover',
           value: entry.hasMissingCover ? 'Missing' : 'Ready',
         ),
-        _DetailStat(
+        GenericLibraryStatPill(
           label: 'Metadata',
           value: entry.hasMissingMetadata ? 'Missing' : 'Ready',
         ),
-        _DetailStat(
+        GenericLibraryStatPill(
           label: 'Quantity',
           value: ownedItem == null ? '0' : ownedItem!.quantity.toString(),
         ),
-        _DetailStat(
+        GenericLibraryStatPill(
           label: 'Updated',
           value: formatNullableComicDate(entry.updatedAt) ?? '-',
         ),
@@ -273,8 +277,8 @@ class GenericDetailStatsBar extends StatelessWidget {
   }
 }
 
-class _DetailChip extends StatelessWidget {
-  const _DetailChip({
+class _DetailHeaderChip extends StatelessWidget {
+  const _DetailHeaderChip({
     required this.icon,
     required this.label,
     required this.accent,
@@ -286,83 +290,12 @@ class _DetailChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xCC172E35),
-        border: Border.all(color: accent.withValues(alpha: 0.4)),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: accent),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                  ),
-            ),
-          ],
-        ),
-      ),
+    return GenericLibraryMetaChip(
+      icon: icon,
+      label: label,
+      accent: accent,
+      borderRadius: BorderRadius.circular(3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
     );
   }
-}
-
-class _DetailStat extends StatelessWidget {
-  const _DetailStat({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: kClzPanelRaised,
-        border: Border.all(color: kClzDivider),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                color: kClzTextMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-String _statusLabel(LibraryWorkspaceEntry entry) {
-  if (entry.isOwned) {
-    return 'Owned';
-  }
-  if (entry.isWishlisted) {
-    return 'Wishlist';
-  }
-  return 'Local catalog';
 }

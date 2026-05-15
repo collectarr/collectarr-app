@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
+import 'package:collectarr_app/features/library/generic_library_display.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -303,7 +304,10 @@ class _GenericInspectorHeroInfo extends StatelessWidget {
             ),
             if (entry.itemNumber != null && entry.itemNumber!.isNotEmpty) ...[
               const SizedBox(width: 7),
-              _GenericItemPill(label: entry.itemNumber!, color: kClzYellow),
+              GenericLibraryItemPill(
+                label: entry.itemNumber!,
+                color: kClzYellow,
+              ),
             ],
           ],
         ),
@@ -328,29 +332,29 @@ class _GenericInspectorHeroInfo extends StatelessWidget {
           spacing: 6,
           runSpacing: 6,
           children: [
-            _GenericMetaChip(
+            GenericLibraryMetaChip(
               icon: Icons.category_outlined,
               label: type.singularLabel,
               accent: accent,
             ),
-            _GenericMetaChip(
+            GenericLibraryMetaChip(
               icon: Icons.inventory_2,
               label: entry.isOwned ? 'Owned' : 'Not owned',
               accent: accent,
             ),
-            _GenericMetaChip(
+            GenericLibraryMetaChip(
               icon: entry.isWishlisted ? Icons.star : Icons.star_border,
               label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
               accent: accent,
             ),
-            _GenericMetaChip(
+            GenericLibraryMetaChip(
               icon: entry.hasMissingCover
                   ? Icons.image_not_supported_outlined
                   : Icons.image_outlined,
               label: entry.hasMissingCover ? 'Missing cover' : 'Cover ready',
               accent: accent,
             ),
-            _GenericMetaChip(
+            GenericLibraryMetaChip(
               icon: entry.hasMissingMetadata
                   ? Icons.manage_search
                   : Icons.fact_check_outlined,
@@ -359,19 +363,19 @@ class _GenericInspectorHeroInfo extends StatelessWidget {
               accent: accent,
             ),
             if (ownedItem?.condition != null)
-              _GenericMetaChip(
+              GenericLibraryMetaChip(
                 icon: Icons.fact_check_outlined,
                 label: ownedItem!.condition!,
                 accent: accent,
               ),
             if (ownedItem?.grade != null)
-              _GenericMetaChip(
+              GenericLibraryMetaChip(
                 icon: Icons.workspace_premium,
                 label: ownedItem!.grade!,
                 accent: accent,
               ),
             if (ownedItem?.pricePaidCents != null)
-              _GenericMetaChip(
+              GenericLibraryMetaChip(
                 icon: Icons.attach_money,
                 label: formatComicMoney(
                   ownedItem!.pricePaidCents,
@@ -411,74 +415,6 @@ class _GenericInspectorHeroInfo extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class _GenericMetaChip extends StatelessWidget {
-  const _GenericMetaChip({
-    required this.icon,
-    required this.label,
-    required this.accent,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xCC172E35),
-        border: Border.all(color: accent.withValues(alpha: 0.4)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: accent),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GenericItemPill extends StatelessWidget {
-  const _GenericItemPill({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Color(0xFF151515),
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
     );
   }
 }
