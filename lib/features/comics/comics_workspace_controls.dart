@@ -5,8 +5,6 @@ import 'package:collectarr_app/features/comics/comics_workspace_utility_controls
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/comics/comics_selection_controls.dart';
-export 'package:collectarr_app/features/comics/comics_toolbar_actions.dart';
-export 'package:collectarr_app/features/comics/comics_toolbar_search.dart';
 export 'package:collectarr_app/features/comics/comics_view_table_controls.dart';
 export 'package:collectarr_app/features/comics/comics_workspace_control_models.dart';
 export 'package:collectarr_app/features/comics/comics_workspace_utility_controls.dart';

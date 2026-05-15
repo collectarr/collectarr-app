@@ -36,17 +36,22 @@ class ComicsToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Row(
           children: [
-            ComicsToolbarPrimaryActions(
-              onAddComic: onAddComic,
+            LibraryToolbarPrimaryActions(
+              addLabel: 'Add Comics',
+              onAdd: onAddComic,
               onScanBarcode: onScanBarcode,
               onRefreshMetadata: onRefreshMetadata,
+              addBackgroundColor: kClzYellow,
+              addForegroundColor: const Color(0xFF151515),
             ),
             const LibraryWorkspaceSeparator(color: kClzDivider),
-            ComicsToolbarSearch(
+            LibraryToolbarSearch(
               controller: controller,
-              selectedSeries: controlState.utility.selectedSeries,
+              hintText: 'Search comics...',
+              selectedFilterLabel: controlState.utility.selectedSeries,
               onSearch: onSearch,
-              onClearSeries: onClearSeries,
+              onClearFilter: onClearSeries,
+              selectionColor: kClzSelection,
             ),
             const LibraryWorkspaceSeparator(color: kClzDivider),
             ComicsWorkspaceControlStrip(

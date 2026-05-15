@@ -188,45 +188,22 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
               : () => _removeWishlist(selected!),
         );
 
-        final mainContent = detailsLayout == LibraryDetailsLayout.bottom
-            ? Column(
-                children: [
-                  if (!showSidebar && buckets.length > 1)
-                    _CompactBucketBar(
-                      type: widget.type,
-                      accent: widget.accent,
-                      buckets: buckets,
-                      selectedBucket:
-                          _selectedBucket ?? _allBucketLabel(widget.type),
-                      onSelected: (bucket) => setState(() {
-                        _selectedBucket = bucket == _allBucketLabel(widget.type)
-                            ? null
-                            : bucket;
-                      }),
-                    ),
-                  Expanded(child: workspace),
-                  const Divider(height: 1),
-                  SizedBox(height: compact ? 220 : 250, child: details),
-                ],
-              )
-            : Column(
-                children: [
-                  if (!showSidebar && buckets.length > 1)
-                    _CompactBucketBar(
-                      type: widget.type,
-                      accent: widget.accent,
-                      buckets: buckets,
-                      selectedBucket:
-                          _selectedBucket ?? _allBucketLabel(widget.type),
-                      onSelected: (bucket) => setState(() {
-                        _selectedBucket = bucket == _allBucketLabel(widget.type)
-                            ? null
-                            : bucket;
-                      }),
-                    ),
-                  Expanded(child: workspace),
-                ],
-              );
+        final workspaceContent = Column(
+          children: [
+            if (!showSidebar && buckets.length > 1)
+              _CompactBucketBar(
+                type: widget.type,
+                accent: widget.accent,
+                buckets: buckets,
+                selectedBucket: _selectedBucket ?? _allBucketLabel(widget.type),
+                onSelected: (bucket) => setState(() {
+                  _selectedBucket =
+                      bucket == _allBucketLabel(widget.type) ? null : bucket;
+                }),
+              ),
+            Expanded(child: workspace),
+          ],
+        );
 
         return ColoredBox(
           color: kClzCanvas,
@@ -264,11 +241,14 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                 ),
                 const VerticalDivider(width: 1),
               ],
-              Expanded(child: mainContent),
-              if (detailsLayout == LibraryDetailsLayout.right) ...[
-                const VerticalDivider(width: 1),
-                SizedBox(width: 340, child: details),
-              ],
+              Expanded(
+                child: LibraryDetailsAwareLayout(
+                  content: workspaceContent,
+                  detailsLayout: detailsLayout,
+                  inspector: details,
+                  bottomHeight: compact ? 220 : 250,
+                ),
+              ),
             ],
           ),
         );
@@ -973,19 +953,23 @@ class _GenericLibraryToolbar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             child: Row(
               children: [
-                _GenericToolbarPrimaryActions(
-                  type: type,
+                LibraryToolbarPrimaryActions(
+                  addLabel: 'Add ${type.pluralLabel}',
                   onAdd: onAdd,
-                  onScan: onScan,
+                  onScanBarcode: onScan,
                   onRefreshMetadata: onRefreshMetadata,
+                  addBackgroundColor: kClzYellow,
+                  addForegroundColor: const Color(0xFF151515),
                 ),
                 const LibraryWorkspaceSeparator(color: kClzDivider),
-                _GenericToolbarSearch(
-                  type: type,
+                LibraryToolbarSearch(
                   controller: searchController,
-                  selectedBucket: selectedBucket,
+                  hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                  selectedFilterLabel: selectedBucket,
                   onSearch: onSearchChanged,
-                  onClearBucket: onClearBucket,
+                  onClearFilter: onClearBucket,
+                  onChanged: onSearchChanged,
+                  selectionColor: kClzSelection,
                 ),
                 const LibraryWorkspaceSeparator(color: kClzDivider),
                 Expanded(
@@ -1036,116 +1020,6 @@ class _GenericLibraryToolbar extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-}
-
-class _GenericToolbarPrimaryActions extends StatelessWidget {
-  const _GenericToolbarPrimaryActions({
-    required this.type,
-    required this.onAdd,
-    required this.onScan,
-    required this.onRefreshMetadata,
-  });
-
-  final LibraryTypeConfig type;
-  final VoidCallback onAdd;
-  final VoidCallback onScan;
-  final VoidCallback onRefreshMetadata;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: 30,
-          child: FilledButton.icon(
-            onPressed: onAdd,
-            style: FilledButton.styleFrom(
-              backgroundColor: kClzYellow,
-              foregroundColor: const Color(0xFF151515),
-              padding: const EdgeInsets.symmetric(horizontal: 9),
-              textStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            icon: const Icon(Icons.add, size: 17),
-            label: Text('Add ${type.pluralLabel}'),
-          ),
-        ),
-        const SizedBox(width: 6),
-        Tooltip(
-          message: 'Scan barcode',
-          child: LibraryWorkspaceIconButton(
-            icon: Icons.qr_code_scanner,
-            onPressed: onScan,
-          ),
-        ),
-        Tooltip(
-          message: 'Refresh metadata',
-          child: LibraryWorkspaceIconButton(
-            icon: Icons.sync,
-            onPressed: onRefreshMetadata,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _GenericToolbarSearch extends StatelessWidget {
-  const _GenericToolbarSearch({
-    required this.type,
-    required this.controller,
-    required this.selectedBucket,
-    required this.onSearch,
-    required this.onClearBucket,
-  });
-
-  final LibraryTypeConfig type;
-  final TextEditingController controller;
-  final String? selectedBucket;
-  final ValueChanged<String> onSearch;
-  final VoidCallback onClearBucket;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: 320,
-          child: SearchBar(
-            controller: controller,
-            constraints: const BoxConstraints.tightFor(height: 32),
-            hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-            leading: const Icon(Icons.search),
-            trailing: [
-              Tooltip(
-                message: 'Search',
-                child: IconButton(
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () => onSearch(controller.text),
-                  icon: const Icon(Icons.arrow_forward, size: 18),
-                ),
-              ),
-            ],
-            onChanged: onSearch,
-            onSubmitted: onSearch,
-          ),
-        ),
-        if (selectedBucket != null) ...[
-          const SizedBox(width: 6),
-          InputChip(
-            visualDensity: VisualDensity.compact,
-            backgroundColor: kClzSelection,
-            label: Text(selectedBucket!),
-            onDeleted: onClearBucket,
-          ),
-        ],
-      ],
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 class ComicsTopBar extends StatelessWidget {
@@ -91,39 +90,5 @@ class _ComicsTopBarButton extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class ComicsDetailsAwareLayout extends StatelessWidget {
-  const ComicsDetailsAwareLayout({
-    super.key,
-    required this.content,
-    required this.detailsLayout,
-    required this.inspector,
-  });
-
-  final Widget content;
-  final LibraryDetailsLayout detailsLayout;
-  final Widget inspector;
-
-  @override
-  Widget build(BuildContext context) {
-    return switch (detailsLayout) {
-      LibraryDetailsLayout.right => Row(
-          children: [
-            Expanded(child: content),
-            const VerticalDivider(width: 1),
-            SizedBox(width: 340, child: inspector),
-          ],
-        ),
-      LibraryDetailsLayout.bottom => Column(
-          children: [
-            Expanded(child: content),
-            const Divider(height: 1),
-            SizedBox(height: 310, child: inspector),
-          ],
-        ),
-      LibraryDetailsLayout.hidden => content,
-    };
   }
 }
