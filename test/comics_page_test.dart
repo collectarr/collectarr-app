@@ -102,7 +102,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Series'), findsWidgets);
     expect(find.text('Superman, Vol. 4'), findsWidgets);
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
     expect(find.text('Owned'), findsWidgets);
@@ -125,9 +125,9 @@ void main() {
     expect(find.byTooltip('Details right'), findsOneWidget);
     expect(find.byTooltip('Details bottom'), findsOneWidget);
     expect(find.byTooltip('Hide details'), findsOneWidget);
-    expect(find.byTooltip('Local statistics'), findsOneWidget);
+    expect(find.byTooltip('Library tools'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Local statistics'));
+    await _tapLibraryTool(tester, 'Statistics');
     await tester.pumpAndSettle();
 
     expect(find.text('Local Comics Statistics'), findsOneWidget);
@@ -595,12 +595,12 @@ void main() {
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Details'), findsOneWidget);
     expect(find.widgetWithText(Tab, 'Value'), findsOneWidget);
-    expect(find.text('Personal'), findsOneWidget);
+    expect(find.widgetWithText(Tab, 'Personal'), findsOneWidget);
     expect(find.text('Cover'), findsOneWidget);
     expect(find.widgetWithText(Tab, 'Plot'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Personal notes'), findsWidgets);
 
-    await tester.tap(find.text('Personal'));
+    await tester.tap(find.widgetWithText(Tab, 'Personal'));
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(TextField, 'Quantity'), findsOneWidget);
@@ -651,7 +651,7 @@ void main() {
 
     expect(find.text('Superman, Vol. 4 #9'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Filters'));
+    await _tapLibraryTool(tester, 'Filters');
     await tester.pumpAndSettle();
     await tester.tap(find.text('All comics'));
     await tester.pumpAndSettle();
@@ -724,14 +724,14 @@ void main() {
     expect(find.text('Covered Series #1'), findsWidgets);
     expect(find.text('Missing Cover Series #1'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Shelf views'));
+    await tester.tap(find.byTooltip('Library tools'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Missing covers').last);
+    await tester.tap(find.widgetWithText(ListTile, 'Missing covers').last);
     await tester.pumpAndSettle();
 
     expect(find.text('Covered Series #1'), findsNothing);
     expect(find.text('Missing Cover Series #1'), findsWidgets);
-    expect(find.byTooltip('Clear filters'), findsOneWidget);
+    expect(find.byTooltip('Library tools'), findsOneWidget);
   });
 
   testWidgets('comics page restores and clears persisted filters',
@@ -775,9 +775,7 @@ void main() {
 
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
     expect(find.text('Superman, Vol. 4 #9'), findsNothing);
-    expect(find.byTooltip('Clear filters'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Clear filters'));
+    await _tapLibraryTool(tester, 'Clear filters');
     await tester.pumpAndSettle();
 
     final prefs = await SharedPreferences.getInstance();
@@ -874,7 +872,7 @@ void main() {
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
     expect(find.text('Superman, Vol. 4 #9'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Filters'));
+    await _tapLibraryTool(tester, 'Filters');
     await tester.pumpAndSettle();
     await tester.tap(find.text('Publisher').last);
     await tester.pumpAndSettle();
@@ -949,9 +947,9 @@ void main() {
     expect(find.text('Bulk edit'), findsOneWidget);
     expect(find.text('Condition'), findsWidgets);
     expect(find.text('Grade'), findsWidgets);
-    expect(find.text('Storage box'), findsOneWidget);
-    expect(find.text('Tags'), findsOneWidget);
-    expect(find.text('Read status'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Storage box'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Tags'), findsOneWidget);
+    expect(find.text('Read status'), findsWidgets);
   });
 
   testWidgets('comics page shows missing issue gaps for selected series',
@@ -1004,11 +1002,18 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Gap Series').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Missing issues'));
+    await _tapLibraryTool(tester, 'Missing issues');
     await tester.pumpAndSettle();
 
     expect(find.text('#2'), findsWidgets);
   });
+}
+
+Future<void> _tapLibraryTool(WidgetTester tester, String label) async {
+  await tester.tap(find.byTooltip('Library tools'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.widgetWithText(ListTile, label).last);
+  await tester.pumpAndSettle();
 }
 
 class _FakeApiClient extends ApiClient {

@@ -54,6 +54,8 @@ class ComicsWorkspace extends StatelessWidget {
     required this.onBulkMoveToOwned,
     required this.onBulkMoveToWishlist,
     required this.onBulkRemove,
+    this.onOpenLibraries,
+    this.topBar,
   });
 
   final List<ShelfEntry> entries;
@@ -101,6 +103,8 @@ class ComicsWorkspace extends StatelessWidget {
   final VoidCallback onBulkMoveToOwned;
   final VoidCallback onBulkMoveToWishlist;
   final VoidCallback onBulkRemove;
+  final VoidCallback? onOpenLibraries;
+  final Widget? topBar;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +118,7 @@ class ComicsWorkspace extends StatelessWidget {
     );
 
     if (!isWide) {
-      return ComicsCompactView(
+      final compact = ComicsCompactView(
         items: projection.visibleItems,
         selectedItem: projection.selectedItem,
         selectedGroup: selectedGroup,
@@ -132,6 +136,15 @@ class ComicsWorkspace extends StatelessWidget {
         onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
         onSelectItem: onSelectItem,
         onClearGroup: onClearGroup,
+      );
+      if (topBar == null) {
+        return compact;
+      }
+      return Column(
+        children: [
+          topBar!,
+          Expanded(child: compact),
+        ],
       );
     }
 
@@ -177,6 +190,8 @@ class ComicsWorkspace extends StatelessWidget {
       onBulkMoveToOwned: onBulkMoveToOwned,
       onBulkMoveToWishlist: onBulkMoveToWishlist,
       onBulkRemove: onBulkRemove,
+      onOpenLibraries: onOpenLibraries,
+      topBar: topBar,
     );
   }
 }

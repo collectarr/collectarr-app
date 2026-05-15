@@ -47,4 +47,34 @@ void main() {
 
     expect(result, '759606083060');
   });
+
+  testWidgets('barcode sheet can describe the active media add flow',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: BarcodeScanSheet(
+            cameraSupported: false,
+            platform: TargetPlatform.windows,
+            title: 'Scan game barcode',
+            description:
+                'Scan or enter a barcode. Collectarr will open Add Games with this code prefilled.',
+            manualLabel: 'Game barcode / UPC / ISBN',
+            submitLabel: 'Continue to Add Games',
+            leadingIcon: Icons.sports_esports,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Scan game barcode'), findsOneWidget);
+    expect(
+      find.text(
+        'Scan or enter a barcode. Collectarr will open Add Games with this code prefilled.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Game barcode / UPC / ISBN'), findsOneWidget);
+    expect(find.text('Continue to Add Games'), findsOneWidget);
+  });
 }

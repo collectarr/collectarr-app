@@ -683,6 +683,7 @@ class AdminVariant {
     this.thumbnailImageUrl,
     this.physicalFormat,
     this.physicalFormatLabel,
+    this.metadataJson = const {},
   });
 
   final String id;
@@ -696,6 +697,29 @@ class AdminVariant {
   final String? thumbnailImageUrl;
   final String? physicalFormat;
   final String? physicalFormatLabel;
+  final Map<String, dynamic> metadataJson;
+
+  Map<String, dynamic> get normalizedMetadata {
+    final normalized = metadataJson['normalized'];
+    return normalized is Map
+        ? normalized.cast<String, dynamic>()
+        : const <String, dynamic>{};
+  }
+
+  String get coverStatus {
+    final status = normalizedMetadata['cover_status'];
+    if (status != null && status.toString().trim().isNotEmpty) {
+      return status.toString();
+    }
+    return coverImageUrl == null && thumbnailImageUrl == null
+        ? 'missing'
+        : 'external_url';
+  }
+
+  String? get coverStorage => normalizedMetadata['cover_storage']?.toString();
+  String? get coverPolicy => normalizedMetadata['cover_policy']?.toString();
+  String? get coverSourceUrl =>
+      normalizedMetadata['cover_source_url']?.toString();
 
   factory AdminVariant.fromJson(Map<String, dynamic> json) {
     return AdminVariant(
@@ -710,6 +734,8 @@ class AdminVariant {
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
+      metadataJson: (json['metadata_json'] as Map?)?.cast<String, dynamic>() ??
+          const <String, dynamic>{},
     );
   }
 }

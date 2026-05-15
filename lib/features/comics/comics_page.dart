@@ -26,7 +26,14 @@ const Color _kClzCanvas = kClzCanvas;
 final ThemeData _kClzComicsTheme = kClzComicsTheme;
 
 class ComicsPage extends ConsumerStatefulWidget {
-  const ComicsPage({super.key});
+  const ComicsPage({
+    super.key,
+    this.onOpenLibraries,
+    this.topBar,
+  });
+
+  final VoidCallback? onOpenLibraries;
+  final Widget? topBar;
 
   @override
   ConsumerState<ComicsPage> createState() => _ComicsPageState();
@@ -134,6 +141,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 onBulkMoveToOwned: () => _bulkMoveToOwned(entries),
                 onBulkMoveToWishlist: () => _bulkMoveToWishlist(entries),
                 onBulkRemove: () => _bulkRemove(context, entries),
+                onOpenLibraries: widget.onOpenLibraries,
+                topBar: widget.topBar,
               );
             },
             error: (error, stackTrace) =>

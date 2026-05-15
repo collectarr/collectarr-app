@@ -10,6 +10,13 @@ through `collectarr-sync`.
 - CLZ-friendly CSV: compatibility export/import mapping for common CLZ column
   names.
 
+## Flutter Workflow
+
+The Flutter app exposes a CSV / CLZ wizard from Settings for quick local
+backup, CLZ-friendly export, paste-based import preview, and matched-row import.
+The Shelf screen keeps the deeper import flow for manual Core search,
+unresolved row handling, metadata proposals, and conflict choices.
+
 ## ComicRack Compatibility Decision
 
 Decision: support ComicRack-compatible metadata as an optional compatibility

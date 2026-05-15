@@ -39,10 +39,11 @@ void main() {
       ),
     );
 
-    expect(find.text('Shown'), findsOneWidget);
-    expect(find.text('12'), findsOneWidget);
-    expect(find.text('Total'), findsOneWidget);
-    expect(find.text('28'), findsOneWidget);
+    expect(find.byTooltip('Select columns'), findsOneWidget);
+    expect(find.byTooltip('Cover view'), findsOneWidget);
+    expect(find.byTooltip('Card view'), findsOneWidget);
+    expect(find.byTooltip('List view'), findsOneWidget);
+    expect(find.byTooltip('View options'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Select columns'));
     await tester.pump();

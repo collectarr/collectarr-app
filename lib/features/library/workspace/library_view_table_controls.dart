@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.dart';
 import 'package:collectarr_app/features/library/workspace/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
@@ -26,10 +25,6 @@ class LibraryViewTableControls extends StatelessWidget {
             icon: Icons.view_column,
           ),
         ),
-        const SizedBox(width: 6),
-        LibraryToolbarStat(label: 'Shown', value: state.counts.shown),
-        const SizedBox(width: 6),
-        LibraryToolbarStat(label: 'Total', value: state.counts.total),
         const SizedBox(width: 6),
         LibraryViewControls(
           viewMode: state.viewMode,

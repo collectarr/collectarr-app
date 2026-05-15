@@ -5,10 +5,20 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 class BarcodeScanSheet extends StatefulWidget {
   const BarcodeScanSheet({
     super.key,
+    this.title = 'Scan barcode',
+    this.description,
+    this.manualLabel = 'Manual barcode / UPC / ISBN',
+    this.submitLabel = 'Lookup barcode',
+    this.leadingIcon = Icons.qr_code_scanner,
     @visibleForTesting this.cameraSupported,
     @visibleForTesting this.platform,
   });
 
+  final String title;
+  final String? description;
+  final String manualLabel;
+  final String submitLabel;
+  final IconData leadingIcon;
   final bool? cameraSupported;
   final TargetPlatform? platform;
 
@@ -67,10 +77,10 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
           children: [
             Row(
               children: [
-                const Icon(Icons.qr_code_scanner),
+                Icon(widget.leadingIcon),
                 const SizedBox(width: 8),
                 Text(
-                  'Scan barcode',
+                  widget.title,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const Spacer(),
@@ -81,6 +91,15 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
                 ),
               ],
             ),
+            if (widget.description != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                widget.description!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
             const SizedBox(height: 12),
             if (_cameraSupported)
               ClipRRect(
@@ -110,10 +129,10 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
               controller: _manualController,
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.search,
-              decoration: const InputDecoration(
-                labelText: 'Manual barcode / UPC / ISBN',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.numbers),
+              decoration: InputDecoration(
+                labelText: widget.manualLabel,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.numbers),
               ),
               onSubmitted: (_) => _submitManual(),
             ),
@@ -121,7 +140,7 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
             FilledButton.icon(
               onPressed: _submitManual,
               icon: const Icon(Icons.search),
-              label: const Text('Lookup barcode'),
+              label: Text(widget.submitLabel),
             ),
           ],
         ),

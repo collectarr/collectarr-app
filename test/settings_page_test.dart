@@ -40,43 +40,35 @@ void main() {
     expect(find.text('Use Local desktop'), findsOneWidget);
     expect(find.text('Use Android emulator'), findsOneWidget);
     expect(find.text('Use LAN template'), findsOneWidget);
+    expect(find.text('Library navigation'), findsOneWidget);
+    expect(find.text('Overflow uses More'), findsOneWidget);
+    expect(find.text('Position'), findsOneWidget);
+    expect(find.text('Top bar'), findsWidgets);
+    expect(find.text('Left rail'), findsWidgets);
+    expect(find.text('Reset library navigation'), findsOneWidget);
+    await _scrollToText(tester, 'Metadata server');
     expect(find.text('Metadata server'), findsOneWidget);
-    expect(find.text('Personal sync service'), findsOneWidget);
     expect(find.text('Check metadata server'), findsOneWidget);
+    await _scrollToText(tester, 'Personal sync service');
+    expect(find.text('Personal sync service'), findsOneWidget);
     expect(find.text('Check sync service'), findsOneWidget);
     expect(find.text('Sync now'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Device pairing'),
-      240,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await _scrollToText(tester, 'Device pairing');
     expect(find.text('Device pairing'), findsOneWidget);
     expect(find.text('Device identity'), findsOneWidget);
     expect(find.text('Copy pairing code'), findsOneWidget);
     expect(find.text('Show pairing QR'), findsOneWidget);
     expect(find.text('Apply pairing code'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Local backup'),
-      240,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await _scrollToText(tester, 'Local backup');
     expect(find.text('Local backup'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('Copy sync backup guide'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Metadata proposals'),
-      240,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await _scrollToText(tester, 'Metadata proposals');
     expect(find.text('Metadata proposals'), findsOneWidget);
     expect(find.text('No local proposal submissions yet.'), findsOneWidget);
     expect(find.text('Session expiry unavailable'), findsNothing);
-    await tester.scrollUntilVisible(
-      find.text('Save settings'),
-      240,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await _scrollToText(tester, 'Save settings');
     expect(find.text('Save settings'), findsOneWidget);
   });
 
@@ -100,6 +92,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await _scrollToText(tester, 'Personal sync service');
     expect(
       find.textContaining('Browser CORS, HTTPS, and local-network access'),
       findsOneWidget,
@@ -139,17 +132,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Sync conflict review'),
-      240,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await _scrollToText(tester, 'Sync conflict review');
 
     expect(find.text('Sync conflict review'), findsOneWidget);
     expect(find.text('owned_item:owned-it'), findsOneWidget);
     expect(find.textContaining('stale_client_change'), findsOneWidget);
+    await _scrollToTooltip(tester, 'Copy conflict id');
     await tester.tap(find.byTooltip('Copy conflict id'));
     await tester.pumpAndSettle();
+    await _scrollToTooltip(tester, 'Keep service version');
     await tester.tap(find.byTooltip('Keep service version'));
     await tester.pumpAndSettle();
     expect(find.text('Sync conflict review'), findsNothing);
@@ -180,7 +171,9 @@ void main() {
       find.text('Android emulator endpoints applied. Save settings next.'),
       findsOneWidget,
     );
+    await _scrollToText(tester, 'Metadata server');
     expect(find.text('http://10.0.2.2:8010'), findsOneWidget);
+    await _scrollToText(tester, 'Personal sync service');
     expect(find.text('http://10.0.2.2:8020'), findsOneWidget);
   });
 
@@ -208,6 +201,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await _scrollToText(tester, 'Apply pairing code');
     await tester.tap(find.text('Apply pairing code'));
     await tester.pumpAndSettle();
     await tester.enterText(
@@ -216,7 +210,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Pairing settings applied'), findsOneWidget);
+    await _scrollToTextUp(tester, 'Metadata server');
     expect(find.text('http://metadata.local:8010'), findsOneWidget);
+    await _scrollToText(tester, 'Personal sync service');
     expect(find.text('http://sync.local:8020'), findsOneWidget);
   });
 
@@ -237,11 +233,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Device pairing'),
-      240,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await _scrollToText(tester, 'Device pairing');
+    await _scrollToText(tester, 'Show pairing QR');
     await tester.tap(find.text('Show pairing QR'));
     await tester.pumpAndSettle();
 
@@ -271,16 +264,39 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Account'),
-      240,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await _scrollToText(tester, 'Account');
 
     expect(find.text('user@example.com'), findsOneWidget);
     expect(find.textContaining('Session expires'), findsOneWidget);
     expect(find.text('Sign out'), findsOneWidget);
   });
+}
+
+Future<void> _scrollToText(WidgetTester tester, String text) async {
+  await tester.scrollUntilVisible(
+    find.text(text),
+    320,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> _scrollToTooltip(WidgetTester tester, String tooltip) async {
+  await tester.scrollUntilVisible(
+    find.byTooltip(tooltip),
+    320,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> _scrollToTextUp(WidgetTester tester, String text) async {
+  await tester.scrollUntilVisible(
+    find.text(text),
+    -320,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
 }
 
 String _jwtExpiringAt(DateTime expiresAt) {

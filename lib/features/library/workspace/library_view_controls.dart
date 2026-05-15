@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+enum _LibraryViewOption { coverSmall, coverMedium, coverLarge }
+
 class LibraryViewControls extends StatelessWidget {
   const LibraryViewControls({
     super.key,
@@ -30,20 +32,6 @@ class LibraryViewControls extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Tooltip(
-          message: 'Cover size',
-          child: SizedBox(
-            width: 112,
-            child: Slider(
-              min: minCoverSize,
-              max: maxCoverSize,
-              divisions: 7,
-              value: coverSize.clamp(minCoverSize, maxCoverSize).toDouble(),
-              onChanged: onCoverSizeChanged,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
         SegmentedButton<LibraryViewMode>(
           segments: const [
             ButtonSegment(
@@ -71,24 +59,6 @@ class LibraryViewControls extends StatelessWidget {
           selected: {viewMode},
           onSelectionChanged: (selection) => onViewModeChanged(selection.first),
           showSelectedIcon: false,
-        ),
-        const SizedBox(width: 8),
-        PopupMenuButton<LibraryWorkspacePreset>(
-          tooltip: 'View presets',
-          enabled: onPresetSelected != null,
-          icon: const Icon(Icons.dashboard_customize),
-          onSelected: onPresetSelected,
-          itemBuilder: (context) => [
-            for (final preset in LibraryWorkspacePreset.values)
-              PopupMenuItem(
-                value: preset,
-                child: ListTile(
-                  leading: Icon(preset.icon),
-                  title: Text('${preset.label} preset'),
-                  dense: true,
-                ),
-              ),
-          ],
         ),
         const SizedBox(width: 8),
         SegmentedButton<LibraryDetailsLayout>(
@@ -120,7 +90,105 @@ class LibraryViewControls extends StatelessWidget {
               onDetailsLayoutChanged(selection.first),
           showSelectedIcon: false,
         ),
+        const SizedBox(width: 8),
+        PopupMenuButton<Object>(
+          tooltip: 'View options',
+          icon: const Icon(Icons.tune),
+          onSelected: _handleViewOptionSelected,
+          itemBuilder: (context) => [
+            const PopupMenuItem<Object>(
+              enabled: false,
+              child: Text('Cover size'),
+            ),
+            PopupMenuItem<Object>(
+              value: _LibraryViewOption.coverSmall,
+              child: _ViewOptionTile(
+                icon: Icons.photo_size_select_small,
+                label: 'Small covers',
+                selected: _isCoverSizeNear(minCoverSize),
+              ),
+            ),
+            PopupMenuItem<Object>(
+              value: _LibraryViewOption.coverMedium,
+              child: _ViewOptionTile(
+                icon: Icons.photo_size_select_actual_outlined,
+                label: 'Medium covers',
+                selected: _isCoverSizeNear(_mediumCoverSize),
+              ),
+            ),
+            PopupMenuItem<Object>(
+              value: _LibraryViewOption.coverLarge,
+              child: _ViewOptionTile(
+                icon: Icons.photo_size_select_large,
+                label: 'Large covers',
+                selected: _isCoverSizeNear(maxCoverSize),
+              ),
+            ),
+            if (onPresetSelected != null) ...[
+              const PopupMenuDivider(),
+              const PopupMenuItem<Object>(
+                enabled: false,
+                child: Text('Presets'),
+              ),
+              for (final preset in LibraryWorkspacePreset.values)
+                PopupMenuItem<Object>(
+                  value: preset,
+                  child: ListTile(
+                    leading: Icon(preset.icon),
+                    title: Text(preset.label),
+                    dense: true,
+                  ),
+                ),
+            ],
+          ],
+        ),
       ],
+    );
+  }
+
+  double get _mediumCoverSize =>
+      minCoverSize + (maxCoverSize - minCoverSize) / 2;
+
+  bool _isCoverSizeNear(double size) {
+    return (coverSize - size).abs() <= 8;
+  }
+
+  void _handleViewOptionSelected(Object option) {
+    if (option is LibraryWorkspacePreset) {
+      onPresetSelected?.call(option);
+      return;
+    }
+    switch (option) {
+      case _LibraryViewOption.coverSmall:
+        onCoverSizeChanged(minCoverSize);
+      case _LibraryViewOption.coverMedium:
+        onCoverSizeChanged(_mediumCoverSize);
+      case _LibraryViewOption.coverLarge:
+        onCoverSizeChanged(maxCoverSize);
+      default:
+        break;
+    }
+  }
+}
+
+class _ViewOptionTile extends StatelessWidget {
+  const _ViewOptionTile({
+    required this.icon,
+    required this.label,
+    required this.selected,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      dense: true,
+      leading: Icon(icon),
+      title: Text(label),
+      trailing: selected ? const Icon(Icons.check, size: 18) : null,
     );
   }
 }

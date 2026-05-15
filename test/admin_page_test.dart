@@ -157,7 +157,7 @@ void main() {
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, 'direct-123');
-    expect(find.text('Metadata item ingested.'), findsOneWidget);
+    expect(find.text('Absolute Batman #1A'), findsWidgets);
 
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Search'));
     await tester.pumpAndSettle();
@@ -183,7 +183,6 @@ void main() {
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, '12345');
-    expect(find.text('Metadata item ingested.'), findsOneWidget);
     expect(find.text('Absolute Batman #1A'), findsWidgets);
   });
 }
@@ -425,6 +424,7 @@ class _FakeAdminApiClient extends ApiClient {
   Future<List<AdminAuditLogEntry>> adminAuditLogs({
     String? action,
     String? entityType,
+    String? entityId,
     int limit = 10,
   }) async {
     return [

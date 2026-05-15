@@ -3,9 +3,14 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:flutter/material.dart';
 
 class ComicsTopBar extends StatelessWidget {
-  const ComicsTopBar({super.key, required this.totalCount});
+  const ComicsTopBar({
+    super.key,
+    required this.totalCount,
+    this.onOpenLibraries,
+  });
 
   final int totalCount;
+  final VoidCallback? onOpenLibraries;
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +23,23 @@ class ComicsTopBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
-          const Icon(Icons.cloud_queue, size: 20, color: Colors.white),
-          const SizedBox(width: 8),
+          if (onOpenLibraries == null) ...[
+            const Icon(Icons.cloud_queue, size: 20, color: Colors.white),
+            const SizedBox(width: 8),
+          ] else ...[
+            _ComicsTopBarButton(
+              tooltip: 'All libraries',
+              icon: Icons.apps_outlined,
+              label: 'Libraries',
+              onPressed: onOpenLibraries,
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, size: 18, color: Colors.white70),
+            const SizedBox(width: 8),
+          ],
           const Text(
-            'Collectarr Comics',
-            style: TextStyle(fontWeight: FontWeight.w800),
+            'Comics',
+            style: TextStyle(fontWeight: FontWeight.w900),
           ),
           const Spacer(),
           Text(
@@ -34,6 +51,44 @@ class ComicsTopBar extends StatelessWidget {
           const SizedBox(width: 10),
           const Icon(Icons.person, size: 18, color: Colors.white),
         ],
+      ),
+    );
+  }
+}
+
+class _ComicsTopBarButton extends StatelessWidget {
+  const _ComicsTopBarButton({
+    required this.tooltip,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(3),
+        onTap: onPressed,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: Colors.white),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

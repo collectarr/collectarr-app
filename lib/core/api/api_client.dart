@@ -198,7 +198,8 @@ class ApiClient {
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (includeNulls || variantName != null) 'variant_name': variantName,
       if (includeNulls || barcode != null) 'barcode': barcode,
-      if (includeNulls || coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (includeNulls || coverImageUrl != null)
+        'cover_image_url': coverImageUrl,
       if (includeNulls || thumbnailImageUrl != null)
         'thumbnail_image_url': thumbnailImageUrl,
     };
@@ -253,6 +254,7 @@ class ApiClient {
   Future<List<AdminAuditLogEntry>> adminAuditLogs({
     String? action,
     String? entityType,
+    String? entityId,
     int limit = 10,
   }) async {
     final response = await _dio.get<List<dynamic>>(
@@ -261,6 +263,7 @@ class ApiClient {
         if (action != null && action.isNotEmpty) 'action': action,
         if (entityType != null && entityType.isNotEmpty)
           'entity_type': entityType,
+        if (entityId != null && entityId.isNotEmpty) 'entity_id': entityId,
         'limit': limit,
       },
     );

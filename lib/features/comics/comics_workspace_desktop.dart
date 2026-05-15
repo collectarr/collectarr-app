@@ -57,6 +57,8 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
     required this.onBulkMoveToOwned,
     required this.onBulkMoveToWishlist,
     required this.onBulkRemove,
+    this.onOpenLibraries,
+    this.topBar,
   });
 
   final ComicsWorkspaceProjection projection;
@@ -103,12 +105,18 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
   final VoidCallback onBulkMoveToOwned;
   final VoidCallback onBulkMoveToWishlist;
   final VoidCallback onBulkRemove;
+  final VoidCallback? onOpenLibraries;
+  final Widget? topBar;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ComicsTopBar(totalCount: projection.totalCount),
+        topBar ??
+            ComicsTopBar(
+              totalCount: projection.totalCount,
+              onOpenLibraries: onOpenLibraries,
+            ),
         ComicsToolbar(
           controller: queryController,
           controlState: ComicsWorkspaceControlState(
@@ -167,11 +175,6 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
           onScanBarcode: onScanBarcode,
           onRefreshMetadata: onRefreshMetadata,
           onClearSeries: onClearGroup,
-        ),
-        ComicsStatsBar(
-          state: shelfState,
-          selectedSeries: projection.selectedSeries,
-          missingIssues: projection.missingIssues,
         ),
         Expanded(
           child: Row(

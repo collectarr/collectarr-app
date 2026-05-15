@@ -32,7 +32,7 @@ class SyncService {
     if (pending.isNotEmpty) {
       final response = await client.push(deviceId: deviceId, changes: pending);
       final acceptedIds = _acceptedKeys(response);
-      rejectedChanges = _rejectedChanges(response);
+      rejectedChanges = _rejectedChanges(response, pending);
       final completedKeys = {
         ...acceptedIds,
         for (final rejected in rejectedChanges) rejected.key,
@@ -137,7 +137,10 @@ class SyncService {
         .toSet();
   }
 
-  List<SyncRejectedChange> _rejectedChanges(Map<String, dynamic> response) {
+  List<SyncRejectedChange> _rejectedChanges(
+    Map<String, dynamic> response,
+    List<SyncChange> pending,
+  ) {
     final rejected = response['rejected'];
     if (rejected == null) {
       return const [];
@@ -147,12 +150,17 @@ class SyncService {
         'Sync push response has invalid rejected changes',
       );
     }
-    return rejected
-        .whereType<Map>()
-        .map((item) => SyncRejectedChange.fromJson(
-              item.cast<String, dynamic>(),
-            ))
-        .toList(growable: false);
+    final pendingByKey = {
+      for (final change in pending) _changeKey(change): change,
+    };
+    return rejected.whereType<Map>().map((item) {
+      final json = item.cast<String, dynamic>();
+      final key = '${json['entity_type']}:${json['entity_id']}';
+      return SyncRejectedChange.fromJson(
+        json,
+        localChange: pendingByKey[key],
+      );
+    }).toList(growable: false);
   }
 
   List<Map<String, dynamic>> _entities(Map<String, dynamic> response) {
@@ -207,17 +215,33 @@ class SyncRejectedChange {
     required this.entityId,
     required this.reason,
     this.currentClientChangedAt,
+    this.serviceAction,
+    this.servicePayload,
+    this.localAction,
+    this.localPayload,
+    this.localClientChangedAt,
   });
 
   final String entityType;
   final String entityId;
   final String reason;
   final DateTime? currentClientChangedAt;
+  final String? serviceAction;
+  final Map<String, dynamic>? servicePayload;
+  final String? localAction;
+  final Map<String, dynamic>? localPayload;
+  final DateTime? localClientChangedAt;
 
   String get key => '$entityType:$entityId';
 
-  factory SyncRejectedChange.fromJson(Map<String, dynamic> json) {
+  bool get hasDiffPayload => servicePayload != null || localPayload != null;
+
+  factory SyncRejectedChange.fromJson(
+    Map<String, dynamic> json, {
+    SyncChange? localChange,
+  }) {
     final currentClientChangedAt = json['current_client_changed_at'];
+    final currentPayload = json['current_payload'];
     return SyncRejectedChange(
       entityType: json['entity_type'] as String,
       entityId: json['entity_id'] as String,
@@ -225,6 +249,12 @@ class SyncRejectedChange {
       currentClientChangedAt: currentClientChangedAt is String
           ? DateTime.parse(currentClientChangedAt).toUtc()
           : null,
+      serviceAction: json['current_action'] as String?,
+      servicePayload:
+          currentPayload is Map ? currentPayload.cast<String, dynamic>() : null,
+      localAction: localChange?.action,
+      localPayload: localChange?.payload,
+      localClientChangedAt: localChange?.clientChangedAt,
     );
   }
 }

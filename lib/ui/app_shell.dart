@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
-import 'package:collectarr_app/features/comics/comics_page.dart';
+import 'package:collectarr_app/features/library/library_home_page.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   int index = 0;
 
   static const pages = [
-    ComicsPage(),
+    LibraryHomePage(),
     CollectionPage(),
     AdminPage(),
     SettingsPage(),
@@ -46,7 +46,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         selectedIndex: index,
         onDestinationSelected: (value) => setState(() => index = value),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.menu_book), label: 'Comics'),
+          NavigationDestination(
+              icon: Icon(Icons.apps_outlined), label: 'Libraries'),
           NavigationDestination(icon: Icon(Icons.inventory_2), label: 'Shelf'),
           NavigationDestination(
               icon: Icon(Icons.admin_panel_settings_outlined), label: 'Admin'),

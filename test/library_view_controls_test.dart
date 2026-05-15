@@ -39,9 +39,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(detailsLayout, LibraryDetailsLayout.hidden);
 
-    await tester.tap(find.byTooltip('View presets'));
+    await tester.tap(find.byTooltip('View options'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('List preset'));
+    await tester.tap(find.widgetWithText(ListTile, 'List'));
     expect(preset, LibraryWorkspacePreset.list);
   });
 }
