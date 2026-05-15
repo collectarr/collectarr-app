@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
@@ -167,5 +168,70 @@ void main() {
     expect(find.text('[All Games] 1'), findsOneWidget);
     expect(find.text('Supergiant Games 1'), findsOneWidget);
     expect(find.text('Hades'), findsWidgets);
+  });
+
+  testWidgets('catalog-defined libraries use generic workspace controls',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1220, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const podcastType = CatalogMediaType(
+      kind: 'podcast',
+      singularLabel: 'Podcast',
+      pluralLabel: 'Podcasts',
+      routeSegments: ['podcasts'],
+      defaultProvider: 'podindex',
+      providers: ['podindex'],
+    );
+    final now = DateTime.utc(2026, 5, 15);
+    const podcast = CatalogItem(
+      id: 'podcast-1',
+      kind: 'podcast',
+      title: 'The Library Feed',
+      publisher: 'Collectarr Studio',
+      releaseYear: 2026,
+    );
+    final shelf = ShelfState.from(
+      ownedItems: [
+        OwnedItem(id: 'owned-podcast-1', itemId: podcast.id, updatedAt: now),
+      ],
+      wishlistItems: const [],
+      catalogItems: {podcast.id: podcast},
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider.overrideWith(
+            (ref) async => [...fallbackMediaCatalog, podcastType],
+          ),
+          shelfProvider.overrideWith((ref) async => shelf),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: LibraryHomePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('More libraries'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Podcasts'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Podcasts'), findsOneWidget);
+    expect(find.byTooltip('Scan barcode'), findsOneWidget);
+    expect(find.byTooltip('Refresh metadata'), findsOneWidget);
+    expect(find.byTooltip('Library tools'), findsOneWidget);
+    expect(find.text('Search podcasts...'), findsOneWidget);
+    expect(find.text('[All Podcasts]'), findsOneWidget);
+    expect(find.text('T'), findsOneWidget);
+    expect(find.text('The Library Feed'), findsWidgets);
+    expect(find.text('Collectarr Studio'), findsWidgets);
+    expect(find.text('No podcast selected'), findsNothing);
   });
 }

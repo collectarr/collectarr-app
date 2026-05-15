@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/generic_library_inspector.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
+import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -56,7 +57,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   _GenericQuickView? _quickView;
 
   LibraryMediaAdapter get _adapter =>
-      collectarrMediaAdapters.byKind(widget.type.workspace.kind)!;
+      collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
+      plannedMediaAdapter(widget.type);
 
   @override
   void initState() {
