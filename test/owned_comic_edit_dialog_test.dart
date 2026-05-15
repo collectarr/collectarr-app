@@ -13,6 +13,9 @@ void main() {
       title: 'Superman, Vol. 4',
       itemNumber: '8A',
       synopsis: 'Escape From Dinosaur Island',
+      publisher: 'DC',
+      releaseYear: 2016,
+      barcode: '76194134192700811',
     );
     final ownedItem = OwnedItem(
       id: 'owned-1',
@@ -20,6 +23,7 @@ void main() {
       condition: 'Near Mint',
       grade: '9.8',
       pricePaidCents: 1299,
+      coverPriceCents: 399,
       currency: 'USD',
       quantity: 1,
       storageBox: 'Box 1',
@@ -58,6 +62,18 @@ void main() {
     expect(find.text('Collection Status'), findsOneWidget);
     expect(find.text('1 / 6'), findsOneWidget);
     expect(find.text('Comic'), findsOneWidget);
+    await tester.tap(find.text('Value'));
+    await tester.pumpAndSettle();
+    expect(find.text('Value by grade'), findsOneWidget);
+    expect(find.text('Research integration placeholder'), findsNothing);
+    expect(find.text('Paid: '), findsOneWidget);
+    expect(find.text(r'$12.99'), findsOneWidget);
+    expect(find.text('Cover: '), findsOneWidget);
+    expect(find.text(r'$3.99'), findsOneWidget);
+    expect(find.text('Barcode: '), findsOneWidget);
+    expect(find.text('76194134192700811'), findsOneWidget);
+    await tester.tap(find.text('Main'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
     expect(find.text('2 / 6'), findsOneWidget);

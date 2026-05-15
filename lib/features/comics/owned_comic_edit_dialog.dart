@@ -11,6 +11,9 @@ const Color _kClzToolbar = Color(0xFF2B2B2B);
 const Color _kClzAccent = Color(0xFF10A8D8);
 const Color _kClzDivider = Color(0xFF4A4A4A);
 const Color _kClzTextMuted = Color(0xFFB8B8B8);
+const Color _kClzChartBar = Color(0xFF7EDAF3);
+const Color _kClzValueChip = Color(0xFF1B1B1B);
+const Color _kClzValueChipBorder = Color(0xFF3A3A3A);
 
 class OwnedComicEditDialog extends StatefulWidget {
   const OwnedComicEditDialog({
@@ -101,6 +104,9 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     _quantityController.addListener(_refreshFooter);
     _storageBoxController.addListener(_refreshFooter);
     _indexNumberController.addListener(_refreshFooter);
+    _priceController.addListener(_refreshFooter);
+    _coverPriceController.addListener(_refreshFooter);
+    _currencyController.addListener(_refreshFooter);
   }
 
   @override
@@ -108,6 +114,9 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     _quantityController.removeListener(_refreshFooter);
     _storageBoxController.removeListener(_refreshFooter);
     _indexNumberController.removeListener(_refreshFooter);
+    _priceController.removeListener(_refreshFooter);
+    _coverPriceController.removeListener(_refreshFooter);
+    _currencyController.removeListener(_refreshFooter);
     _tabController.dispose();
     _priceController.dispose();
     _currencyController.dispose();
@@ -578,7 +587,19 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                 ],
               ),
               const SizedBox(height: 12),
-              const _ValueByGradePanel(),
+              _ValueByGradePanel(
+                item: widget.item,
+                grade: _grade,
+                pricePaidCents: _parseMoneyCents(
+                  _priceController.text,
+                  fallback: widget.ownedItem.pricePaidCents,
+                ),
+                coverPriceCents: _parseMoneyCents(
+                  _coverPriceController.text,
+                  fallback: widget.ownedItem.coverPriceCents,
+                ),
+                currency: _currencyController.text,
+              ),
             ],
           ),
         ),
@@ -985,13 +1006,29 @@ class _EditGrid extends StatelessWidget {
 }
 
 class _ValueByGradePanel extends StatelessWidget {
-  const _ValueByGradePanel();
+  const _ValueByGradePanel({
+    required this.item,
+    required this.grade,
+    required this.pricePaidCents,
+    required this.coverPriceCents,
+    required this.currency,
+  });
+
+  final CatalogItem item;
+  final String? grade;
+  final int? pricePaidCents;
+  final int? coverPriceCents;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
-    const values = [8, 12, 18, 26, 34, 44, 58, 74, 96, 130];
+    const chartValues = [8, 12, 18, 26, 34, 44, 58, 74, 96, 130];
+    const chartMaxValue = 130;
+    const chartHeight = 90.0;
+    final normalizedCurrency = currency.trim().toUpperCase();
+    final releaseDate = item.releaseDate;
     return Container(
-      height: 190,
+      constraints: const BoxConstraints(minHeight: 210),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: const Color(0xFF101010),
@@ -1005,31 +1042,117 @@ class _ValueByGradePanel extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 10),
-          Expanded(
+          SizedBox(
+            height: chartHeight,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                for (var i = 0; i < values.length; i++) ...[
+                // Local guide curve until a market-value provider is wired.
+                for (var i = 0; i < chartValues.length; i++) ...[
                   Expanded(
                     child: Tooltip(
                       message: '${(i + 1) * 1.0}',
                       child: Container(
-                        height: values[i].toDouble(),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF7EDAF3),
-                        ),
+                        height: chartValues[i] / chartMaxValue * chartHeight,
+                        decoration: const BoxDecoration(color: _kClzChartBar),
                       ),
                     ),
                   ),
-                  if (i != values.length - 1) const SizedBox(width: 5),
+                  if (i != chartValues.length - 1) const SizedBox(width: 5),
                 ],
               ],
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Research integration placeholder',
-            style: TextStyle(color: _kClzTextMuted, fontSize: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _ValueContextChip(
+                icon: Icons.workspace_premium_outlined,
+                label: 'Grade',
+                value: _displayValue(grade, fallback: 'Ungraded'),
+              ),
+              _ValueContextChip(
+                icon: Icons.payments_outlined,
+                label: 'Paid',
+                value: _formatMoney(pricePaidCents, normalizedCurrency),
+              ),
+              _ValueContextChip(
+                icon: Icons.local_offer_outlined,
+                label: 'Cover',
+                value: _formatMoney(coverPriceCents, normalizedCurrency),
+              ),
+              _ValueContextChip(
+                icon: Icons.trending_up,
+                label: 'Paid vs cover',
+                value: _formatPaidVsCover(pricePaidCents, coverPriceCents),
+              ),
+              _ValueContextChip(
+                icon: Icons.business_outlined,
+                label: 'Publisher',
+                value: _displayValue(item.publisher),
+              ),
+              _ValueContextChip(
+                icon: Icons.calendar_month_outlined,
+                label: 'Release',
+                value: releaseDate == null
+                    ? _displayValue(item.releaseYear?.toString())
+                    : _formatDate(releaseDate),
+              ),
+              _ValueContextChip(
+                icon: Icons.qr_code_2,
+                label: 'Barcode',
+                value: _displayValue(item.barcode),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ValueContextChip extends StatelessWidget {
+  const _ValueContextChip({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: _kClzValueChip,
+        border: Border.all(color: _kClzValueChipBorder),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: _kClzChartBar),
+          const SizedBox(width: 5),
+          Text(
+            '$label: ',
+            style: const TextStyle(
+              color: _kClzTextMuted,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ],
       ),
@@ -1233,4 +1356,42 @@ String _formatDate(DateTime value) {
   final month = value.month.toString().padLeft(2, '0');
   final day = value.day.toString().padLeft(2, '0');
   return '${value.year}-$month-$day';
+}
+
+String _displayValue(String? value, {String fallback = '-'}) {
+  final normalized = value?.trim();
+  return normalized == null || normalized.isEmpty ? fallback : normalized;
+}
+
+String _formatMoney(int? cents, String currency) {
+  if (cents == null) {
+    return '-';
+  }
+  final normalizedCurrency = currency.trim().isEmpty ? 'USD' : currency.trim();
+  final prefix = _currencyPrefix(normalizedCurrency);
+  final absolute = cents.abs();
+  final whole = absolute ~/ 100;
+  final fraction = (absolute % 100).toString().padLeft(2, '0');
+  final sign = cents < 0 ? '-' : '';
+  return '$sign$prefix$whole.$fraction';
+}
+
+String _currencyPrefix(String currency) {
+  return switch (currency.trim().toUpperCase()) {
+    'USD' => r'$',
+    'EUR' => 'EUR ',
+    'GBP' => 'GBP ',
+    _ => '${currency.trim().toUpperCase()} ',
+  };
+}
+
+String _formatPaidVsCover(int? paidCents, int? coverCents) {
+  if (paidCents == null || coverCents == null || coverCents == 0) {
+    return '-';
+  }
+  final percent = ((paidCents - coverCents) * 100 / coverCents).round();
+  if (percent == 0) {
+    return 'at cover';
+  }
+  return percent > 0 ? '+$percent%' : '$percent%';
 }
