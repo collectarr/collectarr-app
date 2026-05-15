@@ -6,18 +6,15 @@ import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
-import 'package:collectarr_app/features/library/generic_library_inspector.dart';
+import 'package:collectarr_app/features/library/generic_library_body.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
-import 'package:collectarr_app/features/library/generic_library_sidebar.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
-import 'package:collectarr_app/features/library/generic_library_workspace.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_preset_store.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -132,7 +129,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
               ),
               Expanded(
                 child: shelf.when(
-                  data: (state) => _buildWorkspace(state, viewState),
+                  data: (state) => _buildBody(state, viewState),
                   error: (error, _) => Center(child: Text(error.toString())),
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
@@ -145,120 +142,43 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     );
   }
 
-  Widget _buildWorkspace(
+  Widget _buildBody(
     ShelfState shelf,
     LibraryWorkspaceViewState viewState,
   ) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final projection = _projectionForShelf(shelf, viewState);
-        final selected = projection.selectedItem;
-        final compact = constraints.maxWidth < 860;
-        final showSidebar = constraints.maxWidth >= 640;
-        final detailsLayout =
-            compact && viewState.detailsLayout == LibraryDetailsLayout.right
-                ? LibraryDetailsLayout.bottom
-                : viewState.detailsLayout;
-        final workspace = GenericLibraryWorkspace(
-          type: widget.type,
-          adapter: _adapter,
-          items: projection.filteredItems,
-          viewState: viewState,
-          selectedId: _selectedId,
-          accent: widget.accent,
-          hasActiveFilter: _hasActiveFilter,
-          onAdd: () => _showAddDialog(),
-          onClearFilters: _clearFilters,
-          onSelectItem: (id) => setState(() => _selectedId = id),
-          onSortChanged: (column) => _updateViewState(
-            (state) => state.withSortColumn(column, _adapter.viewProfile),
-          ),
-          onColumnWidthChanged: (column, width) => _updateViewState(
-            (state) => state.withColumnWidth(
-              column,
-              width,
-              _adapter.viewProfile,
-            ),
-          ),
-          onColumnReordered: (column, beforeColumn) => _updateViewState(
-            (state) => state.withReorderedColumn(
-              column: column,
-              beforeColumn: beforeColumn,
-            ),
-          ),
-        );
-        final details = GenericLibraryInspector(
-          type: widget.type,
-          entry: selected?.entry,
-          ownedItem: selected?.source.ownedItem,
-          accent: widget.accent,
-          onAddOwned: selected == null ? null : () => _addOwned(selected),
-          onRemoveOwned: selected?.source.ownedItem == null
-              ? null
-              : () => _removeOwned(selected!),
-          onAddWishlist: selected == null ? null : () => _addWishlist(selected),
-          onRemoveWishlist: selected?.source.isWishlisted != true
-              ? null
-              : () => _removeWishlist(selected!),
-        );
-
-        final workspaceContent = Column(
-          children: [
-            if (!showSidebar && projection.buckets.length > 1)
-              GenericLibraryCompactBucketBar(
-                type: widget.type,
-                accent: widget.accent,
-                buckets: projection.buckets,
-                selectedBucket:
-                    _selectedBucket ?? genericAllBucketLabel(widget.type),
-                onSelected: (bucket) => setState(() {
-                  _selectedBucket = bucket == genericAllBucketLabel(widget.type)
-                      ? null
-                      : bucket;
-                }),
-              ),
-            Expanded(child: workspace),
-          ],
-        );
-
-        return ColoredBox(
-          color: kClzCanvas,
-          child: Row(
-            children: [
-              if (showSidebar) ...[
-                SizedBox(
-                  width: compact ? 210 : 250,
-                  child: GenericLibrarySidebar(
-                    type: widget.type,
-                    accent: widget.accent,
-                    buckets: projection.buckets,
-                    selectedBucket:
-                        _selectedBucket ?? genericAllBucketLabel(widget.type),
-                    onSelected: (bucket) => setState(() {
-                      _selectedBucket =
-                          bucket == genericAllBucketLabel(widget.type)
-                              ? null
-                              : bucket;
-                    }),
-                    onClearFilter: _selectedBucket == null
-                        ? null
-                        : () => setState(() => _selectedBucket = null),
-                  ),
-                ),
-                const VerticalDivider(width: 1),
-              ],
-              Expanded(
-                child: LibraryDetailsAwareLayout(
-                  content: workspaceContent,
-                  detailsLayout: detailsLayout,
-                  inspector: details,
-                  bottomHeight: compact ? 220 : 250,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    return GenericLibraryBody(
+      type: widget.type,
+      adapter: _adapter,
+      projection: _projectionForShelf(shelf, viewState),
+      viewState: viewState,
+      selectedId: _selectedId,
+      selectedBucket: _selectedBucket,
+      accent: widget.accent,
+      hasActiveFilter: _hasActiveFilter,
+      onAdd: () => _showAddDialog(),
+      onClearFilters: _clearFilters,
+      onSelectItem: (id) => setState(() => _selectedId = id),
+      onBucketChanged: (bucket) => setState(() => _selectedBucket = bucket),
+      onSortChanged: (column) => _updateViewState(
+        (state) => state.withSortColumn(column, _adapter.viewProfile),
+      ),
+      onColumnWidthChanged: (column, width) => _updateViewState(
+        (state) => state.withColumnWidth(
+          column,
+          width,
+          _adapter.viewProfile,
+        ),
+      ),
+      onColumnReordered: (column, beforeColumn) => _updateViewState(
+        (state) => state.withReorderedColumn(
+          column: column,
+          beforeColumn: beforeColumn,
+        ),
+      ),
+      onAddOwned: _addOwned,
+      onRemoveOwned: _removeOwned,
+      onAddWishlist: _addWishlist,
+      onRemoveWishlist: _removeWishlist,
     );
   }
 
