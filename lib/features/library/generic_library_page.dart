@@ -924,11 +924,9 @@ class _GenericLibraryToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kClzToolbar,
-        border: Border(bottom: BorderSide(color: kClzDivider)),
-      ),
+    return LibraryToolbarFrame(
+      backgroundColor: kClzToolbar,
+      dividerColor: kClzDivider,
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 760) {
@@ -972,48 +970,38 @@ class _GenericLibraryToolbar extends StatelessWidget {
                   selectionColor: kClzSelection,
                 ),
                 const LibraryWorkspaceSeparator(color: kClzDivider),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _GenericLibraryToolsButton(
-                            type: type,
-                            counts: counts,
-                            selectedBucket: selectedBucket,
-                            quickView: quickView,
-                            hasActiveFilters: hasActiveFilters,
-                            onQuickViewSelected: onQuickViewSelected,
-                            onClearFilters: onClearFilters,
-                          ),
-                          const SizedBox(width: 6),
-                          LibraryViewTableControls(
-                            state: LibraryViewTableControlState(
-                              counts: LibraryWorkspaceCounts(
-                                shown: counts.shown,
-                                total: counts.total,
-                              ),
-                              viewMode: viewState.viewMode,
-                              detailsLayout: viewState.detailsLayout,
-                              coverSize: viewState.coverSize,
-                              minCoverSize: adapter.viewProfile.minCoverSize,
-                              maxCoverSize: adapter.viewProfile.maxCoverSize,
-                            ),
-                            callbacks: LibraryViewTableControlCallbacks(
-                              onEditColumns: onEditColumns,
-                              onViewModeChanged: onViewModeChanged,
-                              onDetailsLayoutChanged: onDetailsLayoutChanged,
-                              onViewPresetSelected: onViewPresetSelected,
-                              onCoverSizeChanged: onCoverSizeChanged,
-                            ),
-                          ),
-                        ],
+                LibraryWorkspaceControlStrip(
+                  children: [
+                    _GenericLibraryToolsButton(
+                      type: type,
+                      counts: counts,
+                      selectedBucket: selectedBucket,
+                      quickView: quickView,
+                      hasActiveFilters: hasActiveFilters,
+                      onQuickViewSelected: onQuickViewSelected,
+                      onClearFilters: onClearFilters,
+                    ),
+                    LibraryViewTableControls(
+                      state: LibraryViewTableControlState(
+                        counts: LibraryWorkspaceCounts(
+                          shown: counts.shown,
+                          total: counts.total,
+                        ),
+                        viewMode: viewState.viewMode,
+                        detailsLayout: viewState.detailsLayout,
+                        coverSize: viewState.coverSize,
+                        minCoverSize: adapter.viewProfile.minCoverSize,
+                        maxCoverSize: adapter.viewProfile.maxCoverSize,
+                      ),
+                      callbacks: LibraryViewTableControlCallbacks(
+                        onEditColumns: onEditColumns,
+                        onViewModeChanged: onViewModeChanged,
+                        onDetailsLayoutChanged: onDetailsLayoutChanged,
+                        onViewPresetSelected: onViewPresetSelected,
+                        onCoverSizeChanged: onCoverSizeChanged,
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
