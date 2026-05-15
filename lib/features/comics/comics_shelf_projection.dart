@@ -22,10 +22,21 @@ class ComicsShelfProjection {
 final comicsShelfProjectionProvider =
     Provider.family<ComicsShelfProjection, ComicsShelfProjectionRequest>(
         (ref, request) {
+  final filterOptions = ref.watch(comicsShelfFilterOptionsProvider(
+    request.state,
+  ));
   return projectComicsShelf(
     state: request.state,
     query: request.query,
     filters: request.filters,
+    filterOptions: filterOptions,
+  );
+});
+
+final comicsShelfFilterOptionsProvider =
+    Provider.family<ComicsFilterOptions, ShelfState>((ref, state) {
+  return ComicsFilterOptions.fromEntries(
+    comicsShelfEntriesOnly(state.entries),
   );
 });
 
@@ -99,18 +110,27 @@ ComicsShelfProjection projectComicsShelf({
   required ShelfState state,
   required String query,
   required ComicsFilterSelection filters,
+  ComicsFilterOptions? filterOptions,
 }) {
+  final source = comicsShelfEntriesOnly(state.entries);
   final entries = filterComicsShelfEntries(
-    entries: state.entries,
+    entries: source,
     query: query,
     filters: filters,
   );
   return ComicsShelfProjection(
     entries: entries,
     items: catalogItemsFromComicsShelf(entries),
-    filterOptions: ComicsFilterOptions.fromEntries(state.entries),
+    filterOptions: filterOptions ?? ComicsFilterOptions.fromEntries(source),
     hasActiveFilters: filters.hasActiveFilters,
   );
+}
+
+List<ShelfEntry> comicsShelfEntriesOnly(List<ShelfEntry> entries) {
+  return [
+    for (final entry in entries)
+      if (_matchesComicsKind(entry)) entry,
+  ];
 }
 
 List<CatalogItem> catalogItemsFromComicsShelf(List<ShelfEntry> entries) {
@@ -133,7 +153,8 @@ List<ShelfEntry> filterComicsShelfEntries({
   final normalized = query.trim().toLowerCase();
   return [
     for (final entry in entries)
-      if (_matchesOwnershipFilter(entry, filters.ownershipFilter) &&
+      if (_matchesComicsKind(entry) &&
+          _matchesOwnershipFilter(entry, filters.ownershipFilter) &&
           _matchesValueFilter(entry.ownedItem?.grade, filters.grade) &&
           _matchesValueFilter(entry.ownedItem?.condition, filters.condition) &&
           _matchesValueFilter(
@@ -147,6 +168,11 @@ List<ShelfEntry> filterComicsShelfEntries({
           (normalized.isEmpty || _matchesEntryQuery(entry, normalized)))
         entry,
   ];
+}
+
+bool _matchesComicsKind(ShelfEntry entry) {
+  final kind = entry.catalogItem?.kind;
+  return kind == null || kind == comicsLibraryConfig.workspace.kind;
 }
 
 bool _matchesEntryQuery(ShelfEntry entry, String query) {

@@ -41,6 +41,7 @@ class ComicsWorkspace extends StatelessWidget {
     required this.onClearGroup,
     required this.onGroupModeChanged,
     required this.onScanBarcode,
+    required this.onRefreshMetadata,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onViewPresetSelected,
@@ -87,6 +88,7 @@ class ComicsWorkspace extends StatelessWidget {
   final VoidCallback onClearGroup;
   final ValueChanged<ComicsShelfGroupMode> onGroupModeChanged;
   final VoidCallback onScanBarcode;
+  final VoidCallback onRefreshMetadata;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<LibraryWorkspacePreset> onViewPresetSelected;
@@ -133,7 +135,7 @@ class ComicsWorkspace extends StatelessWidget {
         coverSize: coverSize,
         onCoverSizeChanged: onCoverSizeChanged,
         onScanBarcode: onScanBarcode,
-        onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
+        onRefreshMetadata: onRefreshMetadata,
         onSelectItem: onSelectItem,
         onClearGroup: onClearGroup,
       );
@@ -176,7 +178,7 @@ class ComicsWorkspace extends StatelessWidget {
       onSelectGroup: onSelectGroup,
       onClearGroup: onClearGroup,
       onScanBarcode: onScanBarcode,
-      onRefreshMetadata: () => _showMetadataRefreshPlaceholder(context),
+      onRefreshMetadata: onRefreshMetadata,
       onViewModeChanged: onViewModeChanged,
       onDetailsLayoutChanged: onDetailsLayoutChanged,
       onViewPresetSelected: onViewPresetSelected,
@@ -194,10 +196,4 @@ class ComicsWorkspace extends StatelessWidget {
       topBar: topBar,
     );
   }
-}
-
-void _showMetadataRefreshPlaceholder(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Metadata refresh is not wired yet')),
-  );
 }

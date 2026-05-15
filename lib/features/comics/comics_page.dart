@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
@@ -7,15 +8,20 @@ import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_filter_store.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_grouping_store.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_page_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_page_dialogs.dart';
 import 'package:collectarr_app/features/comics/comics_page_state.dart';
+import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_projection.dart';
 import 'package:collectarr_app/features/comics/comics_workspace.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_state.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
+import 'package:collectarr_app/features/library/library_kind_style.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -127,6 +133,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 ),
                 onGroupModeChanged: _handleGroupModeChanged,
                 onScanBarcode: () => _handleBarcodeScan(context),
+                onRefreshMetadata: () =>
+                    _showMetadataRefreshDialog(context, state, entries),
                 onEditColumns: () => _showColumnChooser(context),
                 onViewModeChanged: _handleViewModeChanged,
                 onDetailsLayoutChanged: _handleDetailsLayoutChanged,
@@ -351,6 +359,67 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     if (selected != null) {
       _handleVisibleColumnsChanged(selected);
     }
+  }
+
+  Future<void> _showMetadataRefreshDialog(
+    BuildContext context,
+    ShelfState shelf,
+    List<ShelfEntry> shownEntries,
+  ) async {
+    final allEntries = comicsShelfEntriesOnly(shelf.entries);
+    final selectedEntry = _selectedShelfEntry(shownEntries);
+    final workspaceEntriesById = {
+      for (final entry in allEntries)
+        entry.itemId: _workspaceEntryForShelf(entry),
+    };
+    final result = await showLibraryMetadataRefreshDialog(
+      context: context,
+      type: comicsLibraryConfig,
+      accent: libraryAccentForKind(comicsLibraryConfig.workspace.kind),
+      allEntries: workspaceEntriesById.values.toList(growable: false),
+      shownEntries: [
+        for (final entry in shownEntries)
+          if (workspaceEntriesById[entry.itemId] != null)
+            workspaceEntriesById[entry.itemId]!,
+      ],
+      selectedEntry: selectedEntry == null
+          ? null
+          : workspaceEntriesById[selectedEntry.itemId],
+    );
+    if (result == null || !context.mounted) {
+      return;
+    }
+    ref.invalidate(shelfProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
+        ),
+      ),
+    );
+  }
+
+  ShelfEntry? _selectedShelfEntry(List<ShelfEntry> entries) {
+    final selectedId = pageState.selectedItemId;
+    if (selectedId == null) {
+      return entries.isEmpty ? null : entries.first;
+    }
+    for (final entry in entries) {
+      if (entry.itemId == selectedId) {
+        return entry;
+      }
+    }
+    return entries.isEmpty ? null : entries.first;
+  }
+
+  LibraryWorkspaceEntry _workspaceEntryForShelf(ShelfEntry entry) {
+    final item = entry.catalogItem ??
+        CatalogItem(
+          id: entry.itemId,
+          kind: comicsLibraryConfig.workspace.kind,
+          title: entry.title,
+        );
+    return comicWorkspaceEntry(item, entry.ownedItem, entry.wishlistItem);
   }
 
   Future<void> _loadViewPreferences() async {

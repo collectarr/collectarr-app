@@ -199,6 +199,15 @@ void main() {
     expect(find.byIcon(Icons.sync), findsOneWidget);
     expect(find.text('Superman, Vol. 4'), findsNothing);
     expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+
+    await tester.tap(find.byIcon(Icons.sync));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Refresh comics metadata'), findsOneWidget);
+    expect(find.text('Selected'), findsOneWidget);
+    expect(find.text('Missing'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('add comics opens Collectarr Core style dialog', (tester) async {

@@ -277,6 +277,53 @@ void main() {
       'thin-metadata',
     ]);
   });
+
+  test('excludes non-comic media from comics shelf projections', () {
+    final state = ShelfState(
+      entries: [
+        ShelfEntry(
+          itemId: 'comic-1',
+          catalogItem: _comic(
+            id: 'comic-1',
+            title: 'Action Comics',
+            itemNumber: '1',
+            publisher: 'DC',
+          ),
+        ),
+        ShelfEntry(
+          itemId: 'book-1',
+          catalogItem: CatalogItem(
+            id: 'book-1',
+            kind: 'book',
+            title: 'Dune',
+            publisher: 'Ace',
+          ),
+        ),
+      ],
+      ownedCount: 0,
+      wishlistCount: 0,
+      missingGradeCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    final projection = projectComicsShelf(
+      state: state,
+      query: '',
+      filters: ComicsFilterSelection.none,
+    );
+    final queryResults = filterComicsShelfEntries(
+      entries: state.entries,
+      query: 'dune',
+      filters: ComicsFilterSelection.none,
+    );
+
+    expect(projection.entries.map((entry) => entry.itemId), ['comic-1']);
+    expect(projection.filterOptions.publishers, ['DC']);
+    expect(queryResults, isEmpty);
+  });
 }
 
 CatalogItem _comic({
