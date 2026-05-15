@@ -9,6 +9,9 @@ import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_type_registry.dart';
 import 'package:collectarr_app/features/library/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -49,29 +52,20 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       type: selected,
       registry: registry,
     );
-    final selectedConfig = registry.byKind(selected.kind);
+    final selectedConfig = _libraryConfigForCatalogType(selected, registry);
     final content = selected.kind == 'comic'
         ? ComicsPage(
             topBar: navPreferences.placement == LibraryNavPlacement.top
                 ? topBar
                 : titleBar,
           )
-        : selectedConfig == null
-            ? _PlannedLibraryPage(
-                type: selected,
-                config: selectedConfig,
-                count: counts[selected.kind] ?? const _LibraryKindCount(),
-                topBar: navPreferences.placement == LibraryNavPlacement.top
-                    ? topBar
-                    : titleBar,
-              )
-            : GenericLibraryPage(
-                type: selectedConfig,
-                topBar: navPreferences.placement == LibraryNavPlacement.top
-                    ? topBar
-                    : titleBar,
-                accent: libraryAccentForKind(selected.kind),
-              );
+        : GenericLibraryPage(
+            type: selectedConfig,
+            topBar: navPreferences.placement == LibraryNavPlacement.top
+                ? topBar
+                : titleBar,
+            accent: libraryAccentForKind(selected.kind),
+          );
 
     if (navPreferences.placement == LibraryNavPlacement.left) {
       return Theme(
@@ -92,50 +86,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     }
 
     return content;
-  }
-}
-
-class _PlannedLibraryPage extends StatelessWidget {
-  const _PlannedLibraryPage({
-    required this.type,
-    required this.config,
-    required this.count,
-    required this.topBar,
-  });
-
-  final CatalogMediaType type;
-  final LibraryTypeConfig? config;
-  final _LibraryKindCount count;
-  final Widget topBar;
-
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: kClzComicsTheme,
-      child: Scaffold(
-        backgroundColor: kClzCanvas,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              topBar,
-              _PlannedLibraryToolbar(
-                type: type,
-                config: config,
-                count: count,
-              ),
-              Expanded(
-                child: _PlannedLibraryWorkspace(
-                  type: type,
-                  config: config,
-                  count: count,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 
@@ -591,250 +541,6 @@ class _MediaLibraryNavButton extends StatelessWidget {
   }
 }
 
-class _PlannedLibraryToolbar extends StatelessWidget {
-  const _PlannedLibraryToolbar({
-    required this.type,
-    required this.config,
-    required this.count,
-  });
-
-  final CatalogMediaType type;
-  final LibraryTypeConfig? config;
-  final _LibraryKindCount count;
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = libraryAccentForKind(type.kind);
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kClzToolbar,
-        border: Border(bottom: BorderSide(color: kClzDivider)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Row(
-          children: [
-            SizedBox(
-              height: 30,
-              child: FilledButton.icon(
-                onPressed: null,
-                style: FilledButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: accent.withValues(alpha: 0.44),
-                  disabledForegroundColor: Colors.white70,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  textStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                icon: const Icon(Icons.add, size: 17),
-                label: Text('Add ${type.pluralLabel}'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox.square(
-              dimension: 30,
-              child: IconButton.filledTonal(
-                tooltip: 'Scan barcode',
-                onPressed: null,
-                icon: const Icon(Icons.qr_code_scanner, size: 17),
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 330,
-              child: SearchBar(
-                enabled: false,
-                constraints: const BoxConstraints.tightFor(height: 32),
-                hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-                leading: Icon(
-                    config?.workspace.icon ?? libraryIconForKind(type.kind)),
-              ),
-            ),
-            const Spacer(),
-            _ToolbarCount(label: 'Shown', value: count.total),
-            const SizedBox(width: 8),
-            _ToolbarCount(label: 'Owned', value: count.owned),
-            const SizedBox(width: 8),
-            _ToolbarCount(label: 'Wishlist', value: count.wishlist),
-            const SizedBox(width: 8),
-            const Icon(Icons.grid_view, color: Colors.white70, size: 18),
-            const SizedBox(width: 12),
-            const Icon(Icons.view_list, color: Colors.white70, size: 18),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PlannedLibraryWorkspace extends StatelessWidget {
-  const _PlannedLibraryWorkspace({
-    required this.type,
-    required this.config,
-    required this.count,
-  });
-
-  final CatalogMediaType type;
-  final LibraryTypeConfig? config;
-  final _LibraryKindCount count;
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = libraryAccentForKind(type.kind);
-    final icon = config?.workspace.icon ?? libraryIconForKind(type.kind);
-    return Row(
-      children: [
-        SizedBox(
-          width: 250,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(color: kClzPanel),
-            child: Column(
-              children: [
-                Container(
-                  height: 42,
-                  color: const Color(0xFF303030),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.folder, color: accent, size: 19),
-                      const SizedBox(width: 9),
-                      Expanded(
-                        child: Text(
-                          librarySidebarTitleForKind(type.kind),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                      Icon(Icons.tune, color: Colors.white70, size: 18),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Text(
-                        count.total == 0 ? '[All ${type.pluralLabel}]' : 'All',
-                        style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.76)),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const VerticalDivider(width: 1),
-        Expanded(
-          child: ColoredBox(
-            color: kClzCanvas,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 44, color: accent),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Your local ${type.pluralLabel.toLowerCase()} shelf is empty',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      _providerSummary(type),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: kClzTextMuted,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const VerticalDivider(width: 1),
-        SizedBox(
-          width: 340,
-          child: ColoredBox(
-            color: kClzCanvas,
-            child: Center(
-              child: Text(
-                'No ${type.singularLabel.toLowerCase()} selected',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ToolbarCount extends StatelessWidget {
-  const _ToolbarCount({required this.label, required this.value});
-
-  final String label;
-  final int value;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: const Color(0xFF343434),
-          border: Border.all(color: kClzDivider),
-          borderRadius: BorderRadius.circular(3),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 9),
-          child: Row(
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  color: kClzTextMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(width: 7),
-              Text(
-                value.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _LibraryKindCount {
   const _LibraryKindCount({
     this.owned = 0,
@@ -936,6 +642,121 @@ T? _firstWhereOrNull<T>(Iterable<T> values, bool Function(T value) test) {
   return null;
 }
 
+LibraryTypeConfig _libraryConfigForCatalogType(
+  CatalogMediaType type,
+  LibraryTypeRegistry registry,
+) {
+  final known = registry.byKind(type.kind);
+  if (known != null) {
+    return known;
+  }
+  final providers = _providerOptionsForCatalogType(type);
+  return LibraryTypeConfig(
+    workspace: LibraryWorkspaceConfig(
+      kind: type.kind,
+      title: _displayLabel(type.pluralLabel, type.kind, plural: true),
+      icon: libraryIconForKind(type.kind),
+      preferencePrefix: 'catalog_${type.kind}',
+      defaultSortColumn: LibrarySortColumn.title,
+      defaultVisibleColumns: _fallbackVisibleColumnsForKind(type.kind),
+    ),
+    singularLabel: _displayLabel(type.singularLabel, type.kind),
+    pluralLabel: _displayLabel(type.pluralLabel, type.kind, plural: true),
+    defaultMetadataProvider: type.defaultProvider ??
+        (type.providers.isEmpty ? '' : type.providers.first),
+    metadataProviders: providers,
+    trackingProfile: _trackingProfileForKind(type.kind),
+  );
+}
+
+List<LibraryMetadataProviderOption> _providerOptionsForCatalogType(
+  CatalogMediaType type,
+) {
+  final kind = type.kind.trim().toLowerCase();
+  return [
+    for (final providerId in type.providers)
+      _providerOptionForCatalogKind(providerId, kind),
+  ];
+}
+
+LibraryMetadataProviderOption _providerOptionForCatalogKind(
+  String providerId,
+  String kind,
+) {
+  final option = collectarrMetadataProviderRegistry.byId(providerId);
+  if (option == null) {
+    return LibraryMetadataProviderOption(
+      id: providerId,
+      label: _titleFromToken(providerId),
+      supportedKinds: {kind},
+    );
+  }
+  if (option.supportsKind(kind)) {
+    return option;
+  }
+  return LibraryMetadataProviderOption(
+    id: option.id,
+    label: option.label,
+    description: option.description,
+    supportedKinds: {...option.supportedKinds, kind},
+    requiresApiKey: option.requiresApiKey,
+    usagePolicy: option.usagePolicy,
+  );
+}
+
+Set<LibraryTableColumn> _fallbackVisibleColumnsForKind(String kind) {
+  return {
+    LibraryTableColumn.status,
+    LibraryTableColumn.cover,
+    LibraryTableColumn.title,
+    if (kind == 'comic' || kind == 'manga') LibraryTableColumn.issue,
+    LibraryTableColumn.publisher,
+    LibraryTableColumn.releaseDate,
+    LibraryTableColumn.barcode,
+    LibraryTableColumn.condition,
+    LibraryTableColumn.price,
+    LibraryTableColumn.storageBox,
+    LibraryTableColumn.wishlist,
+    LibraryTableColumn.updated,
+  };
+}
+
+MediaTrackingProfile _trackingProfileForKind(String kind) {
+  return switch (kind) {
+    'anime' || 'movie' || 'tv' => videoTrackingProfile,
+    'boardgame' || 'game' => gameTrackingProfile,
+    'comic' => comicTrackingProfile,
+    _ => readingTrackingProfile,
+  };
+}
+
+String _displayLabel(String value, String fallback, {bool plural = false}) {
+  final trimmed = value.trim();
+  if (trimmed.isNotEmpty) {
+    return trimmed;
+  }
+  final label = _titleFromToken(fallback);
+  return plural ? '${label}s' : label;
+}
+
+String _titleFromToken(String value) {
+  final parts = value
+      .trim()
+      .split(RegExp(r'[_-]+'))
+      .where((part) => part.isNotEmpty)
+      .toList(growable: false);
+  if (parts.isEmpty) {
+    return 'Library';
+  }
+  return [
+    for (final part in parts)
+      if (part.length == 1)
+        part.toUpperCase()
+      else
+        '${part[0].toUpperCase()}${part.substring(1)}',
+  ].join(' ');
+}
+
 Map<String, _LibraryKindCount> _countsByKind(ShelfState state) {
   final counts = <String, _LibraryKindCount>{};
   for (final entry in state.entries) {
@@ -958,14 +779,4 @@ String _navLabel(CatalogMediaType type) {
     'tv' => 'TV Shows',
     _ => type.pluralLabel,
   };
-}
-
-String _providerSummary(CatalogMediaType type) {
-  final providers = type.providers.isEmpty
-      ? 'No providers registered'
-      : 'Providers: ${type.providers.join(', ')}';
-  if (type.physicalFormats.isEmpty) {
-    return providers;
-  }
-  return '$providers. Formats: ${type.physicalFormats.map((f) => f.label).join(', ')}';
 }
