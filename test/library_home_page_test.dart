@@ -234,4 +234,55 @@ void main() {
     expect(find.text('Collectarr Studio'), findsWidgets);
     expect(find.text('No podcast selected'), findsNothing);
   });
+
+  testWidgets('library navigation preferences hide comics and use left rail',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.library_nav.order': ['game', 'comic', 'manga'],
+      'collectarr.library_nav.hidden': ['comic'],
+      'collectarr.library_nav.placement': 'left',
+    });
+    tester.view.physicalSize = const Size(900, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final now = DateTime.utc(2026, 5, 15);
+    const game = CatalogItem(
+      id: 'game-rail-1',
+      kind: 'game',
+      title: 'Celeste',
+      publisher: 'Maddy Makes Games',
+      releaseYear: 2018,
+    );
+    final shelf = ShelfState.from(
+      ownedItems: [
+        OwnedItem(id: 'owned-game-rail-1', itemId: game.id, updatedAt: now),
+      ],
+      wishlistItems: const [],
+      catalogItems: {game.id: game},
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          shelfProvider.overrideWith((ref) async => shelf),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: LibraryHomePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Games'), findsOneWidget);
+    expect(find.text('Celeste'), findsWidgets);
+    expect(find.text('Add Comics'), findsNothing);
+    expect(find.byTooltip('Comics'), findsNothing);
+    expect(find.byTooltip('Games'), findsOneWidget);
+    expect(find.byTooltip('More libraries'), findsNothing);
+  });
 }
