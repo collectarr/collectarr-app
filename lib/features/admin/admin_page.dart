@@ -33,8 +33,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _ingestJobs = const <AdminProviderIngestJob>[];
   AdminProviderIngestJobSummary? _ingestJobSummary;
   var _catalogItems = const <AdminMetadataItem>[];
-  AdminMetadataItem? _inspectedItem;
-  var _inspectedItemAuditLogs = const <AdminAuditLogEntry>[];
   var _duplicates = const <AdminDuplicateCandidate>[];
   var _results = const <ProviderCandidate>[];
   String? _catalogKindFilter;
@@ -328,9 +326,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             ),
           ),
           const SizedBox(height: 12),
-          if (_lastIngest != null ||
-              _inspectedItem != null ||
-              _inspectErrorMessage != null) ...[
+          if (_lastIngest != null || _inspectErrorMessage != null) ...[
             _AdminPanel(
               icon: Icons.fact_check_outlined,
               title: 'Canonical item inspector',
@@ -340,11 +336,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                       isError: true,
                     )
                   : _CanonicalItemSummary(
-                      item: _lastIngest?.item ?? _inspectedItem!,
+                      item: _lastIngest!.item,
                       created: _lastIngest?.created,
-                      auditLogs: _lastIngest == null
-                          ? _inspectedItemAuditLogs
-                          : const <AdminAuditLogEntry>[],
+                      auditLogs: const <AdminAuditLogEntry>[],
                     ),
             ),
             const SizedBox(height: 12),
@@ -550,7 +544,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       setState(() {
         _retryingHistoryId = null;
         _lastIngest = result;
-        _inspectedItem = null;
         _statusMessage = result.created
             ? 'Provider ingest retried.'
             : 'Provider item already exists.';
@@ -620,19 +613,41 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _lastIngest = null;
-        _inspectedItem = fresh;
-        _inspectedItemAuditLogs = auditLogs;
         _inspectingItemId = null;
       });
+      await _showCanonicalItemInspectionDialog(fresh, auditLogs);
     } catch (error) {
       if (!mounted) {
         return;
       }
       setState(() {
         _inspectingItemId = null;
-        _inspectedItemAuditLogs = const [];
         _inspectErrorMessage = _adminErrorMessage(error);
       });
+    }
+  }
+
+  Future<void> _showCanonicalItemInspectionDialog(
+    AdminMetadataItem item,
+    List<AdminAuditLogEntry> auditLogs,
+  ) async {
+    final action = await showDialog<_CanonicalInspectAction>(
+      context: context,
+      builder: (context) => _CanonicalItemInspectionDialog(
+        item: item,
+        auditLogs: auditLogs,
+      ),
+    );
+    if (action == null || !mounted) {
+      return;
+    }
+    switch (action) {
+      case _CanonicalInspectAction.edit:
+        await _showMetadataCorrectionDialog(item);
+        await _inspectCatalogItem(item);
+      case _CanonicalInspectAction.covers:
+        await _showCoverInspectionDialog(item);
+        await _inspectCatalogItem(item);
     }
   }
 
@@ -679,8 +694,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _updatingCatalogItemId = null;
-        _inspectedItem = updated;
-        _inspectedItemAuditLogs = const [];
         _lastIngest = null;
         _catalogStatusMessage = 'Metadata correction saved.';
         _catalogItems = [
@@ -724,7 +737,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _updatingCatalogItemId = null;
-        _inspectedItem = updated;
         _catalogItems = [
           for (final row in _catalogItems) row.id == updated.id ? updated : row,
         ];
@@ -927,14 +939,19 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             kind: candidate.kind,
             id: itemId,
           );
+      final auditLogs = await ref.read(apiClientProvider).adminAuditLogs(
+            entityType: 'item',
+            entityId: itemId,
+            limit: 8,
+          );
       if (!mounted) {
         return;
       }
       setState(() {
-        _inspectedItem = item;
         _lastIngest = null;
         _inspectingItemId = null;
       });
+      await _showCanonicalItemInspectionDialog(item, auditLogs);
     } catch (error) {
       if (!mounted) {
         return;
@@ -1054,11 +1071,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       setState(() {
         _duplicateActionItemId = null;
         _lastIngest = null;
-        _inspectedItem = result.item ?? _inspectedItem;
         _duplicateStatusMessage =
             'Merged ${result.affectedItems} duplicate items.';
       });
       await _loadDashboard();
+      if (result.item != null) {
+        await _inspectCatalogItem(result.item!);
+      }
     } catch (error) {
       if (!mounted) {
         return;
@@ -1239,7 +1258,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _lastIngest = result;
-        _inspectedItem = null;
         _inspectErrorMessage = null;
         _isDirectIngesting = false;
         _ingestingProviderItemId = null;
@@ -2977,6 +2995,77 @@ class _ProviderResultTile extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+enum _CanonicalInspectAction { edit, covers }
+
+class _CanonicalItemInspectionDialog extends StatelessWidget {
+  const _CanonicalItemInspectionDialog({
+    required this.item,
+    required this.auditLogs,
+  });
+
+  final AdminMetadataItem item;
+  final List<AdminAuditLogEntry> auditLogs;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final dialogWidth =
+        (MediaQuery.sizeOf(context).width - 96).clamp(280.0, 820.0).toDouble();
+    return AlertDialog(
+      title: Row(
+        children: [
+          Icon(Icons.fact_check_outlined, color: colorScheme.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Inspect: ${item.displayTitle}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: dialogWidth,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _CanonicalItemSummary(item: item, auditLogs: auditLogs),
+              if (auditLogs.isEmpty) ...[
+                const SizedBox(height: 12),
+                const _MessageRow(
+                  message: 'No item audit history yet.',
+                  isError: false,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+        OutlinedButton.icon(
+          onPressed: () =>
+              Navigator.of(context).pop(_CanonicalInspectAction.covers),
+          icon: const Icon(Icons.image_search_outlined),
+          label: const Text('Covers'),
+        ),
+        FilledButton.icon(
+          onPressed: () =>
+              Navigator.of(context).pop(_CanonicalInspectAction.edit),
+          icon: const Icon(Icons.edit_outlined),
+          label: const Text('Edit metadata'),
+        ),
+      ],
     );
   }
 }
