@@ -28,6 +28,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 const Color _kClzToolbar = kClzToolbar;
 const Color _kClzPanel = kClzPanel;
@@ -55,6 +56,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     comicsLibraryConfig.defaultSupportedMetadataProvider,
   );
   final _checkedServerIds = <String>{};
+  final _checkedProviderIds = <String>{};
   final _collapsedAddSeries = <String>{};
   final _barcodeBatch = <BarcodeLookupEntry>[];
   final _barcodeHistory = <String>[];
@@ -125,6 +127,21 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
             )
         ? rawSelectedCandidate
         : null;
+    final checkedProviderCandidates = [
+      for (final candidate in providerState.results)
+        if (_checkedProviderIds.contains(candidate.providerItemId) &&
+            _isProviderCandidateVisible(
+              candidate,
+              ownedItemIds: ownedItemIds,
+              wishlistItemIds: wishlistItemIds,
+            ))
+          candidate,
+    ];
+    final proposalCandidates = checkedProviderCandidates.isNotEmpty
+        ? checkedProviderCandidates
+        : [
+            if (selectedCandidate != null) selectedCandidate,
+          ];
     final selectedProviderLabel =
         _metadataProviderLabel(providerState.provider);
     final selectedCandidateProviderLabel = selectedCandidate == null
@@ -175,124 +192,83 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                 ),
               ],
             ),
-            child: Column(
-              children: [
-                _AddComicTitleBar(onClose: () => Navigator.of(context).pop()),
-                _AddComicModeBar(
-                  mode: _mode,
-                  queryController: _controller,
-                  seriesController: _seriesController,
-                  issueController: _issueController,
-                  publisherController: _publisherController,
-                  yearController: _yearController,
-                  barcodeController: _barcodeController,
-                  barcodeBatch: _barcodeBatch,
-                  barcodeHistory: _barcodeHistory,
-                  showAdvancedFilters: _showAdvancedFilters,
-                  isSearching: _isSearchingServer,
-                  onModeChanged: _changeMode,
-                  onAdvancedChanged: (value) =>
-                      setState(() => _showAdvancedFilters = value),
-                  onSearch: _searchServer,
-                  onLookupBarcode: () =>
-                      _lookupBarcode(_barcodeController.text.trim()),
-                  onLookupBarcodeBatch: _lookupBarcodeBatch,
-                  barcodeAddCount: barcodeAddItems.length,
-                  barcodeAddLabel: _barcodeAddLabel(barcodeAddItems.length),
-                  onAddBarcodeFound: barcodeAddItems.isEmpty
-                      ? null
-                      : () => _addServerComics(
-                            barcodeAddItems,
-                            target: _addTarget,
-                          ),
-                  onRemoveBarcodeBatchEntry: _removeBarcodeBatchEntry,
-                  onClearBarcodeBatch: _clearBarcodeBatch,
-                  onUseBarcodeHistory: _lookupBarcode,
-                  onScanBarcode: _scanBarcode,
-                  onAddManual: _addManualComic,
-                  onProposeManual: _proposeManualComic,
-                ),
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-                    child: _DialogMessage(
-                      icon: Icons.error_outline,
-                      text: _error!,
+            child: CallbackShortcuts(
+              bindings: {
+                const SingleActivator(LogicalKeyboardKey.escape): () =>
+                    Navigator.of(context).maybePop(),
+                const SingleActivator(LogicalKeyboardKey.enter): () =>
+                    _runShortcutSearch(),
+                const SingleActivator(LogicalKeyboardKey.numpadEnter): () =>
+                    _runShortcutSearch(),
+                const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+                    _moveResultSelection(
+                      1,
+                      ownedItemIds: ownedItemIds,
+                      wishlistItemIds: wishlistItemIds,
                     ),
-                  ),
-                Expanded(
-                  child: compact
-                      ? Column(
-                          children: [
-                            SizedBox(
-                              height: 300,
-                              child: AddComicResultPane(
-                                mode: _mode,
-                                serverResults: _serverResults,
-                                providerResults: providerState.results,
-                                pullListRows: pullListRows,
-                                ownedItemIds: ownedItemIds,
-                                wishlistItemIds: wishlistItemIds,
-                                selectedServerId: _selectedServerId,
-                                selectedProviderId: providerState.selectedId,
-                                checkedServerIds: _checkedServerIds,
-                                includeVariants: _includeVariants,
-                                hideInShelf: _hideInShelf,
-                                issueSortAscending: _issueSortAscending,
-                                searchedServer: _searchedServer,
-                                searchedProvider: providerState.searched,
-                                isSearchingServer: _isSearchingServer,
-                                isSearchingProvider: providerState.isSearching,
-                                selectedProvider: providerState.provider,
-                                providerLabel: _metadataProviderLabel,
-                                onIncludeVariantsChanged: (value) =>
-                                    setState(() => _includeVariants = value),
-                                onHideInShelfChanged: (value) =>
-                                    setState(() => _hideInShelf = value),
-                                onIssueSortAscendingChanged: (value) =>
-                                    setState(() => _issueSortAscending = value),
-                                onSelectServer: (id) => setState(() {
-                                  _selectedServerId = id;
-                                  _providerState =
-                                      _providerState.clearSelection();
-                                }),
-                                onToggleServerCheck: _toggleServerCheck,
-                                collapsedSeries: _collapsedAddSeries,
-                                onToggleSeriesCollapsed:
-                                    _toggleAddSeriesCollapsed,
-                                onToggleSeriesCheck: _toggleAddSeriesCheck,
-                                onCheckAllVisible: _checkServerItems,
-                                onClearServerChecks: () =>
-                                    setState(_checkedServerIds.clear),
-                                onSelectProvider: (id) => setState(() {
-                                  _providerState = _providerState.select(id);
-                                  _selectedServerId = null;
-                                }),
-                                onSearchPullListRow: _searchPullListRow,
+                const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+                    _moveResultSelection(
+                      -1,
+                      ownedItemIds: ownedItemIds,
+                      wishlistItemIds: wishlistItemIds,
+                    ),
+                const SingleActivator(LogicalKeyboardKey.space): () =>
+                    _toggleFocusedResultSelection(),
+              },
+              child: Focus(
+                autofocus: true,
+                child: Column(
+                  children: [
+                    _AddComicTitleBar(
+                        onClose: () => Navigator.of(context).pop()),
+                    _AddComicModeBar(
+                      mode: _mode,
+                      queryController: _controller,
+                      seriesController: _seriesController,
+                      issueController: _issueController,
+                      publisherController: _publisherController,
+                      yearController: _yearController,
+                      barcodeController: _barcodeController,
+                      barcodeBatch: _barcodeBatch,
+                      barcodeHistory: _barcodeHistory,
+                      showAdvancedFilters: _showAdvancedFilters,
+                      isSearching: _isSearchingServer,
+                      onModeChanged: _changeMode,
+                      onAdvancedChanged: (value) =>
+                          setState(() => _showAdvancedFilters = value),
+                      onSearch: _searchServer,
+                      onLookupBarcode: () =>
+                          _lookupBarcode(_barcodeController.text.trim()),
+                      onLookupBarcodeBatch: _lookupBarcodeBatch,
+                      barcodeAddCount: barcodeAddItems.length,
+                      barcodeAddLabel: _barcodeAddLabel(barcodeAddItems.length),
+                      onAddBarcodeFound: barcodeAddItems.isEmpty
+                          ? null
+                          : () => _addServerComics(
+                                barcodeAddItems,
+                                target: _addTarget,
                               ),
-                            ),
-                            Expanded(
-                              child: AddComicPreviewPane(
-                                item: selectedItem,
-                                candidate: selectedCandidate,
-                                selectedProviderLabel:
-                                    selectedCandidateProviderLabel,
-                                selectedIsOwned: selectedIsOwned,
-                                selectedIsWishlisted: selectedIsWishlisted,
-                                searchedServer: _searchedServer,
-                              ),
-                            ),
-                          ],
-                        )
-                      : LayoutBuilder(
-                          builder: (context, constraints) {
-                            final paneWidth = _clampedResultsPaneWidth(
-                              constraints.maxWidth,
-                            );
-                            return Row(
+                      onRemoveBarcodeBatchEntry: _removeBarcodeBatchEntry,
+                      onClearBarcodeBatch: _clearBarcodeBatch,
+                      onUseBarcodeHistory: _lookupBarcode,
+                      onScanBarcode: _scanBarcode,
+                      onAddManual: _addManualComic,
+                      onProposeManual: _proposeManualComic,
+                    ),
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+                        child: _DialogMessage(
+                          icon: Icons.error_outline,
+                          text: _error!,
+                        ),
+                      ),
+                    Expanded(
+                      child: compact
+                          ? Column(
                               children: [
                                 SizedBox(
-                                  width: paneWidth,
+                                  height: 300,
                                   child: AddComicResultPane(
                                     mode: _mode,
                                     serverResults: _serverResults,
@@ -304,6 +280,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                     selectedProviderId:
                                         providerState.selectedId,
                                     checkedServerIds: _checkedServerIds,
+                                    checkedProviderIds: _checkedProviderIds,
                                     includeVariants: _includeVariants,
                                     hideInShelf: _hideInShelf,
                                     issueSortAscending: _issueSortAscending,
@@ -326,6 +303,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                       _selectedServerId = id;
                                       _providerState =
                                           _providerState.clearSelection();
+                                      _checkedProviderIds.clear();
                                     }),
                                     onToggleServerCheck: _toggleServerCheck,
                                     collapsedSeries: _collapsedAddSeries,
@@ -336,17 +314,10 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                     onClearServerChecks: () =>
                                         setState(_checkedServerIds.clear),
                                     onSelectProvider: (id) => setState(() {
-                                      _providerState =
-                                          _providerState.select(id);
-                                      _selectedServerId = null;
+                                      _selectProviderCandidate(id);
                                     }),
+                                    onToggleProviderCheck: _toggleProviderCheck,
                                     onSearchPullListRow: _searchPullListRow,
-                                  ),
-                                ),
-                                _AddComicPaneResizeHandle(
-                                  onDragDelta: (delta) => _resizeResultsPane(
-                                    delta,
-                                    constraints.maxWidth,
                                   ),
                                 ),
                                 Expanded(
@@ -361,44 +332,133 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                   ),
                                 ),
                               ],
-                            );
-                          },
-                        ),
+                            )
+                          : LayoutBuilder(
+                              builder: (context, constraints) {
+                                final paneWidth = _clampedResultsPaneWidth(
+                                  constraints.maxWidth,
+                                );
+                                return Row(
+                                  children: [
+                                    SizedBox(
+                                      width: paneWidth,
+                                      child: AddComicResultPane(
+                                        mode: _mode,
+                                        serverResults: _serverResults,
+                                        providerResults: providerState.results,
+                                        pullListRows: pullListRows,
+                                        ownedItemIds: ownedItemIds,
+                                        wishlistItemIds: wishlistItemIds,
+                                        selectedServerId: _selectedServerId,
+                                        selectedProviderId:
+                                            providerState.selectedId,
+                                        checkedServerIds: _checkedServerIds,
+                                        checkedProviderIds: _checkedProviderIds,
+                                        includeVariants: _includeVariants,
+                                        hideInShelf: _hideInShelf,
+                                        issueSortAscending: _issueSortAscending,
+                                        searchedServer: _searchedServer,
+                                        searchedProvider:
+                                            providerState.searched,
+                                        isSearchingServer: _isSearchingServer,
+                                        isSearchingProvider:
+                                            providerState.isSearching,
+                                        selectedProvider:
+                                            providerState.provider,
+                                        providerLabel: _metadataProviderLabel,
+                                        onIncludeVariantsChanged: (value) =>
+                                            setState(
+                                                () => _includeVariants = value),
+                                        onHideInShelfChanged: (value) =>
+                                            setState(
+                                                () => _hideInShelf = value),
+                                        onIssueSortAscendingChanged: (value) =>
+                                            setState(() =>
+                                                _issueSortAscending = value),
+                                        onSelectServer: (id) => setState(() {
+                                          _selectedServerId = id;
+                                          _providerState =
+                                              _providerState.clearSelection();
+                                          _checkedProviderIds.clear();
+                                        }),
+                                        onToggleServerCheck: _toggleServerCheck,
+                                        collapsedSeries: _collapsedAddSeries,
+                                        onToggleSeriesCollapsed:
+                                            _toggleAddSeriesCollapsed,
+                                        onToggleSeriesCheck:
+                                            _toggleAddSeriesCheck,
+                                        onCheckAllVisible: _checkServerItems,
+                                        onClearServerChecks: () =>
+                                            setState(_checkedServerIds.clear),
+                                        onSelectProvider: (id) => setState(() {
+                                          _selectProviderCandidate(id);
+                                        }),
+                                        onToggleProviderCheck:
+                                            _toggleProviderCheck,
+                                        onSearchPullListRow: _searchPullListRow,
+                                      ),
+                                    ),
+                                    _AddComicPaneResizeHandle(
+                                      onDragDelta: (delta) =>
+                                          _resizeResultsPane(
+                                        delta,
+                                        constraints.maxWidth,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: AddComicPreviewPane(
+                                        item: selectedItem,
+                                        candidate: selectedCandidate,
+                                        selectedProviderLabel:
+                                            selectedCandidateProviderLabel,
+                                        selectedIsOwned: selectedIsOwned,
+                                        selectedIsWishlisted:
+                                            selectedIsWishlisted,
+                                        searchedServer: _searchedServer,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                    ),
+                    AddComicBottomBar(
+                      selectedItem: selectedItem,
+                      selectedCandidate: selectedCandidate,
+                      selectedIsOwned: selectedIsOwned,
+                      selectedIsWishlisted: selectedIsWishlisted,
+                      proposalProviderLabel: selectedCandidate == null
+                          ? selectedProviderLabel
+                          : _metadataProviderLabel(selectedCandidate.provider),
+                      proposalCount: proposalCandidates.length,
+                      addTarget: _addTarget,
+                      addCount: addItems.length,
+                      isSubmitting: _isSubmitting,
+                      defaultCondition: _defaultCondition,
+                      defaultGrade: _defaultGrade,
+                      defaultStorageBoxController: _defaultStorageBoxController,
+                      defaultPurchaseDate: _defaultPurchaseDate,
+                      onAddTargetChanged: (value) =>
+                          setState(() => _addTarget = value),
+                      onDefaultConditionChanged: (value) =>
+                          setState(() => _defaultCondition = value),
+                      onDefaultGradeChanged: (value) =>
+                          setState(() => _defaultGrade = value),
+                      onDefaultPurchaseDateChanged: (value) =>
+                          setState(() => _defaultPurchaseDate = value),
+                      onAdd: addItems.isEmpty
+                          ? null
+                          : () => _addServerComics(
+                                addItems,
+                                target: _addTarget,
+                              ),
+                      onPropose: proposalCandidates.isEmpty
+                          ? null
+                          : () => _proposeCandidates(proposalCandidates),
+                    ),
+                  ],
                 ),
-                AddComicBottomBar(
-                  selectedItem: selectedItem,
-                  selectedCandidate: selectedCandidate,
-                  selectedIsOwned: selectedIsOwned,
-                  selectedIsWishlisted: selectedIsWishlisted,
-                  proposalProviderLabel: selectedCandidate == null
-                      ? selectedProviderLabel
-                      : _metadataProviderLabel(selectedCandidate.provider),
-                  addTarget: _addTarget,
-                  addCount: addItems.length,
-                  isSubmitting: _isSubmitting,
-                  defaultCondition: _defaultCondition,
-                  defaultGrade: _defaultGrade,
-                  defaultStorageBoxController: _defaultStorageBoxController,
-                  defaultPurchaseDate: _defaultPurchaseDate,
-                  onAddTargetChanged: (value) =>
-                      setState(() => _addTarget = value),
-                  onDefaultConditionChanged: (value) =>
-                      setState(() => _defaultCondition = value),
-                  onDefaultGradeChanged: (value) =>
-                      setState(() => _defaultGrade = value),
-                  onDefaultPurchaseDateChanged: (value) =>
-                      setState(() => _defaultPurchaseDate = value),
-                  onAdd: addItems.isEmpty
-                      ? null
-                      : () => _addServerComics(
-                            addItems,
-                            target: _addTarget,
-                          ),
-                  onPropose: selectedCandidate == null
-                      ? null
-                      : () => _proposeCandidate(selectedCandidate),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -478,6 +538,142 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     return true;
   }
 
+  bool _isServerItemVisible(
+    CatalogItem item, {
+    required Set<String> ownedItemIds,
+    required Set<String> wishlistItemIds,
+  }) {
+    if (!_includeVariants && _looksLikeComicVariant(item.variant)) {
+      return false;
+    }
+    if (_hideInShelf &&
+        (ownedItemIds.contains(item.id) || wishlistItemIds.contains(item.id))) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _looksLikeComicVariant(String? value) {
+    final text = value?.trim().toLowerCase();
+    if (text == null || text.isEmpty) {
+      return false;
+    }
+    if (text == 'cover a' ||
+        text == 'regular cover' ||
+        text == 'standard cover' ||
+        text == 'standard edition') {
+      return false;
+    }
+    return text.contains('variant') ||
+        text.contains('virgin') ||
+        text.contains('foil') ||
+        text.contains('exclusive') ||
+        text.contains('incentive') ||
+        text.contains('ratio') ||
+        text.contains('second printing') ||
+        text.contains('third printing');
+  }
+
+  bool get _keyboardShortcutShouldYieldToInput {
+    final context = FocusManager.instance.primaryFocus?.context;
+    if (context == null) {
+      return false;
+    }
+    return context.widget is EditableText ||
+        context.findAncestorWidgetOfExactType<EditableText>() != null;
+  }
+
+  void _runShortcutSearch() {
+    if (_keyboardShortcutShouldYieldToInput) {
+      return;
+    }
+    _searchServer();
+  }
+
+  void _moveResultSelection(
+    int delta, {
+    required Set<String> ownedItemIds,
+    required Set<String> wishlistItemIds,
+  }) {
+    if (_keyboardShortcutShouldYieldToInput) {
+      return;
+    }
+    final visibleServerIds = [
+      for (final item in _serverResults)
+        if (_isServerItemVisible(
+          item,
+          ownedItemIds: ownedItemIds,
+          wishlistItemIds: wishlistItemIds,
+        ))
+          item.id,
+    ];
+    if (visibleServerIds.isNotEmpty) {
+      final currentIndex = _selectedServerId == null
+          ? -1
+          : visibleServerIds.indexOf(_selectedServerId!);
+      final nextIndex = _wrappedResultIndex(
+        currentIndex: currentIndex,
+        delta: delta,
+        length: visibleServerIds.length,
+      );
+      setState(() {
+        _selectedServerId = visibleServerIds[nextIndex];
+        _providerState = _providerState.clearSelection();
+        _checkedProviderIds.clear();
+      });
+      return;
+    }
+
+    final visibleProviderIds = [
+      for (final candidate in _providerState.results)
+        if (_isProviderCandidateVisible(
+          candidate,
+          ownedItemIds: ownedItemIds,
+          wishlistItemIds: wishlistItemIds,
+        ))
+          candidate.providerItemId,
+    ];
+    if (visibleProviderIds.isEmpty) {
+      return;
+    }
+    final currentIndex = _providerState.selectedId == null
+        ? -1
+        : visibleProviderIds.indexOf(_providerState.selectedId!);
+    final nextIndex = _wrappedResultIndex(
+      currentIndex: currentIndex,
+      delta: delta,
+      length: visibleProviderIds.length,
+    );
+    setState(() => _selectProviderCandidate(visibleProviderIds[nextIndex]));
+  }
+
+  int _wrappedResultIndex({
+    required int currentIndex,
+    required int delta,
+    required int length,
+  }) {
+    if (length <= 1) {
+      return 0;
+    }
+    final start = currentIndex < 0 ? (delta > 0 ? -1 : 0) : currentIndex;
+    return (start + delta) % length;
+  }
+
+  void _toggleFocusedResultSelection() {
+    if (_keyboardShortcutShouldYieldToInput) {
+      return;
+    }
+    final selectedServerId = _selectedServerId;
+    if (selectedServerId != null) {
+      _toggleServerCheck(selectedServerId);
+      return;
+    }
+    final selectedProviderId = _providerState.selectedId;
+    if (selectedProviderId != null) {
+      _toggleProviderCheck(selectedProviderId);
+    }
+  }
+
   List<CatalogItem> _barcodeFoundAddItems({
     required Set<String> ownedItemIds,
     required Set<String> wishlistItemIds,
@@ -540,6 +736,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _selectedServerId = null;
       _providerState = _providerState.clearResults();
       _checkedServerIds.clear();
+      _checkedProviderIds.clear();
       _collapsedAddSeries.clear();
       _error = null;
     });
@@ -918,6 +1115,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _barcodeBatch.clear();
       _barcodeController.clear();
       _checkedServerIds.clear();
+      _checkedProviderIds.clear();
       _serverResults = const [];
       _selectedServerId = null;
       _error = null;
@@ -928,6 +1126,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     setState(() {
       _selectedServerId = id;
       _providerState = _providerState.clearSelection();
+      _checkedProviderIds.clear();
       if (_checkedServerIds.contains(id)) {
         _checkedServerIds.remove(id);
       } else {
@@ -944,6 +1143,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       if (items.isNotEmpty) {
         _selectedServerId = items.first.id;
         _providerState = _providerState.clearSelection();
+        _checkedProviderIds.clear();
       }
     });
   }
@@ -971,7 +1171,25 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         if (items.isNotEmpty) {
           _selectedServerId = items.first.id;
           _providerState = _providerState.clearSelection();
+          _checkedProviderIds.clear();
         }
+      }
+    });
+  }
+
+  void _selectProviderCandidate(String id) {
+    _providerState = _providerState.select(id);
+    _selectedServerId = null;
+    _checkedServerIds.clear();
+  }
+
+  void _toggleProviderCheck(String id) {
+    setState(() {
+      _selectProviderCandidate(id);
+      if (_checkedProviderIds.contains(id)) {
+        _checkedProviderIds.remove(id);
+      } else {
+        _checkedProviderIds.add(id);
       }
     });
   }
@@ -1011,29 +1229,40 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     );
   }
 
-  Future<void> _proposeCandidate(ProviderCandidate candidate) async {
+  Future<void> _proposeCandidates(List<ProviderCandidate> candidates) async {
+    if (candidates.isEmpty) {
+      return;
+    }
     setState(() {
       _isSubmitting = true;
       _error = null;
     });
     try {
-      await createAndRecordLibraryMetadataProposal(
-        api: ref.read(apiClientProvider),
-        type: _libraryType,
-        provider: candidate.provider,
-        providerItemId: candidate.providerItemId,
-        query: _providerQuery,
-        title: candidate.title,
-        summary: candidate.summary,
-        imageUrl: candidate.imageUrl,
-        source: 'Add Comics provider result',
-      );
+      for (final candidate in candidates) {
+        await createAndRecordLibraryMetadataProposal(
+          api: ref.read(apiClientProvider),
+          type: _libraryType,
+          provider: candidate.provider,
+          providerItemId: candidate.providerItemId,
+          query: _providerQuery,
+          title: candidate.title,
+          summary: candidate.summary,
+          imageUrl: candidate.imageUrl,
+          source: 'Add Comics provider result',
+        );
+      }
       if (!mounted) {
         return;
       }
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Metadata proposal sent for review')),
+        SnackBar(
+          content: Text(
+            candidates.length == 1
+                ? 'Metadata proposal sent for review'
+                : '${candidates.length} metadata proposals sent for review',
+          ),
+        ),
       );
     } catch (error) {
       if (!mounted) {

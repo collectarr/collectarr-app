@@ -24,6 +24,7 @@ class AddComicResultPane extends StatelessWidget {
     required this.selectedServerId,
     required this.selectedProviderId,
     required this.checkedServerIds,
+    required this.checkedProviderIds,
     required this.includeVariants,
     required this.hideInShelf,
     required this.issueSortAscending,
@@ -38,6 +39,7 @@ class AddComicResultPane extends StatelessWidget {
     required this.onIssueSortAscendingChanged,
     required this.onSelectServer,
     required this.onToggleServerCheck,
+    required this.onToggleProviderCheck,
     required this.collapsedSeries,
     required this.onToggleSeriesCollapsed,
     required this.onToggleSeriesCheck,
@@ -56,6 +58,7 @@ class AddComicResultPane extends StatelessWidget {
   final String? selectedServerId;
   final String? selectedProviderId;
   final Set<String> checkedServerIds;
+  final Set<String> checkedProviderIds;
   final bool includeVariants;
   final bool hideInShelf;
   final bool issueSortAscending;
@@ -70,6 +73,7 @@ class AddComicResultPane extends StatelessWidget {
   final ValueChanged<bool> onIssueSortAscendingChanged;
   final ValueChanged<String> onSelectServer;
   final ValueChanged<String> onToggleServerCheck;
+  final ValueChanged<String> onToggleProviderCheck;
   final Set<String> collapsedSeries;
   final ValueChanged<String> onToggleSeriesCollapsed;
   final ValueChanged<Iterable<CatalogItem>> onToggleSeriesCheck;
@@ -83,6 +87,7 @@ class AddComicResultPane extends StatelessWidget {
     final selectedProviderLabel = providerLabel(selectedProvider);
     final visibleProviderResults = _visibleProviderResults();
     final resultsHeading = _resultsHeading();
+    final selectedResultLabel = _selectedResultLabel(visibleProviderResults);
     if (mode == LibraryAddMode.pullList) {
       return PullListResultsPane(
         rows: pullListRows,
@@ -143,6 +148,8 @@ class AddComicResultPane extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
             ),
           ),
+          if (selectedResultLabel != null)
+            _SelectedResultStrip(label: selectedResultLabel),
           Expanded(
             child: _buildResults(
               selectedProviderLabel,
@@ -166,12 +173,12 @@ class AddComicResultPane extends StatelessWidget {
     List<ProviderCandidate> visibleProviderResults,
   ) {
     if (isSearchingServer) {
-      return const _SearchLoadingState(
+      return const _SearchSkeletonState(
         label: 'Searching Collectarr Core...',
       );
     }
     if (isSearchingProvider) {
-      return const _SearchLoadingState(
+      return const _SearchSkeletonState(
         label: 'Searching metadata providers...',
       );
     }
@@ -209,17 +216,21 @@ class AddComicResultPane extends StatelessWidget {
           results: visibleProviderResults,
           issueSortAscending: issueSortAscending,
           selectedProviderId: selectedProviderId,
+          checkedProviderIds: checkedProviderIds,
           providerLabel: providerLabel,
           onSelectProvider: onSelectProvider,
+          onToggleProviderCheck: onToggleProviderCheck,
         );
       }
       return _ProviderIssueTree(
         results: visibleProviderResults,
         issueSortAscending: issueSortAscending,
         selectedProviderId: selectedProviderId,
+        checkedProviderIds: checkedProviderIds,
         collapsedSeries: collapsedSeries,
         providerLabel: providerLabel,
         onSelectProvider: onSelectProvider,
+        onToggleProviderCheck: onToggleProviderCheck,
         onToggleIssueCollapsed: onToggleSeriesCollapsed,
       );
     }
@@ -229,6 +240,39 @@ class AddComicResultPane extends StatelessWidget {
         textAlign: TextAlign.center,
       ),
     );
+  }
+
+  String? _selectedResultLabel(
+    List<ProviderCandidate> visibleProviderResults,
+  ) {
+    final serverId = selectedServerId;
+    if (serverId != null) {
+      for (final item in serverResults) {
+        if (item.id == serverId) {
+          return [
+            item.title,
+            if (item.itemNumber != null && item.itemNumber!.trim().isNotEmpty)
+              '#${item.itemNumber}',
+            if (item.variant != null && item.variant!.trim().isNotEmpty)
+              item.variant,
+          ].join(' | ');
+        }
+      }
+    }
+    final providerId = selectedProviderId;
+    if (providerId != null) {
+      for (final item in visibleProviderResults) {
+        if (item.providerItemId == providerId) {
+          final identity = _providerCandidateIdentity(item);
+          return [
+            identity.seriesTitle,
+            identity.issueLabel,
+            identity.variantLabel,
+          ].join(' | ');
+        }
+      }
+    }
+    return null;
   }
 
   List<ProviderCandidate> _visibleProviderResults() {
@@ -261,18 +305,22 @@ class _ProviderIssueTree extends StatelessWidget {
     required this.results,
     required this.issueSortAscending,
     required this.selectedProviderId,
+    required this.checkedProviderIds,
     required this.collapsedSeries,
     required this.providerLabel,
     required this.onSelectProvider,
+    required this.onToggleProviderCheck,
     required this.onToggleIssueCollapsed,
   });
 
   final List<ProviderCandidate> results;
   final bool issueSortAscending;
   final String? selectedProviderId;
+  final Set<String> checkedProviderIds;
   final Set<String> collapsedSeries;
   final String Function(String provider) providerLabel;
   final ValueChanged<String> onSelectProvider;
+  final ValueChanged<String> onToggleProviderCheck;
   final ValueChanged<String> onToggleIssueCollapsed;
 
   @override
@@ -289,26 +337,121 @@ class _ProviderIssueTree extends StatelessWidget {
             isCollapsed: collapsedSeries.contains(series.collapseKey),
             onToggleCollapsed: () => onToggleIssueCollapsed(series.collapseKey),
           ),
-          if (!collapsedSeries.contains(series.collapseKey))
-            for (final issue in series.issues) ...[
-              _ProviderIssueHeader(
-                group: issue,
-                isCollapsed: collapsedSeries.contains(issue.collapseKey),
-                onToggleCollapsed: () =>
-                    onToggleIssueCollapsed(issue.collapseKey),
-              ),
-              if (!collapsedSeries.contains(issue.collapseKey))
-                for (final item in issue.sortedItems)
-                  _ProviderIssueRow(
-                    candidate: item,
-                    selected: item.providerItemId == selectedProviderId,
-                    providerLabel: providerLabel(item.provider),
-                    isChild: _providerCandidateIdentity(item).isVariant,
-                    onSelect: () => onSelectProvider(item.providerItemId),
+          _AnimatedCollapseSection(
+            visible: !collapsedSeries.contains(series.collapseKey),
+            child: Column(
+              children: [
+                for (final issue in series.issues)
+                  Builder(
+                    builder: (context) {
+                      final issueCollapsed =
+                          collapsedSeries.contains(issue.collapseKey);
+                      return Column(
+                        children: [
+                          _ProviderIssueHeader(
+                            group: issue,
+                            isCollapsed: issueCollapsed,
+                            onToggleCollapsed: () =>
+                                onToggleIssueCollapsed(issue.collapseKey),
+                          ),
+                          _AnimatedCollapseSection(
+                            visible: !issueCollapsed,
+                            child: Column(
+                              children: [
+                                for (final item in issue.sortedItems)
+                                  _ProviderIssueRow(
+                                    candidate: item,
+                                    selected: item.providerItemId ==
+                                        selectedProviderId,
+                                    checked: checkedProviderIds
+                                        .contains(item.providerItemId),
+                                    providerLabel: providerLabel(item.provider),
+                                    isChild: _providerCandidateIdentity(item)
+                                        .isVariant,
+                                    onSelect: () =>
+                                        onSelectProvider(item.providerItemId),
+                                    onToggleCheck: () => onToggleProviderCheck(
+                                      item.providerItemId,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
-            ],
+              ],
+            ),
+          ),
         ],
       ],
+    );
+  }
+}
+
+class _SelectedResultStrip extends StatelessWidget {
+  const _SelectedResultStrip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(8, 5, 8, 6),
+      decoration: BoxDecoration(
+        color: kClzSelection.withValues(alpha: 0.7),
+        border: const Border(bottom: BorderSide(color: Color(0xFF4B5F69))),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: kClzYellow, size: 15),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'Selected: $label',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnimatedCollapseSection extends StatelessWidget {
+  const _AnimatedCollapseSection({
+    required this.visible,
+    required this.child,
+  });
+
+  final bool visible;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 180),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return SizeTransition(
+            sizeFactor: animation,
+            axisAlignment: -1,
+            child: FadeTransition(opacity: animation, child: child),
+          );
+        },
+        child: visible
+            ? KeyedSubtree(
+                key: const ValueKey('expanded'),
+                child: child,
+              )
+            : const SizedBox.shrink(key: ValueKey('collapsed')),
+      ),
     );
   }
 }
@@ -318,15 +461,19 @@ class _ProviderFlatIssueList extends StatelessWidget {
     required this.results,
     required this.issueSortAscending,
     required this.selectedProviderId,
+    required this.checkedProviderIds,
     required this.providerLabel,
     required this.onSelectProvider,
+    required this.onToggleProviderCheck,
   });
 
   final List<ProviderCandidate> results;
   final bool issueSortAscending;
   final String? selectedProviderId;
+  final Set<String> checkedProviderIds;
   final String Function(String provider) providerLabel;
   final ValueChanged<String> onSelectProvider;
+  final ValueChanged<String> onToggleProviderCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -342,8 +489,10 @@ class _ProviderFlatIssueList extends StatelessWidget {
           _ProviderFlatIssueRow(
             candidate: item,
             selected: item.providerItemId == selectedProviderId,
+            checked: checkedProviderIds.contains(item.providerItemId),
             providerLabel: providerLabel(item.provider),
             onSelect: () => onSelectProvider(item.providerItemId),
+            onToggleCheck: () => onToggleProviderCheck(item.providerItemId),
           ),
       ],
     );
@@ -354,14 +503,18 @@ class _ProviderFlatIssueRow extends StatelessWidget {
   const _ProviderFlatIssueRow({
     required this.candidate,
     required this.selected,
+    required this.checked,
     required this.providerLabel,
     required this.onSelect,
+    required this.onToggleCheck,
   });
 
   final ProviderCandidate candidate;
   final bool selected;
+  final bool checked;
   final String providerLabel;
   final VoidCallback onSelect;
+  final VoidCallback onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -375,7 +528,7 @@ class _ProviderFlatIssueRow extends StatelessWidget {
         'provider-flat-${candidate.provider}-${candidate.providerItemId}',
       ),
       selected: selected,
-      checked: selected,
+      checked: checked,
       checkDisabled: false,
       cover: SizedBox(
         width: 42,
@@ -396,7 +549,7 @@ class _ProviderFlatIssueRow extends StatelessWidget {
       ],
       trailing: 'propose',
       onTap: onSelect,
-      onToggleCheck: onSelect,
+      onToggleCheck: onToggleCheck,
     );
   }
 }
@@ -545,16 +698,20 @@ class _ProviderIssueRow extends StatelessWidget {
   const _ProviderIssueRow({
     required this.candidate,
     required this.selected,
+    required this.checked,
     required this.providerLabel,
     required this.isChild,
     required this.onSelect,
+    required this.onToggleCheck,
   });
 
   final ProviderCandidate candidate;
   final bool selected;
+  final bool checked;
   final String providerLabel;
   final bool isChild;
   final VoidCallback onSelect;
+  final VoidCallback onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -585,7 +742,7 @@ class _ProviderIssueRow extends StatelessWidget {
                 'provider-row-${candidate.provider}-${candidate.providerItemId}',
               ),
               selected: selected,
-              checked: selected,
+              checked: checked,
               checkDisabled: false,
               cover: SizedBox(
                 width: 42,
@@ -606,7 +763,7 @@ class _ProviderIssueRow extends StatelessWidget {
               ],
               trailing: 'propose',
               onTap: onSelect,
-              onToggleCheck: onSelect,
+              onToggleCheck: onToggleCheck,
             ),
           ),
         ],
@@ -933,29 +1090,162 @@ class _ProviderCandidateIdentity {
       !variantLabel.startsWith('Standard cover |');
 }
 
-class _SearchLoadingState extends StatelessWidget {
-  const _SearchLoadingState({required this.label});
+class _SearchSkeletonState extends StatelessWidget {
+  const _SearchSkeletonState({required this.label});
 
   final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
-            width: 34,
-            height: 34,
-            child: CircularProgressIndicator(strokeWidth: 3),
+          Row(
+            children: [
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+          Expanded(
+            child: _PulseSkeleton(
+              child: ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 7,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  return _SkeletonResultRow(
+                    shortSubtitle: index.isOdd,
+                  );
+                },
+              ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PulseSkeleton extends StatefulWidget {
+  const _PulseSkeleton({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_PulseSkeleton> createState() => _PulseSkeletonState();
+}
+
+class _PulseSkeletonState extends State<_PulseSkeleton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 820),
+    )..repeat(reverse: true);
+    _opacity = Tween<double>(begin: 0.44, end: 0.82).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(opacity: _opacity, child: widget.child);
+  }
+}
+
+class _SkeletonResultRow extends StatelessWidget {
+  const _SkeletonResultRow({required this.shortSubtitle});
+
+  final bool shortSubtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0xFF242729),
+        border: Border(bottom: BorderSide(color: Color(0xFF36393B))),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Row(
+          children: [
+            _SkeletonBox(width: 18, height: 18, radius: 3),
+            const SizedBox(width: 10),
+            _SkeletonBox(width: 42, height: 62, radius: 3),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const FractionallySizedBox(
+                    widthFactor: 0.78,
+                    child: _SkeletonBox(height: 13, radius: 3),
+                  ),
+                  const SizedBox(height: 8),
+                  FractionallySizedBox(
+                    widthFactor: shortSubtitle ? 0.46 : 0.66,
+                    child: const _SkeletonBox(height: 11, radius: 3),
+                  ),
+                  const SizedBox(height: 9),
+                  const FractionallySizedBox(
+                    widthFactor: 0.34,
+                    child: _SkeletonBox(height: 16, radius: 4),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({
+    this.width,
+    required this.height,
+    required this.radius,
+  });
+
+  final double? width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: const Color(0xFF536A78),
+        borderRadius: BorderRadius.circular(radius),
       ),
     );
   }

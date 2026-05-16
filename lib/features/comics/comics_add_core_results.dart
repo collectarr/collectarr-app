@@ -132,75 +132,149 @@ class AddCoreResults extends StatelessWidget {
                           );
                         },
                       ),
-                      if (!collapsedSeries.contains(group.collapseKey))
-                        for (final issue in group.issues) ...[
-                          Builder(
-                            builder: (context) {
-                              final issueAddable = issue.items
-                                  .where((item) =>
-                                      !ownedItemIds.contains(item.id) &&
-                                      !wishlistItemIds.contains(item.id))
-                                  .toList(growable: false);
-                              final selectedInIssue = issue.items
-                                  .where((item) =>
-                                      checkedServerIds.contains(item.id))
-                                  .length;
-                              final collapsed =
-                                  collapsedSeries.contains(issue.collapseKey);
-                              return _AddIssueHeader(
-                                title: issue.issueLabel,
-                                subtitle: _addIssueSubtitle(issue.items),
-                                count: issue.items.length,
-                                selectedCount: selectedInIssue,
-                                selectableCount: issueAddable.length,
-                                isCollapsed: collapsed,
-                                canCheck: issueAddable.isNotEmpty,
-                                onToggleCollapsed: () =>
-                                    onToggleSeriesCollapsed(issue.collapseKey),
-                                onToggleCheck: issueAddable.isEmpty
-                                    ? null
-                                    : () => onToggleSeriesCheck(issueAddable),
-                              );
-                            },
-                          ),
-                          if (!collapsedSeries.contains(issue.collapseKey))
-                            for (final item in issue.sortedItems)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 28),
-                                child: AddResultRow(
-                                  selected: item.id == selectedServerId,
-                                  checked: checkedServerIds.contains(item.id),
-                                  checkDisabled:
-                                      ownedItemIds.contains(item.id) ||
-                                          wishlistItemIds.contains(item.id),
-                                  cover: SizedBox(
-                                    width: 38,
-                                    height: 56,
-                                    child: AddComicCoverImage(item: item),
-                                  ),
-                                  title: _addResultTitle(item),
-                                  subtitle: _addResultSubtitle(item),
-                                  badges: [
-                                    ..._addResultBadges(item),
-                                    if (ownedItemIds.contains(item.id)) 'Owned',
-                                    if (wishlistItemIds.contains(item.id))
-                                      'Wishlist',
-                                  ],
-                                  trailing: _addResultTrailing(item),
-                                  onTap: () => onSelectServer(item.id),
-                                  onToggleCheck:
-                                      ownedItemIds.contains(item.id) ||
-                                              wishlistItemIds.contains(item.id)
-                                          ? null
-                                          : () => onToggleServerCheck(item.id),
-                                ),
+                      _AnimatedCollapseSection(
+                        visible: !collapsedSeries.contains(group.collapseKey),
+                        child: Column(
+                          children: [
+                            for (final issue in group.issues)
+                              Builder(
+                                builder: (context) {
+                                  final issueAddable = issue.items
+                                      .where((item) =>
+                                          !ownedItemIds.contains(item.id) &&
+                                          !wishlistItemIds.contains(item.id))
+                                      .toList(growable: false);
+                                  final selectedInIssue = issue.items
+                                      .where((item) =>
+                                          checkedServerIds.contains(item.id))
+                                      .length;
+                                  final collapsed = collapsedSeries
+                                      .contains(issue.collapseKey);
+                                  return Column(
+                                    children: [
+                                      _AddIssueHeader(
+                                        title: issue.issueLabel,
+                                        subtitle:
+                                            _addIssueSubtitle(issue.items),
+                                        count: issue.items.length,
+                                        selectedCount: selectedInIssue,
+                                        selectableCount: issueAddable.length,
+                                        isCollapsed: collapsed,
+                                        canCheck: issueAddable.isNotEmpty,
+                                        onToggleCollapsed: () =>
+                                            onToggleSeriesCollapsed(
+                                          issue.collapseKey,
+                                        ),
+                                        onToggleCheck: issueAddable.isEmpty
+                                            ? null
+                                            : () => onToggleSeriesCheck(
+                                                  issueAddable,
+                                                ),
+                                      ),
+                                      _AnimatedCollapseSection(
+                                        visible: !collapsed,
+                                        child: Column(
+                                          children: [
+                                            for (final item
+                                                in issue.sortedItems)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 28,
+                                                ),
+                                                child: AddResultRow(
+                                                  selected: item.id ==
+                                                      selectedServerId,
+                                                  checked: checkedServerIds
+                                                      .contains(item.id),
+                                                  checkDisabled: ownedItemIds
+                                                          .contains(item.id) ||
+                                                      wishlistItemIds
+                                                          .contains(item.id),
+                                                  cover: SizedBox(
+                                                    width: 38,
+                                                    height: 56,
+                                                    child: AddComicCoverImage(
+                                                      item: item,
+                                                    ),
+                                                  ),
+                                                  title: _addResultTitle(item),
+                                                  subtitle:
+                                                      _addResultSubtitle(item),
+                                                  badges: [
+                                                    ..._addResultBadges(item),
+                                                    if (ownedItemIds
+                                                        .contains(item.id))
+                                                      'Owned',
+                                                    if (wishlistItemIds
+                                                        .contains(item.id))
+                                                      'Wishlist',
+                                                  ],
+                                                  trailing:
+                                                      _addResultTrailing(item),
+                                                  onTap: () =>
+                                                      onSelectServer(item.id),
+                                                  onToggleCheck: ownedItemIds
+                                                              .contains(
+                                                            item.id,
+                                                          ) ||
+                                                          wishlistItemIds
+                                                              .contains(item.id)
+                                                      ? null
+                                                      : () =>
+                                                          onToggleServerCheck(
+                                                            item.id,
+                                                          ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
-                        ],
+                          ],
+                        ),
+                      ),
                     ],
                   ],
                 ),
         ),
       ],
+    );
+  }
+}
+
+class _AnimatedCollapseSection extends StatelessWidget {
+  const _AnimatedCollapseSection({
+    required this.visible,
+    required this.child,
+  });
+
+  final bool visible;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 180),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return SizeTransition(
+            sizeFactor: animation,
+            axisAlignment: -1,
+            child: FadeTransition(opacity: animation, child: child),
+          );
+        },
+        child: visible
+            ? KeyedSubtree(
+                key: const ValueKey('expanded'),
+                child: child,
+              )
+            : const SizedBox.shrink(key: ValueKey('collapsed')),
+      ),
     );
   }
 }

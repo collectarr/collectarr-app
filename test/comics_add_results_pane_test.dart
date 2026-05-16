@@ -166,6 +166,26 @@ void main() {
     expect(find.text('#1 | Standard cover | Regular Cover'), findsWidgets);
     expect(find.text('#1 | Veronica Fish Variant Cover'), findsWidgets);
   });
+
+  testWidgets('provider rows support independent multi-select checks',
+      (tester) async {
+    var toggledId = '';
+
+    await tester.pumpWidget(
+      _host(
+        includeVariants: true,
+        hideInShelf: false,
+        checkedProviderIds: const {'2665653'},
+        onToggleProviderCheck: (id) => toggledId = id,
+      ),
+    );
+
+    final row = find.byKey(const ValueKey('provider-row-gcd-2663120'));
+    expect(row, findsOneWidget);
+
+    await tester.tap(find.descendant(of: row, matching: find.byType(Checkbox)));
+    expect(toggledId, '2663120');
+  });
 }
 
 Widget _host({
@@ -173,7 +193,9 @@ Widget _host({
   required bool includeVariants,
   required bool hideInShelf,
   Set<String> ownedItemIds = const {},
+  Set<String> checkedProviderIds = const {},
   bool issueSortAscending = true,
+  ValueChanged<String>? onToggleProviderCheck,
   List<ProviderCandidate> providerResults = const [
     ProviderCandidate(
       provider: 'gcd',
@@ -205,6 +227,7 @@ Widget _host({
           selectedServerId: null,
           selectedProviderId: null,
           checkedServerIds: const {},
+          checkedProviderIds: checkedProviderIds,
           includeVariants: includeVariants,
           hideInShelf: hideInShelf,
           issueSortAscending: issueSortAscending,
@@ -219,6 +242,7 @@ Widget _host({
           onIssueSortAscendingChanged: (_) {},
           onSelectServer: (_) {},
           onToggleServerCheck: (_) {},
+          onToggleProviderCheck: onToggleProviderCheck ?? (_) {},
           collapsedSeries: const {},
           onToggleSeriesCollapsed: (_) {},
           onToggleSeriesCheck: (_) {},
