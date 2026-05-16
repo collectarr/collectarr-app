@@ -17,6 +17,9 @@ void main() {
           title: 'Spider-Man, "Vol. 1"',
           itemNumber: '1',
           variant: 'Newsstand',
+          editionTitle: 'Direct market edition',
+          physicalFormat: 'single-issue',
+          physicalFormatLabel: 'Single Issue',
           publisher: 'Marvel',
           releaseDate: DateTime.utc(1963, 3, 1),
           barcode: '071486024576',
@@ -56,6 +59,9 @@ void main() {
     expect(rows.single.title, 'Spider-Man, "Vol. 1"');
     expect(rows.single.itemNumber, '1');
     expect(rows.single.variant, 'Newsstand');
+    expect(rows.single.editionTitle, 'Direct market edition');
+    expect(rows.single.physicalFormat, 'single-issue');
+    expect(rows.single.physicalFormatLabel, 'Single Issue');
     expect(rows.single.publisher, 'Marvel');
     expect(rows.single.releaseDate, DateTime.utc(1963, 3, 1));
     expect(rows.single.barcode, '071486024576');
@@ -127,6 +133,9 @@ void main() {
           releaseDate: DateTime.utc(1982, 6, 25),
           barcode: '883929087129',
           variant: '4K UHD',
+          editionTitle: 'Final Cut 4K release',
+          physicalFormat: '4k-uhd',
+          physicalFormatLabel: '4K UHD',
         ),
         ownedItem: OwnedItem(
           id: 'owned-1',
@@ -142,12 +151,16 @@ void main() {
     expect(exported, contains('Edition no.'));
     expect(exported, contains('Studio'));
     expect(exported, contains('UPC / Barcode'));
+    expect(exported, contains('Physical Format'));
 
     final rows = CollectionCsv().parse(exported);
     expect(rows.single.kind, 'movie');
     expect(rows.single.title, 'Blade Runner');
     expect(rows.single.itemNumber, 'Final Cut');
     expect(rows.single.variant, '4K UHD');
+    expect(rows.single.editionTitle, 'Final Cut 4K release');
+    expect(rows.single.physicalFormat, '4k-uhd');
+    expect(rows.single.physicalFormatLabel, '4K UHD');
     expect(rows.single.publisher, 'Warner Bros.');
   });
 

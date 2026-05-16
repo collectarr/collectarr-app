@@ -48,4 +48,27 @@ void main() {
     expect(item.kind, 'book');
     expect(item.title, 'Legacy Book Candidate');
   });
+
+  test('marks stub provider candidates clearly', () {
+    final candidate = ProviderCandidate.fromJson(const {
+      'provider': 'tmdb',
+      'provider_item_id': 'stub-movie-matrix',
+      'title': 'Matrix (TMDb stub)',
+      'kind': 'movie',
+    });
+
+    expect(candidate.isStub, isTrue);
+  });
+
+  test('detects provider variant candidates', () {
+    final candidate = ProviderCandidate.fromJson(const {
+      'provider': 'gcd',
+      'provider_item_id': '2665653',
+      'title': 'Absolute Batman #1 [Jim Lee Cardstock Variant Cover]',
+      'kind': 'comic',
+      'summary': 'December 2024 · 5.99 USD · variant',
+    });
+
+    expect(candidate.isVariant, isTrue);
+  });
 }

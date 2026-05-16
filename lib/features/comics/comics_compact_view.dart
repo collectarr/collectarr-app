@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/comics/comics_inspector.dart';
 import 'package:collectarr_app/features/comics/comics_shelf_views.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
+import 'package:collectarr_app/features/library/workspace/library_ctrl_scroll_zoom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -123,149 +124,155 @@ class _CompactComicsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Tooltip(
-                  message: 'Add comics',
-                  child: IconButton.filled(
-                    onPressed: onAddComic,
-                    icon: const Icon(Icons.add),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: SearchBar(
-                    controller: queryController,
-                    hintText: 'Search comics...',
-                    leading: const Icon(Icons.search),
-                    onSubmitted: onSearch,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Tooltip(
-                  message: 'Filters',
-                  child: Badge(
-                    isLabelVisible: hasActiveFilters,
-                    label: Text(activeFilterCount.toString()),
-                    child: IconButton.filledTonal(
-                      onPressed: onEditFilters,
-                      icon: const Icon(Icons.filter_list),
+    return LibraryCtrlScrollZoom(
+      coverSize: coverSize,
+      minCoverSize: kComicsMinCoverSize,
+      maxCoverSize: kComicsMaxCoverSize,
+      onCoverSizeChanged: onCoverSizeChanged,
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Tooltip(
+                    message: 'Add comics',
+                    child: IconButton.filled(
+                      onPressed: onAddComic,
+                      icon: const Icon(Icons.add),
                     ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                if (hasActiveFilters) ...[
-                  Tooltip(
-                    message: 'Clear filters',
-                    child: IconButton.filledTonal(
-                      onPressed: onClearFilters,
-                      icon: const Icon(Icons.filter_alt_off_outlined),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: SearchBar(
+                      controller: queryController,
+                      hintText: 'Search comics...',
+                      leading: const Icon(Icons.search),
+                      onSubmitted: onSearch,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                ],
-                if (duplicateGroups.isNotEmpty) ...[
+                  const SizedBox(width: 8),
                   Tooltip(
-                    message: 'Duplicate candidates',
+                    message: 'Filters',
                     child: Badge(
-                      label: Text(duplicateGroups.length.toString()),
+                      isLabelVisible: hasActiveFilters,
+                      label: Text(activeFilterCount.toString()),
                       child: IconButton.filledTonal(
-                        onPressed: () => showComicsDuplicateItemsDialog(
-                          context,
-                          duplicateGroups: duplicateGroups,
-                        ),
-                        icon: const Icon(Icons.content_copy),
+                        onPressed: onEditFilters,
+                        icon: const Icon(Icons.filter_list),
                       ),
                     ),
                   ),
                   const SizedBox(width: 4),
-                ],
-                Tooltip(
-                  message: 'Cover size',
-                  child: IconButton.filledTonal(
-                    onPressed: () => _showCompactCoverSizeSheet(
-                      context,
-                      coverSize,
-                      onCoverSizeChanged,
+                  if (hasActiveFilters) ...[
+                    Tooltip(
+                      message: 'Clear filters',
+                      child: IconButton.filledTonal(
+                        onPressed: onClearFilters,
+                        icon: const Icon(Icons.filter_alt_off_outlined),
+                      ),
                     ),
-                    icon: const Icon(Icons.photo_size_select_large_outlined),
+                    const SizedBox(width: 4),
+                  ],
+                  if (duplicateGroups.isNotEmpty) ...[
+                    Tooltip(
+                      message: 'Duplicate candidates',
+                      child: Badge(
+                        label: Text(duplicateGroups.length.toString()),
+                        child: IconButton.filledTonal(
+                          onPressed: () => showComicsDuplicateItemsDialog(
+                            context,
+                            duplicateGroups: duplicateGroups,
+                          ),
+                          icon: const Icon(Icons.content_copy),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
+                  Tooltip(
+                    message: 'Cover size',
+                    child: IconButton.filledTonal(
+                      onPressed: () => _showCompactCoverSizeSheet(
+                        context,
+                        coverSize,
+                        onCoverSizeChanged,
+                      ),
+                      icon: const Icon(Icons.photo_size_select_large_outlined),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Tooltip(
-                  message: 'Scan barcode',
-                  child: IconButton.filledTonal(
-                    onPressed: onScanBarcode,
-                    icon: const Icon(Icons.qr_code_scanner),
+                  const SizedBox(width: 4),
+                  Tooltip(
+                    message: 'Scan barcode',
+                    child: IconButton.filledTonal(
+                      onPressed: onScanBarcode,
+                      icon: const Icon(Icons.qr_code_scanner),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Tooltip(
-                  message: 'Refresh metadata',
-                  child: IconButton.filledTonal(
-                    onPressed: onRefreshMetadata,
-                    icon: const Icon(Icons.sync),
+                  const SizedBox(width: 4),
+                  Tooltip(
+                    message: 'Refresh metadata',
+                    child: IconButton.filledTonal(
+                      onPressed: onRefreshMetadata,
+                      icon: const Icon(Icons.sync),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (selectedGroup != null)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: InputChip(
-                label: Text(selectedGroup!),
-                onDeleted: onClearGroup,
+                ],
               ),
             ),
           ),
-        if (items.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: ComicsEmptyState(onAddComic: onAddComic),
-          )
-        else
-          SliverPadding(
-            padding: const EdgeInsets.all(12),
-            sliver: SliverGrid.builder(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: coverSize,
-                mainAxisExtent: coverSize * 1.53,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 12,
+          if (selectedGroup != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: InputChip(
+                  label: Text(selectedGroup!),
+                  onDeleted: onClearGroup,
+                ),
               ),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                final ownedItem = ownedByItemId[item.id];
-                return LibraryCoverTile(
-                  entry: comicWorkspaceEntry(
-                    item,
-                    ownedItem,
-                    null,
-                    isWishlisted: wishlistIds.contains(item.id),
-                  ),
-                  selected: item.id == selectedItem?.id,
-                  onTap: () {
-                    onSelectItem(item);
-                    _showCompactInspector(context, item);
-                  },
-                  selectedColor: kClzSelection,
-                  accentColor: kClzAccent,
-                  selectionColor: kClzYellow,
-                  mutedTextColor: kClzTextMuted,
-                );
-              },
             ),
-          ),
-      ],
+          if (items.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: ComicsEmptyState(onAddComic: onAddComic),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.all(12),
+              sliver: SliverGrid.builder(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: coverSize,
+                  mainAxisExtent: coverSize * 1.53,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  final ownedItem = ownedByItemId[item.id];
+                  return LibraryCoverTile(
+                    entry: comicWorkspaceEntry(
+                      item,
+                      ownedItem,
+                      null,
+                      isWishlisted: wishlistIds.contains(item.id),
+                    ),
+                    selected: item.id == selectedItem?.id,
+                    onTap: () {
+                      onSelectItem(item);
+                      _showCompactInspector(context, item);
+                    },
+                    selectedColor: kClzSelection,
+                    accentColor: kClzAccent,
+                    selectionColor: kClzYellow,
+                    mutedTextColor: kClzTextMuted,
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

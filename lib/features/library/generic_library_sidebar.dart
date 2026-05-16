@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:flutter/material.dart';
@@ -9,23 +10,27 @@ class GenericLibrarySidebar extends StatelessWidget {
     required this.type,
     required this.accent,
     required this.buckets,
+    required this.groupMode,
     required this.selectedBucket,
     required this.onSelected,
+    required this.onGroupModeChanged,
     required this.onClearFilter,
   });
 
   final LibraryTypeConfig type;
   final Color accent;
   final List<LibrarySeriesBucket> buckets;
+  final GenericLibraryGroupMode groupMode;
   final String selectedBucket;
   final ValueChanged<String> onSelected;
+  final ValueChanged<GenericLibraryGroupMode> onGroupModeChanged;
   final VoidCallback? onClearFilter;
 
   @override
   Widget build(BuildContext context) {
     return LibrarySeriesSidebar(
-      title: genericLibrarySidebarTitle(type),
-      icon: genericLibrarySidebarIcon(type),
+      title: genericGroupModeSidebarTitle(groupMode, type),
+      icon: genericGroupModeIcon(groupMode),
       series: buckets,
       selectedSeries: selectedBucket,
       onSelectSeries: onSelected,
@@ -36,10 +41,20 @@ class GenericLibrarySidebar extends StatelessWidget {
       dividerColor: kClzDivider,
       selectedBadgeColor: kClzYellow,
       mutedTextColor: kClzTextMuted,
-      trailing: IconButton(
-        tooltip: 'Clear library filter',
-        onPressed: onClearFilter,
-        icon: const Icon(Icons.filter_alt_off, size: 18),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _GenericGroupingMenu(
+            type: type,
+            groupMode: groupMode,
+            onChanged: onGroupModeChanged,
+          ),
+          IconButton(
+            tooltip: 'Clear group filter',
+            onPressed: onClearFilter,
+            icon: const Icon(Icons.filter_alt_off, size: 18),
+          ),
+        ],
       ),
     );
   }
@@ -96,19 +111,45 @@ class GenericLibraryCompactBucketBar extends StatelessWidget {
   }
 }
 
-String genericLibrarySidebarTitle(LibraryTypeConfig type) {
-  return switch (type.workspace.kind) {
-    'anime' || 'movie' || 'tv' => 'Years',
-    'music' => 'Artists',
-    'book' || 'game' || 'boardgame' || 'manga' => 'Publishers',
-    _ => 'Titles',
-  };
-}
-
 IconData genericLibrarySidebarIcon(LibraryTypeConfig type) {
   return switch (type.workspace.kind) {
     'music' => Icons.person_2_outlined,
     'movie' => Icons.movie_filter_outlined,
     _ => Icons.folder,
   };
+}
+
+class _GenericGroupingMenu extends StatelessWidget {
+  const _GenericGroupingMenu({
+    required this.type,
+    required this.groupMode,
+    required this.onChanged,
+  });
+
+  final LibraryTypeConfig type;
+  final GenericLibraryGroupMode groupMode;
+  final ValueChanged<GenericLibraryGroupMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<GenericLibraryGroupMode>(
+      tooltip: 'Group by',
+      icon: const Icon(Icons.tune, size: 18),
+      initialValue: groupMode,
+      onSelected: onChanged,
+      itemBuilder: (context) => [
+        for (final mode in genericGroupModesForType(type))
+          PopupMenuItem(
+            value: mode,
+            child: ListTile(
+              dense: true,
+              leading: Icon(genericGroupModeIcon(mode)),
+              title: Text(genericGroupModeLabel(mode, type)),
+              trailing:
+                  mode == groupMode ? const Icon(Icons.check, size: 18) : null,
+            ),
+          ),
+      ],
+    );
+  }
 }

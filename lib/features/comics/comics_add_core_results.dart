@@ -13,6 +13,7 @@ class AddCoreResults extends StatelessWidget {
     required this.wishlistItemIds,
     required this.selectedServerId,
     required this.checkedServerIds,
+    required this.includeVariants,
     required this.hideInShelf,
     required this.collapsedSeries,
     required this.onCheckAllVisible,
@@ -28,6 +29,7 @@ class AddCoreResults extends StatelessWidget {
   final Set<String> wishlistItemIds;
   final String? selectedServerId;
   final Set<String> checkedServerIds;
+  final bool includeVariants;
   final bool hideInShelf;
   final Set<String> collapsedSeries;
   final ValueChanged<Iterable<CatalogItem>> onCheckAllVisible;
@@ -39,17 +41,21 @@ class AddCoreResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final visibleResults = hideInShelf
-        ? serverResults
-            .where((item) =>
-                !ownedItemIds.contains(item.id) &&
-                !wishlistItemIds.contains(item.id))
-            .toList(growable: false)
-        : serverResults;
+    final visibleResults = serverResults.where((item) {
+      if (!includeVariants && _looksLikeVariant(item.variant)) {
+        return false;
+      }
+      if (hideInShelf &&
+          (ownedItemIds.contains(item.id) ||
+              wishlistItemIds.contains(item.id))) {
+        return false;
+      }
+      return true;
+    }).toList(growable: false);
     if (visibleResults.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'All matching comics are already in your local shelf.',
+          _emptyFilterMessage(),
           textAlign: TextAlign.center,
         ),
       );
@@ -139,6 +145,10 @@ class AddCoreResults extends StatelessWidget {
   }
 }
 
+String _emptyFilterMessage() {
+  return 'No matching comics are visible with the current filters.';
+}
+
 Map<String, List<CatalogItem>> _groupAddResultsBySeries(
   List<CatalogItem> items,
 ) {
@@ -218,6 +228,27 @@ String _addResultTrailing(CatalogItem item) {
     return item.releaseYear!.toString();
   }
   return item.itemNumber == null ? '' : '#${item.itemNumber}';
+}
+
+bool _looksLikeVariant(String? value) {
+  final text = value?.trim().toLowerCase();
+  if (text == null || text.isEmpty) {
+    return false;
+  }
+  if (text == 'cover a' ||
+      text == 'regular cover' ||
+      text == 'standard cover' ||
+      text == 'standard edition') {
+    return false;
+  }
+  return text.contains('variant') ||
+      text.contains('virgin') ||
+      text.contains('foil') ||
+      text.contains('exclusive') ||
+      text.contains('incentive') ||
+      text.contains('ratio') ||
+      text.contains('second printing') ||
+      text.contains('third printing');
 }
 
 int _compareIssueNumbers(String? left, String? right) {

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_pane_widths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryWorkspacePreferenceSnapshot {
@@ -8,6 +9,8 @@ class LibraryWorkspacePreferenceSnapshot {
     required this.sortColumn,
     required this.sortAscending,
     required this.coverSize,
+    required this.sidebarWidth,
+    required this.detailsWidth,
     required this.visibleColumns,
     required this.columnWidths,
   });
@@ -17,14 +20,45 @@ class LibraryWorkspacePreferenceSnapshot {
   final LibrarySortColumn sortColumn;
   final bool sortAscending;
   final double coverSize;
+  final double sidebarWidth;
+  final double detailsWidth;
   final Set<LibraryTableColumn> visibleColumns;
   final Map<LibraryTableColumn, double> columnWidths;
+
+  LibraryWorkspaceChromePreferenceSnapshot get chrome =>
+      LibraryWorkspaceChromePreferenceSnapshot(
+        detailsLayout: detailsLayout,
+        sidebarWidth: sidebarWidth,
+        detailsWidth: detailsWidth,
+      );
+}
+
+class LibraryWorkspaceChromePreferenceSnapshot {
+  const LibraryWorkspaceChromePreferenceSnapshot({
+    required this.detailsLayout,
+    required this.sidebarWidth,
+    required this.detailsWidth,
+  });
+
+  final LibraryDetailsLayout detailsLayout;
+  final double sidebarWidth;
+  final double detailsWidth;
 }
 
 class LibraryWorkspacePreferences {
   const LibraryWorkspacePreferences(this.config);
 
+  static const _globalChromePrefix = 'collectarr.workspace.chrome';
+  static LibraryWorkspaceChromePreferenceSnapshot? _cachedChrome;
+
   final LibraryWorkspaceConfig config;
+
+  static LibraryWorkspaceChromePreferenceSnapshot? get cachedChrome =>
+      _cachedChrome;
+
+  static void resetCachedChromeForTesting() {
+    _cachedChrome = null;
+  }
 
   Future<LibraryWorkspacePreferenceSnapshot> read({
     required double defaultCoverSize,
@@ -33,10 +67,18 @@ class LibraryWorkspacePreferences {
     LibraryViewMode defaultViewMode = LibraryViewMode.grid,
     LibraryDetailsLayout defaultDetailsLayout = LibraryDetailsLayout.right,
     bool defaultSortAscending = true,
+    double defaultSidebarWidth = kLibrarySidebarDefaultWidth,
+    double defaultDetailsWidth = kLibraryDetailsDefaultWidth,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final coverSize = prefs.getDouble(_key('cover_size')) ?? defaultCoverSize;
-    return LibraryWorkspacePreferenceSnapshot(
+    final sidebarWidth = prefs.getDouble(_globalKey('sidebar_width')) ??
+        prefs.getDouble(_key('sidebar_width')) ??
+        defaultSidebarWidth;
+    final detailsWidth = prefs.getDouble(_globalKey('details_width')) ??
+        prefs.getDouble(_key('details_width')) ??
+        defaultDetailsWidth;
+    final snapshot = LibraryWorkspacePreferenceSnapshot(
       viewMode: _enumByName(
             LibraryViewMode.values,
             prefs.getString(_key('view_mode')),
@@ -44,7 +86,8 @@ class LibraryWorkspacePreferences {
           defaultViewMode,
       detailsLayout: _enumByName(
             LibraryDetailsLayout.values,
-            prefs.getString(_key('details_layout')),
+            prefs.getString(_globalKey('details_layout')) ??
+                prefs.getString(_key('details_layout')),
           ) ??
           defaultDetailsLayout,
       sortColumn: _enumByName(
@@ -55,6 +98,16 @@ class LibraryWorkspacePreferences {
       sortAscending:
           prefs.getBool(_key('sort_ascending')) ?? defaultSortAscending,
       coverSize: _clamp(coverSize, minCoverSize, maxCoverSize),
+      sidebarWidth: clampLibraryPaneWidth(
+        sidebarWidth,
+        minWidth: kLibrarySidebarMinWidth,
+        maxWidth: kLibrarySidebarMaxWidth,
+      ),
+      detailsWidth: clampLibraryPaneWidth(
+        detailsWidth,
+        minWidth: kLibraryDetailsMinWidth,
+        maxWidth: kLibraryDetailsMaxWidth,
+      ),
       visibleColumns: _decodeVisibleColumns(
         prefs.getStringList(_key('visible_columns')),
       ),
@@ -62,18 +115,23 @@ class LibraryWorkspacePreferences {
         prefs.getStringList(_key('column_widths')),
       ),
     );
+    _cachedChrome = snapshot.chrome;
+    return snapshot;
   }
 
   Future<void> write(LibraryWorkspacePreferenceSnapshot snapshot) async {
+    _cachedChrome = snapshot.chrome;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key('view_mode'), snapshot.viewMode.name);
     await prefs.setString(
-      _key('details_layout'),
+      _globalKey('details_layout'),
       snapshot.detailsLayout.name,
     );
     await prefs.setString(_key('sort_column'), snapshot.sortColumn.name);
     await prefs.setBool(_key('sort_ascending'), snapshot.sortAscending);
     await prefs.setDouble(_key('cover_size'), snapshot.coverSize);
+    await prefs.setDouble(_globalKey('sidebar_width'), snapshot.sidebarWidth);
+    await prefs.setDouble(_globalKey('details_width'), snapshot.detailsWidth);
     await prefs.setStringList(
       _key('visible_columns'),
       snapshot.visibleColumns
@@ -87,6 +145,8 @@ class LibraryWorkspacePreferences {
   }
 
   String _key(String suffix) => config.preferenceKey(suffix);
+
+  String _globalKey(String suffix) => '$_globalChromePrefix.$suffix';
 
   Set<LibraryTableColumn> _decodeVisibleColumns(List<String>? values) {
     if (values == null || values.isEmpty) {

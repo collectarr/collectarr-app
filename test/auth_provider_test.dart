@@ -17,6 +17,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'collectarr.auth.token': token,
       'collectarr.auth.email': 'user@example.com',
+      'collectarr.auth.is_admin': true,
     });
     final container = ProviderContainer();
     addTearDown(container.dispose);
@@ -25,6 +26,7 @@ void main() {
     await _waitForAuthRestore(container);
 
     expect(container.read(authControllerProvider).isAuthenticated, isTrue);
+    expect(container.read(authControllerProvider).isAdmin, isTrue);
     expect(
       container.read(apiClientProvider).authorizationHeader,
       'Bearer $token',
@@ -48,6 +50,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'collectarr.auth.token': token,
       'collectarr.auth.email': 'user@example.com',
+      'collectarr.auth.is_admin': true,
     });
     final container = ProviderContainer();
     addTearDown(container.dispose);
@@ -65,6 +68,35 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('collectarr.auth.token'), isNull);
     expect(prefs.getString('collectarr.auth.email'), 'user@example.com');
+    expect(prefs.getBool('collectarr.auth.is_admin'), isNull);
+  });
+
+  test('login stores admin permission from token response', () async {
+    SharedPreferences.setMockInitialValues({});
+    final token = _jwtExpiringAt(DateTime.now().toUtc().add(
+          const Duration(hours: 1),
+        ));
+    final container = ProviderContainer(
+      overrides: [
+        apiClientProvider.overrideWithValue(_AdminLoginClient(token))
+      ],
+    );
+    addTearDown(container.dispose);
+
+    container.read(authControllerProvider);
+    await _waitForAuthRestore(container);
+
+    await container
+        .read(authControllerProvider.notifier)
+        .login('admin@example.com', 'password123');
+
+    final auth = container.read(authControllerProvider);
+    expect(auth.isAuthenticated, isTrue);
+    expect(auth.email, 'admin@example.com');
+    expect(auth.isAdmin, isTrue);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('collectarr.auth.is_admin'), isTrue);
   });
 
   test('login maps rejected credentials to a friendly error', () async {
@@ -125,5 +157,28 @@ class _RejectedLoginClient extends ApiClient {
         statusCode: 401,
       ),
     );
+  }
+}
+
+class _AdminLoginClient extends ApiClient {
+  _AdminLoginClient(this.token) : super(baseUrl: 'http://metadata.local');
+
+  final String token;
+
+  @override
+  Future<Map<String, dynamic>> login({
+    required String email,
+    required String password,
+  }) async {
+    return {
+      'access_token': token,
+      'token_type': 'bearer',
+      'user': {
+        'id': '00000000-0000-0000-0000-000000000001',
+        'email': email,
+        'display_name': null,
+        'is_admin': true,
+      },
+    };
   }
 }

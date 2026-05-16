@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/planned_library_configs.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,9 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
         ],
         child: const MaterialApp(
           home: Scaffold(
@@ -75,6 +79,9 @@ void main() {
       ProviderScope(
         overrides: [
           apiClientProvider.overrideWithValue(api),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
         ],
         child: const MaterialApp(
           home: Scaffold(
@@ -91,10 +98,10 @@ void main() {
       find.widgetWithText(TextField, 'Search Collectarr Core'),
       'Naruto',
     );
-    await tester.tap(find.text('Search AniList'));
+    await tester.tap(find.text('Search providers'));
     await tester.pumpAndSettle();
 
-    expect(api.lastProvider, 'anilist');
+    expect(api.lastProvider, isNull);
     expect(api.lastProviderKind, 'manga');
     expect(api.lastProviderQuery, 'Naruto');
     expect(find.text('Attribution required'), findsOneWidget);
@@ -122,7 +129,7 @@ void main() {
     expect(api.lastProposalTitle, 'Naruto Vol. 1');
   });
 
-  testWidgets('movie add dialog exposes physical format quick picks',
+  testWidgets('movie add dialog exposes physical format edition data',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -134,6 +141,9 @@ void main() {
         overrides: [
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
         ],
         child: const MaterialApp(
           home: Scaffold(
@@ -146,8 +156,11 @@ void main() {
       ),
     );
 
-    expect(find.widgetWithText(ActionChip, 'Blu-ray'), findsOneWidget);
-    expect(find.widgetWithText(ActionChip, '4K UHD'), findsOneWidget);
+    expect(find.text('Physical format'), findsOneWidget);
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    expect(find.text('Blu-ray'), findsOneWidget);
+    expect(find.text('4K UHD'), findsOneWidget);
     expect(find.text('Studio'), findsOneWidget);
     expect(find.text('Format / Edition'), findsOneWidget);
     expect(find.text('UPC / Barcode'), findsOneWidget);
@@ -166,6 +179,9 @@ void main() {
       ProviderScope(
         overrides: [
           apiClientProvider.overrideWithValue(api),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
         ],
         child: const MaterialApp(
           home: Scaffold(
@@ -187,7 +203,7 @@ void main() {
 
     expect(api.lastLookupBarcode, '9780140328721');
     expect(api.lastLookupKind, 'book');
-    expect(api.lastProvider, 'openlibrary');
+    expect(api.lastProvider, isNull);
     expect(api.lastProviderKind, 'book');
     expect(api.lastProviderQuery, '9780140328721');
     expect(find.textContaining('openlibrary-1'), findsOneWidget);
@@ -215,19 +231,26 @@ class _FakeLibraryAddApiClient extends ApiClient {
 
   @override
   Future<List<Map<String, dynamic>>> searchProvider({
-    required String provider,
+    String? provider,
     required String query,
     String? kind,
   }) async {
+    final resolvedProvider = provider ??
+        switch (kind) {
+          'book' => 'openlibrary',
+          'manga' => 'anilist',
+          _ => 'auto',
+        };
     lastProvider = provider;
     lastProviderQuery = query;
     lastProviderKind = kind;
     return [
       {
-        'provider': provider,
-        'provider_item_id': '$provider-1',
-        'title':
-            provider == 'anilist' ? 'Naruto Vol. 1' : 'Provider result $query',
+        'provider': resolvedProvider,
+        'provider_item_id': '$resolvedProvider-1',
+        'title': resolvedProvider == 'anilist'
+            ? 'Naruto Vol. 1'
+            : 'Provider result $query',
         'kind': kind ?? 'manga',
         'summary': 'A ninja candidate.',
         'image_url': 'https://example.test/naruto.jpg',

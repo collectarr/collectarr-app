@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'library_pane_widths.dart';
+import 'library_resizable_pane.dart';
 import 'library_workspace_config.dart';
 
 class LibraryToolbarFrame extends StatelessWidget {
@@ -246,6 +248,8 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
     required this.inspector,
     this.rightWidth = 340,
     this.bottomHeight = 310,
+    this.onRightWidthChanged,
+    this.maxRightWidth = kLibraryDetailsMaxWidth,
   });
 
   final Widget content;
@@ -253,15 +257,33 @@ class LibraryDetailsAwareLayout extends StatelessWidget {
   final Widget inspector;
   final double rightWidth;
   final double bottomHeight;
+  final ValueChanged<double>? onRightWidthChanged;
+  final double maxRightWidth;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveRightWidth = clampLibraryPaneWidth(
+      rightWidth,
+      minWidth: kLibraryDetailsMinWidth,
+      maxWidth: maxRightWidth,
+    );
     return switch (detailsLayout) {
       LibraryDetailsLayout.right => Row(
           children: [
             Expanded(child: content),
-            const VerticalDivider(width: 1),
-            SizedBox(width: rightWidth, child: inspector),
+            if (onRightWidthChanged == null)
+              const VerticalDivider(width: 1)
+            else
+              LibraryResizableDivider(
+                onDragDelta: (delta) => onRightWidthChanged!(
+                  clampLibraryPaneWidth(
+                    effectiveRightWidth - delta,
+                    minWidth: kLibraryDetailsMinWidth,
+                    maxWidth: maxRightWidth,
+                  ),
+                ),
+              ),
+            SizedBox(width: effectiveRightWidth, child: inspector),
           ],
         ),
       LibraryDetailsLayout.bottom => Column(

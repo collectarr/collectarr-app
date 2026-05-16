@@ -8,11 +8,15 @@ through `collectarr-sync`.
 
 - Collectarr CSV: canonical app backup format for owned and wishlist rows. It
   includes `kind` so imports can disambiguate comics, movies, books, games, and
-  other media when local catalog matches share a title or barcode.
+  other media when local catalog matches share a title or barcode. Catalog
+  snapshot columns include `edition_title`, `physical_format`, and
+  `physical_format_label` so physical video editions and similar release
+  variants survive backup, restore, and sync.
 - CLZ-friendly CSV: compatibility export/import mapping for common CLZ column
   names. Export headers adapt to the exported media type, for example movie
   exports use Title / Edition no. / Format / Studio / UPC labels instead of
-  comic Series / Issue labels.
+  comic Series / Issue labels. Physical format headers are included for media
+  that need edition-level release data.
 
 ## Flutter Workflow
 
@@ -23,7 +27,14 @@ unresolved row handling, metadata proposals, and conflict choices.
 
 Import matching prefers explicit item IDs. When no item ID is present, it
 matches by barcode and then by title plus item/volume/edition number. If a CSV
-row has a media type, matching is scoped to that `kind`.
+row has a media type, matching is scoped to that `kind`. Barcode matching
+normalizes punctuation such as spaces, hyphens, and dots so CLZ exports and
+scanner values can still resolve to the same local snapshot.
+
+Rows that include a Collectarr item ID plus catalog fields can create or enrich
+the local catalog snapshot during import. This is still a local-only write:
+importing CSV does not create canonical Core metadata or write personal
+collection state to Core.
 
 ## ComicRack Compatibility Decision
 

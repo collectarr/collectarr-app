@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
@@ -17,9 +18,12 @@ import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
+import 'package:collectarr_app/features/library/selected_library_provider.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,6 +52,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Map<String, dynamic>? _syncStatusDetails;
   List<Map<String, dynamic>> _syncDevices = const [];
   ConnectionSettings? _lastSyncedSettings;
+  Timer? _connectionSaveDebounce;
 
   @override
   void initState() {
@@ -57,6 +62,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   @override
   void dispose() {
+    _connectionSaveDebounce?.cancel();
     _metadataController.dispose();
     _syncController.dispose();
     _syncKeyController.dispose();
@@ -73,349 +79,442 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           orElse: () => fallbackMediaCatalog,
         );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
+    final uiPreferences = ref.watch(uiPreferencesProvider);
+    final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
+    final accentScope = LibraryAccentScope.maybeOf(context);
+    final accent =
+        accentScope?.accent ?? libraryAccentForKind(selectedLibraryKind);
+    final animationDuration = accentScope?.animationDuration ??
+        (uiPreferences.animationsEnabled
+            ? const Duration(milliseconds: 320)
+            : Duration.zero);
     _syncTextControllers(settings);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _SettingsPanel(
-            icon: Icons.route_outlined,
-            title: 'Connection presets',
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final preset in ConnectionPreset.values)
-                  OutlinedButton.icon(
-                    onPressed: () => _applyConnectionPreset(preset),
-                    icon: Icon(_presetIcon(preset)),
-                    label: Text('Use ${preset.label}'),
-                  ),
+    return Theme(
+      data: buildLibraryAccentTheme(Theme.of(context), accent),
+      child: DefaultTabController(
+        length: 5,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Settings'),
+            backgroundColor: libraryAccentChromeFallbackColor(accent),
+            surfaceTintColor: Colors.transparent,
+            flexibleSpace: LibraryAccentChrome(
+              accent: accent,
+              animationDuration: animationDuration,
+            ),
+            bottom: const TabBar(
+              isScrollable: true,
+              tabs: [
+                Tab(icon: Icon(Icons.route_outlined), text: 'Connection'),
+                Tab(
+                  icon: Icon(Icons.view_comfy_alt_outlined),
+                  text: 'Libraries',
+                ),
+                Tab(icon: Icon(Icons.palette_outlined), text: 'Appearance'),
+                Tab(icon: Icon(Icons.backup_outlined), text: 'Data'),
+                Tab(icon: Icon(Icons.account_circle_outlined), text: 'Account'),
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          _SettingsPanel(
-            icon: Icons.view_comfy_alt_outlined,
-            title: 'Library navigation',
-            child: _LibraryNavSettings(
-              catalog: mediaCatalog,
-              preferences: navPreferences,
-              onPlacementChanged: (placement) => ref
-                  .read(libraryNavPreferencesProvider.notifier)
-                  .setPlacement(placement),
-              onOrderChanged: (order) => ref
-                  .read(libraryNavPreferencesProvider.notifier)
-                  .setOrder(order),
-              onVisibilityChanged: (kind, visible) => ref
-                  .read(libraryNavPreferencesProvider.notifier)
-                  .setKindVisible(kind, visible),
-              onReset: () =>
-                  ref.read(libraryNavPreferencesProvider.notifier).reset(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SettingsPanel(
-            icon: Icons.dns_outlined,
-            title: 'Metadata server',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextField(
-                  controller: _metadataController,
-                  decoration: const InputDecoration(
-                    labelText: 'Metadata API URL',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _DiagnosticRow(
-                  diagnostic: _metadataDiagnostic,
-                  idleLabel: 'Not checked',
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton.icon(
-                    onPressed: _checkMetadata,
-                    icon: const Icon(Icons.health_and_safety_outlined),
-                    label: const Text('Check metadata server'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SettingsPanel(
-            icon: Icons.cloud_sync_outlined,
-            title: 'Personal sync service',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (widget.showWebSyncWarning) ...[
-                  const _SyncWebWarning(),
-                  const SizedBox(height: 12),
-                ],
-                TextField(
-                  controller: _syncController,
-                  decoration: const InputDecoration(
-                    labelText: 'Sync service URL',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _syncKeyController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Sync key',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _DiagnosticRow(
-                  diagnostic: _syncDiagnostic,
-                  idleLabel: 'Not checked',
-                ),
-                if (_syncStatusDetails != null) ...[
-                  const SizedBox(height: 12),
-                  _SyncServiceSummary(
-                    status: _syncStatusDetails!,
-                    devices: _syncDevices,
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _StatusChip(
-                      icon: Icons.pending_actions,
-                      label: '${sync.pendingCount} pending',
-                    ),
-                    _StatusChip(
-                      icon: sync.isOffline ? Icons.cloud_off : Icons.cloud_done,
-                      label: sync.isOffline ? 'Offline' : 'Ready',
-                      isError: sync.isOffline,
-                    ),
-                    if (sync.warningMessage != null)
-                      _StatusChip(
-                        icon: Icons.sync_problem_outlined,
-                        label: sync.warningMessage!,
-                      ),
-                    _StatusChip(
-                      icon: Icons.schedule,
-                      label: sync.lastSyncedAt == null
-                          ? 'Never synced'
-                          : 'Last ${_formatSyncTime(sync.lastSyncedAt!)}',
-                    ),
-                  ],
-                ),
-                if (sync.rejectedChanges.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _SyncConflictSummary(
-                    changes: sync.rejectedChanges,
-                    onKeepLocal: _keepLocalConflict,
-                    onDismiss: (change) => ref
-                        .read(syncControllerProvider.notifier)
-                        .dismissRejectedChange(change.key),
-                    onDismissAll: () => ref
-                        .read(syncControllerProvider.notifier)
-                        .dismissAllRejectedChanges(),
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: _checkSync,
-                      icon: const Icon(Icons.health_and_safety_outlined),
-                      label: const Text('Check sync service'),
-                    ),
-                    FilledButton.tonalIcon(
-                      onPressed: sync.isSyncing ? null : _syncNow,
-                      icon: sync.isSyncing
-                          ? const SizedBox.square(
-                              dimension: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.sync),
-                      label: const Text('Sync now'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SettingsPanel(
-            icon: Icons.qr_code_2_outlined,
-            title: 'Device pairing',
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: _copyPairingCode,
-                  icon: const Icon(Icons.copy_outlined),
-                  label: const Text('Copy pairing code'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => _showPairingQrDialog(context),
-                  icon: const Icon(Icons.qr_code_2_outlined),
-                  label: const Text('Show pairing QR'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => _showPairingCodeDialog(context),
-                  icon: const Icon(Icons.input_outlined),
-                  label: const Text('Apply pairing code'),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SettingsPanel(
-            icon: Icons.devices_outlined,
-            title: 'Device identity',
-            child: FutureBuilder<String>(
-              future: _deviceIdFuture,
-              builder: (context, snapshot) {
-                final deviceId = snapshot.data;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SelectableText(deviceId ?? 'Loading device id...'),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: OutlinedButton.icon(
-                        onPressed:
-                            snapshot.connectionState == ConnectionState.waiting
-                                ? null
-                                : _regenerateDeviceId,
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Regenerate device id'),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SettingsPanel(
-            icon: Icons.backup_outlined,
-            title: 'Local backup',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Copy a CSV snapshot of the local shelf. This includes personal fields stored on this device.',
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    FilledButton.tonalIcon(
-                      onPressed: () => _showImportExportWizard(),
-                      icon: const Icon(Icons.import_export_outlined),
-                      label: const Text('Open CSV / CLZ wizard'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: () => _copyBackup(clzFriendly: false),
-                      icon: const Icon(Icons.copy_all),
-                      label: const Text('Copy Collectarr CSV'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: () => _copyBackup(clzFriendly: true),
-                      icon: const Icon(Icons.table_view),
-                      label: const Text('Copy CLZ-friendly CSV'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _copySyncBackupGuide,
-                      icon: const Icon(Icons.description_outlined),
-                      label: const Text('Copy sync backup guide'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SettingsPanel(
-            icon: Icons.outbox_outlined,
-            title: 'Metadata proposals',
-            child: FutureBuilder<List<MetadataProposalRecord>>(
-              future: const MetadataProposalStore().read(),
-              builder: (context, snapshot) {
-                return _MetadataProposalHistory(
-                  records: snapshot.data ?? const [],
-                  isLoading:
-                      snapshot.connectionState == ConnectionState.waiting,
-                  onClear: _clearProposalHistory,
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SettingsPanel(
-            icon: Icons.account_circle_outlined,
-            title: 'Account',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SelectableText(auth.email ?? 'Signed in'),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    if (auth.token != null || auth.isExpired)
-                      _StatusChip(
-                        icon: auth.isExpired
-                            ? Icons.lock_clock_outlined
-                            : Icons.verified_user_outlined,
-                        label: _sessionStatusLabel(auth),
-                        isError: auth.isExpired,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton.icon(
-                    onPressed: () =>
-                        ref.read(authControllerProvider.notifier).logout(),
-                    icon: const Icon(Icons.logout),
-                    label: const Text('Sign out'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          body: TabBarView(
             children: [
-              FilledButton.icon(
-                onPressed: _save,
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Save settings'),
+              _SettingsTabBody(
+                children: [
+                  _SettingsPanel(
+                    icon: Icons.route_outlined,
+                    title: 'Connection presets',
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final preset in ConnectionPreset.values)
+                          OutlinedButton.icon(
+                            onPressed: () => _applyConnectionPreset(preset),
+                            icon: Icon(_presetIcon(preset)),
+                            label: Text('Use ${preset.label}'),
+                          ),
+                      ],
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.dns_outlined,
+                    title: 'Metadata server',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextField(
+                          controller: _metadataController,
+                          onChanged: (_) => _scheduleConnectionAutoSave(),
+                          decoration: const InputDecoration(
+                            labelText: 'Metadata API URL',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _DiagnosticRow(
+                          diagnostic: _metadataDiagnostic,
+                          idleLabel: 'Not checked',
+                        ),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: _checkMetadata,
+                            icon: const Icon(Icons.health_and_safety_outlined),
+                            label: const Text('Check metadata server'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.cloud_sync_outlined,
+                    title: 'Personal sync service',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (widget.showWebSyncWarning) ...[
+                          const _SyncWebWarning(),
+                          const SizedBox(height: 12),
+                        ],
+                        TextField(
+                          controller: _syncController,
+                          onChanged: (_) => _scheduleConnectionAutoSave(),
+                          decoration: const InputDecoration(
+                            labelText: 'Sync service URL',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _syncKeyController,
+                          onChanged: (_) => _scheduleConnectionAutoSave(),
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Sync key',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _DiagnosticRow(
+                          diagnostic: _syncDiagnostic,
+                          idleLabel: 'Not checked',
+                        ),
+                        if (_syncStatusDetails != null) ...[
+                          const SizedBox(height: 12),
+                          _SyncServiceSummary(
+                            status: _syncStatusDetails!,
+                            devices: _syncDevices,
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _StatusChip(
+                              icon: Icons.pending_actions,
+                              label: '${sync.pendingCount} pending',
+                            ),
+                            _StatusChip(
+                              icon: sync.isOffline
+                                  ? Icons.cloud_off
+                                  : Icons.cloud_done,
+                              label: sync.isOffline ? 'Offline' : 'Ready',
+                              isError: sync.isOffline,
+                            ),
+                            if (sync.warningMessage != null)
+                              _StatusChip(
+                                icon: Icons.sync_problem_outlined,
+                                label: sync.warningMessage!,
+                              ),
+                            _StatusChip(
+                              icon: Icons.schedule,
+                              label: sync.lastSyncedAt == null
+                                  ? 'Never synced'
+                                  : 'Last ${_formatSyncTime(sync.lastSyncedAt!)}',
+                            ),
+                          ],
+                        ),
+                        if (sync.rejectedChanges.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          _SyncConflictSummary(
+                            changes: sync.rejectedChanges,
+                            onKeepLocal: _keepLocalConflict,
+                            onDismiss: (change) => ref
+                                .read(syncControllerProvider.notifier)
+                                .dismissRejectedChange(change.key),
+                            onDismissAll: () => ref
+                                .read(syncControllerProvider.notifier)
+                                .dismissAllRejectedChanges(),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: _checkConnections,
+                              icon:
+                                  const Icon(Icons.health_and_safety_outlined),
+                              label: const Text('Check connections'),
+                            ),
+                            FilledButton.tonalIcon(
+                              onPressed: sync.isSyncing ? null : _syncNow,
+                              icon: sync.isSyncing
+                                  ? const SizedBox.square(
+                                      dimension: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.sync),
+                              label: const Text('Sync now'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.qr_code_2_outlined,
+                    title: 'Device pairing',
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: _copyPairingCode,
+                          icon: const Icon(Icons.copy_outlined),
+                          label: const Text('Copy pairing code'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => _showPairingQrDialog(context),
+                          icon: const Icon(Icons.qr_code_2_outlined),
+                          label: const Text('Show pairing QR'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => _showPairingCodeDialog(context),
+                          icon: const Icon(Icons.input_outlined),
+                          label: const Text('Apply pairing code'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _TabResetActions(
+                    label: 'Reset connection defaults',
+                    onReset: _resetConnectionDefaults,
+                  ),
+                ],
               ),
-              OutlinedButton.icon(
-                onPressed: _reset,
-                icon: const Icon(Icons.restart_alt),
-                label: const Text('Reset defaults'),
+              _SettingsTabBody(
+                children: [
+                  _SettingsPanel(
+                    icon: Icons.view_comfy_alt_outlined,
+                    title: 'Library navigation',
+                    child: _LibraryNavSettings(
+                      catalog: mediaCatalog,
+                      preferences: navPreferences,
+                      onPlacementChanged: (placement) => ref
+                          .read(libraryNavPreferencesProvider.notifier)
+                          .setPlacement(placement),
+                      onOrderChanged: (order) => ref
+                          .read(libraryNavPreferencesProvider.notifier)
+                          .setOrder(order),
+                      onVisibilityChanged: (kind, visible) => ref
+                          .read(libraryNavPreferencesProvider.notifier)
+                          .setKindVisible(kind, visible),
+                      onReset: () => ref
+                          .read(libraryNavPreferencesProvider.notifier)
+                          .reset(),
+                    ),
+                  ),
+                ],
+              ),
+              _SettingsTabBody(
+                children: [
+                  _SettingsPanel(
+                    icon: Icons.motion_photos_auto_outlined,
+                    title: 'Appearance',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          secondary: const Icon(Icons.gradient_outlined),
+                          title: const Text('Animations'),
+                          subtitle: const Text(
+                            'Animate library color transitions and navigation highlights.',
+                          ),
+                          value: uiPreferences.animationsEnabled,
+                          onChanged: (value) => ref
+                              .read(uiPreferencesProvider.notifier)
+                              .setAnimationsEnabled(value),
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: _resetAppearanceDefaults,
+                            icon: const Icon(Icons.restart_alt),
+                            label: const Text('Reset appearance defaults'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              _SettingsTabBody(
+                children: [
+                  _SettingsPanel(
+                    icon: Icons.backup_outlined,
+                    title: 'Local backup',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Copy a CSV snapshot of the local shelf. This includes personal fields stored on this device.',
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            FilledButton.tonalIcon(
+                              onPressed: () => _showImportExportWizard(),
+                              icon: const Icon(Icons.import_export_outlined),
+                              label: const Text('Open CSV / CLZ wizard'),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () => _copyBackup(clzFriendly: false),
+                              icon: const Icon(Icons.copy_all),
+                              label: const Text('Copy Collectarr CSV'),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () => _copyBackup(clzFriendly: true),
+                              icon: const Icon(Icons.table_view),
+                              label: const Text('Copy CLZ-friendly CSV'),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: _copySyncBackupGuide,
+                              icon: const Icon(Icons.description_outlined),
+                              label: const Text('Copy sync backup guide'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.outbox_outlined,
+                    title: 'Metadata proposals',
+                    child: FutureBuilder<List<MetadataProposalRecord>>(
+                      future: const MetadataProposalStore().read(),
+                      builder: (context, snapshot) {
+                        return _MetadataProposalHistory(
+                          records: snapshot.data ?? const [],
+                          isLoading: snapshot.connectionState ==
+                              ConnectionState.waiting,
+                          onClear: _clearProposalHistory,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              _SettingsTabBody(
+                children: [
+                  _SettingsPanel(
+                    icon: Icons.devices_outlined,
+                    title: 'Device identity',
+                    child: FutureBuilder<String>(
+                      future: _deviceIdFuture,
+                      builder: (context, snapshot) {
+                        final deviceId = snapshot.data;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SelectableText(deviceId ?? 'Loading device id...'),
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: OutlinedButton.icon(
+                                onPressed: snapshot.connectionState ==
+                                        ConnectionState.waiting
+                                    ? null
+                                    : _regenerateDeviceId,
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Regenerate device id'),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.account_circle_outlined,
+                    title: 'Account',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SelectableText(auth.email ?? 'Signed in'),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (auth.token != null || auth.isExpired)
+                              _StatusChip(
+                                icon: auth.isExpired
+                                    ? Icons.lock_clock_outlined
+                                    : Icons.verified_user_outlined,
+                                label: _sessionStatusLabel(auth),
+                                isError: auth.isExpired,
+                              ),
+                            if (auth.isAuthenticated)
+                              _StatusChip(
+                                icon: auth.isAdmin
+                                    ? Icons.admin_panel_settings_outlined
+                                    : Icons.person_outline,
+                                label: auth.isAdmin
+                                    ? 'Core admin'
+                                    : 'Standard account',
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: auth.isAuthenticated
+                                  ? _refreshAccountPermissions
+                                  : null,
+                              icon: const Icon(Icons.manage_accounts_outlined),
+                              label: const Text('Refresh permissions'),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () => ref
+                                  .read(authControllerProvider.notifier)
+                                  .logout(),
+                              icon: const Icon(Icons.logout),
+                              label: const Text('Sign out'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -438,14 +537,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     setState(() {
       _metadataController.text = settings.metadataBaseUrl;
       _syncController.text = settings.syncBaseUrl;
+      _syncKeyController.text = settings.syncKey;
       _metadataDiagnostic = null;
       _syncDiagnostic = null;
       _syncStatusDetails = null;
       _syncDevices = const [];
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${preset.label} endpoints applied. Save settings next.'),
+    unawaited(
+      _autoSaveConnectionSettings(
+        notify: '${preset.label} endpoints saved',
       ),
     );
   }
@@ -458,16 +558,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     };
   }
 
-  Future<void> _save() async {
+  void _scheduleConnectionAutoSave() {
+    _connectionSaveDebounce?.cancel();
+    _connectionSaveDebounce = Timer(
+      const Duration(milliseconds: 650),
+      () => unawaited(_autoSaveConnectionSettings()),
+    );
+  }
+
+  Future<void> _autoSaveConnectionSettings({String? notify}) async {
+    _connectionSaveDebounce?.cancel();
     await ref.read(connectionSettingsProvider.notifier).save(
           metadataBaseUrl: _metadataController.text,
           syncBaseUrl: _syncController.text,
           syncKey: _syncKeyController.text,
         );
     ref.read(syncControllerProvider.notifier).refreshPendingCount();
+    if (mounted && notify != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(notify)),
+      );
+    }
+  }
+
+  Future<void> _resetAppearanceDefaults() async {
+    await ref.read(uiPreferencesProvider.notifier).setAnimationsEnabled(true);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Connection settings saved')),
+        const SnackBar(content: Text('Appearance defaults restored')),
       );
     }
   }
@@ -553,7 +671,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
-  Future<void> _reset() async {
+  Future<void> _resetConnectionDefaults() async {
     await ref.read(connectionSettingsProvider.notifier).reset();
     setState(() {
       _metadataDiagnostic = null;
@@ -561,6 +679,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _syncStatusDetails = null;
       _syncDevices = const [];
     });
+    ref.read(syncControllerProvider.notifier).refreshPendingCount();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Connection defaults restored')),
+      );
+    }
+  }
+
+  Future<void> _checkConnections() async {
+    await _autoSaveConnectionSettings();
+    if (!mounted) {
+      return;
+    }
+    await Future.wait([
+      _checkMetadata(),
+      _checkSync(),
+    ]);
   }
 
   Future<void> _checkMetadata() async {
@@ -631,6 +766,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         content: Text(_syncResultMessage(sync)),
       ),
     );
+  }
+
+  Future<void> _refreshAccountPermissions() async {
+    try {
+      await ref.read(authControllerProvider.notifier).refreshCurrentUser();
+      if (!mounted) {
+        return;
+      }
+      final auth = ref.read(authControllerProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            auth.isAdmin
+                ? 'Account permissions refreshed: admin'
+                : 'Account permissions refreshed: standard account',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not refresh permissions: $error')),
+      );
+    }
   }
 
   Future<void> _keepLocalConflict(SyncRejectedChange change) async {
@@ -1308,6 +1469,44 @@ class _SettingsMiniStat extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SettingsTabBody extends StatelessWidget {
+  const _SettingsTabBody({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: children.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) => children[index],
+    );
+  }
+}
+
+class _TabResetActions extends StatelessWidget {
+  const _TabResetActions({
+    required this.label,
+    required this.onReset,
+  });
+
+  final String label;
+  final VoidCallback onReset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: OutlinedButton.icon(
+        onPressed: onReset,
+        icon: const Icon(Icons.restart_alt),
+        label: Text(label),
       ),
     );
   }

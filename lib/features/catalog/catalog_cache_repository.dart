@@ -27,6 +27,9 @@ class CatalogCacheRepository {
               synopsis: Value(item.synopsis),
               coverImageUrl: Value(item.coverImageUrl),
               thumbnailImageUrl: Value(item.thumbnailImageUrl),
+              editionTitle: Value(item.editionTitle),
+              physicalFormat: Value(item.physicalFormat),
+              physicalFormatLabel: Value(item.physicalFormatLabel),
               publisher: Value(item.publisher),
               releaseDate: Value(item.releaseDate),
               releaseYear: Value(item.releaseYear),
@@ -66,6 +69,9 @@ class CatalogCacheRepository {
           synopsis: row.synopsis,
           coverImageUrl: row.coverImageUrl,
           thumbnailImageUrl: row.thumbnailImageUrl,
+          editionTitle: row.editionTitle,
+          physicalFormat: row.physicalFormat,
+          physicalFormatLabel: row.physicalFormatLabel,
           publisher: row.publisher,
           releaseDate: row.releaseDate,
           releaseYear: row.releaseYear,
@@ -80,14 +86,20 @@ class CatalogCacheRepository {
     if (normalized.isEmpty) {
       return null;
     }
-    final query = _db.select(_db.catalogCache)
-      ..where((row) => row.barcode.equals(normalized));
+    final query = _db.select(_db.catalogCache);
     final normalizedKind = kind?.trim().toLowerCase();
     if (normalizedKind != null && normalizedKind.isNotEmpty) {
       query.where((row) => row.kind.equals(normalizedKind));
     }
-    query.limit(1);
-    final row = await query.getSingleOrNull();
+    final compact = _compactBarcode(normalized);
+    final rows = await query.get();
+    final row = rows.cast<CatalogCacheData?>().firstWhere(
+          (row) =>
+              row != null &&
+              row.barcode != null &&
+              _compactBarcode(row.barcode!) == compact,
+          orElse: () => null,
+        );
     return row == null ? null : _itemFromRow(row);
   }
 
@@ -136,11 +148,18 @@ class CatalogCacheRepository {
       synopsis: row.synopsis,
       coverImageUrl: row.coverImageUrl,
       thumbnailImageUrl: row.thumbnailImageUrl,
+      editionTitle: row.editionTitle,
+      physicalFormat: row.physicalFormat,
+      physicalFormatLabel: row.physicalFormatLabel,
       publisher: row.publisher,
       releaseDate: row.releaseDate,
       releaseYear: row.releaseYear,
       barcode: row.barcode,
       variant: row.variant,
     );
+  }
+
+  String _compactBarcode(String value) {
+    return value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '');
   }
 }

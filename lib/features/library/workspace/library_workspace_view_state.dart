@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 
@@ -36,6 +37,8 @@ class LibraryWorkspaceViewProfile {
     required this.maxCoverSize,
     required this.presetConfig,
     required this.clampColumnWidth,
+    this.defaultSidebarWidth = kLibrarySidebarDefaultWidth,
+    this.defaultDetailsWidth = kLibraryDetailsDefaultWidth,
     this.defaultViewMode = LibraryViewMode.grid,
     this.defaultDetailsLayout = LibraryDetailsLayout.right,
     this.defaultSortAscending = true,
@@ -48,21 +51,26 @@ class LibraryWorkspaceViewProfile {
   final double maxCoverSize;
   final LibraryWorkspacePresetResolver presetConfig;
   final LibraryTableColumnWidthClamp clampColumnWidth;
+  final double defaultSidebarWidth;
+  final double defaultDetailsWidth;
   final LibraryViewMode defaultViewMode;
   final LibraryDetailsLayout defaultDetailsLayout;
   final bool defaultSortAscending;
   final LibrarySortColumnDirectionResolver? sortAscendingForColumn;
 
   LibraryWorkspaceViewState defaults() {
-    return LibraryWorkspaceViewState(
+    final defaults = LibraryWorkspaceViewState(
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       sortColumn: config.defaultSortColumn,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
+      sidebarWidth: defaultSidebarWidth,
+      detailsWidth: defaultDetailsWidth,
       visibleColumns: Set.of(config.defaultVisibleColumns),
       columnWidths: const {},
     );
+    return defaults.withChrome(LibraryWorkspacePreferences.cachedChrome);
   }
 
   LibraryWorkspaceViewState fromPreferences(
@@ -74,6 +82,8 @@ class LibraryWorkspaceViewProfile {
       sortColumn: preferences.sortColumn,
       sortAscending: preferences.sortAscending,
       coverSize: preferences.coverSize,
+      sidebarWidth: preferences.sidebarWidth,
+      detailsWidth: preferences.detailsWidth,
       visibleColumns: preferences.visibleColumns,
       columnWidths: preferences.columnWidths.map(
         (column, width) => MapEntry(column, clampColumnWidth(column, width)),
@@ -89,6 +99,8 @@ class LibraryWorkspaceViewProfile {
       defaultViewMode: defaultViewMode,
       defaultDetailsLayout: defaultDetailsLayout,
       defaultSortAscending: defaultSortAscending,
+      defaultSidebarWidth: defaultSidebarWidth,
+      defaultDetailsWidth: defaultDetailsWidth,
     );
     return fromPreferences(preferences);
   }
@@ -111,6 +123,8 @@ class LibraryWorkspaceViewState {
     required this.sortColumn,
     required this.sortAscending,
     required this.coverSize,
+    required this.sidebarWidth,
+    required this.detailsWidth,
     required Set<LibraryTableColumn> visibleColumns,
     required Map<LibraryTableColumn, double> columnWidths,
   })  : visibleColumns = Set.unmodifiable(visibleColumns),
@@ -121,6 +135,8 @@ class LibraryWorkspaceViewState {
   final LibrarySortColumn sortColumn;
   final bool sortAscending;
   final double coverSize;
+  final double sidebarWidth;
+  final double detailsWidth;
   final Set<LibraryTableColumn> visibleColumns;
   final Map<LibraryTableColumn, double> columnWidths;
 
@@ -131,6 +147,8 @@ class LibraryWorkspaceViewState {
       sortColumn: sortColumn,
       sortAscending: sortAscending,
       coverSize: coverSize,
+      sidebarWidth: sidebarWidth,
+      detailsWidth: detailsWidth,
       visibleColumns: visibleColumns,
       columnWidths: columnWidths,
     );
@@ -142,6 +160,8 @@ class LibraryWorkspaceViewState {
     LibrarySortColumn? sortColumn,
     bool? sortAscending,
     double? coverSize,
+    double? sidebarWidth,
+    double? detailsWidth,
     Set<LibraryTableColumn>? visibleColumns,
     Map<LibraryTableColumn, double>? columnWidths,
   }) {
@@ -151,6 +171,8 @@ class LibraryWorkspaceViewState {
       sortColumn: sortColumn ?? this.sortColumn,
       sortAscending: sortAscending ?? this.sortAscending,
       coverSize: coverSize ?? this.coverSize,
+      sidebarWidth: sidebarWidth ?? this.sidebarWidth,
+      detailsWidth: detailsWidth ?? this.detailsWidth,
       visibleColumns: visibleColumns ?? this.visibleColumns,
       columnWidths: columnWidths ?? this.columnWidths,
     );
@@ -180,6 +202,19 @@ class LibraryWorkspaceViewState {
       coverSize: config.coverSize,
       visibleColumns: Set.of(config.visibleColumns),
       columnWidths: const {},
+    );
+  }
+
+  LibraryWorkspaceViewState withChrome(
+    LibraryWorkspaceChromePreferenceSnapshot? chrome,
+  ) {
+    if (chrome == null) {
+      return this;
+    }
+    return copyWith(
+      detailsLayout: chrome.detailsLayout,
+      sidebarWidth: chrome.sidebarWidth,
+      detailsWidth: chrome.detailsWidth,
     );
   }
 

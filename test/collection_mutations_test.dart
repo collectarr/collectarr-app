@@ -190,7 +190,7 @@ void main() {
         kind: 'comic',
         title: 'The Amazing Spider-Man, Vol. 2',
         itemNumber: '520',
-        barcode: '75960604716152011',
+        barcode: '759606047161-52011',
       ),
     ]);
 
@@ -213,6 +213,46 @@ void main() {
     expect(imported, 1);
     expect(owned.itemId, 'comic-1');
     expect(owned.grade, '7.5');
+    expect(
+      queued.where((row) => row.entityType == 'library_item_snapshot'),
+      hasLength(1),
+    );
+  });
+
+  test('collection import stores media-specific catalog fields from csv',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final imported =
+        await container.read(collectionMutationsProvider).importRows(
+      const [
+        CollectionCsvRow(
+          itemId: 'movie-1',
+          kind: 'movie',
+          status: 'owned',
+          title: 'Blade Runner',
+          itemNumber: 'Final Cut',
+          variant: '4K UHD',
+          editionTitle: 'Final Cut 4K release',
+          physicalFormat: '4k-uhd',
+          physicalFormatLabel: '4K UHD',
+          barcode: '883929087129',
+        ),
+      ],
+    );
+
+    final catalog = await db.select(db.catalogCache).getSingle();
+    final queued = await db.select(db.syncQueue).get();
+    expect(imported, 1);
+    expect(catalog.kind, 'movie');
+    expect(catalog.editionTitle, 'Final Cut 4K release');
+    expect(catalog.physicalFormat, '4k-uhd');
+    expect(catalog.physicalFormatLabel, '4K UHD');
     expect(
       queued.where((row) => row.entityType == 'library_item_snapshot'),
       hasLength(1),

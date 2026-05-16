@@ -19,15 +19,28 @@ class AddComicCoverImage extends StatelessWidget {
 }
 
 class ProviderCandidateImage extends StatelessWidget {
-  const ProviderCandidateImage({super.key, required this.candidate});
+  const ProviderCandidateImage({
+    super.key,
+    required this.candidate,
+    this.fallbackTitle,
+  });
 
   final ProviderCandidate candidate;
+  final String? fallbackTitle;
 
   @override
   Widget build(BuildContext context) {
+    final title = fallbackTitle ?? candidate.title;
+    if (_shouldUseGeneratedCandidateCover(candidate)) {
+      return LibraryGeneratedCover(title: title);
+    }
     return LibraryCoverImage(
-      title: candidate.title,
+      title: title,
       imageUrl: candidate.imageUrl,
     );
   }
+}
+
+bool _shouldUseGeneratedCandidateCover(ProviderCandidate candidate) {
+  return candidate.provider == 'gcd' && candidate.isVariant;
 }

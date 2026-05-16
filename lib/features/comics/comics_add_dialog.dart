@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -67,8 +68,16 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   String? _defaultCondition = 'Near Mint';
   String? _defaultGrade = 'Ungraded';
   DateTime? _defaultPurchaseDate;
-  bool _metadataProviderChangedByUser = false;
   String? _error;
+  DateTime? _lastProviderSearchAt;
+  String? _lastProviderSearchSignature;
+  int _serverSearchGeneration = 0;
+  double _resultsPaneWidth = 340;
+  static const _providerSearchDebounce = Duration(milliseconds: 450);
+  static const _coreSearchTimeout = Duration(seconds: 35);
+  static const _minResultsPaneWidth = 280.0;
+  static const _maxResultsPaneWidth = 520.0;
+  static const _minPreviewPaneWidth = 420.0;
 
   @override
   void dispose() {
@@ -105,9 +114,20 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
           };
     final selectedItem = _selectedServerItem;
     final providerState = _providerState;
-    final selectedCandidate = providerState.selectedCandidate;
+    final rawSelectedCandidate = providerState.selectedCandidate;
+    final selectedCandidate = rawSelectedCandidate != null &&
+            _isProviderCandidateVisible(
+              rawSelectedCandidate,
+              ownedItemIds: ownedItemIds,
+              wishlistItemIds: wishlistItemIds,
+            )
+        ? rawSelectedCandidate
+        : null;
     final selectedProviderLabel =
         _metadataProviderLabel(providerState.provider);
+    final selectedCandidateProviderLabel = selectedCandidate == null
+        ? selectedProviderLabel
+        : _metadataProviderLabel(selectedCandidate.provider);
     final pullListRows = pullListCandidates(shelf);
     final selectedIsOwned =
         selectedItem != null && ownedItemIds.contains(selectedItem.id);
@@ -220,15 +240,12 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 searchedProvider: providerState.searched,
                                 isSearchingServer: _isSearchingServer,
                                 isSearchingProvider: providerState.isSearching,
-                                metadataProviders:
-                                    libraryType.supportedMetadataProviders,
                                 selectedProvider: providerState.provider,
                                 providerLabel: _metadataProviderLabel,
                                 onIncludeVariantsChanged: (value) =>
                                     setState(() => _includeVariants = value),
                                 onHideInShelfChanged: (value) =>
                                     setState(() => _hideInShelf = value),
-                                onProviderChanged: _changeMetadataProvider,
                                 onSelectServer: (id) => setState(() {
                                   _selectedServerId = id;
                                   _providerState =
@@ -246,7 +263,6 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                   _providerState = _providerState.select(id);
                                   _selectedServerId = null;
                                 }),
-                                onSearchProvider: _searchProvider,
                                 onSearchPullListRow: _searchPullListRow,
                               ),
                             ),
@@ -254,7 +270,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                               child: AddComicPreviewPane(
                                 item: selectedItem,
                                 candidate: selectedCandidate,
-                                selectedProviderLabel: selectedProviderLabel,
+                                selectedProviderLabel:
+                                    selectedCandidateProviderLabel,
                                 selectedIsOwned: selectedIsOwned,
                                 selectedIsWishlisted: selectedIsWishlisted,
                                 searchedServer: _searchedServer,
@@ -262,68 +279,81 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                             ),
                           ],
                         )
-                      : Row(
-                          children: [
-                            SizedBox(
-                              width: 320,
-                              child: AddComicResultPane(
-                                mode: _mode,
-                                serverResults: _serverResults,
-                                providerResults: providerState.results,
-                                pullListRows: pullListRows,
-                                ownedItemIds: ownedItemIds,
-                                wishlistItemIds: wishlistItemIds,
-                                selectedServerId: _selectedServerId,
-                                selectedProviderId: providerState.selectedId,
-                                checkedServerIds: _checkedServerIds,
-                                includeVariants: _includeVariants,
-                                hideInShelf: _hideInShelf,
-                                searchedServer: _searchedServer,
-                                searchedProvider: providerState.searched,
-                                isSearchingServer: _isSearchingServer,
-                                isSearchingProvider: providerState.isSearching,
-                                metadataProviders:
-                                    libraryType.supportedMetadataProviders,
-                                selectedProvider: providerState.provider,
-                                providerLabel: _metadataProviderLabel,
-                                onIncludeVariantsChanged: (value) =>
-                                    setState(() => _includeVariants = value),
-                                onHideInShelfChanged: (value) =>
-                                    setState(() => _hideInShelf = value),
-                                onProviderChanged: _changeMetadataProvider,
-                                onSelectServer: (id) => setState(() {
-                                  _selectedServerId = id;
-                                  _providerState =
-                                      _providerState.clearSelection();
-                                }),
-                                onToggleServerCheck: _toggleServerCheck,
-                                collapsedSeries: _collapsedAddSeries,
-                                onToggleSeriesCollapsed:
-                                    _toggleAddSeriesCollapsed,
-                                onToggleSeriesCheck: _toggleAddSeriesCheck,
-                                onCheckAllVisible: _checkServerItems,
-                                onClearServerChecks: () =>
-                                    setState(_checkedServerIds.clear),
-                                onSelectProvider: (id) => setState(() {
-                                  _providerState = _providerState.select(id);
-                                  _selectedServerId = null;
-                                }),
-                                onSearchProvider: _searchProvider,
-                                onSearchPullListRow: _searchPullListRow,
-                              ),
-                            ),
-                            const VerticalDivider(width: 1),
-                            Expanded(
-                              child: AddComicPreviewPane(
-                                item: selectedItem,
-                                candidate: selectedCandidate,
-                                selectedProviderLabel: selectedProviderLabel,
-                                selectedIsOwned: selectedIsOwned,
-                                selectedIsWishlisted: selectedIsWishlisted,
-                                searchedServer: _searchedServer,
-                              ),
-                            ),
-                          ],
+                      : LayoutBuilder(
+                          builder: (context, constraints) {
+                            final paneWidth = _clampedResultsPaneWidth(
+                              constraints.maxWidth,
+                            );
+                            return Row(
+                              children: [
+                                SizedBox(
+                                  width: paneWidth,
+                                  child: AddComicResultPane(
+                                    mode: _mode,
+                                    serverResults: _serverResults,
+                                    providerResults: providerState.results,
+                                    pullListRows: pullListRows,
+                                    ownedItemIds: ownedItemIds,
+                                    wishlistItemIds: wishlistItemIds,
+                                    selectedServerId: _selectedServerId,
+                                    selectedProviderId:
+                                        providerState.selectedId,
+                                    checkedServerIds: _checkedServerIds,
+                                    includeVariants: _includeVariants,
+                                    hideInShelf: _hideInShelf,
+                                    searchedServer: _searchedServer,
+                                    searchedProvider: providerState.searched,
+                                    isSearchingServer: _isSearchingServer,
+                                    isSearchingProvider:
+                                        providerState.isSearching,
+                                    selectedProvider: providerState.provider,
+                                    providerLabel: _metadataProviderLabel,
+                                    onIncludeVariantsChanged: (value) =>
+                                        setState(
+                                            () => _includeVariants = value),
+                                    onHideInShelfChanged: (value) =>
+                                        setState(() => _hideInShelf = value),
+                                    onSelectServer: (id) => setState(() {
+                                      _selectedServerId = id;
+                                      _providerState =
+                                          _providerState.clearSelection();
+                                    }),
+                                    onToggleServerCheck: _toggleServerCheck,
+                                    collapsedSeries: _collapsedAddSeries,
+                                    onToggleSeriesCollapsed:
+                                        _toggleAddSeriesCollapsed,
+                                    onToggleSeriesCheck: _toggleAddSeriesCheck,
+                                    onCheckAllVisible: _checkServerItems,
+                                    onClearServerChecks: () =>
+                                        setState(_checkedServerIds.clear),
+                                    onSelectProvider: (id) => setState(() {
+                                      _providerState =
+                                          _providerState.select(id);
+                                      _selectedServerId = null;
+                                    }),
+                                    onSearchPullListRow: _searchPullListRow,
+                                  ),
+                                ),
+                                _AddComicPaneResizeHandle(
+                                  onDragDelta: (delta) => _resizeResultsPane(
+                                    delta,
+                                    constraints.maxWidth,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: AddComicPreviewPane(
+                                    item: selectedItem,
+                                    candidate: selectedCandidate,
+                                    selectedProviderLabel:
+                                        selectedCandidateProviderLabel,
+                                    selectedIsOwned: selectedIsOwned,
+                                    selectedIsWishlisted: selectedIsWishlisted,
+                                    searchedServer: _searchedServer,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                 ),
                 AddComicBottomBar(
@@ -384,6 +414,23 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     return ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig));
   }
 
+  double _clampedResultsPaneWidth(double availableWidth) {
+    final maxWidth = (availableWidth - _minPreviewPaneWidth)
+        .clamp(_minResultsPaneWidth, _maxResultsPaneWidth)
+        .toDouble();
+    return _resultsPaneWidth.clamp(_minResultsPaneWidth, maxWidth).toDouble();
+  }
+
+  void _resizeResultsPane(double delta, double availableWidth) {
+    setState(() {
+      final maxWidth = (availableWidth - _minPreviewPaneWidth)
+          .clamp(_minResultsPaneWidth, _maxResultsPaneWidth)
+          .toDouble();
+      _resultsPaneWidth =
+          (_resultsPaneWidth + delta).clamp(_minResultsPaneWidth, maxWidth);
+    });
+  }
+
   void _syncDefaultMetadataProvider(LibraryTypeConfig libraryType) {
     final providerIds = {
       for (final provider in libraryType.supportedMetadataProviders)
@@ -392,8 +439,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     final defaultProvider = libraryType.defaultSupportedMetadataProvider;
     final providerIsUnsupported =
         !providerIds.contains(_providerState.provider);
-    final shouldUseCatalogDefault = !_metadataProviderChangedByUser &&
-        _providerState.provider != defaultProvider;
+    final shouldUseCatalogDefault = _providerState.provider != defaultProvider;
     if (!providerIsUnsupported && !shouldUseCatalogDefault) {
       return;
     }
@@ -405,6 +451,22 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         _providerState = _providerState.changeProvider(defaultProvider);
       });
     });
+  }
+
+  bool _isProviderCandidateVisible(
+    ProviderCandidate candidate, {
+    required Set<String> ownedItemIds,
+    required Set<String> wishlistItemIds,
+  }) {
+    if (!_includeVariants && candidate.isVariant) {
+      return false;
+    }
+    if (_hideInShelf &&
+        (ownedItemIds.contains(candidate.localCatalogId) ||
+            wishlistItemIds.contains(candidate.localCatalogId))) {
+      return false;
+    }
+    return true;
   }
 
   List<CatalogItem> _barcodeFoundAddItems({
@@ -451,6 +513,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     if (input.isEmpty) {
       return;
     }
+    final searchGeneration = ++_serverSearchGeneration;
     setState(() {
       _isSearchingServer = true;
       _searchedServer = true;
@@ -467,21 +530,33 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         type: _libraryType,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
         input: input,
-      );
-      if (!mounted) {
+      ).timeout(_coreSearchTimeout);
+      if (!mounted || searchGeneration != _serverSearchGeneration) {
         return;
       }
+      final shouldSearchProvider = items.isEmpty;
       setState(() {
         _serverResults = items;
         _selectedServerId = items.isEmpty ? null : items.first.id;
+        if (shouldSearchProvider) {
+          _isSearchingServer = false;
+        }
       });
+      if (shouldSearchProvider) {
+        await _searchProvider(bypassDebounce: true);
+      }
     } catch (error) {
-      if (!mounted) {
+      if (!mounted || searchGeneration != _serverSearchGeneration) {
         return;
       }
-      setState(() => _error = 'Server metadata search failed: $error');
+      final api = ref.read(apiClientProvider);
+      final detail = ConnectionDiagnostics.metadataError(error, api.baseUrl);
+      setState(
+        () => _error = 'Core search failed: $detail '
+            'Try a provider search or add the item manually.',
+      );
     } finally {
-      if (mounted) {
+      if (mounted && searchGeneration == _serverSearchGeneration) {
         setState(() => _isSearchingServer = false);
       }
     }
@@ -499,12 +574,21 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     await _searchServer();
   }
 
-  Future<void> _searchProvider() async {
-    final query = _providerQuery;
+  Future<void> _searchProvider({
+    String? queryOverride,
+    bool bypassDebounce = false,
+  }) async {
+    final query = queryOverride?.trim().isNotEmpty == true
+        ? queryOverride!.trim()
+        : _providerQuery;
     if (query.isEmpty) {
       return;
     }
     final provider = _providerState.provider;
+    if (_providerState.isSearching ||
+        (!bypassDebounce && _shouldDebounceProviderSearch(provider, query))) {
+      return;
+    }
     setState(() {
       _providerState = _providerState.startSearch();
       _error = null;
@@ -513,10 +597,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       final results = await searchLibraryProviderCandidates(
         ref.read(apiClientProvider),
         _libraryType,
-        provider: provider,
         query: query,
       );
-      if (!mounted || _providerState.provider != provider) {
+      if (!mounted) {
         return;
       }
       setState(() => _providerState = _providerState.withResults(results));
@@ -525,8 +608,10 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         return;
       }
       setState(() {
+        final api = ref.read(apiClientProvider);
         _providerState = _providerState.finishSearch();
-        _error = '${_metadataProviderLabel(provider)} search failed: $error';
+        _error = 'Provider search failed: '
+            '${ConnectionDiagnostics.metadataError(error, api.baseUrl)}';
       });
     }
   }
@@ -541,12 +626,16 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     ].where((part) => part.isNotEmpty).join(' ');
   }
 
-  void _changeMetadataProvider(String provider) {
-    setState(() {
-      _metadataProviderChangedByUser = true;
-      _providerState = _providerState.changeProvider(provider);
-      _error = null;
-    });
+  bool _shouldDebounceProviderSearch(String provider, String query) {
+    final now = DateTime.now();
+    final signature = '$provider|${query.trim().toLowerCase()}';
+    final lastAt = _lastProviderSearchAt;
+    final shouldSkip = _lastProviderSearchSignature == signature &&
+        lastAt != null &&
+        now.difference(lastAt) < _providerSearchDebounce;
+    _lastProviderSearchSignature = signature;
+    _lastProviderSearchAt = now;
+    return shouldSkip;
   }
 
   String _metadataProviderLabel(String provider) {
@@ -619,6 +708,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     if (normalizedCodes.isEmpty) {
       return;
     }
+    final searchGeneration = ++_serverSearchGeneration;
     try {
       setState(() {
         _isSearchingServer = true;
@@ -656,8 +746,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                 : BarcodeLookupEntry.missing(result.barcode),
           );
         },
-      );
-      if (!mounted) {
+      ).timeout(_coreSearchTimeout);
+      if (!mounted || searchGeneration != _serverSearchGeneration) {
         return;
       }
       final found = results
@@ -679,7 +769,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         }
       });
     } finally {
-      if (mounted) {
+      if (mounted && searchGeneration == _serverSearchGeneration) {
         setState(() => _isSearchingServer = false);
       }
     }
@@ -951,6 +1041,35 @@ class _AddComicTitleBar extends StatelessWidget {
             icon: const Icon(Icons.close, size: 18),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AddComicPaneResizeHandle extends StatelessWidget {
+  const _AddComicPaneResizeHandle({required this.onDragDelta});
+
+  final ValueChanged<double> onDragDelta;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeColumn,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: (details) => onDragDelta(details.delta.dx),
+        child: Tooltip(
+          message: 'Resize results pane',
+          child: SizedBox(
+            width: 10,
+            child: Center(
+              child: Container(
+                width: 2,
+                color: const Color(0xFF4A4A4A),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

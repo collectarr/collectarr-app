@@ -19,6 +19,9 @@ void main() {
             itemNumber: const Value('8A'),
             thumbnailImageUrl:
                 const Value('https://cdn.example/superman-thumb.jpg'),
+            editionTitle: const Value('Direct market edition'),
+            physicalFormat: const Value('single-issue'),
+            physicalFormatLabel: const Value('Single Issue'),
             publisher: const Value('DC'),
             releaseDate: Value(DateTime.utc(2016, 10, 5)),
             releaseYear: const Value(2016),
@@ -32,13 +35,17 @@ void main() {
 
     expect(catalog.publisher, 'DC');
     expect(catalog.thumbnailImageUrl, 'https://cdn.example/superman-thumb.jpg');
+    expect(catalog.editionTitle, 'Direct market edition');
+    expect(catalog.physicalFormat, 'single-issue');
+    expect(catalog.physicalFormatLabel, 'Single Issue');
     expect(catalog.releaseDate?.toUtc(), DateTime.utc(2016, 10, 5));
     expect(catalog.releaseYear, 2016);
     expect(catalog.barcode, '76194134192700811');
     expect(catalog.variant, 'Regular Cover');
   });
 
-  test('adds thumbnail column for existing schema version one databases',
+  test(
+      'adds catalog snapshot columns for existing schema version one databases',
       () async {
     final rawDb = sqlite3.sqlite3.openInMemory();
     rawDb.execute('''
@@ -70,6 +77,9 @@ void main() {
             title: 'Superman, Vol. 4',
             thumbnailImageUrl:
                 const Value('https://cdn.example/superman-thumb.jpg'),
+            editionTitle: const Value('Direct market edition'),
+            physicalFormat: const Value('single-issue'),
+            physicalFormatLabel: const Value('Single Issue'),
             cachedAt: DateTime.utc(2026, 5, 11),
           ),
         );
@@ -77,6 +87,9 @@ void main() {
     final catalog = await db.select(db.catalogCache).getSingle();
 
     expect(catalog.thumbnailImageUrl, 'https://cdn.example/superman-thumb.jpg');
+    expect(catalog.editionTitle, 'Direct market edition');
+    expect(catalog.physicalFormat, 'single-issue');
+    expect(catalog.physicalFormatLabel, 'Single Issue');
   });
 
   test('stores personal collection and wishlist data locally', () async {

@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/library_home_navigation.dart';
 import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/selected_library_provider.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,8 +21,6 @@ class LibraryHomePage extends ConsumerStatefulWidget {
 }
 
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
-  String _selectedKind = 'comic';
-
   @override
   Widget build(BuildContext context) {
     final catalog = ref.watch(mediaCatalogProvider).maybeWhen(
@@ -28,9 +28,14 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           orElse: () => fallbackMediaCatalog,
         );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
+    final selectedKind = ref.watch(selectedLibraryKindProvider);
+    final uiPreferences = ref.watch(uiPreferencesProvider);
+    final animationDuration = uiPreferences.animationsEnabled
+        ? const Duration(milliseconds: 320)
+        : Duration.zero;
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
     final visibleTypes = visibleLibraryHomeTypes(allTypes, navPreferences);
-    final selected = selectedLibraryHomeType(visibleTypes, _selectedKind);
+    final selected = selectedLibraryHomeType(visibleTypes, selectedKind);
     final shelf = ref.watch(shelfProvider);
     final counts = shelf.maybeWhen(
       data: libraryCountsByKind,
@@ -42,11 +47,14 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       counts: counts,
       registry: registry,
       selectedKind: selected.kind,
-      onSelected: (type) => setState(() => _selectedKind = type.kind),
+      animationDuration: animationDuration,
+      onSelected: (type) =>
+          ref.read(selectedLibraryKindProvider.notifier).state = type.kind,
     );
     final titleBar = MediaLibraryTitleBar(
       type: selected,
       registry: registry,
+      animationDuration: animationDuration,
     );
     final selectedConfig = libraryConfigForCatalogType(selected, registry);
     final content = selected.kind == 'comic'
@@ -75,7 +83,9 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                 counts: counts,
                 registry: registry,
                 selectedKind: selected.kind,
-                onSelected: (type) => setState(() => _selectedKind = type.kind),
+                onSelected: (type) => ref
+                    .read(selectedLibraryKindProvider.notifier)
+                    .state = type.kind,
               ),
               Expanded(child: content),
             ],

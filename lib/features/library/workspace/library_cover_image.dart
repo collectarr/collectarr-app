@@ -32,6 +32,7 @@ class LibraryCoverImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: Image.network(
           url,
+          key: ValueKey(url),
           fit: BoxFit.cover,
           filterQuality: FilterQuality.medium,
           webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
@@ -45,6 +46,7 @@ class LibraryCoverImage extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: CachedNetworkImage(
+        key: ValueKey(url),
         imageUrl: url,
         fit: BoxFit.cover,
         filterQuality: FilterQuality.medium,

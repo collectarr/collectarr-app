@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 
 class ConnectionDiagnostics {
@@ -28,6 +30,10 @@ class ConnectionDiagnostics {
   }) {
     if (error is DioException) {
       final statusCode = error.response?.statusCode;
+      final responseDetail = _responseDetail(error.response?.data);
+      if (responseDetail != null) {
+        return '$responseDetail${statusCode == null ? '' : ' (HTTP $statusCode).'}';
+      }
       if (statusCode == 401 || statusCode == 403) {
         if (credentialName != null) {
           return '$credentialName rejected ($statusCode). Check the configured key.';
@@ -55,6 +61,9 @@ class ConnectionDiagnostics {
     if (error is FormatException) {
       return 'Could not read $serviceName response: ${error.message}';
     }
+    if (error is TimeoutException) {
+      return 'Timed out waiting for $serviceName at ${baseUrl.trim()}.';
+    }
     if (error is StateError) {
       return 'Could not read $serviceName response.';
     }
@@ -67,6 +76,16 @@ class ConnectionDiagnostics {
       return 'unknown error';
     }
     return value;
+  }
+
+  static String? _responseDetail(Object? data) {
+    if (data is Map) {
+      final detail = data['detail']?.toString().trim();
+      if (detail != null && detail.isNotEmpty) {
+        return detail;
+      }
+    }
+    return null;
   }
 
   static String _capitalize(String value) {

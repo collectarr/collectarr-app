@@ -70,6 +70,19 @@ void main() {
     expect(results.single.providerItemId, 'gcd-1');
     expect(results.single.kind, 'comic');
   });
+
+  test('library provider search can let Core choose provider', () async {
+    final api = _FakeLibraryMetadataApiClient();
+
+    await searchLibraryProviderCandidates(
+      api,
+      comicsLibraryConfig,
+      query: 'Batman #1',
+    );
+
+    expect(api.lastProvider, isNull);
+    expect(api.lastProviderKind, 'comic');
+  });
 }
 
 class _FakeLibraryMetadataApiClient extends ApiClient {
@@ -110,7 +123,7 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
 
   @override
   Future<List<Map<String, dynamic>>> searchProvider({
-    required String provider,
+    String? provider,
     required String query,
     String? kind,
   }) async {

@@ -4,7 +4,9 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
+import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
@@ -36,30 +38,43 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Connection'), findsOneWidget);
+    expect(find.text('Libraries'), findsOneWidget);
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Data'), findsOneWidget);
+    expect(find.text('Account'), findsOneWidget);
     expect(find.text('Connection presets'), findsOneWidget);
     expect(find.text('Use Local desktop'), findsOneWidget);
     expect(find.text('Use Android emulator'), findsOneWidget);
     expect(find.text('Use LAN template'), findsOneWidget);
+    await _scrollToText(tester, 'Metadata server');
+    expect(find.text('Metadata server'), findsOneWidget);
+    expect(find.text('Check metadata server'), findsOneWidget);
+    await _scrollToText(tester, 'Personal sync service');
+    expect(find.text('Personal sync service'), findsOneWidget);
+    expect(find.text('Check connections'), findsOneWidget);
+    expect(find.text('Sync now'), findsOneWidget);
+    await _scrollToText(tester, 'Device pairing');
+    expect(find.text('Device pairing'), findsOneWidget);
+    expect(find.text('Copy pairing code'), findsOneWidget);
+    expect(find.text('Show pairing QR'), findsOneWidget);
+    expect(find.text('Apply pairing code'), findsOneWidget);
+    expect(find.text('Reset connection defaults'), findsOneWidget);
+
+    await _openSettingsTab(tester, 'Libraries');
     expect(find.text('Library navigation'), findsOneWidget);
     expect(find.text('Overflow uses More'), findsOneWidget);
     expect(find.text('Position'), findsOneWidget);
     expect(find.text('Top bar'), findsWidgets);
     expect(find.text('Left rail'), findsWidgets);
     expect(find.text('Reset library navigation'), findsOneWidget);
-    await _scrollToText(tester, 'Metadata server');
-    expect(find.text('Metadata server'), findsOneWidget);
-    expect(find.text('Check metadata server'), findsOneWidget);
-    await _scrollToText(tester, 'Personal sync service');
-    expect(find.text('Personal sync service'), findsOneWidget);
-    expect(find.text('Check sync service'), findsOneWidget);
-    expect(find.text('Sync now'), findsOneWidget);
-    await _scrollToText(tester, 'Device pairing');
-    expect(find.text('Device pairing'), findsOneWidget);
-    expect(find.text('Device identity'), findsOneWidget);
-    expect(find.text('Copy pairing code'), findsOneWidget);
-    expect(find.text('Show pairing QR'), findsOneWidget);
-    expect(find.text('Apply pairing code'), findsOneWidget);
-    await _scrollToText(tester, 'Local backup');
+
+    await _openSettingsTab(tester, 'Appearance');
+    expect(find.text('Appearance'), findsWidgets);
+    expect(find.text('Animations'), findsOneWidget);
+    expect(find.text('Reset appearance defaults'), findsOneWidget);
+
+    await _openSettingsTab(tester, 'Data');
     expect(find.text('Local backup'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
@@ -67,9 +82,44 @@ void main() {
     await _scrollToText(tester, 'Metadata proposals');
     expect(find.text('Metadata proposals'), findsOneWidget);
     expect(find.text('No local proposal submissions yet.'), findsOneWidget);
+
+    await _openSettingsTab(tester, 'Account');
+    expect(find.text('Device identity'), findsOneWidget);
     expect(find.text('Session expiry unavailable'), findsNothing);
-    await _scrollToText(tester, 'Save settings');
-    expect(find.text('Save settings'), findsOneWidget);
+    expect(find.text('Save settings'), findsNothing);
+  });
+
+  testWidgets('settings page persists animation preference', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: SettingsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _openSettingsTab(tester, 'Appearance');
+    final animationTile = find.widgetWithText(SwitchListTile, 'Animations');
+    expect(animationTile, findsOneWidget);
+    expect(tester.widget<SwitchListTile>(animationTile).value, isTrue);
+
+    await tester.tap(animationTile);
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<SwitchListTile>(animationTile).value, isFalse);
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      prefs.getBool(UiPreferencesStore.animationsEnabledKey),
+      isFalse,
+    );
   });
 
   testWidgets('settings page warns that web sync can be browser-blocked',
@@ -167,10 +217,10 @@ void main() {
     await tester.tap(find.text('Use Android emulator'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Android emulator endpoints applied. Save settings next.'),
-      findsOneWidget,
-    );
+    expect(find.text('Android emulator endpoints saved'), findsOneWidget);
+    final settings = await ConnectionSettingsStore().read();
+    expect(settings.metadataBaseUrl, 'http://10.0.2.2:8010');
+    expect(settings.syncBaseUrl, 'http://10.0.2.2:8020');
     await _scrollToText(tester, 'Metadata server');
     expect(find.text('http://10.0.2.2:8010'), findsOneWidget);
     await _scrollToText(tester, 'Personal sync service');
@@ -264,10 +314,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await _scrollToText(tester, 'Account');
+    await _openSettingsTab(tester, 'Account');
 
     expect(find.text('user@example.com'), findsOneWidget);
     expect(find.textContaining('Session expires'), findsOneWidget);
+    expect(find.text('Standard account'), findsOneWidget);
+    expect(find.text('Refresh permissions'), findsOneWidget);
     expect(find.text('Sign out'), findsOneWidget);
   });
 }
@@ -276,7 +328,7 @@ Future<void> _scrollToText(WidgetTester tester, String text) async {
   await tester.scrollUntilVisible(
     find.text(text),
     320,
-    scrollable: find.byType(Scrollable).first,
+    scrollable: _verticalScrollable(),
   );
   await tester.pumpAndSettle();
 }
@@ -285,7 +337,7 @@ Future<void> _scrollToTooltip(WidgetTester tester, String tooltip) async {
   await tester.scrollUntilVisible(
     find.byTooltip(tooltip),
     320,
-    scrollable: find.byType(Scrollable).first,
+    scrollable: _verticalScrollable(),
   );
   await tester.pumpAndSettle();
 }
@@ -294,9 +346,25 @@ Future<void> _scrollToTextUp(WidgetTester tester, String text) async {
   await tester.scrollUntilVisible(
     find.text(text),
     -320,
-    scrollable: find.byType(Scrollable).first,
+    scrollable: _verticalScrollable(),
   );
   await tester.pumpAndSettle();
+}
+
+Future<void> _openSettingsTab(WidgetTester tester, String label) async {
+  final tab = find.widgetWithText(Tab, label);
+  await tester.ensureVisible(tab);
+  await tester.tap(tab);
+  await tester.pumpAndSettle();
+}
+
+Finder _verticalScrollable() {
+  return find
+      .byWidgetPredicate(
+        (widget) =>
+            widget is Scrollable && widget.axisDirection == AxisDirection.down,
+      )
+      .first;
 }
 
 String _jwtExpiringAt(DateTime expiresAt) {

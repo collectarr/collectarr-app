@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -48,6 +49,7 @@ void main() {
   );
 
   setUp(() {
+    LibraryWorkspacePreferences.resetCachedChromeForTesting();
     SharedPreferences.setMockInitialValues({});
   });
 
@@ -58,6 +60,8 @@ void main() {
     expect(defaults.detailsLayout, LibraryDetailsLayout.right);
     expect(defaults.sortColumn, LibrarySortColumn.title);
     expect(defaults.coverSize, 128);
+    expect(defaults.sidebarWidth, 250);
+    expect(defaults.detailsWidth, 340);
     expect(defaults.visibleColumns, {
       LibraryTableColumn.title,
       LibraryTableColumn.issue,
@@ -152,6 +156,8 @@ void main() {
     final state = profile.defaults().copyWith(
           viewMode: LibraryViewMode.card,
           coverSize: 180,
+          sidebarWidth: 300,
+          detailsWidth: 420,
         );
 
     await profile.save(state);
@@ -159,5 +165,26 @@ void main() {
 
     expect(restored.viewMode, LibraryViewMode.card);
     expect(restored.coverSize, 180);
+    expect(restored.sidebarWidth, 300);
+    expect(restored.detailsWidth, 420);
+  });
+
+  test('workspace view defaults reuse cached global chrome', () async {
+    await LibraryWorkspacePreferences(config).write(
+      profile
+          .defaults()
+          .copyWith(
+            detailsLayout: LibraryDetailsLayout.bottom,
+            sidebarWidth: 310,
+            detailsWidth: 450,
+          )
+          .toPreferenceSnapshot(),
+    );
+
+    final defaults = profile.defaults();
+
+    expect(defaults.detailsLayout, LibraryDetailsLayout.bottom);
+    expect(defaults.sidebarWidth, 310);
+    expect(defaults.detailsWidth, 450);
   });
 }

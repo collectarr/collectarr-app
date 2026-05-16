@@ -23,6 +23,8 @@ class ComicsWorkspace extends StatelessWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.coverSize,
+    required this.sidebarWidth,
+    required this.detailsWidth,
     required this.visibleColumns,
     required this.columnWidths,
     required this.selectionMode,
@@ -49,6 +51,8 @@ class ComicsWorkspace extends StatelessWidget {
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     required this.onCoverSizeChanged,
+    required this.onSidebarWidthChanged,
+    required this.onDetailsWidthChanged,
     required this.onSelectionModeChanged,
     required this.onClearSelection,
     required this.onBulkEdit,
@@ -70,6 +74,8 @@ class ComicsWorkspace extends StatelessWidget {
   final LibrarySortColumn sortColumn;
   final bool sortAscending;
   final double coverSize;
+  final double sidebarWidth;
+  final double detailsWidth;
   final Set<LibraryTableColumn> visibleColumns;
   final Map<LibraryTableColumn, double> columnWidths;
   final bool selectionMode;
@@ -99,6 +105,8 @@ class ComicsWorkspace extends StatelessWidget {
           LibraryTableColumn column, LibraryTableColumn? beforeColumn)
       onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
+  final ValueChanged<double> onSidebarWidthChanged;
+  final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<bool> onSelectionModeChanged;
   final VoidCallback onClearSelection;
   final VoidCallback onBulkEdit;
@@ -161,6 +169,8 @@ class ComicsWorkspace extends StatelessWidget {
       sortColumn: sortColumn,
       sortAscending: sortAscending,
       coverSize: coverSize,
+      sidebarWidth: sidebarWidth,
+      detailsWidth: detailsWidth,
       visibleColumns: visibleColumns,
       columnWidths: columnWidths,
       selectionMode: selectionMode,
@@ -186,6 +196,8 @@ class ComicsWorkspace extends StatelessWidget {
       onColumnWidthChanged: onColumnWidthChanged,
       onColumnReordered: onColumnReordered,
       onCoverSizeChanged: onCoverSizeChanged,
+      onSidebarWidthChanged: onSidebarWidthChanged,
+      onDetailsWidthChanged: onDetailsWidthChanged,
       onSelectionModeChanged: onSelectionModeChanged,
       onClearSelection: onClearSelection,
       onBulkEdit: onBulkEdit,

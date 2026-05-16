@@ -11,6 +11,9 @@ class CatalogCache extends Table {
   TextColumn get synopsis => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
   TextColumn get thumbnailImageUrl => text().nullable()();
+  TextColumn get editionTitle => text().nullable()();
+  TextColumn get physicalFormat => text().nullable()();
+  TextColumn get physicalFormatLabel => text().nullable()();
   TextColumn get publisher => text().nullable()();
   DateTimeColumn get releaseDate => dateTime().nullable()();
   IntColumn get releaseYear => integer().nullable()();
@@ -99,21 +102,29 @@ class LocalDatabase extends _$LocalDatabase {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
       beforeOpen: (_) async {
-        await _ensureCatalogThumbnailColumn();
+        await _ensureCatalogCacheColumns();
       },
     );
   }
 
-  Future<void> _ensureCatalogThumbnailColumn() async {
+  Future<void> _ensureCatalogCacheColumns() async {
     final columns =
         await customSelect('PRAGMA table_info(catalog_cache)').get();
-    final hasThumbnailColumn = columns.any(
-      (row) => row.read<String>('name') == 'thumbnail_image_url',
-    );
-    if (!hasThumbnailColumn) {
-      await customStatement(
-        'ALTER TABLE catalog_cache ADD COLUMN thumbnail_image_url TEXT',
-      );
+    final columnNames = {
+      for (final row in columns) row.read<String>('name'),
+    };
+    const optionalColumns = {
+      'thumbnail_image_url': 'TEXT',
+      'edition_title': 'TEXT',
+      'physical_format': 'TEXT',
+      'physical_format_label': 'TEXT',
+    };
+    for (final entry in optionalColumns.entries) {
+      if (!columnNames.contains(entry.key)) {
+        await customStatement(
+          'ALTER TABLE catalog_cache ADD COLUMN ${entry.key} ${entry.value}',
+        );
+      }
     }
   }
 }

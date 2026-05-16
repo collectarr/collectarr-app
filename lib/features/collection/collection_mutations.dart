@@ -237,6 +237,17 @@ class CollectionMutations {
     final catalogItems = await catalogCache.findByIds(resolvedRows.map(
       (row) => row.itemId,
     ));
+    final importedCatalogItems = <CatalogItem>[];
+    for (final row in resolvedRows) {
+      final snapshot = _catalogItemFromCsvRow(
+        row,
+        existing: catalogItems[row.itemId],
+      );
+      if (snapshot != null) {
+        catalogItems[row.itemId] = snapshot;
+        importedCatalogItems.add(snapshot);
+      }
+    }
     final now = DateTime.now().toUtc();
     final existingWishlist = {
       for (final item in await wishlistCache.findActiveByItemIds(
@@ -307,6 +318,7 @@ class CollectionMutations {
       return 0;
     }
     await db.transaction(() async {
+      await catalogCache.upsertAll(importedCatalogItems);
       await ownedCache.upsertAll(ownedItems);
       await wishlistCache.markDeletedAll(wishlistDeletes, now);
       await wishlistCache.upsertAll(wishlistUpserts);
@@ -424,6 +436,50 @@ class CollectionMutations {
       updatedAt: now,
       deletedAt: existing?.deletedAt,
     );
+  }
+
+  CatalogItem? _catalogItemFromCsvRow(
+    CollectionCsvRow row, {
+    CatalogItem? existing,
+  }) {
+    final itemId = row.itemId.trim();
+    if (itemId.isEmpty) {
+      return null;
+    }
+    final kind = _firstText(row.kind, existing?.kind)?.toLowerCase();
+    final title = _firstText(row.title, existing?.title);
+    if (kind == null || title == null) {
+      return existing;
+    }
+    return CatalogItem(
+      id: itemId,
+      kind: kind,
+      title: title,
+      itemNumber: _firstText(row.itemNumber, existing?.itemNumber),
+      synopsis: existing?.synopsis,
+      coverImageUrl: existing?.coverImageUrl,
+      thumbnailImageUrl: existing?.thumbnailImageUrl,
+      editionTitle: _firstText(row.editionTitle, existing?.editionTitle),
+      physicalFormat: _firstText(row.physicalFormat, existing?.physicalFormat),
+      physicalFormatLabel:
+          _firstText(row.physicalFormatLabel, existing?.physicalFormatLabel),
+      publisher: _firstText(row.publisher, existing?.publisher),
+      releaseDate: row.releaseDate ?? existing?.releaseDate,
+      releaseYear: row.releaseDate?.year ?? existing?.releaseYear,
+      barcode: _firstText(row.barcode, existing?.barcode),
+      variant: _firstText(row.variant, existing?.variant),
+    );
+  }
+
+  String? _firstText(String? preferred, String? fallback) {
+    final trimmed = preferred?.trim();
+    if (trimmed != null && trimmed.isNotEmpty) {
+      return trimmed;
+    }
+    final fallbackTrimmed = fallback?.trim();
+    return fallbackTrimmed == null || fallbackTrimmed.isEmpty
+        ? null
+        : fallbackTrimmed;
   }
 
   SyncChange _syncChangeForOwnedItem(

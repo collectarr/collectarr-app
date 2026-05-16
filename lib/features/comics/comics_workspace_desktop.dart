@@ -9,7 +9,11 @@ import 'package:collectarr_app/features/comics/comics_toolbar.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_chrome.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_controls.dart';
 import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
+import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/library_ctrl_scroll_zoom.dart';
+import 'package:collectarr_app/features/library/workspace/library_pane_widths.dart';
+import 'package:collectarr_app/features/library/workspace/library_resizable_pane.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +31,8 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
     required this.sortColumn,
     required this.sortAscending,
     required this.coverSize,
+    required this.sidebarWidth,
+    required this.detailsWidth,
     required this.visibleColumns,
     required this.columnWidths,
     required this.selectionMode,
@@ -52,6 +58,8 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     required this.onCoverSizeChanged,
+    required this.onSidebarWidthChanged,
+    required this.onDetailsWidthChanged,
     required this.onSelectionModeChanged,
     required this.onClearSelection,
     required this.onBulkEdit,
@@ -72,6 +80,8 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
   final LibrarySortColumn sortColumn;
   final bool sortAscending;
   final double coverSize;
+  final double sidebarWidth;
+  final double detailsWidth;
   final Set<LibraryTableColumn> visibleColumns;
   final Map<LibraryTableColumn, double> columnWidths;
   final bool selectionMode;
@@ -100,6 +110,8 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
           LibraryTableColumn column, LibraryTableColumn? beforeColumn)
       onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
+  final ValueChanged<double> onSidebarWidthChanged;
+  final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<bool> onSelectionModeChanged;
   final VoidCallback onClearSelection;
   final VoidCallback onBulkEdit;
@@ -111,125 +123,174 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        topBar ??
-            ComicsTopBar(
-              totalCount: projection.totalCount,
-              onOpenLibraries: onOpenLibraries,
-            ),
-        ComicsToolbar(
-          controller: queryController,
-          controlState: ComicsWorkspaceControlState(
-            selection: ComicsSelectionControlState(
-              enabled: selectionMode,
-              selectedCount: selectedItemIds.length,
-            ),
-            utility: ComicsWorkspaceUtilityState(
-              selectedSeries: projection.selectedSeries,
-              hasActiveFilters: hasActiveFilters,
-              activeFilterCount: activeFilterCount,
-              quickView: quickView,
-              missingIssues: projection.missingIssues,
-              duplicateGroups: projection.duplicateGroups,
-            ),
-            view: ComicsViewTableControlState(
-              counts: ComicsWorkspaceCounts(
-                shown: projection.visibleCount,
-                total: projection.totalCount,
-              ),
-              viewMode: viewMode,
-              detailsLayout: detailsLayout,
-              coverSize: coverSize,
-            ),
-          ),
-          controlCallbacks: ComicsWorkspaceControlCallbacks(
-            selection: ComicsSelectionControlCallbacks(
-              onSelectionModeChanged: onSelectionModeChanged,
-              onClearSelection: onClearSelection,
-              onBulkEdit: onBulkEdit,
-              onBulkMoveToOwned: onBulkMoveToOwned,
-              onBulkMoveToWishlist: onBulkMoveToWishlist,
-              onBulkRemove: onBulkRemove,
-            ),
-            utility: ComicsWorkspaceUtilityCallbacks(
-              onShowStats: () => showComicsStatsDashboardDialog(
-                context,
-                state: shelfState,
-                selectedSeries: projection.selectedSeries,
-                missingIssues: projection.missingIssues,
-              ),
-              onQuickViewSelected: onQuickViewSelected,
-              onEditFilters: onEditFilters,
-              onClearFilters: onClearFilters,
-            ),
-            view: ComicsViewTableControlCallbacks(
-              onEditColumns: onEditColumns,
-              onViewModeChanged: onViewModeChanged,
-              onDetailsLayoutChanged: onDetailsLayoutChanged,
-              onViewPresetSelected: onViewPresetSelected,
-              onCoverSizeChanged: onCoverSizeChanged,
-            ),
-          ),
-          onSearch: onSearch,
-          onAddComic: onAddComic,
-          onScanBarcode: onScanBarcode,
-          onRefreshMetadata: onRefreshMetadata,
-          onClearSeries: onClearGroup,
-        ),
-        Expanded(
-          child: Row(
-            children: [
-              SizedBox(
-                width: 250,
-                child: LibrarySeriesSidebar(
-                  series: projection.groups,
-                  selectedSeries: selectedGroup,
-                  onSelectSeries: onSelectGroup,
-                  title: projection.groupMode.label,
-                  icon: projection.groupMode.icon,
-                  trailing: _ComicsGroupingMenu(
-                    groupMode: projection.groupMode,
-                    onChanged: onGroupModeChanged,
-                  ),
-                  backgroundColor: kClzPanel,
-                  headerColor: const Color(0xFF303030),
-                  dividerColor: kClzDivider,
-                  accentColor: kClzAccent,
-                  selectionColor: kClzSelection,
-                  selectedBadgeColor: kClzYellow,
-                  mutedTextColor: kClzTextMuted,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxSidebarWidth = maxLibraryPaneWidthForViewport(
+          viewportWidth: constraints.maxWidth,
+          preferredMaxWidth: kLibrarySidebarMaxWidth,
+          viewportFraction: 0.34,
+        );
+        final effectiveSidebarWidth = clampLibraryPaneWidth(
+          sidebarWidth,
+          minWidth: kLibrarySidebarMinWidth,
+          maxWidth: maxSidebarWidth,
+        );
+        final maxDetailsWidth = maxLibraryPaneWidthForViewport(
+          viewportWidth: constraints.maxWidth,
+          preferredMaxWidth: kLibraryDetailsMaxWidth,
+          viewportFraction: 0.38,
+        );
+        return Column(
+          children: [
+            topBar ??
+                ComicsTopBar(
+                  totalCount: projection.totalCount,
+                  onOpenLibraries: onOpenLibraries,
                 ),
-              ),
-              const VerticalDivider(width: 1),
-              Expanded(
-                child: LibraryDetailsAwareLayout(
-                  content: ComicsShelfContent(
-                    viewMode: viewMode,
-                    items: projection.visibleItems,
-                    selectedItemId: projection.selectedItem?.id,
-                    selectedItemIds: selectedItemIds,
-                    coverSize: coverSize,
-                    sortColumn: sortColumn,
-                    sortAscending: sortAscending,
-                    visibleColumns: visibleColumns,
-                    columnWidths: columnWidths,
-                    onSortChanged: onSortChanged,
-                    onColumnWidthChanged: onColumnWidthChanged,
-                    onColumnReordered: onColumnReordered,
-                    onAddComic: onAddComic,
-                    onSelectItem: onSelectItem,
+            ComicsToolbar(
+              controller: queryController,
+              controlState: ComicsWorkspaceControlState(
+                selection: ComicsSelectionControlState(
+                  enabled: selectionMode,
+                  selectedCount: selectedItemIds.length,
+                ),
+                utility: ComicsWorkspaceUtilityState(
+                  selectedSeries: projection.selectedSeries,
+                  hasActiveFilters: hasActiveFilters,
+                  activeFilterCount: activeFilterCount,
+                  quickView: quickView,
+                  missingIssues: projection.missingIssues,
+                  duplicateGroups: projection.duplicateGroups,
+                ),
+                view: ComicsViewTableControlState(
+                  counts: ComicsWorkspaceCounts(
+                    shown: projection.visibleCount,
+                    total: projection.totalCount,
                   ),
+                  viewMode: viewMode,
                   detailsLayout: detailsLayout,
-                  inspector: LibraryAwareComicInspector(
-                    item: projection.selectedItem,
-                  ),
+                  coverSize: coverSize,
                 ),
               ),
-            ],
-          ),
-        ),
-      ],
+              controlCallbacks: ComicsWorkspaceControlCallbacks(
+                selection: ComicsSelectionControlCallbacks(
+                  onSelectionModeChanged: onSelectionModeChanged,
+                  onClearSelection: onClearSelection,
+                  onBulkEdit: onBulkEdit,
+                  onBulkMoveToOwned: onBulkMoveToOwned,
+                  onBulkMoveToWishlist: onBulkMoveToWishlist,
+                  onBulkRemove: onBulkRemove,
+                ),
+                utility: ComicsWorkspaceUtilityCallbacks(
+                  onShowStats: () => showComicsStatsDashboardDialog(
+                    context,
+                    state: shelfState,
+                    selectedSeries: projection.selectedSeries,
+                    missingIssues: projection.missingIssues,
+                  ),
+                  onQuickViewSelected: onQuickViewSelected,
+                  onEditFilters: onEditFilters,
+                  onClearFilters: onClearFilters,
+                ),
+                view: ComicsViewTableControlCallbacks(
+                  onEditColumns: onEditColumns,
+                  onViewModeChanged: onViewModeChanged,
+                  onDetailsLayoutChanged: onDetailsLayoutChanged,
+                  onViewPresetSelected: onViewPresetSelected,
+                  onCoverSizeChanged: onCoverSizeChanged,
+                ),
+              ),
+              onSearch: onSearch,
+              onAddComic: onAddComic,
+              onScanBarcode: onScanBarcode,
+              onRefreshMetadata: onRefreshMetadata,
+              onClearSeries: onClearGroup,
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: effectiveSidebarWidth,
+                    child: LibrarySeriesSidebar(
+                      series: projection.groups,
+                      selectedSeries: selectedGroup,
+                      onSelectSeries: onSelectGroup,
+                      title: projection.groupMode.label,
+                      icon: projection.groupMode.icon,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _ComicsGroupingMenu(
+                            groupMode: projection.groupMode,
+                            onChanged: onGroupModeChanged,
+                          ),
+                          IconButton(
+                            tooltip: 'Clear group filter',
+                            onPressed:
+                                selectedGroup == null ? null : onClearGroup,
+                            icon: const Icon(Icons.filter_alt_off, size: 18),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: kClzPanel,
+                      headerColor: const Color(0xFF303030),
+                      dividerColor: kClzDivider,
+                      accentColor: kClzAccent,
+                      selectionColor: kClzSelection,
+                      selectedBadgeColor: kClzYellow,
+                      mutedTextColor: kClzTextMuted,
+                    ),
+                  ),
+                  LibraryResizableDivider(
+                    onDragDelta: (delta) => onSidebarWidthChanged(
+                      clampLibraryPaneWidth(
+                        effectiveSidebarWidth + delta,
+                        minWidth: kLibrarySidebarMinWidth,
+                        maxWidth: maxSidebarWidth,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: LibraryDetailsAwareLayout(
+                      content: LibraryCtrlScrollZoom(
+                        coverSize: coverSize,
+                        minCoverSize: kComicsMinCoverSize,
+                        maxCoverSize: kComicsMaxCoverSize,
+                        onCoverSizeChanged: onCoverSizeChanged,
+                        child: ComicsShelfContent(
+                          viewMode: viewMode,
+                          items: projection.visibleItems,
+                          selectedItemId: projection.selectedItem?.id,
+                          selectedItemIds: selectedItemIds,
+                          coverSize: coverSize,
+                          sortColumn: sortColumn,
+                          sortAscending: sortAscending,
+                          visibleColumns: visibleColumns,
+                          columnWidths: columnWidths,
+                          onSortChanged: onSortChanged,
+                          onColumnWidthChanged: onColumnWidthChanged,
+                          onColumnReordered: onColumnReordered,
+                          onAddComic: onAddComic,
+                          hasActiveFilters: hasActiveFilters,
+                          onClearFilters: onClearFilters,
+                          onSelectItem: onSelectItem,
+                        ),
+                      ),
+                      detailsLayout: detailsLayout,
+                      inspector: LibraryAwareComicInspector(
+                        item: projection.selectedItem,
+                      ),
+                      rightWidth: detailsWidth,
+                      maxRightWidth: maxDetailsWidth,
+                      onRightWidthChanged: onDetailsWidthChanged,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

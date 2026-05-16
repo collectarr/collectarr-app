@@ -85,6 +85,22 @@ void main() {
     expect(find.text('1 failed'), findsOneWidget);
     expect(find.text('1 due'), findsOneWidget);
     expect(find.text('gcd queued-123'), findsOneWidget);
+    expect(find.text('Auto refresh'), findsOneWidget);
+    expect(find.textContaining('Last refreshed'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Details').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ingest job: gcd queued-123'), findsOneWidget);
+    expect(find.text('Job ID'), findsOneWidget);
+    expect(find.text('Provider item'), findsOneWidget);
+    expect(find.text('Current state'), findsOneWidget);
+    expect(find.text('Attempts left'), findsOneWidget);
+    expect(find.text('Backoff / next run'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Refresh list'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(TextButton, 'Close'));
+    await tester.pumpAndSettle();
 
     await tester
         .ensureVisible(find.widgetWithText(OutlinedButton, 'Queue current ID'));
@@ -118,8 +134,11 @@ void main() {
 
     expect(api.lastRetryHistoryId, 7);
 
-    await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Inspect'));
-    await tester.pumpAndSettle();
+    await _scrollUntilVisible(
+      tester,
+      find.widgetWithText(OutlinedButton, 'Inspect'),
+      delta: 500,
+    );
     expect(find.text('Absolute Batman #1A'), findsWidgets);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Inspect'));
     await tester.pumpAndSettle();
@@ -511,6 +530,8 @@ class _FakeAdminApiClient extends ApiClient {
         status: runPendingCount > 0 ? 'done' : 'queued',
         attempts: runPendingCount > 0 ? 1 : 0,
         maxAttempts: 3,
+        nextRunAt:
+            runPendingCount > 0 ? null : DateTime.utc(2026, 5, 14, 9, 15),
         createdAt: DateTime.utc(2026, 5, 14, 9, 0),
         updatedAt: DateTime.utc(2026, 5, 14, 9, 0),
         itemId: runPendingCount > 0 ? 'item-1' : null,

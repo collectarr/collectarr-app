@@ -71,6 +71,15 @@ void main() {
     expect(find.text('USD 24.99'), findsWidgets);
     expect(find.text('No game selected'), findsNothing);
     expect(find.byTooltip('Library tools'), findsOneWidget);
+    expect(find.byTooltip('Group by'), findsOneWidget);
+    expect(find.byTooltip('Clear group filter'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'Year'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Years'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Library tools'));
     await tester.pumpAndSettle();
@@ -160,8 +169,19 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    final overflowButton = tester.widget<PopupMenuButton<CatalogMediaType>>(
+      find.byType(PopupMenuButton<CatalogMediaType>),
+    );
+    expect(overflowButton.color, const Color(0xFF202020));
+    expect(overflowButton.surfaceTintColor, Colors.transparent);
+    expect(overflowButton.position, PopupMenuPosition.under);
+
     await tester.tap(find.byTooltip('More libraries'));
     await tester.pumpAndSettle();
+    final gameItem = tester.widget<PopupMenuItem<CatalogMediaType>>(
+      find.byKey(const ValueKey('library-overflow-item-game')),
+    );
+    expect(gameItem.height, 38);
     await tester.tap(find.text('Games'));
     await tester.pumpAndSettle();
 

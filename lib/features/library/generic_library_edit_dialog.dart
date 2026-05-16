@@ -35,6 +35,7 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog> {
   late final TextEditingController _publisherController;
   late final TextEditingController _releaseDateController;
   late final TextEditingController _releaseYearController;
+  late final TextEditingController _editionTitleController;
   late final TextEditingController _barcodeController;
   late final TextEditingController _variantController;
   late final TextEditingController _coverController;
@@ -51,6 +52,7 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog> {
   late final TextEditingController _ratingController;
   late final TextEditingController _trackingController;
   late final TextEditingController _tagsController;
+  String? _physicalFormatId;
 
   @override
   void initState() {
@@ -66,6 +68,8 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog> {
     _releaseYearController = TextEditingController(
       text: item.releaseYear?.toString() ?? '',
     );
+    _editionTitleController =
+        TextEditingController(text: item.editionTitle ?? '');
     _barcodeController = TextEditingController(text: item.barcode ?? '');
     _variantController = TextEditingController(text: item.variant ?? '');
     _coverController = TextEditingController(text: item.coverImageUrl ?? '');
@@ -94,6 +98,7 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog> {
         TextEditingController(text: owned?.rating?.toString() ?? '');
     _trackingController = TextEditingController(text: owned?.readStatus ?? '');
     _tagsController = TextEditingController(text: owned?.tags ?? '');
+    _physicalFormatId = _initialPhysicalFormatId(item);
   }
 
   @override
@@ -103,6 +108,7 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog> {
     _publisherController.dispose();
     _releaseDateController.dispose();
     _releaseYearController.dispose();
+    _editionTitleController.dispose();
     _barcodeController.dispose();
     _variantController.dispose();
     _coverController.dispose();
@@ -233,30 +239,48 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog> {
         _responsiveFields([
           _field(controller: _publisherController, label: labels.publisher),
           _field(
+            controller: _editionTitleController,
+            label: 'Edition title',
+          ),
+          _field(
             controller: _variantController,
             label: labels.variant,
           ),
           _field(controller: _barcodeController, label: labels.barcode),
         ]),
         if (widget.physicalFormats.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
+          const SizedBox(height: 10),
+          DropdownButtonFormField<String>(
+            initialValue: _physicalFormatId,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Physical format',
+            ),
+            items: [
+              const DropdownMenuItem<String>(
+                value: '',
+                child: Text('No specific format'),
+              ),
               for (final format in widget.physicalFormats)
-                ActionChip(
-                  label: Text(format.label),
-                  avatar: Icon(
-                    format.variantType == 'digital'
-                        ? Icons.cloud_outlined
-                        : Icons.album_outlined,
-                    size: 16,
-                  ),
-                  onPressed: () =>
-                      setState(() => _variantController.text = format.label),
+                DropdownMenuItem<String>(
+                  value: format.id,
+                  child: Text(format.label),
                 ),
             ],
+            onChanged: (value) {
+              final normalized = _emptyToNull(value ?? '');
+              final format = _physicalFormatForId(normalized);
+              final previousFormat = _physicalFormatForId(_physicalFormatId);
+              final variant = _variantController.text.trim();
+              final shouldReplaceVariant =
+                  variant.isEmpty || previousFormat?.label == variant;
+              setState(() {
+                _physicalFormatId = format?.id;
+                if (format != null && shouldReplaceVariant) {
+                  _variantController.text = format.label;
+                }
+              });
+            },
           ),
         ],
         const SizedBox(height: 10),
@@ -483,6 +507,9 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog> {
         synopsis: _emptyToNull(_synopsisController.text),
         coverImageUrl: _emptyToNull(_coverController.text),
         thumbnailImageUrl: _emptyToNull(_thumbnailController.text),
+        editionTitle: _emptyToNull(_editionTitleController.text),
+        physicalFormat: _physicalFormatId,
+        physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
         publisher: _emptyToNull(_publisherController.text),
         releaseDate: _parseDate(_releaseDateController.text),
         releaseYear: _parseInt(_releaseYearController.text),
@@ -506,6 +533,28 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog> {
             ),
     );
     Navigator.of(context).pop(selection);
+  }
+
+  String? _initialPhysicalFormatId(CatalogItem item) {
+    final configured = _physicalFormatForId(item.physicalFormat);
+    if (configured != null) {
+      return configured.id;
+    }
+    final byLabel = physicalMediaFormatByLabelOrId(
+      item.physicalFormatLabel ?? item.variant,
+      formats: widget.physicalFormats,
+    );
+    return byLabel?.id;
+  }
+
+  PhysicalMediaFormat? _physicalFormatForId(String? id) {
+    final normalized = _emptyToNull(id ?? '');
+    return normalized == null
+        ? null
+        : physicalMediaFormatById(
+            normalized,
+            formats: widget.physicalFormats,
+          );
   }
 }
 

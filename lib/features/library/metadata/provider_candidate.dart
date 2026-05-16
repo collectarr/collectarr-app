@@ -48,6 +48,15 @@ class ProviderCandidate {
     );
   }
 
+  bool get isStub {
+    return providerItemId.startsWith('stub-') ||
+        title.toLowerCase().contains(' stub)');
+  }
+
+  bool get isVariant {
+    return _looksLikeVariant(summary) || _looksLikeVariant(title);
+  }
+
   String get localCatalogId {
     final safeProvider = _safeIdPart(provider);
     final safeKind = _safeIdPart(kind);
@@ -58,4 +67,19 @@ class ProviderCandidate {
 
 String _safeIdPart(String value) {
   return value.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9_-]+'), '-');
+}
+
+bool _looksLikeVariant(String? value) {
+  final text = value?.trim().toLowerCase();
+  if (text == null || text.isEmpty) {
+    return false;
+  }
+  return text.contains('variant') ||
+      text.contains('virgin') ||
+      text.contains('foil') ||
+      text.contains('exclusive') ||
+      text.contains('incentive') ||
+      text.contains('ratio') ||
+      text.contains('second printing') ||
+      text.contains('third printing');
 }

@@ -6,7 +6,6 @@ const Color _authTopBar = Color(0xFF4DBBD5);
 const Color _authCanvas = Color(0xFF141414);
 const Color _authPanel = Color(0xFF202020);
 const Color _authPanelRaised = Color(0xFF2D2D2D);
-const Color _authToolbar = Color(0xFF343434);
 const Color _authAccent = Color(0xFF10A8D8);
 const Color _authYellow = Color(0xFFFFD400);
 const Color _authDivider = Color(0xFF484848);
@@ -178,52 +177,28 @@ class _AuthTopBar extends StatelessWidget {
                 'Collectarr',
                 style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
               ),
-              SizedBox(width: 12),
+              SizedBox(width: 18),
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _TopBarMenuItem('File'),
-                      _TopBarMenuItem('Search'),
-                      _TopBarMenuItem('View'),
-                      _TopBarMenuItem('Sync'),
-                      _TopBarMenuItem('Tools'),
-                      SizedBox(width: 18),
                       Text('Comics workspace'),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height: 30,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: const BoxDecoration(
-            color: _authToolbar,
-            border: Border(bottom: BorderSide(color: _authDivider)),
-          ),
-          child: const Row(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _ToolbarPill(icon: Icons.add, label: 'Add Comics'),
-                      SizedBox(width: 8),
-                      _ToolbarPill(
-                        icon: Icons.qr_code_scanner,
-                        label: 'Barcode',
+                      SizedBox(width: 14),
+                      _HeaderStatusBadge(
+                        icon: Icons.storage,
+                        label: 'Local database',
                       ),
                       SizedBox(width: 8),
-                      _ToolbarPill(icon: Icons.cloud_sync, label: 'Sync'),
-                      SizedBox(width: 18),
-                      _ConnectionDot(label: 'Local DB'),
+                      _HeaderStatusBadge(
+                        icon: Icons.cloud_queue,
+                        label: 'Metadata core',
+                      ),
                       SizedBox(width: 8),
-                      _ConnectionDot(label: 'Metadata core'),
+                      _HeaderStatusBadge(
+                        icon: Icons.sync_disabled,
+                        label: 'Sync after login',
+                      ),
                     ],
                   ),
                 ),
@@ -236,25 +211,8 @@ class _AuthTopBar extends StatelessWidget {
   }
 }
 
-class _TopBarMenuItem extends StatelessWidget {
-  const _TopBarMenuItem(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 7),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-      ),
-    );
-  }
-}
-
-class _ToolbarPill extends StatelessWidget {
-  const _ToolbarPill({required this.icon, required this.label});
+class _HeaderStatusBadge extends StatelessWidget {
+  const _HeaderStatusBadge({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
@@ -263,36 +221,27 @@ class _ToolbarPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF222222),
+        color: const Color(0x33222222),
         border: Border.all(color: _authDivider),
+        borderRadius: BorderRadius.circular(2),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
           children: [
-            Icon(icon, color: _authAccent, size: 15),
+            Icon(icon, color: _authAccent, size: 14),
             const SizedBox(width: 5),
-            Text(label, style: const TextStyle(fontSize: 12)),
+            Text(
+              label,
+              style: const TextStyle(
+                color: _authMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ConnectionDot extends StatelessWidget {
-  const _ConnectionDot({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(Icons.circle, color: Color(0xFF61D394), size: 9),
-        const SizedBox(width: 5),
-        Text(label, style: const TextStyle(fontSize: 12, color: _authMuted)),
-      ],
     );
   }
 }

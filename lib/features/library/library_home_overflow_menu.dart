@@ -22,20 +22,30 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<CatalogMediaType>(
       tooltip: 'More libraries',
+      color: const Color(0xFF202020),
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.black.withValues(alpha: 0.54),
+      elevation: 10,
+      position: PopupMenuPosition.under,
+      offset: const Offset(0, 5),
+      constraints: const BoxConstraints(minWidth: 190, maxWidth: 250),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+        side: const BorderSide(color: Color(0xFF484848)),
+      ),
       onSelected: onSelected,
       itemBuilder: (context) => [
         for (final type in types)
           PopupMenuItem(
+            key: ValueKey('library-overflow-item-${type.kind}'),
             value: type,
-            child: ListTile(
-              dense: true,
-              leading: Icon(
-                registry.byKind(type.kind)?.workspace.icon ??
-                    libraryIconForKind(type.kind),
-                color: libraryAccentForKind(type.kind),
-              ),
-              title: Text(type.pluralLabel),
-              trailing: Text((counts[type.kind]?.total ?? 0).toString()),
+            height: 38,
+            padding: EdgeInsets.zero,
+            child: _OverflowMenuRow(
+              type: type,
+              icon: registry.byKind(type.kind)?.workspace.icon ??
+                  libraryIconForKind(type.kind),
+              count: counts[type.kind]?.total ?? 0,
             ),
           ),
       ],
@@ -75,6 +85,66 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _OverflowMenuRow extends StatelessWidget {
+  const _OverflowMenuRow({
+    required this.type,
+    required this.icon,
+    required this.count,
+  });
+
+  final CatalogMediaType type;
+  final IconData icon;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = libraryAccentForKind(type.kind);
+    return SizedBox(
+      height: 38,
+      child: Row(
+        children: [
+          Container(width: 4, height: double.infinity, color: accent),
+          const SizedBox(width: 10),
+          Icon(icon, size: 17, color: accent),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Text(
+              type.pluralLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white24),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              child: Text(
+                count.toString(),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.86),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+        ],
       ),
     );
   }

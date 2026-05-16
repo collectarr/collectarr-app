@@ -11,6 +11,9 @@ class CollectionCsvRow {
     this.title,
     this.itemNumber,
     this.variant,
+    this.editionTitle,
+    this.physicalFormat,
+    this.physicalFormatLabel,
     this.publisher,
     this.releaseDate,
     this.barcode,
@@ -41,6 +44,9 @@ class CollectionCsvRow {
   final String? title;
   final String? itemNumber;
   final String? variant;
+  final String? editionTitle;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
   final String? publisher;
   final DateTime? releaseDate;
   final String? barcode;
@@ -74,6 +80,9 @@ class CollectionCsvRow {
     String? title,
     String? itemNumber,
     String? variant,
+    String? editionTitle,
+    String? physicalFormat,
+    String? physicalFormatLabel,
     String? publisher,
     DateTime? releaseDate,
     String? barcode,
@@ -104,6 +113,9 @@ class CollectionCsvRow {
       title: title ?? this.title,
       itemNumber: itemNumber ?? this.itemNumber,
       variant: variant ?? this.variant,
+      editionTitle: editionTitle ?? this.editionTitle,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       releaseDate: releaseDate ?? this.releaseDate,
       barcode: barcode ?? this.barcode,
@@ -137,6 +149,9 @@ class CollectionCsv {
     'title',
     'item_number',
     'variant',
+    'edition_title',
+    'physical_format',
+    'physical_format_label',
     'publisher',
     'release_date',
     'barcode',
@@ -168,6 +183,9 @@ class CollectionCsv {
     'Series',
     'Issue',
     'Variant Description',
+    'Edition Title',
+    'Physical Format',
+    'Physical Format Label',
     'Publisher',
     'Release Date',
     'Barcode',
@@ -203,6 +221,9 @@ class CollectionCsv {
           entry.catalogItem?.title ?? '',
           entry.catalogItem?.itemNumber ?? '',
           entry.catalogItem?.variant ?? '',
+          entry.catalogItem?.editionTitle ?? '',
+          entry.catalogItem?.physicalFormat ?? '',
+          entry.catalogItem?.physicalFormatLabel ?? '',
           entry.catalogItem?.publisher ?? '',
           _formatDate(entry.catalogItem?.releaseDate),
           entry.catalogItem?.barcode ?? '',
@@ -242,6 +263,9 @@ class CollectionCsv {
           entry.catalogItem?.title ?? '',
           entry.catalogItem?.itemNumber ?? '',
           entry.catalogItem?.variant ?? '',
+          entry.catalogItem?.editionTitle ?? '',
+          entry.catalogItem?.physicalFormat ?? '',
+          entry.catalogItem?.physicalFormatLabel ?? '',
           entry.catalogItem?.publisher ?? '',
           _formatDate(entry.catalogItem?.releaseDate),
           entry.catalogItem?.barcode ?? '',
@@ -322,6 +346,8 @@ class CollectionCsv {
       title: 'Title / Series',
       number: 'No. / Vol.',
       variant: 'Edition / Variant / Format',
+      editionTitle: 'Edition Title',
+      physicalFormat: 'Physical Format',
       publisher: 'Publisher / Studio / Creator',
       barcode: 'Barcode / UPC / ISBN',
     );
@@ -343,6 +369,8 @@ class CollectionCsv {
       title: title,
       number: labels.number,
       variant: labels.variant,
+      editionTitle: 'Edition Title',
+      physicalFormat: 'Physical Format',
       publisher: labels.publisher,
       barcode: labels.barcode,
     );
@@ -352,6 +380,8 @@ class CollectionCsv {
     required String title,
     required String number,
     required String variant,
+    required String editionTitle,
+    required String physicalFormat,
     required String publisher,
     required String barcode,
   }) {
@@ -361,6 +391,9 @@ class CollectionCsv {
       title,
       number,
       variant,
+      editionTitle,
+      physicalFormat,
+      'Physical Format Label',
       publisher,
       'Release Date',
       barcode,
@@ -395,6 +428,10 @@ class CollectionCsv {
       title: _optionalValue(index, values, 'title'),
       itemNumber: _optionalValue(index, values, 'item_number'),
       variant: _optionalValue(index, values, 'variant'),
+      editionTitle: _optionalValue(index, values, 'edition_title'),
+      physicalFormat: _optionalValue(index, values, 'physical_format'),
+      physicalFormatLabel:
+          _optionalValue(index, values, 'physical_format_label'),
       publisher: _optionalValue(index, values, 'publisher'),
       releaseDate: _parseDate(_value(index, values, 'release_date')),
       barcode: _optionalValue(index, values, 'barcode'),
@@ -426,6 +463,8 @@ class CollectionCsv {
         row.status.trim().isNotEmpty ||
         (row.title?.trim().isNotEmpty ?? false) ||
         (row.itemNumber?.trim().isNotEmpty ?? false) ||
+        (row.editionTitle?.trim().isNotEmpty ?? false) ||
+        (row.physicalFormat?.trim().isNotEmpty ?? false) ||
         (row.publisher?.trim().isNotEmpty ?? false) ||
         (row.barcode?.trim().isNotEmpty ?? false);
   }
@@ -663,6 +702,20 @@ class CollectionCsv {
       'Edition / Variant',
       'Edition / Variant / Format',
       'Expansion / Edition',
+    ],
+    'edition_title': ['Edition Title', 'Edition Name', 'Release Title'],
+    'physical_format': [
+      'Physical Format',
+      'Format ID',
+      'Media Format',
+      'Video Format',
+      'Disc Format',
+    ],
+    'physical_format_label': [
+      'Physical Format Label',
+      'Format',
+      'Format Label',
+      'Video Format Label',
     ],
     'publisher': [
       'Publisher',

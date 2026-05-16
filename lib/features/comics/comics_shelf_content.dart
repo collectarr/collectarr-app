@@ -20,6 +20,8 @@ class ComicsShelfContent extends StatelessWidget {
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     required this.onAddComic,
+    required this.hasActiveFilters,
+    required this.onClearFilters,
     required this.onSelectItem,
   });
 
@@ -39,6 +41,8 @@ class ComicsShelfContent extends StatelessWidget {
           LibraryTableColumn column, LibraryTableColumn? beforeColumn)
       onColumnReordered;
   final VoidCallback onAddComic;
+  final bool hasActiveFilters;
+  final VoidCallback onClearFilters;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -50,6 +54,8 @@ class ComicsShelfContent extends StatelessWidget {
           selectedItemIds: selectedItemIds,
           coverSize: coverSize,
           onAddComic: onAddComic,
+          hasActiveFilters: hasActiveFilters,
+          onClearFilters: onClearFilters,
           onSelectItem: onSelectItem,
         ),
       LibraryViewMode.card => ComicsShelfCardGrid(
@@ -58,6 +64,8 @@ class ComicsShelfContent extends StatelessWidget {
           selectedItemIds: selectedItemIds,
           coverSize: coverSize,
           onAddComic: onAddComic,
+          hasActiveFilters: hasActiveFilters,
+          onClearFilters: onClearFilters,
           onSelectItem: onSelectItem,
         ),
       LibraryViewMode.list => ComicsShelfList(
@@ -72,6 +80,8 @@ class ComicsShelfContent extends StatelessWidget {
           onColumnWidthChanged: onColumnWidthChanged,
           onColumnReordered: onColumnReordered,
           onAddComic: onAddComic,
+          hasActiveFilters: hasActiveFilters,
+          onClearFilters: onClearFilters,
           onSelectItem: onSelectItem,
         ),
     };

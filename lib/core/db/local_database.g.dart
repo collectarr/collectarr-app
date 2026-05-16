@@ -48,6 +48,24 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> thumbnailImageUrl =
       GeneratedColumn<String>('thumbnail_image_url', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionTitleMeta =
+      const VerificationMeta('editionTitle');
+  @override
+  late final GeneratedColumn<String> editionTitle = GeneratedColumn<String>(
+      'edition_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _physicalFormatMeta =
+      const VerificationMeta('physicalFormat');
+  @override
+  late final GeneratedColumn<String> physicalFormat = GeneratedColumn<String>(
+      'physical_format', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _physicalFormatLabelMeta =
+      const VerificationMeta('physicalFormatLabel');
+  @override
+  late final GeneratedColumn<String> physicalFormatLabel =
+      GeneratedColumn<String>('physical_format_label', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _publisherMeta =
       const VerificationMeta('publisher');
   @override
@@ -93,6 +111,9 @@ class $CatalogCacheTable extends CatalogCache
         synopsis,
         coverImageUrl,
         thumbnailImageUrl,
+        editionTitle,
+        physicalFormat,
+        physicalFormatLabel,
         publisher,
         releaseDate,
         releaseYear,
@@ -149,6 +170,24 @@ class $CatalogCacheTable extends CatalogCache
           thumbnailImageUrl.isAcceptableOrUnknown(
               data['thumbnail_image_url']!, _thumbnailImageUrlMeta));
     }
+    if (data.containsKey('edition_title')) {
+      context.handle(
+          _editionTitleMeta,
+          editionTitle.isAcceptableOrUnknown(
+              data['edition_title']!, _editionTitleMeta));
+    }
+    if (data.containsKey('physical_format')) {
+      context.handle(
+          _physicalFormatMeta,
+          physicalFormat.isAcceptableOrUnknown(
+              data['physical_format']!, _physicalFormatMeta));
+    }
+    if (data.containsKey('physical_format_label')) {
+      context.handle(
+          _physicalFormatLabelMeta,
+          physicalFormatLabel.isAcceptableOrUnknown(
+              data['physical_format_label']!, _physicalFormatLabelMeta));
+    }
     if (data.containsKey('publisher')) {
       context.handle(_publisherMeta,
           publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
@@ -202,6 +241,12 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
       thumbnailImageUrl: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}thumbnail_image_url']),
+      editionTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_title']),
+      physicalFormat: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}physical_format']),
+      physicalFormatLabel: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}physical_format_label']),
       publisher: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
       releaseDate: attachedDatabase.typeMapping
@@ -232,6 +277,9 @@ class CatalogCacheData extends DataClass
   final String? synopsis;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final String? editionTitle;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
   final String? publisher;
   final DateTime? releaseDate;
   final int? releaseYear;
@@ -246,6 +294,9 @@ class CatalogCacheData extends DataClass
       this.synopsis,
       this.coverImageUrl,
       this.thumbnailImageUrl,
+      this.editionTitle,
+      this.physicalFormat,
+      this.physicalFormatLabel,
       this.publisher,
       this.releaseDate,
       this.releaseYear,
@@ -269,6 +320,15 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || thumbnailImageUrl != null) {
       map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl);
+    }
+    if (!nullToAbsent || editionTitle != null) {
+      map['edition_title'] = Variable<String>(editionTitle);
+    }
+    if (!nullToAbsent || physicalFormat != null) {
+      map['physical_format'] = Variable<String>(physicalFormat);
+    }
+    if (!nullToAbsent || physicalFormatLabel != null) {
+      map['physical_format_label'] = Variable<String>(physicalFormatLabel);
     }
     if (!nullToAbsent || publisher != null) {
       map['publisher'] = Variable<String>(publisher);
@@ -306,6 +366,15 @@ class CatalogCacheData extends DataClass
       thumbnailImageUrl: thumbnailImageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(thumbnailImageUrl),
+      editionTitle: editionTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionTitle),
+      physicalFormat: physicalFormat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormat),
+      physicalFormatLabel: physicalFormatLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormatLabel),
       publisher: publisher == null && nullToAbsent
           ? const Value.absent()
           : Value(publisher),
@@ -337,6 +406,10 @@ class CatalogCacheData extends DataClass
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
       thumbnailImageUrl:
           serializer.fromJson<String?>(json['thumbnailImageUrl']),
+      editionTitle: serializer.fromJson<String?>(json['editionTitle']),
+      physicalFormat: serializer.fromJson<String?>(json['physicalFormat']),
+      physicalFormatLabel:
+          serializer.fromJson<String?>(json['physicalFormatLabel']),
       publisher: serializer.fromJson<String?>(json['publisher']),
       releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
       releaseYear: serializer.fromJson<int?>(json['releaseYear']),
@@ -356,6 +429,9 @@ class CatalogCacheData extends DataClass
       'synopsis': serializer.toJson<String?>(synopsis),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
       'thumbnailImageUrl': serializer.toJson<String?>(thumbnailImageUrl),
+      'editionTitle': serializer.toJson<String?>(editionTitle),
+      'physicalFormat': serializer.toJson<String?>(physicalFormat),
+      'physicalFormatLabel': serializer.toJson<String?>(physicalFormatLabel),
       'publisher': serializer.toJson<String?>(publisher),
       'releaseDate': serializer.toJson<DateTime?>(releaseDate),
       'releaseYear': serializer.toJson<int?>(releaseYear),
@@ -373,6 +449,9 @@ class CatalogCacheData extends DataClass
           Value<String?> synopsis = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
           Value<String?> thumbnailImageUrl = const Value.absent(),
+          Value<String?> editionTitle = const Value.absent(),
+          Value<String?> physicalFormat = const Value.absent(),
+          Value<String?> physicalFormatLabel = const Value.absent(),
           Value<String?> publisher = const Value.absent(),
           Value<DateTime?> releaseDate = const Value.absent(),
           Value<int?> releaseYear = const Value.absent(),
@@ -390,6 +469,13 @@ class CatalogCacheData extends DataClass
         thumbnailImageUrl: thumbnailImageUrl.present
             ? thumbnailImageUrl.value
             : this.thumbnailImageUrl,
+        editionTitle:
+            editionTitle.present ? editionTitle.value : this.editionTitle,
+        physicalFormat:
+            physicalFormat.present ? physicalFormat.value : this.physicalFormat,
+        physicalFormatLabel: physicalFormatLabel.present
+            ? physicalFormatLabel.value
+            : this.physicalFormatLabel,
         publisher: publisher.present ? publisher.value : this.publisher,
         releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
         releaseYear: releaseYear.present ? releaseYear.value : this.releaseYear,
@@ -411,6 +497,15 @@ class CatalogCacheData extends DataClass
       thumbnailImageUrl: data.thumbnailImageUrl.present
           ? data.thumbnailImageUrl.value
           : this.thumbnailImageUrl,
+      editionTitle: data.editionTitle.present
+          ? data.editionTitle.value
+          : this.editionTitle,
+      physicalFormat: data.physicalFormat.present
+          ? data.physicalFormat.value
+          : this.physicalFormat,
+      physicalFormatLabel: data.physicalFormatLabel.present
+          ? data.physicalFormatLabel.value
+          : this.physicalFormatLabel,
       publisher: data.publisher.present ? data.publisher.value : this.publisher,
       releaseDate:
           data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
@@ -432,6 +527,9 @@ class CatalogCacheData extends DataClass
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
+          ..write('editionTitle: $editionTitle, ')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('physicalFormatLabel: $physicalFormatLabel, ')
           ..write('publisher: $publisher, ')
           ..write('releaseDate: $releaseDate, ')
           ..write('releaseYear: $releaseYear, ')
@@ -451,6 +549,9 @@ class CatalogCacheData extends DataClass
       synopsis,
       coverImageUrl,
       thumbnailImageUrl,
+      editionTitle,
+      physicalFormat,
+      physicalFormatLabel,
       publisher,
       releaseDate,
       releaseYear,
@@ -468,6 +569,9 @@ class CatalogCacheData extends DataClass
           other.synopsis == this.synopsis &&
           other.coverImageUrl == this.coverImageUrl &&
           other.thumbnailImageUrl == this.thumbnailImageUrl &&
+          other.editionTitle == this.editionTitle &&
+          other.physicalFormat == this.physicalFormat &&
+          other.physicalFormatLabel == this.physicalFormatLabel &&
           other.publisher == this.publisher &&
           other.releaseDate == this.releaseDate &&
           other.releaseYear == this.releaseYear &&
@@ -484,6 +588,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> synopsis;
   final Value<String?> coverImageUrl;
   final Value<String?> thumbnailImageUrl;
+  final Value<String?> editionTitle;
+  final Value<String?> physicalFormat;
+  final Value<String?> physicalFormatLabel;
   final Value<String?> publisher;
   final Value<DateTime?> releaseDate;
   final Value<int?> releaseYear;
@@ -499,6 +606,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.thumbnailImageUrl = const Value.absent(),
+    this.editionTitle = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.physicalFormatLabel = const Value.absent(),
     this.publisher = const Value.absent(),
     this.releaseDate = const Value.absent(),
     this.releaseYear = const Value.absent(),
@@ -515,6 +625,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.thumbnailImageUrl = const Value.absent(),
+    this.editionTitle = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.physicalFormatLabel = const Value.absent(),
     this.publisher = const Value.absent(),
     this.releaseDate = const Value.absent(),
     this.releaseYear = const Value.absent(),
@@ -534,6 +647,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? synopsis,
     Expression<String>? coverImageUrl,
     Expression<String>? thumbnailImageUrl,
+    Expression<String>? editionTitle,
+    Expression<String>? physicalFormat,
+    Expression<String>? physicalFormatLabel,
     Expression<String>? publisher,
     Expression<DateTime>? releaseDate,
     Expression<int>? releaseYear,
@@ -550,6 +666,10 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (synopsis != null) 'synopsis': synopsis,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (editionTitle != null) 'edition_title': editionTitle,
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
       if (publisher != null) 'publisher': publisher,
       if (releaseDate != null) 'release_date': releaseDate,
       if (releaseYear != null) 'release_year': releaseYear,
@@ -568,6 +688,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? synopsis,
       Value<String?>? coverImageUrl,
       Value<String?>? thumbnailImageUrl,
+      Value<String?>? editionTitle,
+      Value<String?>? physicalFormat,
+      Value<String?>? physicalFormatLabel,
       Value<String?>? publisher,
       Value<DateTime?>? releaseDate,
       Value<int?>? releaseYear,
@@ -583,6 +706,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       synopsis: synopsis ?? this.synopsis,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
+      editionTitle: editionTitle ?? this.editionTitle,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       releaseDate: releaseDate ?? this.releaseDate,
       releaseYear: releaseYear ?? this.releaseYear,
@@ -616,6 +742,16 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (thumbnailImageUrl.present) {
       map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl.value);
+    }
+    if (editionTitle.present) {
+      map['edition_title'] = Variable<String>(editionTitle.value);
+    }
+    if (physicalFormat.present) {
+      map['physical_format'] = Variable<String>(physicalFormat.value);
+    }
+    if (physicalFormatLabel.present) {
+      map['physical_format_label'] =
+          Variable<String>(physicalFormatLabel.value);
     }
     if (publisher.present) {
       map['publisher'] = Variable<String>(publisher.value);
@@ -651,6 +787,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
+          ..write('editionTitle: $editionTitle, ')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('physicalFormatLabel: $physicalFormatLabel, ')
           ..write('publisher: $publisher, ')
           ..write('releaseDate: $releaseDate, ')
           ..write('releaseYear: $releaseYear, ')
@@ -2719,6 +2858,9 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
   Value<String?> thumbnailImageUrl,
+  Value<String?> editionTitle,
+  Value<String?> physicalFormat,
+  Value<String?> physicalFormatLabel,
   Value<String?> publisher,
   Value<DateTime?> releaseDate,
   Value<int?> releaseYear,
@@ -2736,6 +2878,9 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
   Value<String?> thumbnailImageUrl,
+  Value<String?> editionTitle,
+  Value<String?> physicalFormat,
+  Value<String?> physicalFormatLabel,
   Value<String?> publisher,
   Value<DateTime?> releaseDate,
   Value<int?> releaseYear,
@@ -2774,6 +2919,17 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get thumbnailImageUrl => $composableBuilder(
       column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get publisher => $composableBuilder(
@@ -2827,6 +2983,18 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.thumbnailImageUrl,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get publisher => $composableBuilder(
       column: $table.publisher, builder: (column) => ColumnOrderings(column));
 
@@ -2875,6 +3043,15 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get thumbnailImageUrl => $composableBuilder(
       column: $table.thumbnailImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat, builder: (column) => column);
+
+  GeneratedColumn<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel, builder: (column) => column);
 
   GeneratedColumn<String> get publisher =>
       $composableBuilder(column: $table.publisher, builder: (column) => column);
@@ -2928,6 +3105,9 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> thumbnailImageUrl = const Value.absent(),
+            Value<String?> editionTitle = const Value.absent(),
+            Value<String?> physicalFormat = const Value.absent(),
+            Value<String?> physicalFormatLabel = const Value.absent(),
             Value<String?> publisher = const Value.absent(),
             Value<DateTime?> releaseDate = const Value.absent(),
             Value<int?> releaseYear = const Value.absent(),
@@ -2944,6 +3124,9 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
             thumbnailImageUrl: thumbnailImageUrl,
+            editionTitle: editionTitle,
+            physicalFormat: physicalFormat,
+            physicalFormatLabel: physicalFormatLabel,
             publisher: publisher,
             releaseDate: releaseDate,
             releaseYear: releaseYear,
@@ -2960,6 +3143,9 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> thumbnailImageUrl = const Value.absent(),
+            Value<String?> editionTitle = const Value.absent(),
+            Value<String?> physicalFormat = const Value.absent(),
+            Value<String?> physicalFormatLabel = const Value.absent(),
             Value<String?> publisher = const Value.absent(),
             Value<DateTime?> releaseDate = const Value.absent(),
             Value<int?> releaseYear = const Value.absent(),
@@ -2976,6 +3162,9 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
             thumbnailImageUrl: thumbnailImageUrl,
+            editionTitle: editionTitle,
+            physicalFormat: physicalFormat,
+            physicalFormatLabel: physicalFormatLabel,
             publisher: publisher,
             releaseDate: releaseDate,
             releaseYear: releaseYear,

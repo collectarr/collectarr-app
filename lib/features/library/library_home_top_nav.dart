@@ -16,6 +16,7 @@ class MediaLibraryNav extends StatelessWidget {
     required this.registry,
     required this.selectedKind,
     required this.onSelected,
+    this.animationDuration = const Duration(milliseconds: 320),
   });
 
   final List<CatalogMediaType> types;
@@ -23,15 +24,22 @@ class MediaLibraryNav extends StatelessWidget {
   final LibraryTypeRegistry registry;
   final String selectedKind;
   final ValueChanged<CatalogMediaType> onSelected;
+  final Duration animationDuration;
 
   @override
   Widget build(BuildContext context) {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accent = libraryAccentForKind(selected.kind);
-    return Container(
+    return AnimatedContainer(
+      duration: animationDuration,
+      curve: Curves.easeOutCubic,
       height: 42,
       decoration: BoxDecoration(
-        color: accent,
+        gradient: libraryChromeGradient(
+          accent,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
         border: Border(
           bottom: BorderSide(
             color:
@@ -96,20 +104,28 @@ class MediaLibraryTitleBar extends StatelessWidget {
     super.key,
     required this.type,
     required this.registry,
+    this.animationDuration = const Duration(milliseconds: 320),
   });
 
   final CatalogMediaType type;
   final LibraryTypeRegistry registry;
+  final Duration animationDuration;
 
   @override
   Widget build(BuildContext context) {
     final accent = libraryAccentForKind(type.kind);
     final icon = registry.byKind(type.kind)?.workspace.icon ??
         libraryIconForKind(type.kind);
-    return Container(
+    return AnimatedContainer(
+      duration: animationDuration,
+      curve: Curves.easeOutCubic,
       height: 42,
       decoration: BoxDecoration(
-        color: accent,
+        gradient: libraryChromeGradient(
+          accent,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
         border: Border(
           bottom: BorderSide(
             color: Color.alphaBlend(

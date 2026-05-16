@@ -5,8 +5,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiClient {
+  static const requestTimeout = Duration(seconds: 30);
+
   ApiClient({String baseUrl = 'http://localhost:8010'})
-      : _dio = Dio(BaseOptions(baseUrl: baseUrl));
+      : _dio = Dio(
+          BaseOptions(
+            baseUrl: baseUrl,
+            connectTimeout: requestTimeout,
+            receiveTimeout: requestTimeout,
+            sendTimeout: requestTimeout,
+          ),
+        );
 
   final Dio _dio;
 
@@ -58,6 +67,15 @@ class ApiClient {
     return data;
   }
 
+  Future<Map<String, dynamic>> currentUser() async {
+    final response = await _dio.get<Map<String, dynamic>>('/auth/me');
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/auth/me returned an empty response.');
+    }
+    return data;
+  }
+
   Future<List<Map<String, dynamic>>> search(
     String query, {
     String? kind,
@@ -89,7 +107,10 @@ class ApiClient {
       '/search',
       queryParameters: query.toQueryParameters(),
     );
-    return response.data!.cast<Map<String, dynamic>>();
+    return response.data!
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
   }
 
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
@@ -105,12 +126,15 @@ class ApiClient {
   }
 
   Future<List<Map<String, dynamic>>> searchProvider({
-    required String provider,
+    String? provider,
     required String query,
     String? kind,
   }) async {
+    final providerPath = provider == null || provider.isEmpty
+        ? '/metadata/providers/search'
+        : '/metadata/providers/$provider/search';
     final response = await _dio.get<List<dynamic>>(
-      '/metadata/providers/$provider/search',
+      providerPath,
       queryParameters: {
         'q': query,
         if (kind != null) 'kind': kind,
@@ -120,7 +144,10 @@ class ApiClient {
     if (data == null) {
       return const [];
     }
-    return data.cast<Map<String, dynamic>>();
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
   }
 
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {
@@ -166,6 +193,7 @@ class ApiClient {
     }
     return data
         .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
         .map(AdminMetadataItem.fromJson)
         .toList(growable: false);
   }
@@ -212,7 +240,7 @@ class ApiClient {
       throw StateError(
           '/admin/catalog/items/$kind/$id returned an empty response body');
     }
-    return AdminMetadataItem.fromJson(body);
+    return AdminMetadataItem.fromJson(_resolveImageUrls(body));
   }
 
   Future<AdminSearchStatus> adminSearchStatus() async {
@@ -339,7 +367,7 @@ class ApiClient {
     if (data == null) {
       throw StateError('/metadata/$kind/$id returned an empty response body');
     }
-    return AdminMetadataItem.fromJson(data);
+    return AdminMetadataItem.fromJson(_resolveImageUrls(data));
   }
 
   Future<List<Map<String, dynamic>>> adminProviderSearch({
@@ -359,7 +387,10 @@ class ApiClient {
     if (data == null) {
       return const [];
     }
-    return data.cast<Map<String, dynamic>>();
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
   }
 
   Future<AdminProviderIngestResult> adminProviderIngest({
@@ -541,7 +572,7 @@ class ApiClient {
   Future<Map<String, dynamic>> getComic(String id) async {
     final response =
         await _dio.get<Map<String, dynamic>>('/metadata/comic/$id');
-    return response.data!;
+    return _resolveImageUrls(response.data!);
   }
 
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
@@ -556,7 +587,7 @@ class ApiClient {
     if (data == null) {
       throw StateError('/barcode returned an empty response body');
     }
-    return data;
+    return _resolveImageUrls(data);
   }
 
   Future<Map<String, dynamic>> health() async {
@@ -567,7 +598,53 @@ class ApiClient {
     }
     return data;
   }
+
+  Map<String, dynamic> _resolveImageUrls(Map<String, dynamic> data) {
+    return _resolveImageUrlsValue(data) as Map<String, dynamic>;
+  }
+
+  Object? _resolveImageUrlsValue(Object? value) {
+    if (value is List) {
+      return value.map(_resolveImageUrlsValue).toList(growable: false);
+    }
+    if (value is Map<String, dynamic>) {
+      final resolved = <String, dynamic>{};
+      for (final entry in value.entries) {
+        final nested = _resolveImageUrlsValue(entry.value);
+        resolved[entry.key] =
+            _imageUrlKeys.contains(entry.key) ? _resolveApiUrl(nested) : nested;
+      }
+      return resolved;
+    }
+    return value;
+  }
+
+  String? _resolveApiUrl(Object? value) {
+    final raw = value?.toString().trim();
+    if (raw == null || raw.isEmpty) {
+      return null;
+    }
+    final parsed = Uri.tryParse(raw);
+    if (parsed == null) {
+      return raw;
+    }
+    if (parsed.hasScheme) {
+      return raw;
+    }
+    if (!raw.startsWith('/')) {
+      return raw;
+    }
+    final base = Uri.tryParse(baseUrl);
+    return base?.resolve(raw).toString() ?? raw;
+  }
 }
+
+const _imageUrlKeys = {
+  'image_url',
+  'cover_image_url',
+  'thumbnail_image_url',
+  'cover_delivery_url',
+};
 
 String _dateForApi(DateTime value) {
   return '${value.year.toString().padLeft(4, '0')}-'

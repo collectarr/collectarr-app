@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -10,6 +11,7 @@ import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -58,6 +60,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _isSearchingProvider = false;
   bool _isQueueingIngest = false;
   bool _isAdding = false;
+  String? _physicalFormatId;
+  DateTime? _lastProviderSearchAt;
+  String? _lastProviderSearchSignature;
+  int _coreSearchGeneration = 0;
+  static const _providerSearchDebounce = Duration(milliseconds: 450);
+  static const _coreSearchTimeout = Duration(seconds: 35);
 
   @override
   void initState() {
@@ -94,6 +102,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       catalog,
       widget.type.workspace.kind,
     );
+    final providerStatuses =
+        ref.watch(metadataProviderStatusesProvider).maybeWhen(
+              data: (value) => value,
+              orElse: () => const <String, AdminProviderStatus>{},
+            );
     final selectedProvider = _activeProvider;
     return Dialog(
       child: ConstrainedBox(
@@ -122,11 +135,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     providerResults: _providerResults,
                     queuedProviderIngests: _queuedProviderIngests,
                     selectedProvider: selectedProvider,
+                    providerStatuses: providerStatuses,
                     searchedProvider: _searchedProvider,
                     onSearch: _search,
                     onSearchProvider: _searchProvider,
                     onLookupBarcode: _lookupBarcode,
-                    onProviderChanged: _changeProvider,
                     onAddOwned: (item) =>
                         _addItems([item], LibraryAddTarget.owned),
                     onAddWishlist: (item) =>
@@ -152,6 +165,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     variantController: _variantController,
                     coverController: _coverController,
                     physicalFormats: physicalFormats,
+                    physicalFormatId: _physicalFormatId,
+                    onPhysicalFormatChanged: _setPhysicalFormat,
                     isAdding: _isAdding,
                     onAddOwned: () => _addManual(LibraryAddTarget.owned),
                     onAddWishlist: () => _addManual(LibraryAddTarget.wishlist),
@@ -199,6 +214,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       setState(() => _error = 'Enter a title, creator, series, or keyword.');
       return;
     }
+    final searchGeneration = ++_coreSearchGeneration;
     setState(() {
       _isSearching = true;
       _error = null;
@@ -212,12 +228,22 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
         input: LibraryMetadataSearchInput(query: query, limit: 20),
-      );
-      if (mounted) {
+      ).timeout(_coreSearchTimeout);
+      final shouldSearchProvider =
+          items.isEmpty && widget.type.supportedMetadataProviders.isNotEmpty;
+      if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() => _results = items);
       }
+      if (mounted &&
+          searchGeneration == _coreSearchGeneration &&
+          shouldSearchProvider) {
+        await _searchProvider(
+          queryOverride: query,
+          bypassDebounce: true,
+        );
+      }
     } catch (error) {
-      if (mounted) {
+      if (mounted && searchGeneration == _coreSearchGeneration) {
         final api = ref.read(apiClientProvider);
         setState(
           () => _error =
@@ -225,7 +251,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
       }
     } finally {
-      if (mounted) {
+      if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() => _isSearching = false);
       }
     }
@@ -237,6 +263,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       setState(() => _error = 'Enter a barcode / UPC / ISBN.');
       return;
     }
+    final searchGeneration = ++_coreSearchGeneration;
     setState(() {
       _isSearching = true;
       _error = null;
@@ -250,12 +277,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
         barcodes: [barcode],
-      );
+      ).timeout(_coreSearchTimeout);
       final found = [
         for (final result in results)
           if (result.item != null) result.item!,
       ];
-      if (mounted) {
+      if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
           _results = found;
           _error =
@@ -264,11 +291,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   : null;
         });
       }
-      if (found.isEmpty && widget.type.supportedMetadataProviders.isNotEmpty) {
+      if (mounted &&
+          searchGeneration == _coreSearchGeneration &&
+          found.isEmpty &&
+          widget.type.supportedMetadataProviders.isNotEmpty) {
         await _searchProvider(queryOverride: barcode);
       }
     } catch (error) {
-      if (mounted) {
+      if (mounted && searchGeneration == _coreSearchGeneration) {
         final api = ref.read(apiClientProvider);
         setState(
           () => _error =
@@ -276,7 +306,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
       }
     } finally {
-      if (mounted) {
+      if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() => _isSearching = false);
       }
     }
@@ -294,6 +324,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       kind: widget.type.workspace.kind,
       title: title,
       itemNumber: _emptyToNull(_numberController.text),
+      editionTitle: _emptyToNull(_variantController.text),
+      physicalFormat: _physicalFormatId,
+      physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
       publisher: _emptyToNull(_publisherController.text),
       releaseYear: year,
       barcode: _emptyToNull(_barcodeController.text),
@@ -303,7 +336,40 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     await _addItems([item], target);
   }
 
-  Future<void> _searchProvider({String? queryOverride}) async {
+  void _setPhysicalFormat(String? value) {
+    final format = _physicalFormatForId(value);
+    final previousFormat = _physicalFormatForId(_physicalFormatId);
+    final shouldReplaceVariant = _variantController.text.trim().isEmpty ||
+        previousFormat?.label == _variantController.text.trim();
+    setState(() {
+      _physicalFormatId = format?.id;
+      if (format != null && shouldReplaceVariant) {
+        _variantController.text = format.label;
+      }
+    });
+  }
+
+  PhysicalMediaFormat? _physicalFormatForId(String? id) {
+    final normalized = _emptyToNull(id ?? '');
+    if (normalized == null) {
+      return null;
+    }
+    return physicalMediaFormatById(
+      normalized,
+      formats: physicalMediaFormatsForKind(
+        ref.read(mediaCatalogProvider).maybeWhen(
+              data: (value) => value,
+              orElse: () => fallbackMediaCatalog,
+            ),
+        widget.type.workspace.kind,
+      ),
+    );
+  }
+
+  Future<void> _searchProvider({
+    String? queryOverride,
+    bool bypassDebounce = false,
+  }) async {
     final query = queryOverride?.trim().isNotEmpty == true
         ? queryOverride!.trim()
         : _providerQuery;
@@ -312,6 +378,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       return;
     }
     final provider = _activeProvider;
+    if (_isSearchingProvider ||
+        (!bypassDebounce && _shouldDebounceProviderSearch(provider, query))) {
+      return;
+    }
     setState(() {
       _isSearchingProvider = true;
       _searchedProvider = true;
@@ -322,10 +392,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final results = await searchLibraryProviderCandidates(
         ref.read(apiClientProvider),
         widget.type,
-        provider: provider,
         query: query,
       );
-      if (!mounted || _activeProvider != provider) {
+      if (!mounted) {
         return;
       }
       setState(() => _providerResults = results);
@@ -334,7 +403,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         final api = ref.read(apiClientProvider);
         setState(
           () => _error =
-              '${widget.type.metadataProviderLabel(provider)} search failed: ${ConnectionDiagnostics.metadataError(error, api.baseUrl)}',
+              'Provider search failed: ${ConnectionDiagnostics.metadataError(error, api.baseUrl)}',
         );
       }
     } finally {
@@ -342,6 +411,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         setState(() => _isSearchingProvider = false);
       }
     }
+  }
+
+  bool _shouldDebounceProviderSearch(String provider, String query) {
+    final now = DateTime.now();
+    final signature = '$provider|${query.trim().toLowerCase()}';
+    final lastAt = _lastProviderSearchAt;
+    final shouldSkip = _lastProviderSearchSignature == signature &&
+        lastAt != null &&
+        now.difference(lastAt) < _providerSearchDebounce;
+    _lastProviderSearchSignature = signature;
+    _lastProviderSearchAt = now;
+    return shouldSkip;
   }
 
   Future<void> _addProviderCandidate(
@@ -436,15 +517,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         setState(() => _isQueueingIngest = false);
       }
     }
-  }
-
-  void _changeProvider(String provider) {
-    setState(() {
-      _selectedProvider = provider;
-      _searchedProvider = false;
-      _providerResults = const [];
-      _error = null;
-    });
   }
 
   String get _activeProvider {
@@ -626,11 +698,11 @@ class _SearchPane extends StatelessWidget {
     required this.providerResults,
     required this.queuedProviderIngests,
     required this.selectedProvider,
+    required this.providerStatuses,
     required this.searchedProvider,
     required this.onSearch,
     required this.onSearchProvider,
     required this.onLookupBarcode,
-    required this.onProviderChanged,
     required this.onAddOwned,
     required this.onAddWishlist,
     required this.onAddProviderOwned,
@@ -651,11 +723,11 @@ class _SearchPane extends StatelessWidget {
   final List<ProviderCandidate> providerResults;
   final Map<String, _QueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
+  final Map<String, AdminProviderStatus> providerStatuses;
   final bool searchedProvider;
   final VoidCallback onSearch;
   final VoidCallback onSearchProvider;
   final VoidCallback onLookupBarcode;
-  final ValueChanged<String> onProviderChanged;
   final ValueChanged<CatalogItem> onAddOwned;
   final ValueChanged<CatalogItem> onAddWishlist;
   final ValueChanged<ProviderCandidate> onAddProviderOwned;
@@ -727,48 +799,15 @@ class _SearchPane extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                SizedBox(
-                  width: 190,
-                  child: DropdownButtonFormField<String>(
-                    key: ValueKey(selectedProvider),
-                    initialValue: selectedProvider,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      labelText: 'Provider',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [
-                      for (final provider in providers)
-                        DropdownMenuItem(
-                          value: provider.id,
-                          child: Row(
-                            children: [
-                              if (provider.requiresApiKey) ...[
-                                const Icon(Icons.key, size: 14),
-                                const SizedBox(width: 5),
-                              ],
-                              Expanded(
-                                child: Text(
-                                  provider.label,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                    onChanged: isBusy
-                        ? null
-                        : (value) {
-                            if (value != null) {
-                              onProviderChanged(value);
-                            }
-                          },
+                Expanded(
+                  child: _ProviderRoutingNotice(
+                    type: type,
+                    selectedProvider: selectedProvider,
                   ),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
+                SizedBox(
+                  width: 220,
                   child: OutlinedButton.icon(
                     onPressed: isBusy ? null : onSearchProvider,
                     icon: isSearchingProvider
@@ -778,7 +817,7 @@ class _SearchPane extends StatelessWidget {
                           )
                         : const Icon(Icons.travel_explore),
                     label: Text(
-                      'Search ${type.metadataProviderLabel(selectedProvider)}',
+                      'Search providers',
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -787,7 +826,10 @@ class _SearchPane extends StatelessWidget {
             ),
             if (selectedProviderOption != null) ...[
               const SizedBox(height: 8),
-              _ProviderSearchNotice(provider: selectedProviderOption),
+              _ProviderSearchNotice(
+                provider: selectedProviderOption,
+                status: providerStatuses[selectedProviderOption.id],
+              ),
             ],
             if (queuedProviderIngests.isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -887,15 +929,86 @@ class _CoreSearchNotice extends StatelessWidget {
   }
 }
 
+class _ProviderRoutingNotice extends StatelessWidget {
+  const _ProviderRoutingNotice({
+    required this.type,
+    required this.selectedProvider,
+  });
+
+  final LibraryTypeConfig type;
+  final String selectedProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    final providerLabel = type.metadataProviderLabel(selectedProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.28),
+        border: Border.all(color: colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
+        child: Row(
+          children: [
+            Icon(
+              Icons.alt_route,
+              size: 18,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Core chooses the provider. Default route: $providerLabel, with server-side fallback when available.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ProviderSearchNotice extends StatelessWidget {
-  const _ProviderSearchNotice({required this.provider});
+  const _ProviderSearchNotice({
+    required this.provider,
+    required this.status,
+  });
 
   final LibraryMetadataProviderOption provider;
+  final AdminProviderStatus? status;
 
   @override
   Widget build(BuildContext context) {
     final policy = provider.usagePolicy;
     final chips = <Widget>[
+      if (status != null && !status!.isConfigured)
+        const _ProviderNoticeChip(
+          icon: Icons.warning_amber_outlined,
+          label: 'Stub / needs credentials',
+        )
+      else if (status != null && status!.isConfigured)
+        const _ProviderNoticeChip(
+          icon: Icons.check_circle_outline,
+          label: 'Live provider',
+        )
+      else if (provider.requiresApiKey)
+        const _ProviderNoticeChip(
+          icon: Icons.warning_amber_outlined,
+          label: 'May be stub until configured',
+        ),
+      if (status != null && !status!.supportsIngest)
+        const _ProviderNoticeChip(
+          icon: Icons.search,
+          label: 'Search-only',
+        ),
       if (provider.requiresApiKey)
         const _ProviderNoticeChip(
           icon: Icons.key,
@@ -912,9 +1025,15 @@ class _ProviderSearchNotice extends StatelessWidget {
           label: 'Non-commercial',
         ),
     ];
+    final message = status?.message.trim();
+    final kindLabel = status == null || status!.effectiveKinds.isEmpty
+        ? null
+        : 'Kinds: ${status!.effectiveKinds.join(', ')}';
     if ((provider.description == null || provider.description!.isEmpty) &&
         chips.isEmpty &&
-        policy == null) {
+        policy == null &&
+        (message == null || message.isEmpty) &&
+        kindLabel == null) {
       return const SizedBox.shrink();
     }
     final colorScheme = Theme.of(context).colorScheme;
@@ -941,6 +1060,24 @@ class _ProviderSearchNotice extends StatelessWidget {
             if (chips.isNotEmpty) ...[
               const SizedBox(height: 6),
               Wrap(spacing: 6, runSpacing: 6, children: chips),
+            ],
+            if (message != null && message.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                message,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+            if (kindLabel != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                kindLabel,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+              ),
             ],
             if (policy?.summary != null && policy!.summary.isNotEmpty) ...[
               const SizedBox(height: 6),
@@ -1071,6 +1208,7 @@ class _SearchResultsList extends StatelessWidget {
         searchedProvider: searchedProvider,
       );
     }
+    final fallbackProviderLabel = _fallbackProviderLabel();
     return ListView(
       children: [
         if (results.isNotEmpty) ...[
@@ -1089,6 +1227,11 @@ class _SearchResultsList extends StatelessWidget {
           ),
         ],
         if (providerResults.isNotEmpty) ...[
+          if (fallbackProviderLabel != null)
+            _ProviderFallbackNotice(
+              requestedProvider: type.metadataProviderLabel(selectedProvider),
+              fallbackProvider: fallbackProviderLabel,
+            ),
           _ResultSectionHeader(
             label: '${type.metadataProviderLabel(selectedProvider)} candidates',
           ),
@@ -1114,6 +1257,15 @@ class _SearchResultsList extends StatelessWidget {
     );
   }
 
+  String? _fallbackProviderLabel() {
+    for (final item in providerResults) {
+      if (item.provider != selectedProvider) {
+        return type.metadataProviderLabel(item.provider);
+      }
+    }
+    return null;
+  }
+
   List<Widget> _withDividers(BuildContext context, List<Widget> tiles) {
     final divider = Divider(
       height: 1,
@@ -1128,6 +1280,45 @@ class _SearchResultsList extends StatelessWidget {
       separated.add(tiles[index]);
     }
     return separated;
+  }
+}
+
+class _ProviderFallbackNotice extends StatelessWidget {
+  const _ProviderFallbackNotice({
+    required this.requestedProvider,
+    required this.fallbackProvider,
+  });
+
+  final String requestedProvider;
+  final String fallbackProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer.withValues(alpha: 0.45),
+        border: Border(
+          bottom: BorderSide(color: colorScheme.outlineVariant),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.swap_horiz, size: 18, color: colorScheme.secondary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '$requestedProvider unavailable, $fallbackProvider fallback used.',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -1255,6 +1446,7 @@ class _ProviderCandidateTile extends StatelessWidget {
       subtitle: Text(
         [
           providerLabel,
+          if (candidate.isStub) 'Stub result',
           candidate.summary,
           candidate.providerItemId,
         ].whereType<String>().join(' | '),
@@ -1348,6 +1540,8 @@ class _ManualPane extends StatelessWidget {
     required this.variantController,
     required this.coverController,
     required this.physicalFormats,
+    required this.physicalFormatId,
+    required this.onPhysicalFormatChanged,
     required this.isAdding,
     required this.onAddOwned,
     required this.onAddWishlist,
@@ -1362,6 +1556,8 @@ class _ManualPane extends StatelessWidget {
   final TextEditingController variantController;
   final TextEditingController coverController;
   final List<PhysicalMediaFormat> physicalFormats;
+  final String? physicalFormatId;
+  final ValueChanged<String?> onPhysicalFormatChanged;
   final bool isAdding;
   final VoidCallback onAddOwned;
   final VoidCallback onAddWishlist;
@@ -1431,24 +1627,26 @@ class _ManualPane extends StatelessWidget {
                     ),
                   ),
                   if (physicalFormats.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      initialValue: physicalFormatId,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Physical format',
+                        prefixIcon: Icon(Icons.album_outlined),
+                      ),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: '',
+                          child: Text('No specific format'),
+                        ),
                         for (final format in physicalFormats)
-                          ActionChip(
-                            avatar: Icon(
-                              format.variantType == 'digital'
-                                  ? Icons.cloud_queue_outlined
-                                  : Icons.album_outlined,
-                              size: 16,
-                            ),
-                            label: Text(format.label),
-                            onPressed: () =>
-                                variantController.text = format.label,
+                          DropdownMenuItem<String>(
+                            value: format.id,
+                            child: Text(format.label),
                           ),
                       ],
+                      onChanged: onPhysicalFormatChanged,
                     ),
                   ],
                   const SizedBox(height: 8),

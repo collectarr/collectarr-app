@@ -10,6 +10,88 @@ import 'package:flutter/material.dart';
 export 'generic_library_projection_item.dart';
 export 'generic_library_quick_view.dart';
 
+enum GenericLibraryGroupMode { title, publisher, year, ownership }
+
+String genericGroupModeLabel(
+  GenericLibraryGroupMode mode,
+  LibraryTypeConfig type,
+) {
+  return switch (mode) {
+    GenericLibraryGroupMode.title => 'Title',
+    GenericLibraryGroupMode.publisher =>
+      type.workspace.kind == 'music' ? 'Artist' : 'Publisher',
+    GenericLibraryGroupMode.year => 'Year',
+    GenericLibraryGroupMode.ownership => 'Ownership',
+  };
+}
+
+String genericGroupModeSidebarTitle(
+  GenericLibraryGroupMode mode,
+  LibraryTypeConfig type,
+) {
+  return switch (mode) {
+    GenericLibraryGroupMode.title => 'Titles',
+    GenericLibraryGroupMode.publisher =>
+      type.workspace.kind == 'music' ? 'Artists' : 'Publishers',
+    GenericLibraryGroupMode.year => 'Years',
+    GenericLibraryGroupMode.ownership => 'Ownership',
+  };
+}
+
+IconData genericGroupModeIcon(GenericLibraryGroupMode mode) {
+  return switch (mode) {
+    GenericLibraryGroupMode.title => Icons.sort_by_alpha,
+    GenericLibraryGroupMode.publisher => Icons.business_outlined,
+    GenericLibraryGroupMode.year => Icons.calendar_today_outlined,
+    GenericLibraryGroupMode.ownership => Icons.inventory_2_outlined,
+  };
+}
+
+List<GenericLibraryGroupMode> genericGroupModesForType(
+  LibraryTypeConfig type,
+) {
+  final modes = <GenericLibraryGroupMode>[
+    GenericLibraryGroupMode.title,
+    GenericLibraryGroupMode.publisher,
+    GenericLibraryGroupMode.year,
+    GenericLibraryGroupMode.ownership,
+  ];
+  if (type.workspace.kind == 'music') {
+    return [
+      GenericLibraryGroupMode.publisher,
+      GenericLibraryGroupMode.year,
+      GenericLibraryGroupMode.title,
+      GenericLibraryGroupMode.ownership,
+    ];
+  }
+  if (type.workspace.kind == 'anime' ||
+      type.workspace.kind == 'movie' ||
+      type.workspace.kind == 'tv') {
+    return [
+      GenericLibraryGroupMode.year,
+      GenericLibraryGroupMode.publisher,
+      GenericLibraryGroupMode.title,
+      GenericLibraryGroupMode.ownership,
+    ];
+  }
+  if (type.workspace.kind == 'book' ||
+      type.workspace.kind == 'game' ||
+      type.workspace.kind == 'boardgame' ||
+      type.workspace.kind == 'manga') {
+    return [
+      GenericLibraryGroupMode.publisher,
+      GenericLibraryGroupMode.year,
+      GenericLibraryGroupMode.title,
+      GenericLibraryGroupMode.ownership,
+    ];
+  }
+  return modes;
+}
+
+GenericLibraryGroupMode genericDefaultGroupMode(LibraryTypeConfig type) {
+  return genericGroupModesForType(type).first;
+}
+
 class GenericLibraryProjection {
   const GenericLibraryProjection({
     required this.allItems,
@@ -27,12 +109,13 @@ class GenericLibraryProjection {
     required String? selectedBucket,
     required String? selectedItemId,
     required GenericQuickView? quickView,
+    required GenericLibraryGroupMode groupMode,
   }) {
     final allItems = genericItemsForShelf(shelf, type);
     final normalizedQuery = query.trim().toLowerCase();
     final filteredItems = [
       for (final item in allItems)
-        if (_matchesBucket(item, type, selectedBucket) &&
+        if (_matchesBucket(item, type, groupMode, selectedBucket) &&
             _matchesQuickView(item, quickView) &&
             _matchesQuery(item, normalizedQuery))
           item,
@@ -49,7 +132,7 @@ class GenericLibraryProjection {
     return GenericLibraryProjection(
       allItems: allItems,
       filteredItems: filteredItems,
-      buckets: genericBucketsForItems(allItems, type),
+      buckets: genericBucketsForItems(allItems, type, groupMode),
       selectedItem: genericSelectedItem(filteredItems, selectedItemId),
       counts: counts,
     );
@@ -65,10 +148,11 @@ class GenericLibraryProjection {
 List<LibrarySeriesBucket> genericBucketsForItems(
   List<GenericLibraryItem> items,
   LibraryTypeConfig type,
+  GenericLibraryGroupMode groupMode,
 ) {
   final counts = <String, int>{genericAllBucketLabel(type): items.length};
   for (final item in items) {
-    final bucket = genericBucketForItem(item, type);
+    final bucket = genericBucketForItemMode(item, type, groupMode);
     counts[bucket] = (counts[bucket] ?? 0) + 1;
   }
   final buckets = [
@@ -100,29 +184,40 @@ GenericLibraryItem? genericSelectedItem(
 }
 
 String genericBucketForItem(GenericLibraryItem item, LibraryTypeConfig type) {
+  return genericBucketForItemMode(
+    item,
+    type,
+    genericDefaultGroupMode(type),
+  );
+}
+
+String genericBucketForItemMode(
+  GenericLibraryItem item,
+  LibraryTypeConfig type,
+  GenericLibraryGroupMode groupMode,
+) {
   final entry = item.entry;
   final publisher = entry.publisher?.trim();
-  if (type.workspace.kind == 'movie' ||
-      type.workspace.kind == 'tv' ||
-      type.workspace.kind == 'anime') {
-    return entry.releaseYear?.toString() ??
-        (entry.releaseDate?.year.toString() ?? 'Unknown year');
-  }
-  if (type.workspace.kind == 'music' &&
-      publisher != null &&
-      publisher.isNotEmpty) {
-    return publisher;
-  }
-  if ((type.workspace.kind == 'book' ||
-          type.workspace.kind == 'game' ||
-          type.workspace.kind == 'boardgame' ||
-          type.workspace.kind == 'manga') &&
-      publisher != null &&
-      publisher.isNotEmpty) {
-    return publisher;
-  }
-  final title = entry.title.trim();
-  return title.isEmpty ? 'Unknown' : title.characters.first.toUpperCase();
+  return switch (groupMode) {
+    GenericLibraryGroupMode.year => entry.releaseYear?.toString() ??
+        (entry.releaseDate?.year.toString() ?? 'Unknown year'),
+    GenericLibraryGroupMode.publisher => publisher == null || publisher.isEmpty
+        ? (type.workspace.kind == 'music'
+            ? 'Unknown artist'
+            : 'Unknown publisher')
+        : publisher,
+    GenericLibraryGroupMode.ownership => entry.isOwned
+        ? 'Owned'
+        : entry.isWishlisted
+            ? 'Wishlist'
+            : 'Catalog only',
+    GenericLibraryGroupMode.title => _titleBucket(entry.title),
+  };
+}
+
+String _titleBucket(String title) {
+  final trimmed = title.trim();
+  return trimmed.isEmpty ? 'Unknown' : trimmed.characters.first.toUpperCase();
 }
 
 String genericAllBucketLabel(LibraryTypeConfig type) {
@@ -132,10 +227,11 @@ String genericAllBucketLabel(LibraryTypeConfig type) {
 bool _matchesBucket(
   GenericLibraryItem item,
   LibraryTypeConfig type,
+  GenericLibraryGroupMode groupMode,
   String? selectedBucket,
 ) {
   return selectedBucket == null ||
-      genericBucketForItem(item, type) == selectedBucket;
+      genericBucketForItemMode(item, type, groupMode) == selectedBucket;
 }
 
 bool _matchesQuickView(GenericLibraryItem item, GenericQuickView? quickView) {

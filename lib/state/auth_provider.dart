@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _authTokenKey = 'collectarr.auth.token';
 const _authEmailKey = 'collectarr.auth.email';
+const _authIsAdminKey = 'collectarr.auth.is_admin';
 
 class AuthState {
   const AuthState({
@@ -17,6 +18,7 @@ class AuthState {
     this.isLoading = false,
     this.error,
     this.isRestoring = false,
+    this.isAdmin = false,
   });
 
   final String? token;
@@ -25,6 +27,7 @@ class AuthState {
   final bool isLoading;
   final String? error;
   final bool isRestoring;
+  final bool isAdmin;
 
   bool get isAuthenticated => token != null && !isExpired;
   bool get isExpired =>
@@ -37,6 +40,7 @@ class AuthState {
     bool? isLoading,
     String? error,
     bool? isRestoring,
+    bool? isAdmin,
   }) {
     return AuthState(
       token: token ?? this.token,
@@ -45,6 +49,7 @@ class AuthState {
       isLoading: isLoading ?? this.isLoading,
       error: error,
       isRestoring: isRestoring ?? this.isRestoring,
+      isAdmin: isAdmin ?? this.isAdmin,
     );
   }
 }
@@ -64,7 +69,8 @@ class AuthController extends StateNotifier<AuthState> {
           .login(email: email, password: password);
       await _persistSession(
         token: result['access_token'] as String,
-        email: email,
+        fallbackEmail: email,
+        user: _asJsonMap(result['user']),
       );
     } catch (error) {
       state = AuthState(
@@ -82,7 +88,8 @@ class AuthController extends StateNotifier<AuthState> {
           .register(email: email, password: password);
       await _persistSession(
         token: result['access_token'] as String,
-        email: email,
+        fallbackEmail: email,
+        user: _asJsonMap(result['user']),
       );
     } catch (error) {
       state = AuthState(
@@ -95,9 +102,31 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_authTokenKey);
+    await prefs.remove(_authIsAdminKey);
     ref.read(apiAuthTokenProvider.notifier).state = null;
     ref.read(apiClientProvider).clearToken();
     state = AuthState(email: prefs.getString(_authEmailKey));
+  }
+
+  Future<void> refreshCurrentUser() async {
+    final token = state.token;
+    if (token == null || state.isExpired) {
+      return;
+    }
+    final user = await ref.read(apiClientProvider).currentUser();
+    final email = _stringFromJson(user['email']) ?? state.email;
+    final isAdmin = _boolFromJson(user['is_admin']);
+    final prefs = await SharedPreferences.getInstance();
+    if (email != null && email.isNotEmpty) {
+      await prefs.setString(_authEmailKey, email);
+    }
+    await prefs.setBool(_authIsAdminKey, isAdmin);
+    state = AuthState(
+      token: token,
+      email: email,
+      expiresAt: state.expiresAt,
+      isAdmin: isAdmin,
+    );
   }
 
   Future<void> _restoreSession() async {
@@ -105,10 +134,12 @@ class AuthController extends StateNotifier<AuthState> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString(_authTokenKey);
       final email = prefs.getString(_authEmailKey);
+      final isAdmin = prefs.getBool(_authIsAdminKey) ?? false;
       if (token != null && token.isNotEmpty) {
         final expiresAt = _jwtExpiresAt(token);
         if (_isExpired(expiresAt)) {
           await prefs.remove(_authTokenKey);
+          await prefs.remove(_authIsAdminKey);
           ref.read(apiAuthTokenProvider.notifier).state = null;
           ref.read(apiClientProvider).clearToken();
           state = AuthState(
@@ -120,7 +151,12 @@ class AuthController extends StateNotifier<AuthState> {
         }
         ref.read(apiAuthTokenProvider.notifier).state = token;
         ref.read(apiClientProvider).setToken(token);
-        state = AuthState(token: token, email: email, expiresAt: expiresAt);
+        state = AuthState(
+          token: token,
+          email: email,
+          expiresAt: expiresAt,
+          isAdmin: isAdmin,
+        );
       } else {
         ref.read(apiAuthTokenProvider.notifier).state = null;
         state = AuthState(email: email);
@@ -133,19 +169,49 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> _persistSession({
     required String token,
-    required String email,
+    required String fallbackEmail,
+    required Map<String, dynamic>? user,
   }) async {
+    final email = _stringFromJson(user?['email']) ?? fallbackEmail;
+    final isAdmin = _boolFromJson(user?['is_admin']);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_authTokenKey, token);
     await prefs.setString(_authEmailKey, email);
+    await prefs.setBool(_authIsAdminKey, isAdmin);
     ref.read(apiAuthTokenProvider.notifier).state = token;
     ref.read(apiClientProvider).setToken(token);
     state = AuthState(
       token: token,
       email: email,
       expiresAt: _jwtExpiresAt(token),
+      isAdmin: isAdmin,
     );
   }
+}
+
+Map<String, dynamic>? _asJsonMap(Object? value) {
+  return value is Map<String, dynamic> ? value : null;
+}
+
+String? _stringFromJson(Object? value) {
+  final text = value?.toString().trim();
+  if (text == null || text.isEmpty) {
+    return null;
+  }
+  return text;
+}
+
+bool _boolFromJson(Object? value) {
+  if (value is bool) {
+    return value;
+  }
+  if (value is num) {
+    return value != 0;
+  }
+  if (value is String) {
+    return {'1', 'true', 'yes', 'admin'}.contains(value.trim().toLowerCase());
+  }
+  return false;
 }
 
 DateTime? _jwtExpiresAt(String token) {

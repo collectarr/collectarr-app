@@ -35,24 +35,19 @@ class AddSeriesHeader extends StatelessWidget {
           border: Border(bottom: BorderSide(color: Color(0xFF3A3A3A))),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(2, 5, 6, 5),
+          padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
           child: Row(
             children: [
-              SizedBox.square(
-                dimension: 32,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  visualDensity: VisualDensity.compact,
-                  tooltip: isCollapsed ? 'Expand series' : 'Collapse series',
-                  onPressed: onToggleCollapsed,
-                  icon: Icon(
-                    isCollapsed
-                        ? Icons.keyboard_arrow_right
-                        : Icons.keyboard_arrow_down,
-                    size: 18,
-                  ),
+              Tooltip(
+                message: isCollapsed ? 'Expand series' : 'Collapse series',
+                child: Icon(
+                  isCollapsed
+                      ? Icons.keyboard_arrow_right
+                      : Icons.keyboard_arrow_down,
+                  size: 18,
                 ),
               ),
+              const SizedBox(width: 4),
               Checkbox(
                 value: selectedCount == 0
                     ? false

@@ -100,6 +100,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 sortColumn: viewState.sortColumn,
                 sortAscending: viewState.sortAscending,
                 coverSize: viewState.coverSize,
+                sidebarWidth: viewState.sidebarWidth,
+                detailsWidth: viewState.detailsWidth,
                 visibleColumns: viewState.visibleColumns,
                 columnWidths: viewState.columnWidths,
                 selectionMode: uiState.selectionState.enabled,
@@ -143,6 +145,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 onColumnWidthChanged: _handleColumnWidthChanged,
                 onColumnReordered: _handleColumnReordered,
                 onCoverSizeChanged: _handleCoverSizeChanged,
+                onSidebarWidthChanged: _handleSidebarWidthChanged,
+                onDetailsWidthChanged: _handleDetailsWidthChanged,
                 onSelectionModeChanged: _setSelectionMode,
                 onClearSelection: _clearSelection,
                 onBulkEdit: () => _showBulkEditDialog(context, entries),
@@ -320,6 +324,18 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   void _handleCoverSizeChanged(double value) {
     _setWorkspaceViewState(
       pageState.workspaceViewState.copyWith(coverSize: value),
+    );
+  }
+
+  void _handleSidebarWidthChanged(double value) {
+    _setWorkspaceViewState(
+      pageState.workspaceViewState.copyWith(sidebarWidth: value),
+    );
+  }
+
+  void _handleDetailsWidthChanged(double value) {
+    _setWorkspaceViewState(
+      pageState.workspaceViewState.copyWith(detailsWidth: value),
     );
   }
 

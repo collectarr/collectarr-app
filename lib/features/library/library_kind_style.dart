@@ -17,6 +17,27 @@ Color libraryAccentForKind(String kind) {
   };
 }
 
+LinearGradient libraryChromeGradient(
+  Color accent, {
+  AlignmentGeometry begin = Alignment.topLeft,
+  AlignmentGeometry end = Alignment.bottomRight,
+}) {
+  return LinearGradient(
+    begin: begin,
+    end: end,
+    colors: [
+      Color.alphaBlend(
+        Colors.black.withValues(alpha: 0.34),
+        accent,
+      ),
+      Color.alphaBlend(
+        Colors.black.withValues(alpha: 0.62),
+        accent,
+      ),
+    ],
+  );
+}
+
 IconData libraryIconForKind(String kind) {
   return switch (kind) {
     'anime' => Icons.animation,

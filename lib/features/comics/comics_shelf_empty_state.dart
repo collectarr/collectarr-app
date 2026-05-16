@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 
 class ComicsEmptyState extends StatelessWidget {
-  const ComicsEmptyState({super.key, required this.onAddComic});
+  const ComicsEmptyState({
+    super.key,
+    required this.onAddComic,
+    this.hasActiveFilter = false,
+    this.onClearFilter,
+  });
 
   final VoidCallback onAddComic;
+  final bool hasActiveFilter;
+  final VoidCallback? onClearFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -23,24 +30,35 @@ class ComicsEmptyState extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Your local comics shelf is empty',
+                hasActiveFilter
+                    ? 'No matching comics'
+                    : 'Your local comics shelf is empty',
                 textAlign: TextAlign.center,
                 style: textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                'Add comics from Collectarr Core or scan a barcode to save them in this device database.',
+                hasActiveFilter
+                    ? 'Clear filters to return to your local shelf.'
+                    : 'Search Core via GCD, Comic Vine, scan a barcode, or add a manual local item.',
                 textAlign: TextAlign.center,
                 style: textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: onAddComic,
-                icon: const Icon(Icons.add),
-                label: const Text('Add from Collectarr Core'),
-              ),
+              if (hasActiveFilter)
+                OutlinedButton.icon(
+                  onPressed: onClearFilter,
+                  icon: const Icon(Icons.filter_alt_off),
+                  label: const Text('Clear filter'),
+                )
+              else
+                FilledButton.icon(
+                  onPressed: onAddComic,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add from Collectarr Core'),
+                ),
             ],
           ),
         ),

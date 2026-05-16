@@ -29,6 +29,8 @@ class ComicsShelfList extends ConsumerWidget {
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     required this.onAddComic,
+    required this.hasActiveFilters,
+    required this.onClearFilters,
     required this.onSelectItem,
   });
 
@@ -46,6 +48,8 @@ class ComicsShelfList extends ConsumerWidget {
           LibraryTableColumn column, LibraryTableColumn? beforeColumn)
       onColumnReordered;
   final VoidCallback onAddComic;
+  final bool hasActiveFilters;
+  final VoidCallback onClearFilters;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -66,6 +70,8 @@ class ComicsShelfList extends ConsumerWidget {
       onColumnWidthChanged: onColumnWidthChanged,
       onColumnReordered: onColumnReordered,
       onAddComic: onAddComic,
+      hasActiveFilters: hasActiveFilters,
+      onClearFilters: onClearFilters,
       onSelectItem: onSelectItem,
     );
   }
@@ -86,6 +92,8 @@ class _ComicList extends StatelessWidget {
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     required this.onAddComic,
+    required this.hasActiveFilters,
+    required this.onClearFilters,
     required this.onSelectItem,
   });
 
@@ -105,12 +113,18 @@ class _ComicList extends StatelessWidget {
           LibraryTableColumn column, LibraryTableColumn? beforeColumn)
       onColumnReordered;
   final VoidCallback onAddComic;
+  final bool hasActiveFilters;
+  final VoidCallback onClearFilters;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return ComicsEmptyState(onAddComic: onAddComic);
+      return ComicsEmptyState(
+        onAddComic: onAddComic,
+        hasActiveFilter: hasActiveFilters,
+        onClearFilter: onClearFilters,
+      );
     }
     final entries = [
       for (final item in items)

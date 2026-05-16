@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -5,6 +7,7 @@ import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +35,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _ingestHistory = const <AdminProviderIngestHistoryEntry>[];
   var _ingestJobs = const <AdminProviderIngestJob>[];
   AdminProviderIngestJobSummary? _ingestJobSummary;
+  static const _ingestPollInterval = Duration(seconds: 15);
+  Timer? _ingestPollTimer;
+  DateTime? _ingestJobsRefreshedAt;
   var _catalogItems = const <AdminMetadataItem>[];
   var _duplicates = const <AdminDuplicateCandidate>[];
   var _results = const <ProviderCandidate>[];
@@ -54,6 +60,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   bool _isLoadingProviders = false;
   bool _isSearchingCatalog = false;
   bool _isRunningJobs = false;
+  bool _isPollingIngestJobs = false;
+  bool _autoRefreshIngestJobs = true;
   bool _isSearching = false;
   bool _isDirectIngesting = false;
   String? _inspectingItemId;
@@ -70,10 +78,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     _loadMediaTypes();
     _loadProviders();
     _searchCatalog();
+    _restartIngestPolling();
   }
 
   @override
   void dispose() {
+    _ingestPollTimer?.cancel();
     _catalogQueryController.dispose();
     _queryController.dispose();
     _providerItemIdController.dispose();
@@ -84,8 +94,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
+    final accent = LibraryAccentScope.accentOf(context);
+    final animationDuration = LibraryAccentScope.animationDurationOf(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin')),
+      appBar: AppBar(
+        title: const Text('Admin'),
+        backgroundColor: libraryAccentChromeFallbackColor(accent),
+        surfaceTintColor: Colors.transparent,
+        flexibleSpace: LibraryAccentChrome(
+          accent: accent,
+          animationDuration: animationDuration,
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -258,12 +278,22 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             title: 'Provider ingest jobs',
             trailing: IconButton(
               tooltip: 'Refresh ingest jobs',
-              onPressed: _isLoadingDashboard ? null : _loadDashboard,
-              icon: const Icon(Icons.refresh),
+              onPressed: _isPollingIngestJobs
+                  ? null
+                  : () => unawaited(_refreshIngestJobs()),
+              icon: _isPollingIngestJobs
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
             ),
             child: _ProviderIngestJobPanel(
               jobs: _ingestJobs,
               summary: _ingestJobSummary,
+              autoRefresh: _autoRefreshIngestJobs,
+              isPolling: _isPollingIngestJobs,
+              refreshedAt: _ingestJobsRefreshedAt,
               statusFilter: _ingestJobStatusFilter,
               providerFilter: _ingestJobProviderFilter,
               selectedProvider: _selectedProvider,
@@ -274,9 +304,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               isRunningJobs: _isRunningJobs,
               actionJobId: _jobActionId,
               onProviderChanged: _changeSelectedProvider,
+              onAutoRefreshChanged: _changeIngestJobAutoRefresh,
               onStatusFilterChanged: _changeIngestJobStatusFilter,
               onProviderFilterChanged: _changeIngestJobProviderFilter,
-              onApplyFilters: _loadDashboard,
+              onApplyFilters: () => unawaited(_refreshIngestJobs()),
+              onRefresh: () => unawaited(_refreshIngestJobs()),
               onQueueCurrent: _queueCurrentProviderItemId,
               onRunPending: _runPendingIngestJobs,
               onRun: _runIngestJob,
@@ -511,6 +543,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _ingestHistory = ingestHistory;
         _ingestJobs = ingestJobs;
         _ingestJobSummary = ingestJobSummary;
+        _ingestJobsRefreshedAt = DateTime.now().toUtc();
         _duplicates = duplicates;
         _isLoadingDashboard = false;
       });
@@ -523,6 +556,88 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _dashboardErrorMessage = _adminErrorMessage(error);
       });
     }
+  }
+
+  Future<void> _refreshIngestJobs({bool silent = false}) async {
+    if (_isPollingIngestJobs || _isLoadingDashboard) {
+      return;
+    }
+    setState(() {
+      _isPollingIngestJobs = true;
+      if (!silent) {
+        _errorMessage = null;
+      }
+    });
+    try {
+      final api = ref.read(apiClientProvider);
+      final ingestJobQuery = _ingestJobQueryController.text.trim();
+      final results = await Future.wait<Object>([
+        api.adminProviderIngestHistory(),
+        api.adminProviderIngestJobSummary(),
+        api.adminProviderIngestJobs(
+          status: _ingestJobStatusFilter,
+          provider: _ingestJobProviderFilter,
+          query: ingestJobQuery.isEmpty ? null : ingestJobQuery,
+          limit: 8,
+        ),
+      ]);
+      final ingestHistory = results[0] as List<AdminProviderIngestHistoryEntry>;
+      final ingestJobSummary = results[1] as AdminProviderIngestJobSummary;
+      final ingestJobs = results[2] as List<AdminProviderIngestJob>;
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _ingestHistory = ingestHistory;
+        _ingestJobSummary = ingestJobSummary;
+        _ingestJobs = ingestJobs;
+        _ingestJobsRefreshedAt = DateTime.now().toUtc();
+        _isPollingIngestJobs = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isPollingIngestJobs = false;
+        if (!silent) {
+          _errorMessage = _adminErrorMessage(error);
+        }
+      });
+    }
+  }
+
+  void _restartIngestPolling() {
+    _ingestPollTimer?.cancel();
+    if (!_autoRefreshIngestJobs) {
+      return;
+    }
+    _ingestPollTimer = Timer.periodic(_ingestPollInterval, (_) {
+      if (!_hasPollableIngestJobs ||
+          _isPollingIngestJobs ||
+          _isLoadingDashboard) {
+        return;
+      }
+      unawaited(_refreshIngestJobs(silent: true));
+    });
+  }
+
+  bool get _hasPollableIngestJobs {
+    final summary = _ingestJobSummary;
+    final summaryHasActiveJobs = summary != null &&
+        (summary.queued > 0 ||
+            summary.running > 0 ||
+            summary.dueQueued > 0 ||
+            summary.staleRunning > 0);
+    return summaryHasActiveJobs ||
+        _ingestJobs.any((job) => job.isQueued || job.isRunning);
+  }
+
+  void _changeIngestJobAutoRefresh(bool value) {
+    setState(() {
+      _autoRefreshIngestJobs = value;
+    });
+    _restartIngestPolling();
   }
 
   Future<void> _retryIngestHistory(
@@ -882,7 +997,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     setState(() {
       _ingestJobStatusFilter = status == null || status.isEmpty ? null : status;
     });
-    _loadDashboard();
+    unawaited(_refreshIngestJobs());
   }
 
   void _changeIngestJobProviderFilter(String? provider) {
@@ -890,7 +1005,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _ingestJobProviderFilter =
           provider == null || provider.isEmpty ? null : provider;
     });
-    _loadDashboard();
+    unawaited(_refreshIngestJobs());
   }
 
   Future<void> _reindexSearch() async {
@@ -1881,6 +1996,9 @@ class _ProviderIngestJobPanel extends StatelessWidget {
   const _ProviderIngestJobPanel({
     required this.jobs,
     required this.summary,
+    required this.autoRefresh,
+    required this.isPolling,
+    required this.refreshedAt,
     required this.statusFilter,
     required this.providerFilter,
     required this.selectedProvider,
@@ -1891,9 +2009,11 @@ class _ProviderIngestJobPanel extends StatelessWidget {
     required this.isRunningJobs,
     required this.actionJobId,
     required this.onProviderChanged,
+    required this.onAutoRefreshChanged,
     required this.onStatusFilterChanged,
     required this.onProviderFilterChanged,
     required this.onApplyFilters,
+    required this.onRefresh,
     required this.onQueueCurrent,
     required this.onRunPending,
     required this.onRun,
@@ -1902,6 +2022,9 @@ class _ProviderIngestJobPanel extends StatelessWidget {
 
   final List<AdminProviderIngestJob> jobs;
   final AdminProviderIngestJobSummary? summary;
+  final bool autoRefresh;
+  final bool isPolling;
+  final DateTime? refreshedAt;
   final String? statusFilter;
   final String? providerFilter;
   final String selectedProvider;
@@ -1912,9 +2035,11 @@ class _ProviderIngestJobPanel extends StatelessWidget {
   final bool isRunningJobs;
   final String? actionJobId;
   final ValueChanged<String?> onProviderChanged;
+  final ValueChanged<bool> onAutoRefreshChanged;
   final ValueChanged<String?> onStatusFilterChanged;
   final ValueChanged<String?> onProviderFilterChanged;
   final VoidCallback onApplyFilters;
+  final VoidCallback onRefresh;
   final VoidCallback onQueueCurrent;
   final VoidCallback onRunPending;
   final ValueChanged<AdminProviderIngestJob> onRun;
@@ -1931,6 +2056,14 @@ class _ProviderIngestJobPanel extends StatelessWidget {
           _ProviderIngestJobSummaryBar(summary: summary!),
           const SizedBox(height: 12),
         ],
+        _ProviderIngestJobRefreshStrip(
+          autoRefresh: autoRefresh,
+          isPolling: isPolling,
+          refreshedAt: refreshedAt,
+          onAutoRefreshChanged: onAutoRefreshChanged,
+          onRefresh: onRefresh,
+        ),
+        const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -2059,9 +2192,83 @@ class _ProviderIngestJobPanel extends StatelessWidget {
                 isActing: actionJobId == job.id,
                 onRun: () => onRun(job),
                 onRetry: () => onRetry(job),
+                onRefresh: onRefresh,
               ),
             ),
       ],
+    );
+  }
+}
+
+class _ProviderIngestJobRefreshStrip extends StatelessWidget {
+  const _ProviderIngestJobRefreshStrip({
+    required this.autoRefresh,
+    required this.isPolling,
+    required this.refreshedAt,
+    required this.onAutoRefreshChanged,
+    required this.onRefresh,
+  });
+
+  final bool autoRefresh;
+  final bool isPolling;
+  final DateTime? refreshedAt;
+  final ValueChanged<bool> onAutoRefreshChanged;
+  final VoidCallback onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Switch(
+                  value: autoRefresh,
+                  onChanged: onAutoRefreshChanged,
+                ),
+                const SizedBox(width: 6),
+                const Text('Auto refresh'),
+              ],
+            ),
+            _MiniChip(label: autoRefresh ? 'active jobs' : 'manual'),
+            if (isPolling)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox.square(
+                    dimension: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Refreshing jobs',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            if (refreshedAt != null)
+              _MiniChip(
+                  label: 'Last refreshed ${_formatDateTime(refreshedAt!)}'),
+            OutlinedButton.icon(
+              onPressed: isPolling ? null : onRefresh,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Refresh jobs'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -2124,12 +2331,14 @@ class _ProviderIngestJobTile extends StatelessWidget {
     required this.isActing,
     required this.onRun,
     required this.onRetry,
+    required this.onRefresh,
   });
 
   final AdminProviderIngestJob job;
   final bool isActing;
   final VoidCallback onRun;
   final VoidCallback onRetry;
+  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -2142,81 +2351,104 @@ class _ProviderIngestJobTile extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
-              job.isFailed
-                  ? Icons.error_outline
-                  : job.isDone
-                      ? Icons.check_circle_outline
-                      : Icons.pending_actions_outlined,
-              color: job.isFailed ? colorScheme.error : colorScheme.primary,
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Icon(
+                  job.isFailed
+                      ? Icons.error_outline
+                      : job.isDone
+                          ? Icons.check_circle_outline
+                          : job.isRunning
+                              ? Icons.sync_outlined
+                              : Icons.pending_actions_outlined,
+                  color: job.isFailed ? colorScheme.error : colorScheme.primary,
+                ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 260),
+                  child: Text(
+                    job.displayTitle,
+                    style: Theme.of(context).textTheme.titleSmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                _MiniChip(label: job.status),
+                _MiniChip(label: '${job.attempts}/${job.maxAttempts} attempts'),
+                if (job.nextRunAt != null)
+                  _MiniChip(label: 'next ${_formatDateTime(job.nextRunAt!)}'),
+                if (job.itemId != null)
+                  _MiniChip(label: 'item ${_shortId(job.itemId!)}'),
+                if (job.lastError != null && job.lastError!.isNotEmpty)
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 360),
+                    child: Text(
+                      job.lastError!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colorScheme.error,
+                          ),
+                    ),
+                  ),
+                OutlinedButton.icon(
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (context) => _ProviderIngestJobDetailDialog(
+                      job: job,
+                      isActing: isActing,
+                      onRun: onRun,
+                      onRetry: onRetry,
+                      onRefresh: onRefresh,
+                    ),
+                  ),
+                  icon: const Icon(Icons.timeline_outlined),
+                  label: const Text('Details'),
+                ),
+                if (job.isQueued)
+                  OutlinedButton.icon(
+                    onPressed: isActing ? null : onRun,
+                    icon: isActing
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.play_arrow_outlined),
+                    label: const Text('Run'),
+                  ),
+                if (job.isFailed)
+                  OutlinedButton.icon(
+                    onPressed: isActing ? null : onRetry,
+                    icon: isActing
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.replay_outlined),
+                    label: const Text('Retry'),
+                  ),
+              ],
             ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 260),
-              child: Text(
-                job.displayTitle,
-                style: Theme.of(context).textTheme.titleSmall,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            _MiniChip(label: job.status),
-            _MiniChip(label: '${job.attempts}/${job.maxAttempts} attempts'),
-            if (job.nextRunAt != null)
-              _MiniChip(label: 'next ${_formatDateTime(job.nextRunAt!)}'),
-            if (job.itemId != null)
-              _MiniChip(label: 'item ${_shortId(job.itemId!)}'),
-            if (job.lastError != null && job.lastError!.isNotEmpty)
+            if (job.isRunning) ...[
+              const SizedBox(height: 10),
+              const LinearProgressIndicator(),
+            ] else if (job.isQueued && job.nextRunAt != null) ...[
+              const SizedBox(height: 10),
               ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 360),
+                constraints: const BoxConstraints(maxWidth: 520),
                 child: Text(
-                  job.lastError!,
-                  maxLines: 2,
+                  'Waiting until ${_formatDateTime(job.nextRunAt!)}',
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colorScheme.error,
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
-            OutlinedButton.icon(
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (context) => _ProviderIngestJobDetailDialog(
-                  job: job,
-                  isActing: isActing,
-                  onRun: onRun,
-                  onRetry: onRetry,
-                ),
-              ),
-              icon: const Icon(Icons.timeline_outlined),
-              label: const Text('Details'),
-            ),
-            if (job.isQueued)
-              OutlinedButton.icon(
-                onPressed: isActing ? null : onRun,
-                icon: isActing
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.play_arrow_outlined),
-                label: const Text('Run'),
-              ),
-            if (job.isFailed)
-              OutlinedButton.icon(
-                onPressed: isActing ? null : onRetry,
-                icon: isActing
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.replay_outlined),
-                label: const Text('Retry'),
-              ),
+            ],
           ],
         ),
       ),
@@ -2300,12 +2532,14 @@ class _ProviderIngestJobDetailDialog extends StatelessWidget {
     required this.isActing,
     required this.onRun,
     required this.onRetry,
+    required this.onRefresh,
   });
 
   final AdminProviderIngestJob job;
   final bool isActing;
   final VoidCallback onRun;
   final VoidCallback onRetry;
+  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -2334,6 +2568,27 @@ class _ProviderIngestJobDetailDialog extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               _IngestTimelineRow(
+                icon: Icons.key_outlined,
+                label: 'Job ID',
+                value: job.id,
+              ),
+              _IngestTimelineRow(
+                icon: Icons.hub_outlined,
+                label: 'Provider item',
+                value: '${job.provider} ${job.providerItemId}',
+              ),
+              _IngestTimelineRow(
+                icon: Icons.info_outline,
+                label: 'Current state',
+                value: _ingestJobStateDescription(job),
+              ),
+              _IngestTimelineRow(
+                icon: Icons.replay_circle_filled_outlined,
+                label: 'Attempts left',
+                value:
+                    '${_ingestJobAttemptsRemaining(job)} of ${job.maxAttempts}',
+              ),
+              _IngestTimelineRow(
                 icon: Icons.add_task_outlined,
                 label: 'Queued',
                 value: _formatDateTime(job.createdAt),
@@ -2354,6 +2609,12 @@ class _ProviderIngestJobDetailDialog extends StatelessWidget {
                   icon: Icons.fact_check_outlined,
                   label: 'Canonical item',
                   value: job.itemId!,
+                ),
+              if (job.isFailed)
+                const _IngestTimelineRow(
+                  icon: Icons.error_outline,
+                  label: 'Error queue',
+                  value: 'persistent failed job',
                 ),
               if (job.lastError != null && job.lastError!.isNotEmpty) ...[
                 const SizedBox(height: 12),
@@ -2379,6 +2640,14 @@ class _ProviderIngestJobDetailDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Close'),
+        ),
+        OutlinedButton.icon(
+          onPressed: () {
+            Navigator.of(context).pop();
+            onRefresh();
+          },
+          icon: const Icon(Icons.refresh),
+          label: const Text('Refresh list'),
         ),
         if (job.isQueued)
           FilledButton.tonalIcon(
@@ -4433,6 +4702,15 @@ String _formatDateTime(DateTime value) {
   return '${_formatDate(local)} '
       '${local.hour.toString().padLeft(2, '0')}:'
       '${local.minute.toString().padLeft(2, '0')}';
+}
+
+int _ingestJobAttemptsRemaining(AdminProviderIngestJob job) {
+  final remaining = job.maxAttempts - job.attempts;
+  return remaining < 0 ? 0 : remaining;
+}
+
+String _ingestJobStateDescription(AdminProviderIngestJob job) {
+  return job.status.replaceAll('_', ' ');
 }
 
 String _formatMoney(int cents, String? currency) {

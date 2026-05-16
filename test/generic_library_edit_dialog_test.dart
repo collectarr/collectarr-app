@@ -68,6 +68,8 @@ void main() {
       find.widgetWithText(TextField, 'Title'),
       'Blade Runner: Final Cut',
     );
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('4K UHD'));
     await tester.pumpAndSettle();
     await tester.drag(find.byType(ListView), const Offset(0, -520));
@@ -81,6 +83,8 @@ void main() {
 
     expect(selection?.catalogItem.title, 'Blade Runner: Final Cut');
     expect(selection?.catalogItem.variant, '4K UHD');
+    expect(selection?.catalogItem.physicalFormat, '4k-uhd');
+    expect(selection?.catalogItem.physicalFormatLabel, '4K UHD');
     expect(selection?.catalogItem.barcode, '883929087129');
     expect(selection?.personal?.storageBox, 'Shelf B');
     expect(selection?.personal?.pricePaidCents, 1250);

@@ -67,7 +67,7 @@ Future<CatalogItem> lookupLibraryBarcode(
 Future<List<ProviderCandidate>> searchLibraryProviderCandidates(
   ApiClient api,
   LibraryTypeConfig type, {
-  required String provider,
+  String? provider,
   required String query,
 }) async {
   final rows = await api.searchProvider(

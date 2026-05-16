@@ -19,6 +19,8 @@ class ComicsShelfCoverGrid extends ConsumerWidget {
     required this.selectedItemIds,
     required this.coverSize,
     required this.onAddComic,
+    required this.hasActiveFilters,
+    required this.onClearFilters,
     required this.onSelectItem,
   });
 
@@ -27,6 +29,8 @@ class ComicsShelfCoverGrid extends ConsumerWidget {
   final Set<String> selectedItemIds;
   final double coverSize;
   final VoidCallback onAddComic;
+  final bool hasActiveFilters;
+  final VoidCallback onClearFilters;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -41,6 +45,8 @@ class ComicsShelfCoverGrid extends ConsumerWidget {
       selectedItemIds: selectedItemIds,
       coverSize: coverSize,
       onAddComic: onAddComic,
+      hasActiveFilters: hasActiveFilters,
+      onClearFilters: onClearFilters,
       onSelectItem: onSelectItem,
     );
   }
@@ -54,6 +60,8 @@ class ComicsShelfCardGrid extends ConsumerWidget {
     required this.selectedItemIds,
     required this.coverSize,
     required this.onAddComic,
+    required this.hasActiveFilters,
+    required this.onClearFilters,
     required this.onSelectItem,
   });
 
@@ -62,6 +70,8 @@ class ComicsShelfCardGrid extends ConsumerWidget {
   final Set<String> selectedItemIds;
   final double coverSize;
   final VoidCallback onAddComic;
+  final bool hasActiveFilters;
+  final VoidCallback onClearFilters;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -76,6 +86,8 @@ class ComicsShelfCardGrid extends ConsumerWidget {
       selectedItemIds: selectedItemIds,
       coverSize: coverSize,
       onAddComic: onAddComic,
+      hasActiveFilters: hasActiveFilters,
+      onClearFilters: onClearFilters,
       onSelectItem: onSelectItem,
     );
   }
@@ -90,6 +102,8 @@ class _CoverGrid extends StatelessWidget {
     required this.selectedItemIds,
     required this.coverSize,
     required this.onAddComic,
+    required this.hasActiveFilters,
+    required this.onClearFilters,
     required this.onSelectItem,
   });
 
@@ -100,13 +114,19 @@ class _CoverGrid extends StatelessWidget {
   final Set<String> selectedItemIds;
   final double coverSize;
   final VoidCallback onAddComic;
+  final bool hasActiveFilters;
+  final VoidCallback onClearFilters;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context) {
     return LibraryWorkspaceGrid<CatalogItem>(
       items: items,
-      emptyBuilder: (_) => ComicsEmptyState(onAddComic: onAddComic),
+      emptyBuilder: (_) => ComicsEmptyState(
+        onAddComic: onAddComic,
+        hasActiveFilter: hasActiveFilters,
+        onClearFilter: onClearFilters,
+      ),
       maxCrossAxisExtent: coverSize,
       mainAxisExtent: coverSize * 1.53,
       backgroundColor: kClzGridCanvas,
@@ -141,6 +161,8 @@ class _CardGrid extends StatelessWidget {
     required this.selectedItemIds,
     required this.coverSize,
     required this.onAddComic,
+    required this.hasActiveFilters,
+    required this.onClearFilters,
     required this.onSelectItem,
   });
 
@@ -151,6 +173,8 @@ class _CardGrid extends StatelessWidget {
   final Set<String> selectedItemIds;
   final double coverSize;
   final VoidCallback onAddComic;
+  final bool hasActiveFilters;
+  final VoidCallback onClearFilters;
   final ValueChanged<CatalogItem> onSelectItem;
 
   @override
@@ -158,7 +182,11 @@ class _CardGrid extends StatelessWidget {
     final cardHeight = (coverSize * 1.12).clamp(138.0, 174.0).toDouble();
     return LibraryWorkspaceGrid<CatalogItem>(
       items: items,
-      emptyBuilder: (_) => ComicsEmptyState(onAddComic: onAddComic),
+      emptyBuilder: (_) => ComicsEmptyState(
+        onAddComic: onAddComic,
+        hasActiveFilter: hasActiveFilters,
+        onClearFilter: onClearFilters,
+      ),
       maxCrossAxisExtent: 430,
       mainAxisExtent: cardHeight,
       backgroundColor: kClzGridCanvas,

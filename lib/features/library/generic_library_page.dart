@@ -43,6 +43,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   String? _selectedId;
   String? _selectedBucket;
   GenericQuickView? _quickView;
+  GenericLibraryGroupMode? _groupMode;
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -62,8 +63,11 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       _selectedId = null;
       _selectedBucket = null;
       _quickView = null;
+      _groupMode = null;
       _searchController.clear();
-      _viewState = _adapter.viewProfile.defaults();
+      _viewState = _adapter.viewProfile.defaults().withChrome(
+            _viewState?.toPreferenceSnapshot().chrome,
+          );
       unawaited(_loadViewState());
     }
   }
@@ -160,12 +164,17 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       viewState: viewState,
       selectedId: _selectedId,
       selectedBucket: _selectedBucket,
+      groupMode: _activeGroupMode,
       accent: widget.accent,
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => _showAddDialog(),
       onClearFilters: _clearFilters,
       onSelectItem: (id) => setState(() => _selectedId = id),
       onBucketChanged: (bucket) => setState(() => _selectedBucket = bucket),
+      onGroupModeChanged: (mode) => setState(() {
+        _groupMode = mode;
+        _selectedBucket = null;
+      }),
       onSortChanged: (column) => _updateViewState(
         (state) => state.withSortColumn(column, _adapter.viewProfile),
       ),
@@ -181,6 +190,15 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
           column: column,
           beforeColumn: beforeColumn,
         ),
+      ),
+      onCoverSizeChanged: (size) => _updateViewState(
+        (state) => state.copyWith(coverSize: size),
+      ),
+      onSidebarWidthChanged: (width) => _updateViewState(
+        (state) => state.copyWith(sidebarWidth: width),
+      ),
+      onDetailsWidthChanged: (width) => _updateViewState(
+        (state) => state.copyWith(detailsWidth: width),
       ),
       onAddOwned: (item) => _runCollectionAction(
         (actions) => actions.addOwned(item),
@@ -210,8 +228,12 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       selectedBucket: _selectedBucket,
       selectedItemId: _selectedId,
       quickView: _quickView,
+      groupMode: _activeGroupMode,
     );
   }
+
+  GenericLibraryGroupMode get _activeGroupMode =>
+      _groupMode ?? genericDefaultGroupMode(widget.type);
 
   bool get _hasActiveFilter =>
       _searchController.text.trim().isNotEmpty ||

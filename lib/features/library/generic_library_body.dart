@@ -7,6 +7,9 @@ import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_ctrl_scroll_zoom.dart';
+import 'package:collectarr_app/features/library/workspace/library_pane_widths.dart';
+import 'package:collectarr_app/features/library/workspace/library_resizable_pane.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
@@ -19,15 +22,20 @@ class GenericLibraryBody extends StatelessWidget {
     required this.viewState,
     required this.selectedId,
     required this.selectedBucket,
+    required this.groupMode,
     required this.accent,
     required this.hasActiveFilter,
     required this.onAdd,
     required this.onClearFilters,
     required this.onSelectItem,
     required this.onBucketChanged,
+    required this.onGroupModeChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
+    required this.onCoverSizeChanged,
+    required this.onSidebarWidthChanged,
+    required this.onDetailsWidthChanged,
     required this.onAddOwned,
     required this.onRemoveOwned,
     required this.onAddWishlist,
@@ -41,18 +49,23 @@ class GenericLibraryBody extends StatelessWidget {
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
   final String? selectedBucket;
+  final GenericLibraryGroupMode groupMode;
   final Color accent;
   final bool hasActiveFilter;
   final VoidCallback onAdd;
   final VoidCallback onClearFilters;
   final ValueChanged<String> onSelectItem;
   final ValueChanged<String?> onBucketChanged;
+  final ValueChanged<GenericLibraryGroupMode> onGroupModeChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
   final void Function(
           LibraryTableColumn column, LibraryTableColumn? beforeColumn)
       onColumnReordered;
+  final ValueChanged<double> onCoverSizeChanged;
+  final ValueChanged<double> onSidebarWidthChanged;
+  final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<GenericLibraryItem> onAddOwned;
   final ValueChanged<GenericLibraryItem> onRemoveOwned;
   final ValueChanged<GenericLibraryItem> onAddWishlist;
@@ -70,20 +83,41 @@ class GenericLibraryBody extends StatelessWidget {
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom
                 : viewState.detailsLayout;
-        final workspace = GenericLibraryWorkspace(
-          type: type,
-          adapter: adapter,
-          items: projection.filteredItems,
-          viewState: viewState,
-          selectedId: selectedId,
-          accent: accent,
-          hasActiveFilter: hasActiveFilter,
-          onAdd: onAdd,
-          onClearFilters: onClearFilters,
-          onSelectItem: onSelectItem,
-          onSortChanged: onSortChanged,
-          onColumnWidthChanged: onColumnWidthChanged,
-          onColumnReordered: onColumnReordered,
+        final maxSidebarWidth = maxLibraryPaneWidthForViewport(
+          viewportWidth: constraints.maxWidth,
+          preferredMaxWidth: kLibrarySidebarMaxWidth,
+          viewportFraction: compact ? 0.4 : 0.34,
+        );
+        final sidebarWidth = clampLibraryPaneWidth(
+          viewState.sidebarWidth,
+          minWidth: kLibrarySidebarMinWidth,
+          maxWidth: maxSidebarWidth,
+        );
+        final maxDetailsWidth = maxLibraryPaneWidthForViewport(
+          viewportWidth: constraints.maxWidth,
+          preferredMaxWidth: kLibraryDetailsMaxWidth,
+          viewportFraction: 0.38,
+        );
+        final workspace = LibraryCtrlScrollZoom(
+          coverSize: viewState.coverSize,
+          minCoverSize: adapter.viewProfile.minCoverSize,
+          maxCoverSize: adapter.viewProfile.maxCoverSize,
+          onCoverSizeChanged: onCoverSizeChanged,
+          child: GenericLibraryWorkspace(
+            type: type,
+            adapter: adapter,
+            items: projection.filteredItems,
+            viewState: viewState,
+            selectedId: selectedId,
+            accent: accent,
+            hasActiveFilter: hasActiveFilter,
+            onAdd: onAdd,
+            onClearFilters: onClearFilters,
+            onSelectItem: onSelectItem,
+            onSortChanged: onSortChanged,
+            onColumnWidthChanged: onColumnWidthChanged,
+            onColumnReordered: onColumnReordered,
+          ),
         );
         final details = GenericLibraryInspector(
           type: type,
@@ -124,28 +158,41 @@ class GenericLibraryBody extends StatelessWidget {
             children: [
               if (showSidebar) ...[
                 SizedBox(
-                  width: compact ? 210 : 250,
+                  width: sidebarWidth,
                   child: GenericLibrarySidebar(
                     type: type,
                     accent: accent,
                     buckets: projection.buckets,
+                    groupMode: groupMode,
                     selectedBucket:
                         selectedBucket ?? genericAllBucketLabel(type),
                     onSelected: (bucket) => onBucketChanged(
                       bucket == genericAllBucketLabel(type) ? null : bucket,
                     ),
+                    onGroupModeChanged: onGroupModeChanged,
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),
                   ),
                 ),
-                const VerticalDivider(width: 1),
+                LibraryResizableDivider(
+                  onDragDelta: (delta) => onSidebarWidthChanged(
+                    clampLibraryPaneWidth(
+                      sidebarWidth + delta,
+                      minWidth: kLibrarySidebarMinWidth,
+                      maxWidth: maxSidebarWidth,
+                    ),
+                  ),
+                ),
               ],
               Expanded(
                 child: LibraryDetailsAwareLayout(
                   content: workspaceContent,
                   detailsLayout: detailsLayout,
                   inspector: details,
+                  rightWidth: viewState.detailsWidth,
+                  maxRightWidth: maxDetailsWidth,
+                  onRightWidthChanged: onDetailsWidthChanged,
                   bottomHeight: compact ? 220 : 250,
                 ),
               ),

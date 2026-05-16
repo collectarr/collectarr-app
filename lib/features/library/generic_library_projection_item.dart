@@ -25,7 +25,7 @@ class GenericLibraryItem {
         releaseDate: item.releaseDate,
         releaseYear: item.releaseYear,
         barcode: item.barcode,
-        variant: item.variant,
+        variant: item.displayEditionLabel,
         isOwned: source.isOwned,
         isWishlisted: source.isWishlisted,
         hasMissingCover: item.displayCoverUrl == null,
@@ -61,5 +61,5 @@ bool genericHasMissingCoreMetadata(CatalogItem item) {
       item.releaseDate == null &&
       item.releaseYear == null &&
       item.barcode == null &&
-      item.variant == null;
+      item.displayEditionLabel == null;
 }

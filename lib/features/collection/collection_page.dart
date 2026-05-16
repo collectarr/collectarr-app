@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_propos
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,9 +32,17 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
+    final accent = LibraryAccentScope.accentOf(context);
+    final animationDuration = LibraryAccentScope.animationDurationOf(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shelf'),
+        backgroundColor: libraryAccentChromeFallbackColor(accent),
+        surfaceTintColor: Colors.transparent,
+        flexibleSpace: LibraryAccentChrome(
+          accent: accent,
+          animationDuration: animationDuration,
+        ),
         actions: [
           IconButton(
             tooltip: 'Import CSV',

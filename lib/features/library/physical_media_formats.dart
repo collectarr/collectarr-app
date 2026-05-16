@@ -106,3 +106,22 @@ PhysicalMediaFormat? physicalMediaFormatById(
   }
   return null;
 }
+
+PhysicalMediaFormat? physicalMediaFormatByLabelOrId(
+  String? value, {
+  Iterable<PhysicalMediaFormat> formats = videoPhysicalMediaFormats,
+}) {
+  final normalized = value?.trim().toLowerCase();
+  if (normalized == null || normalized.isEmpty) {
+    return null;
+  }
+  for (final format in formats) {
+    if (format.id == normalized || format.label.toLowerCase() == normalized) {
+      return format;
+    }
+    if (format.aliases.contains(normalized)) {
+      return format;
+    }
+  }
+  return null;
+}
