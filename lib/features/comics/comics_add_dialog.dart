@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_propos
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -549,6 +550,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       if (!mounted || searchGeneration != _serverSearchGeneration) {
         return;
       }
+      if (await _clearRejectedMetadataSession(error, 'Core search')) {
+        return;
+      }
       final api = ref.read(apiClientProvider);
       final detail = ConnectionDiagnostics.metadataError(error, api.baseUrl);
       setState(
@@ -607,6 +611,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       if (!mounted) {
         return;
       }
+      if (await _clearRejectedMetadataSession(error, 'Provider search')) {
+        return;
+      }
       setState(() {
         final api = ref.read(apiClientProvider);
         _providerState = _providerState.finishSearch();
@@ -636,6 +643,29 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     _lastProviderSearchSignature = signature;
     _lastProviderSearchAt = now;
     return shouldSkip;
+  }
+
+  Future<bool> _clearRejectedMetadataSession(
+    Object error,
+    String action,
+  ) async {
+    final cleared =
+        await ref.read(authControllerProvider.notifier).clearSessionIfRejected(
+              error,
+            );
+    if (!cleared) {
+      return false;
+    }
+    if (!mounted) {
+      return true;
+    }
+    setState(() {
+      _isSearchingServer = false;
+      _providerState = _providerState.finishSearch();
+      _error = '$action needs a fresh metadata sign-in. '
+          'Open Settings and sign in again.';
+    });
+    return true;
   }
 
   String _metadataProviderLabel(String provider) {
@@ -767,6 +797,30 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         if (found.isEmpty) {
           _error = 'No Collectarr Core comics found for selected barcodes';
         }
+      });
+    } catch (error) {
+      if (!mounted || searchGeneration != _serverSearchGeneration) {
+        return;
+      }
+      if (await _clearRejectedMetadataSession(error, 'Barcode lookup')) {
+        return;
+      }
+      setState(() {
+        final detail = ConnectionDiagnostics.metadataError(
+          error,
+          ref.read(apiClientProvider).baseUrl,
+        );
+        for (final code in normalizedCodes) {
+          final index = _barcodeBatch.indexWhere((entry) => entry.code == code);
+          if (index != -1 &&
+              _barcodeBatch[index].status == BarcodeLookupStatus.lookingUp) {
+            _barcodeBatch[index] = _barcodeBatch[index].copyWith(
+              status: BarcodeLookupStatus.missing,
+              error: detail,
+            );
+          }
+        }
+        _error = 'Barcode lookup failed: $detail';
       });
     } finally {
       if (mounted && searchGeneration == _serverSearchGeneration) {

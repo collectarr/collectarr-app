@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -244,6 +245,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
     } catch (error) {
       if (mounted && searchGeneration == _coreSearchGeneration) {
+        if (await _clearRejectedMetadataSession(error, 'Core search')) {
+          return;
+        }
         final api = ref.read(apiClientProvider);
         setState(
           () => _error =
@@ -299,6 +303,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
     } catch (error) {
       if (mounted && searchGeneration == _coreSearchGeneration) {
+        if (await _clearRejectedMetadataSession(error, 'Barcode lookup')) {
+          return;
+        }
         final api = ref.read(apiClientProvider);
         setState(
           () => _error =
@@ -400,6 +407,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       setState(() => _providerResults = results);
     } catch (error) {
       if (mounted) {
+        if (await _clearRejectedMetadataSession(error, 'Provider search')) {
+          return;
+        }
         final api = ref.read(apiClientProvider);
         setState(
           () => _error =
@@ -423,6 +433,31 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _lastProviderSearchSignature = signature;
     _lastProviderSearchAt = now;
     return shouldSkip;
+  }
+
+  Future<bool> _clearRejectedMetadataSession(
+    Object error,
+    String action,
+  ) async {
+    final cleared =
+        await ref.read(authControllerProvider.notifier).clearSessionIfRejected(
+              error,
+            );
+    if (!cleared) {
+      return false;
+    }
+    if (!mounted) {
+      return true;
+    }
+    setState(() {
+      _isSearching = false;
+      _isSearchingProvider = false;
+      _isAdding = false;
+      _isQueueingIngest = false;
+      _error = '$action needs a fresh metadata sign-in. '
+          'Open Settings and sign in again.';
+    });
+    return true;
   }
 
   Future<void> _addProviderCandidate(
@@ -466,6 +501,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       );
     } catch (error) {
       if (mounted) {
+        if (await _clearRejectedMetadataSession(
+          error,
+          'Metadata proposal',
+        )) {
+          return;
+        }
         setState(() => _error = 'Metadata proposal failed: $error');
       }
     } finally {
@@ -506,6 +547,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       );
     } catch (error) {
       if (mounted) {
+        if (await _clearRejectedMetadataSession(
+          error,
+          'Core ingest queue',
+        )) {
+          return;
+        }
         final api = ref.read(apiClientProvider);
         setState(
           () => _error =

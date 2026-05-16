@@ -30,6 +30,16 @@ class ConnectionDiagnostics {
   }) {
     if (error is DioException) {
       final statusCode = error.response?.statusCode;
+      final responseCode = _responseCode(error.response?.data);
+      if (statusCode == 401) {
+        if (responseCode == 'missing_bearer_token') {
+          return 'Sign in to the metadata server to use this action.';
+        }
+        if (responseCode == 'invalid_bearer_token' ||
+            responseCode == 'user_not_found') {
+          return 'Metadata session is no longer valid. Sign in again.';
+        }
+      }
       final responseDetail = _responseDetail(error.response?.data);
       if (responseDetail != null) {
         return '$responseDetail${statusCode == null ? '' : ' (HTTP $statusCode).'}';
@@ -83,6 +93,16 @@ class ConnectionDiagnostics {
       final detail = data['detail']?.toString().trim();
       if (detail != null && detail.isNotEmpty) {
         return detail;
+      }
+    }
+    return null;
+  }
+
+  static String? _responseCode(Object? data) {
+    if (data is Map) {
+      final code = data['code']?.toString().trim();
+      if (code != null && code.isNotEmpty) {
+        return code;
       }
     }
     return null;

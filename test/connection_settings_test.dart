@@ -97,6 +97,53 @@ void main() {
     expect(message, 'Sync key rejected (401). Check the configured key.');
   });
 
+  test('connection diagnostics explains stale metadata sessions', () {
+    final requestOptions = RequestOptions(path: '/metadata/providers/search');
+    final error = DioException(
+      requestOptions: requestOptions,
+      response: Response<Map<String, dynamic>>(
+        requestOptions: requestOptions,
+        statusCode: 401,
+        data: {
+          'detail': 'User not found',
+          'code': 'user_not_found',
+        },
+      ),
+    );
+
+    final message = ConnectionDiagnostics.metadataError(
+      error,
+      'http://metadata',
+    );
+
+    expect(
+      message,
+      'Metadata session is no longer valid. Sign in again.',
+    );
+  });
+
+  test('connection diagnostics explains missing metadata sign-in', () {
+    final requestOptions = RequestOptions(path: '/metadata/providers/search');
+    final error = DioException(
+      requestOptions: requestOptions,
+      response: Response<Map<String, dynamic>>(
+        requestOptions: requestOptions,
+        statusCode: 401,
+        data: {
+          'detail': 'Missing bearer token',
+          'code': 'missing_bearer_token',
+        },
+      ),
+    );
+
+    final message = ConnectionDiagnostics.metadataError(
+      error,
+      'http://metadata',
+    );
+
+    expect(message, 'Sign in to the metadata server to use this action.');
+  });
+
   test('connection diagnostics explains unreachable services', () {
     final error = DioException(
       requestOptions: RequestOptions(path: '/health'),
