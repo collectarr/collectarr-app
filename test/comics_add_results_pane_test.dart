@@ -35,7 +35,7 @@ void main() {
     );
 
     expect(find.text('Standard cover'), findsNothing);
-    expect(find.text('Variant cover'), findsWidgets);
+    expect(find.text('Jim Lee Variant'), findsWidgets);
   });
 
   testWidgets('provider results render variants under the issue root',
@@ -64,10 +64,48 @@ void main() {
       ),
     );
 
-    expect(find.text('Absolute Batman (2024 series) #1'), findsWidgets);
+    expect(find.text('Absolute Batman (2024 series)'), findsOneWidget);
+    expect(find.text('#1'), findsOneWidget);
     expect(find.text('Standard cover | Nick Dragotta Cover'), findsWidgets);
     expect(find.text('Jim Lee Cardstock Variant Cover'), findsWidgets);
     expect(find.text('1 standard cover | 1 variant cover'), findsOneWidget);
+  });
+
+  testWidgets('provider results group multiple issues below a series',
+      (tester) async {
+    await tester.pumpWidget(
+      _host(
+        includeVariants: true,
+        hideInShelf: false,
+        providerResults: const [
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: '498453',
+            title: 'Over the Garden Wall #1 [Regular Cover]',
+            kind: 'comic',
+          ),
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: '498453-b',
+            title: 'Over the Garden Wall #1 [Veronica Fish Variant Cover]',
+            kind: 'comic',
+            summary: 'April 2016 · variant',
+          ),
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: '507300',
+            title: 'Over the Garden Wall #2 [Regular Cover]',
+            kind: 'comic',
+          ),
+        ],
+      ),
+    );
+
+    expect(find.text('Over the Garden Wall'), findsOneWidget);
+    expect(find.text('#1'), findsOneWidget);
+    expect(find.text('#2'), findsOneWidget);
+    expect(find.text('2 issues | 3 covers | 1 variant'), findsOneWidget);
+    expect(find.text('Veronica Fish Variant Cover'), findsWidgets);
   });
 }
 
@@ -97,7 +135,7 @@ Widget _host({
         width: 360,
         height: 520,
         child: AddComicResultPane(
-          mode: LibraryAddMode.search,
+          mode: LibraryAddMode.addSeries,
           serverResults: const [],
           providerResults: providerResults,
           pullListRows: const [],

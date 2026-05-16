@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/comics/comics_add_images.dart';
 import 'package:collectarr_app/features/comics/comics_add_result_row.dart';
 import 'package:collectarr_app/features/comics/comics_add_results_summary_bar.dart';
 import 'package:collectarr_app/features/comics/comics_add_series_header.dart';
+import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:flutter/material.dart';
 
 class AddCoreResults extends StatelessWidget {
@@ -80,62 +82,95 @@ class AddCoreResults extends StatelessWidget {
         Expanded(
           child: ListView(
             children: [
-              for (final group in groupedResults.entries) ...[
+              for (final group in groupedResults) ...[
                 Builder(
                   builder: (context) {
-                    final groupAddable = group.value
+                    final groupAddable = group.items
                         .where((item) =>
                             !ownedItemIds.contains(item.id) &&
                             !wishlistItemIds.contains(item.id))
                         .toList(growable: false);
-                    final selectedInGroup = group.value
+                    final selectedInGroup = group.items
                         .where((item) => checkedServerIds.contains(item.id))
                         .length;
-                    final collapsed = collapsedSeries.contains(group.key);
+                    final collapsed =
+                        collapsedSeries.contains(group.collapseKey);
                     return AddSeriesHeader(
-                      title: group.key,
-                      subtitle: _addSeriesSubtitle(group.value),
-                      count: group.value.length,
+                      title: group.title,
+                      subtitle: _addSeriesSubtitle(group.items),
+                      count: group.issueCount,
                       selectableCount: groupAddable.length,
                       selectedCount: selectedInGroup,
                       isCollapsed: collapsed,
                       canCheck: groupAddable.isNotEmpty,
                       onToggleCollapsed: () =>
-                          onToggleSeriesCollapsed(group.key),
+                          onToggleSeriesCollapsed(group.collapseKey),
                       onToggleCheck: groupAddable.isEmpty
                           ? null
                           : () => onToggleSeriesCheck(groupAddable),
                     );
                   },
                 ),
-                if (!collapsedSeries.contains(group.key))
-                  for (final item in group.value)
-                    AddResultRow(
-                      selected: item.id == selectedServerId,
-                      checked: checkedServerIds.contains(item.id),
-                      checkDisabled: ownedItemIds.contains(item.id) ||
-                          wishlistItemIds.contains(item.id),
-                      cover: SizedBox(
-                        width: 38,
-                        height: 56,
-                        child: AddComicCoverImage(item: item),
-                      ),
-                      title: item.itemNumber == null
-                          ? item.title
-                          : '#${item.itemNumber}',
-                      subtitle: _addResultSubtitle(item),
-                      badges: [
-                        ..._addResultBadges(item),
-                        if (ownedItemIds.contains(item.id)) 'Owned',
-                        if (wishlistItemIds.contains(item.id)) 'Wishlist',
-                      ],
-                      trailing: _addResultTrailing(item),
-                      onTap: () => onSelectServer(item.id),
-                      onToggleCheck: ownedItemIds.contains(item.id) ||
-                              wishlistItemIds.contains(item.id)
-                          ? null
-                          : () => onToggleServerCheck(item.id),
+                if (!collapsedSeries.contains(group.collapseKey))
+                  for (final issue in group.issues) ...[
+                    Builder(
+                      builder: (context) {
+                        final issueAddable = issue.items
+                            .where((item) =>
+                                !ownedItemIds.contains(item.id) &&
+                                !wishlistItemIds.contains(item.id))
+                            .toList(growable: false);
+                        final selectedInIssue = issue.items
+                            .where((item) => checkedServerIds.contains(item.id))
+                            .length;
+                        final collapsed =
+                            collapsedSeries.contains(issue.collapseKey);
+                        return _AddIssueHeader(
+                          title: issue.issueLabel,
+                          subtitle: _addIssueSubtitle(issue.items),
+                          count: issue.items.length,
+                          selectedCount: selectedInIssue,
+                          selectableCount: issueAddable.length,
+                          isCollapsed: collapsed,
+                          canCheck: issueAddable.isNotEmpty,
+                          onToggleCollapsed: () =>
+                              onToggleSeriesCollapsed(issue.collapseKey),
+                          onToggleCheck: issueAddable.isEmpty
+                              ? null
+                              : () => onToggleSeriesCheck(issueAddable),
+                        );
+                      },
                     ),
+                    if (!collapsedSeries.contains(issue.collapseKey))
+                      for (final item in issue.sortedItems)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 28),
+                          child: AddResultRow(
+                            selected: item.id == selectedServerId,
+                            checked: checkedServerIds.contains(item.id),
+                            checkDisabled: ownedItemIds.contains(item.id) ||
+                                wishlistItemIds.contains(item.id),
+                            cover: SizedBox(
+                              width: 38,
+                              height: 56,
+                              child: AddComicCoverImage(item: item),
+                            ),
+                            title: _addResultTitle(item),
+                            subtitle: _addResultSubtitle(item),
+                            badges: [
+                              ..._addResultBadges(item),
+                              if (ownedItemIds.contains(item.id)) 'Owned',
+                              if (wishlistItemIds.contains(item.id)) 'Wishlist',
+                            ],
+                            trailing: _addResultTrailing(item),
+                            onTap: () => onSelectServer(item.id),
+                            onToggleCheck: ownedItemIds.contains(item.id) ||
+                                    wishlistItemIds.contains(item.id)
+                                ? null
+                                : () => onToggleServerCheck(item.id),
+                          ),
+                        ),
+                  ],
               ],
             ],
           ),
@@ -149,10 +184,155 @@ String _emptyFilterMessage() {
   return 'No matching comics are visible with the current filters.';
 }
 
-Map<String, List<CatalogItem>> _groupAddResultsBySeries(
+class _AddIssueHeader extends StatelessWidget {
+  const _AddIssueHeader({
+    required this.title,
+    required this.subtitle,
+    required this.count,
+    required this.selectedCount,
+    required this.selectableCount,
+    required this.isCollapsed,
+    required this.canCheck,
+    required this.onToggleCollapsed,
+    required this.onToggleCheck,
+  });
+
+  final String title;
+  final String subtitle;
+  final int count;
+  final int selectedCount;
+  final int selectableCount;
+  final bool isCollapsed;
+  final bool canCheck;
+  final VoidCallback onToggleCollapsed;
+  final VoidCallback? onToggleCheck;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onToggleCollapsed,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          color: Color(0xFF2A2D2F),
+          border: Border(bottom: BorderSide(color: Color(0xFF3A3A3A))),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(28, 5, 6, 5),
+          child: Row(
+            children: [
+              Tooltip(
+                message: isCollapsed ? 'Expand issue' : 'Collapse issue',
+                child: Icon(
+                  isCollapsed
+                      ? Icons.keyboard_arrow_right
+                      : Icons.keyboard_arrow_down,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Checkbox(
+                value: selectedCount == 0
+                    ? false
+                    : selectedCount >= selectableCount
+                        ? true
+                        : null,
+                tristate: true,
+                onChanged: canCheck ? (_) => onToggleCheck?.call() : null,
+                visualDensity: VisualDensity.compact,
+              ),
+              const Icon(Icons.menu_book, size: 15, color: kClzAccent),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w900),
+                    ),
+                    if (subtitle.isNotEmpty)
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFFB8B8B8),
+                          fontSize: 11,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (selectedCount > 0) ...[
+                LibraryAddResultBadge('$selectedCount selected'),
+                const SizedBox(width: 6),
+              ],
+              LibraryAddResultBadge('$count cover${count == 1 ? '' : 's'}'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddSeriesGroup {
+  const _AddSeriesGroup({
+    required this.title,
+    required this.collapseKey,
+    required this.issues,
+  });
+
+  final String title;
+  final String collapseKey;
+  final List<_AddIssueGroup> issues;
+
+  List<CatalogItem> get items => [
+        for (final issue in issues) ...issue.items,
+      ];
+
+  int get issueCount => issues.length;
+}
+
+class _AddIssueGroup {
+  const _AddIssueGroup({
+    required this.issueLabel,
+    required this.issueSortValue,
+    required this.collapseKey,
+    required this.items,
+  });
+
+  final String issueLabel;
+  final double? issueSortValue;
+  final String collapseKey;
+  final List<CatalogItem> items;
+
+  List<CatalogItem> get sortedItems {
+    final standards = <CatalogItem>[];
+    final variants = <CatalogItem>[];
+    for (final item in items) {
+      if (_looksLikeVariant(item.variant)) {
+        variants.add(item);
+      } else {
+        standards.add(item);
+      }
+    }
+    variants.sort(
+      (left, right) => _addResultTitle(left).compareTo(_addResultTitle(right)),
+    );
+    return [...standards, ...variants];
+  }
+}
+
+List<_AddSeriesGroup> _groupAddResultsBySeries(
   List<CatalogItem> items,
 ) {
-  final grouped = <String, List<CatalogItem>>{};
+  final grouped = <String, Map<String, List<CatalogItem>>>{};
+  final seriesTitles = <String, String>{};
+  final issueLabels = <String, Map<String, String>>{};
+  final issueSortValues = <String, Map<String, double?>>{};
   final sortedItems = items.toList(growable: false)
     ..sort((a, b) {
       final series = a.title.toLowerCase().compareTo(b.title.toLowerCase());
@@ -162,9 +342,58 @@ Map<String, List<CatalogItem>> _groupAddResultsBySeries(
       return _compareIssueNumbers(a.itemNumber, b.itemNumber);
     });
   for (final item in sortedItems) {
-    grouped.putIfAbsent(item.title, () => []).add(item);
+    final seriesKey = _normalizedCoreKey(item.title);
+    final issueLabel = _addIssueLabel(item);
+    final issueKey = _normalizedCoreKey('${item.title} $issueLabel');
+    grouped
+        .putIfAbsent(seriesKey, () => <String, List<CatalogItem>>{})
+        .putIfAbsent(issueKey, () => <CatalogItem>[])
+        .add(item);
+    seriesTitles.putIfAbsent(seriesKey, () => item.title);
+    issueLabels
+        .putIfAbsent(seriesKey, () => <String, String>{})
+        .putIfAbsent(issueKey, () => issueLabel);
+    issueSortValues
+        .putIfAbsent(seriesKey, () => <String, double?>{})
+        .putIfAbsent(issueKey, () => _issueNumberSortValue(item.itemNumber));
   }
-  return grouped;
+  final groups = [
+    for (final seriesEntry in grouped.entries)
+      _AddSeriesGroup(
+        title: seriesTitles[seriesEntry.key] ?? seriesEntry.key,
+        collapseKey: 'core-series:${seriesEntry.key}',
+        issues: [
+          for (final issueEntry in seriesEntry.value.entries)
+            _AddIssueGroup(
+              issueLabel:
+                  issueLabels[seriesEntry.key]?[issueEntry.key] ?? 'Issue',
+              issueSortValue: issueSortValues[seriesEntry.key]?[issueEntry.key],
+              collapseKey: 'core-issue:${issueEntry.key}',
+              items: issueEntry.value,
+            ),
+        ]..sort(_compareAddIssueGroups),
+      ),
+  ];
+  groups.sort((left, right) => left.title.compareTo(right.title));
+  return groups;
+}
+
+int _compareAddIssueGroups(_AddIssueGroup left, _AddIssueGroup right) {
+  final leftSort = left.issueSortValue;
+  final rightSort = right.issueSortValue;
+  if (leftSort != null && rightSort != null) {
+    final numeric = leftSort.compareTo(rightSort);
+    if (numeric != 0) {
+      return numeric;
+    }
+  }
+  if (leftSort != null) {
+    return -1;
+  }
+  if (rightSort != null) {
+    return 1;
+  }
+  return left.issueLabel.compareTo(right.issueLabel);
 }
 
 String _addSeriesSubtitle(List<CatalogItem> items) {
@@ -198,6 +427,43 @@ String _addSeriesSubtitle(List<CatalogItem> items) {
     if (publisher != null) publisher,
     if (yearRange != null) yearRange,
   ].join(' | ');
+}
+
+String _addIssueSubtitle(List<CatalogItem> items) {
+  final standardCount =
+      items.where((item) => !_looksLikeVariant(item.variant)).length;
+  final variantCount = items.length - standardCount;
+  final dates = items
+      .map((item) => item.releaseDate)
+      .whereType<DateTime>()
+      .toList(growable: false);
+  final releaseDate = dates.isEmpty ? null : _formatDate(dates.first);
+  return [
+    if (standardCount > 0)
+      '$standardCount standard cover${standardCount == 1 ? '' : 's'}',
+    if (variantCount > 0)
+      '$variantCount variant cover${variantCount == 1 ? '' : 's'}',
+    if (releaseDate != null) releaseDate,
+  ].join(' | ');
+}
+
+String _addIssueLabel(CatalogItem item) {
+  final itemNumber = item.itemNumber?.trim();
+  if (itemNumber != null && itemNumber.isNotEmpty) {
+    return '#$itemNumber';
+  }
+  return 'Unnumbered issue';
+}
+
+String _addResultTitle(CatalogItem item) {
+  final variant = item.variant?.trim();
+  if (variant == null || variant.isEmpty) {
+    return 'Standard cover';
+  }
+  if (!_looksLikeVariant(variant)) {
+    return 'Standard cover | $variant';
+  }
+  return variant;
 }
 
 String _addResultSubtitle(CatalogItem item) {
@@ -287,6 +553,15 @@ int _compareNullableStrings(String? left, String? right) {
     return -1;
   }
   return leftValue.compareTo(rightValue);
+}
+
+String _normalizedCoreKey(String title) {
+  final normalized = title
+      .trim()
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+      .replaceAll(RegExp(r'^-+|-+$'), '');
+  return normalized.isEmpty ? 'unknown' : normalized;
 }
 
 String _formatDate(DateTime value) {

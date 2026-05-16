@@ -271,38 +271,47 @@ class _ProviderIssueTree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groups = _groupProviderResultsByIssue(results);
+    final groups = _groupProviderResultsBySeries(results);
     return ListView(
       children: [
-        for (final group in groups) ...[
-          _ProviderIssueHeader(
-            group: group,
-            isCollapsed: collapsedSeries.contains(group.collapseKey),
-            onToggleCollapsed: () => onToggleIssueCollapsed(group.collapseKey),
+        for (final series in groups) ...[
+          _ProviderSeriesHeader(
+            group: series,
+            isCollapsed: collapsedSeries.contains(series.collapseKey),
+            onToggleCollapsed: () => onToggleIssueCollapsed(series.collapseKey),
           ),
-          if (!collapsedSeries.contains(group.collapseKey))
-            for (final item in group.sortedItems)
-              _ProviderIssueRow(
-                candidate: item,
-                selected: item.providerItemId == selectedProviderId,
-                providerLabel: providerLabel(item.provider),
-                isChild: item.isVariant,
-                onSelect: () => onSelectProvider(item.providerItemId),
+          if (!collapsedSeries.contains(series.collapseKey))
+            for (final issue in series.issues) ...[
+              _ProviderIssueHeader(
+                group: issue,
+                isCollapsed: collapsedSeries.contains(issue.collapseKey),
+                onToggleCollapsed: () =>
+                    onToggleIssueCollapsed(issue.collapseKey),
               ),
+              if (!collapsedSeries.contains(issue.collapseKey))
+                for (final item in issue.sortedItems)
+                  _ProviderIssueRow(
+                    candidate: item,
+                    selected: item.providerItemId == selectedProviderId,
+                    providerLabel: providerLabel(item.provider),
+                    isChild: _providerCandidateIdentity(item).isVariant,
+                    onSelect: () => onSelectProvider(item.providerItemId),
+                  ),
+            ],
         ],
       ],
     );
   }
 }
 
-class _ProviderIssueHeader extends StatelessWidget {
-  const _ProviderIssueHeader({
+class _ProviderSeriesHeader extends StatelessWidget {
+  const _ProviderSeriesHeader({
     required this.group,
     required this.isCollapsed,
     required this.onToggleCollapsed,
   });
 
-  final _ProviderIssueGroup group;
+  final _ProviderSeriesGroup group;
   final bool isCollapsed;
   final VoidCallback onToggleCollapsed;
 
@@ -316,11 +325,11 @@ class _ProviderIssueHeader extends StatelessWidget {
           border: Border(bottom: BorderSide(color: Color(0xFF3A3A3A))),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
+          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
           child: Row(
             children: [
               Tooltip(
-                message: isCollapsed ? 'Expand issue' : 'Collapse issue',
+                message: isCollapsed ? 'Expand series' : 'Collapse series',
                 child: Icon(
                   isCollapsed
                       ? Icons.keyboard_arrow_right
@@ -354,8 +363,78 @@ class _ProviderIssueHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
+              LibraryAddResultBadge('${group.issueCount} issue'
+                  '${group.issueCount == 1 ? '' : 's'}'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderIssueHeader extends StatelessWidget {
+  const _ProviderIssueHeader({
+    required this.group,
+    required this.isCollapsed,
+    required this.onToggleCollapsed,
+  });
+
+  final _ProviderIssueGroup group;
+  final bool isCollapsed;
+  final VoidCallback onToggleCollapsed;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onToggleCollapsed,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          color: Color(0xFF2A2D2F),
+          border: Border(bottom: BorderSide(color: Color(0xFF3A3A3A))),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(28, 5, 6, 5),
+          child: Row(
+            children: [
+              Tooltip(
+                message: isCollapsed ? 'Expand issue' : 'Collapse issue',
+                child: Icon(
+                  isCollapsed
+                      ? Icons.keyboard_arrow_right
+                      : Icons.keyboard_arrow_down,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.menu_book, size: 16, color: kClzAccent),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      group.issueLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w900),
+                    ),
+                    Text(
+                      group.subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFFB8B8B8),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
               LibraryAddResultBadge(
-                '${group.totalCount} cover${group.totalCount == 1 ? '' : 's'}',
+                '${group.totalCount} cover'
+                '${group.totalCount == 1 ? '' : 's'}',
               ),
             ],
           ),
@@ -384,7 +463,7 @@ class _ProviderIssueRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final variantLabel = _providerVariantLabel(candidate);
     return Padding(
-      padding: EdgeInsets.only(left: isChild ? 22 : 0),
+      padding: EdgeInsets.only(left: isChild ? 50 : 32),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -441,12 +520,14 @@ class _ProviderIssueRow extends StatelessWidget {
 
 class _ProviderIssueGroup {
   const _ProviderIssueGroup({
-    required this.title,
+    required this.issueLabel,
+    required this.issueSortValue,
     required this.collapseKey,
     required this.items,
   });
 
-  final String title;
+  final String issueLabel;
+  final double? issueSortValue;
   final String collapseKey;
   final List<ProviderCandidate> items;
 
@@ -492,56 +573,178 @@ class _ProviderIssueGroup {
   }
 }
 
-List<_ProviderIssueGroup> _groupProviderResultsByIssue(
+class _ProviderSeriesGroup {
+  const _ProviderSeriesGroup({
+    required this.title,
+    required this.collapseKey,
+    required this.issues,
+  });
+
+  final String title;
+  final String collapseKey;
+  final List<_ProviderIssueGroup> issues;
+
+  int get issueCount => issues.length;
+
+  int get totalCount =>
+      issues.fold(0, (total, issue) => total + issue.items.length);
+
+  int get variantCount =>
+      issues.fold(0, (total, issue) => total + issue.variantCount);
+
+  String get subtitle {
+    return [
+      '$issueCount issue${issueCount == 1 ? '' : 's'}',
+      '$totalCount cover${totalCount == 1 ? '' : 's'}',
+      if (variantCount > 0)
+        '$variantCount variant${variantCount == 1 ? '' : 's'}',
+    ].join(' | ');
+  }
+}
+
+List<_ProviderSeriesGroup> _groupProviderResultsBySeries(
   List<ProviderCandidate> results,
 ) {
-  final groups = <String, List<ProviderCandidate>>{};
-  final titlesByKey = <String, String>{};
+  final grouped = <String, Map<String, List<ProviderCandidate>>>{};
+  final seriesTitles = <String, String>{};
+  final issueLabels = <String, Map<String, String>>{};
+  final issueSortValues = <String, Map<String, double?>>{};
   for (final item in results) {
-    final title = _providerIssueTitle(item);
-    final key = _normalizedProviderIssueKey(item.provider, title);
-    groups.putIfAbsent(key, () => []).add(item);
-    titlesByKey.putIfAbsent(key, () => title);
+    final identity = _providerCandidateIdentity(item);
+    final seriesKey =
+        _normalizedProviderKey(item.provider, identity.seriesTitle);
+    final issueKey = _normalizedProviderKey(
+      item.provider,
+      '${identity.seriesTitle} ${identity.issueLabel}',
+    );
+    grouped
+        .putIfAbsent(seriesKey, () => <String, List<ProviderCandidate>>{})
+        .putIfAbsent(issueKey, () => <ProviderCandidate>[])
+        .add(item);
+    seriesTitles.putIfAbsent(seriesKey, () => identity.seriesTitle);
+    issueLabels
+        .putIfAbsent(seriesKey, () => <String, String>{})
+        .putIfAbsent(issueKey, () => identity.issueLabel);
+    issueSortValues
+        .putIfAbsent(seriesKey, () => <String, double?>{})
+        .putIfAbsent(issueKey, () => identity.issueSortValue);
   }
-  final issueGroups = [
-    for (final entry in groups.entries)
-      _ProviderIssueGroup(
-        title: titlesByKey[entry.key] ?? entry.key,
-        collapseKey: 'provider:${entry.key}',
-        items: entry.value,
+  final seriesGroups = [
+    for (final seriesEntry in grouped.entries)
+      _ProviderSeriesGroup(
+        title: seriesTitles[seriesEntry.key] ?? seriesEntry.key,
+        collapseKey: 'provider-series:${seriesEntry.key}',
+        issues: [
+          for (final issueEntry in seriesEntry.value.entries)
+            _ProviderIssueGroup(
+              issueLabel:
+                  issueLabels[seriesEntry.key]?[issueEntry.key] ?? 'Issue',
+              issueSortValue: issueSortValues[seriesEntry.key]?[issueEntry.key],
+              collapseKey: 'provider-issue:${issueEntry.key}',
+              items: issueEntry.value,
+            ),
+        ]..sort(_compareProviderIssueGroups),
       ),
   ];
-  issueGroups.sort((left, right) => left.title.compareTo(right.title));
-  return issueGroups;
+  seriesGroups.sort((left, right) => left.title.compareTo(right.title));
+  return seriesGroups;
+}
+
+int _compareProviderIssueGroups(
+  _ProviderIssueGroup left,
+  _ProviderIssueGroup right,
+) {
+  final leftSort = left.issueSortValue;
+  final rightSort = right.issueSortValue;
+  if (leftSort != null && rightSort != null) {
+    final numeric = leftSort.compareTo(rightSort);
+    if (numeric != 0) {
+      return numeric;
+    }
+  }
+  if (leftSort != null) {
+    return -1;
+  }
+  if (rightSort != null) {
+    return 1;
+  }
+  return left.issueLabel.compareTo(right.issueLabel);
 }
 
 String _providerIssueTitle(ProviderCandidate candidate) {
+  final identity = _providerCandidateIdentity(candidate);
+  return '${identity.seriesTitle} ${identity.issueLabel}'.trim();
+}
+
+_ProviderCandidateIdentity _providerCandidateIdentity(
+  ProviderCandidate candidate,
+) {
   final title = candidate.title.trim();
   final bracketMatch = RegExp(r'\s*\[[^\]]+\]\s*$').firstMatch(title);
-  if (bracketMatch != null) {
-    return title.substring(0, bracketMatch.start).trim();
+  final bracketLabel = bracketMatch == null
+      ? null
+      : title
+          .substring(bracketMatch.start, bracketMatch.end)
+          .replaceAll(RegExp(r'^\s*\[|\]\s*$'), '')
+          .trim();
+  final titleWithoutBracket = bracketMatch == null
+      ? title
+      : title.substring(0, bracketMatch.start).trim();
+  final issueMatch = RegExp(
+    r'^(.+?)\s+#\s*([A-Za-z0-9][A-Za-z0-9./-]*)(.*)$',
+  ).firstMatch(titleWithoutBracket);
+  if (issueMatch == null) {
+    return _ProviderCandidateIdentity(
+      seriesTitle:
+          titleWithoutBracket.isEmpty ? candidate.title : titleWithoutBracket,
+      issueLabel: 'Result',
+      variantLabel: _providerVariantLabelFromParts(
+        candidate,
+        bracketLabel: bracketLabel,
+      ),
+    );
   }
-  if (!candidate.isVariant) {
-    return title;
-  }
-  final variantSuffix = RegExp(
-    r'\s+(?:[a-z0-9&.\- ]+\s+)?(?:variant|virgin|foil|exclusive|incentive|ratio|cardstock|cover|printing).*$',
-    caseSensitive: false,
+
+  final seriesTitle = issueMatch.group(1)!.trim();
+  final issueNumber = issueMatch.group(2)!.trim();
+  final trailing = issueMatch.group(3)!.trim().replaceFirst(
+        RegExp(r'^[\s:|\-]+'),
+        '',
+      );
+  return _ProviderCandidateIdentity(
+    seriesTitle: seriesTitle.isEmpty ? titleWithoutBracket : seriesTitle,
+    issueLabel: '#$issueNumber',
+    issueSortValue: double.tryParse(issueNumber),
+    variantLabel: _providerVariantLabelFromParts(
+      candidate,
+      bracketLabel: bracketLabel,
+      trailingLabel: trailing,
+    ),
   );
-  return title.replaceFirst(variantSuffix, '').trim();
 }
 
 String _providerVariantLabel(ProviderCandidate candidate) {
+  return _providerCandidateIdentity(candidate).variantLabel;
+}
+
+String _providerVariantLabelFromParts(
+  ProviderCandidate candidate, {
+  String? bracketLabel,
+  String? trailingLabel,
+}) {
   final title = candidate.title.trim();
-  final bracketMatch = RegExp(r'\[([^\]]+)\]\s*$').firstMatch(title);
-  final label = bracketMatch?.group(1)?.trim();
+  final cleanTrailing = trailingLabel == null || trailingLabel.trim().isEmpty
+      ? null
+      : trailingLabel.trim();
   if (candidate.isVariant) {
-    return label == null || label.isEmpty ? 'Variant cover' : label;
+    return bracketLabel == null || bracketLabel.isEmpty
+        ? cleanTrailing ?? 'Variant cover'
+        : bracketLabel;
   }
-  if (label != null && label.isNotEmpty) {
-    return 'Standard cover | $label';
+  if (bracketLabel != null && bracketLabel.isNotEmpty) {
+    return 'Standard cover | $bracketLabel';
   }
-  return 'Standard cover';
+  return cleanTrailing ?? (title.isEmpty ? 'Standard cover' : 'Standard cover');
 }
 
 String _providerCandidateSubtitle(
@@ -561,13 +764,31 @@ String _providerCandidateSubtitle(
         ].join(' | ');
 }
 
-String _normalizedProviderIssueKey(String provider, String title) {
+String _normalizedProviderKey(String provider, String title) {
   final normalized = '$provider $title'
       .trim()
       .toLowerCase()
       .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
       .replaceAll(RegExp(r'^-+|-+$'), '');
   return normalized.isEmpty ? provider : normalized;
+}
+
+class _ProviderCandidateIdentity {
+  const _ProviderCandidateIdentity({
+    required this.seriesTitle,
+    required this.issueLabel,
+    required this.variantLabel,
+    this.issueSortValue,
+  });
+
+  final String seriesTitle;
+  final String issueLabel;
+  final double? issueSortValue;
+  final String variantLabel;
+
+  bool get isVariant =>
+      variantLabel != 'Standard cover' &&
+      !variantLabel.startsWith('Standard cover |');
 }
 
 class _ProviderFallbackNotice extends StatelessWidget {

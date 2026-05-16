@@ -64,7 +64,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   bool _includeVariants = true;
   bool _hideInShelf = true;
   bool _showAdvancedFilters = false;
-  LibraryAddMode _mode = LibraryAddMode.search;
+  LibraryAddMode _mode = LibraryAddMode.addSeries;
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
   String? _defaultCondition = 'Near Mint';
   String? _defaultGrade = 'Ungraded';
@@ -189,7 +189,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                   barcodeHistory: _barcodeHistory,
                   showAdvancedFilters: _showAdvancedFilters,
                   isSearching: _isSearchingServer,
-                  onModeChanged: (value) => setState(() => _mode = value),
+                  onModeChanged: _changeMode,
                   onAdvancedChanged: (value) =>
                       setState(() => _showAdvancedFilters = value),
                   onSearch: _searchServer,
@@ -491,9 +491,10 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   }
 
   Future<void> _searchServer() async {
-    var query = _controller.text.trim();
-    final series = _seriesController.text.trim();
-    final issueNumber = _issueController.text.trim();
+    final searchFields = _searchFieldsForMode();
+    var query = searchFields.query;
+    final series = searchFields.series;
+    final issueNumber = searchFields.issueNumber;
     final publisher = _publisherController.text.trim();
     final year = int.tryParse(_yearController.text.trim());
     var barcode = _barcodeController.text.trim();
@@ -568,7 +569,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
 
   Future<void> _searchPullListRow(PullListCandidate row) async {
     setState(() {
-      _mode = LibraryAddMode.search;
+      _mode = LibraryAddMode.addIssue;
       _controller.clear();
       _seriesController.text = row.series;
       _issueController.text = row.issue;
@@ -624,13 +625,48 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   }
 
   String get _providerQuery {
+    final searchFields = _searchFieldsForMode();
     return [
-      _controller.text.trim(),
-      _seriesController.text.trim(),
-      _issueController.text.trim(),
+      searchFields.query,
+      searchFields.series,
+      searchFields.issueNumber,
       _publisherController.text.trim(),
       _yearController.text.trim(),
     ].where((part) => part.isNotEmpty).join(' ');
+  }
+
+  _ComicsSearchFields _searchFieldsForMode() {
+    final query = _controller.text.trim();
+    final series = _seriesController.text.trim();
+    final issue = _issueController.text.trim();
+    return switch (_mode) {
+      LibraryAddMode.addSeries => _ComicsSearchFields(query: query),
+      LibraryAddMode.addIssue => _ComicsSearchFields(
+          query: '',
+          series: series.isNotEmpty ? series : query,
+          issueNumber: issue,
+        ),
+      LibraryAddMode.barcode ||
+      LibraryAddMode.pullList =>
+        _ComicsSearchFields(query: query, series: series, issueNumber: issue),
+    };
+  }
+
+  void _changeMode(LibraryAddMode mode) {
+    if (mode == _mode) {
+      return;
+    }
+    if (mode == LibraryAddMode.addIssue &&
+        _seriesController.text.trim().isEmpty &&
+        _controller.text.trim().isNotEmpty) {
+      _seriesController.text = _controller.text.trim();
+    }
+    if (mode == LibraryAddMode.addSeries &&
+        _controller.text.trim().isEmpty &&
+        _seriesController.text.trim().isNotEmpty) {
+      _controller.text = _seriesController.text.trim();
+    }
+    setState(() => _mode = mode);
   }
 
   bool _shouldDebounceProviderSearch(String provider, String query) {
@@ -1005,7 +1041,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     await CatalogCacheRepository(ref.read(localDatabaseProvider))
         .upsertAll([item]);
     setState(() {
-      _mode = LibraryAddMode.search;
+      _mode = LibraryAddMode.addIssue;
       _searchedServer = true;
       _serverResults = [
         item,
@@ -1129,6 +1165,18 @@ class _AddComicPaneResizeHandle extends StatelessWidget {
   }
 }
 
+class _ComicsSearchFields {
+  const _ComicsSearchFields({
+    this.query = '',
+    this.series = '',
+    this.issueNumber = '',
+  });
+
+  final String query;
+  final String series;
+  final String issueNumber;
+}
+
 class _AddComicModeBar extends StatelessWidget {
   const _AddComicModeBar({
     required this.mode,
@@ -1208,11 +1256,18 @@ class _AddComicModeBar extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         LibraryAddModeTab(
-                          key: const ValueKey('add-comics-search-tab'),
+                          key: const ValueKey('add-comics-series-tab'),
+                          icon: Icons.library_books,
+                          label: 'Add Series',
+                          selected: mode == LibraryAddMode.addSeries,
+                          onTap: () => onModeChanged(LibraryAddMode.addSeries),
+                        ),
+                        LibraryAddModeTab(
+                          key: const ValueKey('add-comics-issue-tab'),
                           icon: Icons.menu_book,
-                          label: 'Search',
-                          selected: mode == LibraryAddMode.search,
-                          onTap: () => onModeChanged(LibraryAddMode.search),
+                          label: 'Add Issue',
+                          selected: mode == LibraryAddMode.addIssue,
+                          onTap: () => onModeChanged(LibraryAddMode.addIssue),
                         ),
                         LibraryAddModeTab(
                           key: const ValueKey('add-comics-barcode-tab'),
@@ -1256,7 +1311,41 @@ class _AddComicModeBar extends StatelessWidget {
             ),
             const SizedBox(height: 7),
             switch (mode) {
-              LibraryAddMode.search => Column(
+              LibraryAddMode.addSeries => Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 32,
+                        child: TextField(
+                          controller: queryController,
+                          onSubmitted: (_) => onSearch(),
+                          decoration: const InputDecoration(
+                            hintText: 'Enter series title...',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    _FilterField(
+                      width: 92,
+                      controller: yearController,
+                      label: 'Year',
+                      keyboardType: TextInputType.number,
+                      onSubmitted: onSearch,
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton(
+                      onPressed: isSearching ? null : onSearch,
+                      child: isSearching
+                          ? const SizedBox.square(
+                              dimension: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Search Series'),
+                    ),
+                  ],
+                ),
+              LibraryAddMode.addIssue => Column(
                   children: [
                     Row(
                       children: [
@@ -1264,14 +1353,20 @@ class _AddComicModeBar extends StatelessWidget {
                           child: SizedBox(
                             height: 32,
                             child: TextField(
-                              controller: queryController,
+                              controller: seriesController,
                               onSubmitted: (_) => onSearch(),
                               decoration: const InputDecoration(
-                                hintText:
-                                    'Search title, series, issue, publisher...',
+                                hintText: 'Enter series title...',
                               ),
                             ),
                           ),
+                        ),
+                        const SizedBox(width: 10),
+                        _FilterField(
+                          width: 96,
+                          controller: issueController,
+                          label: 'Issue',
+                          onSubmitted: onSearch,
                         ),
                         const SizedBox(width: 10),
                         FilterChip(
@@ -1289,7 +1384,7 @@ class _AddComicModeBar extends StatelessWidget {
                                   child:
                                       CircularProgressIndicator(strokeWidth: 2),
                                 )
-                              : const Text('Search Collectarr Core'),
+                              : const Text('Search Issue'),
                         ),
                       ],
                     ),
@@ -1302,6 +1397,7 @@ class _AddComicModeBar extends StatelessWidget {
                         yearController: yearController,
                         barcodeController: barcodeController,
                         onSubmitted: onSearch,
+                        includeSeriesAndIssue: false,
                       ),
                     ],
                   ],
@@ -1389,6 +1485,7 @@ class _AdvancedSearchFilters extends StatelessWidget {
     required this.yearController,
     required this.barcodeController,
     required this.onSubmitted,
+    this.includeSeriesAndIssue = true,
   });
 
   final TextEditingController seriesController;
@@ -1397,6 +1494,7 @@ class _AdvancedSearchFilters extends StatelessWidget {
   final TextEditingController yearController;
   final TextEditingController barcodeController;
   final VoidCallback onSubmitted;
+  final bool includeSeriesAndIssue;
 
   @override
   Widget build(BuildContext context) {
@@ -1404,18 +1502,20 @@ class _AdvancedSearchFilters extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        _FilterField(
-          width: 210,
-          controller: seriesController,
-          label: 'Series',
-          onSubmitted: onSubmitted,
-        ),
-        _FilterField(
-          width: 92,
-          controller: issueController,
-          label: 'Issue #',
-          onSubmitted: onSubmitted,
-        ),
+        if (includeSeriesAndIssue) ...[
+          _FilterField(
+            width: 210,
+            controller: seriesController,
+            label: 'Series',
+            onSubmitted: onSubmitted,
+          ),
+          _FilterField(
+            width: 92,
+            controller: issueController,
+            label: 'Issue #',
+            onSubmitted: onSubmitted,
+          ),
+        ],
         _FilterField(
           width: 150,
           controller: publisherController,
