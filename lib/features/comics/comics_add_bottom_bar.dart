@@ -125,6 +125,8 @@ class AddComicBottomBar extends StatelessWidget {
   }
 }
 
+const double _kCompactControlHeight = 30;
+
 class _AddTargetDefaultsBar extends StatelessWidget {
   const _AddTargetDefaultsBar({
     required this.addTarget,
@@ -160,35 +162,10 @@ class _AddTargetDefaultsBar extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         LibraryAddResultBadge('$addCount selected'),
-        SizedBox(
-          width: 190,
-          height: 38,
-          child: DropdownButtonFormField<LibraryAddTarget>(
-            initialValue: addTarget,
-            isExpanded: true,
-            decoration: const InputDecoration(
-              isDense: true,
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            ),
-            items: [
-              DropdownMenuItem(
-                value: LibraryAddTarget.owned,
-                child: Text(LibraryAddTarget.owned.actionLabel),
-              ),
-              DropdownMenuItem(
-                value: LibraryAddTarget.wishlist,
-                child: Text(LibraryAddTarget.wishlist.actionLabel),
-              ),
-            ],
-            onChanged: isSubmitting
-                ? null
-                : (value) {
-                    if (value != null) {
-                      onAddTargetChanged(value);
-                    }
-                  },
-          ),
+        _TargetMenu(
+          value: addTarget,
+          enabled: !isSubmitting,
+          onChanged: onAddTargetChanged,
         ),
         if (addTarget == LibraryAddTarget.owned) ...[
           const Text(
@@ -196,28 +173,30 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.w800),
           ),
           _SmallDropdown(
-            width: 140,
+            width: 118,
             value: condition,
             items: ComicInspector.conditions,
             label: 'Condition',
             onChanged: onConditionChanged,
           ),
           _SmallDropdown(
-            width: 120,
+            width: 104,
             value: grade,
             items: ComicInspector.grades,
             label: 'Grade',
             onChanged: onGradeChanged,
           ),
           SizedBox(
-            width: 150,
-            height: 38,
+            width: 132,
+            height: _kCompactControlHeight,
             child: TextField(
               controller: storageBoxController,
               decoration: const InputDecoration(
                 isDense: true,
                 border: OutlineInputBorder(),
                 labelText: 'Storage box',
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 9, vertical: 6),
               ),
             ),
           ),
@@ -232,6 +211,12 @@ class _AddTargetDefaultsBar extends StatelessWidget {
               onPurchaseDateChanged(picked);
             },
             icon: const Icon(Icons.calendar_today, size: 16),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, _kCompactControlHeight),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+            ),
             label: Text(
               purchaseDate == null
                   ? 'Purchase date'
@@ -246,6 +231,44 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             ),
         ],
       ],
+    );
+  }
+}
+
+class _TargetMenu extends StatelessWidget {
+  const _TargetMenu({
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final LibraryAddTarget value;
+  final bool enabled;
+  final ValueChanged<LibraryAddTarget> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<LibraryAddTarget>(
+      initialValue: value,
+      enabled: enabled,
+      tooltip: 'Add target',
+      position: PopupMenuPosition.under,
+      onSelected: onChanged,
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: LibraryAddTarget.owned,
+          child: Text(LibraryAddTarget.owned.actionLabel),
+        ),
+        PopupMenuItem(
+          value: LibraryAddTarget.wishlist,
+          child: Text(LibraryAddTarget.wishlist.actionLabel),
+        ),
+      ],
+      child: _CompactMenuButton(
+        width: 158,
+        label: value.actionLabel,
+        enabled: enabled,
+      ),
     );
   }
 }
@@ -267,25 +290,70 @@ class _SmallDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: 38,
-      child: DropdownButtonFormField<String>(
-        initialValue: items.contains(value) ? value : null,
-        isExpanded: true,
-        decoration: InputDecoration(
-          isDense: true,
-          border: const OutlineInputBorder(),
-          labelText: label,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    final selectedValue = items.contains(value) ? value : null;
+    return PopupMenuButton<String?>(
+      initialValue: selectedValue,
+      tooltip: label,
+      position: PopupMenuPosition.under,
+      onSelected: onChanged,
+      itemBuilder: (context) => [
+        PopupMenuItem<String?>(
+          value: null,
+          child: Text('$label: none'),
         ),
-        items: [
-          const DropdownMenuItem<String>(value: null, child: Text('None')),
-          for (final item in items)
-            DropdownMenuItem(value: item, child: Text(item)),
-        ],
-        onChanged: onChanged,
+        for (final item in items)
+          PopupMenuItem<String?>(value: item, child: Text(item)),
+      ],
+      child: _CompactMenuButton(
+        width: width,
+        label: selectedValue ?? label,
+      ),
+    );
+  }
+}
+
+class _CompactMenuButton extends StatelessWidget {
+  const _CompactMenuButton({
+    required this.width,
+    required this.label,
+    this.enabled = true,
+  });
+
+  final double width;
+  final String label;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = enabled ? const Color(0xFFBFEFFF) : const Color(0xFF7B8790);
+    return Opacity(
+      opacity: enabled ? 1 : 0.62,
+      child: Container(
+        width: width,
+        height: _kCompactControlHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 9),
+        decoration: BoxDecoration(
+          color: const Color(0xFF183246),
+          border: Border.all(color: kClzAccent.withValues(alpha: 0.82)),
+          borderRadius: BorderRadius.circular(3),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: color, size: 18),
+          ],
+        ),
       ),
     );
   }

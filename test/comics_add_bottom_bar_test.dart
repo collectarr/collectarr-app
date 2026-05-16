@@ -18,9 +18,10 @@ void main() {
 
     expect(find.text('Add as owned'), findsOneWidget);
     expect(find.text('Owned defaults'), findsOneWidget);
-    expect(find.text('Condition'), findsOneWidget);
-    expect(find.text('Grade'), findsOneWidget);
+    expect(find.text('Near Mint'), findsOneWidget);
+    expect(find.text('Ungraded'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Storage box'), findsOneWidget);
+    expect(find.byType(DropdownButtonFormField), findsNothing);
   });
 
   testWidgets('wishlist target hides owned defaults', (tester) async {
@@ -37,6 +38,7 @@ void main() {
     expect(find.text('Add to wishlist'), findsOneWidget);
     expect(find.text('Owned defaults'), findsNothing);
     expect(find.widgetWithText(TextField, 'Storage box'), findsNothing);
+    expect(find.byType(DropdownButtonFormField), findsNothing);
   });
 }
 
