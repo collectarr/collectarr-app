@@ -17,6 +17,7 @@ class AddCoreResults extends StatelessWidget {
     required this.checkedServerIds,
     required this.includeVariants,
     required this.hideInShelf,
+    required this.issueSortAscending,
     required this.collapsedSeries,
     required this.onCheckAllVisible,
     required this.onClearServerChecks,
@@ -33,6 +34,7 @@ class AddCoreResults extends StatelessWidget {
   final Set<String> checkedServerIds;
   final bool includeVariants;
   final bool hideInShelf;
+  final bool issueSortAscending;
   final Set<String> collapsedSeries;
   final ValueChanged<Iterable<CatalogItem>> onCheckAllVisible;
   final VoidCallback onClearServerChecks;
@@ -67,7 +69,10 @@ class AddCoreResults extends StatelessWidget {
             !ownedItemIds.contains(item.id) &&
             !wishlistItemIds.contains(item.id))
         .toList(growable: false);
-    final groupedResults = _groupAddResultsBySeries(visibleResults);
+    final groupedResults = _groupAddResultsBySeries(
+      visibleResults,
+      issueSortAscending: issueSortAscending,
+    );
     return Column(
       children: [
         AddResultsSummaryBar(
@@ -327,8 +332,9 @@ class _AddIssueGroup {
 }
 
 List<_AddSeriesGroup> _groupAddResultsBySeries(
-  List<CatalogItem> items,
-) {
+  List<CatalogItem> items, {
+  required bool issueSortAscending,
+}) {
   final grouped = <String, Map<String, List<CatalogItem>>>{};
   final seriesTitles = <String, String>{};
   final issueLabels = <String, Map<String, String>>{};
@@ -371,7 +377,11 @@ List<_AddSeriesGroup> _groupAddResultsBySeries(
               collapseKey: 'core-issue:${issueEntry.key}',
               items: issueEntry.value,
             ),
-        ]..sort(_compareAddIssueGroups),
+        ]..sort(
+            (left, right) => issueSortAscending
+                ? _compareAddIssueGroups(left, right)
+                : _compareAddIssueGroups(right, left),
+          ),
       ),
   ];
   groups.sort((left, right) => left.title.compareTo(right.title));

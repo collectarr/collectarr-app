@@ -63,6 +63,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   bool _isSubmitting = false;
   bool _includeVariants = true;
   bool _hideInShelf = true;
+  bool _issueSortAscending = true;
   bool _showAdvancedFilters = false;
   LibraryAddMode _mode = LibraryAddMode.addSeries;
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
@@ -219,6 +220,39 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                       text: _error!,
                     ),
                   ),
+                AddComicBottomBar(
+                  selectedItem: selectedItem,
+                  selectedCandidate: selectedCandidate,
+                  selectedIsOwned: selectedIsOwned,
+                  selectedIsWishlisted: selectedIsWishlisted,
+                  proposalProviderLabel: selectedCandidate == null
+                      ? selectedProviderLabel
+                      : _metadataProviderLabel(selectedCandidate.provider),
+                  addTarget: _addTarget,
+                  addCount: addItems.length,
+                  isSubmitting: _isSubmitting,
+                  defaultCondition: _defaultCondition,
+                  defaultGrade: _defaultGrade,
+                  defaultStorageBoxController: _defaultStorageBoxController,
+                  defaultPurchaseDate: _defaultPurchaseDate,
+                  onAddTargetChanged: (value) =>
+                      setState(() => _addTarget = value),
+                  onDefaultConditionChanged: (value) =>
+                      setState(() => _defaultCondition = value),
+                  onDefaultGradeChanged: (value) =>
+                      setState(() => _defaultGrade = value),
+                  onDefaultPurchaseDateChanged: (value) =>
+                      setState(() => _defaultPurchaseDate = value),
+                  onAdd: addItems.isEmpty
+                      ? null
+                      : () => _addServerComics(
+                            addItems,
+                            target: _addTarget,
+                          ),
+                  onPropose: selectedCandidate == null
+                      ? null
+                      : () => _proposeCandidate(selectedCandidate),
+                ),
                 Expanded(
                   child: compact
                       ? Column(
@@ -237,6 +271,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 checkedServerIds: _checkedServerIds,
                                 includeVariants: _includeVariants,
                                 hideInShelf: _hideInShelf,
+                                issueSortAscending: _issueSortAscending,
                                 searchedServer: _searchedServer,
                                 searchedProvider: providerState.searched,
                                 isSearchingServer: _isSearchingServer,
@@ -247,6 +282,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                     setState(() => _includeVariants = value),
                                 onHideInShelfChanged: (value) =>
                                     setState(() => _hideInShelf = value),
+                                onIssueSortAscendingChanged: (value) =>
+                                    setState(() => _issueSortAscending = value),
                                 onSelectServer: (id) => setState(() {
                                   _selectedServerId = id;
                                   _providerState =
@@ -302,6 +339,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                     checkedServerIds: _checkedServerIds,
                                     includeVariants: _includeVariants,
                                     hideInShelf: _hideInShelf,
+                                    issueSortAscending: _issueSortAscending,
                                     searchedServer: _searchedServer,
                                     searchedProvider: providerState.searched,
                                     isSearchingServer: _isSearchingServer,
@@ -314,6 +352,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                             () => _includeVariants = value),
                                     onHideInShelfChanged: (value) =>
                                         setState(() => _hideInShelf = value),
+                                    onIssueSortAscendingChanged: (value) =>
+                                        setState(
+                                            () => _issueSortAscending = value),
                                     onSelectServer: (id) => setState(() {
                                       _selectedServerId = id;
                                       _providerState =
@@ -356,39 +397,6 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                             );
                           },
                         ),
-                ),
-                AddComicBottomBar(
-                  selectedItem: selectedItem,
-                  selectedCandidate: selectedCandidate,
-                  selectedIsOwned: selectedIsOwned,
-                  selectedIsWishlisted: selectedIsWishlisted,
-                  proposalProviderLabel: selectedCandidate == null
-                      ? selectedProviderLabel
-                      : _metadataProviderLabel(selectedCandidate.provider),
-                  addTarget: _addTarget,
-                  addCount: addItems.length,
-                  isSubmitting: _isSubmitting,
-                  defaultCondition: _defaultCondition,
-                  defaultGrade: _defaultGrade,
-                  defaultStorageBoxController: _defaultStorageBoxController,
-                  defaultPurchaseDate: _defaultPurchaseDate,
-                  onAddTargetChanged: (value) =>
-                      setState(() => _addTarget = value),
-                  onDefaultConditionChanged: (value) =>
-                      setState(() => _defaultCondition = value),
-                  onDefaultGradeChanged: (value) =>
-                      setState(() => _defaultGrade = value),
-                  onDefaultPurchaseDateChanged: (value) =>
-                      setState(() => _defaultPurchaseDate = value),
-                  onAdd: addItems.isEmpty
-                      ? null
-                      : () => _addServerComics(
-                            addItems,
-                            target: _addTarget,
-                          ),
-                  onPropose: selectedCandidate == null
-                      ? null
-                      : () => _proposeCandidate(selectedCandidate),
                 ),
               ],
             ),
@@ -1315,7 +1323,7 @@ class _AddComicModeBar extends StatelessWidget {
                   children: [
                     Expanded(
                       child: SizedBox(
-                        height: 32,
+                        height: 36,
                         child: TextField(
                           controller: queryController,
                           onSubmitted: (_) => onSearch(),
@@ -1334,14 +1342,18 @@ class _AddComicModeBar extends StatelessWidget {
                       onSubmitted: onSearch,
                     ),
                     const SizedBox(width: 10),
-                    FilledButton(
-                      onPressed: isSearching ? null : onSearch,
-                      child: isSearching
-                          ? const SizedBox.square(
-                              dimension: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Search Series'),
+                    SizedBox(
+                      height: 36,
+                      child: FilledButton(
+                        onPressed: isSearching ? null : onSearch,
+                        child: isSearching
+                            ? const SizedBox.square(
+                                dimension: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text('Search Series'),
+                      ),
                     ),
                   ],
                 ),
@@ -1351,7 +1363,7 @@ class _AddComicModeBar extends StatelessWidget {
                       children: [
                         Expanded(
                           child: SizedBox(
-                            height: 32,
+                            height: 36,
                             child: TextField(
                               controller: seriesController,
                               onSubmitted: (_) => onSearch(),
@@ -1376,15 +1388,18 @@ class _AddComicModeBar extends StatelessWidget {
                           label: const Text('Filters'),
                         ),
                         const SizedBox(width: 10),
-                        FilledButton(
-                          onPressed: isSearching ? null : onSearch,
-                          child: isSearching
-                              ? const SizedBox.square(
-                                  dimension: 16,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Text('Search Issue'),
+                        SizedBox(
+                          height: 36,
+                          child: FilledButton(
+                            onPressed: isSearching ? null : onSearch,
+                            child: isSearching
+                                ? const SizedBox.square(
+                                    dimension: 16,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  )
+                                : const Text('Search Issue'),
+                          ),
                         ),
                       ],
                     ),
@@ -1560,7 +1575,7 @@ class _FilterField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      height: 38,
+      height: 36,
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
@@ -1571,6 +1586,8 @@ class _FilterField extends StatelessWidget {
           fillColor: const Color(0xFF4A4A4A),
           border: const OutlineInputBorder(),
           labelText: label,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         ),
       ),
     );

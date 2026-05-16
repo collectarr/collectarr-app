@@ -245,7 +245,7 @@ void main() {
 
     expect(find.text('Add Comics from Collectarr Core'), findsOneWidget);
     expect(find.text('Add Comics'), findsWidgets);
-    expect(find.text('Search Collectarr Core'), findsOneWidget);
+    expect(find.text('Search Series'), findsOneWidget);
     expect(find.text('Add as owned'), findsOneWidget);
     expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
 
@@ -256,11 +256,14 @@ void main() {
 
     expect(find.text('Add 1 Comic to Wishlist'), findsOneWidget);
 
+    await tester.tap(find.text('Add Issue'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Filters'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(TextField, 'Series'), findsOneWidget);
-    expect(find.widgetWithText(TextField, 'Issue #'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Enter series title...'),
+        findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Issue'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Publisher'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Barcode / UPC'), findsOneWidget);
   });

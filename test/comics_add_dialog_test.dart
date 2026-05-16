@@ -39,7 +39,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Add Comics from Collectarr Core'), findsOneWidget);
-    expect(find.text('Search Collectarr Core'), findsOneWidget);
+    expect(find.text('Search Series'), findsOneWidget);
     expect(find.text('Add as owned'), findsOneWidget);
     expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
   });

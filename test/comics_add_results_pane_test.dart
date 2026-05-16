@@ -107,12 +107,42 @@ void main() {
     expect(find.text('2 issues | 3 covers | 1 variant'), findsOneWidget);
     expect(find.text('Veronica Fish Variant Cover'), findsWidgets);
   });
+
+  testWidgets('provider issue sorting can be descending', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        includeVariants: true,
+        hideInShelf: false,
+        issueSortAscending: false,
+        providerResults: const [
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: 'one',
+            title: 'Over the Garden Wall #1 [Regular Cover]',
+            kind: 'comic',
+          ),
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: 'two',
+            title: 'Over the Garden Wall #2 [Regular Cover]',
+            kind: 'comic',
+          ),
+        ],
+      ),
+    );
+
+    expect(
+      tester.getTopLeft(find.text('#2')).dy,
+      lessThan(tester.getTopLeft(find.text('#1')).dy),
+    );
+  });
 }
 
 Widget _host({
   required bool includeVariants,
   required bool hideInShelf,
   Set<String> ownedItemIds = const {},
+  bool issueSortAscending = true,
   List<ProviderCandidate> providerResults = const [
     ProviderCandidate(
       provider: 'gcd',
@@ -146,6 +176,7 @@ Widget _host({
           checkedServerIds: const {},
           includeVariants: includeVariants,
           hideInShelf: hideInShelf,
+          issueSortAscending: issueSortAscending,
           searchedServer: true,
           searchedProvider: true,
           isSearchingServer: false,
@@ -154,6 +185,7 @@ Widget _host({
           providerLabel: (provider) => provider == 'gcd' ? 'GCD' : provider,
           onIncludeVariantsChanged: (_) {},
           onHideInShelfChanged: (_) {},
+          onIssueSortAscendingChanged: (_) {},
           onSelectServer: (_) {},
           onToggleServerCheck: (_) {},
           collapsedSeries: const {},

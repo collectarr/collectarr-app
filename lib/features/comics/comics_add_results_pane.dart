@@ -26,6 +26,7 @@ class AddComicResultPane extends StatelessWidget {
     required this.checkedServerIds,
     required this.includeVariants,
     required this.hideInShelf,
+    required this.issueSortAscending,
     required this.searchedServer,
     required this.searchedProvider,
     required this.isSearchingServer,
@@ -34,6 +35,7 @@ class AddComicResultPane extends StatelessWidget {
     required this.providerLabel,
     required this.onIncludeVariantsChanged,
     required this.onHideInShelfChanged,
+    required this.onIssueSortAscendingChanged,
     required this.onSelectServer,
     required this.onToggleServerCheck,
     required this.collapsedSeries,
@@ -56,6 +58,7 @@ class AddComicResultPane extends StatelessWidget {
   final Set<String> checkedServerIds;
   final bool includeVariants;
   final bool hideInShelf;
+  final bool issueSortAscending;
   final bool searchedServer;
   final bool searchedProvider;
   final bool isSearchingServer;
@@ -64,6 +67,7 @@ class AddComicResultPane extends StatelessWidget {
   final String Function(String provider) providerLabel;
   final ValueChanged<bool> onIncludeVariantsChanged;
   final ValueChanged<bool> onHideInShelfChanged;
+  final ValueChanged<bool> onIssueSortAscendingChanged;
   final ValueChanged<String> onSelectServer;
   final ValueChanged<String> onToggleServerCheck;
   final Set<String> collapsedSeries;
@@ -112,8 +116,18 @@ class AddComicResultPane extends StatelessWidget {
                   const SizedBox(width: 10),
                   const Text('Issues:'),
                   const SizedBox(width: 4),
-                  const _IssueSortButton(label: 'III', selected: true),
-                  const _IssueSortButton(label: 'Asc'),
+                  _IssueSortButton(
+                    label: 'Asc',
+                    tooltip: 'Sort issues ascending',
+                    selected: issueSortAscending,
+                    onPressed: () => onIssueSortAscendingChanged(true),
+                  ),
+                  _IssueSortButton(
+                    label: 'Desc',
+                    tooltip: 'Sort issues descending',
+                    selected: !issueSortAscending,
+                    onPressed: () => onIssueSortAscendingChanged(false),
+                  ),
                 ],
               ),
             ),
@@ -178,6 +192,7 @@ class AddComicResultPane extends StatelessWidget {
         checkedServerIds: checkedServerIds,
         includeVariants: includeVariants,
         hideInShelf: hideInShelf,
+        issueSortAscending: issueSortAscending,
         collapsedSeries: collapsedSeries,
         onCheckAllVisible: onCheckAllVisible,
         onClearServerChecks: onClearServerChecks,
@@ -200,6 +215,7 @@ class AddComicResultPane extends StatelessWidget {
           Expanded(
             child: _ProviderIssueTree(
               results: visibleProviderResults,
+              issueSortAscending: issueSortAscending,
               selectedProviderId: selectedProviderId,
               collapsedSeries: collapsedSeries,
               providerLabel: providerLabel,
@@ -255,6 +271,7 @@ class AddComicResultPane extends StatelessWidget {
 class _ProviderIssueTree extends StatelessWidget {
   const _ProviderIssueTree({
     required this.results,
+    required this.issueSortAscending,
     required this.selectedProviderId,
     required this.collapsedSeries,
     required this.providerLabel,
@@ -263,6 +280,7 @@ class _ProviderIssueTree extends StatelessWidget {
   });
 
   final List<ProviderCandidate> results;
+  final bool issueSortAscending;
   final String? selectedProviderId;
   final Set<String> collapsedSeries;
   final String Function(String provider) providerLabel;
@@ -271,7 +289,10 @@ class _ProviderIssueTree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groups = _groupProviderResultsBySeries(results);
+    final groups = _groupProviderResultsBySeries(
+      results,
+      issueSortAscending: issueSortAscending,
+    );
     return ListView(
       children: [
         for (final series in groups) ...[
@@ -603,8 +624,9 @@ class _ProviderSeriesGroup {
 }
 
 List<_ProviderSeriesGroup> _groupProviderResultsBySeries(
-  List<ProviderCandidate> results,
-) {
+  List<ProviderCandidate> results, {
+  required bool issueSortAscending,
+}) {
   final grouped = <String, Map<String, List<ProviderCandidate>>>{};
   final seriesTitles = <String, String>{};
   final issueLabels = <String, Map<String, String>>{};
@@ -643,7 +665,11 @@ List<_ProviderSeriesGroup> _groupProviderResultsBySeries(
               collapseKey: 'provider-issue:${issueEntry.key}',
               items: issueEntry.value,
             ),
-        ]..sort(_compareProviderIssueGroups),
+        ]..sort(
+            (left, right) => issueSortAscending
+                ? _compareProviderIssueGroups(left, right)
+                : _compareProviderIssueGroups(right, left),
+          ),
       ),
   ];
   seriesGroups.sort((left, right) => left.title.compareTo(right.title));
@@ -888,17 +914,38 @@ class _TinyCheckbox extends StatelessWidget {
 }
 
 class _IssueSortButton extends StatelessWidget {
-  const _IssueSortButton({required this.label, this.selected = false});
+  const _IssueSortButton({
+    required this.label,
+    required this.tooltip,
+    required this.selected,
+    required this.onPressed,
+  });
 
   final String label;
+  final String tooltip;
   final bool selected;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      color: selected ? const Color(0xFF159AC8) : const Color(0xFF555555),
-      child: Text(label, style: const TextStyle(fontSize: 11)),
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFF159AC8) : const Color(0xFF555555),
+            border: Border.all(
+              color: selected ? kClzAccent : const Color(0xFF666666),
+            ),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+          ),
+        ),
+      ),
     );
   }
 }
