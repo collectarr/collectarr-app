@@ -43,4 +43,47 @@ void main() {
     expect(find.text('Add as owned'), findsOneWidget);
     expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
   });
+
+  testWidgets('add issue requires an issue number', (tester) async {
+    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => const ShelfState(
+              entries: [],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: Scaffold(body: AddComicDialog())),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add Issue'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Enter series title...'),
+      'Over the Garden Wall',
+    );
+    await tester.tap(find.text('Search Issue'));
+    await tester.pumpAndSettle();
+
+    expect(
+        find.text('Issue number is required for Add Issue.'), findsOneWidget);
+  });
 }

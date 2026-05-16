@@ -70,85 +70,83 @@ class AddComicBottomBar extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: kClzToolbar,
-        border: Border(bottom: BorderSide(color: kClzDivider)),
+        border: Border(top: BorderSide(color: kClzDivider)),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 6, 8, 7),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              if (!isProposal) ...[
-                LibraryAddResultBadge(
-                  '$addCount selected',
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 178,
-                  height: 36,
-                  child: DropdownButtonFormField<LibraryAddTarget>(
-                    initialValue: addTarget,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      border: OutlineInputBorder(),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                    ),
-                    items: [
-                      DropdownMenuItem(
-                        value: LibraryAddTarget.owned,
-                        child: Text(LibraryAddTarget.owned.actionLabel),
-                      ),
-                      DropdownMenuItem(
-                        value: LibraryAddTarget.wishlist,
-                        child: Text(LibraryAddTarget.wishlist.actionLabel),
-                      ),
-                    ],
-                    onChanged: isSubmitting
-                        ? null
-                        : (value) {
-                            if (value != null) {
-                              onAddTargetChanged(value);
-                            }
-                          },
-                  ),
-                ),
-                if (addTarget == LibraryAddTarget.owned) ...[
-                  const SizedBox(width: 10),
-                  _AddOwnedDefaultsBar(
-                    condition: defaultCondition,
-                    grade: defaultGrade,
-                    storageBoxController: defaultStorageBoxController,
-                    purchaseDate: defaultPurchaseDate,
-                    onConditionChanged: onDefaultConditionChanged,
-                    onGradeChanged: onDefaultGradeChanged,
-                    onPurchaseDateChanged: onDefaultPurchaseDateChanged,
-                  ),
-                ],
-                const SizedBox(width: 10),
-              ],
-              SizedBox(
-                width: isProposal ? 320 : 260,
-                height: 36,
-                child: FilledButton(
-                  onPressed: isSubmitting
-                      ? null
-                      : isProposal
-                          ? onPropose
-                          : disabledByLocalStatus
-                              ? null
-                              : onAdd,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: kClzAccent,
-                    foregroundColor: Colors.white,
-                    textStyle: const TextStyle(fontWeight: FontWeight.w900),
-                  ),
-                  child: Text(label),
-                ),
+        padding: const EdgeInsets.fromLTRB(8, 7, 8, 9),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isProposal && addTarget == LibraryAddTarget.owned) ...[
+              _AddOwnedDefaultsBar(
+                condition: defaultCondition,
+                grade: defaultGrade,
+                storageBoxController: defaultStorageBoxController,
+                purchaseDate: defaultPurchaseDate,
+                onConditionChanged: onDefaultConditionChanged,
+                onGradeChanged: onDefaultGradeChanged,
+                onPurchaseDateChanged: onDefaultPurchaseDateChanged,
               ),
+              const SizedBox(height: 8),
             ],
-          ),
+            Row(
+              children: [
+                if (!isProposal) ...[
+                  LibraryAddResultBadge('$addCount selected'),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 190,
+                    height: 40,
+                    child: DropdownButtonFormField<LibraryAddTarget>(
+                      initialValue: addTarget,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      ),
+                      items: [
+                        DropdownMenuItem(
+                          value: LibraryAddTarget.owned,
+                          child: Text(LibraryAddTarget.owned.actionLabel),
+                        ),
+                        DropdownMenuItem(
+                          value: LibraryAddTarget.wishlist,
+                          child: Text(LibraryAddTarget.wishlist.actionLabel),
+                        ),
+                      ],
+                      onChanged: isSubmitting
+                          ? null
+                          : (value) {
+                              if (value != null) {
+                                onAddTargetChanged(value);
+                              }
+                            },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: FilledButton(
+                    onPressed: isSubmitting
+                        ? null
+                        : isProposal
+                            ? onPropose
+                            : disabledByLocalStatus
+                                ? null
+                                : onAdd,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: kClzAccent,
+                      foregroundColor: Colors.white,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w900),
+                    ),
+                    child: Text(label),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -176,62 +174,54 @@ class _AddOwnedDefaultsBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         const Text(
           'Owned defaults',
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        const SizedBox(width: 8),
         _SmallDropdown(
-          width: 132,
+          width: 140,
           value: condition,
           items: ComicInspector.conditions,
           label: 'Condition',
           onChanged: onConditionChanged,
         ),
-        const SizedBox(width: 8),
         _SmallDropdown(
-          width: 116,
+          width: 120,
           value: grade,
           items: ComicInspector.grades,
           label: 'Grade',
           onChanged: onGradeChanged,
         ),
-        const SizedBox(width: 8),
         SizedBox(
           width: 150,
-          height: 36,
+          height: 38,
           child: TextField(
             controller: storageBoxController,
             decoration: const InputDecoration(
               isDense: true,
               border: OutlineInputBorder(),
               labelText: 'Storage box',
-              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
             ),
           ),
         ),
-        const SizedBox(width: 8),
-        SizedBox(
-          height: 36,
-          child: OutlinedButton.icon(
-            onPressed: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: purchaseDate ?? DateTime.now(),
-                firstDate: DateTime(1970),
-                lastDate: DateTime(2100),
-              );
-              onPurchaseDateChanged(picked);
-            },
-            icon: const Icon(Icons.calendar_today, size: 16),
-            label: Text(
-              purchaseDate == null
-                  ? 'Purchase date'
-                  : _formatDate(purchaseDate!),
-            ),
+        OutlinedButton.icon(
+          onPressed: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: purchaseDate ?? DateTime.now(),
+              firstDate: DateTime(1970),
+              lastDate: DateTime(2100),
+            );
+            onPurchaseDateChanged(picked);
+          },
+          icon: const Icon(Icons.calendar_today, size: 16),
+          label: Text(
+            purchaseDate == null ? 'Purchase date' : _formatDate(purchaseDate!),
           ),
         ),
         if (purchaseDate != null)
@@ -264,7 +254,7 @@ class _SmallDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      height: 36,
+      height: 38,
       child: DropdownButtonFormField<String>(
         initialValue: items.contains(value) ? value : null,
         isExpanded: true,
@@ -273,7 +263,7 @@ class _SmallDropdown extends StatelessWidget {
           border: const OutlineInputBorder(),
           labelText: label,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         ),
         items: [
           const DropdownMenuItem<String>(value: null, child: Text('None')),

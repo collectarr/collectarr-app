@@ -136,9 +136,40 @@ void main() {
       lessThan(tester.getTopLeft(find.text('#1')).dy),
     );
   });
+
+  testWidgets('add issue mode renders provider candidates as a flat list',
+      (tester) async {
+    await tester.pumpWidget(
+      _host(
+        mode: LibraryAddMode.addIssue,
+        includeVariants: true,
+        hideInShelf: false,
+        providerResults: const [
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: 'one',
+            title: 'Over the Garden Wall #1 [Regular Cover]',
+            kind: 'comic',
+          ),
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: 'one-b',
+            title: 'Over the Garden Wall #1 [Veronica Fish Variant Cover]',
+            kind: 'comic',
+            summary: 'variant',
+          ),
+        ],
+      ),
+    );
+
+    expect(find.text('Over the Garden Wall'), findsNothing);
+    expect(find.text('#1 | Standard cover | Regular Cover'), findsWidgets);
+    expect(find.text('#1 | Veronica Fish Variant Cover'), findsWidgets);
+  });
 }
 
 Widget _host({
+  LibraryAddMode mode = LibraryAddMode.addSeries,
   required bool includeVariants,
   required bool hideInShelf,
   Set<String> ownedItemIds = const {},
@@ -165,7 +196,7 @@ Widget _host({
         width: 360,
         height: 520,
         child: AddComicResultPane(
-          mode: LibraryAddMode.addSeries,
+          mode: mode,
           serverResults: const [],
           providerResults: providerResults,
           pullListRows: const [],

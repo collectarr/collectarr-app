@@ -193,6 +193,7 @@ class AddComicResultPane extends StatelessWidget {
         includeVariants: includeVariants,
         hideInShelf: hideInShelf,
         issueSortAscending: issueSortAscending,
+        flatIssues: mode == LibraryAddMode.addIssue,
         collapsedSeries: collapsedSeries,
         onCheckAllVisible: onCheckAllVisible,
         onClearServerChecks: onClearServerChecks,
@@ -203,27 +204,23 @@ class AddComicResultPane extends StatelessWidget {
       );
     }
     if (visibleProviderResults.isNotEmpty) {
-      final fallbackProviderLabel =
-          _fallbackProviderLabel(visibleProviderResults);
-      return Column(
-        children: [
-          if (fallbackProviderLabel != null)
-            _ProviderFallbackNotice(
-              requestedProvider: selectedProviderLabel,
-              fallbackProvider: fallbackProviderLabel,
-            ),
-          Expanded(
-            child: _ProviderIssueTree(
-              results: visibleProviderResults,
-              issueSortAscending: issueSortAscending,
-              selectedProviderId: selectedProviderId,
-              collapsedSeries: collapsedSeries,
-              providerLabel: providerLabel,
-              onSelectProvider: onSelectProvider,
-              onToggleIssueCollapsed: onToggleSeriesCollapsed,
-            ),
-          ),
-        ],
+      if (mode == LibraryAddMode.addIssue) {
+        return _ProviderFlatIssueList(
+          results: visibleProviderResults,
+          issueSortAscending: issueSortAscending,
+          selectedProviderId: selectedProviderId,
+          providerLabel: providerLabel,
+          onSelectProvider: onSelectProvider,
+        );
+      }
+      return _ProviderIssueTree(
+        results: visibleProviderResults,
+        issueSortAscending: issueSortAscending,
+        selectedProviderId: selectedProviderId,
+        collapsedSeries: collapsedSeries,
+        providerLabel: providerLabel,
+        onSelectProvider: onSelectProvider,
+        onToggleIssueCollapsed: onToggleSeriesCollapsed,
       );
     }
     return Center(
@@ -232,15 +229,6 @@ class AddComicResultPane extends StatelessWidget {
         textAlign: TextAlign.center,
       ),
     );
-  }
-
-  String? _fallbackProviderLabel(List<ProviderCandidate> visibleResults) {
-    for (final item in visibleResults) {
-      if (item.provider != selectedProvider) {
-        return providerLabel(item.provider);
-      }
-    }
-    return null;
   }
 
   List<ProviderCandidate> _visibleProviderResults() {
@@ -321,6 +309,94 @@ class _ProviderIssueTree extends StatelessWidget {
             ],
         ],
       ],
+    );
+  }
+}
+
+class _ProviderFlatIssueList extends StatelessWidget {
+  const _ProviderFlatIssueList({
+    required this.results,
+    required this.issueSortAscending,
+    required this.selectedProviderId,
+    required this.providerLabel,
+    required this.onSelectProvider,
+  });
+
+  final List<ProviderCandidate> results;
+  final bool issueSortAscending;
+  final String? selectedProviderId;
+  final String Function(String provider) providerLabel;
+  final ValueChanged<String> onSelectProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    final sortedResults = results.toList(growable: false)
+      ..sort(
+        (left, right) => issueSortAscending
+            ? _compareProviderCandidates(left, right)
+            : _compareProviderCandidates(right, left),
+      );
+    return ListView(
+      children: [
+        for (final item in sortedResults)
+          _ProviderFlatIssueRow(
+            candidate: item,
+            selected: item.providerItemId == selectedProviderId,
+            providerLabel: providerLabel(item.provider),
+            onSelect: () => onSelectProvider(item.providerItemId),
+          ),
+      ],
+    );
+  }
+}
+
+class _ProviderFlatIssueRow extends StatelessWidget {
+  const _ProviderFlatIssueRow({
+    required this.candidate,
+    required this.selected,
+    required this.providerLabel,
+    required this.onSelect,
+  });
+
+  final ProviderCandidate candidate;
+  final bool selected;
+  final String providerLabel;
+  final VoidCallback onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final identity = _providerCandidateIdentity(candidate);
+    final title = [
+      identity.issueLabel,
+      if (identity.variantLabel != 'Standard cover') identity.variantLabel,
+    ].join(' | ');
+    return AddResultRow(
+      key: ValueKey(
+        'provider-flat-${candidate.provider}-${candidate.providerItemId}',
+      ),
+      selected: selected,
+      checked: selected,
+      checkDisabled: false,
+      cover: SizedBox(
+        width: 42,
+        height: 62,
+        child: ProviderCandidateImage(
+          key: ValueKey(
+            'provider-flat-cover-${candidate.provider}-${candidate.providerItemId}-${candidate.imageUrl ?? ''}',
+          ),
+          candidate: candidate,
+          fallbackTitle: title,
+        ),
+      ),
+      title: title,
+      subtitle: _providerCandidateSubtitle(candidate, providerLabel),
+      badges: [
+        providerLabel,
+        if (identity.isVariant) 'variant',
+      ],
+      trailing: 'propose',
+      onTap: onSelect,
+      onToggleCheck: onSelect,
     );
   }
 }
@@ -697,6 +773,46 @@ int _compareProviderIssueGroups(
   return left.issueLabel.compareTo(right.issueLabel);
 }
 
+int _compareProviderCandidates(
+  ProviderCandidate left,
+  ProviderCandidate right,
+) {
+  final leftIdentity = _providerCandidateIdentity(left);
+  final rightIdentity = _providerCandidateIdentity(right);
+  final issueCompare = _compareProviderIdentityIssues(
+    leftIdentity,
+    rightIdentity,
+  );
+  if (issueCompare != 0) {
+    return issueCompare;
+  }
+  if (leftIdentity.isVariant != rightIdentity.isVariant) {
+    return leftIdentity.isVariant ? 1 : -1;
+  }
+  return leftIdentity.variantLabel.compareTo(rightIdentity.variantLabel);
+}
+
+int _compareProviderIdentityIssues(
+  _ProviderCandidateIdentity left,
+  _ProviderCandidateIdentity right,
+) {
+  final leftSort = left.issueSortValue;
+  final rightSort = right.issueSortValue;
+  if (leftSort != null && rightSort != null) {
+    final numeric = leftSort.compareTo(rightSort);
+    if (numeric != 0) {
+      return numeric;
+    }
+  }
+  if (leftSort != null) {
+    return -1;
+  }
+  if (rightSort != null) {
+    return 1;
+  }
+  return left.issueLabel.compareTo(right.issueLabel);
+}
+
 String _providerIssueTitle(ProviderCandidate candidate) {
   final identity = _providerCandidateIdentity(candidate);
   return '${identity.seriesTitle} ${identity.issueLabel}'.trim();
@@ -815,44 +931,6 @@ class _ProviderCandidateIdentity {
   bool get isVariant =>
       variantLabel != 'Standard cover' &&
       !variantLabel.startsWith('Standard cover |');
-}
-
-class _ProviderFallbackNotice extends StatelessWidget {
-  const _ProviderFallbackNotice({
-    required this.requestedProvider,
-    required this.fallbackProvider,
-  });
-
-  final String requestedProvider;
-  final String fallbackProvider;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-      decoration: const BoxDecoration(
-        color: Color(0xFF263B46),
-        border: Border(bottom: BorderSide(color: kClzDivider)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.swap_horiz, size: 17, color: kClzAccent),
-          const SizedBox(width: 7),
-          Expanded(
-            child: Text(
-              '$requestedProvider unavailable, $fallbackProvider fallback used.',
-              style: const TextStyle(
-                color: Color(0xFFD5EAF5),
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _SearchLoadingState extends StatelessWidget {

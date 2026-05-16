@@ -220,39 +220,6 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                       text: _error!,
                     ),
                   ),
-                AddComicBottomBar(
-                  selectedItem: selectedItem,
-                  selectedCandidate: selectedCandidate,
-                  selectedIsOwned: selectedIsOwned,
-                  selectedIsWishlisted: selectedIsWishlisted,
-                  proposalProviderLabel: selectedCandidate == null
-                      ? selectedProviderLabel
-                      : _metadataProviderLabel(selectedCandidate.provider),
-                  addTarget: _addTarget,
-                  addCount: addItems.length,
-                  isSubmitting: _isSubmitting,
-                  defaultCondition: _defaultCondition,
-                  defaultGrade: _defaultGrade,
-                  defaultStorageBoxController: _defaultStorageBoxController,
-                  defaultPurchaseDate: _defaultPurchaseDate,
-                  onAddTargetChanged: (value) =>
-                      setState(() => _addTarget = value),
-                  onDefaultConditionChanged: (value) =>
-                      setState(() => _defaultCondition = value),
-                  onDefaultGradeChanged: (value) =>
-                      setState(() => _defaultGrade = value),
-                  onDefaultPurchaseDateChanged: (value) =>
-                      setState(() => _defaultPurchaseDate = value),
-                  onAdd: addItems.isEmpty
-                      ? null
-                      : () => _addServerComics(
-                            addItems,
-                            target: _addTarget,
-                          ),
-                  onPropose: selectedCandidate == null
-                      ? null
-                      : () => _proposeCandidate(selectedCandidate),
-                ),
                 Expanded(
                   child: compact
                       ? Column(
@@ -398,6 +365,39 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                           },
                         ),
                 ),
+                AddComicBottomBar(
+                  selectedItem: selectedItem,
+                  selectedCandidate: selectedCandidate,
+                  selectedIsOwned: selectedIsOwned,
+                  selectedIsWishlisted: selectedIsWishlisted,
+                  proposalProviderLabel: selectedCandidate == null
+                      ? selectedProviderLabel
+                      : _metadataProviderLabel(selectedCandidate.provider),
+                  addTarget: _addTarget,
+                  addCount: addItems.length,
+                  isSubmitting: _isSubmitting,
+                  defaultCondition: _defaultCondition,
+                  defaultGrade: _defaultGrade,
+                  defaultStorageBoxController: _defaultStorageBoxController,
+                  defaultPurchaseDate: _defaultPurchaseDate,
+                  onAddTargetChanged: (value) =>
+                      setState(() => _addTarget = value),
+                  onDefaultConditionChanged: (value) =>
+                      setState(() => _defaultCondition = value),
+                  onDefaultGradeChanged: (value) =>
+                      setState(() => _defaultGrade = value),
+                  onDefaultPurchaseDateChanged: (value) =>
+                      setState(() => _defaultPurchaseDate = value),
+                  onAdd: addItems.isEmpty
+                      ? null
+                      : () => _addServerComics(
+                            addItems,
+                            target: _addTarget,
+                          ),
+                  onPropose: selectedCandidate == null
+                      ? null
+                      : () => _proposeCandidate(selectedCandidate),
+                ),
               ],
             ),
           ),
@@ -503,6 +503,15 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     var query = searchFields.query;
     final series = searchFields.series;
     final issueNumber = searchFields.issueNumber;
+    if (_mode == LibraryAddMode.addIssue && issueNumber.trim().isEmpty) {
+      setState(() {
+        _error = 'Issue number is required for Add Issue.';
+        _searchedServer = false;
+        _serverResults = const [];
+        _providerState = _providerState.clearResults();
+      });
+      return;
+    }
     final publisher = _publisherController.text.trim();
     final year = int.tryParse(_yearController.text.trim());
     var barcode = _barcodeController.text.trim();
