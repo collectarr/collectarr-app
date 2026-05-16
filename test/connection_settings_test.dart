@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
+import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +43,27 @@ void main() {
     expect(settings.metadataBaseUrl, ConnectionSettings.defaultMetadataBaseUrl);
     expect(settings.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
     expect(settings.syncKey, ConnectionSettings.defaultSyncKey);
+  });
+
+  test('connection settings can be reset from a recovery launch URL', () async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.settings.metadata_base_url': 'http://metadata.local',
+      'collectarr.settings.sync_base_url': 'http://sync.local',
+      'collectarr.settings.sync_key': 'secret',
+    });
+    final controller = ConnectionSettingsController(
+      launchUri: Uri.parse('http://localhost:8083/?resetConnection=1'),
+    );
+
+    await controller.load();
+
+    expect(
+      controller.state.metadataBaseUrl,
+      ConnectionSettings.defaultMetadataBaseUrl,
+    );
+    expect(controller.state.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
+    expect(controller.state.syncKey, ConnectionSettings.defaultSyncKey);
+    expect(controller.state.isLoaded, isTrue);
   });
 
   test('connection pairing code round trips endpoint settings', () {

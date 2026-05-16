@@ -8,13 +8,18 @@ final connectionSettingsProvider =
 );
 
 class ConnectionSettingsController extends StateNotifier<ConnectionSettings> {
-  ConnectionSettingsController({ConnectionSettingsStore? store})
+  ConnectionSettingsController({ConnectionSettingsStore? store, Uri? launchUri})
       : _store = store ?? ConnectionSettingsStore(),
+        _launchUri = launchUri ?? Uri.base,
         super(const ConnectionSettings());
 
   final ConnectionSettingsStore _store;
+  final Uri _launchUri;
 
   Future<void> load() async {
+    if (_shouldResetFromLaunchUri()) {
+      await _store.reset();
+    }
     state = await _store.read();
   }
 
@@ -40,5 +45,14 @@ class ConnectionSettingsController extends StateNotifier<ConnectionSettings> {
 
   String _normalizeUrl(String value) {
     return value.trim().replaceFirst(RegExp(r'/+$'), '');
+  }
+
+  bool _shouldResetFromLaunchUri() {
+    final value = _launchUri.queryParameters['resetConnection'] ??
+        _launchUri.queryParameters['resetLocalSettings'];
+    return switch (value?.toLowerCase()) {
+      '1' || 'true' || 'yes' => true,
+      _ => false,
+    };
   }
 }
