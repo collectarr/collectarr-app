@@ -3,7 +3,10 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
+import 'package:collectarr_app/features/library/add/library_add_copy.dart';
+import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
@@ -109,101 +112,130 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               orElse: () => const <String, AdminProviderStatus>{},
             );
     final selectedProvider = _activeProvider;
-    return Dialog(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 920, maxHeight: 680),
-        child: Column(
-          children: [
-            _DialogHeader(type: widget.type),
-            if (_barcodeController.text.trim().isNotEmpty)
-              _BarcodePrefillBanner(
-                type: widget.type,
-                barcode: _barcodeController.text.trim(),
-              ),
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final searchPane = _SearchPane(
+    return Theme(
+      data: kClzAddComicDialogTheme,
+      child: Dialog(
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.sizeOf(context).width < 720 ? 10 : 32,
+          vertical: 24,
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1040, maxHeight: 780),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: kClzPanel,
+              border: Border.all(color: kClzDivider),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0xCC000000),
+                  blurRadius: 22,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                _DialogHeader(type: widget.type),
+                if (_barcodeController.text.trim().isNotEmpty)
+                  _BarcodePrefillBanner(
                     type: widget.type,
-                    queryController: _queryController,
-                    barcodeController: _barcodeController,
-                    isSearching: _isSearching,
-                    isSearchingProvider: _isSearchingProvider,
-                    isQueueingIngest: _isQueueingIngest,
-                    isAdding: _isAdding,
-                    error: _error,
-                    results: _results,
-                    providerResults: _providerResults,
-                    queuedProviderIngests: _queuedProviderIngests,
-                    selectedProvider: selectedProvider,
-                    providerStatuses: providerStatuses,
-                    searchedProvider: _searchedProvider,
-                    onSearch: _search,
-                    onSearchProvider: _searchProvider,
-                    onLookupBarcode: _lookupBarcode,
-                    onAddOwned: (item) =>
-                        _addItems([item], LibraryAddTarget.owned),
-                    onAddWishlist: (item) =>
-                        _addItems([item], LibraryAddTarget.wishlist),
-                    onAddProviderOwned: (candidate) => _addProviderCandidate(
-                      candidate,
-                      LibraryAddTarget.owned,
-                    ),
-                    onAddProviderWishlist: (candidate) => _addProviderCandidate(
-                      candidate,
-                      LibraryAddTarget.wishlist,
-                    ),
-                    onQueueProviderIngest: _queueProviderIngest,
-                    onProposeProvider: _proposeCandidate,
-                  );
-                  final manualPane = _ManualPane(
-                    type: widget.type,
-                    titleController: _titleController,
-                    numberController: _numberController,
-                    publisherController: _publisherController,
-                    yearController: _yearController,
-                    barcodeController: _barcodeController,
-                    variantController: _variantController,
-                    coverController: _coverController,
-                    physicalFormats: physicalFormats,
-                    physicalFormatId: _physicalFormatId,
-                    onPhysicalFormatChanged: _setPhysicalFormat,
-                    isAdding: _isAdding,
-                    onAddOwned: () => _addManual(LibraryAddTarget.owned),
-                    onAddWishlist: () => _addManual(LibraryAddTarget.wishlist),
-                  );
-                  if (constraints.maxWidth < 720) {
-                    return DefaultTabController(
-                      length: 2,
-                      child: Column(
-                        children: [
-                          const TabBar(
-                            tabs: [
-                              Tab(icon: Icon(Icons.search), text: 'Search'),
-                              Tab(icon: Icon(Icons.edit), text: 'Manual'),
+                    barcode: _barcodeController.text.trim(),
+                  ),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final searchPane = _SearchPane(
+                        type: widget.type,
+                        queryController: _queryController,
+                        barcodeController: _barcodeController,
+                        isSearching: _isSearching,
+                        isSearchingProvider: _isSearchingProvider,
+                        isQueueingIngest: _isQueueingIngest,
+                        isAdding: _isAdding,
+                        error: _error,
+                        results: _results,
+                        providerResults: _providerResults,
+                        queuedProviderIngests: _queuedProviderIngests,
+                        selectedProvider: selectedProvider,
+                        providerStatuses: providerStatuses,
+                        searchedProvider: _searchedProvider,
+                        onSearch: _search,
+                        onSearchProvider: _searchProvider,
+                        onLookupBarcode: _lookupBarcode,
+                        onAddOwned: (item) =>
+                            _addItems([item], LibraryAddTarget.owned),
+                        onAddWishlist: (item) =>
+                            _addItems([item], LibraryAddTarget.wishlist),
+                        onAddProviderOwned: (candidate) =>
+                            _addProviderCandidate(
+                          candidate,
+                          LibraryAddTarget.owned,
+                        ),
+                        onAddProviderWishlist: (candidate) =>
+                            _addProviderCandidate(
+                          candidate,
+                          LibraryAddTarget.wishlist,
+                        ),
+                        onQueueProviderIngest: _queueProviderIngest,
+                        onProposeProvider: _proposeCandidate,
+                      );
+                      final manualPane = _ManualPane(
+                        type: widget.type,
+                        titleController: _titleController,
+                        numberController: _numberController,
+                        publisherController: _publisherController,
+                        yearController: _yearController,
+                        barcodeController: _barcodeController,
+                        variantController: _variantController,
+                        coverController: _coverController,
+                        physicalFormats: physicalFormats,
+                        physicalFormatId: _physicalFormatId,
+                        onPhysicalFormatChanged: _setPhysicalFormat,
+                        isAdding: _isAdding,
+                        onAddOwned: () => _addManual(LibraryAddTarget.owned),
+                        onAddWishlist: () =>
+                            _addManual(LibraryAddTarget.wishlist),
+                      );
+                      if (constraints.maxWidth < 720) {
+                        return DefaultTabController(
+                          length: 2,
+                          child: Column(
+                            children: [
+                              const ColoredBox(
+                                color: kClzToolbar,
+                                child: TabBar(
+                                  tabs: [
+                                    Tab(
+                                      icon: Icon(Icons.search),
+                                      text: 'Search',
+                                    ),
+                                    Tab(icon: Icon(Icons.edit), text: 'Manual'),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: TabBarView(
+                                  children: [searchPane, manualPane],
+                                ),
+                              ),
                             ],
                           ),
-                          Expanded(
-                            child: TabBarView(
-                              children: [searchPane, manualPane],
-                            ),
-                          ),
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(flex: 3, child: searchPane),
+                          const VerticalDivider(width: 1),
+                          Expanded(flex: 2, child: manualPane),
                         ],
-                      ),
-                    );
-                  }
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(flex: 3, child: searchPane),
-                      const VerticalDivider(width: 1),
-                      Expanded(flex: 2, child: manualPane),
-                    ],
-                  );
-                },
-              ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -652,6 +684,29 @@ class _QueuedProviderIngest {
   }
 }
 
+const double _kLibraryAddControlHeight = 34;
+const BorderSide _kLibraryAddBorder = BorderSide(color: kClzDivider);
+
+ButtonStyle _libraryAddFilledButtonStyle() {
+  return FilledButton.styleFrom(
+    minimumSize: const Size(0, _kLibraryAddControlHeight),
+    padding: const EdgeInsets.symmetric(horizontal: 14),
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    visualDensity: VisualDensity.compact,
+    textStyle: const TextStyle(fontWeight: FontWeight.w900),
+  );
+}
+
+ButtonStyle _libraryAddOutlinedButtonStyle() {
+  return OutlinedButton.styleFrom(
+    minimumSize: const Size(0, _kLibraryAddControlHeight),
+    padding: const EdgeInsets.symmetric(horizontal: 12),
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    visualDensity: VisualDensity.compact,
+    textStyle: const TextStyle(fontWeight: FontWeight.w800),
+  );
+}
+
 class _DialogHeader extends StatelessWidget {
   const _DialogHeader({required this.type});
 
@@ -659,29 +714,43 @@ class _DialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: const BoxDecoration(
+        color: kClzPanelRaised,
+        border: Border(bottom: BorderSide(color: kClzAccent)),
       ),
       child: Row(
         children: [
-          Icon(type.workspace.icon),
-          const SizedBox(width: 10),
+          Icon(type.workspace.icon, size: 18, color: kClzAccent),
+          const SizedBox(width: 8),
           Text(
             'Add ${type.pluralLabel}',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(width: 10),
+          const Text(
+            'Collectarr Core',
+            style: TextStyle(
+              color: kClzTextMuted,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const Spacer(),
           IconButton(
             tooltip: 'Close',
             onPressed: () => Navigator.of(context).pop(false),
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.close, size: 18),
+            style: IconButton.styleFrom(
+              minimumSize: const Size(30, 30),
+              padding: EdgeInsets.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
           ),
         ],
       ),
@@ -700,28 +769,27 @@ class _BarcodePrefillBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer.withValues(alpha: 0.35),
-        border: Border(
-          bottom: BorderSide(color: colorScheme.outlineVariant),
-        ),
+      decoration: const BoxDecoration(
+        color: Color(0xFF253744),
+        border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: Row(
           children: [
-            const Icon(Icons.qr_code_2, size: 18),
+            const Icon(Icons.qr_code_2, size: 18, color: kClzAccent),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Barcode $barcode is prefilled for ${type.pluralLabel.toLowerCase()}. Search Core or add it manually with the same code.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ],
@@ -787,133 +855,149 @@ class _SearchPane extends StatelessWidget {
     final providers = type.supportedMetadataProviders;
     final selectedProviderOption = _selectedProviderOption(providers);
     final isBusy = isSearching || isSearchingProvider;
-    return Padding(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: queryController,
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    labelText: 'Search Collectarr Core',
-                    prefixIcon: Icon(type.workspace.icon),
-                  ),
-                  onSubmitted: (_) => onSearch(),
-                ),
+    return ColoredBox(
+      color: kClzPanel,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: kClzToolbar,
+                border: Border.all(color: kClzDivider),
               ),
-              const SizedBox(width: 8),
-              FilledButton.icon(
-                onPressed: isBusy ? null : onSearch,
-                icon: isSearching
-                    ? const SizedBox.square(
-                        dimension: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.search),
-                label: const Text('Search'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: barcodeController,
-                  textInputAction: TextInputAction.search,
-                  decoration: const InputDecoration(
-                    labelText: 'Barcode / UPC / ISBN',
-                    prefixIcon: Icon(Icons.numbers),
-                  ),
-                  onSubmitted: (_) => onLookupBarcode(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: isBusy ? null : onLookupBarcode,
-                icon: const Icon(Icons.manage_search),
-                label: const Text('Lookup'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          _CoreSearchNotice(type: type),
-          if (providers.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _ProviderRoutingNotice(
-                    type: type,
-                    selectedProvider: selectedProvider,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 220,
-                  child: OutlinedButton.icon(
-                    onPressed: isBusy ? null : onSearchProvider,
-                    icon: isSearchingProvider
-                        ? const SizedBox.square(
-                            dimension: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.travel_explore),
-                    label: Text(
-                      'Search providers',
-                      overflow: TextOverflow.ellipsis,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: queryController,
+                            textInputAction: TextInputAction.search,
+                            decoration: InputDecoration(
+                              labelText: 'Search Collectarr Core',
+                              prefixIcon: Icon(type.workspace.icon),
+                            ),
+                            onSubmitted: (_) => onSearch(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton.icon(
+                          onPressed: isBusy ? null : onSearch,
+                          style: _libraryAddFilledButtonStyle(),
+                          icon: isSearching
+                              ? const SizedBox.square(
+                                  dimension: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.search, size: 18),
+                          label: const Text('Search Core'),
+                        ),
+                      ],
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: barcodeController,
+                            textInputAction: TextInputAction.search,
+                            decoration: const InputDecoration(
+                              labelText: 'Barcode / UPC / ISBN',
+                              prefixIcon: Icon(Icons.numbers),
+                            ),
+                            onSubmitted: (_) => onLookupBarcode(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton.icon(
+                          onPressed: isBusy ? null : onLookupBarcode,
+                          style: _libraryAddOutlinedButtonStyle(),
+                          icon: const Icon(Icons.manage_search, size: 18),
+                          label: const Text('Lookup'),
+                        ),
+                        if (providers.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          OutlinedButton.icon(
+                            onPressed: isBusy ? null : onSearchProvider,
+                            style: _libraryAddOutlinedButtonStyle(),
+                            icon: isSearchingProvider
+                                ? const SizedBox.square(
+                                    dimension: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.travel_explore, size: 18),
+                            label: const Text('Search providers'),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _CoreSearchNotice(type: type),
+            if (providers.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _ProviderRoutingNotice(
+                type: type,
+                selectedProvider: selectedProvider,
+              ),
+              if (selectedProviderOption != null) ...[
+                const SizedBox(height: 8),
+                _ProviderSearchNotice(
+                  provider: selectedProviderOption,
+                  status: providerStatuses[selectedProviderOption.id],
                 ),
               ],
-            ),
-            if (selectedProviderOption != null) ...[
-              const SizedBox(height: 8),
-              _ProviderSearchNotice(
-                provider: selectedProviderOption,
-                status: providerStatuses[selectedProviderOption.id],
-              ),
+              if (queuedProviderIngests.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _QueuedIngestNotice(
+                  count: queuedProviderIngests.length,
+                  onSearchCore: isBusy ? null : onSearch,
+                ),
+              ],
             ],
-            if (queuedProviderIngests.isNotEmpty) ...[
+            if (error != null) ...[
               const SizedBox(height: 8),
-              _QueuedIngestNotice(
-                count: queuedProviderIngests.length,
-                onSearchCore: isBusy ? null : onSearch,
-              ),
+              _ErrorBanner(error!),
             ],
-          ],
-          if (error != null) ...[
             const SizedBox(height: 8),
-            Text(
-              error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: kClzCanvas,
+                  border: Border.all(color: kClzDivider),
+                ),
+                child: _SearchResultsList(
+                  type: type,
+                  selectedProvider: selectedProvider,
+                  isBusy: isBusy,
+                  isAdding: isAdding,
+                  isQueueingIngest: isQueueingIngest,
+                  searchedProvider: searchedProvider,
+                  results: results,
+                  providerResults: providerResults,
+                  queuedProviderIngests: queuedProviderIngests,
+                  onAddOwned: onAddOwned,
+                  onAddWishlist: onAddWishlist,
+                  onAddProviderOwned: onAddProviderOwned,
+                  onAddProviderWishlist: onAddProviderWishlist,
+                  onQueueProviderIngest: onQueueProviderIngest,
+                  onProposeProvider: onProposeProvider,
+                ),
+              ),
             ),
           ],
-          const SizedBox(height: 12),
-          Expanded(
-            child: _SearchResultsList(
-              type: type,
-              selectedProvider: selectedProvider,
-              isBusy: isBusy,
-              isAdding: isAdding,
-              isQueueingIngest: isQueueingIngest,
-              searchedProvider: searchedProvider,
-              results: results,
-              providerResults: providerResults,
-              queuedProviderIngests: queuedProviderIngests,
-              onAddOwned: onAddOwned,
-              onAddWishlist: onAddWishlist,
-              onAddProviderOwned: onAddProviderOwned,
-              onAddProviderWishlist: onAddProviderWishlist,
-              onQueueProviderIngest: onQueueProviderIngest,
-              onProposeProvider: onProposeProvider,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -930,6 +1014,45 @@ class _SearchPane extends StatelessWidget {
   }
 }
 
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner(this.message);
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF4A2630),
+        border: Border.all(color: const Color(0xFF9D5D69)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.info_outline,
+              size: 18,
+              color: Color(0xFFFFB4C0),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Color(0xFFFFD9DF),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _CoreSearchNotice extends StatelessWidget {
   const _CoreSearchNotice({required this.type});
 
@@ -938,15 +1061,13 @@ class _CoreSearchNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasProviders = type.supportedMetadataProviders.isNotEmpty;
-    final colorScheme = Theme.of(context).colorScheme;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.44),
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(4),
+        color: const Color(0xFF252525),
+        border: Border.all(color: kClzDivider),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(9),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -955,7 +1076,7 @@ class _CoreSearchNotice extends StatelessWidget {
                   ? Icons.cloud_queue_outlined
                   : Icons.warning_amber_outlined,
               size: 18,
-              color: hasProviders ? colorScheme.primary : colorScheme.error,
+              color: hasProviders ? kClzAccent : const Color(0xFFFFB4C0),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -963,10 +1084,11 @@ class _CoreSearchNotice extends StatelessWidget {
                 hasProviders
                     ? 'Core search uses the configured metadata server. If it is offline, use the manual panel; local items still sync normally.'
                     : 'No metadata provider is configured for ${type.pluralLabel.toLowerCase()}. Manual add is available.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: const TextStyle(
+                  color: kClzTextMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ],
@@ -988,32 +1110,27 @@ class _ProviderRoutingNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final providerLabel = type.metadataProviderLabel(selectedProvider);
-    final colorScheme = Theme.of(context).colorScheme;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.28),
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(4),
+        color: const Color(0xFF222C33),
+        border: Border.all(color: kClzDivider),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         child: Row(
           children: [
-            Icon(
-              Icons.alt_route,
-              size: 18,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            const Icon(Icons.alt_route, size: 18, color: kClzAccent),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Core chooses the provider. Default route: $providerLabel, with server-side fallback when available.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: const TextStyle(
+                  color: kClzTextMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ],
@@ -1083,15 +1200,13 @@ class _ProviderSearchNotice extends StatelessWidget {
         kindLabel == null) {
       return const SizedBox.shrink();
     }
-    final colorScheme = Theme.of(context).colorScheme;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.28),
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(4),
+        color: const Color(0xFF222C33),
+        border: Border.all(color: kClzDivider),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1099,10 +1214,11 @@ class _ProviderSearchNotice extends StatelessWidget {
                 provider.description!.isNotEmpty)
               Text(
                 provider.description!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: const TextStyle(
+                  color: kClzTextMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             if (chips.isNotEmpty) ...[
               const SizedBox(height: 6),
@@ -1112,27 +1228,21 @@ class _ProviderSearchNotice extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 message,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                style: const TextStyle(color: kClzTextMuted, fontSize: 12),
               ),
             ],
             if (kindLabel != null) ...[
               const SizedBox(height: 6),
               Text(
                 kindLabel,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                style: const TextStyle(color: kClzTextMuted, fontSize: 12),
               ),
             ],
             if (policy?.summary != null && policy!.summary.isNotEmpty) ...[
               const SizedBox(height: 6),
               Text(
                 policy.summary,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                style: const TextStyle(color: kClzTextMuted, fontSize: 12),
               ),
             ],
           ],
@@ -1153,32 +1263,32 @@ class _QueuedIngestNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final jobLabel = count == 1 ? 'job' : 'jobs';
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.30),
-        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.45)),
-        borderRadius: BorderRadius.circular(4),
+        color: const Color(0xFF183246),
+        border: Border.all(color: kClzAccent.withValues(alpha: 0.65)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(9),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         child: Row(
           children: [
-            Icon(Icons.playlist_add_check,
-                size: 18, color: colorScheme.primary),
+            const Icon(Icons.playlist_add_check, size: 18, color: kClzAccent),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 '$count Core ingest $jobLabel queued. Run or retry them in Admin, then search Core again.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                style: const TextStyle(
+                  color: kClzTextMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             const SizedBox(width: 8),
             OutlinedButton.icon(
               onPressed: onSearchCore,
+              style: _libraryAddOutlinedButtonStyle(),
               icon: const Icon(Icons.refresh, size: 16),
               label: const Text('Search Core again'),
             ),
@@ -1246,7 +1356,7 @@ class _SearchResultsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isBusy && results.isEmpty && providerResults.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const _SearchSkeletonList();
     }
     if (results.isEmpty && providerResults.isEmpty) {
       return _NoSearchResults(
@@ -1257,6 +1367,7 @@ class _SearchResultsList extends StatelessWidget {
     }
     final fallbackProviderLabel = _fallbackProviderLabel();
     return ListView(
+      padding: EdgeInsets.zero,
       children: [
         if (results.isNotEmpty) ...[
           const _ResultSectionHeader(label: 'Collectarr Core'),
@@ -1314,11 +1425,7 @@ class _SearchResultsList extends StatelessWidget {
   }
 
   List<Widget> _withDividers(BuildContext context, List<Widget> tiles) {
-    final divider = Divider(
-      height: 1,
-      thickness: 1,
-      color: Theme.of(context).colorScheme.outlineVariant,
-    );
+    const divider = Divider(height: 1, thickness: 1, color: kClzDivider);
     final separated = <Widget>[];
     for (var index = 0; index < tiles.length; index++) {
       if (index > 0) {
@@ -1327,6 +1434,67 @@ class _SearchResultsList extends StatelessWidget {
       separated.add(tiles[index]);
     }
     return separated;
+  }
+}
+
+class _SearchSkeletonList extends StatelessWidget {
+  const _SearchSkeletonList();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(8),
+      children: [
+        const _ResultSectionHeader(label: 'Searching'),
+        for (var index = 0; index < 6; index++) ...[
+          const SizedBox(height: 8),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: index.isEven ? kClzTableEvenRow : kClzTableOddRow,
+              border: Border.all(color: kClzTableBottomBorder),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  _SkeletonBox(width: 42, height: 56),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _SkeletonBox(width: 220, height: 13),
+                        SizedBox(height: 8),
+                        _SkeletonBox(width: 320, height: 10),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({required this.width, required this.height});
+
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: const Color(0xFF313B42),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
   }
 }
 
@@ -1341,26 +1509,24 @@ class _ProviderFallbackNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer.withValues(alpha: 0.45),
-        border: Border(
-          bottom: BorderSide(color: colorScheme.outlineVariant),
-        ),
+      decoration: const BoxDecoration(
+        color: Color(0xFF3F3A1A),
+        border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Row(
         children: [
-          Icon(Icons.swap_horiz, size: 18, color: colorScheme.secondary),
+          const Icon(Icons.swap_horiz, size: 18, color: kClzYellow),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               '$requestedProvider unavailable, $fallbackProvider fallback used.',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSecondaryContainer,
-                    fontWeight: FontWeight.w800,
-                  ),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ],
@@ -1376,21 +1542,19 @@ class _ResultSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.58),
-        border: Border(
-          bottom: BorderSide(color: colorScheme.outlineVariant),
-        ),
+      decoration: const BoxDecoration(
+        color: kClzPanelRaised,
+        border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              color: colorScheme.onSurfaceVariant,
-            ),
+        style: const TextStyle(
+          color: kClzTextMuted,
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+        ),
       ),
     );
   }
@@ -1411,44 +1575,106 @@ class _SearchResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: SizedBox(
-        width: 42,
-        height: 56,
-        child: LibraryCoverImage(
-          title: item.title,
-          itemNumber: item.itemNumber,
-          imageUrl: item.displayCoverUrl,
+    final subtitle = [
+      if (item.publisher != null) item.publisher,
+      if (item.releaseYear != null) item.releaseYear.toString(),
+      if (item.physicalFormatLabel != null) item.physicalFormatLabel,
+      if (item.variant != null) item.variant,
+      if (item.barcode != null) item.barcode,
+    ].whereType<String>().join(' | ');
+    return ColoredBox(
+      color: kClzTableEvenRow,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 42,
+              height: 56,
+              child: LibraryCoverImage(
+                title: item.title,
+                itemNumber: item.itemNumber,
+                imageUrl: item.displayCoverUrl,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.itemNumber == null
+                        ? item.title
+                        : '${item.title} #${item.itemNumber}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: kClzTextMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 5),
+                  LibraryAddResultBadge(item.kind),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Wrap(
+              spacing: 4,
+              children: [
+                _CompactTileIconButton(
+                  tooltip: 'Add as owned',
+                  onPressed: isAdding ? null : onAddOwned,
+                  icon: Icons.inventory_2_outlined,
+                ),
+                _CompactTileIconButton(
+                  tooltip: 'Add to wishlist',
+                  onPressed: isAdding ? null : onAddWishlist,
+                  icon: Icons.star_outline,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      title: Text(item.itemNumber == null
-          ? item.title
-          : '${item.title} #${item.itemNumber}'),
-      subtitle: Text(
-        [
-          if (item.publisher != null) item.publisher,
-          if (item.releaseYear != null) item.releaseYear.toString(),
-          if (item.variant != null) item.variant,
-          if (item.barcode != null) item.barcode,
-        ].whereType<String>().join(' | '),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: Wrap(
-        spacing: 6,
-        children: [
-          IconButton(
-            tooltip: 'Add as owned',
-            onPressed: isAdding ? null : onAddOwned,
-            icon: const Icon(Icons.inventory_2_outlined),
-          ),
-          IconButton(
-            tooltip: 'Add to wishlist',
-            onPressed: isAdding ? null : onAddWishlist,
-            icon: const Icon(Icons.star_outline),
-          ),
-        ],
+    );
+  }
+}
+
+class _CompactTileIconButton extends StatelessWidget {
+  const _CompactTileIconButton({
+    required this.tooltip,
+    required this.onPressed,
+    required this.icon,
+  });
+
+  final String tooltip;
+  final VoidCallback? onPressed;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18),
+      style: IconButton.styleFrom(
+        minimumSize: const Size.square(30),
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     );
   }
@@ -1479,63 +1705,104 @@ class _ProviderCandidateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: SizedBox(
-        width: 42,
-        height: 56,
-        child: LibraryCoverImage(
-          title: candidate.title,
-          imageUrl: candidate.imageUrl,
-        ),
-      ),
-      title: Text(candidate.title),
-      subtitle: Text(
-        [
-          providerLabel,
-          if (candidate.isStub) 'Stub result',
-          candidate.summary,
-          candidate.providerItemId,
-        ].whereType<String>().join(' | '),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: Wrap(
-        spacing: 6,
-        children: [
-          IconButton(
-            tooltip: 'Add provider draft as owned',
-            onPressed: isAdding ? null : onAddOwned,
-            icon: const Icon(Icons.inventory_2_outlined),
-          ),
-          IconButton(
-            tooltip: 'Add provider draft to wishlist',
-            onPressed: isAdding ? null : onAddWishlist,
-            icon: const Icon(Icons.star_outline),
-          ),
-          if (queuedIngest != null)
-            Tooltip(
-              message:
-                  'Core ingest job ${queuedIngest!.id} (${queuedIngest!.status})',
-              child: Chip(
-                avatar: const Icon(Icons.check_circle_outline, size: 14),
-                label: Text(
-                  '${queuedIngest!.statusLabel} ${queuedIngest!.shortId}',
-                ),
+    final subtitle = [
+      providerLabel,
+      if (candidate.isStub) 'Stub result',
+      candidate.summary,
+      candidate.providerItemId,
+    ].whereType<String>().join(' | ');
+    return ColoredBox(
+      color: kClzTableEvenRow,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 42,
+              height: 56,
+              child: LibraryCoverImage(
+                title: candidate.title,
+                imageUrl: candidate.imageUrl,
               ),
-            )
-          else
-            IconButton(
-              tooltip: 'Queue Core ingest',
-              onPressed: isAdding || isQueueingIngest ? null : onQueueIngest,
-              icon: const Icon(Icons.playlist_add_check),
             ),
-          IconButton(
-            tooltip: 'Propose metadata to Core',
-            onPressed: isAdding || isQueueingIngest ? null : onPropose,
-            icon: const Icon(Icons.outbox_outlined),
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    candidate.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: kClzTextMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 5),
+                  Wrap(
+                    spacing: 5,
+                    runSpacing: 4,
+                    children: [
+                      LibraryAddResultBadge(providerLabel),
+                      if (candidate.isStub) const LibraryAddResultBadge('stub'),
+                      if (queuedIngest != null)
+                        LibraryAddResultBadge(
+                          '${queuedIngest!.statusLabel} ${queuedIngest!.shortId}',
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 160),
+              child: Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                alignment: WrapAlignment.end,
+                children: [
+                  _CompactTileIconButton(
+                    tooltip: 'Add provider draft as owned',
+                    onPressed: isAdding ? null : onAddOwned,
+                    icon: Icons.inventory_2_outlined,
+                  ),
+                  _CompactTileIconButton(
+                    tooltip: 'Add provider draft to wishlist',
+                    onPressed: isAdding ? null : onAddWishlist,
+                    icon: Icons.star_outline,
+                  ),
+                  if (queuedIngest == null)
+                    _CompactTileIconButton(
+                      tooltip: 'Queue Core ingest',
+                      onPressed:
+                          isAdding || isQueueingIngest ? null : onQueueIngest,
+                      icon: Icons.playlist_add_check,
+                    ),
+                  _CompactTileIconButton(
+                    tooltip: 'Propose metadata to Core',
+                    onPressed: isAdding || isQueueingIngest ? null : onPropose,
+                    icon: Icons.outbox_outlined,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1555,12 +1822,27 @@ class _NoSearchResults extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        _message,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(type.workspace.icon, size: 28, color: kClzAccent),
+            const SizedBox(height: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: Text(
+                _message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: kClzTextMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
+          ],
+        ),
       ),
     );
   }
@@ -1612,131 +1894,228 @@ class _ManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labels = libraryMediaFieldLabels(type);
-    return ColoredBox(
-      color: Theme.of(context).colorScheme.surfaceContainerLow,
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: kClzPanelRaised,
+        border: Border(left: _kLibraryAddBorder),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  Text(
-                    'Manual ${type.singularLabel}',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                        ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                      prefixIcon: Icon(Icons.title),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: kClzCanvas,
+                  border: Border.all(color: kClzDivider),
+                ),
+                child: ListView(
+                  padding: const EdgeInsets.all(10),
+                  children: [
+                    _ManualSectionHeader(
+                      icon: type.workspace.icon,
+                      label: 'Manual ${type.singularLabel}',
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: numberController,
-                          decoration: InputDecoration(labelText: labels.number),
-                        ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Title',
+                        prefixIcon: Icon(Icons.title),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: yearController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Year'),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: numberController,
+                            decoration:
+                                InputDecoration(labelText: labels.number),
+                          ),
                         ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: yearController,
+                            keyboardType: TextInputType.number,
+                            decoration:
+                                const InputDecoration(labelText: 'Year'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: publisherController,
+                      decoration: InputDecoration(
+                        labelText: labels.publisher,
+                        prefixIcon: const Icon(Icons.business_outlined),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: variantController,
+                      decoration: InputDecoration(
+                        labelText: labels.variant,
+                        prefixIcon:
+                            const Icon(Icons.auto_awesome_motion_outlined),
+                      ),
+                    ),
+                    if (physicalFormats.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        initialValue: physicalFormatId,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Physical format',
+                          prefixIcon: Icon(Icons.album_outlined),
+                        ),
+                        dropdownColor: kClzPanelRaised,
+                        items: [
+                          const DropdownMenuItem<String>(
+                            value: '',
+                            child: Text('No specific format'),
+                          ),
+                          for (final format in physicalFormats)
+                            DropdownMenuItem<String>(
+                              value: format.id,
+                              child: Text(format.label),
+                            ),
+                        ],
+                        onChanged: onPhysicalFormatChanged,
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: publisherController,
-                    decoration: InputDecoration(
-                      labelText: labels.publisher,
-                      prefixIcon: const Icon(Icons.business_outlined),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: variantController,
-                    decoration: InputDecoration(
-                      labelText: labels.variant,
-                      prefixIcon:
-                          const Icon(Icons.auto_awesome_motion_outlined),
-                    ),
-                  ),
-                  if (physicalFormats.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                      initialValue: physicalFormatId,
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Physical format',
-                        prefixIcon: Icon(Icons.album_outlined),
+                    TextField(
+                      controller: barcodeController,
+                      textInputAction: TextInputAction.next,
+                      decoration: InputDecoration(
+                        labelText: labels.barcode,
+                        prefixIcon: const Icon(Icons.qr_code_2),
                       ),
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: '',
-                          child: Text('No specific format'),
-                        ),
-                        for (final format in physicalFormats)
-                          DropdownMenuItem<String>(
-                            value: format.id,
-                            child: Text(format.label),
-                          ),
-                      ],
-                      onChanged: onPhysicalFormatChanged,
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: coverController,
+                      decoration: const InputDecoration(
+                        labelText: 'Cover image URL',
+                        prefixIcon: Icon(Icons.image_outlined),
+                      ),
                     ),
                   ],
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: barcodeController,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText: labels.barcode,
-                      prefixIcon: const Icon(Icons.qr_code_2),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: coverController,
-                    decoration: const InputDecoration(
-                      labelText: 'Cover image URL',
-                      prefixIcon: Icon(Icons.image_outlined),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: isAdding ? null : onAddWishlist,
-              icon: const Icon(Icons.star_outline),
-              label:
-                  Text('Add to ${LibraryAddTarget.wishlist.destinationLabel}'),
-            ),
-            const SizedBox(height: 8),
-            FilledButton.icon(
-              onPressed: isAdding ? null : onAddOwned,
-              icon: isAdding
-                  ? const SizedBox.square(
-                      dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.inventory_2_outlined),
-              label: Text('Add to ${LibraryAddTarget.owned.destinationLabel}'),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: kClzToolbar,
+                border: Border.all(color: kClzDivider),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        LibraryAddResultBadge('manual'),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Create a local ${type.singularLabel.toLowerCase()} draft',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: kClzTextMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: isAdding ? null : onAddWishlist,
+                            style: _libraryAddOutlinedButtonStyle(),
+                            icon: const Icon(Icons.star_outline, size: 18),
+                            label: Text(
+                              LibraryAddCopy.addToTargetLabel(
+                                count: 1,
+                                type: type,
+                                target: LibraryAddTarget.wishlist,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: isAdding ? null : onAddOwned,
+                            style: _libraryAddFilledButtonStyle(),
+                            icon: isAdding
+                                ? const SizedBox.square(
+                                    dimension: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 18,
+                                  ),
+                            label: Text(
+                              LibraryAddCopy.addToTargetLabel(
+                                count: 1,
+                                type: type,
+                                target: LibraryAddTarget.owned,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ManualSectionHeader extends StatelessWidget {
+  const _ManualSectionHeader({
+    required this.icon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: kClzAccent),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
     );
   }
 }
