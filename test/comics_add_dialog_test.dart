@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_add_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -85,5 +86,47 @@ void main() {
 
     expect(
         find.text('Issue number is required for Add Issue.'), findsOneWidget);
+  });
+
+  testWidgets('search input accepts space while dialog shortcuts are active',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => const ShelfState(
+              entries: [],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: Scaffold(body: AddComicDialog())),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    final searchField = find.widgetWithText(TextField, 'Enter series title...');
+    await tester.tap(searchField);
+    await tester.enterText(searchField, 'absolute');
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.enterText(searchField, 'absolute batman');
+    expect(
+      tester.widget<TextField>(searchField).controller?.text,
+      'absolute batman',
+    );
   });
 }
