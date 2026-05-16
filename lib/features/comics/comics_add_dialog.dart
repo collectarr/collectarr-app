@@ -1453,6 +1453,8 @@ class _ComicsSearchFields {
   final String issueNumber;
 }
 
+const double _kAddComicModeControlHeight = 36;
+
 class _AddComicModeBar extends StatelessWidget {
   const _AddComicModeBar({
     required this.mode,
@@ -1591,7 +1593,7 @@ class _AddComicModeBar extends StatelessWidget {
                   children: [
                     Expanded(
                       child: SizedBox(
-                        height: 36,
+                        height: _kAddComicModeControlHeight,
                         child: TextField(
                           controller: queryController,
                           onSubmitted: (_) => onSearch(),
@@ -1610,18 +1612,10 @@ class _AddComicModeBar extends StatelessWidget {
                       onSubmitted: onSearch,
                     ),
                     const SizedBox(width: 10),
-                    SizedBox(
-                      height: 36,
-                      child: FilledButton(
-                        onPressed: isSearching ? null : onSearch,
-                        child: isSearching
-                            ? const SizedBox.square(
-                                dimension: 16,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text('Search Series'),
-                      ),
+                    _ModeSearchButton(
+                      label: 'Search Series',
+                      isSearching: isSearching,
+                      onPressed: onSearch,
                     ),
                   ],
                 ),
@@ -1631,7 +1625,7 @@ class _AddComicModeBar extends StatelessWidget {
                       children: [
                         Expanded(
                           child: SizedBox(
-                            height: 36,
+                            height: _kAddComicModeControlHeight,
                             child: TextField(
                               controller: seriesController,
                               onSubmitted: (_) => onSearch(),
@@ -1656,18 +1650,10 @@ class _AddComicModeBar extends StatelessWidget {
                           label: const Text('Filters'),
                         ),
                         const SizedBox(width: 10),
-                        SizedBox(
-                          height: 36,
-                          child: FilledButton(
-                            onPressed: isSearching ? null : onSearch,
-                            child: isSearching
-                                ? const SizedBox.square(
-                                    dimension: 16,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2),
-                                  )
-                                : const Text('Search Issue'),
-                          ),
+                        _ModeSearchButton(
+                          label: 'Search Issue',
+                          isSearching: isSearching,
+                          onPressed: onSearch,
                         ),
                       ],
                     ),
@@ -1692,7 +1678,7 @@ class _AddComicModeBar extends StatelessWidget {
                       child: Column(
                         children: [
                           SizedBox(
-                            height: 34,
+                            height: _kAddComicModeControlHeight,
                             child: TextField(
                               controller: barcodeController,
                               keyboardType: TextInputType.number,
@@ -1843,7 +1829,7 @@ class _FilterField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      height: 36,
+      height: _kAddComicModeControlHeight,
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
@@ -1857,6 +1843,39 @@ class _FilterField extends StatelessWidget {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         ),
+      ),
+    );
+  }
+}
+
+class _ModeSearchButton extends StatelessWidget {
+  const _ModeSearchButton({
+    required this.label,
+    required this.isSearching,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool isSearching;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _kAddComicModeControlHeight,
+      child: FilledButton(
+        onPressed: isSearching ? null : onPressed,
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(0, _kAddComicModeControlHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: isSearching
+            ? const SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(label),
       ),
     );
   }

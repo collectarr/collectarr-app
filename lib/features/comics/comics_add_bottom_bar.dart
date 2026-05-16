@@ -81,12 +81,16 @@ class AddComicBottomBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!isProposal && addTarget == LibraryAddTarget.owned) ...[
-              _AddOwnedDefaultsBar(
+            if (!isProposal) ...[
+              _AddTargetDefaultsBar(
+                addTarget: addTarget,
+                addCount: addCount,
+                isSubmitting: isSubmitting,
                 condition: defaultCondition,
                 grade: defaultGrade,
                 storageBoxController: defaultStorageBoxController,
                 purchaseDate: defaultPurchaseDate,
+                onAddTargetChanged: onAddTargetChanged,
                 onConditionChanged: onDefaultConditionChanged,
                 onGradeChanged: onDefaultGradeChanged,
                 onPurchaseDateChanged: onDefaultPurchaseDateChanged,
@@ -95,42 +99,6 @@ class AddComicBottomBar extends StatelessWidget {
             ],
             Row(
               children: [
-                if (!isProposal) ...[
-                  LibraryAddResultBadge('$addCount selected'),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 190,
-                    height: 40,
-                    child: DropdownButtonFormField<LibraryAddTarget>(
-                      initialValue: addTarget,
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        border: OutlineInputBorder(),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      ),
-                      items: [
-                        DropdownMenuItem(
-                          value: LibraryAddTarget.owned,
-                          child: Text(LibraryAddTarget.owned.actionLabel),
-                        ),
-                        DropdownMenuItem(
-                          value: LibraryAddTarget.wishlist,
-                          child: Text(LibraryAddTarget.wishlist.actionLabel),
-                        ),
-                      ],
-                      onChanged: isSubmitting
-                          ? null
-                          : (value) {
-                              if (value != null) {
-                                onAddTargetChanged(value);
-                              }
-                            },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
                 Expanded(
                   child: FilledButton(
                     onPressed: isSubmitting
@@ -157,21 +125,29 @@ class AddComicBottomBar extends StatelessWidget {
   }
 }
 
-class _AddOwnedDefaultsBar extends StatelessWidget {
-  const _AddOwnedDefaultsBar({
+class _AddTargetDefaultsBar extends StatelessWidget {
+  const _AddTargetDefaultsBar({
+    required this.addTarget,
+    required this.addCount,
+    required this.isSubmitting,
     required this.condition,
     required this.grade,
     required this.storageBoxController,
     required this.purchaseDate,
+    required this.onAddTargetChanged,
     required this.onConditionChanged,
     required this.onGradeChanged,
     required this.onPurchaseDateChanged,
   });
 
+  final LibraryAddTarget addTarget;
+  final int addCount;
+  final bool isSubmitting;
   final String? condition;
   final String? grade;
   final TextEditingController storageBoxController;
   final DateTime? purchaseDate;
+  final ValueChanged<LibraryAddTarget> onAddTargetChanged;
   final ValueChanged<String?> onConditionChanged;
   final ValueChanged<String?> onGradeChanged;
   final ValueChanged<DateTime?> onPurchaseDateChanged;
@@ -183,57 +159,92 @@ class _AddOwnedDefaultsBar extends StatelessWidget {
       runSpacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        const Text(
-          'Owned defaults',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-        _SmallDropdown(
-          width: 140,
-          value: condition,
-          items: ComicInspector.conditions,
-          label: 'Condition',
-          onChanged: onConditionChanged,
-        ),
-        _SmallDropdown(
-          width: 120,
-          value: grade,
-          items: ComicInspector.grades,
-          label: 'Grade',
-          onChanged: onGradeChanged,
-        ),
+        LibraryAddResultBadge('$addCount selected'),
         SizedBox(
-          width: 150,
+          width: 190,
           height: 38,
-          child: TextField(
-            controller: storageBoxController,
+          child: DropdownButtonFormField<LibraryAddTarget>(
+            initialValue: addTarget,
+            isExpanded: true,
             decoration: const InputDecoration(
               isDense: true,
               border: OutlineInputBorder(),
-              labelText: 'Storage box',
+              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            ),
+            items: [
+              DropdownMenuItem(
+                value: LibraryAddTarget.owned,
+                child: Text(LibraryAddTarget.owned.actionLabel),
+              ),
+              DropdownMenuItem(
+                value: LibraryAddTarget.wishlist,
+                child: Text(LibraryAddTarget.wishlist.actionLabel),
+              ),
+            ],
+            onChanged: isSubmitting
+                ? null
+                : (value) {
+                    if (value != null) {
+                      onAddTargetChanged(value);
+                    }
+                  },
+          ),
+        ),
+        if (addTarget == LibraryAddTarget.owned) ...[
+          const Text(
+            'Owned defaults',
+            style: TextStyle(fontWeight: FontWeight.w800),
+          ),
+          _SmallDropdown(
+            width: 140,
+            value: condition,
+            items: ComicInspector.conditions,
+            label: 'Condition',
+            onChanged: onConditionChanged,
+          ),
+          _SmallDropdown(
+            width: 120,
+            value: grade,
+            items: ComicInspector.grades,
+            label: 'Grade',
+            onChanged: onGradeChanged,
+          ),
+          SizedBox(
+            width: 150,
+            height: 38,
+            child: TextField(
+              controller: storageBoxController,
+              decoration: const InputDecoration(
+                isDense: true,
+                border: OutlineInputBorder(),
+                labelText: 'Storage box',
+              ),
             ),
           ),
-        ),
-        OutlinedButton.icon(
-          onPressed: () async {
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: purchaseDate ?? DateTime.now(),
-              firstDate: DateTime(1970),
-              lastDate: DateTime(2100),
-            );
-            onPurchaseDateChanged(picked);
-          },
-          icon: const Icon(Icons.calendar_today, size: 16),
-          label: Text(
-            purchaseDate == null ? 'Purchase date' : _formatDate(purchaseDate!),
+          OutlinedButton.icon(
+            onPressed: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: purchaseDate ?? DateTime.now(),
+                firstDate: DateTime(1970),
+                lastDate: DateTime(2100),
+              );
+              onPurchaseDateChanged(picked);
+            },
+            icon: const Icon(Icons.calendar_today, size: 16),
+            label: Text(
+              purchaseDate == null
+                  ? 'Purchase date'
+                  : _formatDate(purchaseDate!),
+            ),
           ),
-        ),
-        if (purchaseDate != null)
-          IconButton(
-            tooltip: 'Clear purchase date',
-            onPressed: () => onPurchaseDateChanged(null),
-            icon: const Icon(Icons.clear, size: 18),
-          ),
+          if (purchaseDate != null)
+            IconButton(
+              tooltip: 'Clear purchase date',
+              onPressed: () => onPurchaseDateChanged(null),
+              icon: const Icon(Icons.clear, size: 18),
+            ),
+        ],
       ],
     );
   }
