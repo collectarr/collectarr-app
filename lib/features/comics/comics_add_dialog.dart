@@ -1911,6 +1911,9 @@ class _PrimarySearchField extends StatelessWidget {
       child: _ModeFieldFrame(
         child: TextField(
           controller: controller,
+          expands: true,
+          minLines: null,
+          maxLines: null,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
@@ -1958,6 +1961,9 @@ class _FilterField extends StatelessWidget {
         child: TextField(
           controller: controller,
           keyboardType: keyboardType,
+          expands: true,
+          minLines: null,
+          maxLines: null,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(

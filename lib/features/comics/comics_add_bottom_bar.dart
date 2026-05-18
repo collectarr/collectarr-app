@@ -192,6 +192,9 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             child: _CompactInputShell(
               child: TextField(
                 controller: storageBoxController,
+                expands: true,
+                minLines: null,
+                maxLines: null,
                 textAlignVertical: TextAlignVertical.center,
                 style: const TextStyle(
                   color: Color(0xFFBFEFFF),
