@@ -24,14 +24,18 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_propos
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 const Color _kClzToolbar = kClzToolbar;
 const Color _kClzPanel = kClzPanel;
 const Color _kClzAccent = kClzAccent;
 final ThemeData _kClzAddComicDialogTheme = kClzAddComicDialogTheme;
+final TextInputFormatter _noNewlineFormatter =
+    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]'));
 
 class AddComicDialog extends ConsumerStatefulWidget {
   const AddComicDialog({super.key});
@@ -54,6 +58,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     comicsLibraryConfig.defaultSupportedMetadataProvider,
   );
   final _checkedServerIds = <String>{};
+  final _checkedProviderIds = <String>{};
   final _collapsedAddSeries = <String>{};
   final _barcodeBatch = <BarcodeLookupEntry>[];
   final _barcodeHistory = <String>[];
@@ -62,8 +67,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   bool _isSubmitting = false;
   bool _includeVariants = true;
   bool _hideInShelf = true;
+  bool _issueSortAscending = true;
   bool _showAdvancedFilters = false;
-  LibraryAddMode _mode = LibraryAddMode.search;
+  LibraryAddMode _mode = LibraryAddMode.addSeries;
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
   String? _defaultCondition = 'Near Mint';
   String? _defaultGrade = 'Ungraded';
@@ -123,6 +129,21 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
             )
         ? rawSelectedCandidate
         : null;
+    final checkedProviderCandidates = [
+      for (final candidate in providerState.results)
+        if (_checkedProviderIds.contains(candidate.providerItemId) &&
+            _isProviderCandidateVisible(
+              candidate,
+              ownedItemIds: ownedItemIds,
+              wishlistItemIds: wishlistItemIds,
+            ))
+          candidate,
+    ];
+    final proposalCandidates = checkedProviderCandidates.isNotEmpty
+        ? checkedProviderCandidates
+        : [
+            if (selectedCandidate != null) selectedCandidate,
+          ];
     final selectedProviderLabel =
         _metadataProviderLabel(providerState.provider);
     final selectedCandidateProviderLabel = selectedCandidate == null
@@ -173,223 +194,251 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                 ),
               ],
             ),
-            child: Column(
-              children: [
-                _AddComicTitleBar(onClose: () => Navigator.of(context).pop()),
-                _AddComicModeBar(
-                  mode: _mode,
-                  queryController: _controller,
-                  seriesController: _seriesController,
-                  issueController: _issueController,
-                  publisherController: _publisherController,
-                  yearController: _yearController,
-                  barcodeController: _barcodeController,
-                  barcodeBatch: _barcodeBatch,
-                  barcodeHistory: _barcodeHistory,
-                  showAdvancedFilters: _showAdvancedFilters,
-                  isSearching: _isSearchingServer,
-                  onModeChanged: (value) => setState(() => _mode = value),
-                  onAdvancedChanged: (value) =>
-                      setState(() => _showAdvancedFilters = value),
-                  onSearch: _searchServer,
-                  onLookupBarcode: () =>
-                      _lookupBarcode(_barcodeController.text.trim()),
-                  onLookupBarcodeBatch: _lookupBarcodeBatch,
-                  barcodeAddCount: barcodeAddItems.length,
-                  barcodeAddLabel: _barcodeAddLabel(barcodeAddItems.length),
-                  onAddBarcodeFound: barcodeAddItems.isEmpty
-                      ? null
-                      : () => _addServerComics(
-                            barcodeAddItems,
-                            target: _addTarget,
-                          ),
-                  onRemoveBarcodeBatchEntry: _removeBarcodeBatchEntry,
-                  onClearBarcodeBatch: _clearBarcodeBatch,
-                  onUseBarcodeHistory: _lookupBarcode,
-                  onScanBarcode: _scanBarcode,
-                  onAddManual: _addManualComic,
-                  onProposeManual: _proposeManualComic,
-                ),
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-                    child: _DialogMessage(
-                      icon: Icons.error_outline,
-                      text: _error!,
-                    ),
+            child: Focus(
+              autofocus: true,
+              onKeyEvent: (node, event) => _handleDialogKeyEvent(
+                event,
+                ownedItemIds: ownedItemIds,
+                wishlistItemIds: wishlistItemIds,
+              ),
+              child: Column(
+                children: [
+                  _AddComicTitleBar(onClose: () => Navigator.of(context).pop()),
+                  _AddComicModeBar(
+                    mode: _mode,
+                    queryController: _controller,
+                    seriesController: _seriesController,
+                    issueController: _issueController,
+                    publisherController: _publisherController,
+                    yearController: _yearController,
+                    barcodeController: _barcodeController,
+                    barcodeBatch: _barcodeBatch,
+                    barcodeHistory: _barcodeHistory,
+                    showAdvancedFilters: _showAdvancedFilters,
+                    isSearching: _isSearchingServer,
+                    onModeChanged: _changeMode,
+                    onAdvancedChanged: (value) =>
+                        setState(() => _showAdvancedFilters = value),
+                    onSearch: _searchServer,
+                    onLookupBarcode: () =>
+                        _lookupBarcode(_barcodeController.text.trim()),
+                    onLookupBarcodeBatch: _lookupBarcodeBatch,
+                    barcodeAddCount: barcodeAddItems.length,
+                    barcodeAddLabel: _barcodeAddLabel(barcodeAddItems.length),
+                    onAddBarcodeFound: barcodeAddItems.isEmpty
+                        ? null
+                        : () => _addServerComics(
+                              barcodeAddItems,
+                              target: _addTarget,
+                            ),
+                    onRemoveBarcodeBatchEntry: _removeBarcodeBatchEntry,
+                    onClearBarcodeBatch: _clearBarcodeBatch,
+                    onUseBarcodeHistory: _lookupBarcode,
+                    onScanBarcode: _scanBarcode,
+                    onAddManual: _addManualComic,
+                    onProposeManual: _proposeManualComic,
                   ),
-                Expanded(
-                  child: compact
-                      ? Column(
-                          children: [
-                            SizedBox(
-                              height: 300,
-                              child: AddComicResultPane(
-                                mode: _mode,
-                                serverResults: _serverResults,
-                                providerResults: providerState.results,
-                                pullListRows: pullListRows,
-                                ownedItemIds: ownedItemIds,
-                                wishlistItemIds: wishlistItemIds,
-                                selectedServerId: _selectedServerId,
-                                selectedProviderId: providerState.selectedId,
-                                checkedServerIds: _checkedServerIds,
-                                includeVariants: _includeVariants,
-                                hideInShelf: _hideInShelf,
-                                searchedServer: _searchedServer,
-                                searchedProvider: providerState.searched,
-                                isSearchingServer: _isSearchingServer,
-                                isSearchingProvider: providerState.isSearching,
-                                selectedProvider: providerState.provider,
-                                providerLabel: _metadataProviderLabel,
-                                onIncludeVariantsChanged: (value) =>
-                                    setState(() => _includeVariants = value),
-                                onHideInShelfChanged: (value) =>
-                                    setState(() => _hideInShelf = value),
-                                onSelectServer: (id) => setState(() {
-                                  _selectedServerId = id;
-                                  _providerState =
-                                      _providerState.clearSelection();
-                                }),
-                                onToggleServerCheck: _toggleServerCheck,
-                                collapsedSeries: _collapsedAddSeries,
-                                onToggleSeriesCollapsed:
-                                    _toggleAddSeriesCollapsed,
-                                onToggleSeriesCheck: _toggleAddSeriesCheck,
-                                onCheckAllVisible: _checkServerItems,
-                                onClearServerChecks: () =>
-                                    setState(_checkedServerIds.clear),
-                                onSelectProvider: (id) => setState(() {
-                                  _providerState = _providerState.select(id);
-                                  _selectedServerId = null;
-                                }),
-                                onSearchPullListRow: _searchPullListRow,
+                  if (_error != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+                      child: _DialogMessage(
+                        icon: Icons.error_outline,
+                        text: _error!,
+                      ),
+                    ),
+                  Expanded(
+                    child: compact
+                        ? Column(
+                            children: [
+                              SizedBox(
+                                height: 300,
+                                child: AddComicResultPane(
+                                  mode: _mode,
+                                  serverResults: _serverResults,
+                                  providerResults: providerState.results,
+                                  pullListRows: pullListRows,
+                                  ownedItemIds: ownedItemIds,
+                                  wishlistItemIds: wishlistItemIds,
+                                  selectedServerId: _selectedServerId,
+                                  selectedProviderId: providerState.selectedId,
+                                  checkedServerIds: _checkedServerIds,
+                                  checkedProviderIds: _checkedProviderIds,
+                                  includeVariants: _includeVariants,
+                                  hideInShelf: _hideInShelf,
+                                  issueSortAscending: _issueSortAscending,
+                                  searchedServer: _searchedServer,
+                                  searchedProvider: providerState.searched,
+                                  isSearchingServer: _isSearchingServer,
+                                  isSearchingProvider:
+                                      providerState.isSearching,
+                                  selectedProvider: providerState.provider,
+                                  providerLabel: _metadataProviderLabel,
+                                  onIncludeVariantsChanged: (value) =>
+                                      setState(() => _includeVariants = value),
+                                  onHideInShelfChanged: (value) =>
+                                      setState(() => _hideInShelf = value),
+                                  onIssueSortAscendingChanged: (value) =>
+                                      setState(
+                                          () => _issueSortAscending = value),
+                                  onSelectServer: (id) => setState(() {
+                                    _selectedServerId = id;
+                                    _providerState =
+                                        _providerState.clearSelection();
+                                    _checkedProviderIds.clear();
+                                  }),
+                                  onToggleServerCheck: _toggleServerCheck,
+                                  collapsedSeries: _collapsedAddSeries,
+                                  onToggleSeriesCollapsed:
+                                      _toggleAddSeriesCollapsed,
+                                  onToggleSeriesCheck: _toggleAddSeriesCheck,
+                                  onCheckAllVisible: _checkServerItems,
+                                  onClearServerChecks: () =>
+                                      setState(_checkedServerIds.clear),
+                                  onSelectProvider: (id) => setState(() {
+                                    _selectProviderCandidate(id);
+                                  }),
+                                  onToggleProviderCheck: _toggleProviderCheck,
+                                  onToggleProviderCandidatesCheck:
+                                      _toggleProviderCandidatesCheck,
+                                  onSearchPullListRow: _searchPullListRow,
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: AddComicPreviewPane(
-                                item: selectedItem,
-                                candidate: selectedCandidate,
-                                selectedProviderLabel:
-                                    selectedCandidateProviderLabel,
-                                selectedIsOwned: selectedIsOwned,
-                                selectedIsWishlisted: selectedIsWishlisted,
-                                searchedServer: _searchedServer,
+                              Expanded(
+                                child: AddComicPreviewPane(
+                                  item: selectedItem,
+                                  candidate: selectedCandidate,
+                                  selectedProviderLabel:
+                                      selectedCandidateProviderLabel,
+                                  selectedIsOwned: selectedIsOwned,
+                                  selectedIsWishlisted: selectedIsWishlisted,
+                                  searchedServer: _searchedServer,
+                                ),
                               ),
-                            ),
-                          ],
-                        )
-                      : LayoutBuilder(
-                          builder: (context, constraints) {
-                            final paneWidth = _clampedResultsPaneWidth(
-                              constraints.maxWidth,
-                            );
-                            return Row(
-                              children: [
-                                SizedBox(
-                                  width: paneWidth,
-                                  child: AddComicResultPane(
-                                    mode: _mode,
-                                    serverResults: _serverResults,
-                                    providerResults: providerState.results,
-                                    pullListRows: pullListRows,
-                                    ownedItemIds: ownedItemIds,
-                                    wishlistItemIds: wishlistItemIds,
-                                    selectedServerId: _selectedServerId,
-                                    selectedProviderId:
-                                        providerState.selectedId,
-                                    checkedServerIds: _checkedServerIds,
-                                    includeVariants: _includeVariants,
-                                    hideInShelf: _hideInShelf,
-                                    searchedServer: _searchedServer,
-                                    searchedProvider: providerState.searched,
-                                    isSearchingServer: _isSearchingServer,
-                                    isSearchingProvider:
-                                        providerState.isSearching,
-                                    selectedProvider: providerState.provider,
-                                    providerLabel: _metadataProviderLabel,
-                                    onIncludeVariantsChanged: (value) =>
-                                        setState(
-                                            () => _includeVariants = value),
-                                    onHideInShelfChanged: (value) =>
-                                        setState(() => _hideInShelf = value),
-                                    onSelectServer: (id) => setState(() {
-                                      _selectedServerId = id;
-                                      _providerState =
-                                          _providerState.clearSelection();
-                                    }),
-                                    onToggleServerCheck: _toggleServerCheck,
-                                    collapsedSeries: _collapsedAddSeries,
-                                    onToggleSeriesCollapsed:
-                                        _toggleAddSeriesCollapsed,
-                                    onToggleSeriesCheck: _toggleAddSeriesCheck,
-                                    onCheckAllVisible: _checkServerItems,
-                                    onClearServerChecks: () =>
-                                        setState(_checkedServerIds.clear),
-                                    onSelectProvider: (id) => setState(() {
-                                      _providerState =
-                                          _providerState.select(id);
-                                      _selectedServerId = null;
-                                    }),
-                                    onSearchPullListRow: _searchPullListRow,
+                            ],
+                          )
+                        : LayoutBuilder(
+                            builder: (context, constraints) {
+                              final paneWidth = _clampedResultsPaneWidth(
+                                constraints.maxWidth,
+                              );
+                              return Row(
+                                children: [
+                                  SizedBox(
+                                    width: paneWidth,
+                                    child: AddComicResultPane(
+                                      mode: _mode,
+                                      serverResults: _serverResults,
+                                      providerResults: providerState.results,
+                                      pullListRows: pullListRows,
+                                      ownedItemIds: ownedItemIds,
+                                      wishlistItemIds: wishlistItemIds,
+                                      selectedServerId: _selectedServerId,
+                                      selectedProviderId:
+                                          providerState.selectedId,
+                                      checkedServerIds: _checkedServerIds,
+                                      checkedProviderIds: _checkedProviderIds,
+                                      includeVariants: _includeVariants,
+                                      hideInShelf: _hideInShelf,
+                                      issueSortAscending: _issueSortAscending,
+                                      searchedServer: _searchedServer,
+                                      searchedProvider: providerState.searched,
+                                      isSearchingServer: _isSearchingServer,
+                                      isSearchingProvider:
+                                          providerState.isSearching,
+                                      selectedProvider: providerState.provider,
+                                      providerLabel: _metadataProviderLabel,
+                                      onIncludeVariantsChanged: (value) =>
+                                          setState(
+                                              () => _includeVariants = value),
+                                      onHideInShelfChanged: (value) =>
+                                          setState(() => _hideInShelf = value),
+                                      onIssueSortAscendingChanged: (value) =>
+                                          setState(() =>
+                                              _issueSortAscending = value),
+                                      onSelectServer: (id) => setState(() {
+                                        _selectedServerId = id;
+                                        _providerState =
+                                            _providerState.clearSelection();
+                                        _checkedProviderIds.clear();
+                                      }),
+                                      onToggleServerCheck: _toggleServerCheck,
+                                      collapsedSeries: _collapsedAddSeries,
+                                      onToggleSeriesCollapsed:
+                                          _toggleAddSeriesCollapsed,
+                                      onToggleSeriesCheck:
+                                          _toggleAddSeriesCheck,
+                                      onCheckAllVisible: _checkServerItems,
+                                      onClearServerChecks: () =>
+                                          setState(_checkedServerIds.clear),
+                                      onSelectProvider: (id) => setState(() {
+                                        _selectProviderCandidate(id);
+                                      }),
+                                      onToggleProviderCheck:
+                                          _toggleProviderCheck,
+                                      onToggleProviderCandidatesCheck:
+                                          _toggleProviderCandidatesCheck,
+                                      onSearchPullListRow: _searchPullListRow,
+                                    ),
                                   ),
-                                ),
-                                _AddComicPaneResizeHandle(
-                                  onDragDelta: (delta) => _resizeResultsPane(
-                                    delta,
-                                    constraints.maxWidth,
+                                  _AddComicPaneResizeHandle(
+                                    onDragDelta: (delta) => _resizeResultsPane(
+                                      delta,
+                                      constraints.maxWidth,
+                                    ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: AddComicPreviewPane(
-                                    item: selectedItem,
-                                    candidate: selectedCandidate,
-                                    selectedProviderLabel:
-                                        selectedCandidateProviderLabel,
-                                    selectedIsOwned: selectedIsOwned,
-                                    selectedIsWishlisted: selectedIsWishlisted,
-                                    searchedServer: _searchedServer,
+                                  Expanded(
+                                    child: AddComicPreviewPane(
+                                      item: selectedItem,
+                                      candidate: selectedCandidate,
+                                      selectedProviderLabel:
+                                          selectedCandidateProviderLabel,
+                                      selectedIsOwned: selectedIsOwned,
+                                      selectedIsWishlisted:
+                                          selectedIsWishlisted,
+                                      searchedServer: _searchedServer,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                ),
-                AddComicBottomBar(
-                  selectedItem: selectedItem,
-                  selectedCandidate: selectedCandidate,
-                  selectedIsOwned: selectedIsOwned,
-                  selectedIsWishlisted: selectedIsWishlisted,
-                  proposalProviderLabel: selectedCandidate == null
-                      ? selectedProviderLabel
-                      : _metadataProviderLabel(selectedCandidate.provider),
-                  addTarget: _addTarget,
-                  addCount: addItems.length,
-                  isSubmitting: _isSubmitting,
-                  defaultCondition: _defaultCondition,
-                  defaultGrade: _defaultGrade,
-                  defaultStorageBoxController: _defaultStorageBoxController,
-                  defaultPurchaseDate: _defaultPurchaseDate,
-                  onAddTargetChanged: (value) =>
-                      setState(() => _addTarget = value),
-                  onDefaultConditionChanged: (value) =>
-                      setState(() => _defaultCondition = value),
-                  onDefaultGradeChanged: (value) =>
-                      setState(() => _defaultGrade = value),
-                  onDefaultPurchaseDateChanged: (value) =>
-                      setState(() => _defaultPurchaseDate = value),
-                  onAdd: addItems.isEmpty
-                      ? null
-                      : () => _addServerComics(
-                            addItems,
-                            target: _addTarget,
+                                ],
+                              );
+                            },
                           ),
-                  onPropose: selectedCandidate == null
-                      ? null
-                      : () => _proposeCandidate(selectedCandidate),
-                ),
-              ],
+                  ),
+                  AddComicBottomBar(
+                    selectedItem: selectedItem,
+                    selectedCandidate: selectedCandidate,
+                    selectedIsOwned: selectedIsOwned,
+                    selectedIsWishlisted: selectedIsWishlisted,
+                    proposalProviderLabel: selectedCandidate == null
+                        ? selectedProviderLabel
+                        : _metadataProviderLabel(selectedCandidate.provider),
+                    proposalCount: proposalCandidates.length,
+                    addTarget: _addTarget,
+                    addCount: addItems.length,
+                    isSubmitting: _isSubmitting,
+                    defaultCondition: _defaultCondition,
+                    defaultGrade: _defaultGrade,
+                    defaultStorageBoxController: _defaultStorageBoxController,
+                    defaultPurchaseDate: _defaultPurchaseDate,
+                    onAddTargetChanged: (value) =>
+                        setState(() => _addTarget = value),
+                    onDefaultConditionChanged: (value) =>
+                        setState(() => _defaultCondition = value),
+                    onDefaultGradeChanged: (value) =>
+                        setState(() => _defaultGrade = value),
+                    onDefaultPurchaseDateChanged: (value) =>
+                        setState(() => _defaultPurchaseDate = value),
+                    onAdd: addItems.isEmpty
+                        ? null
+                        : () => _addServerComics(
+                              addItems,
+                              target: _addTarget,
+                            ),
+                    onPropose: proposalCandidates.isEmpty
+                        ? null
+                        : () => _proposeCandidates(proposalCandidates),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -469,6 +518,198 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     return true;
   }
 
+  bool _isServerItemVisible(
+    CatalogItem item, {
+    required Set<String> ownedItemIds,
+    required Set<String> wishlistItemIds,
+  }) {
+    if (!_includeVariants && _looksLikeComicVariant(item.variant)) {
+      return false;
+    }
+    if (_hideInShelf &&
+        (ownedItemIds.contains(item.id) || wishlistItemIds.contains(item.id))) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _looksLikeComicVariant(String? value) {
+    final text = value?.trim().toLowerCase();
+    if (text == null || text.isEmpty) {
+      return false;
+    }
+    if (text == 'cover a' ||
+        text == 'regular cover' ||
+        text == 'standard cover' ||
+        text == 'standard edition') {
+      return false;
+    }
+    return text.contains('variant') ||
+        text.contains('virgin') ||
+        text.contains('foil') ||
+        text.contains('exclusive') ||
+        text.contains('incentive') ||
+        text.contains('ratio') ||
+        text.contains('second printing') ||
+        text.contains('third printing');
+  }
+
+  bool get _keyboardShortcutShouldYieldToInput {
+    final context = FocusManager.instance.primaryFocus?.context;
+    if (context == null) {
+      return false;
+    }
+    return context.widget is EditableText ||
+        context.findAncestorWidgetOfExactType<EditableText>() != null ||
+        context is Element && _containsEditableText(context);
+  }
+
+  bool _containsEditableText(Element root) {
+    var found = false;
+    void visit(Element element) {
+      if (found) {
+        return;
+      }
+      if (element.widget is EditableText) {
+        found = true;
+        return;
+      }
+      element.visitChildren(visit);
+    }
+
+    root.visitChildren(visit);
+    return found;
+  }
+
+  KeyEventResult _handleDialogKeyEvent(
+    KeyEvent event, {
+    required Set<String> ownedItemIds,
+    required Set<String> wishlistItemIds,
+  }) {
+    if (event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+    if (_keyboardShortcutShouldYieldToInput) {
+      return KeyEventResult.ignored;
+    }
+
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.escape) {
+      Navigator.of(context).maybePop();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter) {
+      _searchServer();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowDown) {
+      _moveResultSelection(
+        1,
+        ownedItemIds: ownedItemIds,
+        wishlistItemIds: wishlistItemIds,
+      );
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowUp) {
+      _moveResultSelection(
+        -1,
+        ownedItemIds: ownedItemIds,
+        wishlistItemIds: wishlistItemIds,
+      );
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.space) {
+      _toggleFocusedResultSelection();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  void _moveResultSelection(
+    int delta, {
+    required Set<String> ownedItemIds,
+    required Set<String> wishlistItemIds,
+  }) {
+    if (_keyboardShortcutShouldYieldToInput) {
+      return;
+    }
+    final visibleServerIds = [
+      for (final item in _serverResults)
+        if (_isServerItemVisible(
+          item,
+          ownedItemIds: ownedItemIds,
+          wishlistItemIds: wishlistItemIds,
+        ))
+          item.id,
+    ];
+    if (visibleServerIds.isNotEmpty) {
+      final currentIndex = _selectedServerId == null
+          ? -1
+          : visibleServerIds.indexOf(_selectedServerId!);
+      final nextIndex = _wrappedResultIndex(
+        currentIndex: currentIndex,
+        delta: delta,
+        length: visibleServerIds.length,
+      );
+      setState(() {
+        _selectedServerId = visibleServerIds[nextIndex];
+        _providerState = _providerState.clearSelection();
+        _checkedProviderIds.clear();
+      });
+      return;
+    }
+
+    final visibleProviderIds = [
+      for (final candidate in _providerState.results)
+        if (_isProviderCandidateVisible(
+          candidate,
+          ownedItemIds: ownedItemIds,
+          wishlistItemIds: wishlistItemIds,
+        ))
+          candidate.providerItemId,
+    ];
+    if (visibleProviderIds.isEmpty) {
+      return;
+    }
+    final currentIndex = _providerState.selectedId == null
+        ? -1
+        : visibleProviderIds.indexOf(_providerState.selectedId!);
+    final nextIndex = _wrappedResultIndex(
+      currentIndex: currentIndex,
+      delta: delta,
+      length: visibleProviderIds.length,
+    );
+    setState(() => _selectProviderCandidate(visibleProviderIds[nextIndex]));
+  }
+
+  int _wrappedResultIndex({
+    required int currentIndex,
+    required int delta,
+    required int length,
+  }) {
+    if (length <= 1) {
+      return 0;
+    }
+    final start = currentIndex < 0 ? (delta > 0 ? -1 : 0) : currentIndex;
+    return (start + delta) % length;
+  }
+
+  void _toggleFocusedResultSelection() {
+    if (_keyboardShortcutShouldYieldToInput) {
+      return;
+    }
+    final selectedServerId = _selectedServerId;
+    if (selectedServerId != null) {
+      _toggleServerCheck(selectedServerId);
+      return;
+    }
+    final selectedProviderId = _providerState.selectedId;
+    if (selectedProviderId != null) {
+      _toggleProviderCheck(selectedProviderId);
+    }
+  }
+
   List<CatalogItem> _barcodeFoundAddItems({
     required Set<String> ownedItemIds,
     required Set<String> wishlistItemIds,
@@ -490,9 +731,19 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   }
 
   Future<void> _searchServer() async {
-    var query = _controller.text.trim();
-    final series = _seriesController.text.trim();
-    final issueNumber = _issueController.text.trim();
+    final searchFields = _searchFieldsForMode();
+    var query = searchFields.query;
+    final series = searchFields.series;
+    final issueNumber = searchFields.issueNumber;
+    if (_mode == LibraryAddMode.addIssue && issueNumber.trim().isEmpty) {
+      setState(() {
+        _error = 'Issue number is required for Add Issue.';
+        _searchedServer = false;
+        _serverResults = const [];
+        _providerState = _providerState.clearResults();
+      });
+      return;
+    }
     final publisher = _publisherController.text.trim();
     final year = int.tryParse(_yearController.text.trim());
     var barcode = _barcodeController.text.trim();
@@ -521,6 +772,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _selectedServerId = null;
       _providerState = _providerState.clearResults();
       _checkedServerIds.clear();
+      _checkedProviderIds.clear();
       _collapsedAddSeries.clear();
       _error = null;
     });
@@ -549,6 +801,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       if (!mounted || searchGeneration != _serverSearchGeneration) {
         return;
       }
+      if (await _clearRejectedMetadataSession(error, 'Core search')) {
+        return;
+      }
       final api = ref.read(apiClientProvider);
       final detail = ConnectionDiagnostics.metadataError(error, api.baseUrl);
       setState(
@@ -564,7 +819,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
 
   Future<void> _searchPullListRow(PullListCandidate row) async {
     setState(() {
-      _mode = LibraryAddMode.search;
+      _mode = LibraryAddMode.addIssue;
       _controller.clear();
       _seriesController.text = row.series;
       _issueController.text = row.issue;
@@ -607,6 +862,9 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       if (!mounted) {
         return;
       }
+      if (await _clearRejectedMetadataSession(error, 'Provider search')) {
+        return;
+      }
       setState(() {
         final api = ref.read(apiClientProvider);
         _providerState = _providerState.finishSearch();
@@ -617,13 +875,48 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
   }
 
   String get _providerQuery {
+    final searchFields = _searchFieldsForMode();
     return [
-      _controller.text.trim(),
-      _seriesController.text.trim(),
-      _issueController.text.trim(),
+      searchFields.query,
+      searchFields.series,
+      searchFields.issueNumber,
       _publisherController.text.trim(),
       _yearController.text.trim(),
     ].where((part) => part.isNotEmpty).join(' ');
+  }
+
+  _ComicsSearchFields _searchFieldsForMode() {
+    final query = _controller.text.trim();
+    final series = _seriesController.text.trim();
+    final issue = _issueController.text.trim();
+    return switch (_mode) {
+      LibraryAddMode.addSeries => _ComicsSearchFields(query: query),
+      LibraryAddMode.addIssue => _ComicsSearchFields(
+          query: '',
+          series: series.isNotEmpty ? series : query,
+          issueNumber: issue,
+        ),
+      LibraryAddMode.barcode ||
+      LibraryAddMode.pullList =>
+        _ComicsSearchFields(query: query, series: series, issueNumber: issue),
+    };
+  }
+
+  void _changeMode(LibraryAddMode mode) {
+    if (mode == _mode) {
+      return;
+    }
+    if (mode == LibraryAddMode.addIssue &&
+        _seriesController.text.trim().isEmpty &&
+        _controller.text.trim().isNotEmpty) {
+      _seriesController.text = _controller.text.trim();
+    }
+    if (mode == LibraryAddMode.addSeries &&
+        _controller.text.trim().isEmpty &&
+        _seriesController.text.trim().isNotEmpty) {
+      _controller.text = _seriesController.text.trim();
+    }
+    setState(() => _mode = mode);
   }
 
   bool _shouldDebounceProviderSearch(String provider, String query) {
@@ -636,6 +929,29 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     _lastProviderSearchSignature = signature;
     _lastProviderSearchAt = now;
     return shouldSkip;
+  }
+
+  Future<bool> _clearRejectedMetadataSession(
+    Object error,
+    String action,
+  ) async {
+    final cleared =
+        await ref.read(authControllerProvider.notifier).clearSessionIfRejected(
+              error,
+            );
+    if (!cleared) {
+      return false;
+    }
+    if (!mounted) {
+      return true;
+    }
+    setState(() {
+      _isSearchingServer = false;
+      _providerState = _providerState.finishSearch();
+      _error = '$action needs a fresh metadata sign-in. '
+          'Open Settings and sign in again.';
+    });
+    return true;
   }
 
   String _metadataProviderLabel(String provider) {
@@ -768,6 +1084,30 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
           _error = 'No Collectarr Core comics found for selected barcodes';
         }
       });
+    } catch (error) {
+      if (!mounted || searchGeneration != _serverSearchGeneration) {
+        return;
+      }
+      if (await _clearRejectedMetadataSession(error, 'Barcode lookup')) {
+        return;
+      }
+      setState(() {
+        final detail = ConnectionDiagnostics.metadataError(
+          error,
+          ref.read(apiClientProvider).baseUrl,
+        );
+        for (final code in normalizedCodes) {
+          final index = _barcodeBatch.indexWhere((entry) => entry.code == code);
+          if (index != -1 &&
+              _barcodeBatch[index].status == BarcodeLookupStatus.lookingUp) {
+            _barcodeBatch[index] = _barcodeBatch[index].copyWith(
+              status: BarcodeLookupStatus.missing,
+              error: detail,
+            );
+          }
+        }
+        _error = 'Barcode lookup failed: $detail';
+      });
     } finally {
       if (mounted && searchGeneration == _serverSearchGeneration) {
         setState(() => _isSearchingServer = false);
@@ -811,6 +1151,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _barcodeBatch.clear();
       _barcodeController.clear();
       _checkedServerIds.clear();
+      _checkedProviderIds.clear();
       _serverResults = const [];
       _selectedServerId = null;
       _error = null;
@@ -821,6 +1162,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     setState(() {
       _selectedServerId = id;
       _providerState = _providerState.clearSelection();
+      _checkedProviderIds.clear();
       if (_checkedServerIds.contains(id)) {
         _checkedServerIds.remove(id);
       } else {
@@ -837,6 +1179,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       if (items.isNotEmpty) {
         _selectedServerId = items.first.id;
         _providerState = _providerState.clearSelection();
+        _checkedProviderIds.clear();
       }
     });
   }
@@ -864,7 +1207,45 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         if (items.isNotEmpty) {
           _selectedServerId = items.first.id;
           _providerState = _providerState.clearSelection();
+          _checkedProviderIds.clear();
         }
+      }
+    });
+  }
+
+  void _selectProviderCandidate(String id) {
+    _providerState = _providerState.select(id);
+    _selectedServerId = null;
+    _checkedServerIds.clear();
+  }
+
+  void _toggleProviderCheck(String id) {
+    setState(() {
+      _selectProviderCandidate(id);
+      if (_checkedProviderIds.contains(id)) {
+        _checkedProviderIds.remove(id);
+      } else {
+        _checkedProviderIds.add(id);
+      }
+    });
+  }
+
+  void _toggleProviderCandidatesCheck(Iterable<ProviderCandidate> candidates) {
+    final ids = [
+      for (final candidate in candidates) candidate.providerItemId,
+    ];
+    if (ids.isEmpty) {
+      return;
+    }
+    final allChecked = ids.every(_checkedProviderIds.contains);
+    setState(() {
+      _selectedServerId = null;
+      _checkedServerIds.clear();
+      _providerState = _providerState.select(ids.first);
+      if (allChecked) {
+        _checkedProviderIds.removeAll(ids);
+      } else {
+        _checkedProviderIds.addAll(ids);
       }
     });
   }
@@ -904,29 +1285,40 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     );
   }
 
-  Future<void> _proposeCandidate(ProviderCandidate candidate) async {
+  Future<void> _proposeCandidates(List<ProviderCandidate> candidates) async {
+    if (candidates.isEmpty) {
+      return;
+    }
     setState(() {
       _isSubmitting = true;
       _error = null;
     });
     try {
-      await createAndRecordLibraryMetadataProposal(
-        api: ref.read(apiClientProvider),
-        type: _libraryType,
-        provider: candidate.provider,
-        providerItemId: candidate.providerItemId,
-        query: _providerQuery,
-        title: candidate.title,
-        summary: candidate.summary,
-        imageUrl: candidate.imageUrl,
-        source: 'Add Comics provider result',
-      );
+      for (final candidate in candidates) {
+        await createAndRecordLibraryMetadataProposal(
+          api: ref.read(apiClientProvider),
+          type: _libraryType,
+          provider: candidate.provider,
+          providerItemId: candidate.providerItemId,
+          query: _providerQuery,
+          title: candidate.title,
+          summary: candidate.summary,
+          imageUrl: candidate.imageUrl,
+          source: 'Add Comics provider result',
+        );
+      }
       if (!mounted) {
         return;
       }
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Metadata proposal sent for review')),
+        SnackBar(
+          content: Text(
+            candidates.length == 1
+                ? 'Metadata proposal sent for review'
+                : '${candidates.length} metadata proposals sent for review',
+          ),
+        ),
       );
     } catch (error) {
       if (!mounted) {
@@ -951,7 +1343,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     await CatalogCacheRepository(ref.read(localDatabaseProvider))
         .upsertAll([item]);
     setState(() {
-      _mode = LibraryAddMode.search;
+      _mode = LibraryAddMode.addIssue;
       _searchedServer = true;
       _serverResults = [
         item,
@@ -1075,6 +1467,20 @@ class _AddComicPaneResizeHandle extends StatelessWidget {
   }
 }
 
+class _ComicsSearchFields {
+  const _ComicsSearchFields({
+    this.query = '',
+    this.series = '',
+    this.issueNumber = '',
+  });
+
+  final String query;
+  final String series;
+  final String issueNumber;
+}
+
+const double _kAddComicModeControlHeight = 36;
+
 class _AddComicModeBar extends StatelessWidget {
   const _AddComicModeBar({
     required this.mode,
@@ -1132,92 +1538,69 @@ class _AddComicModeBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: _kClzToolbar,
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: _kClzToolbar,
+        border: Border(bottom: BorderSide(color: Color(0xFF111111))),
+      ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(7, 4, 7, 7),
+        padding: const EdgeInsets.fromLTRB(7, 5, 7, 7),
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        const Text(
-                          'Search by',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFFEDEDED),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        LibraryAddModeTab(
-                          key: const ValueKey('add-comics-search-tab'),
-                          icon: Icons.menu_book,
-                          label: 'Search',
-                          selected: mode == LibraryAddMode.search,
-                          onTap: () => onModeChanged(LibraryAddMode.search),
-                        ),
-                        LibraryAddModeTab(
-                          key: const ValueKey('add-comics-barcode-tab'),
-                          icon: Icons.qr_code_2,
-                          label: 'Barcode',
-                          selected: mode == LibraryAddMode.barcode,
-                          onTap: () => onModeChanged(LibraryAddMode.barcode),
-                        ),
-                        LibraryAddModeTab(
-                          key: const ValueKey('add-comics-pull-list-tab'),
-                          icon: Icons.star,
-                          label: 'Pull List',
-                          selected: mode == LibraryAddMode.pullList,
-                          onTap: () => onModeChanged(LibraryAddMode.pullList),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                TextButton.icon(
-                  onPressed: onAddManual,
-                  icon: const Icon(Icons.edit_note, size: 18),
-                  label: const Text('Manual'),
-                ),
-                const SizedBox(width: 4),
-                TextButton.icon(
-                  onPressed: onProposeManual,
-                  icon: const Icon(Icons.outbox, size: 18),
-                  label: const Text('Propose'),
-                ),
-                const SizedBox(width: 4),
-                TextButton.icon(
-                  onPressed: onScanBarcode,
-                  icon: const Icon(Icons.barcode_reader, size: 18),
-                  label: const Text('Scan'),
-                ),
-                const SizedBox(width: 8),
-                const Icon(Icons.menu, size: 28),
-              ],
+            _AddModeTabStrip(
+              mode: mode,
+              onModeChanged: onModeChanged,
+              onAddManual: onAddManual,
+              onProposeManual: onProposeManual,
+              onScanBarcode: onScanBarcode,
             ),
             const SizedBox(height: 7),
             switch (mode) {
-              LibraryAddMode.search => Column(
+              LibraryAddMode.addSeries => Row(
+                  children: [
+                    Expanded(
+                      child: _PrimarySearchField(
+                        controller: queryController,
+                        hintText: 'Enter series title...',
+                        onSubmitted: onSearch,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    _FilterField(
+                      width: 92,
+                      controller: yearController,
+                      label: 'Year',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      textAlign: TextAlign.center,
+                      onSubmitted: onSearch,
+                    ),
+                    const SizedBox(width: 10),
+                    _ModeSearchButton(
+                      label: 'Search Series',
+                      isSearching: isSearching,
+                      onPressed: onSearch,
+                    ),
+                  ],
+                ),
+              LibraryAddMode.addIssue => Column(
                   children: [
                     Row(
                       children: [
                         Expanded(
-                          child: SizedBox(
-                            height: 32,
-                            child: TextField(
-                              controller: queryController,
-                              onSubmitted: (_) => onSearch(),
-                              decoration: const InputDecoration(
-                                hintText:
-                                    'Search title, series, issue, publisher...',
-                              ),
-                            ),
+                          child: _PrimarySearchField(
+                            controller: seriesController,
+                            hintText: 'Enter series title...',
+                            onSubmitted: onSearch,
                           ),
+                        ),
+                        const SizedBox(width: 10),
+                        _FilterField(
+                          width: 96,
+                          controller: issueController,
+                          label: 'Issue',
+                          textAlign: TextAlign.center,
+                          onSubmitted: onSearch,
                         ),
                         const SizedBox(width: 10),
                         FilterChip(
@@ -1227,15 +1610,10 @@ class _AddComicModeBar extends StatelessWidget {
                           label: const Text('Filters'),
                         ),
                         const SizedBox(width: 10),
-                        FilledButton(
-                          onPressed: isSearching ? null : onSearch,
-                          child: isSearching
-                              ? const SizedBox.square(
-                                  dimension: 16,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Text('Search Collectarr Core'),
+                        _ModeSearchButton(
+                          label: 'Search Issue',
+                          isSearching: isSearching,
+                          onPressed: onSearch,
                         ),
                       ],
                     ),
@@ -1248,6 +1626,7 @@ class _AddComicModeBar extends StatelessWidget {
                         yearController: yearController,
                         barcodeController: barcodeController,
                         onSubmitted: onSearch,
+                        includeSeriesAndIssue: false,
                       ),
                     ],
                   ],
@@ -1259,7 +1638,7 @@ class _AddComicModeBar extends StatelessWidget {
                       child: Column(
                         children: [
                           SizedBox(
-                            height: 34,
+                            height: _kAddComicModeControlHeight,
                             child: TextField(
                               controller: barcodeController,
                               keyboardType: TextInputType.number,
@@ -1274,8 +1653,6 @@ class _AddComicModeBar extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          const BarcodeLookupStrip(),
                           if (barcodeHistory.isNotEmpty &&
                               barcodeBatch.isEmpty) ...[
                             const SizedBox(height: 8),
@@ -1327,6 +1704,134 @@ class _AddComicModeBar extends StatelessWidget {
   }
 }
 
+class _AddModeTabStrip extends StatelessWidget {
+  const _AddModeTabStrip({
+    required this.mode,
+    required this.onModeChanged,
+    required this.onAddManual,
+    required this.onProposeManual,
+    required this.onScanBarcode,
+  });
+
+  final LibraryAddMode mode;
+  final ValueChanged<LibraryAddMode> onModeChanged;
+  final VoidCallback onAddManual;
+  final VoidCallback onProposeManual;
+  final VoidCallback onScanBarcode;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFF272A2C),
+        border: Border.all(color: const Color(0xFF4D555A)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Row(
+        children: [
+          const Text(
+            'Search by',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Color(0xFFEDEDED),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  LibraryAddModeTab(
+                    key: const ValueKey('add-comics-series-tab'),
+                    icon: Icons.library_books,
+                    label: 'Add Series',
+                    selected: mode == LibraryAddMode.addSeries,
+                    onTap: () => onModeChanged(LibraryAddMode.addSeries),
+                  ),
+                  LibraryAddModeTab(
+                    key: const ValueKey('add-comics-issue-tab'),
+                    icon: Icons.menu_book,
+                    label: 'Add Issue',
+                    selected: mode == LibraryAddMode.addIssue,
+                    onTap: () => onModeChanged(LibraryAddMode.addIssue),
+                  ),
+                  LibraryAddModeTab(
+                    key: const ValueKey('add-comics-barcode-tab'),
+                    icon: Icons.qr_code_2,
+                    label: 'Barcode',
+                    selected: mode == LibraryAddMode.barcode,
+                    onTap: () => onModeChanged(LibraryAddMode.barcode),
+                  ),
+                  LibraryAddModeTab(
+                    key: const ValueKey('add-comics-pull-list-tab'),
+                    icon: Icons.star,
+                    label: 'Pull List',
+                    selected: mode == LibraryAddMode.pullList,
+                    onTap: () => onModeChanged(LibraryAddMode.pullList),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _ModeActionButton(
+            icon: Icons.edit_note,
+            label: 'Manual',
+            onPressed: onAddManual,
+          ),
+          _ModeActionButton(
+            icon: Icons.outbox,
+            label: 'Propose',
+            onPressed: onProposeManual,
+          ),
+          _ModeActionButton(
+            icon: Icons.barcode_reader,
+            label: 'Scan',
+            onPressed: onScanBarcode,
+          ),
+          const SizedBox(width: 4),
+          const Icon(Icons.menu, size: 26, color: Color(0xFFEDEDED)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModeActionButton extends StatelessWidget {
+  const _ModeActionButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 30,
+      child: TextButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 17),
+        label: Text(label),
+        style: TextButton.styleFrom(
+          foregroundColor: kClzAccent,
+          visualDensity: VisualDensity.compact,
+          padding: const EdgeInsets.symmetric(horizontal: 9),
+          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+          minimumSize: const Size(0, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+      ),
+    );
+  }
+}
+
 class _AdvancedSearchFilters extends StatelessWidget {
   const _AdvancedSearchFilters({
     required this.seriesController,
@@ -1335,6 +1840,7 @@ class _AdvancedSearchFilters extends StatelessWidget {
     required this.yearController,
     required this.barcodeController,
     required this.onSubmitted,
+    this.includeSeriesAndIssue = true,
   });
 
   final TextEditingController seriesController;
@@ -1343,6 +1849,7 @@ class _AdvancedSearchFilters extends StatelessWidget {
   final TextEditingController yearController;
   final TextEditingController barcodeController;
   final VoidCallback onSubmitted;
+  final bool includeSeriesAndIssue;
 
   @override
   Widget build(BuildContext context) {
@@ -1350,18 +1857,21 @@ class _AdvancedSearchFilters extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        _FilterField(
-          width: 210,
-          controller: seriesController,
-          label: 'Series',
-          onSubmitted: onSubmitted,
-        ),
-        _FilterField(
-          width: 92,
-          controller: issueController,
-          label: 'Issue #',
-          onSubmitted: onSubmitted,
-        ),
+        if (includeSeriesAndIssue) ...[
+          _FilterField(
+            width: 210,
+            controller: seriesController,
+            label: 'Series',
+            onSubmitted: onSubmitted,
+          ),
+          _FilterField(
+            width: 92,
+            controller: issueController,
+            label: 'Issue #',
+            textAlign: TextAlign.center,
+            onSubmitted: onSubmitted,
+          ),
+        ],
         _FilterField(
           width: 150,
           controller: publisherController,
@@ -1373,6 +1883,8 @@ class _AdvancedSearchFilters extends StatelessWidget {
           controller: yearController,
           label: 'Year',
           keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          textAlign: TextAlign.center,
           onSubmitted: onSubmitted,
         ),
         _FilterField(
@@ -1387,6 +1899,59 @@ class _AdvancedSearchFilters extends StatelessWidget {
   }
 }
 
+class _PrimarySearchField extends StatelessWidget {
+  const _PrimarySearchField({
+    required this.controller,
+    required this.hintText,
+    required this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String hintText;
+  final VoidCallback onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _kAddComicModeControlHeight,
+      child: _ModeFieldFrame(
+        child: TextField(
+          controller: controller,
+          keyboardType: TextInputType.text,
+          inputFormatters: [_noNewlineFormatter],
+          expands: true,
+          minLines: null,
+          maxLines: null,
+          textInputAction: TextInputAction.search,
+          textAlignVertical: TextAlignVertical.center,
+          strutStyle: const StrutStyle(
+            fontSize: 15,
+            height: 1,
+            forceStrutHeight: true,
+          ),
+          onSubmitted: (_) => onSubmitted(),
+          style: const TextStyle(
+            color: Color(0xFFEDEDED),
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            height: 1,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            isCollapsed: true,
+            filled: false,
+            fillColor: Colors.transparent,
+            border: InputBorder.none,
+            hintText: hintText,
+            hintStyle: const TextStyle(color: Color(0xFF9EA9B0)),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _FilterField extends StatelessWidget {
   const _FilterField({
     required this.width,
@@ -1394,6 +1959,8 @@ class _FilterField extends StatelessWidget {
     required this.label,
     required this.onSubmitted,
     this.keyboardType,
+    this.inputFormatters,
+    this.textAlign = TextAlign.start,
   });
 
   final double width;
@@ -1401,23 +1968,101 @@ class _FilterField extends StatelessWidget {
   final String label;
   final VoidCallback onSubmitted;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextAlign textAlign;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      height: 38,
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        onSubmitted: (_) => onSubmitted(),
-        decoration: InputDecoration(
-          isDense: true,
-          filled: true,
-          fillColor: const Color(0xFF4A4A4A),
-          border: const OutlineInputBorder(),
-          labelText: label,
+      height: _kAddComicModeControlHeight,
+      child: _ModeFieldFrame(
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardType ?? TextInputType.text,
+          inputFormatters: [...?inputFormatters, _noNewlineFormatter],
+          expands: true,
+          minLines: null,
+          maxLines: null,
+          textInputAction: TextInputAction.search,
+          textAlign: textAlign,
+          textAlignVertical: TextAlignVertical.center,
+          strutStyle: const StrutStyle(
+            fontSize: 14,
+            height: 1,
+            forceStrutHeight: true,
+          ),
+          onSubmitted: (_) => onSubmitted(),
+          style: const TextStyle(
+            color: Color(0xFFEDEDED),
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            height: 1,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            isCollapsed: true,
+            filled: false,
+            fillColor: Colors.transparent,
+            border: InputBorder.none,
+            hintText: label,
+            hintStyle: const TextStyle(color: Color(0xFF9EA9B0)),
+            contentPadding: EdgeInsets.zero,
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _ModeFieldFrame extends StatelessWidget {
+  const _ModeFieldFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: _kAddComicModeControlHeight,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        border: Border.all(color: const Color(0xFF50565A)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _ModeSearchButton extends StatelessWidget {
+  const _ModeSearchButton({
+    required this.label,
+    required this.isSearching,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool isSearching;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _kAddComicModeControlHeight,
+      child: FilledButton(
+        onPressed: isSearching ? null : onPressed,
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(0, _kAddComicModeControlHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: isSearching
+            ? const SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(label),
       ),
     );
   }

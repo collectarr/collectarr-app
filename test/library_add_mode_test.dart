@@ -6,7 +6,8 @@ void main() {
     expect(
       LibraryAddMode.values,
       [
-        LibraryAddMode.search,
+        LibraryAddMode.addSeries,
+        LibraryAddMode.addIssue,
         LibraryAddMode.barcode,
         LibraryAddMode.pullList,
       ],

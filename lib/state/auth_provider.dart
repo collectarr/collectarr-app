@@ -101,11 +101,19 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_authTokenKey);
-    await prefs.remove(_authIsAdminKey);
-    ref.read(apiAuthTokenProvider.notifier).state = null;
-    ref.read(apiClientProvider).clearToken();
-    state = AuthState(email: prefs.getString(_authEmailKey));
+    await _clearStoredSession(prefs);
+  }
+
+  Future<bool> clearSessionIfRejected(Object error) async {
+    if (!_isMetadataAuthSessionRejected(error)) {
+      return false;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await _clearStoredSession(
+      prefs,
+      error: 'Metadata session reset. Sign in again.',
+    );
+    return true;
   }
 
   Future<void> refreshCurrentUser() async {
@@ -138,12 +146,8 @@ class AuthController extends StateNotifier<AuthState> {
       if (token != null && token.isNotEmpty) {
         final expiresAt = _jwtExpiresAt(token);
         if (_isExpired(expiresAt)) {
-          await prefs.remove(_authTokenKey);
-          await prefs.remove(_authIsAdminKey);
-          ref.read(apiAuthTokenProvider.notifier).state = null;
-          ref.read(apiClientProvider).clearToken();
-          state = AuthState(
-            email: email,
+          await _clearStoredSession(
+            prefs,
             expiresAt: expiresAt,
             error: 'Session expired. Sign in again.',
           );
@@ -186,6 +190,19 @@ class AuthController extends StateNotifier<AuthState> {
       expiresAt: _jwtExpiresAt(token),
       isAdmin: isAdmin,
     );
+  }
+
+  Future<void> _clearStoredSession(
+    SharedPreferences prefs, {
+    String? error,
+    DateTime? expiresAt,
+  }) async {
+    final email = prefs.getString(_authEmailKey) ?? state.email;
+    await prefs.remove(_authTokenKey);
+    await prefs.remove(_authIsAdminKey);
+    ref.read(apiAuthTokenProvider.notifier).state = null;
+    ref.read(apiClientProvider).clearToken();
+    state = AuthState(email: email, expiresAt: expiresAt, error: error);
   }
 }
 
@@ -241,6 +258,23 @@ DateTime? _jwtExpiresAt(String token) {
 
 bool _isExpired(DateTime? expiresAt) {
   return expiresAt != null && !expiresAt.isAfter(DateTime.now().toUtc());
+}
+
+bool _isMetadataAuthSessionRejected(Object error) {
+  if (error is! DioException || error.response?.statusCode != 401) {
+    return false;
+  }
+  final data = error.response?.data;
+  final code = data is Map ? data['code']?.toString() : null;
+  final detail = data is Map ? data['detail']?.toString() : null;
+  return {
+        'invalid_bearer_token',
+        'user_not_found',
+      }.contains(code) ||
+      {
+        'Invalid bearer token',
+        'User not found',
+      }.contains(detail);
 }
 
 String _authErrorMessage(Object error, {required bool isRegister}) {

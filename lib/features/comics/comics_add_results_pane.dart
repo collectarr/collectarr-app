@@ -24,8 +24,10 @@ class AddComicResultPane extends StatelessWidget {
     required this.selectedServerId,
     required this.selectedProviderId,
     required this.checkedServerIds,
+    required this.checkedProviderIds,
     required this.includeVariants,
     required this.hideInShelf,
+    required this.issueSortAscending,
     required this.searchedServer,
     required this.searchedProvider,
     required this.isSearchingServer,
@@ -34,8 +36,10 @@ class AddComicResultPane extends StatelessWidget {
     required this.providerLabel,
     required this.onIncludeVariantsChanged,
     required this.onHideInShelfChanged,
+    required this.onIssueSortAscendingChanged,
     required this.onSelectServer,
     required this.onToggleServerCheck,
+    required this.onToggleProviderCheck,
     required this.collapsedSeries,
     required this.onToggleSeriesCollapsed,
     required this.onToggleSeriesCheck,
@@ -43,6 +47,7 @@ class AddComicResultPane extends StatelessWidget {
     required this.onClearServerChecks,
     required this.onSelectProvider,
     required this.onSearchPullListRow,
+    required this.onToggleProviderCandidatesCheck,
   });
 
   final LibraryAddMode mode;
@@ -54,8 +59,10 @@ class AddComicResultPane extends StatelessWidget {
   final String? selectedServerId;
   final String? selectedProviderId;
   final Set<String> checkedServerIds;
+  final Set<String> checkedProviderIds;
   final bool includeVariants;
   final bool hideInShelf;
+  final bool issueSortAscending;
   final bool searchedServer;
   final bool searchedProvider;
   final bool isSearchingServer;
@@ -64,8 +71,10 @@ class AddComicResultPane extends StatelessWidget {
   final String Function(String provider) providerLabel;
   final ValueChanged<bool> onIncludeVariantsChanged;
   final ValueChanged<bool> onHideInShelfChanged;
+  final ValueChanged<bool> onIssueSortAscendingChanged;
   final ValueChanged<String> onSelectServer;
   final ValueChanged<String> onToggleServerCheck;
+  final ValueChanged<String> onToggleProviderCheck;
   final Set<String> collapsedSeries;
   final ValueChanged<String> onToggleSeriesCollapsed;
   final ValueChanged<Iterable<CatalogItem>> onToggleSeriesCheck;
@@ -73,12 +82,13 @@ class AddComicResultPane extends StatelessWidget {
   final VoidCallback onClearServerChecks;
   final ValueChanged<String> onSelectProvider;
   final ValueChanged<PullListCandidate> onSearchPullListRow;
+  final ValueChanged<Iterable<ProviderCandidate>>
+      onToggleProviderCandidatesCheck;
 
   @override
   Widget build(BuildContext context) {
     final selectedProviderLabel = providerLabel(selectedProvider);
     final visibleProviderResults = _visibleProviderResults();
-    final resultsHeading = _resultsHeading();
     if (mode == LibraryAddMode.pullList) {
       return PullListResultsPane(
         rows: pullListRows,
@@ -112,21 +122,20 @@ class AddComicResultPane extends StatelessWidget {
                   const SizedBox(width: 10),
                   const Text('Issues:'),
                   const SizedBox(width: 4),
-                  const _IssueSortButton(label: 'III', selected: true),
-                  const _IssueSortButton(label: 'Asc'),
+                  _IssueSortButton(
+                    label: 'Asc',
+                    tooltip: 'Sort issues ascending',
+                    selected: issueSortAscending,
+                    onPressed: () => onIssueSortAscendingChanged(true),
+                  ),
+                  _IssueSortButton(
+                    label: 'Desc',
+                    tooltip: 'Sort issues descending',
+                    selected: !issueSortAscending,
+                    onPressed: () => onIssueSortAscendingChanged(false),
+                  ),
                 ],
               ),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Color(0xFF3A3A3A))),
-            ),
-            child: Text(
-              resultsHeading,
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
             ),
           ),
           Expanded(
@@ -140,24 +149,17 @@ class AddComicResultPane extends StatelessWidget {
     );
   }
 
-  String _resultsHeading() {
-    if (!searchedServer || isSearchingServer || serverResults.isNotEmpty) {
-      return 'Collectarr Core results';
-    }
-    return 'Provider results';
-  }
-
   Widget _buildResults(
     String selectedProviderLabel,
     List<ProviderCandidate> visibleProviderResults,
   ) {
     if (isSearchingServer) {
-      return const _SearchLoadingState(
+      return const _SearchSkeletonState(
         label: 'Searching Collectarr Core...',
       );
     }
     if (isSearchingProvider) {
-      return const _SearchLoadingState(
+      return const _SearchSkeletonState(
         label: 'Searching metadata providers...',
       );
     }
@@ -178,6 +180,8 @@ class AddComicResultPane extends StatelessWidget {
         checkedServerIds: checkedServerIds,
         includeVariants: includeVariants,
         hideInShelf: hideInShelf,
+        issueSortAscending: issueSortAscending,
+        flatIssues: mode == LibraryAddMode.addIssue,
         collapsedSeries: collapsedSeries,
         onCheckAllVisible: onCheckAllVisible,
         onClearServerChecks: onClearServerChecks,
@@ -188,26 +192,28 @@ class AddComicResultPane extends StatelessWidget {
       );
     }
     if (visibleProviderResults.isNotEmpty) {
-      final fallbackProviderLabel =
-          _fallbackProviderLabel(visibleProviderResults);
-      return Column(
-        children: [
-          if (fallbackProviderLabel != null)
-            _ProviderFallbackNotice(
-              requestedProvider: selectedProviderLabel,
-              fallbackProvider: fallbackProviderLabel,
-            ),
-          Expanded(
-            child: _ProviderIssueTree(
-              results: visibleProviderResults,
-              selectedProviderId: selectedProviderId,
-              collapsedSeries: collapsedSeries,
-              providerLabel: providerLabel,
-              onSelectProvider: onSelectProvider,
-              onToggleIssueCollapsed: onToggleSeriesCollapsed,
-            ),
-          ),
-        ],
+      if (mode == LibraryAddMode.addIssue) {
+        return _ProviderFlatIssueList(
+          results: visibleProviderResults,
+          issueSortAscending: issueSortAscending,
+          selectedProviderId: selectedProviderId,
+          checkedProviderIds: checkedProviderIds,
+          providerLabel: providerLabel,
+          onSelectProvider: onSelectProvider,
+          onToggleProviderCheck: onToggleProviderCheck,
+        );
+      }
+      return _ProviderIssueTree(
+        results: visibleProviderResults,
+        issueSortAscending: issueSortAscending,
+        selectedProviderId: selectedProviderId,
+        checkedProviderIds: checkedProviderIds,
+        collapsedSeries: collapsedSeries,
+        providerLabel: providerLabel,
+        onSelectProvider: onSelectProvider,
+        onToggleProviderCheck: onToggleProviderCheck,
+        onToggleIssueCollapsed: onToggleSeriesCollapsed,
+        onToggleGroupCheck: onToggleProviderCandidatesCheck,
       );
     }
     return Center(
@@ -216,15 +222,6 @@ class AddComicResultPane extends StatelessWidget {
         textAlign: TextAlign.center,
       ),
     );
-  }
-
-  String? _fallbackProviderLabel(List<ProviderCandidate> visibleResults) {
-    for (final item in visibleResults) {
-      if (item.provider != selectedProvider) {
-        return providerLabel(item.provider);
-      }
-    }
-    return null;
   }
 
   List<ProviderCandidate> _visibleProviderResults() {
@@ -255,59 +252,222 @@ class AddComicResultPane extends StatelessWidget {
 class _ProviderIssueTree extends StatelessWidget {
   const _ProviderIssueTree({
     required this.results,
+    required this.issueSortAscending,
     required this.selectedProviderId,
+    required this.checkedProviderIds,
     required this.collapsedSeries,
     required this.providerLabel,
     required this.onSelectProvider,
+    required this.onToggleProviderCheck,
     required this.onToggleIssueCollapsed,
+    required this.onToggleGroupCheck,
   });
 
   final List<ProviderCandidate> results;
+  final bool issueSortAscending;
   final String? selectedProviderId;
+  final Set<String> checkedProviderIds;
   final Set<String> collapsedSeries;
   final String Function(String provider) providerLabel;
   final ValueChanged<String> onSelectProvider;
+  final ValueChanged<String> onToggleProviderCheck;
   final ValueChanged<String> onToggleIssueCollapsed;
+  final ValueChanged<Iterable<ProviderCandidate>> onToggleGroupCheck;
 
   @override
   Widget build(BuildContext context) {
-    final groups = _groupProviderResultsByIssue(results);
+    final groups = _groupProviderResultsBySeries(
+      results,
+      issueSortAscending: issueSortAscending,
+    );
     return ListView(
       children: [
-        for (final group in groups) ...[
-          _ProviderIssueHeader(
-            group: group,
-            isCollapsed: collapsedSeries.contains(group.collapseKey),
-            onToggleCollapsed: () => onToggleIssueCollapsed(group.collapseKey),
+        for (final series in groups) ...[
+          _ProviderSeriesHeader(
+            group: series,
+            isCollapsed: collapsedSeries.contains(series.collapseKey),
+            checkedCount: series.items
+                .where(
+                    (item) => checkedProviderIds.contains(item.providerItemId))
+                .length,
+            onToggleCollapsed: () => onToggleIssueCollapsed(series.collapseKey),
+            onToggleCheck: () => onToggleGroupCheck(series.items),
           ),
-          if (!collapsedSeries.contains(group.collapseKey))
-            for (final item in group.sortedItems)
-              _ProviderIssueRow(
-                candidate: item,
-                selected: item.providerItemId == selectedProviderId,
-                providerLabel: providerLabel(item.provider),
-                isChild: item.isVariant,
-                onSelect: () => onSelectProvider(item.providerItemId),
-              ),
+          _AnimatedCollapseSection(
+            visible: !collapsedSeries.contains(series.collapseKey),
+            child: Column(
+              children: [
+                for (final issue in series.issues)
+                  for (final item in issue.sortedItems)
+                    _ProviderIssueRow(
+                      candidate: item,
+                      selected: item.providerItemId == selectedProviderId,
+                      checked: checkedProviderIds.contains(item.providerItemId),
+                      providerLabel: providerLabel(item.provider),
+                      onSelect: () => onSelectProvider(item.providerItemId),
+                      onToggleCheck: () => onToggleProviderCheck(
+                        item.providerItemId,
+                      ),
+                    ),
+              ],
+            ),
+          ),
         ],
       ],
     );
   }
 }
 
-class _ProviderIssueHeader extends StatelessWidget {
-  const _ProviderIssueHeader({
-    required this.group,
-    required this.isCollapsed,
-    required this.onToggleCollapsed,
+class _AnimatedCollapseSection extends StatelessWidget {
+  const _AnimatedCollapseSection({
+    required this.visible,
+    required this.child,
   });
 
-  final _ProviderIssueGroup group;
-  final bool isCollapsed;
-  final VoidCallback onToggleCollapsed;
+  final bool visible;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
+    return ClipRect(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 180),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return SizeTransition(
+            sizeFactor: animation,
+            axisAlignment: -1,
+            child: FadeTransition(opacity: animation, child: child),
+          );
+        },
+        child: visible
+            ? KeyedSubtree(
+                key: const ValueKey('expanded'),
+                child: child,
+              )
+            : const SizedBox.shrink(key: ValueKey('collapsed')),
+      ),
+    );
+  }
+}
+
+class _ProviderFlatIssueList extends StatelessWidget {
+  const _ProviderFlatIssueList({
+    required this.results,
+    required this.issueSortAscending,
+    required this.selectedProviderId,
+    required this.checkedProviderIds,
+    required this.providerLabel,
+    required this.onSelectProvider,
+    required this.onToggleProviderCheck,
+  });
+
+  final List<ProviderCandidate> results;
+  final bool issueSortAscending;
+  final String? selectedProviderId;
+  final Set<String> checkedProviderIds;
+  final String Function(String provider) providerLabel;
+  final ValueChanged<String> onSelectProvider;
+  final ValueChanged<String> onToggleProviderCheck;
+
+  @override
+  Widget build(BuildContext context) {
+    final sortedResults = results.toList(growable: false)
+      ..sort(
+        (left, right) => issueSortAscending
+            ? _compareProviderCandidates(left, right)
+            : _compareProviderCandidates(right, left),
+      );
+    return ListView(
+      children: [
+        for (final item in sortedResults)
+          _ProviderFlatIssueRow(
+            candidate: item,
+            selected: item.providerItemId == selectedProviderId,
+            checked: checkedProviderIds.contains(item.providerItemId),
+            providerLabel: providerLabel(item.provider),
+            onSelect: () => onSelectProvider(item.providerItemId),
+            onToggleCheck: () => onToggleProviderCheck(item.providerItemId),
+          ),
+      ],
+    );
+  }
+}
+
+class _ProviderFlatIssueRow extends StatelessWidget {
+  const _ProviderFlatIssueRow({
+    required this.candidate,
+    required this.selected,
+    required this.checked,
+    required this.providerLabel,
+    required this.onSelect,
+    required this.onToggleCheck,
+  });
+
+  final ProviderCandidate candidate;
+  final bool selected;
+  final bool checked;
+  final String providerLabel;
+  final VoidCallback onSelect;
+  final VoidCallback onToggleCheck;
+
+  @override
+  Widget build(BuildContext context) {
+    final identity = _providerCandidateIdentity(candidate);
+    final title = [
+      identity.issueLabel,
+      if (identity.variantLabel != 'Standard cover') identity.variantLabel,
+    ].join(' | ');
+    return AddResultRow(
+      key: ValueKey(
+        'provider-flat-${candidate.provider}-${candidate.providerItemId}',
+      ),
+      selected: selected,
+      checked: checked,
+      checkDisabled: false,
+      cover: SizedBox(
+        width: 42,
+        height: 62,
+        child: ProviderCandidateImage(
+          key: ValueKey(
+            'provider-flat-cover-${candidate.provider}-${candidate.providerItemId}-${candidate.imageUrl ?? ''}',
+          ),
+          candidate: candidate,
+          fallbackTitle: title,
+        ),
+      ),
+      title: title,
+      subtitle: identity.seriesTitle,
+      badges: [
+        providerLabel,
+        if (identity.isVariant) 'variant',
+      ],
+      trailing: '',
+      onTap: onSelect,
+      onToggleCheck: onToggleCheck,
+    );
+  }
+}
+
+class _ProviderSeriesHeader extends StatelessWidget {
+  const _ProviderSeriesHeader({
+    required this.group,
+    required this.isCollapsed,
+    required this.checkedCount,
+    required this.onToggleCollapsed,
+    required this.onToggleCheck,
+  });
+
+  final _ProviderSeriesGroup group;
+  final bool isCollapsed;
+  final int checkedCount;
+  final VoidCallback onToggleCollapsed;
+  final VoidCallback onToggleCheck;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectableCount = group.items.length;
     return InkWell(
       onTap: onToggleCollapsed,
       child: DecoratedBox(
@@ -316,11 +476,11 @@ class _ProviderIssueHeader extends StatelessWidget {
           border: Border(bottom: BorderSide(color: Color(0xFF3A3A3A))),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(6, 5, 6, 5),
+          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
           child: Row(
             children: [
               Tooltip(
-                message: isCollapsed ? 'Expand issue' : 'Collapse issue',
+                message: isCollapsed ? 'Expand series' : 'Collapse series',
                 child: Icon(
                   isCollapsed
                       ? Icons.keyboard_arrow_right
@@ -329,6 +489,16 @@ class _ProviderIssueHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
+              Checkbox(
+                value: checkedCount == 0
+                    ? false
+                    : checkedCount >= selectableCount
+                        ? true
+                        : null,
+                tristate: true,
+                onChanged: (_) => onToggleCheck(),
+                visualDensity: VisualDensity.compact,
+              ),
               const Icon(Icons.folder_open, size: 16, color: kClzAccent),
               const SizedBox(width: 8),
               Expanded(
@@ -354,9 +524,12 @@ class _ProviderIssueHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              LibraryAddResultBadge(
-                '${group.totalCount} cover${group.totalCount == 1 ? '' : 's'}',
-              ),
+              if (checkedCount > 0) ...[
+                LibraryAddResultBadge('$checkedCount selected'),
+                const SizedBox(width: 6),
+              ],
+              LibraryAddResultBadge('${group.issueCount} issue'
+                  '${group.issueCount == 1 ? '' : 's'}'),
             ],
           ),
         ),
@@ -369,71 +542,55 @@ class _ProviderIssueRow extends StatelessWidget {
   const _ProviderIssueRow({
     required this.candidate,
     required this.selected,
+    required this.checked,
     required this.providerLabel,
-    required this.isChild,
     required this.onSelect,
+    required this.onToggleCheck,
   });
 
   final ProviderCandidate candidate;
   final bool selected;
+  final bool checked;
   final String providerLabel;
-  final bool isChild;
   final VoidCallback onSelect;
+  final VoidCallback onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
-    final variantLabel = _providerVariantLabel(candidate);
+    final identity = _providerCandidateIdentity(candidate);
+    final title = [
+      identity.issueLabel,
+      identity.variantLabel,
+    ].join(' | ');
     return Padding(
-      padding: EdgeInsets.only(left: isChild ? 22 : 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (isChild)
-            const SizedBox(
-              width: 18,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(top: 13),
-                  child: Icon(
-                    Icons.subdirectory_arrow_right,
-                    color: Color(0xFF7D8A92),
-                    size: 14,
-                  ),
-                ),
-              ),
+      padding: const EdgeInsets.only(left: 18),
+      child: AddResultRow(
+        key: ValueKey(
+          'provider-row-${candidate.provider}-${candidate.providerItemId}',
+        ),
+        selected: selected,
+        checked: checked,
+        checkDisabled: false,
+        cover: SizedBox(
+          width: 42,
+          height: 62,
+          child: ProviderCandidateImage(
+            key: ValueKey(
+              'provider-cover-${candidate.provider}-${candidate.providerItemId}-${candidate.imageUrl ?? ''}',
             ),
-          Expanded(
-            child: AddResultRow(
-              key: ValueKey(
-                'provider-row-${candidate.provider}-${candidate.providerItemId}',
-              ),
-              selected: selected,
-              checked: selected,
-              checkDisabled: false,
-              cover: SizedBox(
-                width: 42,
-                height: 62,
-                child: ProviderCandidateImage(
-                  key: ValueKey(
-                    'provider-cover-${candidate.provider}-${candidate.providerItemId}-${candidate.imageUrl ?? ''}',
-                  ),
-                  candidate: candidate,
-                  fallbackTitle: variantLabel,
-                ),
-              ),
-              title: variantLabel,
-              subtitle: _providerCandidateSubtitle(candidate, providerLabel),
-              badges: [
-                providerLabel,
-                if (candidate.isVariant) 'variant',
-              ],
-              trailing: 'propose',
-              onTap: onSelect,
-              onToggleCheck: onSelect,
-            ),
+            candidate: candidate,
+            fallbackTitle: title,
           ),
+        ),
+        title: title,
+        subtitle: '',
+        badges: [
+          providerLabel,
+          if (candidate.isVariant) 'variant',
         ],
+        trailing: '',
+        onTap: onSelect,
+        onToggleCheck: onToggleCheck,
       ),
     );
   }
@@ -441,12 +598,14 @@ class _ProviderIssueRow extends StatelessWidget {
 
 class _ProviderIssueGroup {
   const _ProviderIssueGroup({
-    required this.title,
+    required this.issueLabel,
+    required this.issueSortValue,
     required this.collapseKey,
     required this.items,
   });
 
-  final String title;
+  final String issueLabel;
+  final double? issueSortValue;
   final String collapseKey;
   final List<ProviderCandidate> items;
 
@@ -492,76 +651,225 @@ class _ProviderIssueGroup {
   }
 }
 
-List<_ProviderIssueGroup> _groupProviderResultsByIssue(
-  List<ProviderCandidate> results,
-) {
-  final groups = <String, List<ProviderCandidate>>{};
-  final titlesByKey = <String, String>{};
-  for (final item in results) {
-    final title = _providerIssueTitle(item);
-    final key = _normalizedProviderIssueKey(item.provider, title);
-    groups.putIfAbsent(key, () => []).add(item);
-    titlesByKey.putIfAbsent(key, () => title);
+class _ProviderSeriesGroup {
+  const _ProviderSeriesGroup({
+    required this.title,
+    required this.collapseKey,
+    required this.issues,
+  });
+
+  final String title;
+  final String collapseKey;
+  final List<_ProviderIssueGroup> issues;
+
+  List<ProviderCandidate> get items => [
+        for (final issue in issues) ...issue.items,
+      ];
+
+  int get issueCount => issues.length;
+
+  int get totalCount =>
+      issues.fold(0, (total, issue) => total + issue.items.length);
+
+  int get variantCount =>
+      issues.fold(0, (total, issue) => total + issue.variantCount);
+
+  String get subtitle {
+    return [
+      '$issueCount issue${issueCount == 1 ? '' : 's'}',
+      '$totalCount cover${totalCount == 1 ? '' : 's'}',
+      if (variantCount > 0)
+        '$variantCount variant${variantCount == 1 ? '' : 's'}',
+    ].join(' | ');
   }
-  final issueGroups = [
-    for (final entry in groups.entries)
-      _ProviderIssueGroup(
-        title: titlesByKey[entry.key] ?? entry.key,
-        collapseKey: 'provider:${entry.key}',
-        items: entry.value,
-      ),
-  ];
-  issueGroups.sort((left, right) => left.title.compareTo(right.title));
-  return issueGroups;
 }
 
-String _providerIssueTitle(ProviderCandidate candidate) {
+List<_ProviderSeriesGroup> _groupProviderResultsBySeries(
+  List<ProviderCandidate> results, {
+  required bool issueSortAscending,
+}) {
+  final grouped = <String, Map<String, List<ProviderCandidate>>>{};
+  final seriesTitles = <String, String>{};
+  final issueLabels = <String, Map<String, String>>{};
+  final issueSortValues = <String, Map<String, double?>>{};
+  for (final item in results) {
+    final identity = _providerCandidateIdentity(item);
+    final seriesKey =
+        _normalizedProviderKey(item.provider, identity.seriesTitle);
+    final issueKey = _normalizedProviderKey(
+      item.provider,
+      '${identity.seriesTitle} ${identity.issueLabel}',
+    );
+    grouped
+        .putIfAbsent(seriesKey, () => <String, List<ProviderCandidate>>{})
+        .putIfAbsent(issueKey, () => <ProviderCandidate>[])
+        .add(item);
+    seriesTitles.putIfAbsent(seriesKey, () => identity.seriesTitle);
+    issueLabels
+        .putIfAbsent(seriesKey, () => <String, String>{})
+        .putIfAbsent(issueKey, () => identity.issueLabel);
+    issueSortValues
+        .putIfAbsent(seriesKey, () => <String, double?>{})
+        .putIfAbsent(issueKey, () => identity.issueSortValue);
+  }
+  final seriesGroups = [
+    for (final seriesEntry in grouped.entries)
+      _ProviderSeriesGroup(
+        title: seriesTitles[seriesEntry.key] ?? seriesEntry.key,
+        collapseKey: 'provider-series:${seriesEntry.key}',
+        issues: [
+          for (final issueEntry in seriesEntry.value.entries)
+            _ProviderIssueGroup(
+              issueLabel:
+                  issueLabels[seriesEntry.key]?[issueEntry.key] ?? 'Issue',
+              issueSortValue: issueSortValues[seriesEntry.key]?[issueEntry.key],
+              collapseKey: 'provider-issue:${issueEntry.key}',
+              items: issueEntry.value,
+            ),
+        ]..sort(
+            (left, right) => issueSortAscending
+                ? _compareProviderIssueGroups(left, right)
+                : _compareProviderIssueGroups(right, left),
+          ),
+      ),
+  ];
+  seriesGroups.sort((left, right) => left.title.compareTo(right.title));
+  return seriesGroups;
+}
+
+int _compareProviderIssueGroups(
+  _ProviderIssueGroup left,
+  _ProviderIssueGroup right,
+) {
+  final leftSort = left.issueSortValue;
+  final rightSort = right.issueSortValue;
+  if (leftSort != null && rightSort != null) {
+    final numeric = leftSort.compareTo(rightSort);
+    if (numeric != 0) {
+      return numeric;
+    }
+  }
+  if (leftSort != null) {
+    return -1;
+  }
+  if (rightSort != null) {
+    return 1;
+  }
+  return left.issueLabel.compareTo(right.issueLabel);
+}
+
+int _compareProviderCandidates(
+  ProviderCandidate left,
+  ProviderCandidate right,
+) {
+  final leftIdentity = _providerCandidateIdentity(left);
+  final rightIdentity = _providerCandidateIdentity(right);
+  final issueCompare = _compareProviderIdentityIssues(
+    leftIdentity,
+    rightIdentity,
+  );
+  if (issueCompare != 0) {
+    return issueCompare;
+  }
+  if (leftIdentity.isVariant != rightIdentity.isVariant) {
+    return leftIdentity.isVariant ? 1 : -1;
+  }
+  return leftIdentity.variantLabel.compareTo(rightIdentity.variantLabel);
+}
+
+int _compareProviderIdentityIssues(
+  _ProviderCandidateIdentity left,
+  _ProviderCandidateIdentity right,
+) {
+  final leftSort = left.issueSortValue;
+  final rightSort = right.issueSortValue;
+  if (leftSort != null && rightSort != null) {
+    final numeric = leftSort.compareTo(rightSort);
+    if (numeric != 0) {
+      return numeric;
+    }
+  }
+  if (leftSort != null) {
+    return -1;
+  }
+  if (rightSort != null) {
+    return 1;
+  }
+  return left.issueLabel.compareTo(right.issueLabel);
+}
+
+_ProviderCandidateIdentity _providerCandidateIdentity(
+  ProviderCandidate candidate,
+) {
   final title = candidate.title.trim();
   final bracketMatch = RegExp(r'\s*\[[^\]]+\]\s*$').firstMatch(title);
-  if (bracketMatch != null) {
-    return title.substring(0, bracketMatch.start).trim();
+  final bracketLabel = bracketMatch == null
+      ? null
+      : title
+          .substring(bracketMatch.start, bracketMatch.end)
+          .replaceAll(RegExp(r'^\s*\[|\]\s*$'), '')
+          .trim();
+  final titleWithoutBracket = bracketMatch == null
+      ? title
+      : title.substring(0, bracketMatch.start).trim();
+  final issueMatch = RegExp(
+    r'^(.+?)\s+#\s*([A-Za-z0-9][A-Za-z0-9./-]*)(.*)$',
+  ).firstMatch(titleWithoutBracket);
+  if (issueMatch == null) {
+    return _ProviderCandidateIdentity(
+      seriesTitle:
+          titleWithoutBracket.isEmpty ? candidate.title : titleWithoutBracket,
+      issueLabel: 'Result',
+      variantLabel: _providerVariantLabelFromParts(
+        candidate,
+        bracketLabel: bracketLabel,
+      ),
+    );
   }
-  if (!candidate.isVariant) {
-    return title;
-  }
-  final variantSuffix = RegExp(
-    r'\s+(?:[a-z0-9&.\- ]+\s+)?(?:variant|virgin|foil|exclusive|incentive|ratio|cardstock|cover|printing).*$',
-    caseSensitive: false,
+
+  final seriesTitle = issueMatch.group(1)!.trim();
+  final issueNumber = issueMatch.group(2)!.trim();
+  final trailing = issueMatch.group(3)!.trim().replaceFirst(
+        RegExp(r'^[\s:|\-]+'),
+        '',
+      );
+  return _ProviderCandidateIdentity(
+    seriesTitle: seriesTitle.isEmpty ? titleWithoutBracket : seriesTitle,
+    issueLabel: '#$issueNumber',
+    issueSortValue: double.tryParse(issueNumber),
+    variantLabel: _providerVariantLabelFromParts(
+      candidate,
+      bracketLabel: bracketLabel,
+      trailingLabel: trailing,
+    ),
   );
-  return title.replaceFirst(variantSuffix, '').trim();
 }
 
 String _providerVariantLabel(ProviderCandidate candidate) {
+  return _providerCandidateIdentity(candidate).variantLabel;
+}
+
+String _providerVariantLabelFromParts(
+  ProviderCandidate candidate, {
+  String? bracketLabel,
+  String? trailingLabel,
+}) {
   final title = candidate.title.trim();
-  final bracketMatch = RegExp(r'\[([^\]]+)\]\s*$').firstMatch(title);
-  final label = bracketMatch?.group(1)?.trim();
+  final cleanTrailing = trailingLabel == null || trailingLabel.trim().isEmpty
+      ? null
+      : trailingLabel.trim();
   if (candidate.isVariant) {
-    return label == null || label.isEmpty ? 'Variant cover' : label;
+    return bracketLabel == null || bracketLabel.isEmpty
+        ? cleanTrailing ?? 'Variant cover'
+        : bracketLabel;
   }
-  if (label != null && label.isNotEmpty) {
-    return 'Standard cover | $label';
+  if (bracketLabel != null && bracketLabel.isNotEmpty) {
+    return 'Standard cover | $bracketLabel';
   }
-  return 'Standard cover';
+  return cleanTrailing ?? (title.isEmpty ? 'Standard cover' : 'Standard cover');
 }
 
-String _providerCandidateSubtitle(
-  ProviderCandidate candidate,
-  String providerLabel,
-) {
-  final issueTitle = _providerIssueTitle(candidate);
-  final summary = candidate.summary?.trim();
-  return [
-    issueTitle,
-    if (summary != null && summary.isNotEmpty) summary,
-  ].join(' | ').trim().isEmpty
-      ? '$providerLabel candidate'
-      : [
-          issueTitle,
-          if (summary != null && summary.isNotEmpty) summary,
-        ].join(' | ');
-}
-
-String _normalizedProviderIssueKey(String provider, String title) {
+String _normalizedProviderKey(String provider, String title) {
   final normalized = '$provider $title'
       .trim()
       .toLowerCase()
@@ -570,35 +878,66 @@ String _normalizedProviderIssueKey(String provider, String title) {
   return normalized.isEmpty ? provider : normalized;
 }
 
-class _ProviderFallbackNotice extends StatelessWidget {
-  const _ProviderFallbackNotice({
-    required this.requestedProvider,
-    required this.fallbackProvider,
+class _ProviderCandidateIdentity {
+  const _ProviderCandidateIdentity({
+    required this.seriesTitle,
+    required this.issueLabel,
+    required this.variantLabel,
+    this.issueSortValue,
   });
 
-  final String requestedProvider;
-  final String fallbackProvider;
+  final String seriesTitle;
+  final String issueLabel;
+  final double? issueSortValue;
+  final String variantLabel;
+
+  bool get isVariant =>
+      variantLabel != 'Standard cover' &&
+      !variantLabel.startsWith('Standard cover |');
+}
+
+class _SearchSkeletonState extends StatelessWidget {
+  const _SearchSkeletonState({required this.label});
+
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-      decoration: const BoxDecoration(
-        color: Color(0xFF263B46),
-        border: Border(bottom: BorderSide(color: kClzDivider)),
-      ),
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.swap_horiz, size: 17, color: kClzAccent),
-          const SizedBox(width: 7),
+          Row(
+            children: [
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           Expanded(
-            child: Text(
-              '$requestedProvider unavailable, $fallbackProvider fallback used.',
-              style: const TextStyle(
-                color: Color(0xFFD5EAF5),
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
+            child: _PulseSkeleton(
+              child: ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 7,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  return _SkeletonResultRow(
+                    shortSubtitle: index.isOdd,
+                  );
+                },
               ),
             ),
           ),
@@ -608,29 +947,111 @@ class _ProviderFallbackNotice extends StatelessWidget {
   }
 }
 
-class _SearchLoadingState extends StatelessWidget {
-  const _SearchLoadingState({required this.label});
+class _PulseSkeleton extends StatefulWidget {
+  const _PulseSkeleton({required this.child});
 
-  final String label;
+  final Widget child;
+
+  @override
+  State<_PulseSkeleton> createState() => _PulseSkeletonState();
+}
+
+class _PulseSkeletonState extends State<_PulseSkeleton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 820),
+    )..repeat(reverse: true);
+    _opacity = Tween<double>(begin: 0.44, end: 0.82).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(
-            width: 34,
-            height: 34,
-            child: CircularProgressIndicator(strokeWidth: 3),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-        ],
+    return FadeTransition(opacity: _opacity, child: widget.child);
+  }
+}
+
+class _SkeletonResultRow extends StatelessWidget {
+  const _SkeletonResultRow({required this.shortSubtitle});
+
+  final bool shortSubtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0xFF242729),
+        border: Border(bottom: BorderSide(color: Color(0xFF36393B))),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Row(
+          children: [
+            _SkeletonBox(width: 18, height: 18, radius: 3),
+            const SizedBox(width: 10),
+            _SkeletonBox(width: 42, height: 62, radius: 3),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const FractionallySizedBox(
+                    widthFactor: 0.78,
+                    child: _SkeletonBox(height: 13, radius: 3),
+                  ),
+                  const SizedBox(height: 8),
+                  FractionallySizedBox(
+                    widthFactor: shortSubtitle ? 0.46 : 0.66,
+                    child: const _SkeletonBox(height: 11, radius: 3),
+                  ),
+                  const SizedBox(height: 9),
+                  const FractionallySizedBox(
+                    widthFactor: 0.34,
+                    child: _SkeletonBox(height: 16, radius: 4),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({
+    this.width,
+    required this.height,
+    required this.radius,
+  });
+
+  final double? width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: const Color(0xFF536A78),
+        borderRadius: BorderRadius.circular(radius),
       ),
     );
   }
@@ -667,17 +1088,38 @@ class _TinyCheckbox extends StatelessWidget {
 }
 
 class _IssueSortButton extends StatelessWidget {
-  const _IssueSortButton({required this.label, this.selected = false});
+  const _IssueSortButton({
+    required this.label,
+    required this.tooltip,
+    required this.selected,
+    required this.onPressed,
+  });
 
   final String label;
+  final String tooltip;
   final bool selected;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      color: selected ? const Color(0xFF159AC8) : const Color(0xFF555555),
-      child: Text(label, style: const TextStyle(fontSize: 11)),
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFF159AC8) : const Color(0xFF555555),
+            border: Border.all(
+              color: selected ? kClzAccent : const Color(0xFF666666),
+            ),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+          ),
+        ),
+      ),
     );
   }
 }

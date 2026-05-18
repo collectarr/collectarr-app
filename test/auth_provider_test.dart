@@ -71,6 +71,55 @@ void main() {
     expect(prefs.getBool('collectarr.auth.is_admin'), isNull);
   });
 
+  test('server reset auth rejection clears restored token', () async {
+    final token = _jwtExpiringAt(DateTime.now().toUtc().add(
+          const Duration(hours: 1),
+        ));
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': token,
+      'collectarr.auth.email': 'user@example.com',
+      'collectarr.auth.is_admin': true,
+    });
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    container.read(authControllerProvider);
+    await _waitForAuthRestore(container);
+
+    final cleared = await container
+        .read(authControllerProvider.notifier)
+        .clearSessionIfRejected(_authRejectedByServerReset());
+
+    expect(cleared, isTrue);
+    final auth = container.read(authControllerProvider);
+    expect(auth.isAuthenticated, isFalse);
+    expect(auth.email, 'user@example.com');
+    expect(auth.error, 'Metadata session reset. Sign in again.');
+    expect(container.read(apiAuthTokenProvider), isNull);
+    expect(container.read(apiClientProvider).authorizationHeader, isNull);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('collectarr.auth.token'), isNull);
+    expect(prefs.getString('collectarr.auth.email'), 'user@example.com');
+    expect(prefs.getBool('collectarr.auth.is_admin'), isNull);
+  });
+
+  test('missing bearer token is not treated as stale local session', () async {
+    SharedPreferences.setMockInitialValues({});
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    container.read(authControllerProvider);
+    await _waitForAuthRestore(container);
+
+    final cleared = await container
+        .read(authControllerProvider.notifier)
+        .clearSessionIfRejected(_missingBearerToken());
+
+    expect(cleared, isFalse);
+    expect(container.read(authControllerProvider).error, isNull);
+  });
+
   test('login stores admin permission from token response', () async {
     SharedPreferences.setMockInitialValues({});
     final token = _jwtExpiringAt(DateTime.now().toUtc().add(
@@ -158,6 +207,36 @@ class _RejectedLoginClient extends ApiClient {
       ),
     );
   }
+}
+
+DioException _authRejectedByServerReset() {
+  final requestOptions = RequestOptions(path: '/metadata/providers/search');
+  return DioException(
+    requestOptions: requestOptions,
+    response: Response<Map<String, dynamic>>(
+      requestOptions: requestOptions,
+      statusCode: 401,
+      data: {
+        'detail': 'User not found',
+        'code': 'user_not_found',
+      },
+    ),
+  );
+}
+
+DioException _missingBearerToken() {
+  final requestOptions = RequestOptions(path: '/metadata/providers/search');
+  return DioException(
+    requestOptions: requestOptions,
+    response: Response<Map<String, dynamic>>(
+      requestOptions: requestOptions,
+      statusCode: 401,
+      data: {
+        'detail': 'Missing bearer token',
+        'code': 'missing_bearer_token',
+      },
+    ),
+  );
 }
 
 class _AdminLoginClient extends ApiClient {

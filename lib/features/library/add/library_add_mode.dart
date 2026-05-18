@@ -1,1 +1,1 @@
-enum LibraryAddMode { search, barcode, pullList }
+enum LibraryAddMode { addSeries, addIssue, barcode, pullList }
