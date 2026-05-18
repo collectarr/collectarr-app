@@ -18,20 +18,41 @@ class LibraryAddModeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Container(
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+      borderRadius: BorderRadius.circular(3),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        height: 32,
+        margin: const EdgeInsets.only(right: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF202020) : const Color(0xFF444444),
-          border: const Border(
-            right: BorderSide(color: Color(0xFF1A1A1A)),
+          color: selected ? const Color(0xFF15384B) : const Color(0xFF2D2F31),
+          border: Border.all(
+            color: selected ? const Color(0xFF18B7EB) : const Color(0xFF55585B),
           ),
+          borderRadius: BorderRadius.circular(3),
+          boxShadow: selected
+              ? const [
+                  BoxShadow(
+                    color: Color(0x5518B7EB),
+                    blurRadius: 8,
+                    offset: Offset(0, 1),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 16, color: const Color(0xFF18B7EB)),
             const SizedBox(width: 6),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFFEDEDED),
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ],
         ),
       ),

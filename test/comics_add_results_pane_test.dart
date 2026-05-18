@@ -35,10 +35,10 @@ void main() {
     );
 
     expect(find.text('Standard cover'), findsNothing);
-    expect(find.text('Jim Lee Variant'), findsWidgets);
+    expect(find.text('#1 | Jim Lee Variant'), findsWidgets);
   });
 
-  testWidgets('provider results render variants under the issue root',
+  testWidgets('provider results render variants directly under the series',
       (tester) async {
     await tester.pumpWidget(
       _host(
@@ -65,10 +65,10 @@ void main() {
     );
 
     expect(find.text('Absolute Batman (2024 series)'), findsOneWidget);
-    expect(find.text('#1'), findsOneWidget);
-    expect(find.text('Standard cover | Nick Dragotta Cover'), findsWidgets);
-    expect(find.text('Jim Lee Cardstock Variant Cover'), findsWidgets);
-    expect(find.text('1 standard cover | 1 variant cover'), findsOneWidget);
+    expect(
+        find.text('#1 | Standard cover | Nick Dragotta Cover'), findsWidgets);
+    expect(find.text('#1 | Jim Lee Cardstock Variant Cover'), findsWidgets);
+    expect(find.text('1 issue'), findsOneWidget);
   });
 
   testWidgets('provider results group multiple issues below a series',
@@ -102,10 +102,10 @@ void main() {
     );
 
     expect(find.text('Over the Garden Wall'), findsOneWidget);
-    expect(find.text('#1'), findsOneWidget);
-    expect(find.text('#2'), findsOneWidget);
+    expect(find.text('#1 | Standard cover | Regular Cover'), findsWidgets);
+    expect(find.text('#2 | Standard cover | Regular Cover'), findsWidgets);
     expect(find.text('2 issues | 3 covers | 1 variant'), findsOneWidget);
-    expect(find.text('Veronica Fish Variant Cover'), findsWidgets);
+    expect(find.text('#1 | Veronica Fish Variant Cover'), findsWidgets);
   });
 
   testWidgets('provider issue sorting can be descending', (tester) async {
@@ -132,8 +132,15 @@ void main() {
     );
 
     expect(
-      tester.getTopLeft(find.text('#2')).dy,
-      lessThan(tester.getTopLeft(find.text('#1')).dy),
+      tester
+          .getTopLeft(find.byKey(const ValueKey('provider-row-comicvine-two')))
+          .dy,
+      lessThan(
+        tester
+            .getTopLeft(
+                find.byKey(const ValueKey('provider-row-comicvine-one')))
+            .dy,
+      ),
     );
   });
 

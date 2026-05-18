@@ -201,6 +201,8 @@ class _AddTargetDefaultsBar extends StatelessWidget {
                 decoration: const InputDecoration(
                   isDense: true,
                   isCollapsed: true,
+                  filled: false,
+                  fillColor: Colors.transparent,
                   border: InputBorder.none,
                   labelText: 'Storage box',
                   floatingLabelBehavior: FloatingLabelBehavior.never,

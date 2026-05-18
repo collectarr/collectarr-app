@@ -1536,95 +1536,31 @@ class _AddComicModeBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: _kClzToolbar,
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: _kClzToolbar,
+        border: Border(bottom: BorderSide(color: Color(0xFF111111))),
+      ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(7, 4, 7, 7),
+        padding: const EdgeInsets.fromLTRB(7, 5, 7, 7),
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        const Text(
-                          'Search by',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFFEDEDED),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        LibraryAddModeTab(
-                          key: const ValueKey('add-comics-series-tab'),
-                          icon: Icons.library_books,
-                          label: 'Add Series',
-                          selected: mode == LibraryAddMode.addSeries,
-                          onTap: () => onModeChanged(LibraryAddMode.addSeries),
-                        ),
-                        LibraryAddModeTab(
-                          key: const ValueKey('add-comics-issue-tab'),
-                          icon: Icons.menu_book,
-                          label: 'Add Issue',
-                          selected: mode == LibraryAddMode.addIssue,
-                          onTap: () => onModeChanged(LibraryAddMode.addIssue),
-                        ),
-                        LibraryAddModeTab(
-                          key: const ValueKey('add-comics-barcode-tab'),
-                          icon: Icons.qr_code_2,
-                          label: 'Barcode',
-                          selected: mode == LibraryAddMode.barcode,
-                          onTap: () => onModeChanged(LibraryAddMode.barcode),
-                        ),
-                        LibraryAddModeTab(
-                          key: const ValueKey('add-comics-pull-list-tab'),
-                          icon: Icons.star,
-                          label: 'Pull List',
-                          selected: mode == LibraryAddMode.pullList,
-                          onTap: () => onModeChanged(LibraryAddMode.pullList),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                TextButton.icon(
-                  onPressed: onAddManual,
-                  icon: const Icon(Icons.edit_note, size: 18),
-                  label: const Text('Manual'),
-                ),
-                const SizedBox(width: 4),
-                TextButton.icon(
-                  onPressed: onProposeManual,
-                  icon: const Icon(Icons.outbox, size: 18),
-                  label: const Text('Propose'),
-                ),
-                const SizedBox(width: 4),
-                TextButton.icon(
-                  onPressed: onScanBarcode,
-                  icon: const Icon(Icons.barcode_reader, size: 18),
-                  label: const Text('Scan'),
-                ),
-                const SizedBox(width: 8),
-                const Icon(Icons.menu, size: 28),
-              ],
+            _AddModeTabStrip(
+              mode: mode,
+              onModeChanged: onModeChanged,
+              onAddManual: onAddManual,
+              onProposeManual: onProposeManual,
+              onScanBarcode: onScanBarcode,
             ),
             const SizedBox(height: 7),
             switch (mode) {
               LibraryAddMode.addSeries => Row(
                   children: [
                     Expanded(
-                      child: SizedBox(
-                        height: _kAddComicModeControlHeight,
-                        child: TextField(
-                          controller: queryController,
-                          onSubmitted: (_) => onSearch(),
-                          decoration: const InputDecoration(
-                            hintText: 'Enter series title...',
-                          ),
-                        ),
+                      child: _PrimarySearchField(
+                        controller: queryController,
+                        hintText: 'Enter series title...',
+                        onSubmitted: onSearch,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -1648,15 +1584,10 @@ class _AddComicModeBar extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: SizedBox(
-                            height: _kAddComicModeControlHeight,
-                            child: TextField(
-                              controller: seriesController,
-                              onSubmitted: (_) => onSearch(),
-                              decoration: const InputDecoration(
-                                hintText: 'Enter series title...',
-                              ),
-                            ),
+                          child: _PrimarySearchField(
+                            controller: seriesController,
+                            hintText: 'Enter series title...',
+                            onSubmitted: onSearch,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -1770,6 +1701,134 @@ class _AddComicModeBar extends StatelessWidget {
   }
 }
 
+class _AddModeTabStrip extends StatelessWidget {
+  const _AddModeTabStrip({
+    required this.mode,
+    required this.onModeChanged,
+    required this.onAddManual,
+    required this.onProposeManual,
+    required this.onScanBarcode,
+  });
+
+  final LibraryAddMode mode;
+  final ValueChanged<LibraryAddMode> onModeChanged;
+  final VoidCallback onAddManual;
+  final VoidCallback onProposeManual;
+  final VoidCallback onScanBarcode;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFF272A2C),
+        border: Border.all(color: const Color(0xFF4D555A)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Row(
+        children: [
+          const Text(
+            'Search by',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Color(0xFFEDEDED),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  LibraryAddModeTab(
+                    key: const ValueKey('add-comics-series-tab'),
+                    icon: Icons.library_books,
+                    label: 'Add Series',
+                    selected: mode == LibraryAddMode.addSeries,
+                    onTap: () => onModeChanged(LibraryAddMode.addSeries),
+                  ),
+                  LibraryAddModeTab(
+                    key: const ValueKey('add-comics-issue-tab'),
+                    icon: Icons.menu_book,
+                    label: 'Add Issue',
+                    selected: mode == LibraryAddMode.addIssue,
+                    onTap: () => onModeChanged(LibraryAddMode.addIssue),
+                  ),
+                  LibraryAddModeTab(
+                    key: const ValueKey('add-comics-barcode-tab'),
+                    icon: Icons.qr_code_2,
+                    label: 'Barcode',
+                    selected: mode == LibraryAddMode.barcode,
+                    onTap: () => onModeChanged(LibraryAddMode.barcode),
+                  ),
+                  LibraryAddModeTab(
+                    key: const ValueKey('add-comics-pull-list-tab'),
+                    icon: Icons.star,
+                    label: 'Pull List',
+                    selected: mode == LibraryAddMode.pullList,
+                    onTap: () => onModeChanged(LibraryAddMode.pullList),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _ModeActionButton(
+            icon: Icons.edit_note,
+            label: 'Manual',
+            onPressed: onAddManual,
+          ),
+          _ModeActionButton(
+            icon: Icons.outbox,
+            label: 'Propose',
+            onPressed: onProposeManual,
+          ),
+          _ModeActionButton(
+            icon: Icons.barcode_reader,
+            label: 'Scan',
+            onPressed: onScanBarcode,
+          ),
+          const SizedBox(width: 4),
+          const Icon(Icons.menu, size: 26, color: Color(0xFFEDEDED)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModeActionButton extends StatelessWidget {
+  const _ModeActionButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 30,
+      child: TextButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 17),
+        label: Text(label),
+        style: TextButton.styleFrom(
+          foregroundColor: kClzAccent,
+          visualDensity: VisualDensity.compact,
+          padding: const EdgeInsets.symmetric(horizontal: 9),
+          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+          minimumSize: const Size(0, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+      ),
+    );
+  }
+}
+
 class _AdvancedSearchFilters extends StatelessWidget {
   const _AdvancedSearchFilters({
     required this.seriesController,
@@ -1834,6 +1893,47 @@ class _AdvancedSearchFilters extends StatelessWidget {
   }
 }
 
+class _PrimarySearchField extends StatelessWidget {
+  const _PrimarySearchField({
+    required this.controller,
+    required this.hintText,
+    required this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String hintText;
+  final VoidCallback onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _kAddComicModeControlHeight,
+      child: _ModeFieldFrame(
+        child: TextField(
+          controller: controller,
+          textAlignVertical: TextAlignVertical.center,
+          onSubmitted: (_) => onSubmitted(),
+          style: const TextStyle(
+            color: Color(0xFFEDEDED),
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            isCollapsed: true,
+            filled: false,
+            fillColor: Colors.transparent,
+            border: InputBorder.none,
+            hintText: hintText,
+            hintStyle: const TextStyle(color: Color(0xFF9EA9B0)),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _FilterField extends StatelessWidget {
   const _FilterField({
     required this.width,
@@ -1854,21 +1954,50 @@ class _FilterField extends StatelessWidget {
     return SizedBox(
       width: width,
       height: _kAddComicModeControlHeight,
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        textAlignVertical: TextAlignVertical.center,
-        onSubmitted: (_) => onSubmitted(),
-        decoration: InputDecoration(
-          isDense: true,
-          isCollapsed: true,
-          filled: true,
-          fillColor: const Color(0xFF4A4A4A),
-          border: const OutlineInputBorder(),
-          hintText: label,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      child: _ModeFieldFrame(
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          textAlignVertical: TextAlignVertical.center,
+          onSubmitted: (_) => onSubmitted(),
+          style: const TextStyle(
+            color: Color(0xFFEDEDED),
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            isCollapsed: true,
+            filled: false,
+            fillColor: Colors.transparent,
+            border: InputBorder.none,
+            hintText: label,
+            hintStyle: const TextStyle(color: Color(0xFF9EA9B0)),
+            contentPadding: EdgeInsets.zero,
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _ModeFieldFrame extends StatelessWidget {
+  const _ModeFieldFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: _kAddComicModeControlHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 11),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        border: Border.all(color: const Color(0xFF50565A)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: child,
     );
   }
 }

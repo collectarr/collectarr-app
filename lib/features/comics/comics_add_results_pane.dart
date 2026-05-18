@@ -298,51 +298,17 @@ class _ProviderIssueTree extends StatelessWidget {
             child: Column(
               children: [
                 for (final issue in series.issues)
-                  Builder(
-                    builder: (context) {
-                      final issueCollapsed =
-                          collapsedSeries.contains(issue.collapseKey);
-                      return Column(
-                        children: [
-                          _ProviderIssueHeader(
-                            group: issue,
-                            isCollapsed: issueCollapsed,
-                            checkedCount: issue.items
-                                .where((item) => checkedProviderIds
-                                    .contains(item.providerItemId))
-                                .length,
-                            onToggleCollapsed: () =>
-                                onToggleIssueCollapsed(issue.collapseKey),
-                            onToggleCheck: () =>
-                                onToggleGroupCheck(issue.items),
-                          ),
-                          _AnimatedCollapseSection(
-                            visible: !issueCollapsed,
-                            child: Column(
-                              children: [
-                                for (final item in issue.sortedItems)
-                                  _ProviderIssueRow(
-                                    candidate: item,
-                                    selected: item.providerItemId ==
-                                        selectedProviderId,
-                                    checked: checkedProviderIds
-                                        .contains(item.providerItemId),
-                                    providerLabel: providerLabel(item.provider),
-                                    isChild: _providerCandidateIdentity(item)
-                                        .isVariant,
-                                    onSelect: () =>
-                                        onSelectProvider(item.providerItemId),
-                                    onToggleCheck: () => onToggleProviderCheck(
-                                      item.providerItemId,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                  for (final item in issue.sortedItems)
+                    _ProviderIssueRow(
+                      candidate: item,
+                      selected: item.providerItemId == selectedProviderId,
+                      checked: checkedProviderIds.contains(item.providerItemId),
+                      providerLabel: providerLabel(item.provider),
+                      onSelect: () => onSelectProvider(item.providerItemId),
+                      onToggleCheck: () => onToggleProviderCheck(
+                        item.providerItemId,
+                      ),
+                    ),
               ],
             ),
           ),
@@ -572,103 +538,12 @@ class _ProviderSeriesHeader extends StatelessWidget {
   }
 }
 
-class _ProviderIssueHeader extends StatelessWidget {
-  const _ProviderIssueHeader({
-    required this.group,
-    required this.isCollapsed,
-    required this.checkedCount,
-    required this.onToggleCollapsed,
-    required this.onToggleCheck,
-  });
-
-  final _ProviderIssueGroup group;
-  final bool isCollapsed;
-  final int checkedCount;
-  final VoidCallback onToggleCollapsed;
-  final VoidCallback onToggleCheck;
-
-  @override
-  Widget build(BuildContext context) {
-    final selectableCount = group.items.length;
-    return InkWell(
-      onTap: onToggleCollapsed,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          color: Color(0xFF2A2D2F),
-          border: Border(bottom: BorderSide(color: Color(0xFF3A3A3A))),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(28, 5, 6, 5),
-          child: Row(
-            children: [
-              Tooltip(
-                message: isCollapsed ? 'Expand issue' : 'Collapse issue',
-                child: Icon(
-                  isCollapsed
-                      ? Icons.keyboard_arrow_right
-                      : Icons.keyboard_arrow_down,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Checkbox(
-                value: checkedCount == 0
-                    ? false
-                    : checkedCount >= selectableCount
-                        ? true
-                        : null,
-                tristate: true,
-                onChanged: (_) => onToggleCheck(),
-                visualDensity: VisualDensity.compact,
-              ),
-              const Icon(Icons.menu_book, size: 16, color: kClzAccent),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      group.issueLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w900),
-                    ),
-                    Text(
-                      group.subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFFB8B8B8),
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (checkedCount > 0) ...[
-                LibraryAddResultBadge('$checkedCount selected'),
-                const SizedBox(width: 6),
-              ],
-              LibraryAddResultBadge(
-                '${group.totalCount} cover'
-                '${group.totalCount == 1 ? '' : 's'}',
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _ProviderIssueRow extends StatelessWidget {
   const _ProviderIssueRow({
     required this.candidate,
     required this.selected,
     required this.checked,
     required this.providerLabel,
-    required this.isChild,
     required this.onSelect,
     required this.onToggleCheck,
   });
@@ -677,64 +552,45 @@ class _ProviderIssueRow extends StatelessWidget {
   final bool selected;
   final bool checked;
   final String providerLabel;
-  final bool isChild;
   final VoidCallback onSelect;
   final VoidCallback onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
-    final variantLabel = _providerVariantLabel(candidate);
+    final identity = _providerCandidateIdentity(candidate);
+    final title = [
+      identity.issueLabel,
+      identity.variantLabel,
+    ].join(' | ');
     return Padding(
-      padding: EdgeInsets.only(left: isChild ? 50 : 32),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (isChild)
-            const SizedBox(
-              width: 18,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(top: 13),
-                  child: Icon(
-                    Icons.subdirectory_arrow_right,
-                    color: Color(0xFF7D8A92),
-                    size: 14,
-                  ),
-                ),
-              ),
+      padding: const EdgeInsets.only(left: 18),
+      child: AddResultRow(
+        key: ValueKey(
+          'provider-row-${candidate.provider}-${candidate.providerItemId}',
+        ),
+        selected: selected,
+        checked: checked,
+        checkDisabled: false,
+        cover: SizedBox(
+          width: 42,
+          height: 62,
+          child: ProviderCandidateImage(
+            key: ValueKey(
+              'provider-cover-${candidate.provider}-${candidate.providerItemId}-${candidate.imageUrl ?? ''}',
             ),
-          Expanded(
-            child: AddResultRow(
-              key: ValueKey(
-                'provider-row-${candidate.provider}-${candidate.providerItemId}',
-              ),
-              selected: selected,
-              checked: checked,
-              checkDisabled: false,
-              cover: SizedBox(
-                width: 42,
-                height: 62,
-                child: ProviderCandidateImage(
-                  key: ValueKey(
-                    'provider-cover-${candidate.provider}-${candidate.providerItemId}-${candidate.imageUrl ?? ''}',
-                  ),
-                  candidate: candidate,
-                  fallbackTitle: variantLabel,
-                ),
-              ),
-              title: variantLabel,
-              subtitle: _providerCandidateSubtitle(candidate, providerLabel),
-              badges: [
-                providerLabel,
-                if (candidate.isVariant) 'variant',
-              ],
-              trailing: 'propose',
-              onTap: onSelect,
-              onToggleCheck: onToggleCheck,
-            ),
+            candidate: candidate,
+            fallbackTitle: title,
           ),
+        ),
+        title: title,
+        subtitle: _providerCandidateSubtitle(candidate, providerLabel),
+        badges: [
+          providerLabel,
+          if (candidate.isVariant) 'variant',
         ],
+        trailing: 'propose',
+        onTap: onSelect,
+        onToggleCheck: onToggleCheck,
       ),
     );
   }
