@@ -625,6 +625,23 @@ class ApiClient {
         .toList(growable: false);
   }
 
+  Future<List<Season>> getProviderVolumes(
+    String provider,
+    String providerItemId,
+  ) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/providers/$provider/volumes/${Uri.encodeComponent(providerItemId)}',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(Season.fromJson)
+        .toList(growable: false);
+  }
+
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
       {String? kind}) async {
     final response = await _dio.get<Map<String, dynamic>>(

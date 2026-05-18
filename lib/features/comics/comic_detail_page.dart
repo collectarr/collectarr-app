@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/library_item_state.dart';
 import 'package:collectarr_app/features/library/seasons_section.dart';
 import 'package:collectarr_app/features/library/series_relations_section.dart';
+import 'package:collectarr_app/features/library/volumes_section.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -205,6 +206,11 @@ class _ComicDetailBody extends ConsumerWidget {
           SeasonsSection(
             provider: 'tmdb',
             providerItemId: _tmdbProviderItemId(comic)!,
+          ),
+        if (_mangaProviderItemId(comic) != null)
+          VolumesSection(
+            provider: _mangaProviderItemId(comic)!.$1,
+            providerItemId: _mangaProviderItemId(comic)!.$2,
           ),
         const SizedBox(height: 16),
         FilledButton.icon(
@@ -717,6 +723,19 @@ String? _tmdbProviderItemId(ComicDetail comic) {
   for (final link in comic.providerLinks) {
     if (link.provider == 'tmdb' && link.entityType == 'item') {
       return link.providerItemId;
+    }
+  }
+  return null;
+}
+
+(String, String)? _mangaProviderItemId(ComicDetail comic) {
+  if (comic.kind != 'manga') return null;
+  const volumeProviders = ['mangadex', 'anilist'];
+  for (final provider in volumeProviders) {
+    for (final link in comic.providerLinks) {
+      if (link.provider == provider && link.entityType == 'item') {
+        return (provider, link.providerItemId);
+      }
     }
   }
   return null;
