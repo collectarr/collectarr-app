@@ -307,20 +307,16 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Add Comics'));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField &&
-            widget.decoration?.hintText?.startsWith('Search title') == true,
-      ),
+      find.widgetWithText(TextField, 'Enter series title...'),
       '76194134192700811',
     );
-    await tester.tap(find.text('Search Collectarr Core'));
+    await tester.tap(find.text('Search Series'));
     await tester.pumpAndSettle();
 
     expect(api.lastSearchQuery?.query, '');
     expect(api.lastSearchQuery?.barcode, '76194134192700811');
     expect(api.lastDetailId, 'comic-8a');
-    expect(find.text('Pages'), findsOneWidget);
+    expect(find.textContaining('Pages: 32 pages'), findsOneWidget);
   });
 
   testWidgets('add comics batches barcode lookups for collection add',
@@ -448,7 +444,7 @@ void main() {
 
     expect(api.lastSearchQuery?.series, 'Superman, Vol. 4');
     expect(api.lastSearchQuery?.issueNumber, '9');
-    expect(find.text('Collectarr Core results'), findsOneWidget);
+    expect(find.text('#9 | Standard cover | Regular Cover'), findsOneWidget);
   });
 
   testWidgets('comics page restores persisted list view preferences',
@@ -1040,6 +1036,22 @@ class _FakeApiClient extends ApiClient {
     MetadataSearchQuery query,
   ) async {
     lastSearchQuery = query;
+    if (query.issueNumber == '9') {
+      return [
+        {
+          'id': 'comic-9',
+          'kind': 'comic',
+          'title': 'Superman, Vol. 4',
+          'item_number': '9',
+          'synopsis': 'A follow-up issue.',
+          'publisher': 'DC',
+          'release_date': '2017-01-04',
+          'release_year': 2017,
+          'barcode': '76194134192700911',
+          'variant': 'Regular Cover',
+        },
+      ];
+    }
     return [
       {
         'id': 'comic-8a',
@@ -1059,6 +1071,37 @@ class _FakeApiClient extends ApiClient {
   @override
   Future<Map<String, dynamic>> getComic(String id) async {
     lastDetailId = id;
+    if (id == 'comic-9') {
+      return {
+        'id': id,
+        'kind': 'comic',
+        'title': 'Superman, Vol. 4',
+        'item_number': '9',
+        'sort_key': 'superman-vol-4-000009',
+        'synopsis': 'A follow-up issue.',
+        'series_title': 'Superman',
+        'volume_name': 'Superman, Vol. 4',
+        'volume_number': 4,
+        'volume_start_year': 2016,
+        'publisher': 'DC',
+        'barcode': '76194134192700911',
+        'cover_date': '2017-03-01',
+        'store_date': '2017-01-04',
+        'page_count': 32,
+        'cover_price_cents': 299,
+        'currency': 'USD',
+        'creators': [],
+        'characters': [],
+        'story_arcs': [],
+        'provider_links': [],
+        'metadata_json': null,
+        'release_type': null,
+        'season_number': null,
+        'episode_number': null,
+        'runtime_minutes': null,
+        'editions': [],
+      };
+    }
     return {
       'id': id,
       'kind': 'comic',
