@@ -1,0 +1,12 @@
+changelog:
+  categories:
+    - title: "🚀 Features"
+      labels:
+        - enhancement
+    - title: "🐛 Bug Fixes"
+      labels:
+        - bug
+    - title: "🧹 Maintenance"
+      labels:
+        - dependencies
+        - ci
