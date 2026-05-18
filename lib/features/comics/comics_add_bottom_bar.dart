@@ -126,6 +126,9 @@ class AddComicBottomBar extends StatelessWidget {
 }
 
 const double _kCompactControlHeight = 30;
+const double _kCompactMenuItemHeight = 30;
+const Color _kCompactMenuBackground = Color(0xFF183246);
+const Color _kCompactMenuText = Color(0xFFBFEFFF);
 
 class _AddTargetDefaultsBar extends StatelessWidget {
   const _AddTargetDefaultsBar({
@@ -258,15 +261,24 @@ class _TargetMenu extends StatelessWidget {
       enabled: enabled,
       tooltip: 'Add target',
       position: PopupMenuPosition.under,
+      color: _kCompactMenuBackground,
+      elevation: 10,
+      constraints: const BoxConstraints(minWidth: 158, maxWidth: 210),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(3),
+        side: BorderSide(color: kClzAccent.withValues(alpha: 0.74)),
+      ),
       onSelected: onChanged,
       itemBuilder: (context) => [
-        PopupMenuItem(
+        _compactPopupMenuItem(
           value: LibraryAddTarget.owned,
-          child: Text(LibraryAddTarget.owned.actionLabel),
+          label: LibraryAddTarget.owned.actionLabel,
+          selected: value == LibraryAddTarget.owned,
         ),
-        PopupMenuItem(
+        _compactPopupMenuItem(
           value: LibraryAddTarget.wishlist,
-          child: Text(LibraryAddTarget.wishlist.actionLabel),
+          label: LibraryAddTarget.wishlist.actionLabel,
+          selected: value == LibraryAddTarget.wishlist,
         ),
       ],
       child: _CompactMenuButton(
@@ -300,18 +312,91 @@ class _SmallDropdown extends StatelessWidget {
       initialValue: selectedValue,
       tooltip: label,
       position: PopupMenuPosition.under,
+      color: _kCompactMenuBackground,
+      elevation: 10,
+      constraints: BoxConstraints(minWidth: width, maxWidth: 220),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(3),
+        side: BorderSide(color: kClzAccent.withValues(alpha: 0.74)),
+      ),
       onSelected: onChanged,
       itemBuilder: (context) => [
-        PopupMenuItem<String?>(
+        _compactPopupMenuItem<String?>(
           value: null,
-          child: Text('$label: none'),
+          label: '$label: none',
+          selected: selectedValue == null,
         ),
         for (final item in items)
-          PopupMenuItem<String?>(value: item, child: Text(item)),
+          _compactPopupMenuItem<String?>(
+            value: item,
+            label: item,
+            selected: item == selectedValue,
+          ),
       ],
       child: _CompactMenuButton(
         width: width,
         label: selectedValue ?? label,
+      ),
+    );
+  }
+}
+
+PopupMenuItem<T> _compactPopupMenuItem<T>({
+  required T value,
+  required String label,
+  required bool selected,
+}) {
+  return PopupMenuItem<T>(
+    value: value,
+    height: _kCompactMenuItemHeight,
+    padding: EdgeInsets.zero,
+    child: _CompactPopupMenuRow(label: label, selected: selected),
+  );
+}
+
+class _CompactPopupMenuRow extends StatelessWidget {
+  const _CompactPopupMenuRow({
+    required this.label,
+    required this.selected,
+  });
+
+  final String label;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: _kCompactMenuItemHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        color:
+            selected ? kClzAccent.withValues(alpha: 0.26) : Colors.transparent,
+        border: selected
+            ? Border(left: BorderSide(color: kClzAccent, width: 3))
+            : null,
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 18,
+            child: selected
+                ? const Icon(Icons.check, color: _kCompactMenuText, size: 15)
+                : null,
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: _kCompactMenuText,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -328,7 +413,7 @@ class _CompactInputShell extends StatelessWidget {
       height: _kCompactControlHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xFF183246),
+        color: _kCompactMenuBackground,
         border: Border.all(color: kClzAccent.withValues(alpha: 0.82)),
         borderRadius: BorderRadius.circular(3),
       ),
@@ -373,7 +458,7 @@ class _CompactMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = enabled ? const Color(0xFFBFEFFF) : const Color(0xFF7B8790);
+    final color = enabled ? _kCompactMenuText : const Color(0xFF7B8790);
     return Opacity(
       opacity: enabled ? 1 : 0.62,
       child: _CompactMenuFrame(
@@ -408,7 +493,7 @@ class _CompactMenuFrame extends StatelessWidget {
       height: _kCompactControlHeight,
       padding: const EdgeInsets.symmetric(horizontal: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFF183246),
+        color: _kCompactMenuBackground,
         border: Border.all(color: kClzAccent.withValues(alpha: 0.82)),
         borderRadius: BorderRadius.circular(3),
       ),

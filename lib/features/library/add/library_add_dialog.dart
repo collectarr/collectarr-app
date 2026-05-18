@@ -2531,7 +2531,6 @@ class _ManualPane extends StatelessWidget {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            textAlign: TextAlign.center,
                             decoration:
                                 const InputDecoration(labelText: 'Year'),
                           ),

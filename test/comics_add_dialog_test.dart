@@ -45,7 +45,7 @@ void main() {
     expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
 
     final yearField = find.widgetWithText(TextField, 'Year');
-    expect(tester.widget<TextField>(yearField).textAlign, TextAlign.center);
+    expect(tester.widget<TextField>(yearField).textAlign, TextAlign.start);
     await tester.enterText(yearField, '20ab24');
     expect(tester.widget<TextField>(yearField).controller?.text, '2024');
   });

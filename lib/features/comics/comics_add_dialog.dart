@@ -1570,7 +1570,6 @@ class _AddComicModeBar extends StatelessWidget {
                       label: 'Year',
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      textAlign: TextAlign.center,
                       onSubmitted: onSearch,
                     ),
                     const SizedBox(width: 10),
@@ -1882,7 +1881,6 @@ class _AdvancedSearchFilters extends StatelessWidget {
           label: 'Year',
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          textAlign: TextAlign.center,
           onSubmitted: onSubmitted,
         ),
         _FilterField(
@@ -1949,7 +1947,6 @@ class _FilterField extends StatelessWidget {
     required this.onSubmitted,
     this.keyboardType,
     this.inputFormatters,
-    this.textAlign = TextAlign.start,
   });
 
   final double width;
@@ -1958,7 +1955,6 @@ class _FilterField extends StatelessWidget {
   final VoidCallback onSubmitted;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
-  final TextAlign textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -1970,7 +1966,6 @@ class _FilterField extends StatelessWidget {
           controller: controller,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
-          textAlign: textAlign,
           expands: true,
           minLines: null,
           maxLines: null,
