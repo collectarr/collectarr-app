@@ -326,7 +326,6 @@ class _CompactInputShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: _kCompactControlHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 9),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: const Color(0xFF183246),

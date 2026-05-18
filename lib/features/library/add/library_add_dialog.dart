@@ -1232,7 +1232,6 @@ class _LibraryAddModeFieldFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: _kLibraryAddModeControlHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: const Color(0xFF111111),

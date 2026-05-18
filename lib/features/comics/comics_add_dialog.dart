@@ -1996,7 +1996,6 @@ class _ModeFieldFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: _kAddComicModeControlHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 11),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
