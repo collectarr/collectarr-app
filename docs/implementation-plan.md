@@ -20,9 +20,9 @@ own the canonical catalog or provider ingestion.
 - Add Comics sends structured provider search context (`series`, issue number,
   and year) to Core so Add Series and Add Issue can follow different server-side
   provider strategies.
-- Provider candidates consume Core's structured comic identity fields when
-  available, so issue/variant grouping and preview facts do not rely only on
-  title parsing.
+- Provider candidates consume Core's structured comic identity fields and
+  `candidate_type` when available, so issue/variant grouping and preview facts
+  do not rely only on title parsing.
 - Generic add dialog and generic library workspaces exist for manga, anime,
   books, games, board games, movies, TV, and music.
 - Settings includes grouped tabs, auto-save behavior, connection settings,

@@ -10,6 +10,7 @@ void main() {
       'kind': 'comic',
       'summary': 'A provider candidate.',
       'image_url': 'https://example.test/cover.jpg',
+      'candidate_type': 'issue',
       'series_title': 'The Amazing Spider-Man',
       'issue_number': '1',
       'volume_start_year': 1963,
@@ -23,6 +24,7 @@ void main() {
     expect(candidate.kind, 'comic');
     expect(candidate.summary, 'A provider candidate.');
     expect(candidate.imageUrl, 'https://example.test/cover.jpg');
+    expect(candidate.candidateType, 'issue');
     expect(candidate.seriesTitle, 'The Amazing Spider-Man');
     expect(candidate.issueNumber, '1');
     expect(candidate.volumeStartYear, 1963);
@@ -77,6 +79,7 @@ void main() {
       'title': 'Absolute Batman #1 [Jim Lee Cardstock Variant Cover]',
       'kind': 'comic',
       'summary': 'December 2024 · 5.99 USD · variant',
+      'candidate_type': 'variant',
       'is_variant': true,
     });
 
@@ -89,6 +92,7 @@ void main() {
       'provider_item_id': '2663120',
       'title': 'Absolute Batman #1',
       'kind': 'comic',
+      'candidate_type': 'issue',
       'series_title': 'Absolute Batman',
       'issue_number': '1',
       'volume_start_year': 2024,
@@ -101,5 +105,27 @@ void main() {
     expect(item.itemNumber, '1');
     expect(item.releaseYear, 2024);
     expect(item.variant, 'Nick Dragotta Cover');
+  });
+
+  test('candidate type wins over legacy variant text heuristics', () {
+    final issueCandidate = ProviderCandidate.fromJson(const {
+      'provider': 'gcd',
+      'provider_item_id': 'issue-1',
+      'title': 'Absolute Batman #1 Variant Mention In Title',
+      'kind': 'comic',
+      'candidate_type': 'issue',
+      'is_variant': true,
+    });
+    final variantCandidate = ProviderCandidate.fromJson(const {
+      'provider': 'gcd',
+      'provider_item_id': 'variant-1',
+      'title': 'Absolute Batman #1',
+      'kind': 'comic',
+      'candidate_type': 'variant',
+      'is_variant': false,
+    });
+
+    expect(issueCandidate.isVariant, isFalse);
+    expect(variantCandidate.isVariant, isTrue);
   });
 }

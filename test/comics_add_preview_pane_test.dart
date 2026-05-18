@@ -75,6 +75,7 @@ void main() {
                   issueNumber: '1',
                   volumeStartYear: 2015,
                   variantName: 'Baltimore Comic Con Exclusive Cover',
+                  candidateType: 'variant',
                   isVariantOverride: true,
                   summary: 'August 2015 · variant',
                 ),

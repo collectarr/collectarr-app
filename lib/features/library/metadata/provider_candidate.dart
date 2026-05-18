@@ -8,6 +8,7 @@ class ProviderCandidate {
     required this.kind,
     this.summary,
     this.imageUrl,
+    this.candidateType,
     this.seriesTitle,
     this.issueNumber,
     this.volumeStartYear,
@@ -21,6 +22,7 @@ class ProviderCandidate {
   final String kind;
   final String? summary;
   final String? imageUrl;
+  final String? candidateType;
   final String? seriesTitle;
   final String? issueNumber;
   final int? volumeStartYear;
@@ -44,6 +46,7 @@ class ProviderCandidate {
       kind: kind,
       summary: json['summary'] as String?,
       imageUrl: json['image_url'] as String?,
+      candidateType: json['candidate_type'] as String?,
       seriesTitle: json['series_title'] as String?,
       issueNumber: json['issue_number'] as String?,
       volumeStartYear: json['volume_start_year'] as int?,
@@ -72,6 +75,12 @@ class ProviderCandidate {
   }
 
   bool get isVariant {
+    if (candidateType == 'variant') {
+      return true;
+    }
+    if (candidateType == 'series' || candidateType == 'issue') {
+      return false;
+    }
     final explicit = isVariantOverride;
     if (explicit != null) {
       return explicit;
