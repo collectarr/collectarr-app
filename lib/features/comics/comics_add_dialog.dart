@@ -34,6 +34,8 @@ const Color _kClzToolbar = kClzToolbar;
 const Color _kClzPanel = kClzPanel;
 const Color _kClzAccent = kClzAccent;
 final ThemeData _kClzAddComicDialogTheme = kClzAddComicDialogTheme;
+final TextInputFormatter _noNewlineFormatter =
+    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]'));
 
 class AddComicDialog extends ConsumerStatefulWidget {
   const AddComicDialog({super.key});
@@ -1917,7 +1919,11 @@ class _PrimarySearchField extends StatelessWidget {
       child: _ModeFieldFrame(
         child: TextField(
           controller: controller,
-          maxLines: 1,
+          keyboardType: TextInputType.text,
+          inputFormatters: [_noNewlineFormatter],
+          expands: true,
+          minLines: null,
+          maxLines: null,
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
@@ -1969,9 +1975,11 @@ class _FilterField extends StatelessWidget {
       child: _ModeFieldFrame(
         child: TextField(
           controller: controller,
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-          maxLines: 1,
+          keyboardType: keyboardType ?? TextInputType.text,
+          inputFormatters: [...?inputFormatters, _noNewlineFormatter],
+          expands: true,
+          minLines: null,
+          maxLines: null,
           textInputAction: TextInputAction.search,
           textAlign: textAlign,
           textAlignVertical: TextAlignVertical.center,

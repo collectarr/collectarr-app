@@ -46,6 +46,7 @@ void main() {
 
     final yearField = find.widgetWithText(TextField, 'Year');
     expect(tester.widget<TextField>(yearField).textAlign, TextAlign.center);
+    expect(tester.widget<TextField>(yearField).expands, isTrue);
     await tester.enterText(yearField, '20ab24');
     expect(tester.widget<TextField>(yearField).controller?.text, '2024');
   });
@@ -125,6 +126,7 @@ void main() {
 
     await tester.pumpAndSettle();
     final searchField = find.widgetWithText(TextField, 'Enter series title...');
+    expect(tester.widget<TextField>(searchField).expands, isTrue);
     await tester.tap(searchField);
     await tester.enterText(searchField, 'absolute');
     await tester.sendKeyEvent(LogicalKeyboardKey.space);

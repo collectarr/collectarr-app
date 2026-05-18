@@ -772,6 +772,8 @@ enum _LibraryAddDialogMode { search, barcode, manual }
 const double _kLibraryAddControlHeight = 34;
 const double _kLibraryAddModeControlHeight = 36;
 const BorderSide _kLibraryAddBorder = BorderSide(color: kClzDivider);
+final TextInputFormatter _noNewlineFormatter =
+    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]'));
 
 ButtonStyle _libraryAddFilledButtonStyle([Color accent = kClzAccent]) {
   return FilledButton.styleFrom(
@@ -1196,8 +1198,11 @@ class _LibraryAddModeTextField extends StatelessWidget {
         child: TextField(
           key: fieldKey,
           controller: controller,
-          keyboardType: keyboardType,
-          maxLines: 1,
+          keyboardType: keyboardType ?? TextInputType.text,
+          inputFormatters: [_noNewlineFormatter],
+          expands: true,
+          minLines: null,
+          maxLines: null,
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),

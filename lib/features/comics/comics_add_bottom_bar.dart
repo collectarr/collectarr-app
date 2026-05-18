@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AddComicBottomBar extends StatelessWidget {
   const AddComicBottomBar({
@@ -129,6 +130,8 @@ const double _kCompactControlHeight = 30;
 const double _kCompactMenuItemHeight = 30;
 const Color _kCompactMenuBackground = Color(0xFF183246);
 const Color _kCompactMenuText = Color(0xFFBFEFFF);
+final TextInputFormatter _noNewlineFormatter =
+    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]'));
 
 class _AddTargetDefaultsBar extends StatelessWidget {
   const _AddTargetDefaultsBar({
@@ -195,7 +198,11 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             child: _CompactInputShell(
               child: TextField(
                 controller: storageBoxController,
-                maxLines: 1,
+                keyboardType: TextInputType.text,
+                inputFormatters: [_noNewlineFormatter],
+                expands: true,
+                minLines: null,
+                maxLines: null,
                 textAlign: TextAlign.center,
                 textInputAction: TextInputAction.done,
                 textAlignVertical: TextAlignVertical.center,

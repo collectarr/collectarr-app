@@ -26,6 +26,7 @@ void main() {
       tester.widget<TextField>(storageBoxField).textAlign,
       TextAlign.center,
     );
+    expect(tester.widget<TextField>(storageBoxField).expands, isTrue);
     expect(find.byType(DropdownButtonFormField), findsNothing);
   });
 
