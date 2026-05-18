@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/library_item_state.dart';
+import 'package:collectarr_app/features/library/seasons_section.dart';
 import 'package:collectarr_app/features/library/series_relations_section.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -200,6 +201,11 @@ class _ComicDetailBody extends ConsumerWidget {
           ),
         if (comic.seriesId != null)
           SeriesRelationsSection(seriesId: comic.seriesId!),
+        if (_tmdbProviderItemId(comic) != null)
+          SeasonsSection(
+            provider: 'tmdb',
+            providerItemId: _tmdbProviderItemId(comic)!,
+          ),
         const SizedBox(height: 16),
         FilledButton.icon(
           onPressed: () => showMetadataCorrectionDialog(
@@ -703,4 +709,15 @@ class _DetailCover extends StatelessWidget {
             ),
     );
   }
+}
+
+String? _tmdbProviderItemId(ComicDetail comic) {
+  const seasonKinds = {'tv', 'anime'};
+  if (!seasonKinds.contains(comic.kind)) return null;
+  for (final link in comic.providerLinks) {
+    if (link.provider == 'tmdb' && link.entityType == 'item') {
+      return link.providerItemId;
+    }
+  }
+  return null;
 }

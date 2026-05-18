@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -604,6 +605,23 @@ class ApiClient {
     return data
         .cast<Map<String, dynamic>>()
         .map(SeriesRelation.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<List<Season>> getProviderSeasons(
+    String provider,
+    String providerItemId,
+  ) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/providers/$provider/seasons/${Uri.encodeComponent(providerItemId)}',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(Season.fromJson)
         .toList(growable: false);
   }
 
