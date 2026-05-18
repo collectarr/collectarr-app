@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/library_item_state.dart';
+import 'package:collectarr_app/features/library/series_relations_section.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -197,6 +198,8 @@ class _ComicDetailBody extends ConsumerWidget {
             title: 'Story arcs',
             children: [_CreditWrap(credits: comic.storyArcs)],
           ),
+        if (comic.seriesId != null)
+          SeriesRelationsSection(seriesId: comic.seriesId!),
         const SizedBox(height: 16),
         FilledButton.icon(
           onPressed: () => showMetadataCorrectionDialog(
