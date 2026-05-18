@@ -114,12 +114,17 @@ class ApiClient {
   }
 
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
-    final response = await _dio.get<List<dynamic>>('/metadata/media-types');
+    final response = await _dio.get<dynamic>('/metadata/media-types');
     final data = response.data;
     if (data == null) {
       return const [];
     }
-    return data
+    final rows = data is List<dynamic>
+        ? data
+        : data is Map<String, dynamic>
+            ? data['media_types'] as List<dynamic>? ?? const []
+            : const <dynamic>[];
+    return rows
         .cast<Map<String, dynamic>>()
         .map(CatalogMediaType.fromJson)
         .toList(growable: false);
@@ -151,12 +156,17 @@ class ApiClient {
   }
 
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {
-    final response = await _dio.get<List<dynamic>>('/admin/providers');
+    final response = await _dio.get<dynamic>('/admin/providers');
     final data = response.data;
     if (data == null) {
       return const [];
     }
-    return data
+    final rows = data is List<dynamic>
+        ? data
+        : data is Map<String, dynamic>
+            ? data['providers'] as List<dynamic>? ?? const []
+            : const <dynamic>[];
+    return rows
         .cast<Map<String, dynamic>>()
         .map(AdminProviderStatus.fromJson)
         .toList(growable: false);

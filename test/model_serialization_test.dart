@@ -14,6 +14,7 @@ void main() {
       'route_segments': ['movies', 'movie'],
       'default_provider': 'tmdb',
       'providers': ['tmdb'],
+      'provider_search_policy': 'core_miss_then_configured_providers',
       'is_top_level': true,
       'physical_formats': [
         {
@@ -29,6 +30,8 @@ void main() {
     expect(mediaType.kind, 'movie');
     expect(mediaType.defaultProvider, 'tmdb');
     expect(mediaType.providers, ['tmdb']);
+    expect(
+        mediaType.providerSearchPolicy, 'core_miss_then_configured_providers');
     expect(mediaType.routeSegments, ['movies', 'movie']);
     expect(mediaType.physicalFormats.single.id, 'blu-ray');
     expect(mediaType.physicalFormats.single.aliases, ['bluray', 'blu ray']);

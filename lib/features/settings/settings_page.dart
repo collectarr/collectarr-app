@@ -731,12 +731,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       );
       final data = await client.status();
       final devices = await client.devices();
+      final protocol = data['protocol_version']?.toString() ?? 'unknown';
       final version = data['schema_version']?.toString() ?? 'unknown';
       final entities = data['entity_count']?.toString() ?? 'unknown';
       final changes = data['change_count']?.toString() ?? 'unknown';
       setState(() {
         _syncDiagnostic = _DiagnosticState.ok(
-          'Sync connected: schema $version, $entities entities, $changes events',
+          'Sync connected: protocol $protocol, schema $version, $entities entities, $changes events',
         );
         _syncStatusDetails = data;
         _syncDevices = devices;
@@ -1778,6 +1779,10 @@ class _SyncServiceSummary extends StatelessWidget {
                 _StatusChip(
                   icon: Icons.storage_outlined,
                   label: '${status['entity_count'] ?? '-'} entities',
+                ),
+                _StatusChip(
+                  icon: Icons.account_tree_outlined,
+                  label: 'protocol ${status['protocol_version'] ?? '-'}',
                 ),
                 _StatusChip(
                   icon: Icons.delete_sweep_outlined,

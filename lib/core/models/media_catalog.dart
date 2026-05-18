@@ -35,6 +35,7 @@ class CatalogMediaType {
     this.routeSegments = const [],
     this.defaultProvider,
     this.providers = const [],
+    this.providerSearchPolicy = 'core_miss_then_configured_providers',
     this.isTopLevel = true,
     this.legacyOf,
     this.physicalFormats = const [],
@@ -46,6 +47,7 @@ class CatalogMediaType {
   final List<String> routeSegments;
   final String? defaultProvider;
   final List<String> providers;
+  final String providerSearchPolicy;
   final bool isTopLevel;
   final String? legacyOf;
   final List<CatalogPhysicalFormat> physicalFormats;
@@ -64,6 +66,8 @@ class CatalogMediaType {
         for (final provider in (json['providers'] as List<dynamic>? ?? []))
           provider.toString(),
       ],
+      providerSearchPolicy: json['provider_search_policy'] as String? ??
+          'core_miss_then_configured_providers',
       isTopLevel: json['is_top_level'] as bool? ?? true,
       legacyOf: json['legacy_of'] as String?,
       physicalFormats: [
