@@ -63,10 +63,16 @@ void main() {
       comicsLibraryConfig,
       provider: 'gcd',
       query: 'Batman #1',
+      series: 'Batman',
+      issueNumber: '1',
+      year: 1940,
     );
 
     expect(api.lastProvider, 'gcd');
     expect(api.lastProviderKind, 'comic');
+    expect(api.lastProviderSeries, 'Batman');
+    expect(api.lastProviderIssueNumber, '1');
+    expect(api.lastProviderYear, 1940);
     expect(results.single.providerItemId, 'gcd-1');
     expect(results.single.kind, 'comic');
   });
@@ -94,6 +100,9 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
   String? lastProvider;
   String? lastProviderQuery;
   String? lastProviderKind;
+  String? lastProviderSeries;
+  String? lastProviderIssueNumber;
+  int? lastProviderYear;
 
   @override
   Future<List<Map<String, dynamic>>> searchMetadata(
@@ -126,10 +135,16 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
     String? provider,
     required String query,
     String? kind,
+    String? series,
+    String? issueNumber,
+    int? year,
   }) async {
     lastProvider = provider;
     lastProviderQuery = query;
     lastProviderKind = kind;
+    lastProviderSeries = series;
+    lastProviderIssueNumber = issueNumber;
+    lastProviderYear = year;
     return const [
       {
         'provider': 'gcd',

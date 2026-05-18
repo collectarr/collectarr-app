@@ -17,6 +17,9 @@ own the canonical catalog or provider ingestion.
 - Comics has the richest add/search flow: series/issue/barcode/pull-list modes,
   provider fallback, issue/variant grouping, multi-select, keyboard shortcuts,
   compact bottom bar, and metadata preview.
+- Add Comics sends structured provider search context (`series`, issue number,
+  and year) to Core so Add Series and Add Issue can follow different server-side
+  provider strategies.
 - Generic add dialog and generic library workspaces exist for manga, anime,
   books, games, board games, movies, TV, and music.
 - Settings includes grouped tabs, auto-save behavior, connection settings,

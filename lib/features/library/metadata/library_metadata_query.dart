@@ -69,11 +69,17 @@ Future<List<ProviderCandidate>> searchLibraryProviderCandidates(
   LibraryTypeConfig type, {
   String? provider,
   required String query,
+  String? series,
+  String? issueNumber,
+  int? year,
 }) async {
   final rows = await api.searchProvider(
     provider: provider,
     query: query,
     kind: type.workspace.kind,
+    series: series,
+    issueNumber: issueNumber,
+    year: year,
   );
   return rows
       .map(

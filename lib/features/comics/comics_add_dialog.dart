@@ -833,6 +833,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     String? queryOverride,
     bool bypassDebounce = false,
   }) async {
+    final searchFields = _searchFieldsForMode();
     final query = queryOverride?.trim().isNotEmpty == true
         ? queryOverride!.trim()
         : _providerQuery;
@@ -853,6 +854,11 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
         ref.read(apiClientProvider),
         _libraryType,
         query: query,
+        series: queryOverride == null ? searchFields.series : null,
+        issueNumber: queryOverride == null ? searchFields.issueNumber : null,
+        year: queryOverride == null
+            ? int.tryParse(_yearController.text.trim())
+            : null,
       );
       if (!mounted) {
         return;

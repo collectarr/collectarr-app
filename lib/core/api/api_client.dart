@@ -134,6 +134,9 @@ class ApiClient {
     String? provider,
     required String query,
     String? kind,
+    String? series,
+    String? issueNumber,
+    int? year,
   }) async {
     final providerPath = provider == null || provider.isEmpty
         ? '/metadata/providers/search'
@@ -143,6 +146,10 @@ class ApiClient {
       queryParameters: {
         'q': query,
         if (kind != null) 'kind': kind,
+        if (series != null && series.trim().isNotEmpty) 'series': series.trim(),
+        if (issueNumber != null && issueNumber.trim().isNotEmpty)
+          'issue_number': issueNumber.trim(),
+        if (year != null) 'year': year,
       },
     );
     final data = response.data;

@@ -243,6 +243,9 @@ class _FakeLibraryAddApiClient extends ApiClient {
     String? provider,
     required String query,
     String? kind,
+    String? series,
+    String? issueNumber,
+    int? year,
   }) async {
     final resolvedProvider = provider ??
         switch (kind) {
