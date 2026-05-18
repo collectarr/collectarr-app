@@ -1653,8 +1653,6 @@ class _AddComicModeBar extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          const BarcodeLookupStrip(),
                           if (barcodeHistory.isNotEmpty &&
                               barcodeBatch.isEmpty) ...[
                             const SizedBox(height: 8),
