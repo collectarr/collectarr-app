@@ -1570,6 +1570,7 @@ class _AddComicModeBar extends StatelessWidget {
                       label: 'Year',
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      textAlign: TextAlign.center,
                       onSubmitted: onSearch,
                     ),
                     const SizedBox(width: 10),
@@ -1596,6 +1597,7 @@ class _AddComicModeBar extends StatelessWidget {
                           width: 96,
                           controller: issueController,
                           label: 'Issue',
+                          textAlign: TextAlign.center,
                           onSubmitted: onSearch,
                         ),
                         const SizedBox(width: 10),
@@ -1866,6 +1868,7 @@ class _AdvancedSearchFilters extends StatelessWidget {
             width: 92,
             controller: issueController,
             label: 'Issue #',
+            textAlign: TextAlign.center,
             onSubmitted: onSubmitted,
           ),
         ],
@@ -1881,6 +1884,7 @@ class _AdvancedSearchFilters extends StatelessWidget {
           label: 'Year',
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          textAlign: TextAlign.center,
           onSubmitted: onSubmitted,
         ),
         _FilterField(
@@ -1913,9 +1917,8 @@ class _PrimarySearchField extends StatelessWidget {
       child: _ModeFieldFrame(
         child: TextField(
           controller: controller,
-          expands: true,
-          minLines: null,
-          maxLines: null,
+          maxLines: 1,
+          textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
@@ -1947,6 +1950,7 @@ class _FilterField extends StatelessWidget {
     required this.onSubmitted,
     this.keyboardType,
     this.inputFormatters,
+    this.textAlign = TextAlign.start,
   });
 
   final double width;
@@ -1955,6 +1959,7 @@ class _FilterField extends StatelessWidget {
   final VoidCallback onSubmitted;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final TextAlign textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -1966,9 +1971,9 @@ class _FilterField extends StatelessWidget {
           controller: controller,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
-          expands: true,
-          minLines: null,
-          maxLines: null,
+          maxLines: 1,
+          textInputAction: TextInputAction.search,
+          textAlign: textAlign,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(

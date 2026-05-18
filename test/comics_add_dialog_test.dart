@@ -45,7 +45,7 @@ void main() {
     expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
 
     final yearField = find.widgetWithText(TextField, 'Year');
-    expect(tester.widget<TextField>(yearField).textAlign, TextAlign.start);
+    expect(tester.widget<TextField>(yearField).textAlign, TextAlign.center);
     await tester.enterText(yearField, '20ab24');
     expect(tester.widget<TextField>(yearField).controller?.text, '2024');
   });
@@ -133,5 +133,57 @@ void main() {
       tester.widget<TextField>(searchField).controller?.text,
       'absolute batman',
     );
+  });
+
+  testWidgets('enter searches from the add issue search field', (tester) async {
+    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shelfProvider.overrideWith(
+            (ref) async => const ShelfState(
+              entries: [],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: Scaffold(body: AddComicDialog())),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add Issue'));
+    await tester.pumpAndSettle();
+
+    final searchField = find.widgetWithText(TextField, 'Enter series title...');
+    await tester.tap(searchField);
+    await tester.enterText(searchField, 'Over the Garden Wall');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Issue number is required for Add Issue.'),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<TextField>(searchField).controller?.text,
+      'Over the Garden Wall',
+    );
+
+    final issueField = find.widgetWithText(TextField, 'Issue');
+    expect(tester.widget<TextField>(issueField).textAlign, TextAlign.center);
   });
 }

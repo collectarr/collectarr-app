@@ -20,7 +20,12 @@ void main() {
     expect(find.text('Owned defaults'), findsOneWidget);
     expect(find.text('Near Mint'), findsOneWidget);
     expect(find.text('Ungraded'), findsOneWidget);
-    expect(find.widgetWithText(TextField, 'Storage box'), findsOneWidget);
+    final storageBoxField = find.widgetWithText(TextField, 'Storage box');
+    expect(storageBoxField, findsOneWidget);
+    expect(
+      tester.widget<TextField>(storageBoxField).textAlign,
+      TextAlign.center,
+    );
     expect(find.byType(DropdownButtonFormField), findsNothing);
   });
 

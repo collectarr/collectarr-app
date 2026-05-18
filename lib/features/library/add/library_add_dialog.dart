@@ -1197,9 +1197,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
           key: fieldKey,
           controller: controller,
           keyboardType: keyboardType,
-          expands: true,
-          minLines: null,
-          maxLines: null,
+          maxLines: 1,
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
@@ -2519,6 +2517,7 @@ class _ManualPane extends StatelessWidget {
                         Expanded(
                           child: TextField(
                             controller: numberController,
+                            textAlign: TextAlign.center,
                             decoration:
                                 InputDecoration(labelText: labels.number),
                           ),
@@ -2531,6 +2530,7 @@ class _ManualPane extends StatelessWidget {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
+                            textAlign: TextAlign.center,
                             decoration:
                                 const InputDecoration(labelText: 'Year'),
                           ),
