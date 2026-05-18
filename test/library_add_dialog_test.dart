@@ -194,6 +194,9 @@ void main() {
       ),
     );
 
+    await tester.tap(find.text('Barcode'));
+    await tester.pumpAndSettle();
+
     await tester.enterText(
       find.widgetWithText(TextField, 'Barcode / UPC / ISBN'),
       '9780140328721',

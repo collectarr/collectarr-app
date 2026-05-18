@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
+import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/library_media_field_labels.dart';
@@ -64,6 +65,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _isSearchingProvider = false;
   bool _isQueueingIngest = false;
   bool _isAdding = false;
+  _LibraryAddDialogMode _mode = _LibraryAddDialogMode.search;
   String? _physicalFormatId;
   DateTime? _lastProviderSearchAt;
   String? _lastProviderSearchSignature;
@@ -79,7 +81,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _barcodeController.text = widget.initialBarcode?.trim() ?? '';
     _titleController.text = _queryController.text;
     if (_barcodeController.text.isNotEmpty && widget.autoLookupInitialBarcode) {
+      _mode = _LibraryAddDialogMode.barcode;
       WidgetsBinding.instance.addPostFrameCallback((_) => _lookupBarcode());
+    } else if (_barcodeController.text.isNotEmpty) {
+      _mode = _LibraryAddDialogMode.barcode;
     }
   }
 
@@ -112,6 +117,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               orElse: () => const <String, AdminProviderStatus>{},
             );
     final selectedProvider = _activeProvider;
+    final isBusy = _isSearching || _isSearchingProvider;
     return Theme(
       data: kClzAddComicDialogTheme,
       child: Dialog(
@@ -136,6 +142,22 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             child: Column(
               children: [
                 _DialogHeader(type: widget.type),
+                _LibraryAddModeBar(
+                  type: widget.type,
+                  mode: _mode,
+                  queryController: _queryController,
+                  barcodeController: _barcodeController,
+                  isSearching: _isSearching,
+                  isSearchingProvider: _isSearchingProvider,
+                  hasProviders:
+                      widget.type.supportedMetadataProviders.isNotEmpty,
+                  onModeChanged: (mode) => setState(() => _mode = mode),
+                  onSearch: _search,
+                  onSearchProvider: _searchProvider,
+                  onLookupBarcode: _lookupBarcode,
+                  onManual: () =>
+                      setState(() => _mode = _LibraryAddDialogMode.manual),
+                ),
                 if (_barcodeController.text.trim().isNotEmpty)
                   _BarcodePrefillBanner(
                     type: widget.type,
@@ -146,10 +168,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     builder: (context, constraints) {
                       final searchPane = _SearchPane(
                         type: widget.type,
-                        queryController: _queryController,
-                        barcodeController: _barcodeController,
-                        isSearching: _isSearching,
-                        isSearchingProvider: _isSearchingProvider,
+                        isBusy: isBusy,
                         isQueueingIngest: _isQueueingIngest,
                         isAdding: _isAdding,
                         error: _error,
@@ -159,9 +178,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         selectedProvider: selectedProvider,
                         providerStatuses: providerStatuses,
                         searchedProvider: _searchedProvider,
-                        onSearch: _search,
-                        onSearchProvider: _searchProvider,
-                        onLookupBarcode: _lookupBarcode,
+                        onSearchCore: _search,
                         onAddOwned: (item) =>
                             _addItems([item], LibraryAddTarget.owned),
                         onAddWishlist: (item) =>
@@ -197,30 +214,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _addManual(LibraryAddTarget.wishlist),
                       );
                       if (constraints.maxWidth < 720) {
-                        return DefaultTabController(
-                          length: 2,
-                          child: Column(
-                            children: [
-                              const ColoredBox(
-                                color: kClzToolbar,
-                                child: TabBar(
-                                  tabs: [
-                                    Tab(
-                                      icon: Icon(Icons.search),
-                                      text: 'Search',
-                                    ),
-                                    Tab(icon: Icon(Icons.edit), text: 'Manual'),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: TabBarView(
-                                  children: [searchPane, manualPane],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                        return _mode == _LibraryAddDialogMode.manual
+                            ? manualPane
+                            : searchPane;
                       }
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -684,7 +680,10 @@ class _QueuedProviderIngest {
   }
 }
 
+enum _LibraryAddDialogMode { search, barcode, manual }
+
 const double _kLibraryAddControlHeight = 34;
+const double _kLibraryAddModeControlHeight = 36;
 const BorderSide _kLibraryAddBorder = BorderSide(color: kClzDivider);
 
 ButtonStyle _libraryAddFilledButtonStyle() {
@@ -799,13 +798,352 @@ class _BarcodePrefillBanner extends StatelessWidget {
   }
 }
 
-class _SearchPane extends StatelessWidget {
-  const _SearchPane({
+class _LibraryAddModeBar extends StatelessWidget {
+  const _LibraryAddModeBar({
     required this.type,
+    required this.mode,
     required this.queryController,
     required this.barcodeController,
     required this.isSearching,
     required this.isSearchingProvider,
+    required this.hasProviders,
+    required this.onModeChanged,
+    required this.onSearch,
+    required this.onSearchProvider,
+    required this.onLookupBarcode,
+    required this.onManual,
+  });
+
+  final LibraryTypeConfig type;
+  final _LibraryAddDialogMode mode;
+  final TextEditingController queryController;
+  final TextEditingController barcodeController;
+  final bool isSearching;
+  final bool isSearchingProvider;
+  final bool hasProviders;
+  final ValueChanged<_LibraryAddDialogMode> onModeChanged;
+  final VoidCallback onSearch;
+  final VoidCallback onSearchProvider;
+  final VoidCallback onLookupBarcode;
+  final VoidCallback onManual;
+
+  @override
+  Widget build(BuildContext context) {
+    final isBusy = isSearching || isSearchingProvider;
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: kClzToolbar,
+        border: Border(bottom: BorderSide(color: Color(0xFF111111))),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(7, 5, 7, 7),
+        child: Column(
+          children: [
+            _LibraryAddModeTabStrip(
+              type: type,
+              mode: mode,
+              onModeChanged: onModeChanged,
+            ),
+            const SizedBox(height: 7),
+            switch (mode) {
+              _LibraryAddDialogMode.search => Row(
+                  children: [
+                    Expanded(
+                      child: _LibraryAddModeTextField(
+                        controller: queryController,
+                        label: 'Search Collectarr Core',
+                        hintText: _searchHint,
+                        icon: type.workspace.icon,
+                        onSubmitted: onSearch,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    _LibraryAddModeButton(
+                      label: 'Search Core',
+                      icon: Icons.search,
+                      isBusy: isSearching,
+                      onPressed: isBusy ? null : onSearch,
+                    ),
+                    if (hasProviders) ...[
+                      const SizedBox(width: 10),
+                      _LibraryAddModeButton(
+                        label: 'Search providers',
+                        icon: Icons.travel_explore,
+                        isBusy: isSearchingProvider,
+                        outlined: true,
+                        onPressed: isBusy ? null : onSearchProvider,
+                      ),
+                    ],
+                  ],
+                ),
+              _LibraryAddDialogMode.barcode => Row(
+                  children: [
+                    Expanded(
+                      child: _LibraryAddModeTextField(
+                        controller: barcodeController,
+                        label: 'Barcode / UPC / ISBN',
+                        hintText: 'Scan or enter barcode / UPC / ISBN...',
+                        icon: Icons.qr_code_2,
+                        keyboardType: TextInputType.number,
+                        onSubmitted: onLookupBarcode,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    _LibraryAddModeButton(
+                      label: 'Lookup',
+                      icon: Icons.manage_search,
+                      isBusy: isSearching,
+                      onPressed: isBusy ? null : onLookupBarcode,
+                    ),
+                    if (hasProviders) ...[
+                      const SizedBox(width: 10),
+                      _LibraryAddModeButton(
+                        label: 'Search providers',
+                        icon: Icons.travel_explore,
+                        isBusy: isSearchingProvider,
+                        outlined: true,
+                        onPressed: isBusy ? null : onSearchProvider,
+                      ),
+                    ],
+                  ],
+                ),
+              _LibraryAddDialogMode.manual => Row(
+                  children: [
+                    const Icon(Icons.edit_note, size: 18, color: kClzAccent),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Fill the manual draft panel, then add it to collection or wishlist.',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: kClzTextMuted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    _LibraryAddModeButton(
+                      label: 'Manual draft',
+                      icon: Icons.edit_note,
+                      outlined: true,
+                      onPressed: onManual,
+                    ),
+                  ],
+                ),
+            },
+          ],
+        ),
+      ),
+    );
+  }
+
+  String get _searchHint {
+    final label = type.singularLabel.toLowerCase();
+    if (type.workspace.kind == 'comic' || type.workspace.kind == 'manga') {
+      return 'Enter series title...';
+    }
+    return 'Enter $label title...';
+  }
+}
+
+class _LibraryAddModeTabStrip extends StatelessWidget {
+  const _LibraryAddModeTabStrip({
+    required this.type,
+    required this.mode,
+    required this.onModeChanged,
+  });
+
+  final LibraryTypeConfig type;
+  final _LibraryAddDialogMode mode;
+  final ValueChanged<_LibraryAddDialogMode> onModeChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFF272A2C),
+        border: Border.all(color: const Color(0xFF4D555A)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Row(
+        children: [
+          const Text(
+            'Search by',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: Color(0xFFEDEDED),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  LibraryAddModeTab(
+                    icon: type.workspace.icon,
+                    label: 'Search',
+                    selected: mode == _LibraryAddDialogMode.search,
+                    onTap: () => onModeChanged(_LibraryAddDialogMode.search),
+                  ),
+                  LibraryAddModeTab(
+                    icon: Icons.qr_code_2,
+                    label: 'Barcode',
+                    selected: mode == _LibraryAddDialogMode.barcode,
+                    onTap: () => onModeChanged(_LibraryAddDialogMode.barcode),
+                  ),
+                  LibraryAddModeTab(
+                    icon: Icons.edit_note,
+                    label: 'Manual',
+                    selected: mode == _LibraryAddDialogMode.manual,
+                    onTap: () => onModeChanged(_LibraryAddDialogMode.manual),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          const Icon(Icons.menu, size: 26, color: Color(0xFFEDEDED)),
+        ],
+      ),
+    );
+  }
+}
+
+class _LibraryAddModeTextField extends StatelessWidget {
+  const _LibraryAddModeTextField({
+    required this.controller,
+    required this.label,
+    required this.hintText,
+    required this.icon,
+    required this.onSubmitted,
+    this.keyboardType,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String hintText;
+  final IconData icon;
+  final VoidCallback onSubmitted;
+  final TextInputType? keyboardType;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _kLibraryAddModeControlHeight,
+      child: _LibraryAddModeFieldFrame(
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          textInputAction: TextInputAction.search,
+          textAlignVertical: TextAlignVertical.center,
+          onSubmitted: (_) => onSubmitted(),
+          style: const TextStyle(
+            color: Color(0xFFEDEDED),
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            isCollapsed: true,
+            filled: false,
+            fillColor: Colors.transparent,
+            border: InputBorder.none,
+            labelText: label,
+            hintText: hintText,
+            prefixIcon: Icon(icon, size: 18),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 20,
+            ),
+            floatingLabelBehavior: FloatingLabelBehavior.never,
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryAddModeFieldFrame extends StatelessWidget {
+  const _LibraryAddModeFieldFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: _kLibraryAddModeControlHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        border: Border.all(color: const Color(0xFF50565A)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _LibraryAddModeButton extends StatelessWidget {
+  const _LibraryAddModeButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+    this.isBusy = false,
+    this.outlined = false,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final bool isBusy;
+  final bool outlined;
+
+  @override
+  Widget build(BuildContext context) {
+    final child = isBusy
+        ? const SizedBox.square(
+            dimension: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18),
+              const SizedBox(width: 7),
+              Text(label),
+            ],
+          );
+    final style = outlined
+        ? _libraryAddOutlinedButtonStyle()
+        : _libraryAddFilledButtonStyle();
+    return SizedBox(
+      height: _kLibraryAddModeControlHeight,
+      child: outlined
+          ? OutlinedButton(
+              onPressed: onPressed,
+              style: style,
+              child: child,
+            )
+          : FilledButton(
+              onPressed: onPressed,
+              style: style,
+              child: child,
+            ),
+    );
+  }
+}
+
+class _SearchPane extends StatelessWidget {
+  const _SearchPane({
+    required this.type,
+    required this.isBusy,
     required this.isQueueingIngest,
     required this.isAdding,
     required this.error,
@@ -815,9 +1153,7 @@ class _SearchPane extends StatelessWidget {
     required this.selectedProvider,
     required this.providerStatuses,
     required this.searchedProvider,
-    required this.onSearch,
-    required this.onSearchProvider,
-    required this.onLookupBarcode,
+    required this.onSearchCore,
     required this.onAddOwned,
     required this.onAddWishlist,
     required this.onAddProviderOwned,
@@ -827,10 +1163,7 @@ class _SearchPane extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final TextEditingController queryController;
-  final TextEditingController barcodeController;
-  final bool isSearching;
-  final bool isSearchingProvider;
+  final bool isBusy;
   final bool isQueueingIngest;
   final bool isAdding;
   final String? error;
@@ -840,9 +1173,7 @@ class _SearchPane extends StatelessWidget {
   final String selectedProvider;
   final Map<String, AdminProviderStatus> providerStatuses;
   final bool searchedProvider;
-  final VoidCallback onSearch;
-  final VoidCallback onSearchProvider;
-  final VoidCallback onLookupBarcode;
+  final VoidCallback onSearchCore;
   final ValueChanged<CatalogItem> onAddOwned;
   final ValueChanged<CatalogItem> onAddWishlist;
   final ValueChanged<ProviderCandidate> onAddProviderOwned;
@@ -854,7 +1185,6 @@ class _SearchPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final providers = type.supportedMetadataProviders;
     final selectedProviderOption = _selectedProviderOption(providers);
-    final isBusy = isSearching || isSearchingProvider;
     return ColoredBox(
       color: kClzPanel,
       child: Padding(
@@ -862,88 +1192,6 @@ class _SearchPane extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: kClzToolbar,
-                border: Border.all(color: kClzDivider),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: queryController,
-                            textInputAction: TextInputAction.search,
-                            decoration: InputDecoration(
-                              labelText: 'Search Collectarr Core',
-                              prefixIcon: Icon(type.workspace.icon),
-                            ),
-                            onSubmitted: (_) => onSearch(),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        FilledButton.icon(
-                          onPressed: isBusy ? null : onSearch,
-                          style: _libraryAddFilledButtonStyle(),
-                          icon: isSearching
-                              ? const SizedBox.square(
-                                  dimension: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.search, size: 18),
-                          label: const Text('Search Core'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: barcodeController,
-                            textInputAction: TextInputAction.search,
-                            decoration: const InputDecoration(
-                              labelText: 'Barcode / UPC / ISBN',
-                              prefixIcon: Icon(Icons.numbers),
-                            ),
-                            onSubmitted: (_) => onLookupBarcode(),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        OutlinedButton.icon(
-                          onPressed: isBusy ? null : onLookupBarcode,
-                          style: _libraryAddOutlinedButtonStyle(),
-                          icon: const Icon(Icons.manage_search, size: 18),
-                          label: const Text('Lookup'),
-                        ),
-                        if (providers.isNotEmpty) ...[
-                          const SizedBox(width: 8),
-                          OutlinedButton.icon(
-                            onPressed: isBusy ? null : onSearchProvider,
-                            style: _libraryAddOutlinedButtonStyle(),
-                            icon: isSearchingProvider
-                                ? const SizedBox.square(
-                                    dimension: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(Icons.travel_explore, size: 18),
-                            label: const Text('Search providers'),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
             _CoreSearchNotice(type: type),
             if (providers.isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -962,7 +1210,7 @@ class _SearchPane extends StatelessWidget {
                 const SizedBox(height: 8),
                 _QueuedIngestNotice(
                   count: queuedProviderIngests.length,
-                  onSearchCore: isBusy ? null : onSearch,
+                  onSearchCore: isBusy ? null : onSearchCore,
                 ),
               ],
             ],
