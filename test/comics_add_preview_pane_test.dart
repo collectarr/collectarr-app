@@ -54,4 +54,49 @@ void main() {
     expect(find.textContaining('Provider: gcd (148725)'), findsNothing);
     expect(find.text('Metadata candidate'), findsOneWidget);
   });
+
+  testWidgets('provider preview prefers structured candidate identity',
+      (tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 900,
+              height: 640,
+              child: AddComicPreviewPane(
+                item: null,
+                candidate: ProviderCandidate(
+                  provider: 'gcd',
+                  providerItemId: '148725',
+                  title: 'Unparseable provider title',
+                  kind: 'comic',
+                  seriesTitle: 'Over the Garden Wall',
+                  issueNumber: '1',
+                  volumeStartYear: 2015,
+                  variantName: 'Baltimore Comic Con Exclusive Cover',
+                  isVariantOverride: true,
+                  summary: 'August 2015 · variant',
+                ),
+                selectedProviderLabel: 'GCD',
+                selectedIsOwned: false,
+                selectedIsWishlisted: false,
+                searchedServer: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      find.textContaining('Series: Over the Garden Wall (2015 series)'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Issue: #1'), findsOneWidget);
+    expect(
+      find.textContaining('Cover: Baltimore Comic Con Exclusive Cover'),
+      findsOneWidget,
+    );
+  });
 }

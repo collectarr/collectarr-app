@@ -110,6 +110,36 @@ void main() {
     expect(find.text('#1 | Veronica Fish Variant Cover'), findsWidgets);
   });
 
+  testWidgets('provider results prefer structured issue metadata',
+      (tester) async {
+    await tester.pumpWidget(
+      _host(
+        includeVariants: true,
+        hideInShelf: false,
+        providerResults: const [
+          ProviderCandidate(
+            provider: 'gcd',
+            providerItemId: '148725',
+            title: 'Provider result without parseable issue label',
+            kind: 'comic',
+            seriesTitle: 'Over the Garden Wall',
+            issueNumber: '1',
+            volumeStartYear: 2015,
+            variantName: 'Baltimore Comic Con Exclusive Cover',
+            isVariantOverride: true,
+          ),
+        ],
+      ),
+    );
+
+    expect(find.text('Over the Garden Wall (2015 series)'), findsOneWidget);
+    expect(
+      find.text('#1 | Baltimore Comic Con Exclusive Cover'),
+      findsWidgets,
+    );
+    expect(find.text('1 issue | 1 cover | 1 variant'), findsOneWidget);
+  });
+
   testWidgets('provider issue sorting can be descending', (tester) async {
     await tester.pumpWidget(
       _host(

@@ -8,6 +8,11 @@ class ProviderCandidate {
     required this.kind,
     this.summary,
     this.imageUrl,
+    this.seriesTitle,
+    this.issueNumber,
+    this.volumeStartYear,
+    this.variantName,
+    this.isVariantOverride,
   });
 
   final String provider;
@@ -16,6 +21,11 @@ class ProviderCandidate {
   final String kind;
   final String? summary;
   final String? imageUrl;
+  final String? seriesTitle;
+  final String? issueNumber;
+  final int? volumeStartYear;
+  final String? variantName;
+  final bool? isVariantOverride;
 
   factory ProviderCandidate.fromJson(
     Map<String, dynamic> json, {
@@ -34,6 +44,11 @@ class ProviderCandidate {
       kind: kind,
       summary: json['summary'] as String?,
       imageUrl: json['image_url'] as String?,
+      seriesTitle: json['series_title'] as String?,
+      issueNumber: json['issue_number'] as String?,
+      volumeStartYear: json['volume_start_year'] as int?,
+      variantName: json['variant_name'] as String?,
+      isVariantOverride: json['is_variant'] as bool?,
     );
   }
 
@@ -42,9 +57,12 @@ class ProviderCandidate {
       id: localCatalogId,
       kind: kind,
       title: title,
+      itemNumber: issueNumber,
       synopsis: summary,
       coverImageUrl: imageUrl,
       thumbnailImageUrl: imageUrl,
+      releaseYear: volumeStartYear,
+      variant: variantName,
     );
   }
 
@@ -54,6 +72,10 @@ class ProviderCandidate {
   }
 
   bool get isVariant {
+    final explicit = isVariantOverride;
+    if (explicit != null) {
+      return explicit;
+    }
     return _looksLikeVariant(summary) || _looksLikeVariant(title);
   }
 

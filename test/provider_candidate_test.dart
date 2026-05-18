@@ -10,6 +10,11 @@ void main() {
       'kind': 'comic',
       'summary': 'A provider candidate.',
       'image_url': 'https://example.test/cover.jpg',
+      'series_title': 'The Amazing Spider-Man',
+      'issue_number': '1',
+      'volume_start_year': 1963,
+      'variant_name': 'Regular Cover',
+      'is_variant': false,
     });
 
     expect(candidate.provider, 'comicvine');
@@ -18,6 +23,11 @@ void main() {
     expect(candidate.kind, 'comic');
     expect(candidate.summary, 'A provider candidate.');
     expect(candidate.imageUrl, 'https://example.test/cover.jpg');
+    expect(candidate.seriesTitle, 'The Amazing Spider-Man');
+    expect(candidate.issueNumber, '1');
+    expect(candidate.volumeStartYear, 1963);
+    expect(candidate.variantName, 'Regular Cover');
+    expect(candidate.isVariant, isFalse);
   });
 
   test('rejects older provider responses without an explicit fallback kind',
@@ -67,8 +77,29 @@ void main() {
       'title': 'Absolute Batman #1 [Jim Lee Cardstock Variant Cover]',
       'kind': 'comic',
       'summary': 'December 2024 · 5.99 USD · variant',
+      'is_variant': true,
     });
 
     expect(candidate.isVariant, isTrue);
+  });
+
+  test('uses structured provider fields for local placeholder data', () {
+    final candidate = ProviderCandidate.fromJson(const {
+      'provider': 'gcd',
+      'provider_item_id': '2663120',
+      'title': 'Absolute Batman #1',
+      'kind': 'comic',
+      'series_title': 'Absolute Batman',
+      'issue_number': '1',
+      'volume_start_year': 2024,
+      'variant_name': 'Nick Dragotta Cover',
+      'is_variant': false,
+    });
+
+    final item = candidate.placeholderCatalogItem();
+
+    expect(item.itemNumber, '1');
+    expect(item.releaseYear, 2024);
+    expect(item.variant, 'Nick Dragotta Cover');
   });
 }

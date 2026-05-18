@@ -423,6 +423,18 @@ class _PreviewCandidateIdentity {
 
   factory _PreviewCandidateIdentity.from(ProviderCandidate candidate) {
     final title = candidate.title.trim();
+    final structuredSeriesTitle = candidate.seriesTitle?.trim();
+    final structuredIssueNumber = candidate.issueNumber?.trim();
+    if (structuredSeriesTitle != null &&
+        structuredSeriesTitle.isNotEmpty &&
+        structuredIssueNumber != null &&
+        structuredIssueNumber.isNotEmpty) {
+      return _PreviewCandidateIdentity(
+        seriesTitle: _structuredSeriesTitle(candidate),
+        issueLabel: '#$structuredIssueNumber',
+        variantLabel: _structuredVariantLabel(candidate),
+      );
+    }
     final bracketMatch = RegExp(r'\s*\[[^\]]+\]\s*$').firstMatch(title);
     final bracketLabel = bracketMatch == null
         ? null
@@ -480,6 +492,31 @@ class _PreviewCandidateIdentity {
       return 'Standard cover | $bracketLabel';
     }
     return cleanTrailing ?? 'Standard cover';
+  }
+
+  static String _structuredSeriesTitle(ProviderCandidate candidate) {
+    final seriesTitle = candidate.seriesTitle?.trim();
+    if (seriesTitle == null || seriesTitle.isEmpty) {
+      return candidate.title.trim();
+    }
+    final year = candidate.volumeStartYear;
+    if (year == null || seriesTitle.contains(year.toString())) {
+      return seriesTitle;
+    }
+    return '$seriesTitle ($year series)';
+  }
+
+  static String _structuredVariantLabel(ProviderCandidate candidate) {
+    final variantName = candidate.variantName?.trim();
+    if (candidate.isVariant) {
+      return variantName == null || variantName.isEmpty
+          ? 'Variant cover'
+          : variantName;
+    }
+    if (variantName != null && variantName.isNotEmpty) {
+      return 'Standard cover | $variantName';
+    }
+    return 'Standard cover';
   }
 }
 
