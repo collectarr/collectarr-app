@@ -23,6 +23,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
 class LibraryAddDialog extends ConsumerStatefulWidget {
@@ -2527,6 +2528,10 @@ class _ManualPane extends StatelessWidget {
                           child: TextField(
                             controller: yearController,
                             keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            textAlign: TextAlign.center,
                             decoration:
                                 const InputDecoration(labelText: 'Year'),
                           ),

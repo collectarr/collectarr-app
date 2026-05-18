@@ -43,6 +43,11 @@ void main() {
     expect(find.text('Search Series'), findsOneWidget);
     expect(find.text('Add as owned'), findsOneWidget);
     expect(find.text('Add 1 Comic to Collection'), findsOneWidget);
+
+    final yearField = find.widgetWithText(TextField, 'Year');
+    expect(tester.widget<TextField>(yearField).textAlign, TextAlign.center);
+    await tester.enterText(yearField, '20ab24');
+    expect(tester.widget<TextField>(yearField).controller?.text, '2024');
   });
 
   testWidgets('add issue requires an issue number', (tester) async {
