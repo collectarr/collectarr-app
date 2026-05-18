@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -16,7 +15,6 @@ import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -67,6 +65,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _isQueueingIngest = false;
   bool _isAdding = false;
   _LibraryAddDialogMode _mode = _LibraryAddDialogMode.search;
+  LibraryAddTarget _addTarget = LibraryAddTarget.owned;
+  String? _selectedResultId;
+  String? _selectedProviderCandidateId;
   String? _physicalFormatId;
   DateTime? _lastProviderSearchAt;
   String? _lastProviderSearchSignature;
@@ -112,14 +113,17 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       catalog,
       widget.type.workspace.kind,
     );
-    final providerStatuses =
-        ref.watch(metadataProviderStatusesProvider).maybeWhen(
-              data: (value) => value,
-              orElse: () => const <String, AdminProviderStatus>{},
-            );
     final selectedProvider = _activeProvider;
     final isBusy = _isSearching || _isSearchingProvider;
     final accent = libraryAccentForKind(widget.type.workspace.kind);
+    final selectedResult = _selectedResult;
+    final selectedCandidate = _selectedProviderCandidate;
+    final selectedProviderLabel = selectedCandidate == null
+        ? widget.type.metadataProviderLabel(selectedProvider)
+        : widget.type.metadataProviderLabel(selectedCandidate.provider);
+    final selectedQueuedIngest = selectedCandidate == null
+        ? null
+        : _queuedProviderIngests[selectedCandidate.localCatalogId];
     return Theme(
       data: _libraryAddDialogTheme(accent),
       child: Dialog(
@@ -152,11 +156,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   barcodeController: _barcodeController,
                   isSearching: _isSearching,
                   isSearchingProvider: _isSearchingProvider,
-                  hasProviders:
-                      widget.type.supportedMetadataProviders.isNotEmpty,
                   onModeChanged: (mode) => setState(() => _mode = mode),
                   onSearch: _search,
-                  onSearchProvider: _searchProvider,
                   onLookupBarcode: _lookupBarcode,
                   onManual: () =>
                       setState(() => _mode = _LibraryAddDialogMode.manual),
@@ -172,32 +173,33 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       final searchPane = _SearchPane(
                         type: widget.type,
                         isBusy: isBusy,
-                        isQueueingIngest: _isQueueingIngest,
-                        isAdding: _isAdding,
                         error: _error,
+                        accent: accent,
                         results: _results,
                         providerResults: _providerResults,
                         queuedProviderIngests: _queuedProviderIngests,
                         selectedProvider: selectedProvider,
-                        providerStatuses: providerStatuses,
                         searchedProvider: _searchedProvider,
+                        selectedResultId: _selectedResultId,
+                        selectedProviderCandidateId:
+                            _selectedProviderCandidateId,
+                        onSelectResult: (id) => setState(() {
+                          _selectedResultId = id;
+                          _selectedProviderCandidateId = null;
+                        }),
+                        onSelectProviderCandidate: (id) => setState(() {
+                          _selectedProviderCandidateId = id;
+                          _selectedResultId = null;
+                        }),
                         onSearchCore: _search,
-                        onAddOwned: (item) =>
-                            _addItems([item], LibraryAddTarget.owned),
-                        onAddWishlist: (item) =>
-                            _addItems([item], LibraryAddTarget.wishlist),
-                        onAddProviderOwned: (candidate) =>
-                            _addProviderCandidate(
-                          candidate,
-                          LibraryAddTarget.owned,
-                        ),
-                        onAddProviderWishlist: (candidate) =>
-                            _addProviderCandidate(
-                          candidate,
-                          LibraryAddTarget.wishlist,
-                        ),
-                        onQueueProviderIngest: _queueProviderIngest,
-                        onProposeProvider: _proposeCandidate,
+                      );
+                      final previewPane = _LibraryAddPreviewPane(
+                        type: widget.type,
+                        accent: accent,
+                        item: selectedResult,
+                        candidate: selectedCandidate,
+                        providerLabel: selectedProviderLabel,
+                        searched: _results.isNotEmpty || _searchedProvider,
                       );
                       final manualPane = _ManualPane(
                         type: widget.type,
@@ -216,22 +218,64 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onAddWishlist: () =>
                             _addManual(LibraryAddTarget.wishlist),
                       );
+                      if (_mode == _LibraryAddDialogMode.manual) {
+                        return manualPane;
+                      }
                       if (constraints.maxWidth < 720) {
-                        return _mode == _LibraryAddDialogMode.manual
-                            ? manualPane
-                            : searchPane;
+                        return Column(
+                          children: [
+                            SizedBox(height: 300, child: searchPane),
+                            Expanded(child: previewPane),
+                          ],
+                        );
                       }
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(flex: 3, child: searchPane),
-                          const VerticalDivider(width: 1),
-                          Expanded(flex: 2, child: manualPane),
+                          SizedBox(width: 390, child: searchPane),
+                          const _LibraryAddPaneResizeDivider(),
+                          Expanded(child: previewPane),
                         ],
                       );
                     },
                   ),
                 ),
+                if (_mode != _LibraryAddDialogMode.manual)
+                  _LibraryAddBottomBar(
+                    type: widget.type,
+                    accent: accent,
+                    selectedItem: selectedResult,
+                    selectedCandidate: selectedCandidate,
+                    selectedQueuedIngest: selectedQueuedIngest,
+                    providerLabel: selectedProviderLabel,
+                    addTarget: _addTarget,
+                    isAdding: _isAdding,
+                    isQueueingIngest: _isQueueingIngest,
+                    onAddTargetChanged: (value) =>
+                        setState(() => _addTarget = value),
+                    onAdd: selectedResult == null && selectedCandidate == null
+                        ? null
+                        : () {
+                            final item = selectedResult;
+                            final candidate = selectedCandidate;
+                            if (item != null) {
+                              _addItems([item], _addTarget);
+                              return;
+                            }
+                            if (candidate != null) {
+                              _addProviderCandidate(
+                                candidate,
+                                _addTarget,
+                              );
+                            }
+                          },
+                    onQueueIngest: selectedCandidate == null
+                        ? null
+                        : () => _queueProviderIngest(selectedCandidate),
+                    onPropose: selectedCandidate == null
+                        ? null
+                        : () => _proposeCandidate(selectedCandidate),
+                  ),
               ],
             ),
           ),
@@ -264,7 +308,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final shouldSearchProvider =
           items.isEmpty && widget.type.supportedMetadataProviders.isNotEmpty;
       if (mounted && searchGeneration == _coreSearchGeneration) {
-        setState(() => _results = items);
+        setState(() {
+          _results = items;
+          _selectedResultId = items.isEmpty ? null : items.first.id;
+          _selectedProviderCandidateId = null;
+        });
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
@@ -320,6 +368,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
           _results = found;
+          _selectedResultId = found.isEmpty ? null : found.first.id;
+          _selectedProviderCandidateId = null;
           _error =
               found.isEmpty && widget.type.supportedMetadataProviders.isEmpty
                   ? 'No item found for barcode $barcode.'
@@ -424,6 +474,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _isSearchingProvider = true;
       _searchedProvider = true;
       _providerResults = const [];
+      _selectedProviderCandidateId = null;
       _error = null;
     });
     try {
@@ -435,7 +486,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (!mounted) {
         return;
       }
-      setState(() => _providerResults = results);
+      setState(() {
+        _results = const [];
+        _selectedResultId = null;
+        _providerResults = results;
+        _selectedProviderCandidateId =
+            results.isEmpty ? null : results.first.localCatalogId;
+      });
     } catch (error) {
       if (mounted) {
         if (await _clearRejectedMetadataSession(error, 'Provider search')) {
@@ -605,6 +662,32 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
     }
     return widget.type.defaultSupportedMetadataProvider;
+  }
+
+  CatalogItem? get _selectedResult {
+    final id = _selectedResultId;
+    if (id == null) {
+      return null;
+    }
+    for (final item in _results) {
+      if (item.id == id) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  ProviderCandidate? get _selectedProviderCandidate {
+    final id = _selectedProviderCandidateId;
+    if (id == null) {
+      return null;
+    }
+    for (final candidate in _providerResults) {
+      if (candidate.localCatalogId == id) {
+        return candidate;
+      }
+    }
+    return null;
   }
 
   String get _providerQuery {
@@ -840,10 +923,8 @@ class _LibraryAddModeBar extends StatelessWidget {
     required this.barcodeController,
     required this.isSearching,
     required this.isSearchingProvider,
-    required this.hasProviders,
     required this.onModeChanged,
     required this.onSearch,
-    required this.onSearchProvider,
     required this.onLookupBarcode,
     required this.onManual,
   });
@@ -855,10 +936,8 @@ class _LibraryAddModeBar extends StatelessWidget {
   final TextEditingController barcodeController;
   final bool isSearching;
   final bool isSearchingProvider;
-  final bool hasProviders;
   final ValueChanged<_LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
-  final VoidCallback onSearchProvider;
   final VoidCallback onLookupBarcode;
   final VoidCallback onManual;
 
@@ -897,23 +976,12 @@ class _LibraryAddModeBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     _LibraryAddModeButton(
-                      label: 'Search Core',
+                      label: _searchButtonLabel,
                       icon: Icons.search,
                       accent: accent,
                       isBusy: isSearching,
                       onPressed: isBusy ? null : onSearch,
                     ),
-                    if (hasProviders) ...[
-                      const SizedBox(width: 10),
-                      _LibraryAddModeButton(
-                        label: 'Search providers',
-                        icon: Icons.travel_explore,
-                        accent: accent,
-                        isBusy: isSearchingProvider,
-                        outlined: true,
-                        onPressed: isBusy ? null : onSearchProvider,
-                      ),
-                    ],
                   ],
                 ),
               _LibraryAddDialogMode.barcode => Row(
@@ -930,23 +998,12 @@ class _LibraryAddModeBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     _LibraryAddModeButton(
-                      label: 'Lookup',
+                      label: 'Lookup barcode',
                       icon: Icons.manage_search,
                       accent: accent,
                       isBusy: isSearching,
                       onPressed: isBusy ? null : onLookupBarcode,
                     ),
-                    if (hasProviders) ...[
-                      const SizedBox(width: 10),
-                      _LibraryAddModeButton(
-                        label: 'Search providers',
-                        icon: Icons.travel_explore,
-                        accent: accent,
-                        isBusy: isSearchingProvider,
-                        outlined: true,
-                        onPressed: isBusy ? null : onSearchProvider,
-                      ),
-                    ],
                   ],
                 ),
               _LibraryAddDialogMode.manual => Row(
@@ -988,6 +1045,13 @@ class _LibraryAddModeBar extends StatelessWidget {
       return 'Enter series title...';
     }
     return 'Enter $label title...';
+  }
+
+  String get _searchButtonLabel {
+    if (type.workspace.kind == 'comic' || type.workspace.kind == 'manga') {
+      return 'Search Series';
+    }
+    return 'Search ${type.pluralLabel}';
   }
 }
 
@@ -1233,121 +1297,99 @@ class _SearchPane extends StatelessWidget {
   const _SearchPane({
     required this.type,
     required this.isBusy,
-    required this.isQueueingIngest,
-    required this.isAdding,
     required this.error,
+    required this.accent,
     required this.results,
     required this.providerResults,
     required this.queuedProviderIngests,
     required this.selectedProvider,
-    required this.providerStatuses,
     required this.searchedProvider,
+    required this.selectedResultId,
+    required this.selectedProviderCandidateId,
+    required this.onSelectResult,
+    required this.onSelectProviderCandidate,
     required this.onSearchCore,
-    required this.onAddOwned,
-    required this.onAddWishlist,
-    required this.onAddProviderOwned,
-    required this.onAddProviderWishlist,
-    required this.onQueueProviderIngest,
-    required this.onProposeProvider,
   });
 
   final LibraryTypeConfig type;
   final bool isBusy;
-  final bool isQueueingIngest;
-  final bool isAdding;
   final String? error;
+  final Color accent;
   final List<CatalogItem> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, _QueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
-  final Map<String, AdminProviderStatus> providerStatuses;
   final bool searchedProvider;
+  final String? selectedResultId;
+  final String? selectedProviderCandidateId;
+  final ValueChanged<String> onSelectResult;
+  final ValueChanged<String> onSelectProviderCandidate;
   final VoidCallback onSearchCore;
-  final ValueChanged<CatalogItem> onAddOwned;
-  final ValueChanged<CatalogItem> onAddWishlist;
-  final ValueChanged<ProviderCandidate> onAddProviderOwned;
-  final ValueChanged<ProviderCandidate> onAddProviderWishlist;
-  final ValueChanged<ProviderCandidate> onQueueProviderIngest;
-  final ValueChanged<ProviderCandidate> onProposeProvider;
 
   @override
   Widget build(BuildContext context) {
-    final providers = type.supportedMetadataProviders;
-    final selectedProviderOption = _selectedProviderOption(providers);
-    return ColoredBox(
-      color: kClzPanel,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _CoreSearchNotice(type: type),
-            if (providers.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              _ProviderRoutingNotice(
-                type: type,
-                selectedProvider: selectedProvider,
-              ),
-              if (selectedProviderOption != null) ...[
-                const SizedBox(height: 8),
-                _ProviderSearchNotice(
-                  provider: selectedProviderOption,
-                  status: providerStatuses[selectedProviderOption.id],
-                ),
-              ],
-              if (queuedProviderIngests.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                _QueuedIngestNotice(
-                  count: queuedProviderIngests.length,
-                  onSearchCore: isBusy ? null : onSearchCore,
-                ),
-              ],
-            ],
-            if (error != null) ...[
-              const SizedBox(height: 8),
-              _ErrorBanner(error!),
-            ],
-            const SizedBox(height: 8),
-            Expanded(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: kClzCanvas,
-                  border: Border.all(color: kClzDivider),
-                ),
-                child: _SearchResultsList(
-                  type: type,
-                  selectedProvider: selectedProvider,
-                  isBusy: isBusy,
-                  isAdding: isAdding,
-                  isQueueingIngest: isQueueingIngest,
-                  searchedProvider: searchedProvider,
-                  results: results,
-                  providerResults: providerResults,
-                  queuedProviderIngests: queuedProviderIngests,
-                  onAddOwned: onAddOwned,
-                  onAddWishlist: onAddWishlist,
-                  onAddProviderOwned: onAddProviderOwned,
-                  onAddProviderWishlist: onAddProviderWishlist,
-                  onQueueProviderIngest: onQueueProviderIngest,
-                  onProposeProvider: onProposeProvider,
-                ),
-              ),
-            ),
-          ],
-        ),
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0xFF1D2022),
+        border: Border(right: BorderSide(color: kClzDivider)),
+      ),
+      child: _SearchResultsList(
+        type: type,
+        accent: accent,
+        selectedProvider: selectedProvider,
+        isBusy: isBusy,
+        error: error,
+        searchedProvider: searchedProvider,
+        results: results,
+        providerResults: providerResults,
+        queuedProviderIngests: queuedProviderIngests,
+        selectedResultId: selectedResultId,
+        selectedProviderCandidateId: selectedProviderCandidateId,
+        onSearchCore: onSearchCore,
+        onSelectResult: onSelectResult,
+        onSelectProviderCandidate: onSelectProviderCandidate,
       ),
     );
   }
+}
 
-  LibraryMetadataProviderOption? _selectedProviderOption(
-    List<LibraryMetadataProviderOption> providers,
-  ) {
-    for (final provider in providers) {
-      if (provider.id == selectedProvider) {
-        return provider;
-      }
+class _SearchPaneNoticeStack extends StatelessWidget {
+  const _SearchPaneNoticeStack({
+    required this.error,
+    required this.queuedProviderIngests,
+    required this.isBusy,
+    required this.onSearchCore,
+  });
+
+  final String? error;
+  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final bool isBusy;
+  final VoidCallback onSearchCore;
+
+  @override
+  Widget build(BuildContext context) {
+    if (error == null && queuedProviderIngests.isEmpty) {
+      return const SizedBox.shrink();
     }
-    return providers.isEmpty ? null : providers.first;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (queuedProviderIngests.isNotEmpty)
+          _QueuedIngestNotice(
+            count: queuedProviderIngests.length,
+            onSearchCore: isBusy ? null : onSearchCore,
+          ),
+        if (error != null)
+          Padding(
+            padding: EdgeInsets.only(
+              top: queuedProviderIngests.isNotEmpty ? 6 : 0,
+            ),
+            child: _ErrorBanner(error!),
+          ),
+        const Divider(height: 1, thickness: 1, color: kClzDivider),
+      ],
+    );
   }
 }
 
@@ -1383,205 +1425,6 @@ class _ErrorBanner extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CoreSearchNotice extends StatelessWidget {
-  const _CoreSearchNotice({required this.type});
-
-  final LibraryTypeConfig type;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasProviders = type.supportedMetadataProviders.isNotEmpty;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF252525),
-        border: Border.all(color: kClzDivider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              hasProviders
-                  ? Icons.cloud_queue_outlined
-                  : Icons.warning_amber_outlined,
-              size: 18,
-              color: hasProviders ? kClzAccent : const Color(0xFFFFB4C0),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                hasProviders
-                    ? 'Core search uses the configured metadata server. If it is offline, use the manual panel; local items still sync normally.'
-                    : 'No metadata provider is configured for ${type.pluralLabel.toLowerCase()}. Manual add is available.',
-                style: const TextStyle(
-                  color: kClzTextMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProviderRoutingNotice extends StatelessWidget {
-  const _ProviderRoutingNotice({
-    required this.type,
-    required this.selectedProvider,
-  });
-
-  final LibraryTypeConfig type;
-  final String selectedProvider;
-
-  @override
-  Widget build(BuildContext context) {
-    final providerLabel = type.metadataProviderLabel(selectedProvider);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF222C33),
-        border: Border.all(color: kClzDivider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-        child: Row(
-          children: [
-            const Icon(Icons.alt_route, size: 18, color: kClzAccent),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Core chooses the provider. Default route: $providerLabel, with server-side fallback when available.',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: kClzTextMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProviderSearchNotice extends StatelessWidget {
-  const _ProviderSearchNotice({
-    required this.provider,
-    required this.status,
-  });
-
-  final LibraryMetadataProviderOption provider;
-  final AdminProviderStatus? status;
-
-  @override
-  Widget build(BuildContext context) {
-    final policy = provider.usagePolicy;
-    final chips = <Widget>[
-      if (status != null && !status!.isConfigured)
-        const _ProviderNoticeChip(
-          icon: Icons.warning_amber_outlined,
-          label: 'Stub / needs credentials',
-        )
-      else if (status != null && status!.isConfigured)
-        const _ProviderNoticeChip(
-          icon: Icons.check_circle_outline,
-          label: 'Live provider',
-        )
-      else if (provider.requiresApiKey)
-        const _ProviderNoticeChip(
-          icon: Icons.warning_amber_outlined,
-          label: 'May be stub until configured',
-        ),
-      if (status != null && !status!.supportsIngest)
-        const _ProviderNoticeChip(
-          icon: Icons.search,
-          label: 'Search-only',
-        ),
-      if (provider.requiresApiKey)
-        const _ProviderNoticeChip(
-          icon: Icons.key,
-          label: 'Requires API key',
-        ),
-      if (policy?.requiresAttribution ?? false)
-        const _ProviderNoticeChip(
-          icon: Icons.link,
-          label: 'Attribution required',
-        ),
-      if (policy?.nonCommercialOnly ?? false)
-        const _ProviderNoticeChip(
-          icon: Icons.volunteer_activism_outlined,
-          label: 'Non-commercial',
-        ),
-    ];
-    final message = status?.message.trim();
-    final kindLabel = status == null || status!.effectiveKinds.isEmpty
-        ? null
-        : 'Kinds: ${status!.effectiveKinds.join(', ')}';
-    if ((provider.description == null || provider.description!.isEmpty) &&
-        chips.isEmpty &&
-        policy == null &&
-        (message == null || message.isEmpty) &&
-        kindLabel == null) {
-      return const SizedBox.shrink();
-    }
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF222C33),
-        border: Border.all(color: kClzDivider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (provider.description != null &&
-                provider.description!.isNotEmpty)
-              Text(
-                provider.description!,
-                style: const TextStyle(
-                  color: kClzTextMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            if (chips.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Wrap(spacing: 6, runSpacing: 6, children: chips),
-            ],
-            if (message != null && message.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Text(
-                message,
-                style: const TextStyle(color: kClzTextMuted, fontSize: 12),
-              ),
-            ],
-            if (kindLabel != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                kindLabel,
-                style: const TextStyle(color: kClzTextMuted, fontSize: 12),
-              ),
-            ],
-            if (policy?.summary != null && policy!.summary.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Text(
-                policy.summary,
-                style: const TextStyle(color: kClzTextMuted, fontSize: 12),
-              ),
-            ],
           ],
         ),
       ),
@@ -1636,76 +1479,71 @@ class _QueuedIngestNotice extends StatelessWidget {
   }
 }
 
-class _ProviderNoticeChip extends StatelessWidget {
-  const _ProviderNoticeChip({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      visualDensity: VisualDensity.compact,
-      avatar: Icon(icon, size: 14),
-      label: Text(label),
-    );
-  }
-}
-
 class _SearchResultsList extends StatelessWidget {
   const _SearchResultsList({
     required this.type,
+    required this.accent,
     required this.selectedProvider,
     required this.isBusy,
-    required this.isAdding,
-    required this.isQueueingIngest,
+    required this.error,
     required this.searchedProvider,
     required this.results,
     required this.providerResults,
     required this.queuedProviderIngests,
-    required this.onAddOwned,
-    required this.onAddWishlist,
-    required this.onAddProviderOwned,
-    required this.onAddProviderWishlist,
-    required this.onQueueProviderIngest,
-    required this.onProposeProvider,
+    required this.selectedResultId,
+    required this.selectedProviderCandidateId,
+    required this.onSearchCore,
+    required this.onSelectResult,
+    required this.onSelectProviderCandidate,
   });
 
   final LibraryTypeConfig type;
+  final Color accent;
   final String selectedProvider;
   final bool isBusy;
-  final bool isAdding;
-  final bool isQueueingIngest;
+  final String? error;
   final bool searchedProvider;
   final List<CatalogItem> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, _QueuedProviderIngest> queuedProviderIngests;
-  final ValueChanged<CatalogItem> onAddOwned;
-  final ValueChanged<CatalogItem> onAddWishlist;
-  final ValueChanged<ProviderCandidate> onAddProviderOwned;
-  final ValueChanged<ProviderCandidate> onAddProviderWishlist;
-  final ValueChanged<ProviderCandidate> onQueueProviderIngest;
-  final ValueChanged<ProviderCandidate> onProposeProvider;
+  final String? selectedResultId;
+  final String? selectedProviderCandidateId;
+  final VoidCallback onSearchCore;
+  final ValueChanged<String> onSelectResult;
+  final ValueChanged<String> onSelectProviderCandidate;
 
   @override
   Widget build(BuildContext context) {
+    final notice = _SearchPaneNoticeStack(
+      error: error,
+      queuedProviderIngests: queuedProviderIngests,
+      isBusy: isBusy,
+      onSearchCore: onSearchCore,
+    );
     if (isBusy && results.isEmpty && providerResults.isEmpty) {
-      return const _SearchSkeletonList();
+      return _SearchSkeletonList(notice: notice);
     }
     if (results.isEmpty && providerResults.isEmpty) {
-      return _NoSearchResults(
-        type: type,
-        selectedProvider: selectedProvider,
-        searchedProvider: searchedProvider,
+      return ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          notice,
+          SizedBox(
+            height: 280,
+            child: _NoSearchResults(
+              type: type,
+              selectedProvider: selectedProvider,
+              searchedProvider: searchedProvider,
+            ),
+          ),
+        ],
       );
     }
     final fallbackProviderLabel = _fallbackProviderLabel();
     return ListView(
       padding: EdgeInsets.zero,
       children: [
+        notice,
         if (results.isNotEmpty) ...[
           const _ResultSectionHeader(label: 'Collectarr Core'),
           ..._withDividers(
@@ -1714,9 +1552,9 @@ class _SearchResultsList extends StatelessWidget {
               for (final item in results)
                 _SearchResultTile(
                   item: item,
-                  isAdding: isAdding,
-                  onAddOwned: () => onAddOwned(item),
-                  onAddWishlist: () => onAddWishlist(item),
+                  accent: accent,
+                  selected: item.id == selectedResultId,
+                  onSelect: () => onSelectResult(item.id),
                 ),
             ],
           ),
@@ -1736,14 +1574,13 @@ class _SearchResultsList extends StatelessWidget {
               for (final candidate in providerResults)
                 _ProviderCandidateTile(
                   candidate: candidate,
+                  accent: accent,
                   providerLabel: type.metadataProviderLabel(candidate.provider),
-                  isAdding: isAdding,
-                  isQueueingIngest: isQueueingIngest,
                   queuedIngest: queuedProviderIngests[candidate.localCatalogId],
-                  onAddOwned: () => onAddProviderOwned(candidate),
-                  onAddWishlist: () => onAddProviderWishlist(candidate),
-                  onQueueIngest: () => onQueueProviderIngest(candidate),
-                  onPropose: () => onProposeProvider(candidate),
+                  selected:
+                      candidate.localCatalogId == selectedProviderCandidateId,
+                  onSelect: () =>
+                      onSelectProviderCandidate(candidate.localCatalogId),
                 ),
             ],
           ),
@@ -1775,42 +1612,52 @@ class _SearchResultsList extends StatelessWidget {
 }
 
 class _SearchSkeletonList extends StatelessWidget {
-  const _SearchSkeletonList();
+  const _SearchSkeletonList({required this.notice});
+
+  final Widget notice;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(8),
+      padding: EdgeInsets.zero,
       children: [
-        const _ResultSectionHeader(label: 'Searching'),
+        notice,
+        const Padding(
+          padding: EdgeInsets.all(8),
+          child: _ResultSectionHeader(label: 'Searching'),
+        ),
         for (var index = 0; index < 6; index++) ...[
           const SizedBox(height: 8),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: index.isEven ? kClzTableEvenRow : kClzTableOddRow,
-              border: Border.all(color: kClzTableBottomBorder),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  _SkeletonBox(width: 42, height: 56),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _SkeletonBox(width: 220, height: 13),
-                        SizedBox(height: 8),
-                        _SkeletonBox(width: 320, height: 10),
-                      ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: index.isEven ? kClzTableEvenRow : kClzTableOddRow,
+                border: Border.all(color: kClzTableBottomBorder),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    _SkeletonBox(width: 42, height: 56),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _SkeletonBox(width: 220, height: 13),
+                          SizedBox(height: 8),
+                          _SkeletonBox(width: 320, height: 10),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ],
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -1900,15 +1747,15 @@ class _ResultSectionHeader extends StatelessWidget {
 class _SearchResultTile extends StatelessWidget {
   const _SearchResultTile({
     required this.item,
-    required this.isAdding,
-    required this.onAddOwned,
-    required this.onAddWishlist,
+    required this.accent,
+    required this.selected,
+    required this.onSelect,
   });
 
   final CatalogItem item;
-  final bool isAdding;
-  final VoidCallback onAddOwned;
-  final VoidCallback onAddWishlist;
+  final Color accent;
+  final bool selected;
+  final VoidCallback onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -1919,68 +1766,501 @@ class _SearchResultTile extends StatelessWidget {
       if (item.variant != null) item.variant,
       if (item.barcode != null) item.barcode,
     ].whereType<String>().join(' | ');
-    return ColoredBox(
-      color: kClzTableEvenRow,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 42,
-              height: 56,
-              child: LibraryCoverImage(
-                title: item.title,
-                itemNumber: item.itemNumber,
-                imageUrl: item.displayCoverUrl,
-              ),
+    return InkWell(
+      onTap: onSelect,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: selected
+              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kClzSelection)
+              : kClzTableEvenRow,
+          border: Border(
+            left: BorderSide(
+              color: selected ? accent : Colors.transparent,
+              width: 4,
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.itemNumber == null
-                        ? item.title
-                        : '${item.title} #${item.itemNumber}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  if (subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 3),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 42,
+                height: 56,
+                child: LibraryCoverImage(
+                  title: item.title,
+                  itemNumber: item.itemNumber,
+                  imageUrl: item.displayCoverUrl,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle,
-                      maxLines: 2,
+                      item.itemNumber == null
+                          ? item.title
+                          : '${item.title} #${item.itemNumber}',
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: kClzTextMuted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: kClzTextMuted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 5),
+                    LibraryAddResultBadge(item.kind),
                   ],
-                  const SizedBox(height: 5),
-                  LibraryAddResultBadge(item.kind),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderCandidateTile extends StatelessWidget {
+  const _ProviderCandidateTile({
+    required this.candidate,
+    required this.accent,
+    required this.providerLabel,
+    required this.queuedIngest,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final ProviderCandidate candidate;
+  final Color accent;
+  final String providerLabel;
+  final _QueuedProviderIngest? queuedIngest;
+  final bool selected;
+  final VoidCallback onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final subtitle = [
+      providerLabel,
+      if (candidate.isStub) 'Stub result',
+      candidate.summary,
+      candidate.providerItemId,
+    ].whereType<String>().join(' | ');
+    return InkWell(
+      onTap: onSelect,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: selected
+              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kClzSelection)
+              : kClzTableEvenRow,
+          border: Border(
+            left: BorderSide(
+              color: selected ? accent : Colors.transparent,
+              width: 4,
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 42,
+                height: 56,
+                child: LibraryCoverImage(
+                  title: candidate.title,
+                  imageUrl: candidate.imageUrl,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      candidate.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: kClzTextMuted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 5),
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 4,
+                      children: [
+                        LibraryAddResultBadge(providerLabel),
+                        if (candidate.isStub)
+                          const LibraryAddResultBadge('stub'),
+                        if (queuedIngest != null)
+                          LibraryAddResultBadge(
+                            '${queuedIngest!.statusLabel} ${queuedIngest!.shortId}',
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                selected ? Icons.check_circle : Icons.chevron_right,
+                color: selected ? accent : kClzTextMuted,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryAddPaneResizeDivider extends StatelessWidget {
+  const _LibraryAddPaneResizeDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeColumn,
+      child: SizedBox(
+        width: 10,
+        child: Center(
+          child: Container(width: 2, color: kClzDivider),
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryAddPreviewPane extends StatelessWidget {
+  const _LibraryAddPreviewPane({
+    required this.type,
+    required this.accent,
+    required this.item,
+    required this.candidate,
+    required this.providerLabel,
+    required this.searched,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final CatalogItem? item;
+  final ProviderCandidate? candidate;
+  final String providerLabel;
+  final bool searched;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedItem = item;
+    final selectedCandidate = candidate;
+    if (selectedItem == null && selectedCandidate == null) {
+      return ColoredBox(
+        color: const Color(0xFF060606),
+        child: Center(
+          child: Text(
+            searched
+                ? 'Select a result or search $providerLabel.'
+                : 'Search Collectarr Core to preview metadata.',
+          ),
+        ),
+      );
+    }
+    final title = selectedItem?.title ?? selectedCandidate!.title;
+    final itemNumber = selectedItem?.itemNumber;
+    final synopsis = selectedItem?.synopsis ?? selectedCandidate?.summary;
+    final coverUrl =
+        selectedItem?.displayCoverUrl ?? selectedCandidate?.imageUrl;
+    final rows = selectedItem == null
+        ? [
+            ('Provider', selectedCandidate?.provider),
+            ('Provider ID', selectedCandidate?.providerItemId),
+            ('Kind', selectedCandidate?.kind),
+          ]
+        : [
+            ('Catalog ID', selectedItem.id),
+            ('Kind', selectedItem.kind),
+            ('Publisher', selectedItem.publisher),
+            ('Year', selectedItem.releaseYear?.toString()),
+            ('Barcode', selectedItem.barcode),
+            ('Edition', selectedItem.displayEditionLabel),
+          ];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF020202),
+            Color.alphaBlend(accent.withValues(alpha: 0.22), kClzCanvas),
+            const Color(0xFF050505),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        itemNumber == null ? title : '$title #$itemNumber',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: accent,
+                          fontSize: 25,
+                          fontWeight: FontWeight.w900,
+                          height: 1.02,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        selectedItem == null
+                            ? '$providerLabel candidate'
+                            : 'Collectarr Core metadata',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+                LibraryAddResultBadge(
+                  selectedItem == null ? providerLabel : type.singularLabel,
+                ),
+              ],
+            ),
+            Divider(height: 22, color: accent.withValues(alpha: 0.42)),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        Text('Plot', style: TextStyle(color: accent)),
+                        const SizedBox(height: 6),
+                        Text(synopsis ?? 'No metadata summary available yet.'),
+                        const SizedBox(height: 22),
+                        Text('Details', style: TextStyle(color: accent)),
+                        const SizedBox(height: 8),
+                        for (final row in rows)
+                          if (row.$2 != null && row.$2!.trim().isNotEmpty)
+                            _LibraryAddPreviewMetadataRow(
+                              label: row.$1,
+                              value: row.$2!,
+                            ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  SizedBox(
+                    width: 200,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0x99FFFFFF)),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0xCC000000),
+                            blurRadius: 18,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: AspectRatio(
+                        aspectRatio: 2 / 3,
+                        child: LibraryCoverImage(
+                          title: title,
+                          itemNumber: itemNumber,
+                          imageUrl: coverUrl,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryAddPreviewMetadataRow extends StatelessWidget {
+  const _LibraryAddPreviewMetadataRow({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 7),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 96,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: kClzTextMuted,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LibraryAddBottomBar extends StatelessWidget {
+  const _LibraryAddBottomBar({
+    required this.type,
+    required this.accent,
+    required this.selectedItem,
+    required this.selectedCandidate,
+    required this.selectedQueuedIngest,
+    required this.providerLabel,
+    required this.addTarget,
+    required this.isAdding,
+    required this.isQueueingIngest,
+    required this.onAddTargetChanged,
+    required this.onAdd,
+    required this.onQueueIngest,
+    required this.onPropose,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+  final CatalogItem? selectedItem;
+  final ProviderCandidate? selectedCandidate;
+  final _QueuedProviderIngest? selectedQueuedIngest;
+  final String providerLabel;
+  final LibraryAddTarget addTarget;
+  final bool isAdding;
+  final bool isQueueingIngest;
+  final ValueChanged<LibraryAddTarget> onAddTargetChanged;
+  final VoidCallback? onAdd;
+  final VoidCallback? onQueueIngest;
+  final VoidCallback? onPropose;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasSelection = selectedItem != null || selectedCandidate != null;
+    final addLabel = hasSelection
+        ? LibraryAddCopy.addToTargetLabel(
+            count: 1,
+            type: type,
+            target: addTarget,
+          )
+        : 'Select a ${type.singularLabel.toLowerCase()} to add';
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: kClzToolbar,
+        border: Border(top: BorderSide(color: kClzDivider)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 7, 8, 9),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             Wrap(
-              spacing: 4,
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                _CompactTileIconButton(
-                  tooltip: 'Add as owned',
-                  onPressed: isAdding ? null : onAddOwned,
-                  icon: Icons.inventory_2_outlined,
+                LibraryAddResultBadge(
+                    hasSelection ? '1 selected' : '0 selected'),
+                _LibraryAddTargetMenu(
+                  value: addTarget,
+                  enabled: !isAdding,
+                  accent: accent,
+                  onChanged: onAddTargetChanged,
                 ),
-                _CompactTileIconButton(
-                  tooltip: 'Add to wishlist',
-                  onPressed: isAdding ? null : onAddWishlist,
-                  icon: Icons.star_outline,
+                if (selectedCandidate != null) ...[
+                  LibraryAddResultBadge(providerLabel),
+                  _LibraryAddBottomActionButton(
+                    tooltip: selectedQueuedIngest == null
+                        ? 'Queue Core ingest'
+                        : 'Core ingest queued',
+                    icon: Icons.playlist_add_check,
+                    label: selectedQueuedIngest == null
+                        ? 'Queue ingest'
+                        : 'Queued ${selectedQueuedIngest!.shortId}',
+                    accent: accent,
+                    onPressed: selectedQueuedIngest != null || isQueueingIngest
+                        ? null
+                        : onQueueIngest,
+                  ),
+                  _LibraryAddBottomActionButton(
+                    icon: Icons.outbox_outlined,
+                    tooltip: 'Propose metadata to Core',
+                    label: 'Propose',
+                    accent: accent,
+                    onPressed: isAdding || isQueueingIngest ? null : onPropose,
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: isAdding ? null : onAdd,
+                    style: _libraryAddFilledButtonStyle(accent),
+                    child: isAdding
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(addLabel),
+                  ),
                 ),
               ],
             ),
@@ -1991,153 +2271,121 @@ class _SearchResultTile extends StatelessWidget {
   }
 }
 
-class _CompactTileIconButton extends StatelessWidget {
-  const _CompactTileIconButton({
+class _LibraryAddBottomActionButton extends StatelessWidget {
+  const _LibraryAddBottomActionButton({
     required this.tooltip,
-    required this.onPressed,
     required this.icon,
+    required this.label,
+    required this.accent,
+    required this.onPressed,
   });
 
   final String tooltip;
-  final VoidCallback? onPressed;
   final IconData icon;
+  final String label;
+  final Color accent;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      icon: Icon(icon, size: 18),
-      style: IconButton.styleFrom(
-        minimumSize: const Size.square(30),
-        padding: EdgeInsets.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return Tooltip(
+      message: tooltip,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        style: _libraryAddOutlinedButtonStyle(accent),
+        icon: Icon(icon, size: 17),
+        label: Text(label),
       ),
     );
   }
 }
 
-class _ProviderCandidateTile extends StatelessWidget {
-  const _ProviderCandidateTile({
-    required this.candidate,
-    required this.providerLabel,
-    required this.isAdding,
-    required this.isQueueingIngest,
-    required this.queuedIngest,
-    required this.onAddOwned,
-    required this.onAddWishlist,
-    required this.onQueueIngest,
-    required this.onPropose,
+class _LibraryAddTargetMenu extends StatelessWidget {
+  const _LibraryAddTargetMenu({
+    required this.value,
+    required this.enabled,
+    required this.accent,
+    required this.onChanged,
   });
 
-  final ProviderCandidate candidate;
-  final String providerLabel;
-  final bool isAdding;
-  final bool isQueueingIngest;
-  final _QueuedProviderIngest? queuedIngest;
-  final VoidCallback onAddOwned;
-  final VoidCallback onAddWishlist;
-  final VoidCallback onQueueIngest;
-  final VoidCallback onPropose;
+  final LibraryAddTarget value;
+  final bool enabled;
+  final Color accent;
+  final ValueChanged<LibraryAddTarget> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final subtitle = [
-      providerLabel,
-      if (candidate.isStub) 'Stub result',
-      candidate.summary,
-      candidate.providerItemId,
-    ].whereType<String>().join(' | ');
-    return ColoredBox(
-      color: kClzTableEvenRow,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+    return PopupMenuButton<LibraryAddTarget>(
+      initialValue: value,
+      enabled: enabled,
+      tooltip: 'Add target',
+      position: PopupMenuPosition.under,
+      onSelected: onChanged,
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: LibraryAddTarget.owned,
+          child: Text(LibraryAddTarget.owned.actionLabel),
+        ),
+        PopupMenuItem(
+          value: LibraryAddTarget.wishlist,
+          child: Text(LibraryAddTarget.wishlist.actionLabel),
+        ),
+      ],
+      child: _LibraryAddCompactMenuFrame(
+        width: 158,
+        label: value.actionLabel,
+        accent: accent,
+        enabled: enabled,
+      ),
+    );
+  }
+}
+
+class _LibraryAddCompactMenuFrame extends StatelessWidget {
+  const _LibraryAddCompactMenuFrame({
+    required this.width,
+    required this.label,
+    required this.accent,
+    this.enabled = true,
+  });
+
+  final double width;
+  final String label;
+  final Color accent;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = enabled ? accent : const Color(0xFF7B8790);
+    return Opacity(
+      opacity: enabled ? 1 : 0.62,
+      child: Container(
+        width: width,
+        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: 9),
+        decoration: BoxDecoration(
+          color: Color.alphaBlend(
+            Colors.black.withValues(alpha: 0.56),
+            accent,
+          ),
+          border: Border.all(color: accent.withValues(alpha: 0.82)),
+          borderRadius: BorderRadius.circular(3),
+        ),
         child: Row(
           children: [
-            SizedBox(
-              width: 42,
-              height: 56,
-              child: LibraryCoverImage(
-                title: candidate.title,
-                imageUrl: candidate.imageUrl,
-              ),
-            ),
-            const SizedBox(width: 10),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    candidate.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  if (subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 3),
-                    Text(
-                      subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: kClzTextMuted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 5),
-                  Wrap(
-                    spacing: 5,
-                    runSpacing: 4,
-                    children: [
-                      LibraryAddResultBadge(providerLabel),
-                      if (candidate.isStub) const LibraryAddResultBadge('stub'),
-                      if (queuedIngest != null)
-                        LibraryAddResultBadge(
-                          '${queuedIngest!.statusLabel} ${queuedIngest!.shortId}',
-                        ),
-                    ],
-                  ),
-                ],
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 160),
-              child: Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                alignment: WrapAlignment.end,
-                children: [
-                  _CompactTileIconButton(
-                    tooltip: 'Add provider draft as owned',
-                    onPressed: isAdding ? null : onAddOwned,
-                    icon: Icons.inventory_2_outlined,
-                  ),
-                  _CompactTileIconButton(
-                    tooltip: 'Add provider draft to wishlist',
-                    onPressed: isAdding ? null : onAddWishlist,
-                    icon: Icons.star_outline,
-                  ),
-                  if (queuedIngest == null)
-                    _CompactTileIconButton(
-                      tooltip: 'Queue Core ingest',
-                      onPressed:
-                          isAdding || isQueueingIngest ? null : onQueueIngest,
-                      icon: Icons.playlist_add_check,
-                    ),
-                  _CompactTileIconButton(
-                    tooltip: 'Propose metadata to Core',
-                    onPressed: isAdding || isQueueingIngest ? null : onPropose,
-                    icon: Icons.outbox_outlined,
-                  ),
-                ],
-              ),
-            ),
+            Icon(Icons.arrow_drop_down, color: color, size: 18),
           ],
         ),
       ),

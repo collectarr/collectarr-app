@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
@@ -48,12 +49,6 @@ void main() {
     expect(find.text('Add Games from Collectarr Core'), findsOneWidget);
     expect(
       find.text(
-        'Core search uses the configured metadata server. If it is offline, use the manual panel; local items still sync normally.',
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.text(
         'Barcode 759606083060 is prefilled for games. Search Core or add it manually with the same code.',
       ),
       findsOneWidget,
@@ -62,7 +57,6 @@ void main() {
       find.byKey(const ValueKey('library-add-barcode-field')),
       findsWidgets,
     );
-    expect(find.text('Requires API key'), findsOneWidget);
   });
 
   testWidgets('generic add dialog searches provider candidates',
@@ -97,15 +91,14 @@ void main() {
       find.byKey(const ValueKey('library-add-query-field')),
       'Naruto',
     );
-    await tester.tap(find.text('Search providers'));
+    await tester.tap(find.text('Search Series'));
     await tester.pumpAndSettle();
 
     expect(api.lastProvider, isNull);
     expect(api.lastProviderKind, 'manga');
     expect(api.lastProviderQuery, 'Naruto');
-    expect(find.text('Attribution required'), findsOneWidget);
-    expect(find.textContaining('A ninja candidate.'), findsOneWidget);
-    expect(find.byTooltip('Add provider draft as owned'), findsOneWidget);
+    expect(find.textContaining('A ninja candidate.'), findsWidgets);
+    expect(find.text('Add as owned'), findsOneWidget);
     expect(find.byTooltip('Queue Core ingest'), findsOneWidget);
     expect(find.byTooltip('Propose metadata to Core'), findsOneWidget);
 
@@ -155,6 +148,9 @@ void main() {
       ),
     );
 
+    await tester.tap(find.text('Manual'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Physical format'), findsOneWidget);
     await tester.tap(find.byType(DropdownButtonFormField<String>));
     await tester.pumpAndSettle();
@@ -200,7 +196,7 @@ void main() {
       find.byKey(const ValueKey('library-add-barcode-field')),
       '9780140328721',
     );
-    await tester.tap(find.text('Lookup'));
+    await tester.tap(find.text('Lookup barcode'));
     await tester.pumpAndSettle();
 
     expect(api.lastLookupBarcode, '9780140328721');
@@ -208,7 +204,7 @@ void main() {
     expect(api.lastProvider, isNull);
     expect(api.lastProviderKind, 'book');
     expect(api.lastProviderQuery, '9780140328721');
-    expect(find.textContaining('openlibrary-1'), findsOneWidget);
+    expect(find.textContaining('openlibrary-1'), findsWidgets);
   });
 }
 
@@ -218,6 +214,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
   String? lastProvider;
   String? lastProviderQuery;
   String? lastProviderKind;
+  String? lastSearchQuery;
+  String? lastSearchKind;
   String? lastLookupBarcode;
   String? lastLookupKind;
   String? lastProposalProvider;
@@ -229,6 +227,15 @@ class _FakeLibraryAddApiClient extends ApiClient {
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
     return fallbackMediaCatalog;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> searchMetadata(
+    MetadataSearchQuery query,
+  ) async {
+    lastSearchQuery = query.query;
+    lastSearchKind = query.kind;
+    return const [];
   }
 
   @override
