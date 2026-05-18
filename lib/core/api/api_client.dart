@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -590,6 +591,20 @@ class ApiClient {
     final response =
         await _dio.get<Map<String, dynamic>>('/metadata/comic/$id');
     return _resolveImageUrls(response.data!);
+  }
+
+  Future<List<SeriesRelation>> getSeriesRelations(String seriesId) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/series/$seriesId/relations',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(SeriesRelation.fromJson)
+        .toList(growable: false);
   }
 
   Future<Map<String, dynamic>> lookupBarcode(String barcode,

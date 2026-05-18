@@ -7,6 +7,7 @@ class ComicDetail {
     this.itemNumber,
     this.sortKey,
     this.synopsis,
+    this.seriesId,
     this.seriesTitle,
     this.volumeName,
     this.volumeNumber,
@@ -30,6 +31,7 @@ class ComicDetail {
   final String? itemNumber;
   final String? sortKey;
   final String? synopsis;
+  final String? seriesId;
   final String? seriesTitle;
   final String? volumeName;
   final int? volumeNumber;
@@ -70,6 +72,7 @@ class ComicDetail {
       itemNumber: json['item_number'] as String?,
       sortKey: json['sort_key'] as String?,
       synopsis: json['synopsis'] as String?,
+      seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
       volumeNumber: json['volume_number'] as int?,
