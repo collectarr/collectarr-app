@@ -88,7 +88,7 @@ class AddComicPreviewPane extends ConsumerWidget {
                       const SizedBox(height: 3),
                       Text(
                         selectedItem == null
-                            ? '$selectedProviderLabel candidate'
+                            ? 'Metadata candidate'
                             : 'Collectarr Core metadata',
                         style: const TextStyle(fontSize: 16),
                       ),
@@ -102,8 +102,6 @@ class AddComicPreviewPane extends ConsumerWidget {
                             selectedItem!.releaseYear!.toString(),
                           if (selectedItem?.barcode != null)
                             'UPC ${selectedItem!.barcode}',
-                          if (selectedCandidate != null)
-                            selectedCandidate.provider,
                         ],
                       ),
                     ],
@@ -286,16 +284,11 @@ class _AddPreviewDescription extends StatelessWidget {
         _PreviewFact('Issue', identity.issueLabel),
       _PreviewFact('Cover', identity.variantLabel),
       ...summaryFacts,
-      _PreviewFact(
-        'Provider',
-        '${selectedCandidate.provider} (${selectedCandidate.providerItemId})',
-      ),
     ]);
   }
 
   List<_PreviewFact> _itemFacts(CatalogItem selectedItem) {
     final primaryVariant = detail?.primaryVariant;
-    final providerLinks = detail?.providerLinks ?? const [];
     return _dedupeFacts([
       _PreviewFact('Status', localStatus),
       _PreviewFact('Series', detail?.seriesTitle ?? selectedItem.title),
@@ -322,13 +315,6 @@ class _AddPreviewDescription extends StatelessWidget {
           primaryVariant?.currency ?? detail?.currency,
         ),
       ),
-      if (providerLinks.isNotEmpty)
-        _PreviewFact(
-          'Provider',
-          providerLinks
-              .map((link) => '${link.provider} (${link.providerItemId})')
-              .join(', '),
-        ),
     ]);
   }
 

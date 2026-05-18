@@ -438,12 +438,12 @@ class _ProviderFlatIssueRow extends StatelessWidget {
         ),
       ),
       title: title,
-      subtitle: _providerCandidateSubtitle(candidate, providerLabel),
+      subtitle: identity.seriesTitle,
       badges: [
         providerLabel,
         if (identity.isVariant) 'variant',
       ],
-      trailing: 'propose',
+      trailing: '',
       onTap: onSelect,
       onToggleCheck: onToggleCheck,
     );
@@ -583,12 +583,12 @@ class _ProviderIssueRow extends StatelessWidget {
           ),
         ),
         title: title,
-        subtitle: _providerCandidateSubtitle(candidate, providerLabel),
+        subtitle: '',
         badges: [
           providerLabel,
           if (candidate.isVariant) 'variant',
         ],
-        trailing: 'propose',
+        trailing: '',
         onTap: onSelect,
         onToggleCheck: onToggleCheck,
       ),
@@ -798,11 +798,6 @@ int _compareProviderIdentityIssues(
   return left.issueLabel.compareTo(right.issueLabel);
 }
 
-String _providerIssueTitle(ProviderCandidate candidate) {
-  final identity = _providerCandidateIdentity(candidate);
-  return '${identity.seriesTitle} ${identity.issueLabel}'.trim();
-}
-
 _ProviderCandidateIdentity _providerCandidateIdentity(
   ProviderCandidate candidate,
 ) {
@@ -872,23 +867,6 @@ String _providerVariantLabelFromParts(
     return 'Standard cover | $bracketLabel';
   }
   return cleanTrailing ?? (title.isEmpty ? 'Standard cover' : 'Standard cover');
-}
-
-String _providerCandidateSubtitle(
-  ProviderCandidate candidate,
-  String providerLabel,
-) {
-  final issueTitle = _providerIssueTitle(candidate);
-  final summary = candidate.summary?.trim();
-  return [
-    issueTitle,
-    if (summary != null && summary.isNotEmpty) summary,
-  ].join(' | ').trim().isEmpty
-      ? '$providerLabel candidate'
-      : [
-          issueTitle,
-          if (summary != null && summary.isNotEmpty) summary,
-        ].join(' | ');
 }
 
 String _normalizedProviderKey(String provider, String title) {

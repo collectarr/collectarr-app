@@ -13,7 +13,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Absolute Batman #1'), findsWidgets);
+    expect(find.text('#1 | Standard cover'), findsWidgets);
     expect(find.text('Variant cover'), findsNothing);
   });
 
@@ -69,6 +69,8 @@ void main() {
         find.text('#1 | Standard cover | Nick Dragotta Cover'), findsWidgets);
     expect(find.text('#1 | Jim Lee Cardstock Variant Cover'), findsWidgets);
     expect(find.text('1 issue'), findsOneWidget);
+    expect(find.textContaining('December 2024'), findsNothing);
+    expect(find.text('propose'), findsNothing);
   });
 
   testWidgets('provider results group multiple issues below a series',
@@ -169,9 +171,10 @@ void main() {
       ),
     );
 
-    expect(find.text('Over the Garden Wall'), findsNothing);
+    expect(find.text('Over the Garden Wall'), findsWidgets);
     expect(find.text('#1 | Standard cover | Regular Cover'), findsWidgets);
     expect(find.text('#1 | Veronica Fish Variant Cover'), findsWidgets);
+    expect(find.text('variant'), findsOneWidget);
   });
 
   testWidgets('provider rows support independent multi-select checks',

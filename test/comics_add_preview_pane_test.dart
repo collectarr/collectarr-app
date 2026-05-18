@@ -51,6 +51,7 @@ void main() {
     expect(find.textContaining('Cover price: 3.99 USD'), findsOneWidget);
     expect(find.textContaining('Pages: 28 pages'), findsOneWidget);
     expect(find.textContaining('Type: Variant cover'), findsOneWidget);
-    expect(find.textContaining('Provider: gcd (148725)'), findsOneWidget);
+    expect(find.textContaining('Provider: gcd (148725)'), findsNothing);
+    expect(find.text('Metadata candidate'), findsOneWidget);
   });
 }

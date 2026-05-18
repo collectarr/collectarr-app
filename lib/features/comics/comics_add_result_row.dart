@@ -51,6 +51,7 @@ class _AddResultRowState extends State<AddResultRow> {
   @override
   Widget build(BuildContext context) {
     final selected = widget.selected;
+    final subtitle = widget.subtitle.trim();
     final highlightColor = _flashSelection
         ? kClzYellow.withValues(alpha: 0.22)
         : selected
@@ -105,16 +106,18 @@ class _AddResultRowState extends State<AddResultRow> {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
-                        widget.subtitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFFDDDDDD),
+                      if (subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFFDDDDDD),
+                          ),
                         ),
-                      ),
+                      ],
                       if (widget.badges.isNotEmpty) ...[
                         const SizedBox(height: 5),
                         Wrap(

@@ -1205,11 +1205,17 @@ class _LibraryAddModeTextField extends StatelessWidget {
           maxLines: null,
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
+          strutStyle: const StrutStyle(
+            fontSize: 15,
+            height: 1,
+            forceStrutHeight: true,
+          ),
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
             color: Color(0xFFEDEDED),
             fontSize: 15,
             fontWeight: FontWeight.w700,
+            height: 1,
           ),
           decoration: InputDecoration(
             isDense: true,

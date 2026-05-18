@@ -206,10 +206,16 @@ class _AddTargetDefaultsBar extends StatelessWidget {
                 textAlign: TextAlign.center,
                 textInputAction: TextInputAction.done,
                 textAlignVertical: TextAlignVertical.center,
+                strutStyle: const StrutStyle(
+                  fontSize: 13,
+                  height: 1,
+                  forceStrutHeight: true,
+                ),
                 style: const TextStyle(
                   color: Color(0xFFBFEFFF),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
+                  height: 1,
                 ),
                 decoration: const InputDecoration(
                   isDense: true,
