@@ -1,6 +1,12 @@
-# Collectarr Flutter Client
+# Collectarr App
 
 Flutter client for Collectarr across web, Windows desktop, and Android.
+
+The app owns the local Drift database, offline-first library UI, import/export,
+barcode UX, sync client UX, and user-facing collection workflows.
+
+The canonical metadata catalog lives in `collectarr/collectarr-core`. Optional
+multi-device personal sync lives in `collectarr/collectarr-sync`.
 
 ## Development
 
@@ -26,3 +32,14 @@ Run on Windows:
 ```powershell
 flutter run -d windows
 ```
+
+## Repository Boundary
+
+This repository owns:
+
+- Flutter UI
+- local catalog snapshots
+- owned/wishlist/personal collection data
+- CSV/CLZ import-export
+- barcode scanning/manual fallback
+- sync pairing, conflict review, and local retry queue
