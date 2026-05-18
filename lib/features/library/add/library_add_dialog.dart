@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
@@ -118,8 +119,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             );
     final selectedProvider = _activeProvider;
     final isBusy = _isSearching || _isSearchingProvider;
+    final accent = libraryAccentForKind(widget.type.workspace.kind);
     return Theme(
-      data: kClzAddComicDialogTheme,
+      data: _libraryAddDialogTheme(accent),
       child: Dialog(
         insetPadding: EdgeInsets.symmetric(
           horizontal: MediaQuery.sizeOf(context).width < 720 ? 10 : 32,
@@ -141,9 +143,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             ),
             child: Column(
               children: [
-                _DialogHeader(type: widget.type),
+                _DialogHeader(type: widget.type, accent: accent),
                 _LibraryAddModeBar(
                   type: widget.type,
+                  accent: accent,
                   mode: _mode,
                   queryController: _queryController,
                   barcodeController: _barcodeController,
@@ -686,8 +689,10 @@ const double _kLibraryAddControlHeight = 34;
 const double _kLibraryAddModeControlHeight = 36;
 const BorderSide _kLibraryAddBorder = BorderSide(color: kClzDivider);
 
-ButtonStyle _libraryAddFilledButtonStyle() {
+ButtonStyle _libraryAddFilledButtonStyle([Color accent = kClzAccent]) {
   return FilledButton.styleFrom(
+    backgroundColor: accent,
+    foregroundColor: _foregroundForAccent(accent),
     minimumSize: const Size(0, _kLibraryAddControlHeight),
     padding: const EdgeInsets.symmetric(horizontal: 14),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -696,8 +701,10 @@ ButtonStyle _libraryAddFilledButtonStyle() {
   );
 }
 
-ButtonStyle _libraryAddOutlinedButtonStyle() {
+ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kClzAccent]) {
   return OutlinedButton.styleFrom(
+    foregroundColor: accent,
+    side: BorderSide(color: accent.withValues(alpha: 0.78)),
     minimumSize: const Size(0, _kLibraryAddControlHeight),
     padding: const EdgeInsets.symmetric(horizontal: 12),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -706,38 +713,64 @@ ButtonStyle _libraryAddOutlinedButtonStyle() {
   );
 }
 
+Color _foregroundForAccent(Color accent) {
+  return ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
+      ? Colors.white
+      : const Color(0xFF101010);
+}
+
+ThemeData _libraryAddDialogTheme(Color accent) {
+  final base = kClzAddComicDialogTheme;
+  final scheme = base.colorScheme.copyWith(
+    primary: accent,
+    secondary: accent,
+  );
+  return base.copyWith(
+    colorScheme: scheme,
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: accent,
+        foregroundColor: _foregroundForAccent(accent),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+        visualDensity: VisualDensity.compact,
+      ),
+    ),
+    inputDecorationTheme: base.inputDecorationTheme.copyWith(
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: accent),
+      ),
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(color: accent),
+  );
+}
+
 class _DialogHeader extends StatelessWidget {
-  const _DialogHeader({required this.type});
+  const _DialogHeader({required this.type, required this.accent});
 
   final LibraryTypeConfig type;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 38,
+      height: 34,
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: const BoxDecoration(
-        color: kClzPanelRaised,
-        border: Border(bottom: BorderSide(color: kClzAccent)),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF4A4A4A), Color(0xFF1B1B1B)],
+        ),
+        border: Border(bottom: BorderSide(color: accent)),
       ),
       child: Row(
         children: [
-          Icon(type.workspace.icon, size: 18, color: kClzAccent),
+          Icon(type.workspace.icon, size: 18, color: accent),
           const SizedBox(width: 8),
           Text(
-            'Add ${type.pluralLabel}',
+            'Add ${type.pluralLabel} from Collectarr Core',
             style: const TextStyle(
               color: Colors.white,
+              fontSize: 13,
               fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            'Collectarr Core',
-            style: TextStyle(
-              color: kClzTextMuted,
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
             ),
           ),
           const Spacer(),
@@ -801,6 +834,7 @@ class _BarcodePrefillBanner extends StatelessWidget {
 class _LibraryAddModeBar extends StatelessWidget {
   const _LibraryAddModeBar({
     required this.type,
+    required this.accent,
     required this.mode,
     required this.queryController,
     required this.barcodeController,
@@ -815,6 +849,7 @@ class _LibraryAddModeBar extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
+  final Color accent;
   final _LibraryAddDialogMode mode;
   final TextEditingController queryController;
   final TextEditingController barcodeController;
@@ -841,8 +876,11 @@ class _LibraryAddModeBar extends StatelessWidget {
           children: [
             _LibraryAddModeTabStrip(
               type: type,
+              accent: accent,
               mode: mode,
               onModeChanged: onModeChanged,
+              onManual: onManual,
+              onScan: () => onModeChanged(_LibraryAddDialogMode.barcode),
             ),
             const SizedBox(height: 7),
             switch (mode) {
@@ -850,10 +888,10 @@ class _LibraryAddModeBar extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _LibraryAddModeTextField(
+                        fieldKey: const ValueKey('library-add-query-field'),
                         controller: queryController,
                         label: 'Search Collectarr Core',
                         hintText: _searchHint,
-                        icon: type.workspace.icon,
                         onSubmitted: onSearch,
                       ),
                     ),
@@ -861,6 +899,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                     _LibraryAddModeButton(
                       label: 'Search Core',
                       icon: Icons.search,
+                      accent: accent,
                       isBusy: isSearching,
                       onPressed: isBusy ? null : onSearch,
                     ),
@@ -869,6 +908,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                       _LibraryAddModeButton(
                         label: 'Search providers',
                         icon: Icons.travel_explore,
+                        accent: accent,
                         isBusy: isSearchingProvider,
                         outlined: true,
                         onPressed: isBusy ? null : onSearchProvider,
@@ -880,10 +920,10 @@ class _LibraryAddModeBar extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _LibraryAddModeTextField(
+                        fieldKey: const ValueKey('library-add-barcode-field'),
                         controller: barcodeController,
                         label: 'Barcode / UPC / ISBN',
                         hintText: 'Scan or enter barcode / UPC / ISBN...',
-                        icon: Icons.qr_code_2,
                         keyboardType: TextInputType.number,
                         onSubmitted: onLookupBarcode,
                       ),
@@ -892,6 +932,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                     _LibraryAddModeButton(
                       label: 'Lookup',
                       icon: Icons.manage_search,
+                      accent: accent,
                       isBusy: isSearching,
                       onPressed: isBusy ? null : onLookupBarcode,
                     ),
@@ -900,6 +941,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                       _LibraryAddModeButton(
                         label: 'Search providers',
                         icon: Icons.travel_explore,
+                        accent: accent,
                         isBusy: isSearchingProvider,
                         outlined: true,
                         onPressed: isBusy ? null : onSearchProvider,
@@ -909,7 +951,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                 ),
               _LibraryAddDialogMode.manual => Row(
                   children: [
-                    const Icon(Icons.edit_note, size: 18, color: kClzAccent),
+                    Icon(Icons.edit_note, size: 18, color: accent),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -927,6 +969,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                     _LibraryAddModeButton(
                       label: 'Manual draft',
                       icon: Icons.edit_note,
+                      accent: accent,
                       outlined: true,
                       onPressed: onManual,
                     ),
@@ -951,13 +994,19 @@ class _LibraryAddModeBar extends StatelessWidget {
 class _LibraryAddModeTabStrip extends StatelessWidget {
   const _LibraryAddModeTabStrip({
     required this.type,
+    required this.accent,
     required this.mode,
     required this.onModeChanged,
+    required this.onManual,
+    required this.onScan,
   });
 
   final LibraryTypeConfig type;
+  final Color accent;
   final _LibraryAddDialogMode mode;
   final ValueChanged<_LibraryAddDialogMode> onModeChanged;
+  final VoidCallback onManual;
+  final VoidCallback onScan;
 
   @override
   Widget build(BuildContext context) {
@@ -966,7 +1015,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: const Color(0xFF272A2C),
-        border: Border.all(color: const Color(0xFF4D555A)),
+        border: Border.all(color: accent.withValues(alpha: 0.72)),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Row(
@@ -987,24 +1036,33 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                   LibraryAddModeTab(
                     icon: type.workspace.icon,
                     label: 'Search',
+                    accent: accent,
                     selected: mode == _LibraryAddDialogMode.search,
                     onTap: () => onModeChanged(_LibraryAddDialogMode.search),
                   ),
                   LibraryAddModeTab(
                     icon: Icons.qr_code_2,
                     label: 'Barcode',
+                    accent: accent,
                     selected: mode == _LibraryAddDialogMode.barcode,
                     onTap: () => onModeChanged(_LibraryAddDialogMode.barcode),
-                  ),
-                  LibraryAddModeTab(
-                    icon: Icons.edit_note,
-                    label: 'Manual',
-                    selected: mode == _LibraryAddDialogMode.manual,
-                    onTap: () => onModeChanged(_LibraryAddDialogMode.manual),
                   ),
                 ],
               ),
             ),
+          ),
+          const SizedBox(width: 8),
+          _LibraryAddModeActionButton(
+            icon: Icons.edit_note,
+            label: 'Manual',
+            accent: accent,
+            onPressed: onManual,
+          ),
+          _LibraryAddModeActionButton(
+            icon: Icons.barcode_reader,
+            label: 'Scan',
+            accent: accent,
+            onPressed: onScan,
           ),
           const SizedBox(width: 4),
           const Icon(Icons.menu, size: 26, color: Color(0xFFEDEDED)),
@@ -1014,20 +1072,54 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   }
 }
 
+class _LibraryAddModeActionButton extends StatelessWidget {
+  const _LibraryAddModeActionButton({
+    required this.icon,
+    required this.label,
+    required this.accent,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color accent;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 30,
+      child: TextButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 17),
+        label: Text(label),
+        style: TextButton.styleFrom(
+          foregroundColor: accent,
+          visualDensity: VisualDensity.compact,
+          padding: const EdgeInsets.symmetric(horizontal: 9),
+          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+          minimumSize: const Size(0, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+      ),
+    );
+  }
+}
+
 class _LibraryAddModeTextField extends StatelessWidget {
   const _LibraryAddModeTextField({
+    required this.fieldKey,
     required this.controller,
     required this.label,
     required this.hintText,
-    required this.icon,
     required this.onSubmitted,
     this.keyboardType,
   });
 
+  final Key fieldKey;
   final TextEditingController controller;
   final String label;
   final String hintText;
-  final IconData icon;
   final VoidCallback onSubmitted;
   final TextInputType? keyboardType;
 
@@ -1037,6 +1129,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
       height: _kLibraryAddModeControlHeight,
       child: _LibraryAddModeFieldFrame(
         child: TextField(
+          key: fieldKey,
           controller: controller,
           keyboardType: keyboardType,
           textInputAction: TextInputAction.search,
@@ -1053,14 +1146,8 @@ class _LibraryAddModeTextField extends StatelessWidget {
             filled: false,
             fillColor: Colors.transparent,
             border: InputBorder.none,
-            labelText: label,
+            semanticCounterText: label,
             hintText: hintText,
-            prefixIcon: Icon(icon, size: 18),
-            prefixIconConstraints: const BoxConstraints(
-              minWidth: 32,
-              minHeight: 20,
-            ),
-            floatingLabelBehavior: FloatingLabelBehavior.never,
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -1094,6 +1181,7 @@ class _LibraryAddModeButton extends StatelessWidget {
   const _LibraryAddModeButton({
     required this.label,
     required this.icon,
+    required this.accent,
     required this.onPressed,
     this.isBusy = false,
     this.outlined = false,
@@ -1101,6 +1189,7 @@ class _LibraryAddModeButton extends StatelessWidget {
 
   final String label;
   final IconData icon;
+  final Color accent;
   final VoidCallback? onPressed;
   final bool isBusy;
   final bool outlined;
@@ -1121,8 +1210,8 @@ class _LibraryAddModeButton extends StatelessWidget {
             ],
           );
     final style = outlined
-        ? _libraryAddOutlinedButtonStyle()
-        : _libraryAddFilledButtonStyle();
+        ? _libraryAddOutlinedButtonStyle(accent)
+        : _libraryAddFilledButtonStyle(accent);
     return SizedBox(
       height: _kLibraryAddModeControlHeight,
       child: outlined

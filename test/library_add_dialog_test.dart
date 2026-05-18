@@ -45,7 +45,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Add Games'), findsOneWidget);
+    expect(find.text('Add Games from Collectarr Core'), findsOneWidget);
     expect(
       find.text(
         'Core search uses the configured metadata server. If it is offline, use the manual panel; local items still sync normally.',
@@ -58,9 +58,8 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.text('Barcode / UPC / ISBN'), findsWidgets);
     expect(
-      find.widgetWithText(TextField, 'Barcode / UPC / ISBN'),
+      find.byKey(const ValueKey('library-add-barcode-field')),
       findsWidgets,
     );
     expect(find.text('Requires API key'), findsOneWidget);
@@ -95,7 +94,7 @@ void main() {
     );
 
     await tester.enterText(
-      find.widgetWithText(TextField, 'Search Collectarr Core'),
+      find.byKey(const ValueKey('library-add-query-field')),
       'Naruto',
     );
     await tester.tap(find.text('Search providers'));
@@ -198,7 +197,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      find.widgetWithText(TextField, 'Barcode / UPC / ISBN'),
+      find.byKey(const ValueKey('library-add-barcode-field')),
       '9780140328721',
     );
     await tester.tap(find.text('Lookup'));
