@@ -296,6 +296,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                     _selectProviderCandidate(id);
                                   }),
                                   onToggleProviderCheck: _toggleProviderCheck,
+                                  onToggleProviderCandidatesCheck:
+                                      _toggleProviderCandidatesCheck,
                                   onSearchPullListRow: _searchPullListRow,
                                 ),
                               ),
@@ -371,6 +373,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                       }),
                                       onToggleProviderCheck:
                                           _toggleProviderCheck,
+                                      onToggleProviderCandidatesCheck:
+                                          _toggleProviderCandidatesCheck,
                                       onSearchPullListRow: _searchPullListRow,
                                     ),
                                   ),
@@ -1224,6 +1228,26 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
     });
   }
 
+  void _toggleProviderCandidatesCheck(Iterable<ProviderCandidate> candidates) {
+    final ids = [
+      for (final candidate in candidates) candidate.providerItemId,
+    ];
+    if (ids.isEmpty) {
+      return;
+    }
+    final allChecked = ids.every(_checkedProviderIds.contains);
+    setState(() {
+      _selectedServerId = null;
+      _checkedServerIds.clear();
+      _providerState = _providerState.select(ids.first);
+      if (allChecked) {
+        _checkedProviderIds.removeAll(ids);
+      } else {
+        _checkedProviderIds.addAll(ids);
+      }
+    });
+  }
+
   Future<void> _addServerComics(
     List<CatalogItem> items, {
     required LibraryAddTarget target,
@@ -1833,15 +1857,16 @@ class _FilterField extends StatelessWidget {
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
+        textAlignVertical: TextAlignVertical.center,
         onSubmitted: (_) => onSubmitted(),
         decoration: InputDecoration(
           isDense: true,
+          isCollapsed: true,
           filled: true,
           fillColor: const Color(0xFF4A4A4A),
           border: const OutlineInputBorder(),
-          labelText: label,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          hintText: label,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
         ),
       ),
     );

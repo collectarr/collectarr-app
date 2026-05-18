@@ -47,6 +47,7 @@ class AddComicResultPane extends StatelessWidget {
     required this.onClearServerChecks,
     required this.onSelectProvider,
     required this.onSearchPullListRow,
+    required this.onToggleProviderCandidatesCheck,
   });
 
   final LibraryAddMode mode;
@@ -81,13 +82,13 @@ class AddComicResultPane extends StatelessWidget {
   final VoidCallback onClearServerChecks;
   final ValueChanged<String> onSelectProvider;
   final ValueChanged<PullListCandidate> onSearchPullListRow;
+  final ValueChanged<Iterable<ProviderCandidate>>
+      onToggleProviderCandidatesCheck;
 
   @override
   Widget build(BuildContext context) {
     final selectedProviderLabel = providerLabel(selectedProvider);
     final visibleProviderResults = _visibleProviderResults();
-    final resultsHeading = _resultsHeading();
-    final selectedResultLabel = _selectedResultLabel(visibleProviderResults);
     if (mode == LibraryAddMode.pullList) {
       return PullListResultsPane(
         rows: pullListRows,
@@ -137,19 +138,6 @@ class AddComicResultPane extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Color(0xFF3A3A3A))),
-            ),
-            child: Text(
-              resultsHeading,
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
-            ),
-          ),
-          if (selectedResultLabel != null)
-            _SelectedResultStrip(label: selectedResultLabel),
           Expanded(
             child: _buildResults(
               selectedProviderLabel,
@@ -159,13 +147,6 @@ class AddComicResultPane extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _resultsHeading() {
-    if (!searchedServer || isSearchingServer || serverResults.isNotEmpty) {
-      return 'Collectarr Core results';
-    }
-    return 'Provider results';
   }
 
   Widget _buildResults(
@@ -232,6 +213,7 @@ class AddComicResultPane extends StatelessWidget {
         onSelectProvider: onSelectProvider,
         onToggleProviderCheck: onToggleProviderCheck,
         onToggleIssueCollapsed: onToggleSeriesCollapsed,
+        onToggleGroupCheck: onToggleProviderCandidatesCheck,
       );
     }
     return Center(
@@ -240,39 +222,6 @@ class AddComicResultPane extends StatelessWidget {
         textAlign: TextAlign.center,
       ),
     );
-  }
-
-  String? _selectedResultLabel(
-    List<ProviderCandidate> visibleProviderResults,
-  ) {
-    final serverId = selectedServerId;
-    if (serverId != null) {
-      for (final item in serverResults) {
-        if (item.id == serverId) {
-          return [
-            item.title,
-            if (item.itemNumber != null && item.itemNumber!.trim().isNotEmpty)
-              '#${item.itemNumber}',
-            if (item.variant != null && item.variant!.trim().isNotEmpty)
-              item.variant,
-          ].join(' | ');
-        }
-      }
-    }
-    final providerId = selectedProviderId;
-    if (providerId != null) {
-      for (final item in visibleProviderResults) {
-        if (item.providerItemId == providerId) {
-          final identity = _providerCandidateIdentity(item);
-          return [
-            identity.seriesTitle,
-            identity.issueLabel,
-            identity.variantLabel,
-          ].join(' | ');
-        }
-      }
-    }
-    return null;
   }
 
   List<ProviderCandidate> _visibleProviderResults() {
@@ -311,6 +260,7 @@ class _ProviderIssueTree extends StatelessWidget {
     required this.onSelectProvider,
     required this.onToggleProviderCheck,
     required this.onToggleIssueCollapsed,
+    required this.onToggleGroupCheck,
   });
 
   final List<ProviderCandidate> results;
@@ -322,6 +272,7 @@ class _ProviderIssueTree extends StatelessWidget {
   final ValueChanged<String> onSelectProvider;
   final ValueChanged<String> onToggleProviderCheck;
   final ValueChanged<String> onToggleIssueCollapsed;
+  final ValueChanged<Iterable<ProviderCandidate>> onToggleGroupCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +286,12 @@ class _ProviderIssueTree extends StatelessWidget {
           _ProviderSeriesHeader(
             group: series,
             isCollapsed: collapsedSeries.contains(series.collapseKey),
+            checkedCount: series.items
+                .where(
+                    (item) => checkedProviderIds.contains(item.providerItemId))
+                .length,
             onToggleCollapsed: () => onToggleIssueCollapsed(series.collapseKey),
+            onToggleCheck: () => onToggleGroupCheck(series.items),
           ),
           _AnimatedCollapseSection(
             visible: !collapsedSeries.contains(series.collapseKey),
@@ -351,8 +307,14 @@ class _ProviderIssueTree extends StatelessWidget {
                           _ProviderIssueHeader(
                             group: issue,
                             isCollapsed: issueCollapsed,
+                            checkedCount: issue.items
+                                .where((item) => checkedProviderIds
+                                    .contains(item.providerItemId))
+                                .length,
                             onToggleCollapsed: () =>
                                 onToggleIssueCollapsed(issue.collapseKey),
+                            onToggleCheck: () =>
+                                onToggleGroupCheck(issue.items),
                           ),
                           _AnimatedCollapseSection(
                             visible: !issueCollapsed,
@@ -386,38 +348,6 @@ class _ProviderIssueTree extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class _SelectedResultStrip extends StatelessWidget {
-  const _SelectedResultStrip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(8, 5, 8, 6),
-      decoration: BoxDecoration(
-        color: kClzSelection.withValues(alpha: 0.7),
-        border: const Border(bottom: BorderSide(color: Color(0xFF4B5F69))),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle, color: kClzYellow, size: 15),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              'Selected: $label',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w800),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -558,15 +488,20 @@ class _ProviderSeriesHeader extends StatelessWidget {
   const _ProviderSeriesHeader({
     required this.group,
     required this.isCollapsed,
+    required this.checkedCount,
     required this.onToggleCollapsed,
+    required this.onToggleCheck,
   });
 
   final _ProviderSeriesGroup group;
   final bool isCollapsed;
+  final int checkedCount;
   final VoidCallback onToggleCollapsed;
+  final VoidCallback onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
+    final selectableCount = group.items.length;
     return InkWell(
       onTap: onToggleCollapsed,
       child: DecoratedBox(
@@ -588,6 +523,16 @@ class _ProviderSeriesHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
+              Checkbox(
+                value: checkedCount == 0
+                    ? false
+                    : checkedCount >= selectableCount
+                        ? true
+                        : null,
+                tristate: true,
+                onChanged: (_) => onToggleCheck(),
+                visualDensity: VisualDensity.compact,
+              ),
               const Icon(Icons.folder_open, size: 16, color: kClzAccent),
               const SizedBox(width: 8),
               Expanded(
@@ -613,6 +558,10 @@ class _ProviderSeriesHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
+              if (checkedCount > 0) ...[
+                LibraryAddResultBadge('$checkedCount selected'),
+                const SizedBox(width: 6),
+              ],
               LibraryAddResultBadge('${group.issueCount} issue'
                   '${group.issueCount == 1 ? '' : 's'}'),
             ],
@@ -627,15 +576,20 @@ class _ProviderIssueHeader extends StatelessWidget {
   const _ProviderIssueHeader({
     required this.group,
     required this.isCollapsed,
+    required this.checkedCount,
     required this.onToggleCollapsed,
+    required this.onToggleCheck,
   });
 
   final _ProviderIssueGroup group;
   final bool isCollapsed;
+  final int checkedCount;
   final VoidCallback onToggleCollapsed;
+  final VoidCallback onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
+    final selectableCount = group.items.length;
     return InkWell(
       onTap: onToggleCollapsed,
       child: DecoratedBox(
@@ -657,6 +611,16 @@ class _ProviderIssueHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
+              Checkbox(
+                value: checkedCount == 0
+                    ? false
+                    : checkedCount >= selectableCount
+                        ? true
+                        : null,
+                tristate: true,
+                onChanged: (_) => onToggleCheck(),
+                visualDensity: VisualDensity.compact,
+              ),
               const Icon(Icons.menu_book, size: 16, color: kClzAccent),
               const SizedBox(width: 8),
               Expanded(
@@ -682,6 +646,10 @@ class _ProviderIssueHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
+              if (checkedCount > 0) ...[
+                LibraryAddResultBadge('$checkedCount selected'),
+                const SizedBox(width: 6),
+              ],
               LibraryAddResultBadge(
                 '${group.totalCount} cover'
                 '${group.totalCount == 1 ? '' : 's'}',
@@ -837,6 +805,10 @@ class _ProviderSeriesGroup {
   final String title;
   final String collapseKey;
   final List<_ProviderIssueGroup> issues;
+
+  List<ProviderCandidate> get items => [
+        for (final issue in issues) ...issue.items,
+      ];
 
   int get issueCount => issues.length;
 

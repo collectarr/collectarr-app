@@ -189,18 +189,30 @@ class _AddTargetDefaultsBar extends StatelessWidget {
           SizedBox(
             width: 132,
             height: _kCompactControlHeight,
-            child: TextField(
-              controller: storageBoxController,
-              decoration: const InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(),
-                labelText: 'Storage box',
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+            child: _CompactInputShell(
+              child: TextField(
+                controller: storageBoxController,
+                textAlignVertical: TextAlignVertical.center,
+                style: const TextStyle(
+                  color: Color(0xFFBFEFFF),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+                decoration: const InputDecoration(
+                  isDense: true,
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                  labelText: 'Storage box',
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
             ),
           ),
-          OutlinedButton.icon(
+          _CompactDateButton(
+            label: purchaseDate == null
+                ? 'Purchase date'
+                : _formatDate(purchaseDate!),
             onPressed: () async {
               final picked = await showDatePicker(
                 context: context,
@@ -210,18 +222,6 @@ class _AddTargetDefaultsBar extends StatelessWidget {
               );
               onPurchaseDateChanged(picked);
             },
-            icon: const Icon(Icons.calendar_today, size: 16),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, _kCompactControlHeight),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            ),
-            label: Text(
-              purchaseDate == null
-                  ? 'Purchase date'
-                  : _formatDate(purchaseDate!),
-            ),
           ),
           if (purchaseDate != null)
             IconButton(
@@ -312,6 +312,50 @@ class _SmallDropdown extends StatelessWidget {
   }
 }
 
+class _CompactInputShell extends StatelessWidget {
+  const _CompactInputShell({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: _kCompactControlHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 9),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: const Color(0xFF183246),
+        border: Border.all(color: kClzAccent.withValues(alpha: 0.82)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _CompactDateButton extends StatelessWidget {
+  const _CompactDateButton({
+    required this.label,
+    required this.onPressed,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(3),
+      child: _CompactMenuFrame(
+        width: 150,
+        label: label,
+        leading: Icons.calendar_today,
+      ),
+    );
+  }
+}
+
 class _CompactMenuButton extends StatelessWidget {
   const _CompactMenuButton({
     required this.width,
@@ -328,32 +372,62 @@ class _CompactMenuButton extends StatelessWidget {
     final color = enabled ? const Color(0xFFBFEFFF) : const Color(0xFF7B8790);
     return Opacity(
       opacity: enabled ? 1 : 0.62,
-      child: Container(
+      child: _CompactMenuFrame(
         width: width,
-        height: _kCompactControlHeight,
-        padding: const EdgeInsets.symmetric(horizontal: 9),
-        decoration: BoxDecoration(
-          color: const Color(0xFF183246),
-          border: Border.all(color: kClzAccent.withValues(alpha: 0.82)),
-          borderRadius: BorderRadius.circular(3),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                ),
+        label: label,
+        enabledColor: color,
+        trailing: Icons.arrow_drop_down,
+      ),
+    );
+  }
+}
+
+class _CompactMenuFrame extends StatelessWidget {
+  const _CompactMenuFrame({
+    required this.width,
+    required this.label,
+    this.enabledColor = const Color(0xFFBFEFFF),
+    this.leading,
+    this.trailing,
+  });
+
+  final double width;
+  final String label;
+  final Color enabledColor;
+  final IconData? leading;
+  final IconData? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: _kCompactControlHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 9),
+      decoration: BoxDecoration(
+        color: const Color(0xFF183246),
+        border: Border.all(color: kClzAccent.withValues(alpha: 0.82)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Row(
+        children: [
+          if (leading != null) ...[
+            Icon(leading, color: enabledColor, size: 15),
+            const SizedBox(width: 6),
+          ],
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: enabledColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
               ),
             ),
-            Icon(Icons.arrow_drop_down, color: color, size: 18),
-          ],
-        ),
+          ),
+          if (trailing != null) Icon(trailing, color: enabledColor, size: 18),
+        ],
       ),
     );
   }

@@ -243,6 +243,7 @@ Widget _host({
           onSelectServer: (_) {},
           onToggleServerCheck: (_) {},
           onToggleProviderCheck: onToggleProviderCheck ?? (_) {},
+          onToggleProviderCandidatesCheck: (_) {},
           collapsedSeries: const {},
           onToggleSeriesCollapsed: (_) {},
           onToggleSeriesCheck: (_) {},
