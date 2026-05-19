@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/comics/comic_detail_page.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
-import 'package:collectarr_app/features/library/collection_defaults.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/inspector/comics_inspector_formatters.dart';
 import 'package:collectarr_app/features/comics/comics_personal_details_editor.dart';
 import 'package:collectarr_app/features/comics/inspector/comics_rich_metadata_inspector.dart';
@@ -58,9 +58,9 @@ class ComicInspector extends ConsumerWidget {
   final CatalogItem? item;
   final LibraryItemState libraryState;
 
-  static const conditions = kCollectionConditions;
+  static final conditions = comicsLibraryConfig.conditions;
 
-  static const grades = kCollectionGrades;
+  static final grades = comicsLibraryConfig.grades;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

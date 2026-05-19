@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/collection_defaults.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -38,4 +39,6 @@ const comicsLibraryConfig = LibraryTypeConfig(
     comicVineMetadataProvider,
   ],
   trackingProfile: comicTrackingProfile,
+  conditions: kComicConditions,
+  grades: kComicGrades,
 );

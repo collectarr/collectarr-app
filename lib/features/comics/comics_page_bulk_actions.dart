@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_edit.dart';
-import 'package:collectarr_app/features/library/collection_defaults.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:flutter/material.dart';
 
 Future<bool> showComicsBulkEditDialog({
@@ -13,8 +13,8 @@ Future<bool> showComicsBulkEditDialog({
   final selection = await showDialog<ComicsBulkEditSelection>(
     context: context,
     builder: (context) => ComicsBulkEditDialog(
-      conditions: kCollectionConditions,
-      grades: kCollectionGrades,
+      conditions: comicsLibraryConfig.conditions,
+      grades: comicsLibraryConfig.grades,
     ),
   );
   if (selection == null) {

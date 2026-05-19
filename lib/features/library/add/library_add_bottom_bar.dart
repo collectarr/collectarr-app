@@ -116,6 +116,8 @@ class _LibraryAddBottomBar extends StatelessWidget {
               const SizedBox(height: 8),
               _AddTargetDefaultsBar(
                 accent: accent,
+                conditions: type.conditions,
+                grades: type.grades,
                 condition: defaultCondition,
                 grade: defaultGrade,
                 storageBoxController: defaultStorageBoxController,
@@ -181,6 +183,8 @@ class _LibraryAddBottomActionButton extends StatelessWidget {
 class _AddTargetDefaultsBar extends StatelessWidget {
   const _AddTargetDefaultsBar({
     required this.accent,
+    required this.conditions,
+    required this.grades,
     required this.condition,
     required this.grade,
     required this.storageBoxController,
@@ -191,6 +195,8 @@ class _AddTargetDefaultsBar extends StatelessWidget {
   });
 
   final Color accent;
+  final List<String> conditions;
+  final List<String> grades;
   final String condition;
   final String grade;
   final TextEditingController storageBoxController;
@@ -213,23 +219,24 @@ class _AddTargetDefaultsBar extends StatelessWidget {
         CompactDropdown(
           width: 118,
           value: condition,
-          items: kCollectionConditions,
+          items: conditions,
           label: 'Condition',
           accent: accent,
           onChanged: (v) {
             if (v != null) onConditionChanged(v);
           },
         ),
-        CompactDropdown(
-          width: 104,
-          value: grade,
-          items: kCollectionGrades,
-          label: 'Grade',
-          accent: accent,
-          onChanged: (v) {
-            if (v != null) onGradeChanged(v);
-          },
-        ),
+        if (grades.isNotEmpty)
+          CompactDropdown(
+            width: 104,
+            value: grade,
+            items: grades,
+            label: 'Grade',
+            accent: accent,
+            onChanged: (v) {
+              if (v != null) onGradeChanged(v);
+            },
+          ),
         SizedBox(
           width: 132,
           height: kCompactControlHeight,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/collection_defaults.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
@@ -44,6 +45,8 @@ class LibraryTypeConfig {
     required this.defaultMetadataProvider,
     required this.metadataProviders,
     required this.trackingProfile,
+    this.conditions = kGeneralConditions,
+    this.grades = const [],
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -52,6 +55,8 @@ class LibraryTypeConfig {
   final String defaultMetadataProvider;
   final List<LibraryMetadataProviderOption> metadataProviders;
   final MediaTrackingProfile trackingProfile;
+  final List<String> conditions;
+  final List<String> grades;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     return [
