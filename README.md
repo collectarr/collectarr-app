@@ -1,12 +1,30 @@
+<p align="center">
+  <img src="docs/assets/collectarr-icon.svg" alt="Collectarr app icon" width="104" height="104">
+</p>
+
 # Collectarr App
 
 Flutter client for Collectarr across web, Windows desktop, and Android.
 
 The app owns the local Drift database, offline-first library UI, import/export,
-barcode UX, sync client UX, and user-facing collection workflows.
+barcode UX, sync client UX, and user-facing collection workflows. The canonical
+metadata catalog lives in `collectarr/collectarr-core`. Optional multi-device
+personal sync lives in `collectarr/collectarr-sync`.
 
-The canonical metadata catalog lives in `collectarr/collectarr-core`. Optional
-multi-device personal sync lives in `collectarr/collectarr-sync`.
+## What It Does
+
+- Runs a local-first personal collection database with owned and wishlist state.
+- Caches Core catalog snapshots so saved items remain useful offline.
+- Provides CLZ-style library workspaces with cover/grid/table views, filters,
+  series sidebars, inspectors, column presets, and bulk editing.
+- Supports comics-first add/search flows with structured series, issue,
+  barcode, candidate tree, and whole-series provider candidate handling.
+- Shows manga volume/chapter data from Core providers such as MangaDex.
+- Imports and exports Collectarr/CLZ-friendly CSV data.
+- Supports barcode scanning where available and manual barcode fallback
+  everywhere else.
+- Pairs with `collectarr-sync` for optional personal multi-device sync,
+  conflict review, retry queue visibility, and backup guidance.
 
 ## Development
 
@@ -36,16 +54,18 @@ Run on Windows:
 flutter run -d windows
 ```
 
+## Release Policy
+
+Release publishing is manual-only. The `Release` GitHub Actions workflow uses
+`workflow_dispatch`; pushing to `main` should run CI, not publish a GitHub
+Release or tag. Publish only after explicitly running the release workflow and
+reviewing the generated version and notes.
+
 ## Repository Boundary
 
-This repository owns:
-
-- Flutter UI
-- local catalog snapshots
-- owned/wishlist/personal collection data
-- CSV/CLZ import-export
-- barcode scanning/manual fallback
-- sync pairing, conflict review, and local retry queue
+This repository owns the Flutter UI, local catalog snapshots,
+owned/wishlist/personal collection data, CSV/CLZ import-export, barcode
+scanning/manual fallback, sync pairing, conflict review, and local retry queue.
 
 Related repositories:
 
@@ -60,15 +80,13 @@ App roadmap.
 
 Near-term App work:
 
-- finish CLZ-style consistency across all libraries: toolbar, sidebars, empty
-  states, inspectors, add dialogs, settings, shelf, and accent behavior
 - keep generic Add flows aligned with Comics while consuming Core provider
   routing instead of exposing provider choice to users
-- improve comics add/search UX: series vs issue modes, issue/variant tree,
-  multi-select, keyboard navigation, compact metadata previews, and real cover
-  fallbacks
+- improve comics add/search UX: real series candidates, issue/variant trees,
+  multi-select, keyboard navigation, metadata previews, and cover fallbacks
 - deepen media-aware edit/import forms for books, games, movies, TV, anime,
   manga, board games, and music
+- polish volume/chapter UI for manga and season/episode UI for video libraries
 - polish sync UX: pairing, conflict diff/actions, retry queue visibility, and
   backup/restore guidance
 - smoke test web, Windows, and Android barcode/fallback flows before MVP
