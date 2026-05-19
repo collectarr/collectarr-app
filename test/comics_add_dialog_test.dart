@@ -33,7 +33,7 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: Scaffold(body: AddComicDialog())),
+        child: const MaterialApp(home: Scaffold(body: ComicsAddDialog())),
       ),
     );
 
@@ -76,7 +76,7 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: Scaffold(body: AddComicDialog())),
+        child: const MaterialApp(home: Scaffold(body: ComicsAddDialog())),
       ),
     );
 
@@ -120,7 +120,7 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: Scaffold(body: AddComicDialog())),
+        child: const MaterialApp(home: Scaffold(body: ComicsAddDialog())),
       ),
     );
 
@@ -162,7 +162,7 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: Scaffold(body: AddComicDialog())),
+        child: const MaterialApp(home: Scaffold(body: ComicsAddDialog())),
       ),
     );
 

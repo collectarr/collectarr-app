@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:flutter/material.dart';
 
-class AddResultsSummaryBar extends StatelessWidget {
-  const AddResultsSummaryBar({
+class ComicsAddResultsSummaryBar extends StatelessWidget {
+  const ComicsAddResultsSummaryBar({
     super.key,
     required this.visibleCount,
     required this.addableCount,

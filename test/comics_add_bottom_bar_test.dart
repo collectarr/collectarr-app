@@ -58,7 +58,7 @@ Widget _host({
         alignment: Alignment.bottomCenter,
         child: SizedBox(
           width: 1040,
-          child: AddComicBottomBar(
+          child: ComicsAddBottomBar(
             selectedItem: null,
             selectedCandidate: null,
             selectedIsOwned: false,

@@ -14,7 +14,7 @@ void main() {
             body: SizedBox(
               width: 900,
               height: 640,
-              child: AddComicPreviewPane(
+              child: ComicsAddPreviewPane(
                 item: null,
                 candidate: ProviderCandidate(
                   provider: 'gcd',
@@ -64,7 +64,7 @@ void main() {
             body: SizedBox(
               width: 900,
               height: 640,
-              child: AddComicPreviewPane(
+              child: ComicsAddPreviewPane(
                 item: null,
                 candidate: ProviderCandidate(
                   provider: 'gcd',

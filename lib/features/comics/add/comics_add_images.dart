@@ -3,8 +3,8 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:flutter/material.dart';
 
-class AddComicCoverImage extends StatelessWidget {
-  const AddComicCoverImage({super.key, required this.item});
+class ComicsAddCoverImage extends StatelessWidget {
+  const ComicsAddCoverImage({super.key, required this.item});
 
   final CatalogItem item;
 

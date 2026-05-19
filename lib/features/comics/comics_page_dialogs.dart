@@ -22,7 +22,7 @@ Future<String?> showComicsBarcodeScanSheet(BuildContext context) {
 Future<void> showAddComicsDialog(BuildContext context) {
   return showDialog<void>(
     context: context,
-    builder: (context) => const AddComicDialog(),
+    builder: (context) => const ComicsAddDialog(),
   );
 }
 

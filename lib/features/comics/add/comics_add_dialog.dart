@@ -37,14 +37,14 @@ const Color _kClzPanel = kClzPanel;
 const Color _kClzAccent = kClzAccent;
 final ThemeData _kClzAddComicDialogTheme = kClzAddComicDialogTheme;
 
-class AddComicDialog extends ConsumerStatefulWidget {
-  const AddComicDialog({super.key});
+class ComicsAddDialog extends ConsumerStatefulWidget {
+  const ComicsAddDialog({super.key});
 
   @override
-  ConsumerState<AddComicDialog> createState() => AddComicDialogState();
+  ConsumerState<ComicsAddDialog> createState() => ComicsAddDialogState();
 }
 
-class AddComicDialogState extends ConsumerState<AddComicDialog> {
+class ComicsAddDialogState extends ConsumerState<ComicsAddDialog> {
   final _controller = TextEditingController();
   final _seriesController = TextEditingController();
   final _issueController = TextEditingController();
@@ -252,7 +252,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                             children: [
                               SizedBox(
                                 height: 300,
-                                child: AddComicResultPane(
+                                child: ComicsAddResultPane(
                                   mode: _mode,
                                   serverResults: _serverResults,
                                   providerResults: providerState.results,
@@ -307,7 +307,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 ),
                               ),
                               Expanded(
-                                child: AddComicPreviewPane(
+                                child: ComicsAddPreviewPane(
                                   item: selectedItem,
                                   candidate: selectedCandidate,
                                   selectedProviderLabel:
@@ -328,7 +328,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                 children: [
                                   SizedBox(
                                     width: paneWidth,
-                                    child: AddComicResultPane(
+                                    child: ComicsAddResultPane(
                                       mode: _mode,
                                       serverResults: _serverResults,
                                       providerResults: providerState.results,
@@ -393,7 +393,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                     ),
                                   ),
                                   Expanded(
-                                    child: AddComicPreviewPane(
+                                    child: ComicsAddPreviewPane(
                                       item: selectedItem,
                                       candidate: selectedCandidate,
                                       selectedProviderLabel:
@@ -409,7 +409,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                             },
                           ),
                   ),
-                  AddComicBottomBar(
+                  ComicsAddBottomBar(
                     selectedItem: selectedItem,
                     selectedCandidate: selectedCandidate,
                     selectedIsOwned: selectedIsOwned,

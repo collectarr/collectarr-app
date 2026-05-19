@@ -9,8 +9,8 @@ import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/material.dart';
 
-class AddComicBottomBar extends StatelessWidget {
-  const AddComicBottomBar({
+class ComicsAddBottomBar extends StatelessWidget {
+  const ComicsAddBottomBar({
     super.key,
     required this.selectedItem,
     required this.selectedCandidate,

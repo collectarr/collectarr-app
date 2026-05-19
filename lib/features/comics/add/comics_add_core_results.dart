@@ -8,8 +8,8 @@ import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:flutter/material.dart';
 
-class AddCoreResults extends StatelessWidget {
-  const AddCoreResults({
+class ComicsAddCoreResults extends StatelessWidget {
+  const ComicsAddCoreResults({
     super.key,
     required this.serverResults,
     required this.ownedItemIds,
@@ -86,7 +86,7 @@ class AddCoreResults extends StatelessWidget {
         groupedResults.every((g) => collapsedSeries.contains(g.collapseKey));
     return Column(
       children: [
-        AddResultsSummaryBar(
+        ComicsAddResultsSummaryBar(
           visibleCount: visibleResults.length,
           addableCount: addable.length,
           selectedCount: checkedServerIds.length,
@@ -135,7 +135,7 @@ class AddCoreResults extends StatelessWidget {
                               .length;
                           final collapsed =
                               collapsedSeries.contains(group.collapseKey);
-                          return AddSeriesHeader(
+                          return ComicsAddSeriesHeader(
                             title: group.title,
                             subtitle: _addSeriesSubtitle(group.items),
                             count: group.issueCount,
@@ -203,7 +203,7 @@ class AddCoreResults extends StatelessWidget {
                                                 padding: const EdgeInsets.only(
                                                   left: 28,
                                                 ),
-                                                child: AddResultRow(
+                                                child: ComicsAddResultRow(
                                                   selected: item.id ==
                                                       selectedServerId,
                                                   checked: checkedServerIds
@@ -215,7 +215,7 @@ class AddCoreResults extends StatelessWidget {
                                                   cover: SizedBox(
                                                     width: 38,
                                                     height: 56,
-                                                    child: AddComicCoverImage(
+                                                    child: ComicsAddCoverImage(
                                                       item: item,
                                                     ),
                                                   ),
@@ -329,7 +329,7 @@ class _CoreFlatIssueResults extends StatelessWidget {
     return ListView(
       children: [
         for (final item in items)
-          AddResultRow(
+          ComicsAddResultRow(
             selected: item.id == selectedServerId,
             checked: checkedServerIds.contains(item.id),
             checkDisabled: ownedItemIds.contains(item.id) ||
@@ -337,7 +337,7 @@ class _CoreFlatIssueResults extends StatelessWidget {
             cover: SizedBox(
               width: 38,
               height: 56,
-              child: AddComicCoverImage(item: item),
+              child: ComicsAddCoverImage(item: item),
             ),
             title: [
               _addIssueLabel(item),

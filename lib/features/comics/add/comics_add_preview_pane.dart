@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AddComicPreviewPane extends ConsumerWidget {
-  const AddComicPreviewPane({
+class ComicsAddPreviewPane extends ConsumerWidget {
+  const ComicsAddPreviewPane({
     super.key,
     required this.item,
     required this.candidate,
@@ -191,7 +191,7 @@ class AddComicPreviewPane extends ConsumerWidget {
                             ? ProviderCandidateImage(
                                 candidate: selectedCandidate!,
                               )
-                            : AddComicCoverImage(item: selectedItem),
+                            : ComicsAddCoverImage(item: selectedItem),
                       ),
                     ),
                   ),
