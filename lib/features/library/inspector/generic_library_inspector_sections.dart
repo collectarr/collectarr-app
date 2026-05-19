@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/library/generic_library_display.dart';
 import 'package:collectarr_app/features/library/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -87,12 +88,21 @@ class GenericPersonalSection extends StatelessWidget {
       title: 'Personal',
       accentColor: accent,
       children: [
+        if (ownedItem?.rating != null && ownedItem!.rating! > 0) ...[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: MediaRatingDisplay(rating: ownedItem!.rating!),
+          ),
+        ],
         LibraryInspectorFactGrid(
           facts: [
             LibraryInspectorFactData(
               'Status',
               genericLibraryStatusLabel(entry),
             ),
+            if (ownedItem?.readStatus != null &&
+                ownedItem!.readStatus!.trim().isNotEmpty)
+              LibraryInspectorFactData('Tracking', ownedItem!.readStatus!),
             LibraryInspectorFactData(
               'Condition',
               genericLibraryDash(entry.condition),
