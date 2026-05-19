@@ -26,6 +26,7 @@ class AddCoreResults extends StatelessWidget {
     required this.onToggleSeriesCheck,
     required this.onSelectServer,
     required this.onToggleServerCheck,
+    this.onBrowseSeries,
   });
 
   final List<CatalogItem> serverResults;
@@ -44,6 +45,7 @@ class AddCoreResults extends StatelessWidget {
   final ValueChanged<Iterable<CatalogItem>> onToggleSeriesCheck;
   final ValueChanged<String> onSelectServer;
   final ValueChanged<String> onToggleServerCheck;
+  final ValueChanged<String>? onBrowseSeries;
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +131,9 @@ class AddCoreResults extends StatelessWidget {
                             onToggleCheck: groupAddable.isEmpty
                                 ? null
                                 : () => onToggleSeriesCheck(groupAddable),
+                            onBrowseSeries: onBrowseSeries == null
+                                ? null
+                                : () => onBrowseSeries!(group.title),
                           );
                         },
                       ),

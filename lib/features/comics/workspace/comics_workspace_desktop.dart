@@ -274,6 +274,9 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
                           hasActiveFilters: hasActiveFilters,
                           onClearFilters: onClearFilters,
                           onSelectItem: onSelectItem,
+                          isSeriesView: projection.groupMode ==
+                                  ComicsShelfGroupMode.series &&
+                              selectedGroup != null,
                         ),
                       ),
                       detailsLayout: detailsLayout,

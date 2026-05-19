@@ -68,12 +68,17 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
   String kind,
 ) {
-  final formats = physicalMediaFormatsFromCatalog(catalog, kind: kind);
+  final mediaFamily = kind == 'music' ? 'audio' : 'video';
+  final formats =
+      physicalMediaFormatsFromCatalog(catalog, kind: kind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
   if (kind == 'movie' || kind == 'tv' || kind == 'bluray') {
     return videoPhysicalMediaFormats;
+  }
+  if (kind == 'music') {
+    return musicPhysicalMediaFormats;
   }
   return const [];
 }

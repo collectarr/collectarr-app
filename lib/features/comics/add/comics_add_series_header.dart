@@ -13,6 +13,7 @@ class AddSeriesHeader extends StatelessWidget {
     required this.canCheck,
     required this.onToggleCollapsed,
     required this.onToggleCheck,
+    this.onBrowseSeries,
   });
 
   final String title;
@@ -24,6 +25,7 @@ class AddSeriesHeader extends StatelessWidget {
   final bool canCheck;
   final VoidCallback onToggleCollapsed;
   final VoidCallback? onToggleCheck;
+  final VoidCallback? onBrowseSeries;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +90,24 @@ class AddSeriesHeader extends StatelessWidget {
                 const SizedBox(width: 6),
               ],
               LibraryAddResultBadge('$count issue${count == 1 ? '' : 's'}'),
+              if (onBrowseSeries != null) ...[
+                const SizedBox(width: 4),
+                Tooltip(
+                  message: 'Browse all issues in this series',
+                  child: InkWell(
+                    onTap: onBrowseSeries,
+                    borderRadius: BorderRadius.circular(4),
+                    child: const Padding(
+                      padding: EdgeInsets.all(2),
+                      child: Icon(
+                        Icons.search,
+                        size: 16,
+                        color: Color(0xFF18B7EB),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

@@ -42,5 +42,7 @@ class ProviderCandidateImage extends StatelessWidget {
 }
 
 bool _shouldUseGeneratedCandidateCover(ProviderCandidate candidate) {
-  return candidate.provider == 'gcd' && candidate.isVariant;
+  return candidate.provider == 'gcd' &&
+      candidate.isVariant &&
+      (candidate.imageUrl == null || candidate.imageUrl!.isEmpty);
 }

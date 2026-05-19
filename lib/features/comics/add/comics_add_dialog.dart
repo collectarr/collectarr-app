@@ -301,6 +301,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                   onToggleProviderCandidatesCheck:
                                       _toggleProviderCandidatesCheck,
                                   onSearchPullListRow: _searchPullListRow,
+                                  onBrowseSeries: _browseSeries,
                                 ),
                               ),
                               Expanded(
@@ -378,6 +379,7 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                       onToggleProviderCandidatesCheck:
                                           _toggleProviderCandidatesCheck,
                                       onSearchPullListRow: _searchPullListRow,
+                                      onBrowseSeries: _browseSeries,
                                     ),
                                   ),
                                   _AddComicPaneResizeHandle(
@@ -923,6 +925,13 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       _controller.text = _seriesController.text.trim();
     }
     setState(() => _mode = mode);
+  }
+
+  void _browseSeries(String seriesTitle) {
+    _seriesController.text = seriesTitle;
+    _issueController.clear();
+    setState(() => _mode = LibraryAddMode.addIssue);
+    _searchServer();
   }
 
   bool _shouldDebounceProviderSearch(String provider, String query) {

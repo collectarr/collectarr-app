@@ -1,8 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_issue_grouped_grid.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_grid.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_table.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ComicsShelfContent extends StatelessWidget {
   const ComicsShelfContent({
@@ -23,6 +26,7 @@ class ComicsShelfContent extends StatelessWidget {
     required this.hasActiveFilters,
     required this.onClearFilters,
     required this.onSelectItem,
+    this.isSeriesView = false,
   });
 
   final LibraryViewMode viewMode;
@@ -44,9 +48,22 @@ class ComicsShelfContent extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final ValueChanged<CatalogItem> onSelectItem;
+  final bool isSeriesView;
 
   @override
   Widget build(BuildContext context) {
+    if (isSeriesView &&
+        (viewMode == LibraryViewMode.grid ||
+            viewMode == LibraryViewMode.card)) {
+      return _IssueGroupedContent(
+        items: items,
+        selectedItemId: selectedItemId,
+        selectedItemIds: selectedItemIds,
+        coverSize: coverSize,
+        useCards: viewMode == LibraryViewMode.card,
+        onSelectItem: onSelectItem,
+      );
+    }
     return switch (viewMode) {
       LibraryViewMode.grid => ComicsShelfCoverGrid(
           items: items,
@@ -85,5 +102,42 @@ class ComicsShelfContent extends StatelessWidget {
           onSelectItem: onSelectItem,
         ),
     };
+  }
+}
+
+class _IssueGroupedContent extends ConsumerWidget {
+  const _IssueGroupedContent({
+    required this.items,
+    required this.selectedItemId,
+    required this.selectedItemIds,
+    required this.coverSize,
+    required this.useCards,
+    required this.onSelectItem,
+  });
+
+  final List<CatalogItem> items;
+  final String? selectedItemId;
+  final Set<String> selectedItemIds;
+  final double coverSize;
+  final bool useCards;
+  final ValueChanged<CatalogItem> onSelectItem;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ownedByItemId = ref.watch(collectionByCatalogItemProvider);
+    final wishlistIds = ref.watch(wishlistIdsProvider).maybeWhen(
+          data: (ids) => ids,
+          orElse: () => const <String>{},
+        );
+    return ComicsIssueGroupedGrid(
+      items: items,
+      ownedByItemId: ownedByItemId,
+      wishlistIds: wishlistIds,
+      selectedItemId: selectedItemId,
+      selectedItemIds: selectedItemIds,
+      coverSize: coverSize,
+      useCards: useCards,
+      onSelectItem: onSelectItem,
+    );
   }
 }
