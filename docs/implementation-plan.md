@@ -68,17 +68,18 @@
 
 ### 🎯 Comics MVP Polish
 - [x] Semantic Add Series vs Add Issue: browse-series callback navigates from series to issue mode
-- [ ] Issue/variant tree density improvements + whole-series and multi-issue selection
+- [x] Issue/variant tree density improvements + whole-series and multi-issue selection
 - [x] Real cover behavior for GCD + ComicVine variant enrichment
 - [x] Generated fallback covers only when no usable cover exists
 - [x] Music physical media formats (Vinyl, CD, Cassette, Digital)
 
 ### 📚 Media-Specific Forms
-- [ ] Books: ISBN/barcode fields, reading progress, edition data
-- [ ] Games: platform/edition/condition, region variants
-- [ ] Movies/TV: physical format (DVD/Blu-ray/4K), season/episode UI
-- [ ] Music: format (CD/vinyl/cassette), track listing display
-- [ ] Manga/Anime: publisher, volume/chapter UI polish, season tracking
+- [x] Books: physical formats (Hardcover/Paperback/Mass Market/eBook/Audiobook), reading tracking profile
+- [x] Games: physical formats (Disc/Cartridge/Digital/Collector's Ed), game tracking profile
+- [x] Movies/TV: physical format (DVD/Blu-ray/4K), season/episode UI
+- [x] Music: format (CD/vinyl/cassette), listening tracking profile
+- [x] Comics/Manga: physical formats, grading section (Raw/Slabbed, grading co., signed by, key comic, cover price)
+- [x] Inspector: kind-specific grading details for comics/manga
 
 ### 🖥️ Platform Smoke Tests
 - [ ] Web: sqlite3 WASM load, Core connection, Add dialog, import/export, covers

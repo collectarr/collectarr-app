@@ -27,6 +27,8 @@ class AddCoreResults extends StatelessWidget {
     required this.onSelectServer,
     required this.onToggleServerCheck,
     this.onBrowseSeries,
+    this.onCollapseAll,
+    this.onExpandAll,
   });
 
   final List<CatalogItem> serverResults;
@@ -46,6 +48,8 @@ class AddCoreResults extends StatelessWidget {
   final ValueChanged<String> onSelectServer;
   final ValueChanged<String> onToggleServerCheck;
   final ValueChanged<String>? onBrowseSeries;
+  final VoidCallback? onCollapseAll;
+  final VoidCallback? onExpandAll;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +81,8 @@ class AddCoreResults extends StatelessWidget {
       visibleResults,
       issueSortAscending: issueSortAscending,
     );
+    final allCollapsed = groupedResults.isNotEmpty &&
+        groupedResults.every((g) => collapsedSeries.contains(g.collapseKey));
     return Column(
       children: [
         AddResultsSummaryBar(
@@ -87,6 +93,16 @@ class AddCoreResults extends StatelessWidget {
           onSelectAll:
               addable.isEmpty ? null : () => onCheckAllVisible(addable),
           onClear: checkedServerIds.isEmpty ? null : onClearServerChecks,
+          allCollapsed: allCollapsed,
+          onToggleCollapseAll: groupedResults.length <= 1
+              ? null
+              : () {
+                  if (allCollapsed) {
+                    onExpandAll?.call();
+                  } else {
+                    onCollapseAll?.call();
+                  }
+                },
         ),
         Expanded(
           child: flatIssues
@@ -504,9 +520,9 @@ List<_AddSeriesGroup> _groupAddResultsBySeries(
       return _compareIssueNumbers(a.itemNumber, b.itemNumber);
     });
   for (final item in sortedItems) {
-    final seriesKey = _normalizedCoreKey(item.title);
+    final seriesKey = normalizedCoreKey(item.title);
     final issueLabel = _addIssueLabel(item);
-    final issueKey = _normalizedCoreKey('${item.title} $issueLabel');
+    final issueKey = normalizedCoreKey('${item.title} $issueLabel');
     grouped
         .putIfAbsent(seriesKey, () => <String, List<CatalogItem>>{})
         .putIfAbsent(issueKey, () => <CatalogItem>[])
@@ -744,7 +760,8 @@ int _compareNullableStrings(String? left, String? right) {
   return leftValue.compareTo(rightValue);
 }
 
-String _normalizedCoreKey(String title) {
+/// Normalizes a title into a stable collapse key segment.
+String normalizedCoreKey(String title) {
   final normalized = title
       .trim()
       .toLowerCase()

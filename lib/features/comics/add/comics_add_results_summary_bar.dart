@@ -10,6 +10,8 @@ class AddResultsSummaryBar extends StatelessWidget {
     required this.seriesCount,
     required this.onSelectAll,
     required this.onClear,
+    this.allCollapsed = false,
+    this.onToggleCollapseAll,
   });
 
   final int visibleCount;
@@ -18,6 +20,8 @@ class AddResultsSummaryBar extends StatelessWidget {
   final int seriesCount;
   final VoidCallback? onSelectAll;
   final VoidCallback? onClear;
+  final bool allCollapsed;
+  final VoidCallback? onToggleCollapseAll;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +57,22 @@ class AddResultsSummaryBar extends StatelessWidget {
           Wrap(
             spacing: 4,
             children: [
+              if (onToggleCollapseAll != null)
+                IconButton(
+                  icon: Icon(
+                    allCollapsed
+                        ? Icons.unfold_more
+                        : Icons.unfold_less,
+                    size: 18,
+                  ),
+                  tooltip:
+                      allCollapsed ? 'Expand all' : 'Collapse all',
+                  onPressed: onToggleCollapseAll,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
+                ),
               TextButton(
                 onPressed: onSelectAll,
                 child: const Text('Select all'),

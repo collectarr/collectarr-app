@@ -109,11 +109,15 @@ class GenericPersonalSection extends StatelessWidget {
     required this.entry,
     required this.ownedItem,
     required this.accent,
+    this.kind,
   });
 
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
   final Color accent;
+  final String? kind;
+
+  bool get _isComicKind => kind == 'comic' || kind == 'manga';
 
   @override
   Widget build(BuildContext context) {
@@ -188,6 +192,33 @@ class GenericPersonalSection extends StatelessWidget {
               'Updated',
               formatNullableComicDate(entry.updatedAt) ?? '-',
             ),
+            if (_isComicKind && ownedItem != null) ...[
+              if (ownedItem!.rawOrSlabbed != null &&
+                  ownedItem!.rawOrSlabbed!.trim().isNotEmpty)
+                LibraryInspectorFactData(
+                  'Raw / Slabbed',
+                  ownedItem!.rawOrSlabbed!,
+                ),
+              if (ownedItem!.gradingCompany != null &&
+                  ownedItem!.gradingCompany!.trim().isNotEmpty)
+                LibraryInspectorFactData(
+                  'Grading co.',
+                  ownedItem!.gradingCompany!,
+                ),
+              if (ownedItem!.signedBy != null &&
+                  ownedItem!.signedBy!.trim().isNotEmpty)
+                LibraryInspectorFactData('Signed by', ownedItem!.signedBy!),
+              if (ownedItem!.keyComic)
+                LibraryInspectorFactData(
+                  'Key',
+                  ownedItem!.keyReason ?? 'Yes',
+                ),
+              if (ownedItem!.coverPriceCents != null)
+                LibraryInspectorFactData(
+                  'Cover price',
+                  formatComicMoney(ownedItem!.coverPriceCents, null),
+                ),
+            ],
           ],
         ),
         if (ownedItem?.personalNotes != null &&

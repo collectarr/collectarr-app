@@ -68,19 +68,25 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
   String kind,
 ) {
-  final mediaFamily = kind == 'music' ? 'audio' : 'video';
+  final mediaFamily = switch (kind) {
+    'music' => 'audio',
+    'book' || 'manga' || 'comic' => 'print',
+    'game' || 'boardgame' => 'game',
+    _ => 'video',
+  };
   final formats =
       physicalMediaFormatsFromCatalog(catalog, kind: kind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
-  if (kind == 'movie' || kind == 'tv' || kind == 'bluray') {
-    return videoPhysicalMediaFormats;
-  }
-  if (kind == 'music') {
-    return musicPhysicalMediaFormats;
-  }
-  return const [];
+  return switch (kind) {
+    'movie' || 'tv' || 'bluray' || 'anime' => videoPhysicalMediaFormats,
+    'music' => musicPhysicalMediaFormats,
+    'book' || 'manga' => bookPhysicalMediaFormats,
+    'comic' => comicPhysicalMediaFormats,
+    'game' || 'boardgame' => gamePhysicalMediaFormats,
+    _ => const [],
+  };
 }
 
 const fallbackMediaCatalog = <CatalogMediaType>[

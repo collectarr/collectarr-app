@@ -49,6 +49,8 @@ class AddComicResultPane extends StatelessWidget {
     required this.onSearchPullListRow,
     required this.onToggleProviderCandidatesCheck,
     this.onBrowseSeries,
+    this.onCollapseAll,
+    this.onExpandAll,
   });
 
   final LibraryAddMode mode;
@@ -86,6 +88,8 @@ class AddComicResultPane extends StatelessWidget {
   final ValueChanged<Iterable<ProviderCandidate>>
       onToggleProviderCandidatesCheck;
   final ValueChanged<String>? onBrowseSeries;
+  final VoidCallback? onCollapseAll;
+  final VoidCallback? onExpandAll;
 
   @override
   Widget build(BuildContext context) {
@@ -192,6 +196,8 @@ class AddComicResultPane extends StatelessWidget {
         onSelectServer: onSelectServer,
         onToggleServerCheck: onToggleServerCheck,
         onBrowseSeries: onBrowseSeries,
+        onCollapseAll: onCollapseAll,
+        onExpandAll: onExpandAll,
       );
     }
     if (visibleProviderResults.isNotEmpty) {

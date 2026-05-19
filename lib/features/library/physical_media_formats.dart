@@ -97,6 +97,119 @@ const musicPhysicalMediaFormats = [
   ),
 ];
 
+const bookPhysicalMediaFormats = [
+  PhysicalMediaFormat(
+    id: 'hardcover',
+    label: 'Hardcover',
+    mediaFamily: 'print',
+    variantType: 'physical',
+    aliases: {'hardback', 'hc'},
+  ),
+  PhysicalMediaFormat(
+    id: 'paperback',
+    label: 'Paperback',
+    mediaFamily: 'print',
+    variantType: 'physical',
+    aliases: {'softcover', 'pb', 'tpb', 'trade paperback'},
+  ),
+  PhysicalMediaFormat(
+    id: 'mass-market',
+    label: 'Mass Market Paperback',
+    mediaFamily: 'print',
+    variantType: 'physical',
+    aliases: {'mmpb', 'mass market'},
+  ),
+  PhysicalMediaFormat(
+    id: 'ebook',
+    label: 'eBook',
+    mediaFamily: 'print',
+    variantType: 'digital',
+    aliases: {'kindle', 'epub', 'digital book'},
+  ),
+  PhysicalMediaFormat(
+    id: 'audiobook',
+    label: 'Audiobook',
+    mediaFamily: 'print',
+    variantType: 'digital',
+    aliases: {'audio book'},
+  ),
+];
+
+const comicPhysicalMediaFormats = [
+  PhysicalMediaFormat(
+    id: 'single-issue',
+    label: 'Single Issue',
+    mediaFamily: 'print',
+    variantType: 'physical',
+    aliases: {'floppy', 'pamphlet'},
+  ),
+  PhysicalMediaFormat(
+    id: 'trade-paperback',
+    label: 'Trade Paperback',
+    mediaFamily: 'print',
+    variantType: 'physical',
+    aliases: {'tpb', 'trade'},
+  ),
+  PhysicalMediaFormat(
+    id: 'hardcover-comic',
+    label: 'Hardcover',
+    mediaFamily: 'print',
+    variantType: 'physical',
+    aliases: {'hc', 'deluxe'},
+  ),
+  PhysicalMediaFormat(
+    id: 'omnibus',
+    label: 'Omnibus',
+    mediaFamily: 'print',
+    variantType: 'physical',
+  ),
+  PhysicalMediaFormat(
+    id: 'graphic-novel',
+    label: 'Graphic Novel',
+    mediaFamily: 'print',
+    variantType: 'physical',
+    aliases: {'gn'},
+  ),
+  PhysicalMediaFormat(
+    id: 'digital-comic',
+    label: 'Digital',
+    mediaFamily: 'print',
+    variantType: 'digital',
+    aliases: {'comixology', 'digital comic'},
+  ),
+];
+
+const gamePhysicalMediaFormats = [
+  PhysicalMediaFormat(
+    id: 'physical-disc',
+    label: 'Physical Disc',
+    mediaFamily: 'game',
+    variantType: 'physical',
+    aliases: {'disc', 'blu-ray disc'},
+  ),
+  PhysicalMediaFormat(
+    id: 'cartridge',
+    label: 'Cartridge',
+    mediaFamily: 'game',
+    variantType: 'physical',
+    aliases: {'cart', 'game pak'},
+  ),
+  PhysicalMediaFormat(
+    id: 'digital-game',
+    label: 'Digital',
+    mediaFamily: 'game',
+    variantType: 'digital',
+    aliases: {'download', 'digital download'},
+  ),
+  PhysicalMediaFormat(
+    id: 'collectors-edition',
+    label: "Collector's Edition",
+    mediaFamily: 'game',
+    variantType: 'physical',
+    aliases: {'ce', 'special edition', 'limited edition'},
+  ),
+];
+
 List<PhysicalMediaFormat> physicalMediaFormatsFromCatalog(
   Iterable<CatalogMediaType> mediaTypes, {
   String? kind,

@@ -105,6 +105,7 @@ class GenericLibraryInspector extends StatelessWidget {
                 entry: selected,
                 ownedItem: ownedItem,
                 accent: accent,
+                kind: type.workspace.kind,
               ),
               if (ownedItem != null && db != null) ...[                InspectorCustomFieldsSection(
                   ownedItemId: ownedItem!.id,

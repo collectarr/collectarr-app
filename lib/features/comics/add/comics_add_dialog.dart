@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/comics/add/comics_add_core_results.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_results_pane.dart';
 import 'package:collectarr_app/features/comics/comics_barcode_lookup.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_bottom_bar.dart';
@@ -302,6 +303,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                       _toggleProviderCandidatesCheck,
                                   onSearchPullListRow: _searchPullListRow,
                                   onBrowseSeries: _browseSeries,
+                                  onCollapseAll: _collapseAllSeries,
+                                  onExpandAll: _expandAllSeries,
                                 ),
                               ),
                               Expanded(
@@ -380,6 +383,8 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
                                           _toggleProviderCandidatesCheck,
                                       onSearchPullListRow: _searchPullListRow,
                                       onBrowseSeries: _browseSeries,
+                                      onCollapseAll: _collapseAllSeries,
+                                      onExpandAll: _expandAllSeries,
                                     ),
                                   ),
                                   _AddComicPaneResizeHandle(
@@ -1206,6 +1211,21 @@ class AddComicDialogState extends ConsumerState<AddComicDialog> {
       } else {
         _collapsedAddSeries.add(seriesTitle);
       }
+    });
+  }
+
+  void _collapseAllSeries() {
+    setState(() {
+      for (final item in _serverResults) {
+        final key = 'core-series:${normalizedCoreKey(item.title)}';
+        _collapsedAddSeries.add(key);
+      }
+    });
+  }
+
+  void _expandAllSeries() {
+    setState(() {
+      _collapsedAddSeries.clear();
     });
   }
 
