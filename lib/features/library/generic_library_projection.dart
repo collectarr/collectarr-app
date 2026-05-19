@@ -314,8 +314,13 @@ GenericToolbarCounts _toolbarCountsForItems({
   var wishlist = 0;
   var missingCover = 0;
   var missingMetadata = 0;
+  var totalPricePaid = 0;
+  var totalCoverPrice = 0;
+  var totalSellPrice = 0;
+  String? currency;
   for (final item in allItems) {
     final entry = item.entry;
+    final ownedItem = item.source.ownedItem;
     if (entry.isOwned) {
       owned += 1;
     }
@@ -328,6 +333,12 @@ GenericToolbarCounts _toolbarCountsForItems({
     if (entry.hasMissingMetadata) {
       missingMetadata += 1;
     }
+    if (ownedItem != null) {
+      totalPricePaid += ownedItem.pricePaidCents ?? 0;
+      totalCoverPrice += ownedItem.coverPriceCents ?? 0;
+      totalSellPrice += ownedItem.sellPriceCents ?? 0;
+      currency ??= ownedItem.currency;
+    }
   }
   return GenericToolbarCounts(
     shown: shown,
@@ -336,6 +347,10 @@ GenericToolbarCounts _toolbarCountsForItems({
     wishlist: wishlist,
     missingCover: missingCover,
     missingMetadata: missingMetadata,
+    totalPricePaidCents: totalPricePaid,
+    totalCoverPriceCents: totalCoverPrice,
+    totalSellPriceCents: totalSellPrice,
+    priceCurrency: currency,
   );
 }
 
