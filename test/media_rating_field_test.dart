@@ -18,8 +18,8 @@ void main() {
       ),
     );
 
-    expect(find.widgetWithText(TextField, '8'), findsOneWidget);
+    expect(find.byType(MediaRatingField), findsOneWidget);
     expect(find.text('Rating'), findsOneWidget);
-    expect(find.text('0-100'), findsOneWidget);
+    expect(find.text('8/100'), findsOneWidget);
   });
 }

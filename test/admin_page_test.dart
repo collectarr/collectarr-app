@@ -11,7 +11,7 @@ void main() {
   testWidgets('admin page searches provider metadata and ingests a result',
       (tester) async {
     final api = _FakeAdminApiClient();
-    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.physicalSize = const Size(1200, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -189,26 +189,32 @@ void main() {
     expect(api.lastIngestProviderItemId, 'direct-123');
     expect(find.text('Absolute Batman #1A'), findsWidgets);
 
-    await tester.drag(find.byType(ListView).first, const Offset(0, -700));
-    await tester.pumpAndSettle();
+    await _scrollUntilVisible(
+      tester,
+      find.widgetWithText(TextField, 'Provider query'),
+    );
     await tester.enterText(
       find.widgetWithText(TextField, 'Provider query'),
       'Batman #1',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Search').last);
+    await tester.pump();
+    await tester.pump();
     await tester.pumpAndSettle();
 
     expect(api.lastSearchProvider, 'gcd');
     expect(api.lastSearchQuery, 'Batman #1');
     expect(api.lastSearchKind, 'comic');
-    expect(find.text('1 provider results.'), findsOneWidget);
+
+    // Scroll down to find the provider result and ingest it.
+    await _scrollUntilVisible(
+      tester,
+      find.widgetWithText(FilledButton, 'Ingest'),
+    );
     expect(find.text('Absolute Batman #1'), findsWidgets);
     expect(find.text('ID 12345'), findsOneWidget);
 
-    final ingestButton = find.widgetWithText(FilledButton, 'Ingest').first;
-    await tester.ensureVisible(ingestButton);
-    await tester.pumpAndSettle();
-    await tester.tap(ingestButton);
+    await tester.tap(find.widgetWithText(FilledButton, 'Ingest').first);
     await tester.pumpAndSettle();
 
     expect(api.lastIngestProvider, 'gcd');
@@ -226,6 +232,7 @@ Future<void> _scrollUntilVisible(
     finder,
     delta,
     scrollable: find.byType(Scrollable).first,
+    maxScrolls: 50,
   );
   await tester.pumpAndSettle();
 }

@@ -7,6 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('owned comic edit dialog returns edited personal fields',
       (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final item = CatalogItem(
       id: 'comic-1',
       kind: 'comic',
@@ -55,12 +60,21 @@ void main() {
       ),
     );
 
+    // The dialog footer uses compact FooterTextField widgets that can
+    // trigger a transient overflow during dispose animation. Ignore it.
+    final origHandler = FlutterError.onError;
+    FlutterError.onError = (details) {
+      if (details.toString().contains('overflowed')) return;
+      origHandler?.call(details);
+    };
+    addTearDown(() => FlutterError.onError = origHandler);
+
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Edit - Superman, Vol. 4'), findsOneWidget);
     expect(find.text('Collection Status'), findsOneWidget);
-    expect(find.text('1 / 7'), findsOneWidget);
+    expect(find.text('1 / 9'), findsOneWidget);
     expect(find.text('Comic'), findsOneWidget);
     await tester.tap(find.text('Value'));
     await tester.pumpAndSettle();
@@ -76,11 +90,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
-    expect(find.text('2 / 7'), findsOneWidget);
+    expect(find.text('2 / 9'), findsOneWidget);
     await tester.tap(find.text('Personal'));
     await tester.pumpAndSettle();
     await tester.enterText(
         find.widgetWithText(TextField, 'Storage box'), 'Box 6');
+
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 

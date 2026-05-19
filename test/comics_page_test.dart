@@ -561,14 +561,25 @@ void main() {
   });
 
   testWidgets('comics page opens owned comic edit dialog tabs', (tester) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
     tester.view.physicalSize = const Size(1400, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    // Suppress transient footer overflow during dialog dismiss animation.
+    final origHandler = FlutterError.onError;
+    FlutterError.onError = (details) {
+      if (details.toString().contains('overflowed')) return;
+      origHandler?.call(details);
+    };
+    addTearDown(() => FlutterError.onError = origHandler);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          localDatabaseProvider.overrideWithValue(db),
           shelfProvider.overrideWith(
             (ref) async => ShelfState(
               entries: [

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
@@ -61,6 +63,18 @@ void main() {
 
   testWidgets('generic add dialog searches provider candidates',
       (tester) async {
+    // Build a mock JWT with far-future expiry so AuthController restores
+    // an admin session from SharedPreferences.
+    final futureExp =
+        DateTime.now().toUtc().add(const Duration(days: 365)).millisecondsSinceEpoch ~/ 1000;
+    final payload = base64Url.encode(
+      utf8.encode(jsonEncode({'exp': futureExp})),
+    );
+    final mockToken = 'header.$payload.signature';
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': mockToken,
+      'collectarr.auth.is_admin': true,
+    });
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);

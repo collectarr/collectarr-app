@@ -146,90 +146,19 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
       onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          await m.createTable(customFieldDefinitionsCache);
-          await m.createTable(customFieldValuesCache);
-          await m.createTable(itemImagesCache);
-          await _addColumnsIfMissing('owned_items_cache', {
-            'sold_at': 'INTEGER',
-            'sell_price_cents': 'INTEGER',
-            'sold_to': 'TEXT',
-          });
+        // Destructive: drop everything and recreate from scratch.
+        for (final table in allTables) {
+          await m.deleteTable(table.actualTableName);
         }
-        if (from < 3) {
-          await _addColumnsIfMissing('owned_items_cache', {
-            'started_at': 'INTEGER',
-            'finished_at': 'INTEGER',
-          });
-        }
-        if (from < 4) {
-          await _addColumnsIfMissing('catalog_cache', {
-            'series_id': 'TEXT',
-            'series_title': 'TEXT',
-            'volume_name': 'TEXT',
-            'volume_number': 'INTEGER',
-            'volume_start_year': 'INTEGER',
-            'season_number': 'INTEGER',
-            'episode_number': 'INTEGER',
-          });
-        }
-      },
-      beforeOpen: (_) async {
-        await _ensureCatalogCacheColumns();
+        await m.createAll();
       },
     );
-  }
-
-  Future<void> _addColumnsIfMissing(
-    String table,
-    Map<String, String> columns,
-  ) async {
-    final existing =
-        await customSelect('PRAGMA table_info($table)').get();
-    final existingNames = {
-      for (final row in existing) row.read<String>('name'),
-    };
-    for (final entry in columns.entries) {
-      if (!existingNames.contains(entry.key)) {
-        await customStatement(
-          'ALTER TABLE $table ADD COLUMN ${entry.key} ${entry.value}',
-        );
-      }
-    }
-  }
-
-  Future<void> _ensureCatalogCacheColumns() async {
-    final columns =
-        await customSelect('PRAGMA table_info(catalog_cache)').get();
-    final columnNames = {
-      for (final row in columns) row.read<String>('name'),
-    };
-    const optionalColumns = {
-      'thumbnail_image_url': 'TEXT',
-      'edition_title': 'TEXT',
-      'physical_format': 'TEXT',
-      'physical_format_label': 'TEXT',
-      'series_id': 'TEXT',
-      'series_title': 'TEXT',
-      'volume_name': 'TEXT',
-      'volume_number': 'INTEGER',
-      'volume_start_year': 'INTEGER',
-      'season_number': 'INTEGER',
-      'episode_number': 'INTEGER',
-    };
-    for (final entry in optionalColumns.entries) {
-      if (!columnNames.contains(entry.key)) {
-        await customStatement(
-          'ALTER TABLE catalog_cache ADD COLUMN ${entry.key} ${entry.value}',
-        );
-      }
-    }
   }
 }

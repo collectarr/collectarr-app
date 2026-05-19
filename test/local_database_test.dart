@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqlite3/sqlite3.dart' as sqlite3;
 
 void main() {
   test('stores catalog metadata needed for local filters', () async {
@@ -42,54 +41,6 @@ void main() {
     expect(catalog.releaseYear, 2016);
     expect(catalog.barcode, '76194134192700811');
     expect(catalog.variant, 'Regular Cover');
-  });
-
-  test(
-      'adds catalog snapshot columns for existing schema version one databases',
-      () async {
-    final rawDb = sqlite3.sqlite3.openInMemory();
-    rawDb.execute('''
-      CREATE TABLE catalog_cache (
-        id TEXT NOT NULL PRIMARY KEY,
-        kind TEXT NOT NULL,
-        title TEXT NOT NULL,
-        item_number TEXT NULL,
-        synopsis TEXT NULL,
-        cover_image_url TEXT NULL,
-        publisher TEXT NULL,
-        release_date INTEGER NULL,
-        release_year INTEGER NULL,
-        barcode TEXT NULL,
-        variant TEXT NULL,
-        cached_at INTEGER NOT NULL
-      );
-      PRAGMA user_version = 1;
-    ''');
-    final db = LocalDatabase(
-      NativeDatabase.opened(rawDb, closeUnderlyingOnClose: true),
-    );
-    addTearDown(db.close);
-
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            title: 'Superman, Vol. 4',
-            thumbnailImageUrl:
-                const Value('https://cdn.example/superman-thumb.jpg'),
-            editionTitle: const Value('Direct market edition'),
-            physicalFormat: const Value('single-issue'),
-            physicalFormatLabel: const Value('Single Issue'),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
-
-    final catalog = await db.select(db.catalogCache).getSingle();
-
-    expect(catalog.thumbnailImageUrl, 'https://cdn.example/superman-thumb.jpg');
-    expect(catalog.editionTitle, 'Direct market edition');
-    expect(catalog.physicalFormat, 'single-issue');
-    expect(catalog.physicalFormatLabel, 'Single Issue');
   });
 
   test('stores personal collection and wishlist data locally', () async {

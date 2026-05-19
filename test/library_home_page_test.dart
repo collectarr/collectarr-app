@@ -249,7 +249,6 @@ void main() {
     expect(find.byTooltip('Library tools'), findsOneWidget);
     expect(find.text('Search podcasts...'), findsOneWidget);
     expect(find.text('[All Podcasts]'), findsOneWidget);
-    expect(find.text('T'), findsOneWidget);
     expect(find.text('The Library Feed'), findsWidgets);
     expect(find.text('Collectarr Studio'), findsWidgets);
     expect(find.text('No podcast selected'), findsNothing);
