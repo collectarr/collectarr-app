@@ -950,7 +950,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Select comics'));
+    await tester.tap(find.byTooltip('Select items'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Superman, Vol. 4 #8A').first);
     await tester.pumpAndSettle();
@@ -963,12 +963,12 @@ void main() {
     await tester.tap(find.text('Bulk edit'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Bulk edit'), findsOneWidget);
+    expect(find.textContaining('Bulk edit'), findsOneWidget);
     expect(find.text('Condition'), findsWidgets);
     expect(find.text('Grade'), findsWidgets);
     expect(find.widgetWithText(TextField, 'Storage box'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Tags'), findsOneWidget);
-    expect(find.text('Read status'), findsWidgets);
+    expect(find.text('Tracking status'), findsWidgets);
   });
 
   testWidgets('comics page shows missing issue gaps for selected series',

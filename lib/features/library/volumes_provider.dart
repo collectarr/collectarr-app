@@ -2,9 +2,16 @@ import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final volumesProvider =
-    FutureProvider.family<List<Season>, ({String provider, String providerItemId})>(
-        (ref, params) async {
+final volumesProvider = FutureProvider.family<List<Season>,
+    ({String provider, String providerItemId})>((ref, params) async {
   final api = ref.watch(apiClientProvider);
-  return api.getProviderVolumes(params.provider, params.providerItemId);
+  return api
+      .getProviderVolumes(params.provider, params.providerItemId)
+      .timeout(const Duration(seconds: 60));
+});
+
+final itemVolumesProvider =
+    FutureProvider.family<List<Season>, String>((ref, itemId) async {
+  final api = ref.watch(apiClientProvider);
+  return api.getItemVolumes(itemId).timeout(const Duration(seconds: 60));
 });

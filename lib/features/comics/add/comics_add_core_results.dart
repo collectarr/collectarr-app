@@ -4,11 +4,12 @@ import 'package:collectarr_app/features/comics/add/comics_add_result_row.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_results_summary_bar.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_series_header.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:flutter/material.dart';
 
-class AddCoreResults extends StatelessWidget {
-  const AddCoreResults({
+class ComicsAddCoreResults extends StatelessWidget {
+  const ComicsAddCoreResults({
     super.key,
     required this.serverResults,
     required this.ownedItemIds,
@@ -27,6 +28,8 @@ class AddCoreResults extends StatelessWidget {
     required this.onSelectServer,
     required this.onToggleServerCheck,
     this.onBrowseSeries,
+    this.onCollapseAll,
+    this.onExpandAll,
   });
 
   final List<CatalogItem> serverResults;
@@ -46,6 +49,8 @@ class AddCoreResults extends StatelessWidget {
   final ValueChanged<String> onSelectServer;
   final ValueChanged<String> onToggleServerCheck;
   final ValueChanged<String>? onBrowseSeries;
+  final VoidCallback? onCollapseAll;
+  final VoidCallback? onExpandAll;
 
   @override
   Widget build(BuildContext context) {
@@ -77,9 +82,11 @@ class AddCoreResults extends StatelessWidget {
       visibleResults,
       issueSortAscending: issueSortAscending,
     );
+    final allCollapsed = groupedResults.isNotEmpty &&
+        groupedResults.every((g) => collapsedSeries.contains(g.collapseKey));
     return Column(
       children: [
-        AddResultsSummaryBar(
+        ComicsAddResultsSummaryBar(
           visibleCount: visibleResults.length,
           addableCount: addable.length,
           selectedCount: checkedServerIds.length,
@@ -87,6 +94,16 @@ class AddCoreResults extends StatelessWidget {
           onSelectAll:
               addable.isEmpty ? null : () => onCheckAllVisible(addable),
           onClear: checkedServerIds.isEmpty ? null : onClearServerChecks,
+          allCollapsed: allCollapsed,
+          onToggleCollapseAll: groupedResults.length <= 1
+              ? null
+              : () {
+                  if (allCollapsed) {
+                    onExpandAll?.call();
+                  } else {
+                    onCollapseAll?.call();
+                  }
+                },
         ),
         Expanded(
           child: flatIssues
@@ -118,7 +135,7 @@ class AddCoreResults extends StatelessWidget {
                               .length;
                           final collapsed =
                               collapsedSeries.contains(group.collapseKey);
-                          return AddSeriesHeader(
+                          return ComicsAddSeriesHeader(
                             title: group.title,
                             subtitle: _addSeriesSubtitle(group.items),
                             count: group.issueCount,
@@ -186,7 +203,7 @@ class AddCoreResults extends StatelessWidget {
                                                 padding: const EdgeInsets.only(
                                                   left: 28,
                                                 ),
-                                                child: AddResultRow(
+                                                child: ComicsAddResultRow(
                                                   selected: item.id ==
                                                       selectedServerId,
                                                   checked: checkedServerIds
@@ -198,7 +215,7 @@ class AddCoreResults extends StatelessWidget {
                                                   cover: SizedBox(
                                                     width: 38,
                                                     height: 56,
-                                                    child: AddComicCoverImage(
+                                                    child: ComicsAddCoverImage(
                                                       item: item,
                                                     ),
                                                   ),
@@ -312,7 +329,7 @@ class _CoreFlatIssueResults extends StatelessWidget {
     return ListView(
       children: [
         for (final item in items)
-          AddResultRow(
+          ComicsAddResultRow(
             selected: item.id == selectedServerId,
             checked: checkedServerIds.contains(item.id),
             checkDisabled: ownedItemIds.contains(item.id) ||
@@ -320,7 +337,7 @@ class _CoreFlatIssueResults extends StatelessWidget {
             cover: SizedBox(
               width: 38,
               height: 56,
-              child: AddComicCoverImage(item: item),
+              child: ComicsAddCoverImage(item: item),
             ),
             title: [
               _addIssueLabel(item),
@@ -504,9 +521,9 @@ List<_AddSeriesGroup> _groupAddResultsBySeries(
       return _compareIssueNumbers(a.itemNumber, b.itemNumber);
     });
   for (final item in sortedItems) {
-    final seriesKey = _normalizedCoreKey(item.title);
+    final seriesKey = normalizedCoreKey(item.title);
     final issueLabel = _addIssueLabel(item);
-    final issueKey = _normalizedCoreKey('${item.title} $issueLabel');
+    final issueKey = normalizedCoreKey('${item.title} $issueLabel');
     grouped
         .putIfAbsent(seriesKey, () => <String, List<CatalogItem>>{})
         .putIfAbsent(issueKey, () => <CatalogItem>[])
@@ -626,7 +643,7 @@ String _addIssueSubtitle(List<CatalogItem> items) {
       .map((item) => item.releaseDate)
       .whereType<DateTime>()
       .toList(growable: false);
-  final releaseDate = dates.isEmpty ? null : _formatDate(dates.first);
+  final releaseDate = dates.isEmpty ? null : formatCompactDate(dates.first);
   return [
     if (standardCount > 0)
       '$standardCount standard cover${standardCount == 1 ? '' : 's'}',
@@ -658,7 +675,7 @@ String _addResultTitle(CatalogItem item) {
 String _addResultSubtitle(CatalogItem item) {
   final parts = [
     if (item.variant != null && item.variant!.isNotEmpty) item.variant,
-    if (item.releaseDate != null) _formatDate(item.releaseDate!),
+    if (item.releaseDate != null) formatCompactDate(item.releaseDate!),
     if (item.publisher != null && item.publisher!.isNotEmpty) item.publisher,
     if (item.barcode != null && item.barcode!.isNotEmpty) item.barcode,
   ].whereType<String>().toList(growable: false);
@@ -677,7 +694,7 @@ List<String> _addResultBadges(CatalogItem item) {
 
 String _addResultTrailing(CatalogItem item) {
   if (item.releaseDate != null) {
-    return _formatDate(item.releaseDate!);
+    return formatCompactDate(item.releaseDate!);
   }
   if (item.releaseYear != null) {
     return item.releaseYear!.toString();
@@ -744,7 +761,8 @@ int _compareNullableStrings(String? left, String? right) {
   return leftValue.compareTo(rightValue);
 }
 
-String _normalizedCoreKey(String title) {
+/// Normalizes a title into a stable collapse key segment.
+String normalizedCoreKey(String title) {
   final normalized = title
       .trim()
       .toLowerCase()
@@ -753,7 +771,4 @@ String _normalizedCoreKey(String title) {
   return normalized.isEmpty ? 'unknown' : normalized;
 }
 
-String _formatDate(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-}
+

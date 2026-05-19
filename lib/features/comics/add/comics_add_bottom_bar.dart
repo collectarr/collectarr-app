@@ -1,16 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-class AddComicBottomBar extends StatelessWidget {
-  const AddComicBottomBar({
+class ComicsAddBottomBar extends StatelessWidget {
+  const ComicsAddBottomBar({
     super.key,
     required this.selectedItem,
     required this.selectedCandidate,
@@ -126,13 +125,6 @@ class AddComicBottomBar extends StatelessWidget {
   }
 }
 
-const double _kCompactControlHeight = 30;
-const double _kCompactMenuItemHeight = 30;
-const Color _kCompactMenuBackground = Color(0xFF183246);
-const Color _kCompactMenuText = Color(0xFFBFEFFF);
-final TextInputFormatter _noNewlineFormatter =
-    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]'));
-
 class _AddTargetDefaultsBar extends StatelessWidget {
   const _AddTargetDefaultsBar({
     required this.addTarget,
@@ -178,28 +170,31 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             'Owned defaults',
             style: TextStyle(fontWeight: FontWeight.w800),
           ),
-          _SmallDropdown(
+          CompactDropdownWithNone(
             width: 118,
             value: condition,
-            items: ComicInspector.conditions,
+            items: comicsLibraryConfig.conditions,
             label: 'Condition',
+            accent: kClzAccent,
             onChanged: onConditionChanged,
           ),
-          _SmallDropdown(
+          CompactDropdownWithNone(
             width: 104,
             value: grade,
-            items: ComicInspector.grades,
+            items: comicsLibraryConfig.grades,
             label: 'Grade',
+            accent: kClzAccent,
             onChanged: onGradeChanged,
           ),
           SizedBox(
             width: 132,
-            height: _kCompactControlHeight,
-            child: _CompactInputShell(
+            height: kCompactControlHeight,
+            child: CompactInputShell(
+              accent: kClzAccent,
               child: TextField(
                 controller: storageBoxController,
                 keyboardType: TextInputType.text,
-                inputFormatters: [_noNewlineFormatter],
+                inputFormatters: [noNewlineFormatter],
                 expands: true,
                 minLines: null,
                 maxLines: null,
@@ -212,7 +207,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
                   forceStrutHeight: true,
                 ),
                 style: const TextStyle(
-                  color: Color(0xFFBFEFFF),
+                  color: kCompactMenuText,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   height: 1,
@@ -230,10 +225,11 @@ class _AddTargetDefaultsBar extends StatelessWidget {
               ),
             ),
           ),
-          _CompactDateButton(
+          CompactDateButton(
             label: purchaseDate == null
                 ? 'Purchase date'
-                : _formatDate(purchaseDate!),
+                : formatCompactDate(purchaseDate!),
+            accent: kClzAccent,
             onPressed: () async {
               final picked = await showDatePicker(
                 context: context,
@@ -274,7 +270,7 @@ class _TargetMenu extends StatelessWidget {
       enabled: enabled,
       tooltip: 'Add target',
       position: PopupMenuPosition.under,
-      color: _kCompactMenuBackground,
+      color: kCompactMenuBackground,
       elevation: 10,
       constraints: const BoxConstraints(minWidth: 158, maxWidth: 210),
       shape: RoundedRectangleBorder(
@@ -283,259 +279,25 @@ class _TargetMenu extends StatelessWidget {
       ),
       onSelected: onChanged,
       itemBuilder: (context) => [
-        _compactPopupMenuItem(
+        compactPopupMenuItem(
           value: LibraryAddTarget.owned,
           label: LibraryAddTarget.owned.actionLabel,
           selected: value == LibraryAddTarget.owned,
+          accent: kClzAccent,
         ),
-        _compactPopupMenuItem(
+        compactPopupMenuItem(
           value: LibraryAddTarget.wishlist,
           label: LibraryAddTarget.wishlist.actionLabel,
           selected: value == LibraryAddTarget.wishlist,
+          accent: kClzAccent,
         ),
       ],
-      child: _CompactMenuButton(
+      child: CompactMenuButton(
         width: 158,
         label: value.actionLabel,
+        accent: kClzAccent,
         enabled: enabled,
       ),
     );
   }
-}
-
-class _SmallDropdown extends StatelessWidget {
-  const _SmallDropdown({
-    required this.width,
-    required this.value,
-    required this.items,
-    required this.label,
-    required this.onChanged,
-  });
-
-  final double width;
-  final String? value;
-  final List<String> items;
-  final String label;
-  final ValueChanged<String?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final selectedValue = items.contains(value) ? value : null;
-    return PopupMenuButton<String?>(
-      initialValue: selectedValue,
-      tooltip: label,
-      position: PopupMenuPosition.under,
-      color: _kCompactMenuBackground,
-      elevation: 10,
-      constraints: BoxConstraints(minWidth: width, maxWidth: 220),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(3),
-        side: BorderSide(color: kClzAccent.withValues(alpha: 0.74)),
-      ),
-      onSelected: onChanged,
-      itemBuilder: (context) => [
-        _compactPopupMenuItem<String?>(
-          value: null,
-          label: '$label: none',
-          selected: selectedValue == null,
-        ),
-        for (final item in items)
-          _compactPopupMenuItem<String?>(
-            value: item,
-            label: item,
-            selected: item == selectedValue,
-          ),
-      ],
-      child: _CompactMenuButton(
-        width: width,
-        label: selectedValue ?? label,
-      ),
-    );
-  }
-}
-
-PopupMenuItem<T> _compactPopupMenuItem<T>({
-  required T value,
-  required String label,
-  required bool selected,
-}) {
-  return PopupMenuItem<T>(
-    value: value,
-    height: _kCompactMenuItemHeight,
-    padding: EdgeInsets.zero,
-    child: _CompactPopupMenuRow(label: label, selected: selected),
-  );
-}
-
-class _CompactPopupMenuRow extends StatelessWidget {
-  const _CompactPopupMenuRow({
-    required this.label,
-    required this.selected,
-  });
-
-  final String label;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: _kCompactMenuItemHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color:
-            selected ? kClzAccent.withValues(alpha: 0.26) : Colors.transparent,
-        border: selected
-            ? Border(left: BorderSide(color: kClzAccent, width: 3))
-            : null,
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 18,
-            child: selected
-                ? const Icon(Icons.check, color: _kCompactMenuText, size: 15)
-                : null,
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: _kCompactMenuText,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CompactInputShell extends StatelessWidget {
-  const _CompactInputShell({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: _kCompactControlHeight,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: _kCompactMenuBackground,
-        border: Border.all(color: kClzAccent.withValues(alpha: 0.82)),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: child,
-    );
-  }
-}
-
-class _CompactDateButton extends StatelessWidget {
-  const _CompactDateButton({
-    required this.label,
-    required this.onPressed,
-  });
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(3),
-      child: _CompactMenuFrame(
-        width: 150,
-        label: label,
-        leading: Icons.calendar_today,
-      ),
-    );
-  }
-}
-
-class _CompactMenuButton extends StatelessWidget {
-  const _CompactMenuButton({
-    required this.width,
-    required this.label,
-    this.enabled = true,
-  });
-
-  final double width;
-  final String label;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = enabled ? _kCompactMenuText : const Color(0xFF7B8790);
-    return Opacity(
-      opacity: enabled ? 1 : 0.62,
-      child: _CompactMenuFrame(
-        width: width,
-        label: label,
-        enabledColor: color,
-        trailing: Icons.arrow_drop_down,
-      ),
-    );
-  }
-}
-
-class _CompactMenuFrame extends StatelessWidget {
-  const _CompactMenuFrame({
-    required this.width,
-    required this.label,
-    this.enabledColor = const Color(0xFFBFEFFF),
-    this.leading,
-    this.trailing,
-  });
-
-  final double width;
-  final String label;
-  final Color enabledColor;
-  final IconData? leading;
-  final IconData? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: _kCompactControlHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 9),
-      decoration: BoxDecoration(
-        color: _kCompactMenuBackground,
-        border: Border.all(color: kClzAccent.withValues(alpha: 0.82)),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Row(
-        children: [
-          if (leading != null) ...[
-            Icon(leading, color: enabledColor, size: 15),
-            const SizedBox(width: 6),
-          ],
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: enabledColor,
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          if (trailing != null) Icon(trailing, color: enabledColor, size: 18),
-        ],
-      ),
-    );
-  }
-}
-
-String _formatDate(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
 }

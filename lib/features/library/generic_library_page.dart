@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic_library_body.dart';
@@ -24,7 +24,6 @@ import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
-import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -154,6 +153,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                     ? () => _pickRandomItem(projection)
                     : null,
                 counts: projection?.counts ?? const GenericToolbarCounts(),
+                shelfState: shelfState,
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
                 selectionCallbacks: (
@@ -421,13 +421,13 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         quantity: personal.quantity,
         storageBox: personal.storageBox,
         indexNumber: owned.indexNumber,
-        coverPriceCents: owned.coverPriceCents,
-        rawOrSlabbed: owned.rawOrSlabbed,
-        gradingCompany: owned.gradingCompany,
-        graderNotes: owned.graderNotes,
-        signedBy: owned.signedBy,
-        keyComic: owned.keyComic,
-        keyReason: owned.keyReason,
+        coverPriceCents: personal.coverPriceCents ?? owned.coverPriceCents,
+        rawOrSlabbed: personal.rawOrSlabbed ?? owned.rawOrSlabbed,
+        gradingCompany: personal.gradingCompany ?? owned.gradingCompany,
+        graderNotes: personal.graderNotes ?? owned.graderNotes,
+        signedBy: personal.signedBy ?? owned.signedBy,
+        keyComic: personal.keyComic ?? owned.keyComic,
+        keyReason: personal.keyReason ?? owned.keyReason,
         rating: personal.rating,
         readStatus: personal.readStatus,
         startedAt: personal.startedAt,
@@ -560,7 +560,11 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       _selection.itemIds,
     );
     final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
-    await actions.moveSelectedToOwned(entries);
+    await actions.moveSelectedToOwned(
+      entries,
+      defaultCondition: widget.type.defaultCondition,
+      defaultGrade: widget.type.defaultGrade,
+    );
     setState(() => _selection = _selection.clear());
     ref.invalidate(shelfProvider);
   }
@@ -583,6 +587,26 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       projection.filteredItems,
       _selection.itemIds,
     );
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove selected items?'),
+        content: Text(
+          'This removes ${entries.length} selected item${entries.length == 1 ? '' : 's'} from the local shelf and queues the change for sync.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
     await actions.removeSelected(entries);
     setState(() => _selection = _selection.clear());

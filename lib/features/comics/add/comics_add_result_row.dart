@@ -2,8 +2,8 @@ import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:flutter/material.dart';
 
-class AddResultRow extends StatefulWidget {
-  const AddResultRow({
+class ComicsAddResultRow extends StatefulWidget {
+  const ComicsAddResultRow({
     super.key,
     required this.selected,
     required this.checked,
@@ -29,14 +29,14 @@ class AddResultRow extends StatefulWidget {
   final VoidCallback? onToggleCheck;
 
   @override
-  State<AddResultRow> createState() => _AddResultRowState();
+  State<ComicsAddResultRow> createState() => _AddResultRowState();
 }
 
-class _AddResultRowState extends State<AddResultRow> {
+class _AddResultRowState extends State<ComicsAddResultRow> {
   var _flashSelection = false;
 
   @override
-  void didUpdateWidget(covariant AddResultRow oldWidget) {
+  void didUpdateWidget(covariant ComicsAddResultRow oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!oldWidget.selected && widget.selected) {
       setState(() => _flashSelection = true);

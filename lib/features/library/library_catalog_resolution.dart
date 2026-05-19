@@ -31,6 +31,8 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
       metadataProviders:
           resolvedProviders.isEmpty ? metadataProviders : resolvedProviders,
       trackingProfile: trackingProfile,
+      conditions: conditions,
+      grades: grades,
     );
   }
 }

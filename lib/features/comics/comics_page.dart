@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/comics/comics_barcode_add_workflow.dart';
-import 'package:collectarr_app/features/comics/comics_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_filter_store.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
@@ -23,6 +22,7 @@ import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
+import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -209,8 +209,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   }
 
   Future<void> _showAddComicDialog(BuildContext context) async {
-    await showAddComicsDialog(context);
-    if (mounted) {
+    final added = await showAddComicsDialog(context);
+    if (added == true && mounted) {
       ref.invalidate(shelfProvider);
     }
   }
@@ -294,8 +294,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     }
   }
 
-  ComicsBulkActions _bulkActions() {
-    return ComicsBulkActions(ref.read(collectionMutationsProvider));
+  LibraryBulkActions _bulkActions() {
+    return LibraryBulkActions(ref.read(collectionMutationsProvider));
   }
 
   void _handleSortChanged(LibrarySortColumn column) {

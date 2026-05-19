@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:flutter/material.dart';
 
@@ -65,6 +65,10 @@ class GenericLibraryEmptyState extends StatelessWidget {
               else
                 FilledButton.icon(
                   onPressed: onAdd,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: Colors.white,
+                  ),
                   icon: const Icon(Icons.add),
                   label: const Text('Add from Collectarr Core'),
                 ),

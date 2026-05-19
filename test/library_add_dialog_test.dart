@@ -65,8 +65,11 @@ void main() {
       (tester) async {
     // Build a mock JWT with far-future expiry so AuthController restores
     // an admin session from SharedPreferences.
-    final futureExp =
-        DateTime.now().toUtc().add(const Duration(days: 365)).millisecondsSinceEpoch ~/ 1000;
+    final futureExp = DateTime.now()
+            .toUtc()
+            .add(const Duration(days: 365))
+            .millisecondsSinceEpoch ~/
+        1000;
     final payload = base64Url.encode(
       utf8.encode(jsonEncode({'exp': futureExp})),
     );
@@ -105,10 +108,10 @@ void main() {
       find.byKey(const ValueKey('library-add-query-field')),
       'Naruto',
     );
-    await tester.tap(find.text('Search Series'));
+    await tester.tap(find.text('Search Manga'));
     await tester.pumpAndSettle();
 
-    expect(api.lastProvider, isNull);
+    expect(api.lastProvider, 'mangadex');
     expect(api.lastProviderKind, 'manga');
     expect(api.lastProviderQuery, 'Naruto');
     expect(find.textContaining('A ninja candidate.'), findsWidgets);
@@ -119,8 +122,8 @@ void main() {
     await tester.tap(find.byTooltip('Queue Core ingest'));
     await tester.pumpAndSettle();
 
-    expect(api.lastIngestProvider, 'anilist');
-    expect(api.lastIngestProviderItemId, 'anilist-1');
+    expect(api.lastIngestProvider, 'mangadex');
+    expect(api.lastIngestProviderItemId, 'mangadex-1');
     expect(find.textContaining('Queued'), findsWidgets);
     expect(find.text('Search Core again'), findsOneWidget);
     expect(find.textContaining('job-1'), findsWidgets);
@@ -130,8 +133,8 @@ void main() {
     await tester.tap(find.byTooltip('Propose metadata to Core'));
     await tester.pumpAndSettle();
 
-    expect(api.lastProposalProvider, 'anilist');
-    expect(api.lastProposalProviderItemId, 'anilist-1');
+    expect(api.lastProposalProvider, 'mangadex');
+    expect(api.lastProposalProviderItemId, 'mangadex-1');
     expect(api.lastProposalTitle, 'Naruto Vol. 1');
   });
 
@@ -215,7 +218,7 @@ void main() {
 
     expect(api.lastLookupBarcode, '9780140328721');
     expect(api.lastLookupKind, 'book');
-    expect(api.lastProvider, isNull);
+    expect(api.lastProvider, 'openlibrary');
     expect(api.lastProviderKind, 'book');
     expect(api.lastProviderQuery, '9780140328721');
     expect(find.textContaining('openlibrary-1'), findsWidgets);
@@ -264,7 +267,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
     final resolvedProvider = provider ??
         switch (kind) {
           'book' => 'openlibrary',
-          'manga' => 'anilist',
+          'manga' => 'mangadex',
           _ => 'auto',
         };
     lastProvider = provider;
@@ -274,7 +277,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
       {
         'provider': resolvedProvider,
         'provider_item_id': '$resolvedProvider-1',
-        'title': resolvedProvider == 'anilist'
+        'title': resolvedProvider == 'anilist' || resolvedProvider == 'mangadex'
             ? 'Naruto Vol. 1'
             : 'Provider result $query',
         'kind': kind ?? 'manga',

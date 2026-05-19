@@ -30,6 +30,8 @@ class MediaLibraryNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accent = libraryAccentForKind(selected.kind);
+    final selectedIcon = registry.byKind(selected.kind)?.workspace.icon ??
+        libraryIconForKind(selected.kind);
     return AnimatedContainer(
       duration: animationDuration,
       curve: Curves.easeOutCubic,
@@ -54,7 +56,7 @@ class MediaLibraryNav extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(width: 10),
-                const Icon(Icons.cloud_queue, size: 20, color: Colors.white),
+                Icon(selectedIcon, size: 20, color: Colors.white),
                 const SizedBox(width: 7),
                 Expanded(
                   child: Text(
@@ -138,9 +140,7 @@ class MediaLibraryTitleBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
-          const Icon(Icons.cloud_queue, size: 20, color: Colors.white),
-          const SizedBox(width: 8),
-          Icon(icon, size: 18, color: Colors.white),
+          Icon(icon, size: 20, color: Colors.white),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

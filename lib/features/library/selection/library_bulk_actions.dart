@@ -44,15 +44,24 @@ class LibraryBulkActions {
     }
   }
 
-  Future<void> moveSelectedToOwned(List<ShelfEntry> entries) async {
+  Future<void> moveSelectedToOwned(
+    List<ShelfEntry> entries, {
+    String? defaultCondition,
+    String? defaultGrade,
+  }) async {
     final entriesToOwn = [
       for (final entry in entries)
         if (entry.ownedItem == null) entry,
     ];
+    final lastWishlistedIndex =
+        entriesToOwn.lastIndexWhere((entry) => entry.isWishlisted);
     for (var index = 0; index < entriesToOwn.length; index++) {
       await mutations.addItem(
         entriesToOwn[index].itemId,
-        notify: index == entriesToOwn.length - 1,
+        condition: defaultCondition,
+        grade: defaultGrade,
+        notify:
+            index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
       );
     }
   }

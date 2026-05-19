@@ -67,17 +67,19 @@
 ## 🔜 Next Up
 
 ### 🎯 Comics MVP Polish
-- [ ] Semantic Add Series vs Add Issue: series tree for full runs vs flat issue list
-- [ ] Issue/variant tree density improvements + whole-series and multi-issue selection
-- [ ] Real cover behavior for GCD + ComicVine variant enrichment
-- [ ] Generated fallback covers only when no usable cover exists
+- [x] Semantic Add Series vs Add Issue: browse-series callback navigates from series to issue mode
+- [x] Issue/variant tree density improvements + whole-series and multi-issue selection
+- [x] Real cover behavior for GCD + ComicVine variant enrichment
+- [x] Generated fallback covers only when no usable cover exists
+- [x] Music physical media formats (Vinyl, CD, Cassette, Digital)
 
 ### 📚 Media-Specific Forms
-- [ ] Books: ISBN/barcode fields, reading progress, edition data
-- [ ] Games: platform/edition/condition, region variants
-- [ ] Movies/TV: physical format (DVD/Blu-ray/4K), season/episode UI
-- [ ] Music: format (CD/vinyl/cassette), track listing display
-- [ ] Manga/Anime: publisher, volume/chapter UI polish, season tracking
+- [x] Books: physical formats (Hardcover/Paperback/Mass Market/eBook/Audiobook), reading tracking profile
+- [x] Games: physical formats (Disc/Cartridge/Digital/Collector's Ed), game tracking profile
+- [x] Movies/TV: physical format (DVD/Blu-ray/4K), season/episode UI
+- [x] Music: format (CD/vinyl/cassette), listening tracking profile
+- [x] Comics/Manga: physical formats, grading section (Raw/Slabbed, grading co., signed by, key comic, cover price)
+- [x] Inspector: kind-specific grading details for comics/manga
 
 ### 🖥️ Platform Smoke Tests
 - [ ] Web: sqlite3 WASM load, Core connection, Add dialog, import/export, covers
@@ -85,10 +87,10 @@
 - [ ] Android: camera scanner, manual fallback, connection presets, narrow layout
 
 ### 🧩 Post-MVP
-- [ ] QR scanning for pairing (not just QR rendering)
-- [ ] ComicInfo.xml/CBZ import/export
-- [ ] Local image bytes for fully offline cover storage
-- [ ] Rich per-media dashboards and collection analytics
+- [x] QR scanning for pairing (not just QR rendering)
+- [x] ComicInfo.xml export (CBZ dropped — not useful for a collection tracker)
+- [x] Local image bytes for fully offline cover storage
+- [x] Rich per-media dashboards and collection analytics
 - [ ] Packaged release installers + app store preparation
 - [ ] Location tracking (which shelf/box)
 - [ ] Collection value totals

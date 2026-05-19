@@ -10,6 +10,7 @@ import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -352,6 +353,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           onPressed: () => _showPairingQrDialog(context),
                           icon: const Icon(Icons.qr_code_2_outlined),
                           label: const Text('Show pairing QR'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => _scanPairingQr(context),
+                          icon: const Icon(Icons.qr_code_scanner),
+                          label: const Text('Scan pairing QR'),
                         ),
                         OutlinedButton.icon(
                           onPressed: () => _showPairingCodeDialog(context),
@@ -704,6 +710,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (context) => _PairingQrDialog(code: code),
     );
+  }
+
+  Future<void> _scanPairingQr(BuildContext context) async {
+    final scanned = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => const BarcodeScanSheet(
+        title: 'Scan pairing QR',
+        description: 'Point the camera at a Collectarr pairing QR code, '
+            'or paste the pairing code below.',
+        manualLabel: 'Pairing code',
+        submitLabel: 'Apply code',
+        leadingIcon: Icons.qr_code_scanner,
+      ),
+    );
+    if (scanned == null || scanned.isEmpty || !mounted) {
+      return;
+    }
+    await _applyPairingCode(scanned);
   }
 
   Future<void> _applyPairingCode(String code) async {

@@ -25,9 +25,10 @@ final mediaCatalogProvider =
   try {
     final catalog = await api.metadataMediaTypes();
     if (catalog.isNotEmpty) {
+      final normalizedCatalog = _normalizeCatalogMediaTypes(catalog);
       _cachedMediaCatalogBaseUrl = api.baseUrl;
-      _cachedMediaCatalog = catalog;
-      return catalog;
+      _cachedMediaCatalog = normalizedCatalog;
+      return normalizedCatalog;
     }
   } catch (_) {
     // Keep the app usable when Core is offline; callers can invalidate to retry.
@@ -68,19 +69,55 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
   String kind,
 ) {
-  final mediaFamily = kind == 'music' ? 'audio' : 'video';
-  final formats =
-      physicalMediaFormatsFromCatalog(catalog, kind: kind, mediaFamily: mediaFamily);
+  final mediaFamily = switch (kind) {
+    'music' => 'audio',
+    'book' || 'manga' || 'comic' => 'print',
+    'game' || 'boardgame' => 'game',
+    _ => 'video',
+  };
+  final formats = physicalMediaFormatsFromCatalog(catalog,
+      kind: kind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
-  if (kind == 'movie' || kind == 'tv' || kind == 'bluray') {
-    return videoPhysicalMediaFormats;
+  return switch (kind) {
+    'movie' || 'tv' || 'bluray' || 'anime' => videoPhysicalMediaFormats,
+    'music' => musicPhysicalMediaFormats,
+    'book' || 'manga' => bookPhysicalMediaFormats,
+    'comic' => comicPhysicalMediaFormats,
+    'game' || 'boardgame' => gamePhysicalMediaFormats,
+    _ => const [],
+  };
+}
+
+List<CatalogMediaType> _normalizeCatalogMediaTypes(
+  List<CatalogMediaType> catalog,
+) {
+  return [
+    for (final type in catalog) _normalizeCatalogMediaType(type),
+  ];
+}
+
+CatalogMediaType _normalizeCatalogMediaType(CatalogMediaType type) {
+  if (type.kind != 'music') {
+    return type;
   }
-  if (kind == 'music') {
-    return musicPhysicalMediaFormats;
+  const label = 'Music';
+  if (type.singularLabel == label && type.pluralLabel == label) {
+    return type;
   }
-  return const [];
+  return CatalogMediaType(
+    kind: type.kind,
+    singularLabel: label,
+    pluralLabel: label,
+    routeSegments: type.routeSegments,
+    defaultProvider: type.defaultProvider,
+    providers: type.providers,
+    providerSearchPolicy: type.providerSearchPolicy,
+    isTopLevel: type.isTopLevel,
+    legacyOf: type.legacyOf,
+    physicalFormats: type.physicalFormats,
+  );
 }
 
 const fallbackMediaCatalog = <CatalogMediaType>[
@@ -97,8 +134,8 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     singularLabel: 'Manga',
     pluralLabel: 'Manga',
     routeSegments: ['manga'],
-    defaultProvider: 'anilist',
-    providers: ['anilist', 'comicvine'],
+    defaultProvider: 'mangadex',
+    providers: ['mangadex', 'anilist', 'comicvine'],
   ),
   CatalogMediaType(
     kind: 'anime',
@@ -152,8 +189,8 @@ const fallbackMediaCatalog = <CatalogMediaType>[
   ),
   CatalogMediaType(
     kind: 'music',
-    singularLabel: 'Music Release',
-    pluralLabel: 'Music Releases',
+    singularLabel: 'Music',
+    pluralLabel: 'Music',
     routeSegments: ['music'],
     defaultProvider: 'musicbrainz',
     providers: ['musicbrainz'],

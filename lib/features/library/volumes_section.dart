@@ -7,18 +7,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class VolumesSection extends ConsumerWidget {
   const VolumesSection({
     super.key,
-    required this.provider,
-    required this.providerItemId,
-  });
+    this.provider,
+    this.providerItemId,
+    this.itemId,
+  })  : assert(
+          itemId != null || (provider != null && providerItemId != null),
+          'Provide itemId or provider + providerItemId.',
+        ),
+        assert(
+          itemId == null || (provider == null && providerItemId == null),
+          'Use either itemId or provider + providerItemId.',
+        );
 
-  final String provider;
-  final String providerItemId;
+  final String? provider;
+  final String? providerItemId;
+  final String? itemId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final volumesAsync = ref.watch(
-      volumesProvider((provider: provider, providerItemId: providerItemId)),
-    );
+    final volumesAsync = itemId != null
+        ? ref.watch(itemVolumesProvider(itemId!))
+        : ref.watch(
+            volumesProvider(
+              (provider: provider!, providerItemId: providerItemId!),
+            ),
+          );
 
     return volumesAsync.when(
       loading: () => const SizedBox.shrink(),

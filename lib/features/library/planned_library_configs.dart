@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/collection_defaults.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -29,18 +30,20 @@ const mangaLibraryConfig = LibraryTypeConfig(
   workspace: mangaWorkspaceConfig,
   singularLabel: 'Manga',
   pluralLabel: 'Manga',
-  defaultMetadataProvider: 'anilist',
+  defaultMetadataProvider: 'mangadex',
   metadataProviders: [
+    mangadexMetadataProvider,
     anilistMetadataProvider,
     comicVineMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
+  conditions: kComicConditions,
 );
 
 const animeWorkspaceConfig = LibraryWorkspaceConfig(
   kind: 'anime',
   title: 'Anime',
-  icon: Icons.smart_display,
+  icon: Icons.movie_filter_outlined,
   preferencePrefix: 'anime',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
@@ -99,6 +102,7 @@ const booksLibraryConfig = LibraryTypeConfig(
     openLibraryMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
+  conditions: kBookConditions,
 );
 
 const gamesWorkspaceConfig = LibraryWorkspaceConfig(
@@ -200,7 +204,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
 const musicWorkspaceConfig = LibraryWorkspaceConfig(
   kind: 'music',
   title: 'Music',
-  icon: Icons.album_outlined,
+  icon: Icons.music_note,
   preferencePrefix: 'music',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
@@ -220,8 +224,8 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
 
 const musicLibraryConfig = LibraryTypeConfig(
   workspace: musicWorkspaceConfig,
-  singularLabel: 'Music Release',
-  pluralLabel: 'Music Releases',
+  singularLabel: 'Music',
+  pluralLabel: 'Music',
   defaultMetadataProvider: 'musicbrainz',
   metadataProviders: [
     musicBrainzMetadataProvider,

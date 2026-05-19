@@ -15,14 +15,22 @@ Future<String?> showComicsBarcodeScanSheet(BuildContext context) {
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (context) => const BarcodeScanSheet(),
+    builder: (context) => BarcodeScanSheet(
+      title: 'Scan ${comicsLibraryConfig.singularLabel.toLowerCase()} barcode',
+      description:
+          'Scan or enter a barcode or UPC. Collectarr will look up the comic and add it to your collection.',
+      manualLabel:
+          '${comicsLibraryConfig.singularLabel} barcode / UPC',
+      submitLabel: 'Look up barcode',
+      leadingIcon: comicsWorkspaceConfig.icon,
+    ),
   );
 }
 
-Future<void> showAddComicsDialog(BuildContext context) {
-  return showDialog<void>(
+Future<bool?> showAddComicsDialog(BuildContext context) {
+  return showDialog<bool>(
     context: context,
-    builder: (context) => const AddComicDialog(),
+    builder: (context) => const ComicsAddDialog(),
   );
 }
 

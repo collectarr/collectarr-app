@@ -51,13 +51,60 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
   @override
   Widget build(BuildContext context) {
     final trackingOptions = widget.type.trackingProfile.options;
+    final conditions = widget.type.conditions;
+    final grades = widget.type.grades;
     return AlertDialog(
       title: Text('Bulk edit (${widget.selectedCount} items)'),
       content: SizedBox(
         width: 460,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+            if (conditions.isNotEmpty) ...[
+              DropdownButtonFormField<String>(
+                initialValue: _condition,
+                decoration: const InputDecoration(
+                  labelText: 'Condition',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  const DropdownMenuItem(
+                      value: '', child: Text('Keep current')),
+                  for (final option in conditions)
+                    DropdownMenuItem(value: option, child: Text(option)),
+                ],
+                onChanged: (value) {
+                  setState(
+                    () => _condition =
+                        value == null || value.isEmpty ? null : value,
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (grades.isNotEmpty) ...[
+              DropdownButtonFormField<String>(
+                initialValue: _grade,
+                decoration: const InputDecoration(
+                  labelText: 'Grade',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  const DropdownMenuItem(
+                      value: '', child: Text('Keep current')),
+                  for (final option in grades)
+                    DropdownMenuItem(value: option, child: Text(option)),
+                ],
+                onChanged: (value) {
+                  setState(
+                    () =>
+                        _grade = value == null || value.isEmpty ? null : value,
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
             TextField(
               controller: _storageBoxController,
               decoration: const InputDecoration(
@@ -77,7 +124,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _readStatus,
+              initialValue: _readStatus,
               decoration: const InputDecoration(
                 labelText: 'Tracking status',
                 border: OutlineInputBorder(),
@@ -97,7 +144,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
-              value: _rating,
+              initialValue: _rating,
               decoration: const InputDecoration(
                 labelText: 'Rating',
                 border: OutlineInputBorder(),
@@ -117,6 +164,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
               },
             ),
           ],
+        ),
         ),
       ),
       actions: [

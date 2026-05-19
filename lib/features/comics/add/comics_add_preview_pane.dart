@@ -2,12 +2,13 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_images.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
+import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AddComicPreviewPane extends ConsumerWidget {
-  const AddComicPreviewPane({
+class ComicsAddPreviewPane extends ConsumerWidget {
+  const ComicsAddPreviewPane({
     super.key,
     required this.item,
     required this.candidate,
@@ -190,7 +191,7 @@ class AddComicPreviewPane extends ConsumerWidget {
                             ? ProviderCandidateImage(
                                 candidate: selectedCandidate!,
                               )
-                            : AddComicCoverImage(item: selectedItem),
+                            : ComicsAddCoverImage(item: selectedItem),
                       ),
                     ),
                   ),
@@ -388,7 +389,7 @@ class _AddPreviewDescription extends StatelessWidget {
   }
 
   String? _formatOptionalDate(DateTime? value) {
-    return value == null ? null : _formatDate(value);
+    return value == null ? null : formatCompactDate(value);
   }
 
   String? _moneyLabel(int? cents, String? currency) {
@@ -546,7 +547,4 @@ class _AddPreviewChips extends StatelessWidget {
   }
 }
 
-String _formatDate(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-}
+

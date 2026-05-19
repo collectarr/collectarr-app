@@ -80,6 +80,15 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
   DateTime? _startedAt;
   DateTime? _finishedAt;
 
+  // Comics-specific grading fields
+  late final TextEditingController _rawOrSlabbedController;
+  late final TextEditingController _gradingCompanyController;
+  late final TextEditingController _graderNotesController;
+  late final TextEditingController _signedByController;
+  late final TextEditingController _coverPriceController;
+  bool _keyComic = false;
+  late final TextEditingController _keyReasonController;
+
   String? _physicalFormatId;
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
@@ -88,6 +97,11 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
   static const _catalogOnlyTabCount = 3;
 
   bool get _isOwned => widget.ownedItem != null;
+
+  bool get _isComicKind {
+    final kind = widget.type.workspace.kind;
+    return kind == 'comic' || kind == 'manga';
+  }
 
   @override
   void initState() {
@@ -151,6 +165,21 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
     _startedAt = owned?.startedAt;
     _finishedAt = owned?.finishedAt;
 
+    _rawOrSlabbedController =
+        TextEditingController(text: owned?.rawOrSlabbed ?? '');
+    _gradingCompanyController =
+        TextEditingController(text: owned?.gradingCompany ?? '');
+    _graderNotesController =
+        TextEditingController(text: owned?.graderNotes ?? '');
+    _signedByController = TextEditingController(text: owned?.signedBy ?? '');
+    _coverPriceController = TextEditingController(
+      text: owned?.coverPriceCents == null
+          ? ''
+          : (owned!.coverPriceCents! / 100).toStringAsFixed(2),
+    );
+    _keyComic = owned?.keyComic ?? false;
+    _keyReasonController = TextEditingController(text: owned?.keyReason ?? '');
+
     _physicalFormatId = _initialPhysicalFormatId(item);
 
     _customFieldEdits = {
@@ -185,6 +214,12 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
     _tagsController.dispose();
     _sellPriceController.dispose();
     _soldToController.dispose();
+    _rawOrSlabbedController.dispose();
+    _gradingCompanyController.dispose();
+    _graderNotesController.dispose();
+    _signedByController.dispose();
+    _coverPriceController.dispose();
+    _keyReasonController.dispose();
     super.dispose();
   }
 
@@ -512,6 +547,55 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
               ),
             ]),
           ),
+        if (_isOwned && _isComicKind) ...[
+          EditSection(
+            title: 'Grading details',
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _responsiveFields([
+                  _field(
+                    controller: _rawOrSlabbedController,
+                    label: 'Raw / Slabbed',
+                  ),
+                  _field(
+                    controller: _gradingCompanyController,
+                    label: 'Grading company',
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                _field(
+                  controller: _graderNotesController,
+                  label: 'Grader notes',
+                ),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(controller: _signedByController, label: 'Signed by'),
+                  _field(
+                    controller: _coverPriceController,
+                    label: 'Cover price',
+                    validator: optionalMoneyValidator,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                SwitchListTile(
+                  value: _keyComic,
+                  onChanged: (value) => setState(() => _keyComic = value),
+                  title: const Text('Key comic'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                if (_keyComic) ...[
+                  const SizedBox(height: 6),
+                  _field(
+                    controller: _keyReasonController,
+                    label: 'Key reason (first appearance, etc.)',
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -950,6 +1034,13 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
               soldAt: _soldAt,
               sellPriceCents: parseMoneyCents(_sellPriceController.text),
               soldTo: emptyToNull(_soldToController.text),
+              rawOrSlabbed: emptyToNull(_rawOrSlabbedController.text),
+              gradingCompany: emptyToNull(_gradingCompanyController.text),
+              graderNotes: emptyToNull(_graderNotesController.text),
+              signedBy: emptyToNull(_signedByController.text),
+              keyComic: _keyComic,
+              keyReason: emptyToNull(_keyReasonController.text),
+              coverPriceCents: parseMoneyCents(_coverPriceController.text),
             ),
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
@@ -1014,6 +1105,13 @@ class GenericLibraryPersonalEditSelection {
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
+    this.rawOrSlabbed,
+    this.gradingCompany,
+    this.graderNotes,
+    this.signedBy,
+    this.keyComic,
+    this.keyReason,
+    this.coverPriceCents,
   });
 
   final String? condition;
@@ -1032,4 +1130,11 @@ class GenericLibraryPersonalEditSelection {
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final String? graderNotes;
+  final String? signedBy;
+  final bool? keyComic;
+  final String? keyReason;
+  final int? coverPriceCents;
 }

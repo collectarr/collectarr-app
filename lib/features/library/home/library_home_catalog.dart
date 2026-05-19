@@ -145,6 +145,7 @@ MediaTrackingProfile _trackingProfileForKind(String kind) {
     'anime' || 'movie' || 'tv' => videoTrackingProfile,
     'boardgame' || 'game' => gameTrackingProfile,
     'comic' => comicTrackingProfile,
+    'music' => listeningTrackingProfile,
     _ => readingTrackingProfile,
   };
 }

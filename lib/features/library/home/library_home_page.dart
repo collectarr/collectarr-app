@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_page.dart';
 import 'package:collectarr_app/features/library/generic_library_page.dart';
 import 'package:collectarr_app/features/library/home/library_home_catalog.dart';

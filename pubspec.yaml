@@ -22,6 +22,7 @@ dependencies:
   cached_network_image: ^3.4.1
   csv: ^8.0.0
   qr_flutter: ^4.1.0
+  xml: ^6.5.0
 
 dev_dependencies:
   flutter_test:

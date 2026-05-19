@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/generic_library_empty_state.dart';
+import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:flutter/material.dart';
 
 class ComicsEmptyState extends StatelessWidget {
@@ -14,55 +17,13 @@ class ComicsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 360),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.menu_book_outlined,
-                size: 48,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                hasActiveFilter
-                    ? 'No matching comics'
-                    : 'Your local comics shelf is empty',
-                textAlign: TextAlign.center,
-                style: textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                hasActiveFilter
-                    ? 'Clear filters to return to your local shelf.'
-                    : 'Search Core via GCD, Comic Vine, scan a barcode, or add a manual local item.',
-                textAlign: TextAlign.center,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (hasActiveFilter)
-                OutlinedButton.icon(
-                  onPressed: onClearFilter,
-                  icon: const Icon(Icons.filter_alt_off),
-                  label: const Text('Clear filter'),
-                )
-              else
-                FilledButton.icon(
-                  onPressed: onAddComic,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add from Collectarr Core'),
-                ),
-            ],
-          ),
-        ),
-      ),
+    return GenericLibraryEmptyState(
+      type: comicsLibraryConfig,
+      icon: comicsWorkspaceConfig.icon,
+      accent: libraryAccentForKind('comic'),
+      hasActiveFilter: hasActiveFilter,
+      onAdd: onAddComic,
+      onClearFilter: onClearFilter ?? () {},
     );
   }
 }

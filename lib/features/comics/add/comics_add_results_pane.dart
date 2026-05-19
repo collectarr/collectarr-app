@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 export 'package:collectarr_app/features/comics/add/comics_add_pull_list.dart'
     show PullListCandidate, pullListCandidates;
 
-class AddComicResultPane extends StatelessWidget {
-  const AddComicResultPane({
+class ComicsAddResultPane extends StatelessWidget {
+  const ComicsAddResultPane({
     super.key,
     required this.mode,
     required this.serverResults,
@@ -49,6 +49,8 @@ class AddComicResultPane extends StatelessWidget {
     required this.onSearchPullListRow,
     required this.onToggleProviderCandidatesCheck,
     this.onBrowseSeries,
+    this.onCollapseAll,
+    this.onExpandAll,
   });
 
   final LibraryAddMode mode;
@@ -86,6 +88,8 @@ class AddComicResultPane extends StatelessWidget {
   final ValueChanged<Iterable<ProviderCandidate>>
       onToggleProviderCandidatesCheck;
   final ValueChanged<String>? onBrowseSeries;
+  final VoidCallback? onCollapseAll;
+  final VoidCallback? onExpandAll;
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +178,7 @@ class AddComicResultPane extends StatelessWidget {
       );
     }
     if (serverResults.isNotEmpty) {
-      return AddCoreResults(
+      return ComicsAddCoreResults(
         serverResults: serverResults,
         ownedItemIds: ownedItemIds,
         wishlistItemIds: wishlistItemIds,
@@ -192,6 +196,8 @@ class AddComicResultPane extends StatelessWidget {
         onSelectServer: onSelectServer,
         onToggleServerCheck: onToggleServerCheck,
         onBrowseSeries: onBrowseSeries,
+        onCollapseAll: onCollapseAll,
+        onExpandAll: onExpandAll,
       );
     }
     if (visibleProviderResults.isNotEmpty) {
@@ -422,7 +428,7 @@ class _ProviderFlatIssueRow extends StatelessWidget {
       identity.issueLabel,
       if (identity.variantLabel != 'Standard cover') identity.variantLabel,
     ].join(' | ');
-    return AddResultRow(
+    return ComicsAddResultRow(
       key: ValueKey(
         'provider-flat-${candidate.provider}-${candidate.providerItemId}',
       ),
@@ -567,7 +573,7 @@ class _ProviderIssueRow extends StatelessWidget {
     ].join(' | ');
     return Padding(
       padding: const EdgeInsets.only(left: 18),
-      child: AddResultRow(
+      child: ComicsAddResultRow(
         key: ValueKey(
           'provider-row-${candidate.provider}-${candidate.providerItemId}',
         ),

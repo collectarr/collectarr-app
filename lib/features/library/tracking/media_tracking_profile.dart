@@ -195,3 +195,34 @@ const videoTrackingProfile = MediaTrackingProfile(
     ),
   ],
 );
+
+const listeningTrackingProfile = MediaTrackingProfile(
+  name: 'Listening',
+  options: [
+    MediaTrackingOption(
+      status: MediaTrackingStatus.none,
+      label: 'Not tracked',
+      storageValue: '',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.planned,
+      label: 'Want to listen',
+      storageValue: 'Want to listen',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.inProgress,
+      label: 'Listening',
+      storageValue: 'Listening',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.completed,
+      label: 'Listened',
+      storageValue: 'Listened',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.repeating,
+      label: 'On repeat',
+      storageValue: 'On repeat',
+    ),
+  ],
+);

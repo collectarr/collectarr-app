@@ -1,10 +1,11 @@
-import 'package:collectarr_app/features/comics/comics_bulk_edit.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('bulk edit dialog returns selected local fields', (tester) async {
-    ComicsBulkEditSelection? selection;
+    LibraryBulkEditSelection? selection;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -12,11 +13,11 @@ void main() {
           builder: (context) {
             return TextButton(
               onPressed: () async {
-                selection = await showDialog<ComicsBulkEditSelection>(
+                selection = await showDialog<LibraryBulkEditSelection>(
                   context: context,
-                  builder: (_) => const ComicsBulkEditDialog(
-                    conditions: ['Near Mint'],
-                    grades: ['9.8'],
+                  builder: (_) => const LibraryBulkEditDialog(
+                    type: comicsLibraryConfig,
+                    selectedCount: 3,
                   ),
                 );
               },

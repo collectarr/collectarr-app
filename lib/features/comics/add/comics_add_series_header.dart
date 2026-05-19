@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:flutter/material.dart';
 
-class AddSeriesHeader extends StatelessWidget {
-  const AddSeriesHeader({
+class ComicsAddSeriesHeader extends StatelessWidget {
+  const ComicsAddSeriesHeader({
     super.key,
     required this.title,
     required this.subtitle,

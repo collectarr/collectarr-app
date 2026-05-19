@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/comics/comics_duplicate_items.dart';
 import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_views.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
+import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/library_ctrl_scroll_zoom.dart';
 import 'package:flutter/material.dart';
@@ -124,6 +125,7 @@ class _CompactComicsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = libraryAccentForKind('comic');
     return LibraryCtrlScrollZoom(
       coverSize: coverSize,
       minCoverSize: kComicsMinCoverSize,
@@ -139,6 +141,10 @@ class _CompactComicsView extends StatelessWidget {
                   Tooltip(
                     message: 'Add comics',
                     child: IconButton.filled(
+                      style: IconButton.styleFrom(
+                        backgroundColor: accent,
+                        foregroundColor: Colors.white,
+                      ),
                       onPressed: onAddComic,
                       icon: const Icon(Icons.add),
                     ),

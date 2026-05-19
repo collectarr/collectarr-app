@@ -258,7 +258,7 @@ Widget _host({
       body: SizedBox(
         width: 360,
         height: 520,
-        child: AddComicResultPane(
+        child: ComicsAddResultPane(
           mode: mode,
           serverResults: const [],
           providerResults: providerResults,

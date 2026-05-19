@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_tools_menu.dart';
+import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,7 @@ class GenericCompactLibraryToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = libraryAccentForKind(type.workspace.kind);
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -49,6 +51,10 @@ class GenericCompactLibraryToolbar extends StatelessWidget {
           Tooltip(
             message: 'Add ${type.pluralLabel}',
             child: IconButton.filled(
+              style: IconButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: Colors.white,
+              ),
               onPressed: onAdd,
               icon: const Icon(Icons.add),
             ),
