@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
+import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
@@ -877,8 +878,6 @@ enum _LibraryAddDialogMode { search, barcode, manual }
 const double _kLibraryAddControlHeight = 34;
 const double _kLibraryAddModeControlHeight = 36;
 const BorderSide _kLibraryAddBorder = BorderSide(color: kClzDivider);
-final TextInputFormatter _noNewlineFormatter =
-    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]'));
 
 ButtonStyle _libraryAddFilledButtonStyle([Color accent = kClzAccent]) {
   return FilledButton.styleFrom(
@@ -1297,7 +1296,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
           key: fieldKey,
           controller: controller,
           keyboardType: keyboardType ?? TextInputType.text,
-          inputFormatters: [_noNewlineFormatter],
+          inputFormatters: [noNewlineFormatter],
           expands: true,
           minLines: null,
           maxLines: null,
@@ -2813,11 +2812,6 @@ class _LibraryAddBottomActionButton extends StatelessWidget {
   }
 }
 
-const double _kCompactControlHeight = 30;
-const double _kCompactMenuItemHeight = 30;
-const Color _kCompactMenuBackground = Color(0xFF183246);
-const Color _kCompactMenuText = Color(0xFFBFEFFF);
-
 class _AddTargetDefaultsBar extends StatelessWidget {
   const _AddTargetDefaultsBar({
     required this.accent,
@@ -2850,7 +2844,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
           'Owned defaults',
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        _CompactDropdown(
+        CompactDropdown(
           width: 118,
           value: condition,
           items: ComicInspector.conditions,
@@ -2860,7 +2854,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             if (v != null) onConditionChanged(v);
           },
         ),
-        _CompactDropdown(
+        CompactDropdown(
           width: 104,
           value: grade,
           items: ComicInspector.grades,
@@ -2872,18 +2866,13 @@ class _AddTargetDefaultsBar extends StatelessWidget {
         ),
         SizedBox(
           width: 132,
-          height: _kCompactControlHeight,
-          child: Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: _kCompactMenuBackground,
-              border: Border.all(color: accent.withValues(alpha: 0.82)),
-              borderRadius: BorderRadius.circular(3),
-            ),
+          height: kCompactControlHeight,
+          child: CompactInputShell(
+            accent: accent,
             child: TextField(
               controller: storageBoxController,
               keyboardType: TextInputType.text,
-              inputFormatters: [_noNewlineFormatter],
+              inputFormatters: [noNewlineFormatter],
               expands: true,
               minLines: null,
               maxLines: null,
@@ -2896,7 +2885,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
                 forceStrutHeight: true,
               ),
               style: const TextStyle(
-                color: _kCompactMenuText,
+                color: kCompactMenuText,
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
                 height: 1,
@@ -2914,8 +2903,12 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             ),
           ),
         ),
-        InkWell(
-          onTap: () async {
+        CompactDateButton(
+          label: purchaseDate == null
+              ? 'Purchase date'
+              : formatCompactDate(purchaseDate!),
+          accent: accent,
+          onPressed: () async {
             final picked = await showDatePicker(
               context: context,
               initialDate: purchaseDate ?? DateTime.now(),
@@ -2924,38 +2917,6 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             );
             onPurchaseDateChanged(picked);
           },
-          borderRadius: BorderRadius.circular(3),
-          child: Container(
-            width: 150,
-            height: _kCompactControlHeight,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: _kCompactMenuBackground,
-              border: Border.all(color: accent.withValues(alpha: 0.82)),
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.calendar_today, size: 14, color: _kCompactMenuText),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    purchaseDate == null
-                        ? 'Purchase date'
-                        : _formatDate(purchaseDate!),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      color: _kCompactMenuText,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
         if (purchaseDate != null)
           IconButton(
@@ -2964,117 +2925,6 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             icon: const Icon(Icons.clear, size: 18),
           ),
       ],
-    );
-  }
-}
-
-String _formatDate(DateTime d) =>
-    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-
-class _CompactDropdown extends StatelessWidget {
-  const _CompactDropdown({
-    required this.width,
-    required this.value,
-    required this.items,
-    required this.label,
-    required this.accent,
-    required this.onChanged,
-  });
-
-  final double width;
-  final String? value;
-  final List<String> items;
-  final String label;
-  final Color accent;
-  final ValueChanged<String?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final selectedValue = items.contains(value) ? value : null;
-    return PopupMenuButton<String?>(
-      initialValue: selectedValue,
-      tooltip: label,
-      position: PopupMenuPosition.under,
-      color: _kCompactMenuBackground,
-      elevation: 10,
-      constraints: BoxConstraints(minWidth: width, maxWidth: 220),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(3),
-        side: BorderSide(color: accent.withValues(alpha: 0.74)),
-      ),
-      onSelected: onChanged,
-      itemBuilder: (context) => [
-        for (final item in items)
-          PopupMenuItem<String?>(
-            value: item,
-            height: _kCompactMenuItemHeight,
-            padding: EdgeInsets.zero,
-            child: Container(
-              height: _kCompactMenuItemHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: item == selectedValue
-                    ? accent.withValues(alpha: 0.26)
-                    : Colors.transparent,
-                border: item == selectedValue
-                    ? Border(left: BorderSide(color: accent, width: 3))
-                    : null,
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 18,
-                    child: item == selectedValue
-                        ? Icon(Icons.check,
-                            color: _kCompactMenuText, size: 15)
-                        : null,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    item,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _kCompactMenuText,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-      child: Container(
-        width: width,
-        height: _kCompactControlHeight,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: _kCompactMenuBackground,
-          border: Border.all(color: accent.withValues(alpha: 0.82)),
-          borderRadius: BorderRadius.circular(3),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: Text(
-                selectedValue ?? label,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: const TextStyle(
-                  color: _kCompactMenuText,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Icon(Icons.arrow_drop_down,
-                color: _kCompactMenuText, size: 18),
-          ],
-        ),
-      ),
     );
   }
 }
