@@ -5,8 +5,8 @@ import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:collectarr_app/features/library/add/compact_controls.dart';
+import 'package:collectarr_app/features/library/collection_defaults.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
@@ -2847,7 +2847,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
         CompactDropdown(
           width: 118,
           value: condition,
-          items: ComicInspector.conditions,
+          items: kCollectionConditions,
           label: 'Condition',
           accent: accent,
           onChanged: (v) {
@@ -2857,7 +2857,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
         CompactDropdown(
           width: 104,
           value: grade,
-          items: ComicInspector.grades,
+          items: kCollectionGrades,
           label: 'Grade',
           accent: accent,
           onChanged: (v) {
