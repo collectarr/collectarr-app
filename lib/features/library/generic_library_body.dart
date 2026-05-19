@@ -112,6 +112,8 @@ class GenericLibraryBody extends StatelessWidget {
             items: projection.filteredItems,
             viewState: viewState,
             selectedId: selectedId,
+            groupMode: groupMode,
+            selectedBucket: selectedBucket,
             accent: accent,
             hasActiveFilter: hasActiveFilter,
             onAdd: onAdd,

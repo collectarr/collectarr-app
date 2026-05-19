@@ -155,6 +155,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     );
     final ownedCount = entries.where((entry) => entry.isOwned).length;
     final wishlistCount = entries.where((entry) => entry.isWishlisted).length;
+    if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(

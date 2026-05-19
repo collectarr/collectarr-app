@@ -25,6 +25,8 @@ class GenericLibraryWorkspace extends StatelessWidget {
     required this.items,
     required this.viewState,
     required this.selectedId,
+    required this.groupMode,
+    required this.selectedBucket,
     required this.accent,
     required this.hasActiveFilter,
     required this.onAdd,
@@ -40,6 +42,8 @@ class GenericLibraryWorkspace extends StatelessWidget {
   final List<GenericLibraryItem> items;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
+  final GenericLibraryGroupMode groupMode;
+  final String? selectedBucket;
   final Color accent;
   final bool hasActiveFilter;
   final VoidCallback onAdd;
@@ -52,8 +56,56 @@ class GenericLibraryWorkspace extends StatelessWidget {
           LibraryTableColumn column, LibraryTableColumn? beforeColumn)
       onColumnReordered;
 
+  bool get _showGrouped =>
+      selectedBucket == null &&
+      groupMode != GenericLibraryGroupMode.title &&
+      groupMode != GenericLibraryGroupMode.ownership;
+
   @override
   Widget build(BuildContext context) {
+    if (_showGrouped && items.isNotEmpty) {
+      return switch (viewState.viewMode) {
+        LibraryViewMode.grid => _GroupedGrid(
+            items: items,
+            type: type,
+            groupMode: groupMode,
+            selectedId: selectedId,
+            accent: accent,
+            maxCrossAxisExtent: viewState.coverSize,
+            mainAxisExtent: viewState.coverSize * 1.53,
+            itemBuilder: (context, item) => LibraryCoverTile(
+              entry: item.entry,
+              selected: item.entry.id == selectedId,
+              onTap: () => onSelectItem(item.entry.id),
+              selectedColor: kClzSelection,
+              accentColor: accent,
+              selectionColor: kClzYellow,
+              mutedTextColor: kClzTextMuted,
+            ),
+          ),
+        LibraryViewMode.card => _GroupedGrid(
+            items: items,
+            type: type,
+            groupMode: groupMode,
+            selectedId: selectedId,
+            accent: accent,
+            maxCrossAxisExtent: 430,
+            mainAxisExtent:
+                (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+            itemBuilder: (context, item) => LibraryWorkspaceCard(
+              entry: item.entry,
+              selected: item.entry.id == selectedId,
+              onTap: () => onSelectItem(item.entry.id),
+              dateFormatter: formatComicDate,
+              moneyFormatter: formatComicMoney,
+              selectedColor: kClzSelection,
+              accentColor: accent,
+              mutedTextColor: kClzTextMuted,
+            ),
+          ),
+        LibraryViewMode.list => _buildTable(),
+      };
+    }
     return switch (viewState.viewMode) {
       LibraryViewMode.grid => LibraryWorkspaceGrid<GenericLibraryItem>(
           items: items,
@@ -205,5 +257,142 @@ class GenericLibraryWorkspace extends StatelessWidget {
           style: const TextStyle(fontSize: 12),
         ),
     };
+  }
+}
+
+class _GroupedGrid extends StatefulWidget {
+  const _GroupedGrid({
+    required this.items,
+    required this.type,
+    required this.groupMode,
+    required this.selectedId,
+    required this.accent,
+    required this.maxCrossAxisExtent,
+    required this.mainAxisExtent,
+    required this.itemBuilder,
+  });
+
+  final List<GenericLibraryItem> items;
+  final LibraryTypeConfig type;
+  final GenericLibraryGroupMode groupMode;
+  final String? selectedId;
+  final Color accent;
+  final double maxCrossAxisExtent;
+  final double mainAxisExtent;
+  final LibraryGridItemBuilder<GenericLibraryItem> itemBuilder;
+
+  @override
+  State<_GroupedGrid> createState() => _GroupedGridState();
+}
+
+class _GroupedGridState extends State<_GroupedGrid> {
+  final _collapsed = <String>{};
+
+  @override
+  Widget build(BuildContext context) {
+    final groups = <String, List<GenericLibraryItem>>{};
+    for (final item in widget.items) {
+      final key =
+          genericBucketForItemMode(item, widget.type, widget.groupMode);
+      (groups[key] ??= []).add(item);
+    }
+    final sortedKeys = groups.keys.toList()..sort();
+
+    return ColoredBox(
+      color: kClzGridCanvas,
+      child: CustomScrollView(
+        slivers: [
+          for (final key in sortedKeys) ...[
+            SliverToBoxAdapter(
+              child: _GroupHeader(
+                title: key,
+                count: groups[key]!.length,
+                collapsed: _collapsed.contains(key),
+                accent: widget.accent,
+                onToggle: () => setState(() {
+                  if (_collapsed.contains(key)) {
+                    _collapsed.remove(key);
+                  } else {
+                    _collapsed.add(key);
+                  }
+                }),
+              ),
+            ),
+            if (!_collapsed.contains(key))
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                sliver: SliverGrid(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) =>
+                        widget.itemBuilder(context, groups[key]![index]),
+                    childCount: groups[key]!.length,
+                  ),
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: widget.maxCrossAxisExtent,
+                    mainAxisExtent: widget.mainAxisExtent,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                ),
+              ),
+          ],
+          const SliverPadding(padding: EdgeInsets.only(bottom: 10)),
+        ],
+      ),
+    );
+  }
+}
+
+class _GroupHeader extends StatelessWidget {
+  const _GroupHeader({
+    required this.title,
+    required this.count,
+    required this.collapsed,
+    required this.accent,
+    required this.onToggle,
+  });
+
+  final String title;
+  final int count;
+  final bool collapsed;
+  final Color accent;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onToggle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        child: Row(
+          children: [
+            Icon(
+              collapsed
+                  ? Icons.keyboard_arrow_right
+                  : Icons.keyboard_arrow_down,
+              size: 20,
+              color: accent,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: accent,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '($count)',
+              style: TextStyle(
+                fontSize: 12,
+                color: accent.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
