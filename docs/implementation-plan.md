@@ -50,14 +50,21 @@
 - Distinctive library icons: comics (`style`), anime (`smart_display`), to avoid confusion with books (`menu_book_outlined`)
 - Animated accent theming across all UI elements (not just top/bottom bars) using `AnimatedTheme`
 
-## 🔜 Next Up
+### 🌳 Hierarchical Shelf Display
+- Hierarchy fields added to data model: `seriesId`, `seriesTitle`, `volumeName`, `volumeNumber`, `volumeStartYear`, `seasonNumber`, `episodeNumber`
+- CatalogCache DB schema v4 migration with hierarchy columns
+- Series grouping uses `seriesTitle` with `title` fallback across generic and comics shelf views
+- Two-level grouped grid: series → volume/season sub-groups (auto-detected from data)
+- Sub-group headers with collapsible sections, numeric sorting for seasons/volumes
+- Inspector metadata section shows series, volume, season, episode when available
 
-### 📚 Hierarchical Shelf Display
-- [ ] Manga: series → volumes → chapters grouping in shelf view
-- [ ] TV/Anime: shows → seasons → episodes grouping in shelf view
-- [ ] Comics: series → issues → variants grouping in shelf view
-- [ ] Collapsible/expandable tree view in grid and table modes
-- [ ] Group-level actions (select all in series, bulk operations)
+### ✅ Generic Library Bulk Actions
+- Multi-select mode with toggle per item (checklist icon in toolbar)
+- Bulk action menu: edit, move to owned, move to wishlist, remove selected
+- Bulk edit dialog with tracking status and star rating fields
+- Selection state management with auto-enable/disable
+
+## 🔜 Next Up
 
 ### 🎯 Comics MVP Polish
 - [ ] Semantic Add Series vs Add Issue: series tree for full runs vs flat issue list
