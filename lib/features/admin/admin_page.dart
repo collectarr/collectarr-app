@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
+import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -375,6 +377,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             ),
             const SizedBox(height: 12),
           ],
+          _AdminPanel(
+            icon: Icons.people_outline,
+            title: 'User management',
+            child: const AdminUsersPanel(),
+          ),
+          const SizedBox(height: 12),
+          _AdminPanel(
+            icon: Icons.image_outlined,
+            title: 'Image cache',
+            child: const AdminImageCachePanel(),
+          ),
+          const SizedBox(height: 12),
           _AdminPanel(
             icon: Icons.travel_explore_outlined,
             title: 'Provider ingest',

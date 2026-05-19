@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/comics/comics_inspector.dart';
+import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:collectarr_app/features/library/library_item_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -120,6 +120,9 @@ class _RecordingCollectionMutations extends CollectionMutations {
     int? rating,
     String? readStatus,
     String? tags,
+    DateTime? soldAt,
+    int? sellPriceCents,
+    String? soldTo,
     bool notify = true,
   }) async {
     calls.updateCalls++;

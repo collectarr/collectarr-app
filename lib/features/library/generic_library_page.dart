@@ -2,14 +2,18 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic_library_body.dart';
 import 'package:collectarr_app/features/library/generic_library_column_chooser.dart';
 import 'package:collectarr_app/features/library/generic_library_collection_actions.dart';
-import 'package:collectarr_app/features/library/generic_library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/generic_library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/generic_library_metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
@@ -18,8 +22,10 @@ import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({
@@ -44,6 +50,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   String? _selectedBucket;
   GenericQuickView? _quickView;
   GenericLibraryGroupMode? _groupMode;
+  Map<String, List<String>> _customFieldValuesByItem = const {};
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -54,6 +61,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     super.initState();
     _viewState = _adapter.viewProfile.defaults();
     unawaited(_loadViewState());
+    unawaited(_loadCustomFieldValues());
   }
 
   @override
@@ -69,6 +77,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
             _viewState?.toPreferenceSnapshot().chrome,
           );
       unawaited(_loadViewState());
+      unawaited(_loadCustomFieldValues());
     }
   }
 
@@ -81,6 +90,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
+    ref.listen(shelfProvider, (_, __) => unawaited(_loadCustomFieldValues()));
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final shelfState = shelf.asData?.value;
     final projection = shelfState == null
@@ -213,6 +223,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         (actions) => actions.removeWishlist(item),
       ),
       onEditItem: (item) => unawaited(_showEditDialog(item)),
+      db: ref.read(localDatabaseProvider),
     );
   }
 
@@ -229,6 +240,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       selectedItemId: _selectedId,
       quickView: _quickView,
       groupMode: _activeGroupMode,
+      customFieldValuesByItem: _customFieldValuesByItem,
     );
   }
 
@@ -252,6 +264,22 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     final state = await _adapter.viewProfile.load();
     if (mounted) {
       setState(() => _viewState = state);
+    }
+  }
+
+  Future<void> _loadCustomFieldValues() async {
+    final db = ref.read(localDatabaseProvider);
+    final repo = CustomFieldRepository(db);
+    final allValues = await repo.listAllValues();
+    final flat = <String, List<String>>{};
+    for (final entry in allValues.entries) {
+      flat[entry.key] = [
+        for (final v in entry.value)
+          if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
+      ];
+    }
+    if (mounted) {
+      setState(() => _customFieldValuesByItem = flat);
     }
   }
 
@@ -302,23 +330,39 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
           data: (value) => value,
           orElse: () => fallbackMediaCatalog,
         );
+    final db = ref.read(localDatabaseProvider);
+    final customFieldRepo = CustomFieldRepository(db);
+    final itemImageRepo = ItemImageRepository(db);
+    final owned = item.source.ownedItem;
+    final definitions = await customFieldRepo.listDefinitions(
+      mediaKind: widget.type.workspace.kind,
+    );
+    final cfValues = owned != null
+        ? await customFieldRepo.listValuesForItem(owned.id)
+        : <dynamic>[];
+    final images = owned != null
+        ? await itemImageRepo.listForItem(owned.id)
+        : <dynamic>[];
+    if (!mounted) return;
     final result = await showDialog<GenericLibraryEditSelection>(
       context: context,
       builder: (context) => GenericLibraryEditDialog(
         type: widget.type,
         item: catalogItem,
-        ownedItem: item.source.ownedItem,
+        ownedItem: owned,
         accent: widget.accent,
         physicalFormats: physicalMediaFormatsForKind(
           catalog,
           widget.type.workspace.kind,
         ),
+        customFieldDefinitions: definitions,
+        customFieldValues: cfValues.cast(),
+        itemImages: images.cast(),
       ),
     );
     if (result == null || !mounted) {
       return;
     }
-    final owned = item.source.ownedItem;
     final mutations = ref.read(collectionMutationsProvider);
     await mutations.updateCatalogSnapshot(
       result.catalogItem,
@@ -347,12 +391,45 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         rating: personal.rating,
         readStatus: personal.readStatus,
         tags: personal.tags,
+        soldAt: personal.soldAt,
+        sellPriceCents: personal.sellPriceCents,
+        soldTo: personal.soldTo,
       );
+      // Save custom field values
+      final now = DateTime.now();
+      final cfList = result.customFieldEdits.entries.map((e) {
+        return CustomFieldValue(
+          id: const Uuid().v4(),
+          ownedItemId: owned.id,
+          fieldDefinitionId: e.key,
+          value: e.value,
+          updatedAt: now,
+        );
+      }).toList();
+      await customFieldRepo.upsertValues(cfList);
+      // Save item image edits
+      for (final edit in result.itemImageEdits) {
+        if (edit.deleted) {
+          await itemImageRepo.delete(edit.id);
+        } else if (edit.imageData != null) {
+          await itemImageRepo.add(ItemImage(
+            id: edit.id,
+            ownedItemId: owned.id,
+            imageData: edit.imageData!,
+            caption: edit.caption,
+            sortOrder: edit.sortOrder,
+            createdAt: now,
+          ));
+        } else {
+          await itemImageRepo.updateCaption(edit.id, edit.caption);
+        }
+      }
     }
     if (!mounted) {
       return;
     }
     ref.invalidate(shelfProvider);
+    unawaited(_loadCustomFieldValues());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${widget.type.singularLabel} updated')),
     );

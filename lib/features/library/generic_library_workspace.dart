@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/library/generic_library_empty_state.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';

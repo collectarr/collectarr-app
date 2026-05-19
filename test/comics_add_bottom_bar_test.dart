@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/comics/comics_add_bottom_bar.dart';
+import 'package:collectarr_app/features/comics/add/comics_add_bottom_bar.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -60,7 +60,7 @@ void main() {
 
     expect(find.textContaining('Edit - Superman, Vol. 4'), findsOneWidget);
     expect(find.text('Collection Status'), findsOneWidget);
-    expect(find.text('1 / 6'), findsOneWidget);
+    expect(find.text('1 / 7'), findsOneWidget);
     expect(find.text('Comic'), findsOneWidget);
     await tester.tap(find.text('Value'));
     await tester.pumpAndSettle();
@@ -76,7 +76,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
-    expect(find.text('2 / 6'), findsOneWidget);
+    expect(find.text('2 / 7'), findsOneWidget);
     await tester.tap(find.text('Personal'));
     await tester.pumpAndSettle();
     await tester.enterText(

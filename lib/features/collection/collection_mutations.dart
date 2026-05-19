@@ -1,14 +1,16 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/collection_csv.dart';
-import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
-import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,6 +45,9 @@ class CollectionMutations {
     int? rating,
     String? readStatus,
     String? tags,
+    DateTime? soldAt,
+    int? sellPriceCents,
+    String? soldTo,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
@@ -70,6 +75,9 @@ class CollectionMutations {
       rating: rating,
       readStatus: readStatus,
       tags: tags,
+      soldAt: soldAt,
+      sellPriceCents: sellPriceCents,
+      soldTo: soldTo,
       updatedAt: now,
     );
     await _ownedCache().upsert(ownedItem);
@@ -110,6 +118,9 @@ class CollectionMutations {
     int? rating,
     String? readStatus,
     String? tags,
+    DateTime? soldAt,
+    int? sellPriceCents,
+    String? soldTo,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
@@ -137,6 +148,9 @@ class CollectionMutations {
       rating: rating,
       readStatus: readStatus,
       tags: tags,
+      soldAt: soldAt,
+      sellPriceCents: sellPriceCents,
+      soldTo: soldTo,
       updatedAt: now,
       deletedAt: item.deletedAt,
     );
@@ -324,6 +338,37 @@ class CollectionMutations {
       await wishlistCache.upsertAll(wishlistUpserts);
       await syncQueue.enqueueAll(syncChanges);
     });
+
+    // Save imported custom field values.
+    final cfRepo = CustomFieldRepository(db);
+    final cfDefs = await cfRepo.listDefinitions();
+    final defsByName = {
+      for (final def in cfDefs) def.name.toLowerCase(): def,
+    };
+    final ownedIdByItemId = {
+      for (final o in ownedItems) o.itemId: o.id,
+    };
+    final cfValuesToSave = <CustomFieldValue>[];
+    for (final row in resolvedRows) {
+      if (row.customFieldValues.isEmpty || !row.isOwned) continue;
+      final ownedId = ownedIdByItemId[row.itemId];
+      if (ownedId == null) continue;
+      for (final entry in row.customFieldValues.entries) {
+        final def = defsByName[entry.key.toLowerCase()];
+        if (def == null || entry.value == null) continue;
+        cfValuesToSave.add(CustomFieldValue(
+          id: _uuid.v4(),
+          ownedItemId: ownedId,
+          fieldDefinitionId: def.id,
+          value: entry.value,
+          updatedAt: now,
+        ));
+      }
+    }
+    if (cfValuesToSave.isNotEmpty) {
+      await cfRepo.upsertValues(cfValuesToSave);
+    }
+
     await _notifyCollectionChanged(wishlistChanged: true);
     return imported;
   }
@@ -435,6 +480,9 @@ class CollectionMutations {
       tags: row.tags ?? existing?.tags,
       updatedAt: now,
       deletedAt: existing?.deletedAt,
+      soldAt: row.soldAt ?? existing?.soldAt,
+      sellPriceCents: row.sellPriceCents ?? existing?.sellPriceCents,
+      soldTo: row.soldTo ?? existing?.soldTo,
     );
   }
 

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
-import 'package:collectarr_app/features/library/library_home_catalog.dart';
-import 'package:collectarr_app/features/library/library_home_page.dart';
+import 'package:collectarr_app/features/library/home/library_home_catalog.dart';
+import 'package:collectarr_app/features/library/home/library_home_page.dart';
 import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
@@ -39,8 +39,12 @@ class _AppShellState extends ConsumerState<AppShell> {
       body: LibraryAccentScope(
         accent: accent,
         animationsEnabled: uiPreferences.animationsEnabled,
-        child: Theme(
+        child: AnimatedTheme(
           data: accentTheme,
+          duration: uiPreferences.animationsEnabled
+              ? const Duration(milliseconds: 360)
+              : Duration.zero,
+          curve: Curves.easeOutCubic,
           child: pages[selectedIndex].child,
         ),
       ),

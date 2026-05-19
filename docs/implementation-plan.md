@@ -1,92 +1,87 @@
-# Collectarr App Implementation Plan
+# 🗺️ Collectarr App — Implementation Plan
 
-App owns the Flutter client, local Drift database, offline-first library UI,
-CSV/CLZ import-export, barcode UX, sync client UX, and user-facing collection
-workflows. It consumes Core metadata and optional Sync state, but it does not
-own the canonical catalog or provider ingestion.
+> App owns the Flutter client, local Drift database, offline-first library UI, CSV/CLZ import-export, barcode UX, sync client UX, and user-facing collection workflows. It consumes Core metadata and optional Sync state.
 
-## Done
+## ✅ Done
 
-- Split from the original monorepo into `collectarr/collectarr-app`.
-- CI runs Flutter analyze/test.
-- Local Drift database stores catalog snapshots, owned items, wishlist rows,
-  sync queue data, and user preferences.
-- CLZ-style library shell exists with media library top navigation, accent
-  colors, resizable panes, view controls, table/grid/card modes, sidebars, and
-  inspectors.
-- Comics has the richest add/search flow: series/issue/barcode/pull-list modes,
-  provider fallback, issue/variant grouping, multi-select, keyboard shortcuts,
-  compact bottom bar, and metadata preview.
-- Add Comics sends structured provider search context (`series`, issue number,
-  and year) to Core so Add Series and Add Issue can follow different server-side
-  provider strategies.
-- Provider candidates consume Core's structured comic identity fields and
-  `candidate_type` when available, so issue/variant grouping and preview facts
-  do not rely only on title parsing.
-- Generic add dialog and generic library workspaces exist for manga, anime,
-  books, games, board games, movies, TV, and music.
-- Settings includes grouped tabs, auto-save behavior, connection settings,
-  account/admin visibility, nav preferences, and reduced-motion control.
-- CSV/CLZ import-export wizard supports media-aware headers, media type,
-  edition title, physical format, and barcode matching.
+### 🏗️ Infrastructure
+- Split from monorepo into `collectarr/collectarr-app`
+- CI runs Flutter analyze/test
+- Local Drift DB stores catalog snapshots, owned items, wishlists, sync queue, and user preferences
 
-## MVP Priorities
+### 🎨 Library Shell
+- CLZ-style workspaces with media library top nav, accent colors, resizable panes
+- View controls: table/grid/card modes, sidebars, inspectors
+- Column presets, bulk editing, stats chips, quick views
+- Reduced-motion support for transitions and animated gradients
 
-1. UI consistency
-   - Reuse the same Add shell and bottom bar styling across all libraries.
-   - Keep top nav, bottom nav, Shelf, Settings, and Admin entry points themed by
-     the active library accent.
-   - Make every non-comics library follow the Comics workspace model: toolbar,
-     group/filter controls, sidebar, empty state, detail panel, stats chips,
-     quick views, and resizable panes.
-   - Keep reduced-motion respected by transitions and animated gradients.
+### 🔍 Add / Search
+- Comics-first add/search: series/issue/barcode/pull-list modes, multi-select, keyboard shortcuts
+- Structured provider search context (`series`, `issue_number`, `year`) sent to Core
+- Provider candidates consume Core's typed comic identity fields (`candidate_type`, `series_title`, `variant_name`)
+- Generic add dialog and workspaces for manga, anime, books, games, board games, movies, TV, music
+- Queue Ingest button hidden for non-admin users
 
-2. Provider-backed add/search flows
-   - Let Core choose provider routing; App should show provider status but not
-     make users choose providers directly.
-   - Make Core miss -> provider candidate -> local draft/proposal/ingest job ->
-     Core search hit understandable in UI.
-   - Keep barcode fallback automatic for physical editions and variants.
-   - Ensure provider-unavailable, provider-rate-limited, and auth-required states
-     are explicit and non-spammy.
+### 🛠️ Admin Panel
+- User management panel with role editing (viewer/editor/admin)
+- Image cache panel: stats, per-provider breakdown, refresh + purge with confirmation
+- Admin entry point only visible for admin-role users
 
-3. Comics MVP polish
-   - Make Add Series and Add Issue semantically different: series tree for full
-     runs, flat issue list when issue number is required.
-   - Improve issue/variant tree density and selection, including whole-series
-     selection and multi-issue selection.
-   - Verify real cover behavior for GCD + ComicVine variant enrichment and show
-     generated fallbacks only when no usable cover exists.
-   - Keep list rows compact; rich metadata belongs in the preview pane.
+### 🔄 Sync & Settings
+- Sync pairing, conflict review, retry queue visibility
+- Settings grouped tabs: auto-save, connection, account/admin visibility, nav preferences
+- Sync history log with timestamps, push/pull/reject counts, success/error icons
 
-4. Media-specific collection forms
-   - Add richer edit/import fields where each media type needs them:
-     ISBN/barcode for books, platform/edition for games, physical format for
-     movies/TV, release/album fields for music, and publisher/volume fields for
-     manga/anime where useful.
-   - Preserve local snapshot fields needed for offline browsing without
-     rehydrating from Core.
+### 📥 Import / Export
+- CSV/CLZ import-export wizard with media-aware headers, edition title, physical format, barcode matching
+- Custom field columns (`cf_*`) in CSV export/import — definitions auto-matched on import
 
-5. Sync and device UX
-   - Pairing flow should be clear with copyable code and QR rendering.
-   - Conflict panel should show local payload vs service payload with actions:
-     keep service, retry local, dismiss.
-   - Settings should explain backup/restore responsibilities for local Drift and
-     optional Sync SQLite.
+### 🏷️ Custom Fields & Item Images
+- User-defined custom fields per media type (text values, scoped to media kind)
+- Custom field management in settings panel with add/edit/delete
+- Custom fields searchable/filterable in both comics and generic library shelves
+- Custom fields shown in inspector detail panels and edit dialogs
+- Multiple images per owned item with captions and sort order
+- Item images shown in inspector and editable in edit dialogs
+- Drift DB schema v2 with `CustomFieldDefinitionsCache`, `CustomFieldValuesCache`, `ItemImagesCache` tables
+- Purchase/sell tracking fields (`soldAt`, `sellPriceCents`, `soldTo`) on owned items
 
-6. Platform smoke
-   - Web: sqlite3 WASM load, Core connection, Add dialog, import/export, sync
-     settings, and covers.
-   - Windows: local DB, resizable panes, keyboard shortcuts, barcode manual
-     fallback, import/export.
-   - Android: camera scanner if available, manual fallback, connection presets,
-     layout at narrow widths.
+### 🎨 UI Polish
+- Distinctive library icons: comics (`style`), anime (`smart_display`), to avoid confusion with books (`menu_book_outlined`)
+- Animated accent theming across all UI elements (not just top/bottom bars) using `AnimatedTheme`
 
-## Post-MVP
+## 🔜 Next Up
 
-- QR scanning for pairing, not just QR rendering.
-- ComicInfo.xml/CBZ import/export compatibility.
-- Generated thumbnails or local image bytes when App needs fully offline cover
-  storage.
-- Rich per-media dashboards and collection analytics.
-- Packaged release installers and app store/play store preparation.
+### 📚 Hierarchical Shelf Display
+- [ ] Manga: series → volumes → chapters grouping in shelf view
+- [ ] TV/Anime: shows → seasons → episodes grouping in shelf view
+- [ ] Comics: series → issues → variants grouping in shelf view
+- [ ] Collapsible/expandable tree view in grid and table modes
+- [ ] Group-level actions (select all in series, bulk operations)
+
+### 🎯 Comics MVP Polish
+- [ ] Semantic Add Series vs Add Issue: series tree for full runs vs flat issue list
+- [ ] Issue/variant tree density improvements + whole-series and multi-issue selection
+- [ ] Real cover behavior for GCD + ComicVine variant enrichment
+- [ ] Generated fallback covers only when no usable cover exists
+
+### 📚 Media-Specific Forms
+- [ ] Books: ISBN/barcode fields, reading progress, edition data
+- [ ] Games: platform/edition/condition, region variants
+- [ ] Movies/TV: physical format (DVD/Blu-ray/4K), season/episode UI
+- [ ] Music: format (CD/vinyl/cassette), track listing display
+- [ ] Manga/Anime: publisher, volume/chapter UI polish, season tracking
+
+### 🖥️ Platform Smoke Tests
+- [ ] Web: sqlite3 WASM load, Core connection, Add dialog, import/export, covers
+- [ ] Windows: local DB, resizable panes, keyboard shortcuts, barcode fallback
+- [ ] Android: camera scanner, manual fallback, connection presets, narrow layout
+
+### 🧩 Post-MVP
+- [ ] QR scanning for pairing (not just QR rendering)
+- [ ] ComicInfo.xml/CBZ import/export
+- [ ] Local image bytes for fully offline cover storage
+- [ ] Rich per-media dashboards and collection analytics
+- [ ] Packaged release installers + app store preparation
+- [ ] Location tracking (which shelf/box)
+- [ ] Collection value totals

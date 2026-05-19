@@ -40,7 +40,7 @@ const mangaLibraryConfig = LibraryTypeConfig(
 const animeWorkspaceConfig = LibraryWorkspaceConfig(
   kind: 'anime',
   title: 'Anime',
-  icon: Icons.animation,
+  icon: Icons.smart_display,
   preferencePrefix: 'anime',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {

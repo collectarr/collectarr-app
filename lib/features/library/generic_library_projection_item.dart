@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 

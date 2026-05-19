@@ -248,3 +248,54 @@ class LibraryInspectorChip extends StatelessWidget {
     );
   }
 }
+
+class LibraryEmptyInspector extends StatelessWidget {
+  const LibraryEmptyInspector({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.accent = _kDefaultAccent,
+    this.mutedTextColor = _kDefaultMutedText,
+    this.backgroundColor,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color accent;
+  final Color mutedTextColor;
+  final Color? backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 42, color: accent),
+          const SizedBox(height: 12),
+          Text(
+            'No $label selected',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Select an item to inspect metadata, cover, and local status.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: mutedTextColor,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
+      ),
+    );
+    if (backgroundColor != null) {
+      return ColoredBox(color: backgroundColor!, child: content);
+    }
+    return content;
+  }
+}

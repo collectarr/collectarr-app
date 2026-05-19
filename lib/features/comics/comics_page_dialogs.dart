@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
-import 'package:collectarr_app/features/comics/comics_add_dialog.dart';
+import 'package:collectarr_app/features/comics/add/comics_add_dialog.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
-import 'package:collectarr_app/features/comics/comics_shelf_projection.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_state.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_shelf_projection.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -35,6 +35,7 @@ Future<ComicsFilterSelection?> showComicsFiltersDialog(
     context: context,
     builder: (context) => ComicsFilterDialog(
       initialSelection: initialSelection,
+      seriesOptions: options.series,
       gradeOptions: options.grades,
       conditionOptions: options.conditions,
       publisherOptions: options.publishers,

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/comics/comics_barcode_add_workflow.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_actions.dart';
@@ -12,12 +15,12 @@ import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_page_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_page_dialogs.dart';
 import 'package:collectarr_app/features/comics/comics_page_state.dart';
-import 'package:collectarr_app/features/comics/comics_shelf_helpers.dart';
-import 'package:collectarr_app/features/comics/comics_shelf_projection.dart';
-import 'package:collectarr_app/features/comics/comics_workspace.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_state.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_view_config.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_shelf_projection.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_projection.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -48,6 +51,7 @@ class ComicsPage extends ConsumerStatefulWidget {
 class _ComicsPageState extends ConsumerState<ComicsPage> {
   ComicsPageUiState pageState = ComicsPageUiState.initial();
   late final TextEditingController _controller;
+  Map<String, List<String>> _customFieldValuesByItem = const {};
 
   @override
   void initState() {
@@ -56,6 +60,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     _loadViewPreferences();
     _loadFilterPreferences();
     _loadGroupingPreference();
+    unawaited(_loadCustomFieldValues());
   }
 
   @override
@@ -67,6 +72,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
+    ref.listen(shelfProvider, (_, __) => unawaited(_loadCustomFieldValues()));
 
     return Scaffold(
       backgroundColor: _kClzCanvas,
@@ -84,6 +90,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                     state: state,
                     query: uiState.query,
                     filters: uiState.filterSelection,
+                    customFieldValuesByItem: _customFieldValuesByItem,
                   ),
                 ),
               );
@@ -456,6 +463,22 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     setState(
       () => pageState = pageState.copyWith(filterSelection: filters),
     );
+  }
+
+  Future<void> _loadCustomFieldValues() async {
+    final db = ref.read(localDatabaseProvider);
+    final repo = CustomFieldRepository(db);
+    final allValues = await repo.listAllValues();
+    final flat = <String, List<String>>{};
+    for (final entry in allValues.entries) {
+      flat[entry.key] = [
+        for (final v in entry.value)
+          if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
+      ];
+    }
+    if (mounted) {
+      setState(() => _customFieldValuesByItem = flat);
+    }
   }
 
   void _setWorkspaceViewState(ComicsWorkspaceViewState next) {

@@ -25,6 +25,9 @@ class OwnedItem {
     this.tags,
     required this.updatedAt,
     this.deletedAt,
+    this.soldAt,
+    this.sellPriceCents,
+    this.soldTo,
   });
 
   final String id;
@@ -52,8 +55,12 @@ class OwnedItem {
   final String? tags;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
+  final String? soldTo;
 
   bool get isDeleted => deletedAt != null;
+  bool get isSold => soldAt != null;
 
   Map<String, dynamic> toSyncPayload() {
     return {
@@ -79,6 +86,9 @@ class OwnedItem {
       'rating': rating,
       'read_status': readStatus,
       'tags': tags,
+      'sold_at': soldAt?.toUtc().toIso8601String(),
+      'sell_price_cents': sellPriceCents,
+      'sold_to': soldTo,
     };
   }
 
@@ -113,6 +123,11 @@ class OwnedItem {
       deletedAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
+      soldAt: json['sold_at'] == null
+          ? null
+          : DateTime.parse(json['sold_at'] as String),
+      sellPriceCents: json['sell_price_cents'] as int?,
+      soldTo: json['sold_to'] as String?,
     );
   }
 
@@ -142,6 +157,9 @@ class OwnedItem {
     String? tags,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    DateTime? soldAt,
+    int? sellPriceCents,
+    String? soldTo,
   }) {
     return OwnedItem(
       id: id ?? this.id,
@@ -169,6 +187,9 @@ class OwnedItem {
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      soldAt: soldAt ?? this.soldAt,
+      sellPriceCents: sellPriceCents ?? this.sellPriceCents,
+      soldTo: soldTo ?? this.soldTo,
     );
   }
 }

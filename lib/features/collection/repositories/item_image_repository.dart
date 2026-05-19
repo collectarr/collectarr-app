@@ -1,0 +1,67 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:drift/drift.dart';
+
+class ItemImageRepository {
+  const ItemImageRepository(this._db);
+
+  final LocalDatabase _db;
+
+  Future<List<ItemImage>> listForItem(String ownedItemId) async {
+    final rows = await (_db.select(_db.itemImagesCache)
+          ..where((row) => row.ownedItemId.equals(ownedItemId))
+          ..orderBy([(row) => OrderingTerm.asc(row.sortOrder)]))
+        .get();
+    return rows.map(_fromRow).toList(growable: false);
+  }
+
+  Future<void> add(ItemImage image) {
+    return _db.into(_db.itemImagesCache).insert(
+          ItemImagesCacheCompanion.insert(
+            id: image.id,
+            ownedItemId: image.ownedItemId,
+            imageData: image.imageData,
+            caption: Value(image.caption),
+            sortOrder: Value(image.sortOrder),
+            createdAt: image.createdAt,
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+  }
+
+  Future<void> updateCaption(String id, String? caption) async {
+    await (_db.update(_db.itemImagesCache)..where((row) => row.id.equals(id)))
+        .write(ItemImagesCacheCompanion(caption: Value(caption)));
+  }
+
+  Future<void> delete(String id) {
+    return (_db.delete(_db.itemImagesCache)..where((row) => row.id.equals(id)))
+        .go();
+  }
+
+  Future<void> deleteAllForItem(String ownedItemId) {
+    return (_db.delete(_db.itemImagesCache)
+          ..where((row) => row.ownedItemId.equals(ownedItemId)))
+        .go();
+  }
+
+  Future<int> countForItem(String ownedItemId) async {
+    final count = _db.itemImagesCache.id.count();
+    final query = _db.selectOnly(_db.itemImagesCache)
+      ..addColumns([count])
+      ..where(_db.itemImagesCache.ownedItemId.equals(ownedItemId));
+    final row = await query.getSingle();
+    return row.read(count) ?? 0;
+  }
+
+  ItemImage _fromRow(ItemImagesCacheData row) {
+    return ItemImage(
+      id: row.id,
+      ownedItemId: row.ownedItemId,
+      imageData: row.imageData,
+      caption: row.caption,
+      sortOrder: row.sortOrder,
+      createdAt: row.createdAt,
+    );
+  }
+}

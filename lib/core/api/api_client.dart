@@ -642,6 +642,20 @@ class ApiClient {
         .toList(growable: false);
   }
 
+  Future<List<Season>> getItemVolumes(String itemId) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/items/${Uri.encodeComponent(itemId)}/volumes',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(Season.fromJson)
+        .toList(growable: false);
+  }
+
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
       {String? kind}) async {
     final response = await _dio.get<Map<String, dynamic>>(
@@ -662,6 +676,61 @@ class ApiClient {
     final data = response.data;
     if (data == null) {
       throw StateError('/health returned an empty response body');
+    }
+    return data;
+  }
+
+  // -----------------------------------------------------------------------
+  // User management
+  // -----------------------------------------------------------------------
+
+  Future<List<Map<String, dynamic>>> adminListUsers() async {
+    final response = await _dio.get<List<dynamic>>('/admin/users');
+    final data = response.data;
+    if (data == null) return const [];
+    return data.cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> adminImageCacheStats() async {
+    final response =
+        await _dio.get<Map<String, dynamic>>('/admin/image-cache/stats');
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/admin/image-cache/stats returned empty body');
+    }
+    return data;
+  }
+
+  Future<Map<String, dynamic>> adminPurgeImageCache({String? provider}) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/image-cache/purge',
+      queryParameters: {if (provider != null) 'provider': provider},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/admin/image-cache/purge returned empty body');
+    }
+    return data;
+  }
+
+  Future<Map<String, dynamic>> adminUpdateUser(
+    String userId, {
+    String? role,
+    bool? isActive,
+    String? displayName,
+  }) async {
+    final body = <String, dynamic>{
+      if (role != null) 'role': role,
+      if (isActive != null) 'is_active': isActive,
+      if (displayName != null) 'display_name': displayName,
+    };
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/admin/users/${Uri.encodeComponent(userId)}',
+      data: body,
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/admin/users/$userId returned an empty response body');
     }
     return data;
   }

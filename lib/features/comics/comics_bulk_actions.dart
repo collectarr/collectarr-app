@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_edit.dart';
 
 class ComicsBulkActions {

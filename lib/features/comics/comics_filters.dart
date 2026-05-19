@@ -61,6 +61,7 @@ extension ComicsShelfQuickViewLabels on ComicsShelfQuickView {
 class ComicsFilterSelection {
   const ComicsFilterSelection({
     required this.ownershipFilter,
+    this.series,
     this.grade,
     this.condition,
     this.publisher,
@@ -74,6 +75,7 @@ class ComicsFilterSelection {
   );
 
   final ComicsOwnershipFilter ownershipFilter;
+  final String? series;
   final String? grade;
   final String? condition;
   final String? publisher;
@@ -83,6 +85,7 @@ class ComicsFilterSelection {
 
   bool get hasActiveFilters {
     return ownershipFilter != ComicsOwnershipFilter.all ||
+        series != null ||
         grade != null ||
         condition != null ||
         publisher != null ||
@@ -94,6 +97,9 @@ class ComicsFilterSelection {
   int get activeFilterCount {
     var count = 0;
     if (ownershipFilter != ComicsOwnershipFilter.all) {
+      count++;
+    }
+    if (series != null) {
       count++;
     }
     if (grade != null) {
@@ -131,6 +137,7 @@ class ComicsFilterSelection {
     return identical(this, other) ||
         other is ComicsFilterSelection &&
             other.ownershipFilter == ownershipFilter &&
+            other.series == series &&
             other.grade == grade &&
             other.condition == condition &&
             other.publisher == publisher &&
@@ -142,6 +149,7 @@ class ComicsFilterSelection {
   @override
   int get hashCode => Object.hash(
         ownershipFilter,
+        series,
         grade,
         condition,
         publisher,
@@ -155,6 +163,7 @@ class ComicsFilterDialog extends StatefulWidget {
   const ComicsFilterDialog({
     super.key,
     required this.initialSelection,
+    required this.seriesOptions,
     required this.gradeOptions,
     required this.conditionOptions,
     required this.publisherOptions,
@@ -162,6 +171,7 @@ class ComicsFilterDialog extends StatefulWidget {
   });
 
   final ComicsFilterSelection initialSelection;
+  final List<String> seriesOptions;
   final List<String> gradeOptions;
   final List<String> conditionOptions;
   final List<String> publisherOptions;
@@ -173,6 +183,7 @@ class ComicsFilterDialog extends StatefulWidget {
 
 class _ComicsFilterDialogState extends State<ComicsFilterDialog> {
   late ComicsOwnershipFilter _ownershipFilter;
+  String? _series;
   String? _grade;
   String? _condition;
   String? _publisher;
@@ -185,6 +196,7 @@ class _ComicsFilterDialogState extends State<ComicsFilterDialog> {
     super.initState();
     final initial = widget.initialSelection;
     _ownershipFilter = initial.ownershipFilter;
+    _series = initial.series;
     _grade = initial.grade;
     _condition = initial.condition;
     _publisher = initial.publisher;
@@ -221,6 +233,14 @@ class _ComicsFilterDialogState extends State<ComicsFilterDialog> {
                     setState(() => _ownershipFilter = value);
                   }
                 },
+              ),
+              const SizedBox(height: 12),
+              _StringFilterDropdown(
+                label: 'Series',
+                emptyLabel: 'Any series',
+                value: _series,
+                options: widget.seriesOptions,
+                onChanged: (value) => setState(() => _series = value),
               ),
               const SizedBox(height: 12),
               _StringFilterDropdown(
@@ -293,6 +313,7 @@ class _ComicsFilterDialogState extends State<ComicsFilterDialog> {
             Navigator.of(context).pop(
               ComicsFilterSelection(
                 ownershipFilter: _ownershipFilter,
+                series: _series,
                 grade: _grade,
                 condition: _condition,
                 publisher: _publisher,

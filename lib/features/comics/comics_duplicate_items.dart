@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter/material.dart';
 
 class ComicsDuplicateGroup {

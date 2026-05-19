@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/comics/comics_inspector_formatters.dart';
+import 'package:collectarr_app/features/comics/inspector/comics_inspector_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

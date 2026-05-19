@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_filter_store.dart';
 import 'package:collectarr_app/features/comics/comics_grouping_store.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_projection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +26,7 @@ void main() {
                     initialSelection: ComicsFilterSelection(
                       ownershipFilter: ComicsOwnershipFilter.all,
                     ),
+                    seriesOptions: ['Amazing Spider-Man'],
                     gradeOptions: ['9.8'],
                     conditionOptions: ['Near Mint'],
                     publisherOptions: ['Marvel'],

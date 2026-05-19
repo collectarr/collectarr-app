@@ -1,10 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
-import 'package:collectarr_app/features/collection/collection_csv.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/shelf_volumes_provider.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -134,9 +138,21 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   }
 
   Future<void> _showExportDialog(List<ShelfEntry> entries) async {
+    final db = ref.read(localDatabaseProvider);
+    final cfRepo = CustomFieldRepository(db);
+    final cfDefs = await cfRepo.listDefinitions();
+    final cfValues = await cfRepo.listAllValues();
     final csv = CollectionCsv();
-    final collectarrCsv = csv.exportShelf(entries);
-    final clzCsv = csv.exportClzFriendlyShelf(entries);
+    final collectarrCsv = csv.exportShelf(
+      entries,
+      customFieldDefinitions: cfDefs,
+      customFieldValuesByItem: cfValues,
+    );
+    final clzCsv = csv.exportClzFriendlyShelf(
+      entries,
+      customFieldDefinitions: cfDefs,
+      customFieldValuesByItem: cfValues,
+    );
     final ownedCount = entries.where((entry) => entry.isOwned).length;
     final wishlistCount = entries.where((entry) => entry.isWishlisted).length;
     await showDialog<void>(
@@ -1614,7 +1630,7 @@ class _ShelfStatCard extends StatelessWidget {
   }
 }
 
-class _ShelfEntryRow extends StatelessWidget {
+class _ShelfEntryRow extends ConsumerStatefulWidget {
   const _ShelfEntryRow({
     required this.entry,
     required this.onRemoveOwned,
@@ -1626,7 +1642,17 @@ class _ShelfEntryRow extends StatelessWidget {
   final VoidCallback onRemoveWishlist;
 
   @override
+  ConsumerState<_ShelfEntryRow> createState() => _ShelfEntryRowState();
+}
+
+class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
+  bool _volumesExpanded = false;
+
+  bool get _isManga => widget.entry.catalogItem?.kind == 'manga';
+
+  @override
   Widget build(BuildContext context) {
+    final entry = widget.entry;
     final colorScheme = Theme.of(context).colorScheme;
     final owned = entry.ownedItem;
     final wishlist = entry.wishlistItem;
@@ -1639,109 +1665,314 @@ class _ShelfEntryRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: colorScheme.outlineVariant),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _ShelfCover(entry: entry),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
+            Row(
+              children: [
+                _ShelfCover(entry: entry),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (entry.isOwned)
-                        _ShelfChip(
-                          icon: Icons.inventory_2,
-                          label: owned?.condition ?? 'Owned',
-                        ),
-                      if (entry.isWishlisted)
-                        const _ShelfChip(
-                          icon: Icons.star,
-                          label: 'Wishlist',
-                        ),
-                      _ShelfChip(
-                        icon: Icons.verified_outlined,
-                        label: owned?.grade ?? 'Ungraded',
+                      Text(
+                        entry.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
-                      if (owned?.pricePaidCents != null &&
-                          owned?.currency != null)
-                        _ShelfChip(
-                          icon: Icons.payments_outlined,
-                          label: _formatMoney(
-                            owned!.pricePaidCents!,
-                            owned.currency!,
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          if (entry.isOwned)
+                            _ShelfChip(
+                              icon: Icons.inventory_2,
+                              label: owned?.condition ?? 'Owned',
+                            ),
+                          if (entry.isWishlisted)
+                            const _ShelfChip(
+                              icon: Icons.star,
+                              label: 'Wishlist',
+                            ),
+                          _ShelfChip(
+                            icon: Icons.verified_outlined,
+                            label: owned?.grade ?? 'Ungraded',
                           ),
+                          if (owned?.pricePaidCents != null &&
+                              owned?.currency != null)
+                            _ShelfChip(
+                              icon: Icons.payments_outlined,
+                              label: _formatMoney(
+                                owned!.pricePaidCents!,
+                                owned.currency!,
+                              ),
+                            ),
+                          if (wishlist?.targetPriceCents != null &&
+                              wishlist?.currency != null)
+                            _ShelfChip(
+                              icon: Icons.sell_outlined,
+                              label: _formatMoney(
+                                wishlist!.targetPriceCents!,
+                                wishlist.currency!,
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (owned?.personalNotes?.trim().isNotEmpty ??
+                          false) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          owned!.personalNotes!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
-                      if (wishlist?.targetPriceCents != null &&
-                          wishlist?.currency != null)
-                        _ShelfChip(
-                          icon: Icons.sell_outlined,
-                          label: _formatMoney(
-                            wishlist!.targetPriceCents!,
-                            wishlist.currency!,
-                          ),
-                        ),
+                      ],
                     ],
                   ),
-                  if (owned?.personalNotes?.trim().isNotEmpty ?? false) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      owned!.personalNotes!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  _formatDate(entry.updatedAt),
-                  style: Theme.of(context).textTheme.labelSmall,
                 ),
-                const SizedBox(height: 8),
-                PopupMenuButton<_ShelfAction>(
-                  tooltip: 'Shelf actions',
-                  onSelected: (action) {
-                    switch (action) {
-                      case _ShelfAction.removeOwned:
-                        onRemoveOwned();
-                        break;
-                      case _ShelfAction.removeWishlist:
-                        onRemoveWishlist();
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    if (entry.isOwned)
-                      const PopupMenuItem(
-                        value: _ShelfAction.removeOwned,
-                        child: Text('Remove owned'),
-                      ),
-                    if (entry.isWishlisted)
-                      const PopupMenuItem(
-                        value: _ShelfAction.removeWishlist,
-                        child: Text('Remove wishlist'),
-                      ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      _formatDate(entry.updatedAt),
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    PopupMenuButton<_ShelfAction>(
+                      tooltip: 'Shelf actions',
+                      onSelected: (action) {
+                        switch (action) {
+                          case _ShelfAction.removeOwned:
+                            widget.onRemoveOwned();
+                            break;
+                          case _ShelfAction.removeWishlist:
+                            widget.onRemoveWishlist();
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        if (entry.isOwned)
+                          const PopupMenuItem(
+                            value: _ShelfAction.removeOwned,
+                            child: Text('Remove owned'),
+                          ),
+                        if (entry.isWishlisted)
+                          const PopupMenuItem(
+                            value: _ShelfAction.removeWishlist,
+                            child: Text('Remove wishlist'),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ],
             ),
+            if (_isManga) ...[
+              const SizedBox(height: 6),
+              _ShelfVolumesToggle(
+                expanded: _volumesExpanded,
+                onToggle: () =>
+                    setState(() => _volumesExpanded = !_volumesExpanded),
+              ),
+            ],
+            if (_isManga && _volumesExpanded)
+              _ShelfVolumesPanel(itemId: entry.itemId),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ShelfVolumesToggle extends StatelessWidget {
+  const _ShelfVolumesToggle({
+    required this.expanded,
+    required this.onToggle,
+  });
+
+  final bool expanded;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(4),
+      onTap: onToggle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              expanded ? Icons.expand_less : Icons.expand_more,
+              size: 18,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              expanded ? 'Hide volumes' : 'Show volumes',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ShelfVolumesPanel extends ConsumerWidget {
+  const _ShelfVolumesPanel({required this.itemId});
+
+  final String itemId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final volumesAsync = ref.watch(shelfVolumesProvider(itemId));
+    return volumesAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Center(child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        )),
+      ),
+      error: (_, __) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          'Could not load volumes',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
+      data: (volumes) {
+        if (volumes.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'No volumes available',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: volumes
+                .map((v) => _ShelfVolumeTile(volume: v))
+                .toList(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ShelfVolumeTile extends StatefulWidget {
+  const _ShelfVolumeTile({required this.volume});
+
+  final Season volume;
+
+  @override
+  State<_ShelfVolumeTile> createState() => _ShelfVolumeTileState();
+}
+
+class _ShelfVolumeTileState extends State<_ShelfVolumeTile> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final volume = widget.volume;
+    return Column(
+      children: [
+        ListTile(
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+          leading: volume.posterUrl != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: CachedNetworkImage(
+                    imageUrl: volume.posterUrl!,
+                    width: 32,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : const Icon(Icons.menu_book, size: 20),
+          title: Text(
+            volume.title,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          subtitle: Text(
+            [
+              if (volume.episodeCount != null)
+                '${volume.episodeCount} chapters',
+              if (volume.airDate != null) volume.airDate!,
+            ].join(' · '),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          trailing: volume.episodes.isNotEmpty
+              ? Icon(
+                  _expanded ? Icons.expand_less : Icons.expand_more,
+                  size: 18,
+                )
+              : null,
+          onTap: volume.episodes.isNotEmpty
+              ? () => setState(() => _expanded = !_expanded)
+              : null,
+        ),
+        if (_expanded && volume.episodes.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 40, right: 8, bottom: 4),
+            child: Column(
+              children: volume.episodes
+                  .map((ch) => _ShelfChapterRow(chapter: ch))
+                  .toList(),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ShelfChapterRow extends StatelessWidget {
+  const _ShelfChapterRow({required this.chapter});
+
+  final Episode chapter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 32,
+            child: Text(
+              'Ch. ${chapter.episodeNumber}',
+              style: Theme.of(context).textTheme.labelSmall,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              chapter.title,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (chapter.runtimeMinutes != null)
+            Text(
+              '${chapter.runtimeMinutes}p',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+        ],
       ),
     );
   }

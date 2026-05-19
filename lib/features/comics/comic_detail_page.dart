@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_controller.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
