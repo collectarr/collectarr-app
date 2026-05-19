@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/features/collection/cbz/comic_info_xml.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -178,6 +179,12 @@ class _ExportWizardPane extends StatelessWidget {
     );
     final owned = entries.where((entry) => entry.isOwned).length;
     final wishlist = entries.where((entry) => entry.isWishlisted).length;
+    final comicEntries = entries
+        .where((e) => e.catalogItem?.kind == 'comic' && e.catalogItem != null)
+        .toList();
+    final comicInfoXml = comicEntries.isEmpty
+        ? '<!-- No comics to export -->'
+        : _buildComicInfoBatch(comicEntries);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -192,12 +199,15 @@ class _ExportWizardPane extends StatelessWidget {
                 icon: Icons.inventory_2_outlined, label: '$owned owned'),
             _WizardStat(
                 icon: Icons.bookmark_border, label: '$wishlist wishlist'),
+            _WizardStat(
+                icon: Icons.style_outlined,
+                label: '${comicEntries.length} comics'),
           ],
         ),
         const SizedBox(height: 12),
         Expanded(
           child: DefaultTabController(
-            length: 2,
+            length: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -205,6 +215,7 @@ class _ExportWizardPane extends StatelessWidget {
                   tabs: [
                     Tab(text: 'Collectarr CSV'),
                     Tab(text: 'CLZ-friendly CSV'),
+                    Tab(text: 'ComicInfo.xml'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -213,6 +224,7 @@ class _ExportWizardPane extends StatelessWidget {
                     children: [
                       _CsvPreview(text: collectarr),
                       _CsvPreview(text: clz),
+                      _CsvPreview(text: comicInfoXml),
                     ],
                   ),
                 ),
@@ -236,6 +248,13 @@ class _ExportWizardPane extends StatelessWidget {
               icon: const Icon(Icons.table_view_outlined),
               label: const Text('Copy CLZ'),
             ),
+            if (comicEntries.isNotEmpty)
+              OutlinedButton.icon(
+                onPressed: () =>
+                    _copy(context, comicInfoXml, 'ComicInfo.xml copied'),
+                icon: const Icon(Icons.code_outlined),
+                label: const Text('Copy ComicInfo'),
+              ),
           ],
         ),
       ],
@@ -246,6 +265,24 @@ class _ExportWizardPane extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     await Clipboard.setData(ClipboardData(text: value));
     messenger.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _buildComicInfoBatch(List<ShelfEntry> comics) {
+    const xml = ComicInfoXml();
+    final buffer = StringBuffer();
+    for (var i = 0; i < comics.length; i++) {
+      final entry = comics[i];
+      final catalog = entry.catalogItem;
+      if (catalog == null) continue;
+      final owned = entry.ownedItem;
+      if (i > 0) {
+        buffer.writeln();
+        buffer.writeln('<!-- ─── next issue ─── -->');
+        buffer.writeln();
+      }
+      buffer.write(xml.serialize(catalog, owned));
+    }
+    return buffer.toString();
   }
 }
 

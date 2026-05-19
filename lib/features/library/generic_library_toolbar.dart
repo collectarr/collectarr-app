@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic_library_compact_toolbar.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_tools_menu.dart';
@@ -40,6 +41,7 @@ class GenericLibraryToolbar extends StatelessWidget {
     this.selectionEnabled = false,
     this.selectedCount = 0,
     this.selectionCallbacks,
+    this.shelfState,
   });
 
   final LibraryTypeConfig type;
@@ -64,6 +66,7 @@ class GenericLibraryToolbar extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
+  final ShelfState? shelfState;
   final bool selectionEnabled;
   final int selectedCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
@@ -136,6 +139,7 @@ class GenericLibraryToolbar extends StatelessWidget {
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
                       onRandomPick: onRandomPick,
+                      shelfState: shelfState,
                     ),
                     LibraryViewTableControls(
                       state: LibraryViewTableControlState(

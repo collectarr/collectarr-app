@@ -153,6 +153,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                     ? () => _pickRandomItem(projection)
                     : null,
                 counts: projection?.counts ?? const GenericToolbarCounts(),
+                shelfState: shelfState,
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
                 selectionCallbacks: (

@@ -90,9 +90,9 @@ void main() {
     await tester.tap(find.widgetWithText(ListTile, 'Statistics'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Games statistics'), findsOneWidget);
-    expect(find.text('Shown 1'), findsOneWidget);
-    await tester.tap(find.text('Done'));
+    expect(find.text('Games Statistics'), findsOneWidget);
+    expect(find.text('Total'), findsOneWidget);
+    await tester.tap(find.byTooltip('Close'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Library tools'));

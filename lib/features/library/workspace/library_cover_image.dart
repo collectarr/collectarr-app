@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ class LibraryCoverImage extends StatelessWidget {
     required this.title,
     this.itemNumber,
     this.imageUrl,
+    this.localBase64,
     this.borderRadius = 4,
     super.key,
   });
@@ -14,6 +17,7 @@ class LibraryCoverImage extends StatelessWidget {
   final String title;
   final String? itemNumber;
   final String? imageUrl;
+  final String? localBase64;
   final double borderRadius;
 
   @override
@@ -23,6 +27,23 @@ class LibraryCoverImage extends StatelessWidget {
       itemNumber: itemNumber,
       borderRadius: borderRadius,
     );
+    // Prefer local offline bytes when available
+    if (localBase64 != null && localBase64!.isNotEmpty) {
+      try {
+        final bytes = base64Decode(localBase64!);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Image.memory(
+            bytes,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+            errorBuilder: (_, __, ___) => placeholder,
+          ),
+        );
+      } catch (_) {
+        // fall through to network
+      }
+    }
     final url = _normalizedImageUrl(imageUrl);
     if (url == null) {
       return placeholder;

@@ -87,10 +87,10 @@
 - [ ] Android: camera scanner, manual fallback, connection presets, narrow layout
 
 ### 🧩 Post-MVP
-- [ ] QR scanning for pairing (not just QR rendering)
-- [ ] ComicInfo.xml/CBZ import/export
-- [ ] Local image bytes for fully offline cover storage
-- [ ] Rich per-media dashboards and collection analytics
+- [x] QR scanning for pairing (not just QR rendering)
+- [x] ComicInfo.xml export (CBZ dropped — not useful for a collection tracker)
+- [x] Local image bytes for fully offline cover storage
+- [x] Rich per-media dashboards and collection analytics
 - [ ] Packaged release installers + app store preparation
 - [ ] Location tracking (which shelf/box)
 - [ ] Collection value totals

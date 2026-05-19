@@ -1,5 +1,7 @@
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/stats/generic_stats_dashboard.dart';
 import 'package:collectarr_app/features/library/workspace/library_utility_menu.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +16,7 @@ class GenericLibraryToolsButton extends StatelessWidget {
     required this.onQuickViewSelected,
     required this.onClearFilters,
     this.onRandomPick,
+    this.shelfState,
   });
 
   final LibraryTypeConfig type;
@@ -24,6 +27,7 @@ class GenericLibraryToolsButton extends StatelessWidget {
   final ValueChanged<GenericQuickView> onQuickViewSelected;
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
+  final ShelfState? shelfState;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,14 @@ class GenericLibraryToolsButton extends StatelessWidget {
         LibraryUtilityMenuAction(
           icon: Icons.query_stats,
           label: 'Statistics',
-          onSelected: () => _showGenericStatsDialog(context, type, counts),
+          onSelected: () {
+            final state = shelfState;
+            if (state != null) {
+              showGenericStatsDashboardDialog(context, type: type, state: state);
+            } else {
+              _showGenericStatsDialog(context, type, counts);
+            }
+          },
         ),
         if (onRandomPick != null)
           LibraryUtilityMenuAction(
