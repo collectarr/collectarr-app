@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/workspace/library_item_badges.da
 import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -298,6 +299,8 @@ class _GroupedGridState extends State<_GroupedGrid> {
     }
     final sortedKeys = groups.keys.toList()..sort();
 
+    final useSubGroups = widget.groupMode == GenericLibraryGroupMode.series;
+
     return ColoredBox(
       color: kClzGridCanvas,
       child: CustomScrollView(
@@ -319,27 +322,109 @@ class _GroupedGridState extends State<_GroupedGrid> {
               ),
             ),
             if (!_collapsed.contains(key))
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) =>
-                        widget.itemBuilder(context, groups[key]![index]),
-                    childCount: groups[key]!.length,
-                  ),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: widget.maxCrossAxisExtent,
-                    mainAxisExtent: widget.mainAxisExtent,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
-                ),
+              ..._buildGroupContent(
+                groups[key]!,
+                useSubGroups: useSubGroups,
               ),
           ],
           const SliverPadding(padding: EdgeInsets.only(bottom: 10)),
         ],
       ),
     );
+  }
+
+  List<Widget> _buildGroupContent(
+    List<GenericLibraryItem> items, {
+    required bool useSubGroups,
+  }) {
+    if (!useSubGroups) {
+      return [_buildGrid(items)];
+    }
+
+    // Check if any item has volume/season data worth sub-grouping.
+    final hasSubGroups = items.any(
+      (item) =>
+          item.entry.volumeName != null ||
+          item.entry.volumeNumber != null ||
+          item.entry.seasonNumber != null,
+    );
+    if (!hasSubGroups) {
+      return [_buildGrid(items)];
+    }
+
+    // Build sub-groups by volume/season.
+    final subGroups = <String, List<GenericLibraryItem>>{};
+    for (final item in items) {
+      final subKey = _subGroupKey(item.entry);
+      (subGroups[subKey] ??= []).add(item);
+    }
+    final sortedSubKeys = subGroups.keys.toList()..sort(_compareSubGroupKeys);
+
+    return [
+      for (final subKey in sortedSubKeys) ...[
+        SliverToBoxAdapter(
+          child: _SubGroupHeader(
+            title: subKey,
+            count: subGroups[subKey]!.length,
+            collapsed: _collapsed.contains(subKey),
+            accent: widget.accent,
+            onToggle: () => setState(() {
+              if (_collapsed.contains(subKey)) {
+                _collapsed.remove(subKey);
+              } else {
+                _collapsed.add(subKey);
+              }
+            }),
+          ),
+        ),
+        if (!_collapsed.contains(subKey)) _buildGrid(subGroups[subKey]!),
+      ],
+    ];
+  }
+
+  Widget _buildGrid(List<GenericLibraryItem> items) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      sliver: SliverGrid(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => widget.itemBuilder(context, items[index]),
+          childCount: items.length,
+        ),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: widget.maxCrossAxisExtent,
+          mainAxisExtent: widget.mainAxisExtent,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+      ),
+    );
+  }
+
+  static String _subGroupKey(LibraryWorkspaceEntry entry) {
+    if (entry.seasonNumber != null) {
+      return 'Season ${entry.seasonNumber}';
+    }
+    if (entry.volumeName != null && entry.volumeName!.trim().isNotEmpty) {
+      return entry.volumeName!.trim();
+    }
+    if (entry.volumeNumber != null) {
+      return 'Vol. ${entry.volumeNumber}';
+    }
+    return '—';
+  }
+
+  static int _compareSubGroupKeys(String a, String b) {
+    final numA = _extractNumber(a);
+    final numB = _extractNumber(b);
+    if (numA != null && numB != null) {
+      return numA.compareTo(numB);
+    }
+    return a.compareTo(b);
+  }
+
+  static int? _extractNumber(String key) {
+    final match = RegExp(r'(\d+)').firstMatch(key);
+    return match == null ? null : int.tryParse(match.group(1)!);
   }
 }
 
@@ -388,6 +473,60 @@ class _GroupHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 color: accent.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SubGroupHeader extends StatelessWidget {
+  const _SubGroupHeader({
+    required this.title,
+    required this.count,
+    required this.collapsed,
+    required this.accent,
+    required this.onToggle,
+  });
+
+  final String title;
+  final int count;
+  final bool collapsed;
+  final Color accent;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onToggle,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 34, right: 14, top: 4, bottom: 4),
+        child: Row(
+          children: [
+            Icon(
+              collapsed
+                  ? Icons.keyboard_arrow_right
+                  : Icons.keyboard_arrow_down,
+              size: 16,
+              color: accent.withValues(alpha: 0.7),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: accent.withValues(alpha: 0.8),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '($count)',
+              style: TextStyle(
+                fontSize: 11,
+                color: accent.withValues(alpha: 0.5),
               ),
             ),
           ],

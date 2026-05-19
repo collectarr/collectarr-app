@@ -23,6 +23,11 @@ class LibraryWorkspaceEntry {
     this.pricePaidCents,
     this.currency,
     this.storageBox,
+    this.seriesTitle,
+    this.volumeName,
+    this.volumeNumber,
+    this.seasonNumber,
+    this.episodeNumber,
     required this.updatedAt,
   });
 
@@ -47,6 +52,11 @@ class LibraryWorkspaceEntry {
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;
+  final String? seriesTitle;
+  final String? volumeName;
+  final int? volumeNumber;
+  final int? seasonNumber;
+  final int? episodeNumber;
   final DateTime updatedAt;
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;

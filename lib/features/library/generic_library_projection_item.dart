@@ -35,6 +35,11 @@ class GenericLibraryItem {
         pricePaidCents: source.ownedItem?.pricePaidCents,
         currency: source.ownedItem?.currency,
         storageBox: source.ownedItem?.storageBox,
+        seriesTitle: item.seriesTitle,
+        volumeName: item.volumeName,
+        volumeNumber: item.volumeNumber,
+        seasonNumber: item.seasonNumber,
+        episodeNumber: item.episodeNumber,
         updatedAt: source.updatedAt,
       ),
     );

@@ -96,6 +96,48 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> variant = GeneratedColumn<String>(
       'variant', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seriesIdMeta =
+      const VerificationMeta('seriesId');
+  @override
+  late final GeneratedColumn<String> seriesId = GeneratedColumn<String>(
+      'series_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seriesTitleMeta =
+      const VerificationMeta('seriesTitle');
+  @override
+  late final GeneratedColumn<String> seriesTitle = GeneratedColumn<String>(
+      'series_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _volumeNameMeta =
+      const VerificationMeta('volumeName');
+  @override
+  late final GeneratedColumn<String> volumeName = GeneratedColumn<String>(
+      'volume_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _volumeNumberMeta =
+      const VerificationMeta('volumeNumber');
+  @override
+  late final GeneratedColumn<int> volumeNumber = GeneratedColumn<int>(
+      'volume_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _volumeStartYearMeta =
+      const VerificationMeta('volumeStartYear');
+  @override
+  late final GeneratedColumn<int> volumeStartYear = GeneratedColumn<int>(
+      'volume_start_year', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _cachedAtMeta =
       const VerificationMeta('cachedAt');
   @override
@@ -119,6 +161,13 @@ class $CatalogCacheTable extends CatalogCache
         releaseYear,
         barcode,
         variant,
+        seriesId,
+        seriesTitle,
+        volumeName,
+        volumeNumber,
+        volumeStartYear,
+        seasonNumber,
+        episodeNumber,
         cachedAt
       ];
   @override
@@ -212,6 +261,46 @@ class $CatalogCacheTable extends CatalogCache
       context.handle(_variantMeta,
           variant.isAcceptableOrUnknown(data['variant']!, _variantMeta));
     }
+    if (data.containsKey('series_id')) {
+      context.handle(_seriesIdMeta,
+          seriesId.isAcceptableOrUnknown(data['series_id']!, _seriesIdMeta));
+    }
+    if (data.containsKey('series_title')) {
+      context.handle(
+          _seriesTitleMeta,
+          seriesTitle.isAcceptableOrUnknown(
+              data['series_title']!, _seriesTitleMeta));
+    }
+    if (data.containsKey('volume_name')) {
+      context.handle(
+          _volumeNameMeta,
+          volumeName.isAcceptableOrUnknown(
+              data['volume_name']!, _volumeNameMeta));
+    }
+    if (data.containsKey('volume_number')) {
+      context.handle(
+          _volumeNumberMeta,
+          volumeNumber.isAcceptableOrUnknown(
+              data['volume_number']!, _volumeNumberMeta));
+    }
+    if (data.containsKey('volume_start_year')) {
+      context.handle(
+          _volumeStartYearMeta,
+          volumeStartYear.isAcceptableOrUnknown(
+              data['volume_start_year']!, _volumeStartYearMeta));
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
     if (data.containsKey('cached_at')) {
       context.handle(_cachedAtMeta,
           cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta));
@@ -257,6 +346,20 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}barcode']),
       variant: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}variant']),
+      seriesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_id']),
+      seriesTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_title']),
+      volumeName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}volume_name']),
+      volumeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
+      volumeStartYear: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}volume_start_year']),
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
       cachedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}cached_at'])!,
     );
@@ -285,6 +388,13 @@ class CatalogCacheData extends DataClass
   final int? releaseYear;
   final String? barcode;
   final String? variant;
+  final String? seriesId;
+  final String? seriesTitle;
+  final String? volumeName;
+  final int? volumeNumber;
+  final int? volumeStartYear;
+  final int? seasonNumber;
+  final int? episodeNumber;
   final DateTime cachedAt;
   const CatalogCacheData(
       {required this.id,
@@ -302,6 +412,13 @@ class CatalogCacheData extends DataClass
       this.releaseYear,
       this.barcode,
       this.variant,
+      this.seriesId,
+      this.seriesTitle,
+      this.volumeName,
+      this.volumeNumber,
+      this.volumeStartYear,
+      this.seasonNumber,
+      this.episodeNumber,
       required this.cachedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -344,6 +461,27 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || variant != null) {
       map['variant'] = Variable<String>(variant);
+    }
+    if (!nullToAbsent || seriesId != null) {
+      map['series_id'] = Variable<String>(seriesId);
+    }
+    if (!nullToAbsent || seriesTitle != null) {
+      map['series_title'] = Variable<String>(seriesTitle);
+    }
+    if (!nullToAbsent || volumeName != null) {
+      map['volume_name'] = Variable<String>(volumeName);
+    }
+    if (!nullToAbsent || volumeNumber != null) {
+      map['volume_number'] = Variable<int>(volumeNumber);
+    }
+    if (!nullToAbsent || volumeStartYear != null) {
+      map['volume_start_year'] = Variable<int>(volumeStartYear);
+    }
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
     }
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
@@ -390,6 +528,27 @@ class CatalogCacheData extends DataClass
       variant: variant == null && nullToAbsent
           ? const Value.absent()
           : Value(variant),
+      seriesId: seriesId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seriesId),
+      seriesTitle: seriesTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seriesTitle),
+      volumeName: volumeName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(volumeName),
+      volumeNumber: volumeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(volumeNumber),
+      volumeStartYear: volumeStartYear == null && nullToAbsent
+          ? const Value.absent()
+          : Value(volumeStartYear),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
       cachedAt: Value(cachedAt),
     );
   }
@@ -415,6 +574,13 @@ class CatalogCacheData extends DataClass
       releaseYear: serializer.fromJson<int?>(json['releaseYear']),
       barcode: serializer.fromJson<String?>(json['barcode']),
       variant: serializer.fromJson<String?>(json['variant']),
+      seriesId: serializer.fromJson<String?>(json['seriesId']),
+      seriesTitle: serializer.fromJson<String?>(json['seriesTitle']),
+      volumeName: serializer.fromJson<String?>(json['volumeName']),
+      volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
+      volumeStartYear: serializer.fromJson<int?>(json['volumeStartYear']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -437,6 +603,13 @@ class CatalogCacheData extends DataClass
       'releaseYear': serializer.toJson<int?>(releaseYear),
       'barcode': serializer.toJson<String?>(barcode),
       'variant': serializer.toJson<String?>(variant),
+      'seriesId': serializer.toJson<String?>(seriesId),
+      'seriesTitle': serializer.toJson<String?>(seriesTitle),
+      'volumeName': serializer.toJson<String?>(volumeName),
+      'volumeNumber': serializer.toJson<int?>(volumeNumber),
+      'volumeStartYear': serializer.toJson<int?>(volumeStartYear),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -457,6 +630,13 @@ class CatalogCacheData extends DataClass
           Value<int?> releaseYear = const Value.absent(),
           Value<String?> barcode = const Value.absent(),
           Value<String?> variant = const Value.absent(),
+          Value<String?> seriesId = const Value.absent(),
+          Value<String?> seriesTitle = const Value.absent(),
+          Value<String?> volumeName = const Value.absent(),
+          Value<int?> volumeNumber = const Value.absent(),
+          Value<int?> volumeStartYear = const Value.absent(),
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent(),
           DateTime? cachedAt}) =>
       CatalogCacheData(
         id: id ?? this.id,
@@ -481,6 +661,18 @@ class CatalogCacheData extends DataClass
         releaseYear: releaseYear.present ? releaseYear.value : this.releaseYear,
         barcode: barcode.present ? barcode.value : this.barcode,
         variant: variant.present ? variant.value : this.variant,
+        seriesId: seriesId.present ? seriesId.value : this.seriesId,
+        seriesTitle: seriesTitle.present ? seriesTitle.value : this.seriesTitle,
+        volumeName: volumeName.present ? volumeName.value : this.volumeName,
+        volumeNumber:
+            volumeNumber.present ? volumeNumber.value : this.volumeNumber,
+        volumeStartYear: volumeStartYear.present
+            ? volumeStartYear.value
+            : this.volumeStartYear,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
         cachedAt: cachedAt ?? this.cachedAt,
       );
   CatalogCacheData copyWithCompanion(CatalogCacheCompanion data) {
@@ -513,6 +705,23 @@ class CatalogCacheData extends DataClass
           data.releaseYear.present ? data.releaseYear.value : this.releaseYear,
       barcode: data.barcode.present ? data.barcode.value : this.barcode,
       variant: data.variant.present ? data.variant.value : this.variant,
+      seriesId: data.seriesId.present ? data.seriesId.value : this.seriesId,
+      seriesTitle:
+          data.seriesTitle.present ? data.seriesTitle.value : this.seriesTitle,
+      volumeName:
+          data.volumeName.present ? data.volumeName.value : this.volumeName,
+      volumeNumber: data.volumeNumber.present
+          ? data.volumeNumber.value
+          : this.volumeNumber,
+      volumeStartYear: data.volumeStartYear.present
+          ? data.volumeStartYear.value
+          : this.volumeStartYear,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -535,29 +744,44 @@ class CatalogCacheData extends DataClass
           ..write('releaseYear: $releaseYear, ')
           ..write('barcode: $barcode, ')
           ..write('variant: $variant, ')
+          ..write('seriesId: $seriesId, ')
+          ..write('seriesTitle: $seriesTitle, ')
+          ..write('volumeName: $volumeName, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('volumeStartYear: $volumeStartYear, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      kind,
-      title,
-      itemNumber,
-      synopsis,
-      coverImageUrl,
-      thumbnailImageUrl,
-      editionTitle,
-      physicalFormat,
-      physicalFormatLabel,
-      publisher,
-      releaseDate,
-      releaseYear,
-      barcode,
-      variant,
-      cachedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        kind,
+        title,
+        itemNumber,
+        synopsis,
+        coverImageUrl,
+        thumbnailImageUrl,
+        editionTitle,
+        physicalFormat,
+        physicalFormatLabel,
+        publisher,
+        releaseDate,
+        releaseYear,
+        barcode,
+        variant,
+        seriesId,
+        seriesTitle,
+        volumeName,
+        volumeNumber,
+        volumeStartYear,
+        seasonNumber,
+        episodeNumber,
+        cachedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -577,6 +801,13 @@ class CatalogCacheData extends DataClass
           other.releaseYear == this.releaseYear &&
           other.barcode == this.barcode &&
           other.variant == this.variant &&
+          other.seriesId == this.seriesId &&
+          other.seriesTitle == this.seriesTitle &&
+          other.volumeName == this.volumeName &&
+          other.volumeNumber == this.volumeNumber &&
+          other.volumeStartYear == this.volumeStartYear &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -596,6 +827,13 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<int?> releaseYear;
   final Value<String?> barcode;
   final Value<String?> variant;
+  final Value<String?> seriesId;
+  final Value<String?> seriesTitle;
+  final Value<String?> volumeName;
+  final Value<int?> volumeNumber;
+  final Value<int?> volumeStartYear;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const CatalogCacheCompanion({
@@ -614,6 +852,13 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.releaseYear = const Value.absent(),
     this.barcode = const Value.absent(),
     this.variant = const Value.absent(),
+    this.seriesId = const Value.absent(),
+    this.seriesTitle = const Value.absent(),
+    this.volumeName = const Value.absent(),
+    this.volumeNumber = const Value.absent(),
+    this.volumeStartYear = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -633,6 +878,13 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.releaseYear = const Value.absent(),
     this.barcode = const Value.absent(),
     this.variant = const Value.absent(),
+    this.seriesId = const Value.absent(),
+    this.seriesTitle = const Value.absent(),
+    this.volumeName = const Value.absent(),
+    this.volumeNumber = const Value.absent(),
+    this.volumeStartYear = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -655,6 +907,13 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<int>? releaseYear,
     Expression<String>? barcode,
     Expression<String>? variant,
+    Expression<String>? seriesId,
+    Expression<String>? seriesTitle,
+    Expression<String>? volumeName,
+    Expression<int>? volumeNumber,
+    Expression<int>? volumeStartYear,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -675,6 +934,13 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (releaseYear != null) 'release_year': releaseYear,
       if (barcode != null) 'barcode': barcode,
       if (variant != null) 'variant': variant,
+      if (seriesId != null) 'series_id': seriesId,
+      if (seriesTitle != null) 'series_title': seriesTitle,
+      if (volumeName != null) 'volume_name': volumeName,
+      if (volumeNumber != null) 'volume_number': volumeNumber,
+      if (volumeStartYear != null) 'volume_start_year': volumeStartYear,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -696,6 +962,13 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<int?>? releaseYear,
       Value<String?>? barcode,
       Value<String?>? variant,
+      Value<String?>? seriesId,
+      Value<String?>? seriesTitle,
+      Value<String?>? volumeName,
+      Value<int?>? volumeNumber,
+      Value<int?>? volumeStartYear,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
       Value<DateTime>? cachedAt,
       Value<int>? rowid}) {
     return CatalogCacheCompanion(
@@ -714,6 +987,13 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       releaseYear: releaseYear ?? this.releaseYear,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
+      seriesId: seriesId ?? this.seriesId,
+      seriesTitle: seriesTitle ?? this.seriesTitle,
+      volumeName: volumeName ?? this.volumeName,
+      volumeNumber: volumeNumber ?? this.volumeNumber,
+      volumeStartYear: volumeStartYear ?? this.volumeStartYear,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -768,6 +1048,27 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (variant.present) {
       map['variant'] = Variable<String>(variant.value);
     }
+    if (seriesId.present) {
+      map['series_id'] = Variable<String>(seriesId.value);
+    }
+    if (seriesTitle.present) {
+      map['series_title'] = Variable<String>(seriesTitle.value);
+    }
+    if (volumeName.present) {
+      map['volume_name'] = Variable<String>(volumeName.value);
+    }
+    if (volumeNumber.present) {
+      map['volume_number'] = Variable<int>(volumeNumber.value);
+    }
+    if (volumeStartYear.present) {
+      map['volume_start_year'] = Variable<int>(volumeStartYear.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -795,6 +1096,13 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('releaseYear: $releaseYear, ')
           ..write('barcode: $barcode, ')
           ..write('variant: $variant, ')
+          ..write('seriesId: $seriesId, ')
+          ..write('seriesTitle: $seriesTitle, ')
+          ..write('volumeName: $volumeName, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('volumeStartYear: $volumeStartYear, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4147,6 +4455,13 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<int?> releaseYear,
   Value<String?> barcode,
   Value<String?> variant,
+  Value<String?> seriesId,
+  Value<String?> seriesTitle,
+  Value<String?> volumeName,
+  Value<int?> volumeNumber,
+  Value<int?> volumeStartYear,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
   required DateTime cachedAt,
   Value<int> rowid,
 });
@@ -4167,6 +4482,13 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<int?> releaseYear,
   Value<String?> barcode,
   Value<String?> variant,
+  Value<String?> seriesId,
+  Value<String?> seriesTitle,
+  Value<String?> volumeName,
+  Value<int?> volumeNumber,
+  Value<int?> volumeStartYear,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
   Value<DateTime> cachedAt,
   Value<int> rowid,
 });
@@ -4227,6 +4549,28 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get variant => $composableBuilder(
       column: $table.variant, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesTitle => $composableBuilder(
+      column: $table.seriesTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get volumeName => $composableBuilder(
+      column: $table.volumeName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get volumeStartYear => $composableBuilder(
+      column: $table.volumeStartYear,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnFilters(column));
@@ -4291,6 +4635,31 @@ class $$CatalogCacheTableOrderingComposer
   ColumnOrderings<String> get variant => $composableBuilder(
       column: $table.variant, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesTitle => $composableBuilder(
+      column: $table.seriesTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get volumeName => $composableBuilder(
+      column: $table.volumeName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get volumeStartYear => $composableBuilder(
+      column: $table.volumeStartYear,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
 }
@@ -4349,6 +4718,27 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get variant =>
       $composableBuilder(column: $table.variant, builder: (column) => column);
 
+  GeneratedColumn<String> get seriesId =>
+      $composableBuilder(column: $table.seriesId, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesTitle => $composableBuilder(
+      column: $table.seriesTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get volumeName => $composableBuilder(
+      column: $table.volumeName, builder: (column) => column);
+
+  GeneratedColumn<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get volumeStartYear => $composableBuilder(
+      column: $table.volumeStartYear, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
 }
@@ -4394,6 +4784,13 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> releaseYear = const Value.absent(),
             Value<String?> barcode = const Value.absent(),
             Value<String?> variant = const Value.absent(),
+            Value<String?> seriesId = const Value.absent(),
+            Value<String?> seriesTitle = const Value.absent(),
+            Value<String?> volumeName = const Value.absent(),
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> volumeStartYear = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
             Value<DateTime> cachedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -4413,6 +4810,13 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             releaseYear: releaseYear,
             barcode: barcode,
             variant: variant,
+            seriesId: seriesId,
+            seriesTitle: seriesTitle,
+            volumeName: volumeName,
+            volumeNumber: volumeNumber,
+            volumeStartYear: volumeStartYear,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -4432,6 +4836,13 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> releaseYear = const Value.absent(),
             Value<String?> barcode = const Value.absent(),
             Value<String?> variant = const Value.absent(),
+            Value<String?> seriesId = const Value.absent(),
+            Value<String?> seriesTitle = const Value.absent(),
+            Value<String?> volumeName = const Value.absent(),
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> volumeStartYear = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
             required DateTime cachedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -4451,6 +4862,13 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             releaseYear: releaseYear,
             barcode: barcode,
             variant: variant,
+            seriesId: seriesId,
+            seriesTitle: seriesTitle,
+            volumeName: volumeName,
+            volumeNumber: volumeNumber,
+            volumeStartYear: volumeStartYear,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
             cachedAt: cachedAt,
             rowid: rowid,
           ),

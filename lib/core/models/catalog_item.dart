@@ -15,6 +15,13 @@ class CatalogItem {
     this.releaseYear,
     this.barcode,
     this.variant,
+    this.seriesId,
+    this.seriesTitle,
+    this.volumeName,
+    this.volumeNumber,
+    this.volumeStartYear,
+    this.seasonNumber,
+    this.episodeNumber,
   });
 
   final String id;
@@ -32,6 +39,13 @@ class CatalogItem {
   final int? releaseYear;
   final String? barcode;
   final String? variant;
+  final String? seriesId;
+  final String? seriesTitle;
+  final String? volumeName;
+  final int? volumeNumber;
+  final int? volumeStartYear;
+  final int? seasonNumber;
+  final int? episodeNumber;
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
   String? get displayEditionLabel =>
@@ -54,6 +68,13 @@ class CatalogItem {
       'release_year': releaseYear,
       'barcode': barcode,
       'variant': variant,
+      'series_id': seriesId,
+      'series_title': seriesTitle,
+      'volume_name': volumeName,
+      'volume_number': volumeNumber,
+      'volume_start_year': volumeStartYear,
+      'season_number': seasonNumber,
+      'episode_number': episodeNumber,
     };
   }
 
@@ -74,6 +95,13 @@ class CatalogItem {
       releaseYear: json['release_year'] as int?,
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
+      seriesId: json['series_id'] as String?,
+      seriesTitle: json['series_title'] as String?,
+      volumeName: json['volume_name'] as String?,
+      volumeNumber: json['volume_number'] as int?,
+      volumeStartYear: json['volume_start_year'] as int?,
+      seasonNumber: json['season_number'] as int?,
+      episodeNumber: json['episode_number'] as int?,
     );
   }
 

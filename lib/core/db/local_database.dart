@@ -19,6 +19,13 @@ class CatalogCache extends Table {
   IntColumn get releaseYear => integer().nullable()();
   TextColumn get barcode => text().nullable()();
   TextColumn get variant => text().nullable()();
+  TextColumn get seriesId => text().nullable()();
+  TextColumn get seriesTitle => text().nullable()();
+  TextColumn get volumeName => text().nullable()();
+  IntColumn get volumeNumber => integer().nullable()();
+  IntColumn get volumeStartYear => integer().nullable()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -139,7 +146,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -160,6 +167,17 @@ class LocalDatabase extends _$LocalDatabase {
           await _addColumnsIfMissing('owned_items_cache', {
             'started_at': 'INTEGER',
             'finished_at': 'INTEGER',
+          });
+        }
+        if (from < 4) {
+          await _addColumnsIfMissing('catalog_cache', {
+            'series_id': 'TEXT',
+            'series_title': 'TEXT',
+            'volume_name': 'TEXT',
+            'volume_number': 'INTEGER',
+            'volume_start_year': 'INTEGER',
+            'season_number': 'INTEGER',
+            'episode_number': 'INTEGER',
           });
         }
       },
@@ -198,6 +216,13 @@ class LocalDatabase extends _$LocalDatabase {
       'edition_title': 'TEXT',
       'physical_format': 'TEXT',
       'physical_format_label': 'TEXT',
+      'series_id': 'TEXT',
+      'series_title': 'TEXT',
+      'volume_name': 'TEXT',
+      'volume_number': 'INTEGER',
+      'volume_start_year': 'INTEGER',
+      'season_number': 'INTEGER',
+      'episode_number': 'INTEGER',
     };
     for (final entry in optionalColumns.entries) {
       if (!columnNames.contains(entry.key)) {

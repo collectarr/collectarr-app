@@ -226,9 +226,7 @@ String genericBucketForItemMode(
   final entry = item.entry;
   final publisher = entry.publisher?.trim();
   return switch (groupMode) {
-    GenericLibraryGroupMode.series => entry.title.trim().isEmpty
-        ? 'Unknown series'
-        : entry.title.trim(),
+    GenericLibraryGroupMode.series => _seriesBucket(entry),
     GenericLibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
     GenericLibraryGroupMode.publisher => publisher == null || publisher.isEmpty
@@ -243,6 +241,15 @@ String genericBucketForItemMode(
             : 'Catalog only',
     GenericLibraryGroupMode.title => _titleBucket(entry.title),
   };
+}
+
+String _seriesBucket(LibraryWorkspaceEntry entry) {
+  final series = entry.seriesTitle?.trim();
+  if (series != null && series.isNotEmpty) {
+    return series;
+  }
+  final title = entry.title.trim();
+  return title.isEmpty ? 'Unknown series' : title;
 }
 
 String _titleBucket(String title) {

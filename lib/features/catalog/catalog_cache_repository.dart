@@ -35,6 +35,13 @@ class CatalogCacheRepository {
               releaseYear: Value(item.releaseYear),
               barcode: Value(item.barcode),
               variant: Value(item.variant),
+              seriesId: Value(item.seriesId),
+              seriesTitle: Value(item.seriesTitle),
+              volumeName: Value(item.volumeName),
+              volumeNumber: Value(item.volumeNumber),
+              volumeStartYear: Value(item.volumeStartYear),
+              seasonNumber: Value(item.seasonNumber),
+              episodeNumber: Value(item.episodeNumber),
               cachedAt: now,
             ),
         ],
@@ -77,6 +84,13 @@ class CatalogCacheRepository {
           releaseYear: row.releaseYear,
           barcode: row.barcode,
           variant: row.variant,
+          seriesId: row.seriesId,
+          seriesTitle: row.seriesTitle,
+          volumeName: row.volumeName,
+          volumeNumber: row.volumeNumber,
+          volumeStartYear: row.volumeStartYear,
+          seasonNumber: row.seasonNumber,
+          episodeNumber: row.episodeNumber,
         ),
     };
   }
@@ -156,6 +170,13 @@ class CatalogCacheRepository {
       releaseYear: row.releaseYear,
       barcode: row.barcode,
       variant: row.variant,
+      seriesId: row.seriesId,
+      seriesTitle: row.seriesTitle,
+      volumeName: row.volumeName,
+      volumeNumber: row.volumeNumber,
+      volumeStartYear: row.volumeStartYear,
+      seasonNumber: row.seasonNumber,
+      episodeNumber: row.episodeNumber,
     );
   }
 
