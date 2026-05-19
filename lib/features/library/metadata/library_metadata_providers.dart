@@ -24,6 +24,17 @@ const comicVineMetadataProvider = LibraryMetadataProviderOption(
   ),
 );
 
+const mangadexMetadataProvider = LibraryMetadataProviderOption(
+  id: 'mangadex',
+  label: 'MangaDex',
+  description: 'Live manga metadata and chapter feed provider',
+  supportedKinds: {'manga'},
+  usagePolicy: LibraryMetadataProviderUsagePolicy(
+    summary: 'Public manga metadata with attribution requirements',
+    requiresAttribution: true,
+  ),
+);
+
 const igdbMetadataProvider = LibraryMetadataProviderOption(
   id: 'igdb',
   label: 'IGDB',
@@ -97,11 +108,12 @@ const musicBrainzMetadataProvider = LibraryMetadataProviderOption(
 
 const collectarrKnownMetadataProviders = [
   gcdMetadataProvider,
+  mangadexMetadataProvider,
+  anilistMetadataProvider,
   comicVineMetadataProvider,
   igdbMetadataProvider,
   bggMetadataProvider,
   openLibraryMetadataProvider,
-  anilistMetadataProvider,
   tmdbMetadataProvider,
   musicBrainzMetadataProvider,
 ];

@@ -207,11 +207,7 @@ class _ComicDetailBody extends ConsumerWidget {
             provider: 'tmdb',
             providerItemId: _tmdbProviderItemId(comic)!,
           ),
-        if (_mangaProviderItemId(comic) != null)
-          VolumesSection(
-            provider: _mangaProviderItemId(comic)!.$1,
-            providerItemId: _mangaProviderItemId(comic)!.$2,
-          ),
+        if (comic.kind == 'manga') VolumesSection(itemId: comic.id),
         const SizedBox(height: 16),
         FilledButton.icon(
           onPressed: () => showMetadataCorrectionDialog(
@@ -723,19 +719,6 @@ String? _tmdbProviderItemId(ComicDetail comic) {
   for (final link in comic.providerLinks) {
     if (link.provider == 'tmdb' && link.entityType == 'item') {
       return link.providerItemId;
-    }
-  }
-  return null;
-}
-
-(String, String)? _mangaProviderItemId(ComicDetail comic) {
-  if (comic.kind != 'manga') return null;
-  const volumeProviders = ['mangadex', 'anilist'];
-  for (final provider in volumeProviders) {
-    for (final link in comic.providerLinks) {
-      if (link.provider == provider && link.entityType == 'item') {
-        return (provider, link.providerItemId);
-      }
     }
   }
   return null;

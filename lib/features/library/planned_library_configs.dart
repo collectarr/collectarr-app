@@ -29,8 +29,9 @@ const mangaLibraryConfig = LibraryTypeConfig(
   workspace: mangaWorkspaceConfig,
   singularLabel: 'Manga',
   pluralLabel: 'Manga',
-  defaultMetadataProvider: 'anilist',
+  defaultMetadataProvider: 'mangadex',
   metadataProviders: [
+    mangadexMetadataProvider,
     anilistMetadataProvider,
     comicVineMetadataProvider,
   ],

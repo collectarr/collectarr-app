@@ -74,8 +74,8 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
     'game' || 'boardgame' => 'game',
     _ => 'video',
   };
-  final formats =
-      physicalMediaFormatsFromCatalog(catalog, kind: kind, mediaFamily: mediaFamily);
+  final formats = physicalMediaFormatsFromCatalog(catalog,
+      kind: kind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
@@ -103,8 +103,8 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     singularLabel: 'Manga',
     pluralLabel: 'Manga',
     routeSegments: ['manga'],
-    defaultProvider: 'anilist',
-    providers: ['anilist', 'comicvine'],
+    defaultProvider: 'mangadex',
+    providers: ['mangadex', 'anilist', 'comicvine'],
   ),
   CatalogMediaType(
     kind: 'anime',

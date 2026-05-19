@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -17,6 +19,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_propos
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/volumes_provider.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -308,7 +311,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         input: LibraryMetadataSearchInput(query: query, limit: 20),
       ).timeout(_coreSearchTimeout);
       final shouldSearchProvider =
-          items.isEmpty && widget.type.supportedMetadataProviders.isNotEmpty;
+          widget.type.supportedMetadataProviders.isNotEmpty;
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
           _results = items;
@@ -380,7 +383,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
-          found.isEmpty &&
           widget.type.supportedMetadataProviders.isNotEmpty) {
         await _searchProvider(queryOverride: barcode);
       }
@@ -483,17 +485,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final results = await searchLibraryProviderCandidates(
         ref.read(apiClientProvider),
         widget.type,
+        provider: provider,
         query: query,
       );
       if (!mounted) {
         return;
       }
       setState(() {
-        _results = const [];
-        _selectedResultId = null;
         _providerResults = results;
-        _selectedProviderCandidateId =
-            results.isEmpty ? null : results.first.localCatalogId;
+        if (_selectedResultId == null && _selectedProviderCandidateId == null) {
+          _selectedProviderCandidateId =
+              results.isEmpty ? null : results.first.localCatalogId;
+        }
       });
     } catch (error) {
       if (mounted) {
@@ -553,8 +556,59 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _addProviderCandidate(
     ProviderCandidate candidate,
     LibraryAddTarget target,
-  ) {
-    return _addItems([candidate.placeholderCatalogItem()], target);
+  ) async {
+    final isAdmin = ref.read(authControllerProvider).isAdmin;
+    if (!isAdmin || candidate.isStub) {
+      await _addItems([candidate.placeholderCatalogItem()], target);
+      return;
+    }
+    try {
+      final ingest = await ref.read(apiClientProvider).adminProviderIngest(
+            provider: candidate.provider,
+            providerItemId: candidate.providerItemId,
+          );
+      final ingestedItem = _catalogItemFromIngestResult(ingest.item);
+      await _addItems([ingestedItem], target);
+    } catch (error) {
+      if (mounted &&
+          await _clearRejectedMetadataSession(error, 'Provider ingest')) {
+        return;
+      }
+      if (mounted) {
+        final api = ref.read(apiClientProvider);
+        setState(
+          () => _error =
+              'Provider ingest failed: ${ConnectionDiagnostics.metadataError(error, api.baseUrl)}',
+        );
+      }
+    }
+  }
+
+  CatalogItem _catalogItemFromIngestResult(AdminMetadataItem item) {
+    final primaryEdition = item.primaryEdition;
+    final primaryVariant = item.primaryVariant;
+    final releaseDate = primaryEdition?.releaseDate;
+    return CatalogItem(
+      id: item.id,
+      kind: item.kind,
+      title: item.title,
+      itemNumber: item.itemNumber,
+      synopsis: item.synopsis,
+      coverImageUrl: primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
+      thumbnailImageUrl:
+          primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
+      editionTitle: primaryEdition?.title,
+      physicalFormat: primaryEdition?.physicalFormat,
+      physicalFormatLabel: primaryEdition?.physicalFormatLabel,
+      publisher: primaryEdition?.publisher ?? item.publisher,
+      releaseDate: releaseDate,
+      releaseYear: releaseDate?.year ?? item.volumeStartYear,
+      barcode: primaryVariant?.barcode ?? item.barcode,
+      variant: primaryVariant?.name,
+      seriesTitle: item.seriesTitle,
+      volumeName: item.volumeName,
+      volumeStartYear: item.volumeStartYear,
+    );
   }
 
   Future<void> _proposeCandidate(ProviderCandidate candidate) async {
@@ -1044,17 +1098,10 @@ class _LibraryAddModeBar extends StatelessWidget {
   }
 
   String get _searchHint {
-    final label = type.singularLabel.toLowerCase();
-    if (type.workspace.kind == 'comic' || type.workspace.kind == 'manga') {
-      return 'Enter series title...';
-    }
-    return 'Enter $label title...';
+    return 'Enter title, creator, or keyword...';
   }
 
   String get _searchButtonLabel {
-    if (type.workspace.kind == 'comic' || type.workspace.kind == 'manga') {
-      return 'Search Series';
-    }
     return 'Search ${type.pluralLabel}';
   }
 }
@@ -1581,22 +1628,34 @@ class _SearchResultsList extends StatelessWidget {
           _ResultSectionHeader(
             label: '${type.metadataProviderLabel(selectedProvider)} candidates',
           ),
-          ..._withDividers(
-            context,
-            [
-              for (final candidate in providerResults)
-                _ProviderCandidateTile(
-                  candidate: candidate,
-                  accent: accent,
-                  providerLabel: type.metadataProviderLabel(candidate.provider),
-                  queuedIngest: queuedProviderIngests[candidate.localCatalogId],
-                  selected:
-                      candidate.localCatalogId == selectedProviderCandidateId,
-                  onSelect: () =>
-                      onSelectProviderCandidate(candidate.localCatalogId),
-                ),
-            ],
-          ),
+          if (type.workspace.kind == 'manga')
+            _MangaCandidateTreeList(
+              results: providerResults,
+              accent: accent,
+              selectedProviderCandidateId: selectedProviderCandidateId,
+              queuedProviderIngests: queuedProviderIngests,
+              providerLabel: type.metadataProviderLabel,
+              onSelectProviderCandidate: onSelectProviderCandidate,
+            )
+          else
+            ..._withDividers(
+              context,
+              [
+                for (final candidate in providerResults)
+                  _ProviderCandidateTile(
+                    candidate: candidate,
+                    accent: accent,
+                    providerLabel:
+                        type.metadataProviderLabel(candidate.provider),
+                    queuedIngest:
+                        queuedProviderIngests[candidate.localCatalogId],
+                    selected:
+                        candidate.localCatalogId == selectedProviderCandidateId,
+                    onSelect: () =>
+                        onSelectProviderCandidate(candidate.localCatalogId),
+                  ),
+              ],
+            ),
         ],
       ],
     );
@@ -1621,6 +1680,325 @@ class _SearchResultsList extends StatelessWidget {
       separated.add(tiles[index]);
     }
     return separated;
+  }
+}
+
+class _MangaCandidateTreeList extends StatelessWidget {
+  const _MangaCandidateTreeList({
+    required this.results,
+    required this.accent,
+    required this.selectedProviderCandidateId,
+    required this.queuedProviderIngests,
+    required this.providerLabel,
+    required this.onSelectProviderCandidate,
+  });
+
+  final List<ProviderCandidate> results;
+  final Color accent;
+  final String? selectedProviderCandidateId;
+  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
+  final String Function(String providerId) providerLabel;
+  final ValueChanged<String> onSelectProviderCandidate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < results.length; i++) ...[
+          _MangaCandidateNode(
+            candidate: results[i],
+            accent: accent,
+            providerLabel: providerLabel(results[i].provider),
+            queuedIngest: queuedProviderIngests[results[i].localCatalogId],
+            selected: results[i].localCatalogId == selectedProviderCandidateId,
+            onSelect: () =>
+                onSelectProviderCandidate(results[i].localCatalogId),
+          ),
+          if (i < results.length - 1)
+            const Divider(height: 1, thickness: 1, color: kClzDivider),
+        ],
+      ],
+    );
+  }
+}
+
+class _MangaCandidateNode extends ConsumerStatefulWidget {
+  const _MangaCandidateNode({
+    required this.candidate,
+    required this.accent,
+    required this.providerLabel,
+    required this.queuedIngest,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final ProviderCandidate candidate;
+  final Color accent;
+  final String providerLabel;
+  final _QueuedProviderIngest? queuedIngest;
+  final bool selected;
+  final VoidCallback onSelect;
+
+  @override
+  ConsumerState<_MangaCandidateNode> createState() =>
+      _MangaCandidateNodeState();
+}
+
+class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final candidate = widget.candidate;
+    final subtitle = [
+      widget.providerLabel,
+      if (candidate.summary != null && candidate.summary!.trim().isNotEmpty)
+        candidate.summary,
+      candidate.providerItemId,
+    ].whereType<String>().join(' | ');
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: widget.selected
+            ? Color.alphaBlend(
+                widget.accent.withValues(alpha: 0.46), kClzSelection)
+            : kClzTableEvenRow,
+        border: Border(
+          left: BorderSide(
+            color: widget.selected ? widget.accent : Colors.transparent,
+            width: 4,
+          ),
+        ),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: widget.onSelect,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 42,
+                    height: 56,
+                    child: LibraryCoverImage(
+                      title: candidate.title,
+                      imageUrl: candidate.imageUrl,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          candidate.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        if (subtitle.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            subtitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: kClzTextMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 5),
+                        Wrap(
+                          spacing: 5,
+                          runSpacing: 4,
+                          children: [
+                            LibraryAddResultBadge(widget.providerLabel),
+                            if (widget.queuedIngest != null)
+                              LibraryAddResultBadge(
+                                '${widget.queuedIngest!.statusLabel} ${widget.queuedIngest!.shortId}',
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    children: [
+                      Icon(
+                        widget.selected
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: widget.selected ? widget.accent : kClzTextMuted,
+                        size: 18,
+                      ),
+                      IconButton(
+                        tooltip:
+                            _expanded ? 'Collapse volumes' : 'Expand volumes',
+                        onPressed: () => setState(() => _expanded = !_expanded),
+                        icon: Icon(
+                          _expanded ? Icons.expand_less : Icons.expand_more,
+                          color: widget.accent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_expanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(56, 0, 12, 10),
+              child: _MangaCandidateVolumes(candidate: candidate),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MangaCandidateVolumes extends ConsumerWidget {
+  const _MangaCandidateVolumes({required this.candidate});
+
+  final ProviderCandidate candidate;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final volumesAsync = ref.watch(
+      volumesProvider(
+        (
+          provider: candidate.provider,
+          providerItemId: candidate.providerItemId
+        ),
+      ),
+    );
+    return volumesAsync.when(
+      loading: () => const Row(
+        children: [
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Loading volumes and chapters...',
+              style: TextStyle(color: kClzTextMuted),
+            ),
+          ),
+        ],
+      ),
+      error: (_, __) => const Text(
+        'Volumes/chapters are not available for this candidate right now.',
+        style: TextStyle(color: kClzTextMuted),
+      ),
+      data: (volumes) {
+        if (volumes.isEmpty) {
+          return const Text(
+            'No volume/chapter data returned for this candidate.',
+            style: TextStyle(color: kClzTextMuted),
+          );
+        }
+        return Column(
+          children: [
+            for (final volume in volumes) _MangaVolumeNode(volume: volume),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _MangaVolumeNode extends StatefulWidget {
+  const _MangaVolumeNode({required this.volume});
+
+  final Season volume;
+
+  @override
+  State<_MangaVolumeNode> createState() => _MangaVolumeNodeState();
+}
+
+class _MangaVolumeNodeState extends State<_MangaVolumeNode> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final volume = widget.volume;
+    final chapters = volume.episodes;
+    final count = volume.episodeCount ?? chapters.length;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(color: kClzDivider),
+          color: const Color(0x1AFFFFFF),
+        ),
+        child: Column(
+          children: [
+            ListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              leading: const Icon(Icons.menu_book, size: 18),
+              title: Text(
+                volume.title,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              subtitle: Text('$count chapters'),
+              trailing: chapters.isEmpty
+                  ? null
+                  : Icon(
+                      _expanded ? Icons.expand_less : Icons.expand_more,
+                      size: 18,
+                    ),
+              onTap: chapters.isEmpty
+                  ? null
+                  : () => setState(() => _expanded = !_expanded),
+            ),
+            if (_expanded && chapters.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 0, 12, 10),
+                child: Column(
+                  children: [
+                    for (final chapter in chapters)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 64,
+                              child: Text(
+                                'Ch. ${chapter.episodeNumber}',
+                                style: const TextStyle(
+                                  color: kClzTextMuted,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                chapter.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -1974,7 +2352,7 @@ class _LibraryAddPaneResizeDivider extends StatelessWidget {
   }
 }
 
-class _LibraryAddPreviewPane extends StatelessWidget {
+class _LibraryAddPreviewPane extends ConsumerWidget {
   const _LibraryAddPreviewPane({
     required this.type,
     required this.accent,
@@ -1992,7 +2370,7 @@ class _LibraryAddPreviewPane extends StatelessWidget {
   final bool searched;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selectedItem = item;
     final selectedCandidate = candidate;
     if (selectedItem == null && selectedCandidate == null) {
@@ -2249,9 +2627,10 @@ class _LibraryAddBottomBar extends StatelessWidget {
                           ? 'Queue ingest'
                           : 'Queued ${selectedQueuedIngest!.shortId}',
                       accent: accent,
-                      onPressed: selectedQueuedIngest != null || isQueueingIngest
-                          ? null
-                          : onQueueIngest,
+                      onPressed:
+                          selectedQueuedIngest != null || isQueueingIngest
+                              ? null
+                              : onQueueIngest,
                     ),
                   _LibraryAddBottomActionButton(
                     icon: Icons.outbox_outlined,
