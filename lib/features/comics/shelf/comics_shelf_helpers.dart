@@ -34,6 +34,11 @@ LibraryWorkspaceEntry comicWorkspaceEntry(
     pricePaidCents: ownedItem?.pricePaidCents,
     currency: ownedItem?.currency,
     storageBox: ownedItem?.storageBox,
+    seriesTitle: item.seriesTitle,
+    volumeName: item.volumeName,
+    volumeNumber: item.volumeNumber,
+    seasonNumber: item.seasonNumber,
+    episodeNumber: item.episodeNumber,
     updatedAt: _latestLibraryUpdate(ownedItem, wishlistItem),
   );
 }

@@ -40,6 +40,28 @@ class GenericMetadataSection extends StatelessWidget {
         LibraryInspectorFactGrid(
           facts: [
             LibraryInspectorFactData('Kind', type.singularLabel),
+            if (entry.seriesTitle != null)
+              LibraryInspectorFactData(
+                'Series',
+                entry.seriesTitle!,
+                onTap: _tapFor(entry.seriesTitle),
+              ),
+            if (entry.volumeName != null || entry.volumeNumber != null)
+              LibraryInspectorFactData(
+                'Volume',
+                entry.volumeName ??
+                    'Vol. ${entry.volumeNumber}',
+              ),
+            if (entry.seasonNumber != null)
+              LibraryInspectorFactData(
+                'Season',
+                'Season ${entry.seasonNumber}',
+              ),
+            if (entry.episodeNumber != null)
+              LibraryInspectorFactData(
+                'Episode',
+                'Ep. ${entry.episodeNumber}',
+              ),
             LibraryInspectorFactData(
               labels.publisher,
               genericLibraryDash(entry.publisher),

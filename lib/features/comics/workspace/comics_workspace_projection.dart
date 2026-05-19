@@ -215,7 +215,8 @@ String _entryGroupLabel(
 
 String _itemGroupLabel(CatalogItem item, ComicsShelfGroupMode mode) {
   return switch (mode) {
-    ComicsShelfGroupMode.series => item.title,
+    ComicsShelfGroupMode.series =>
+      item.seriesTitle?.isNotEmpty == true ? item.seriesTitle! : item.title,
     ComicsShelfGroupMode.publisher =>
       _nonEmpty(item.publisher, 'Unknown Publisher'),
     ComicsShelfGroupMode.year => item.releaseYear?.toString() ??
