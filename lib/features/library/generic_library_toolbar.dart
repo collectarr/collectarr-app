@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic_library_projection.dart'
 import 'package:collectarr_app/features/library/generic_library_tools_menu.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_view_table_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -36,6 +37,9 @@ class GenericLibraryToolbar extends StatelessWidget {
     required this.hasActiveFilters,
     required this.onClearFilters,
     this.onRandomPick,
+    this.selectionEnabled = false,
+    this.selectedCount = 0,
+    this.selectionCallbacks,
   });
 
   final LibraryTypeConfig type;
@@ -60,6 +64,9 @@ class GenericLibraryToolbar extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
+  final bool selectionEnabled;
+  final int selectedCount;
+  final LibrarySelectionCallbacks? selectionCallbacks;
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +117,14 @@ class GenericLibraryToolbar extends StatelessWidget {
                   selectionColor: kClzSelection,
                 ),
                 const LibraryWorkspaceSeparator(color: kClzDivider),
+                if (selectionCallbacks != null)
+                  LibrarySelectionControls(
+                    enabled: selectionEnabled,
+                    selectedCount: selectedCount,
+                    callbacks: selectionCallbacks!,
+                  ),
+                if (selectionCallbacks != null)
+                  const LibraryWorkspaceSeparator(color: kClzDivider),
                 LibraryWorkspaceControlStrip(
                   children: [
                     GenericLibraryToolsButton(

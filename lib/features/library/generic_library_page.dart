@@ -22,6 +22,10 @@ import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
+import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
+import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +56,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   GenericQuickView? _quickView;
   GenericLibraryGroupMode? _groupMode;
   Map<String, List<String>> _customFieldValuesByItem = const {};
+  var _selection = LibrarySelectionState.empty();
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -149,6 +154,18 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                     ? () => _pickRandomItem(projection)
                     : null,
                 counts: projection?.counts ?? const GenericToolbarCounts(),
+                selectionEnabled: _selection.enabled,
+                selectedCount: _selection.selectedCount,
+                selectionCallbacks: (
+                  onSelectionModeChanged: (enabled) =>
+                      setState(() => _selection = _selection.setEnabled(enabled)),
+                  onClearSelection: () =>
+                      setState(() => _selection = _selection.clear()),
+                  onBulkEdit: () => _bulkEdit(projection),
+                  onBulkMoveToOwned: () => _bulkMoveToOwned(projection),
+                  onBulkMoveToWishlist: () => _bulkMoveToWishlist(projection),
+                  onBulkRemove: () => _bulkRemove(projection),
+                ),
               ),
               Expanded(
                 child: shelf.when(
@@ -184,7 +201,13 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => _showAddDialog(),
       onClearFilters: _clearFilters,
-      onSelectItem: (id) => setState(() => _selectedId = id),
+      onSelectItem: (id) {
+        if (_selection.enabled) {
+          setState(() => _selection = _selection.toggle(id));
+        } else {
+          setState(() => _selectedId = id);
+        }
+      },
       onBucketChanged: (bucket) => setState(() => _selectedBucket = bucket),
       onGroupModeChanged: (mode) => setState(() {
         _groupMode = mode;
@@ -508,5 +531,61 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     if (mounted) {
       ref.invalidate(shelfProvider);
     }
+  }
+
+  Future<void> _bulkEdit(GenericLibraryProjection? projection) async {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final selection = await showDialog<LibraryBulkEditSelection>(
+      context: context,
+      builder: (context) => LibraryBulkEditDialog(
+        type: widget.type,
+        selectedCount: _selection.selectedCount,
+      ),
+    );
+    if (selection == null || !mounted) return;
+    final entries = selectedShelfEntries(
+      projection.filteredItems,
+      _selection.itemIds,
+    );
+    final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
+    await actions.editSelected(entries: entries, selection: selection);
+    setState(() => _selection = _selection.clear());
+    ref.invalidate(shelfProvider);
+  }
+
+  Future<void> _bulkMoveToOwned(GenericLibraryProjection? projection) async {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final entries = selectedShelfEntries(
+      projection.filteredItems,
+      _selection.itemIds,
+    );
+    final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
+    await actions.moveSelectedToOwned(entries);
+    setState(() => _selection = _selection.clear());
+    ref.invalidate(shelfProvider);
+  }
+
+  Future<void> _bulkMoveToWishlist(GenericLibraryProjection? projection) async {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final entries = selectedShelfEntries(
+      projection.filteredItems,
+      _selection.itemIds,
+    );
+    final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
+    await actions.moveSelectedToWishlist(entries);
+    setState(() => _selection = _selection.clear());
+    ref.invalidate(shelfProvider);
+  }
+
+  Future<void> _bulkRemove(GenericLibraryProjection? projection) async {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final entries = selectedShelfEntries(
+      projection.filteredItems,
+      _selection.itemIds,
+    );
+    final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
+    await actions.removeSelected(entries);
+    setState(() => _selection = _selection.clear());
+    ref.invalidate(shelfProvider);
   }
 }
