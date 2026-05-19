@@ -1,17 +1,20 @@
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/comics/comics_duplicate_items.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
 import 'package:flutter/material.dart';
 
 class ComicsWorkspaceControlState {
   const ComicsWorkspaceControlState({
-    required this.selection,
+    required this.selectionEnabled,
+    required this.selectedCount,
     required this.utility,
     required this.view,
   });
 
-  final ComicsSelectionControlState selection;
+  final bool selectionEnabled;
+  final int selectedCount;
   final ComicsWorkspaceUtilityState utility;
   final ComicsViewTableControlState view;
 }
@@ -23,7 +26,7 @@ class ComicsWorkspaceControlCallbacks {
     required this.view,
   });
 
-  final ComicsSelectionControlCallbacks selection;
+  final LibrarySelectionCallbacks selection;
   final ComicsWorkspaceUtilityCallbacks utility;
   final ComicsViewTableControlCallbacks view;
 }
@@ -33,34 +36,6 @@ class ComicsWorkspaceCounts extends LibraryWorkspaceCounts {
     required super.shown,
     required super.total,
   });
-}
-
-class ComicsSelectionControlState {
-  const ComicsSelectionControlState({
-    required this.enabled,
-    required this.selectedCount,
-  });
-
-  final bool enabled;
-  final int selectedCount;
-}
-
-class ComicsSelectionControlCallbacks {
-  const ComicsSelectionControlCallbacks({
-    required this.onSelectionModeChanged,
-    required this.onClearSelection,
-    required this.onBulkEdit,
-    required this.onBulkMoveToOwned,
-    required this.onBulkMoveToWishlist,
-    required this.onBulkRemove,
-  });
-
-  final ValueChanged<bool> onSelectionModeChanged;
-  final VoidCallback onClearSelection;
-  final VoidCallback onBulkEdit;
-  final VoidCallback onBulkMoveToOwned;
-  final VoidCallback onBulkMoveToWishlist;
-  final VoidCallback onBulkRemove;
 }
 
 class ComicsWorkspaceUtilityState {

@@ -47,6 +47,8 @@ class LibraryTypeConfig {
     required this.trackingProfile,
     this.conditions = kGeneralConditions,
     this.grades = const [],
+    this.defaultCondition,
+    this.defaultGrade,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -57,6 +59,8 @@ class LibraryTypeConfig {
   final MediaTrackingProfile trackingProfile;
   final List<String> conditions;
   final List<String> grades;
+  final String? defaultCondition;
+  final String? defaultGrade;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     return [

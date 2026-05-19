@@ -150,10 +150,8 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
             ComicsToolbar(
               controller: queryController,
               controlState: ComicsWorkspaceControlState(
-                selection: ComicsSelectionControlState(
-                  enabled: selectionMode,
-                  selectedCount: selectedItemIds.length,
-                ),
+                selectionEnabled: selectionMode,
+                selectedCount: selectedItemIds.length,
                 utility: ComicsWorkspaceUtilityState(
                   selectedSeries: projection.selectedSeries,
                   hasActiveFilters: hasActiveFilters,
@@ -173,7 +171,7 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
                 ),
               ),
               controlCallbacks: ComicsWorkspaceControlCallbacks(
-                selection: ComicsSelectionControlCallbacks(
+                selection: (
                   onSelectionModeChanged: onSelectionModeChanged,
                   onClearSelection: onClearSelection,
                   onBulkEdit: onBulkEdit,

@@ -41,4 +41,6 @@ const comicsLibraryConfig = LibraryTypeConfig(
   trackingProfile: comicTrackingProfile,
   conditions: kComicConditions,
   grades: kComicGrades,
+  defaultCondition: 'Near Mint',
+  defaultGrade: 'Ungraded',
 );

@@ -560,7 +560,11 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       _selection.itemIds,
     );
     final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
-    await actions.moveSelectedToOwned(entries);
+    await actions.moveSelectedToOwned(
+      entries,
+      defaultCondition: widget.type.defaultCondition,
+      defaultGrade: widget.type.defaultGrade,
+    );
     setState(() => _selection = _selection.clear());
     ref.invalidate(shelfProvider);
   }
@@ -583,6 +587,26 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       projection.filteredItems,
       _selection.itemIds,
     );
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove selected items?'),
+        content: Text(
+          'This removes ${entries.length} selected item${entries.length == 1 ? '' : 's'} from the local shelf and queues the change for sync.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
     await actions.removeSelected(entries);
     setState(() => _selection = _selection.clear());
