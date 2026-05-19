@@ -55,7 +55,7 @@ IconData libraryIconForKind(String kind) {
 
 String librarySidebarTitleForKind(String kind) {
   return switch (kind) {
-    'anime' || 'movie' || 'tv' => 'Years',
+    'movie' => 'Years',
     'music' => 'Artists',
     'manga' || 'anime' || 'tv' => 'Series',
     'book' || 'game' || 'boardgame' => 'Publishers',
