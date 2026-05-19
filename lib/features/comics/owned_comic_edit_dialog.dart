@@ -61,6 +61,8 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   late String? _rawOrSlabbed = widget.ownedItem.rawOrSlabbed ?? 'Raw';
   late bool _keyComic = widget.ownedItem.keyComic;
   late DateTime? _soldAt = widget.ownedItem.soldAt;
+  late DateTime? _startedAt = widget.ownedItem.startedAt;
+  late DateTime? _finishedAt = widget.ownedItem.finishedAt;
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
 
@@ -734,6 +736,26 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                 controller: _tagsController,
                 decoration: const InputDecoration(labelText: 'Tags'),
               ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _datePickerField(
+                      label: 'Started',
+                      value: _startedAt,
+                      onChanged: (v) => setState(() => _startedAt = v),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _datePickerField(
+                      label: 'Finished',
+                      value: _finishedAt,
+                      onChanged: (v) => setState(() => _finishedAt = v),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -938,6 +960,44 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     }
   }
 
+  Widget _datePickerField({
+    required String label,
+    required DateTime? value,
+    required ValueChanged<DateTime?> onChanged,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () async {
+        final now = DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: value ?? now,
+          firstDate: DateTime(1900),
+          lastDate: DateTime(now.year + 10),
+        );
+        if (picked != null && mounted) {
+          onChanged(picked);
+        }
+      },
+      onLongPress: value != null ? () => onChanged(null) : null,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          suffixIcon: value != null
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => onChanged(null),
+                )
+              : const Icon(Icons.calendar_today, size: 18),
+        ),
+        child: Text(
+          value != null ? formatDate(value) : '',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
+    );
+  }
+
   void _submit() {
     final currency = _currencyController.text.trim().toUpperCase();
     Navigator.of(context).pop(
@@ -966,6 +1026,8 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
         keyReason: emptyToNull(_keyReasonController.text),
         rating: int.tryParse(_ratingController.text.trim()),
         readStatus: emptyToNull(_readStatusController.text),
+        startedAt: _startedAt,
+        finishedAt: _finishedAt,
         tags: emptyToNull(_tagsController.text),
         soldAt: _soldAt,
         sellPriceCents: parseMoneyCents(
@@ -1115,6 +1177,8 @@ class OwnedComicEditSelection {
     required this.keyReason,
     required this.rating,
     required this.readStatus,
+    this.startedAt,
+    this.finishedAt,
     required this.tags,
     this.soldAt,
     this.sellPriceCents,
@@ -1141,6 +1205,8 @@ class OwnedComicEditSelection {
   final String? keyReason;
   final int? rating;
   final String? readStatus;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
   final String? tags;
   final DateTime? soldAt;
   final int? sellPriceCents;

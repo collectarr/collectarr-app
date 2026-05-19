@@ -286,6 +286,8 @@ class ComicInspector extends ConsumerWidget {
           keyReason: selection.keyReason,
           rating: selection.rating,
           readStatus: selection.readStatus,
+          startedAt: selection.startedAt,
+          finishedAt: selection.finishedAt,
           tags: selection.tags,
           soldAt: selection.soldAt,
           sellPriceCents: selection.sellPriceCents,

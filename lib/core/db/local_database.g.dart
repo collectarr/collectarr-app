@@ -942,6 +942,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> readStatus = GeneratedColumn<String>(
       'read_status', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
   @override
   late final GeneratedColumn<String> tags = GeneratedColumn<String>(
@@ -999,6 +1011,8 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         keyReason,
         rating,
         readStatus,
+        startedAt,
+        finishedAt,
         tags,
         updatedAt,
         deletedAt,
@@ -1128,6 +1142,16 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           readStatus.isAcceptableOrUnknown(
               data['read_status']!, _readStatusMeta));
     }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
     if (data.containsKey('tags')) {
       context.handle(
           _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
@@ -1209,6 +1233,10 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.int, data['${effectivePrefix}rating']),
       readStatus: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}read_status']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
       tags: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tags']),
       updatedAt: attachedDatabase.typeMapping
@@ -1254,6 +1282,8 @@ class OwnedItemsCacheData extends DataClass
   final String? keyReason;
   final int? rating;
   final String? readStatus;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
   final String? tags;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -1283,6 +1313,8 @@ class OwnedItemsCacheData extends DataClass
       this.keyReason,
       this.rating,
       this.readStatus,
+      this.startedAt,
+      this.finishedAt,
       this.tags,
       required this.updatedAt,
       this.deletedAt,
@@ -1349,6 +1381,12 @@ class OwnedItemsCacheData extends DataClass
     }
     if (!nullToAbsent || readStatus != null) {
       map['read_status'] = Variable<String>(readStatus);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
     }
     if (!nullToAbsent || tags != null) {
       map['tags'] = Variable<String>(tags);
@@ -1427,6 +1465,12 @@ class OwnedItemsCacheData extends DataClass
       readStatus: readStatus == null && nullToAbsent
           ? const Value.absent()
           : Value(readStatus),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
       tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -1468,6 +1512,8 @@ class OwnedItemsCacheData extends DataClass
       keyReason: serializer.fromJson<String?>(json['keyReason']),
       rating: serializer.fromJson<int?>(json['rating']),
       readStatus: serializer.fromJson<String?>(json['readStatus']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -1502,6 +1548,8 @@ class OwnedItemsCacheData extends DataClass
       'keyReason': serializer.toJson<String?>(keyReason),
       'rating': serializer.toJson<int?>(rating),
       'readStatus': serializer.toJson<String?>(readStatus),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -1534,6 +1582,8 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> keyReason = const Value.absent(),
           Value<int?> rating = const Value.absent(),
           Value<String?> readStatus = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -1570,6 +1620,8 @@ class OwnedItemsCacheData extends DataClass
         keyReason: keyReason.present ? keyReason.value : this.keyReason,
         rating: rating.present ? rating.value : this.rating,
         readStatus: readStatus.present ? readStatus.value : this.readStatus,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -1618,6 +1670,9 @@ class OwnedItemsCacheData extends DataClass
       rating: data.rating.present ? data.rating.value : this.rating,
       readStatus:
           data.readStatus.present ? data.readStatus.value : this.readStatus,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
       tags: data.tags.present ? data.tags.value : this.tags,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -1654,6 +1709,8 @@ class OwnedItemsCacheData extends DataClass
           ..write('keyReason: $keyReason, ')
           ..write('rating: $rating, ')
           ..write('readStatus: $readStatus, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -1688,6 +1745,8 @@ class OwnedItemsCacheData extends DataClass
         keyReason,
         rating,
         readStatus,
+        startedAt,
+        finishedAt,
         tags,
         updatedAt,
         deletedAt,
@@ -1721,6 +1780,8 @@ class OwnedItemsCacheData extends DataClass
           other.keyReason == this.keyReason &&
           other.rating == this.rating &&
           other.readStatus == this.readStatus &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -1752,6 +1813,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> keyReason;
   final Value<int?> rating;
   final Value<String?> readStatus;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -1782,6 +1845,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.keyReason = const Value.absent(),
     this.rating = const Value.absent(),
     this.readStatus = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -1813,6 +1878,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.keyReason = const Value.absent(),
     this.rating = const Value.absent(),
     this.readStatus = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -1846,6 +1913,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? keyReason,
     Expression<int>? rating,
     Expression<String>? readStatus,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -1877,6 +1946,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (keyReason != null) 'key_reason': keyReason,
       if (rating != null) 'rating': rating,
       if (readStatus != null) 'read_status': readStatus,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -1910,6 +1981,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? keyReason,
       Value<int?>? rating,
       Value<String?>? readStatus,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -1940,6 +2013,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -2019,6 +2094,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (readStatus.present) {
       map['read_status'] = Variable<String>(readStatus.value);
     }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
     if (tags.present) {
       map['tags'] = Variable<String>(tags.value);
     }
@@ -2068,6 +2149,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('keyReason: $keyReason, ')
           ..write('rating: $rating, ')
           ..write('readStatus: $readStatus, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -4417,6 +4500,8 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> keyReason,
   Value<int?> rating,
   Value<String?> readStatus,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
   Value<String?> tags,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -4449,6 +4534,8 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> keyReason,
   Value<int?> rating,
   Value<String?> readStatus,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
   Value<String?> tags,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -4535,6 +4622,12 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get readStatus => $composableBuilder(
       column: $table.readStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnFilters(column));
@@ -4637,6 +4730,12 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<String> get readStatus => $composableBuilder(
       column: $table.readStatus, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnOrderings(column));
 
@@ -4732,6 +4831,12 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get readStatus => $composableBuilder(
       column: $table.readStatus, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
   GeneratedColumn<String> get tags =>
       $composableBuilder(column: $table.tags, builder: (column) => column);
 
@@ -4801,6 +4906,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> keyReason = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> readStatus = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -4832,6 +4939,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             keyReason: keyReason,
             rating: rating,
             readStatus: readStatus,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
             tags: tags,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -4863,6 +4972,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> keyReason = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> readStatus = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -4894,6 +5005,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             keyReason: keyReason,
             rating: rating,
             readStatus: readStatus,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
             tags: tags,
             updatedAt: updatedAt,
             deletedAt: deletedAt,

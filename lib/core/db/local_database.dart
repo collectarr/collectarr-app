@@ -48,6 +48,8 @@ class OwnedItemsCache extends Table {
   TextColumn get keyReason => text().nullable()();
   IntColumn get rating => integer().nullable()();
   TextColumn get readStatus => text().nullable()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
+  DateTimeColumn get finishedAt => dateTime().nullable()();
   TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -137,7 +139,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -152,6 +154,12 @@ class LocalDatabase extends _$LocalDatabase {
             'sold_at': 'INTEGER',
             'sell_price_cents': 'INTEGER',
             'sold_to': 'TEXT',
+          });
+        }
+        if (from < 3) {
+          await _addColumnsIfMissing('owned_items_cache', {
+            'started_at': 'INTEGER',
+            'finished_at': 'INTEGER',
           });
         }
       },

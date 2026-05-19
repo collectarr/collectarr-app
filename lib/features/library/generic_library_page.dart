@@ -390,6 +390,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         keyReason: owned.keyReason,
         rating: personal.rating,
         readStatus: personal.readStatus,
+        startedAt: personal.startedAt,
+        finishedAt: personal.finishedAt,
         tags: personal.tags,
         soldAt: personal.soldAt,
         sellPriceCents: personal.sellPriceCents,

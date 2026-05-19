@@ -36,6 +36,8 @@ class CollectionCsvRow {
     this.keyReason,
     this.rating,
     this.readStatus,
+    this.startedAt,
+    this.finishedAt,
     this.tags,
     this.soldAt,
     this.sellPriceCents,
@@ -73,6 +75,8 @@ class CollectionCsvRow {
   final String? keyReason;
   final int? rating;
   final String? readStatus;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
   final String? tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
@@ -113,6 +117,8 @@ class CollectionCsvRow {
     String? keyReason,
     int? rating,
     String? readStatus,
+    DateTime? startedAt,
+    DateTime? finishedAt,
     String? tags,
     DateTime? soldAt,
     int? sellPriceCents,
@@ -150,6 +156,8 @@ class CollectionCsvRow {
       keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
       tags: tags ?? this.tags,
       soldAt: soldAt ?? this.soldAt,
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
@@ -191,6 +199,8 @@ class CollectionCsv {
     'key_reason',
     'rating',
     'read_status',
+    'started_at',
+    'finished_at',
     'tags',
     'sold_at',
     'sell_price_cents',
@@ -227,6 +237,8 @@ class CollectionCsv {
     'Key Reason',
     'Rating',
     'Read It',
+    'Started',
+    'Finished',
     'Tags',
     'Notes',
     'Sold Date',
@@ -322,6 +334,8 @@ class CollectionCsv {
       o?.keyReason ?? '',
       o?.rating?.toString() ?? '',
       o?.readStatus ?? '',
+      _formatDate(o?.startedAt),
+      _formatDate(o?.finishedAt),
       o?.tags ?? '',
       _formatDate(o?.soldAt),
       o?.sellPriceCents?.toString() ?? '',
@@ -359,6 +373,8 @@ class CollectionCsv {
       o?.keyReason ?? '',
       o?.rating?.toString() ?? '',
       o?.readStatus ?? '',
+      _formatDate(o?.startedAt),
+      _formatDate(o?.finishedAt),
       o?.tags ?? '',
       o?.personalNotes ?? entry.wishlistItem?.notes ?? '',
       _formatDate(o?.soldAt),
@@ -561,6 +577,8 @@ class CollectionCsv {
       keyReason: _optionalValue(index, values, 'key_reason'),
       rating: int.tryParse(_value(index, values, 'rating')),
       readStatus: _optionalValue(index, values, 'read_status'),
+      startedAt: _parseDate(_value(index, values, 'started_at')),
+      finishedAt: _parseDate(_value(index, values, 'finished_at')),
       tags: _optionalValue(index, values, 'tags'),
       soldAt: _parseDate(_value(index, values, 'sold_at')),
       sellPriceCents: _moneyCents(_value(index, values, 'sell_price_cents')),

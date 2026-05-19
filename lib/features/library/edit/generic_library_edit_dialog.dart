@@ -76,6 +76,10 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
   late final TextEditingController _soldToController;
   late DateTime? _soldAt;
 
+  // Reading progress
+  DateTime? _startedAt;
+  DateTime? _finishedAt;
+
   String? _physicalFormatId;
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
@@ -144,6 +148,8 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
     );
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
     _soldAt = owned?.soldAt;
+    _startedAt = owned?.startedAt;
+    _finishedAt = owned?.finishedAt;
 
     _physicalFormatId = _initialPhysicalFormatId(item);
 
@@ -610,6 +616,19 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
               ]),
               const SizedBox(height: 10),
               _field(controller: _tagsController, label: 'Tags'),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _datePickerField(
+                  label: 'Started',
+                  value: _startedAt,
+                  onChanged: (v) => setState(() => _startedAt = v),
+                ),
+                _datePickerField(
+                  label: 'Finished',
+                  value: _finishedAt,
+                  onChanged: (v) => setState(() => _finishedAt = v),
+                ),
+              ]),
             ],
           ),
         ),
@@ -854,6 +873,44 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
     }
   }
 
+  Widget _datePickerField({
+    required String label,
+    required DateTime? value,
+    required ValueChanged<DateTime?> onChanged,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () async {
+        final now = DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: value ?? now,
+          firstDate: DateTime(1900),
+          lastDate: DateTime(now.year + 10),
+        );
+        if (picked != null && mounted) {
+          onChanged(picked);
+        }
+      },
+      onLongPress: value != null ? () => onChanged(null) : null,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          suffixIcon: value != null
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => onChanged(null),
+                )
+              : const Icon(Icons.calendar_today, size: 18),
+        ),
+        child: Text(
+          value != null ? formatDate(value) : '',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
+    );
+  }
+
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     final selection = GenericLibraryEditSelection(
@@ -887,6 +944,8 @@ class _GenericLibraryEditDialogState extends State<GenericLibraryEditDialog>
               storageBox: emptyToNull(_storageBoxController.text),
               rating: parseInt(_ratingController.text),
               readStatus: emptyToNull(_trackingController.text),
+              startedAt: _startedAt,
+              finishedAt: _finishedAt,
               tags: emptyToNull(_tagsController.text),
               soldAt: _soldAt,
               sellPriceCents: parseMoneyCents(_sellPriceController.text),
@@ -949,6 +1008,8 @@ class GenericLibraryPersonalEditSelection {
     required this.storageBox,
     required this.rating,
     required this.readStatus,
+    this.startedAt,
+    this.finishedAt,
     required this.tags,
     this.soldAt,
     this.sellPriceCents,
@@ -965,6 +1026,8 @@ class GenericLibraryPersonalEditSelection {
   final String? storageBox;
   final int? rating;
   final String? readStatus;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
   final String? tags;
   final DateTime? soldAt;
   final int? sellPriceCents;

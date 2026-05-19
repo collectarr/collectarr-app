@@ -103,6 +103,16 @@ class GenericPersonalSection extends StatelessWidget {
             if (ownedItem?.readStatus != null &&
                 ownedItem!.readStatus!.trim().isNotEmpty)
               LibraryInspectorFactData('Tracking', ownedItem!.readStatus!),
+            if (ownedItem?.startedAt != null)
+              LibraryInspectorFactData(
+                'Started',
+                formatNullableComicDate(ownedItem?.startedAt) ?? '-',
+              ),
+            if (ownedItem?.finishedAt != null)
+              LibraryInspectorFactData(
+                'Finished',
+                formatNullableComicDate(ownedItem?.finishedAt) ?? '-',
+              ),
             LibraryInspectorFactData(
               'Condition',
               genericLibraryDash(entry.condition),
