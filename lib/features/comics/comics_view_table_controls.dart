@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/comics/comics_workspace_control_models.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_control_models.dart';
 import 'package:collectarr_app/features/library/workspace/library_view_table_controls.dart';
 import 'package:flutter/material.dart';
 

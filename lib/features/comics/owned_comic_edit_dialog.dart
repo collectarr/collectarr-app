@@ -1,19 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:flutter/material.dart';
-
-const Color _kClzPanel = Color(0xFF1D1D1D);
-const Color _kClzPanelRaised = Color(0xFF2F2F2F);
-const Color _kClzToolbar = Color(0xFF2B2B2B);
-const Color _kClzAccent = Color(0xFF10A8D8);
-const Color _kClzDivider = Color(0xFF4A4A4A);
-const Color _kClzTextMuted = Color(0xFFB8B8B8);
-const Color _kClzChartBar = Color(0xFF7EDAF3);
-const Color _kClzValueChip = Color(0xFF1B1B1B);
-const Color _kClzValueChipBorder = Color(0xFF3A3A3A);
 
 class OwnedComicEditDialog extends StatefulWidget {
   const OwnedComicEditDialog({
@@ -23,6 +18,9 @@ class OwnedComicEditDialog extends StatefulWidget {
     required this.conditions,
     required this.grades,
     required this.cover,
+    this.customFieldDefinitions = const [],
+    this.customFieldValues = const [],
+    this.itemImages = const [],
   });
 
   final CatalogItem item;
@@ -30,6 +28,9 @@ class OwnedComicEditDialog extends StatefulWidget {
   final List<String> conditions;
   final List<String> grades;
   final Widget cover;
+  final List<CustomFieldDefinition> customFieldDefinitions;
+  final List<CustomFieldValue> customFieldValues;
+  final List<ItemImage> itemImages;
 
   @override
   State<OwnedComicEditDialog> createState() => _OwnedComicEditDialogState();
@@ -52,16 +53,23 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   late final TextEditingController _ratingController;
   late final TextEditingController _readStatusController;
   late final TextEditingController _tagsController;
+  late final TextEditingController _sellPriceController;
+  late final TextEditingController _soldToController;
   late String? _condition = widget.ownedItem.condition;
   late String? _grade = widget.ownedItem.grade;
   late DateTime? _purchaseDate = widget.ownedItem.purchaseDate;
   late String? _rawOrSlabbed = widget.ownedItem.rawOrSlabbed ?? 'Raw';
   late bool _keyComic = widget.ownedItem.keyComic;
+  late DateTime? _soldAt = widget.ownedItem.soldAt;
+  late DateTime? _startedAt = widget.ownedItem.startedAt;
+  late DateTime? _finishedAt = widget.ownedItem.finishedAt;
+  Map<String, String?> _customFieldEdits = {};
+  List<ItemImageEdit> _itemImageEdits = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this)
+    _tabController = TabController(length: 9, vsync: this)
       ..addListener(() {
         if (mounted) {
           setState(() {});
@@ -101,6 +109,16 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     _readStatusController =
         TextEditingController(text: widget.ownedItem.readStatus ?? '');
     _tagsController = TextEditingController(text: widget.ownedItem.tags ?? '');
+    _sellPriceController = TextEditingController(
+      text: widget.ownedItem.sellPriceCents == null
+          ? ''
+          : (widget.ownedItem.sellPriceCents! / 100).toStringAsFixed(2),
+    );
+    _soldToController =
+        TextEditingController(text: widget.ownedItem.soldTo ?? '');
+    _customFieldEdits = {
+      for (final v in widget.customFieldValues) v.fieldDefinitionId: v.value,
+    };
     _quantityController.addListener(_refreshFooter);
     _storageBoxController.addListener(_refreshFooter);
     _indexNumberController.addListener(_refreshFooter);
@@ -132,6 +150,8 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     _ratingController.dispose();
     _readStatusController.dispose();
     _tagsController.dispose();
+    _sellPriceController.dispose();
+    _soldToController.dispose();
     super.dispose();
   }
 
@@ -146,39 +166,12 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     return Dialog(
       clipBehavior: Clip.antiAlias,
       child: Theme(
-        data: ThemeData.dark(useMaterial3: true).copyWith(
-          visualDensity: VisualDensity.compact,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: _kClzAccent,
-            brightness: Brightness.dark,
-            surface: _kClzPanel,
-          ),
-          dialogTheme: const DialogThemeData(
-            backgroundColor: _kClzPanel,
-            surfaceTintColor: Colors.transparent,
-          ),
-          inputDecorationTheme: const InputDecorationTheme(
-            filled: true,
-            fillColor: Color(0xFF101010),
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            labelStyle: TextStyle(color: _kClzTextMuted),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: _kClzDivider),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: _kClzDivider),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: _kClzAccent),
-            ),
-          ),
-        ),
+        data: editDialogTheme(),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 980, maxHeight: 760),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: _kClzPanel,
+              color: kEditPanel,
               border: Border.all(color: const Color(0xFF666666)),
               boxShadow: const [
                 BoxShadow(
@@ -194,7 +187,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                 _tabs(),
                 Expanded(
                   child: ColoredBox(
-                    color: _kClzPanel,
+                    color: kEditPanel,
                     child: TabBarView(
                       controller: _tabController,
                       children: [
@@ -202,6 +195,9 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                         _editDetailsTab(),
                         _editValueTab(),
                         _editPersonalTab(),
+                        _editSoldTab(),
+                        _editCustomFieldsTab(),
+                        _editPhotosTab(),
                         _editCoverTab(),
                         _editPlotTab(),
                       ],
@@ -225,7 +221,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
         gradient: LinearGradient(
           colors: [Color(0xFF343434), Color(0xFF161616)],
         ),
-        border: Border(bottom: BorderSide(color: _kClzAccent)),
+        border: Border(bottom: BorderSide(color: kEditAccent)),
       ),
       child: Row(
         children: [
@@ -266,14 +262,15 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                   spacing: 6,
                   runSpacing: 4,
                   children: [
-                    const _MiniBadge('Owned'),
+                    const EditMiniBadge('Owned'),
+                    if (_soldAt != null) const EditMiniBadge('Sold'),
                     if (_grade != null && _grade!.isNotEmpty)
-                      _MiniBadge(_grade!),
+                      EditMiniBadge(_grade!),
                     if (_condition != null && _condition!.isNotEmpty)
-                      _MiniBadge(_condition!),
-                    _MiniBadge('Qty ${_quantityController.text}'),
+                      EditMiniBadge(_condition!),
+                    EditMiniBadge('Qty ${_quantityController.text}'),
                     if (_storageBoxController.text.trim().isNotEmpty)
-                      _MiniBadge(_storageBoxController.text.trim()),
+                      EditMiniBadge(_storageBoxController.text.trim()),
                   ],
                 ),
                 const SizedBox(height: 3),
@@ -287,14 +284,14 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: _kClzTextMuted,
+                        color: kEditTextMuted,
                       ),
                 ),
               ],
             ),
           ),
           if (widget.item.itemNumber != null)
-            _IssuePill(label: '#${widget.item.itemNumber}'),
+            IssuePill(label: '#${widget.item.itemNumber}'),
           const SizedBox(width: 8),
           IconButton(
             tooltip: 'Close',
@@ -309,23 +306,26 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
 
   Widget _tabs() {
     return ColoredBox(
-      color: _kClzPanelRaised,
+      color: kEditPanelRaised,
       child: TabBar(
         controller: _tabController,
         isScrollable: true,
         tabAlignment: TabAlignment.start,
         labelColor: Colors.white,
-        unselectedLabelColor: _kClzTextMuted,
-        indicatorColor: _kClzAccent,
-        dividerColor: _kClzDivider,
+        unselectedLabelColor: kEditTextMuted,
+        indicatorColor: kEditAccent,
+        dividerColor: kEditDivider,
         labelPadding: const EdgeInsets.symmetric(horizontal: 11),
         tabs: const [
-          _EditTab(icon: Icons.article, label: 'Main'),
-          _EditTab(icon: Icons.search, label: 'Details'),
-          _EditTab(icon: Icons.attach_money, label: 'Value'),
-          _EditTab(icon: Icons.person, label: 'Personal'),
-          _EditTab(icon: Icons.image, label: 'Cover'),
-          _EditTab(icon: Icons.notes, label: 'Plot'),
+          EditTab(icon: Icons.article, label: 'Main'),
+          EditTab(icon: Icons.search, label: 'Details'),
+          EditTab(icon: Icons.attach_money, label: 'Value'),
+          EditTab(icon: Icons.person, label: 'Personal'),
+          EditTab(icon: Icons.sell, label: 'Sold'),
+          EditTab(icon: Icons.tune, label: 'Custom'),
+          EditTab(icon: Icons.photo_library, label: 'Photos'),
+          EditTab(icon: Icons.image, label: 'Cover'),
+          EditTab(icon: Icons.notes, label: 'Plot'),
         ],
       ),
     );
@@ -338,33 +338,33 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          const _FooterReadonlyField(
+          const FooterReadonlyField(
             label: 'Collection Status',
             value: 'Owned',
             width: 150,
           ),
           const SizedBox(width: 8),
-          _FooterReadonlyField(
+          FooterReadonlyField(
             label: 'Tab',
             value: '$currentTab / $totalTabs',
             width: 72,
           ),
           const SizedBox(width: 8),
-          _FooterTextField(
+          FooterTextField(
             label: 'Index',
             controller: _indexNumberController,
             width: 86,
             keyboardType: TextInputType.number,
           ),
           const SizedBox(width: 8),
-          _FooterTextField(
+          FooterTextField(
             label: 'Qty',
             controller: _quantityController,
             width: 92,
             keyboardType: TextInputType.number,
           ),
           const SizedBox(width: 8),
-          _FooterTextField(
+          FooterTextField(
             label: 'Box',
             controller: _storageBoxController,
             width: 180,
@@ -402,7 +402,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
           label: Text(
             _purchaseDate == null
                 ? 'Set purchase date'
-                : _formatDate(_purchaseDate!),
+                : formatDate(_purchaseDate!),
           ),
         ),
         TextButton(
@@ -418,8 +418,8 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 7, 10, 8),
       decoration: const BoxDecoration(
-        color: _kClzToolbar,
-        border: Border(top: BorderSide(color: _kClzDivider)),
+        color: kEditToolbar,
+        border: Border(top: BorderSide(color: kEditDivider)),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -445,14 +445,14 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   }
 
   Widget _editMainTab() {
-    return _EditTabShell(
+    return EditTabShell(
       cover: widget.cover,
       children: [
-        _EditSection(
+        EditSection(
           title: 'Comic',
           child: Column(
             children: [
-              _EditGrid(
+              EditGrid(
                 children: [
                   _readonlyField('Series', widget.item.title, flex: 2),
                   _readonlyField('Issue No.', widget.item.itemNumber ?? ''),
@@ -463,7 +463,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                     'Release Date',
                     widget.item.releaseDate == null
                         ? ''
-                        : _formatDate(widget.item.releaseDate!),
+                        : formatDate(widget.item.releaseDate!),
                   ),
                 ],
               ),
@@ -503,7 +503,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
             ],
           ),
         ),
-        _EditSection(
+        EditSection(
           title: 'Notes',
           child: TextField(
             controller: _notesController,
@@ -520,11 +520,11 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   }
 
   Widget _editDetailsTab() {
-    return _EditTabShell(
+    return EditTabShell(
       children: [
-        _EditSection(
+        EditSection(
           title: 'Catalog Details',
-          child: _EditGrid(
+          child: EditGrid(
             children: [
               _readonlyField('Collectarr Item ID', widget.item.id, flex: 2),
               _readonlyField('Format', widget.item.kind),
@@ -532,11 +532,11 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
             ],
           ),
         ),
-        _EditSection(
+        EditSection(
           title: 'Local Metadata Boundary',
           child: const Text(
             'Title, covers, barcode, release metadata, creators, and provider links come from Collectarr Core. Grade, value, notes, tags, storage, and progress stay local.',
-            style: TextStyle(color: _kClzTextMuted),
+            style: TextStyle(color: kEditTextMuted),
           ),
         ),
       ],
@@ -544,9 +544,9 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   }
 
   Widget _editValueTab() {
-    return _EditTabShell(
+    return EditTabShell(
       children: [
-        _EditSection(
+        EditSection(
           title: 'Value',
           child: Column(
             children: [
@@ -590,11 +590,11 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
               _ValueByGradePanel(
                 item: widget.item,
                 grade: _grade,
-                pricePaidCents: _parseMoneyCents(
+                pricePaidCents: parseMoneyCents(
                   _priceController.text,
                   fallback: widget.ownedItem.pricePaidCents,
                 ),
-                coverPriceCents: _parseMoneyCents(
+                coverPriceCents: parseMoneyCents(
                   _coverPriceController.text,
                   fallback: widget.ownedItem.coverPriceCents,
                 ),
@@ -603,7 +603,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
             ],
           ),
         ),
-        _EditSection(
+        EditSection(
           title: 'Grading',
           child: Column(
             children: [
@@ -629,9 +629,9 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   }
 
   Widget _editPersonalTab() {
-    return _EditTabShell(
+    return EditTabShell(
       children: [
-        _EditSection(
+        EditSection(
           title: 'Personal',
           child: Column(
             children: [
@@ -702,7 +702,7 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
             ],
           ),
         ),
-        _EditSection(
+        EditSection(
           title: 'Flags & Tags',
           child: Column(
             children: [
@@ -736,6 +736,26 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                 controller: _tagsController,
                 decoration: const InputDecoration(labelText: 'Tags'),
               ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _datePickerField(
+                      label: 'Started',
+                      value: _startedAt,
+                      onChanged: (v) => setState(() => _startedAt = v),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _datePickerField(
+                      label: 'Finished',
+                      value: _finishedAt,
+                      onChanged: (v) => setState(() => _finishedAt = v),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -743,10 +763,113 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     );
   }
 
-  Widget _editCoverTab() {
-    return _EditTabShell(
+  Widget _editSoldTab() {
+    return EditTabShell(
       children: [
-        _EditSection(
+        EditSection(
+          title: 'Sold Status',
+          child: Column(
+            children: [
+              SwitchListTile(
+                value: _soldAt != null,
+                onChanged: (value) {
+                  setState(() {
+                    _soldAt = value ? DateTime.now() : null;
+                  });
+                },
+                title: const Text('Mark as sold'),
+                subtitle: _soldAt != null
+                    ? Text(
+                        'Sold on ${formatDate(_soldAt!)}',
+                        style: const TextStyle(color: kEditTextMuted),
+                      )
+                    : null,
+                contentPadding: EdgeInsets.zero,
+              ),
+              if (_soldAt != null) ...[
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: _pickSoldDate,
+                  icon: const Icon(Icons.event),
+                  label: Text('Sold date: ${formatDate(_soldAt!)}'),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _sellPriceController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: const InputDecoration(
+                          labelText: 'Sell price',
+                          prefixText: r'$ ',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _soldToController,
+                        decoration:
+                            const InputDecoration(labelText: 'Sold to'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (_soldAt != null)
+          EditSection(
+            title: 'Profit / Loss',
+            child: SoldSummaryPanel(
+              pricePaidCents: parseMoneyCents(
+                _priceController.text,
+                fallback: widget.ownedItem.pricePaidCents,
+              ),
+              sellPriceCents: parseMoneyCents(
+                _sellPriceController.text,
+                fallback: widget.ownedItem.sellPriceCents,
+              ),
+              currency: _currencyController.text,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _editCustomFieldsTab() {
+    return EditTabShell(
+      children: [
+        CustomFieldsEditSection(
+          definitions: widget.customFieldDefinitions,
+          values: _customFieldEdits,
+          accent: kEditAccent,
+          onChanged: (values) => _customFieldEdits = values,
+        ),
+      ],
+    );
+  }
+
+  Widget _editPhotosTab() {
+    return EditTabShell(
+      children: [
+        ItemImagesEditSection(
+          images: widget.itemImages,
+          accent: kEditAccent,
+          onChanged: (edits) => _itemImageEdits = edits,
+        ),
+      ],
+    );
+  }
+
+  Widget _editCoverTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
           title: 'Cover',
           child: Center(
             child: SizedBox(
@@ -761,8 +884,8 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
                   const Wrap(
                     spacing: 8,
                     children: [
-                      _MiniBadge('Local cover cache'),
-                      _MiniBadge('Core metadata'),
+                      EditMiniBadge('Local cover cache'),
+                      EditMiniBadge('Core metadata'),
                     ],
                   ),
                 ],
@@ -775,9 +898,9 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
   }
 
   Widget _editPlotTab() {
-    return _EditTabShell(
+    return EditTabShell(
       children: [
-        _EditSection(
+        EditSection(
           title: 'Plot',
           child: Text(
             widget.item.synopsis ?? 'No plot metadata available yet.',
@@ -824,6 +947,57 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
     }
   }
 
+  Future<void> _pickSoldDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _soldAt ?? now,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(now.year + 10),
+    );
+    if (picked != null && mounted) {
+      setState(() => _soldAt = picked);
+    }
+  }
+
+  Widget _datePickerField({
+    required String label,
+    required DateTime? value,
+    required ValueChanged<DateTime?> onChanged,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () async {
+        final now = DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: value ?? now,
+          firstDate: DateTime(1900),
+          lastDate: DateTime(now.year + 10),
+        );
+        if (picked != null && mounted) {
+          onChanged(picked);
+        }
+      },
+      onLongPress: value != null ? () => onChanged(null) : null,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          suffixIcon: value != null
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => onChanged(null),
+                )
+              : const Icon(Icons.calendar_today, size: 18),
+        ),
+        child: Text(
+          value != null ? formatDate(value) : '',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
+    );
+  }
+
   void _submit() {
     final currency = _currencyController.text.trim().toUpperCase();
     Navigator.of(context).pop(
@@ -831,179 +1005,46 @@ class _OwnedComicEditDialogState extends State<OwnedComicEditDialog>
         condition: _condition,
         grade: _grade,
         purchaseDate: _purchaseDate,
-        pricePaidCents: _parseMoneyCents(
+        pricePaidCents: parseMoneyCents(
           _priceController.text,
           fallback: widget.ownedItem.pricePaidCents,
         ),
         currency: currency.isEmpty ? null : currency,
-        personalNotes: _emptyToNull(_notesController.text),
+        personalNotes: emptyToNull(_notesController.text),
         quantity: int.tryParse(_quantityController.text.trim()) ?? 1,
-        storageBox: _emptyToNull(_storageBoxController.text),
+        storageBox: emptyToNull(_storageBoxController.text),
         indexNumber: int.tryParse(_indexNumberController.text.trim()),
-        coverPriceCents: _parseMoneyCents(
+        coverPriceCents: parseMoneyCents(
           _coverPriceController.text,
           fallback: widget.ownedItem.coverPriceCents,
         ),
         rawOrSlabbed: _rawOrSlabbed,
-        gradingCompany: _emptyToNull(_gradingCompanyController.text),
-        graderNotes: _emptyToNull(_graderNotesController.text),
-        signedBy: _emptyToNull(_signedByController.text),
+        gradingCompany: emptyToNull(_gradingCompanyController.text),
+        graderNotes: emptyToNull(_graderNotesController.text),
+        signedBy: emptyToNull(_signedByController.text),
         keyComic: _keyComic,
-        keyReason: _emptyToNull(_keyReasonController.text),
+        keyReason: emptyToNull(_keyReasonController.text),
         rating: int.tryParse(_ratingController.text.trim()),
-        readStatus: _emptyToNull(_readStatusController.text),
-        tags: _emptyToNull(_tagsController.text),
-      ),
-    );
-  }
-}
-
-class _EditTabShell extends StatelessWidget {
-  const _EditTabShell({
-    required this.children,
-    this.cover,
-  });
-
-  final List<Widget> children;
-  final Widget? cover;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final content = ListView(
-          padding: const EdgeInsets.all(14),
-          children: children,
-        );
-        if (cover == null || constraints.maxWidth < 720) {
-          return content;
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              width: 204,
-              padding: const EdgeInsets.all(14),
-              decoration: const BoxDecoration(
-                color: Color(0xFF101010),
-                border: Border(right: BorderSide(color: _kClzDivider)),
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: AspectRatio(aspectRatio: 2 / 3, child: cover!),
-                    ),
-                  ),
-                  if (constraints.maxHeight >= 360) ...[
-                    const SizedBox(height: 10),
-                    const _MiniBadge('Local item'),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Personal fields stay on this device or your sync service.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: _kClzTextMuted, fontSize: 12),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            Expanded(child: content),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _EditSection extends StatelessWidget {
-  const _EditSection({required this.title, required this.child});
-
-  final String title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(11),
-      decoration: BoxDecoration(
-        color: const Color(0xFF202426),
-        border: const Border(
-          left: BorderSide(color: _kClzAccent, width: 2),
-          top: BorderSide(color: Color(0xFF3D3D3D)),
-          right: BorderSide(color: Color(0xFF3D3D3D)),
-          bottom: BorderSide(color: Color(0xFF3D3D3D)),
+        readStatus: emptyToNull(_readStatusController.text),
+        startedAt: _startedAt,
+        finishedAt: _finishedAt,
+        tags: emptyToNull(_tagsController.text),
+        soldAt: _soldAt,
+        sellPriceCents: parseMoneyCents(
+          _sellPriceController.text,
+          fallback: widget.ownedItem.sellPriceCents,
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: _kClzAccent,
-              fontWeight: FontWeight.w900,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: 9),
-          child,
-        ],
+        soldTo: emptyToNull(_soldToController.text),
+        customFieldEdits: _customFieldEdits,
+        itemImageEdits: _itemImageEdits,
       ),
     );
   }
 }
 
-class _EditTab extends StatelessWidget {
-  const _EditTab({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tab(
-      height: 36,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 17),
-          const SizedBox(width: 5),
-          Text(label),
-        ],
-      ),
-    );
-  }
-}
-
-class _EditGrid extends StatelessWidget {
-  const _EditGrid({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = <Widget>[];
-    for (var i = 0; i < children.length; i += 2) {
-      rows.add(
-        Row(
-          children: [
-            children[i],
-            if (i + 1 < children.length) ...[
-              const SizedBox(width: 8),
-              children[i + 1],
-            ],
-          ],
-        ),
-      );
-      if (i + 2 < children.length) {
-        rows.add(const SizedBox(height: 8));
-      }
-    }
-    return Column(children: rows);
-  }
-}
+// ---------------------------------------------------------------------------
+// Comics-specific: value-by-grade chart panel
+// ---------------------------------------------------------------------------
 
 class _ValueByGradePanel extends StatelessWidget {
   const _ValueByGradePanel({
@@ -1032,7 +1073,7 @@ class _ValueByGradePanel extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: const Color(0xFF101010),
-        border: Border.all(color: _kClzDivider),
+        border: Border.all(color: kEditDivider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1047,14 +1088,13 @@ class _ValueByGradePanel extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // Local guide curve until a market-value provider is wired.
                 for (var i = 0; i < chartValues.length; i++) ...[
                   Expanded(
                     child: Tooltip(
                       message: '${(i + 1) * 1.0}',
                       child: Container(
                         height: chartValues[i] / chartMaxValue * chartHeight,
-                        decoration: const BoxDecoration(color: _kClzChartBar),
+                        decoration: const BoxDecoration(color: kEditChartBar),
                       ),
                     ),
                   ),
@@ -1068,39 +1108,39 @@ class _ValueByGradePanel extends StatelessWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              _ValueContextChip(
+              ValueContextChip(
                 icon: Icons.workspace_premium_outlined,
                 label: 'Grade',
                 value: _displayValue(grade, fallback: 'Ungraded'),
               ),
-              _ValueContextChip(
+              ValueContextChip(
                 icon: Icons.payments_outlined,
                 label: 'Paid',
                 value: _formatMoney(pricePaidCents, normalizedCurrency),
               ),
-              _ValueContextChip(
+              ValueContextChip(
                 icon: Icons.local_offer_outlined,
                 label: 'Cover',
                 value: _formatMoney(coverPriceCents, normalizedCurrency),
               ),
-              _ValueContextChip(
+              ValueContextChip(
                 icon: Icons.trending_up,
                 label: 'Paid vs cover',
                 value: _formatPaidVsCover(pricePaidCents, coverPriceCents),
               ),
-              _ValueContextChip(
+              ValueContextChip(
                 icon: Icons.business_outlined,
                 label: 'Publisher',
                 value: _displayValue(item.publisher),
               ),
-              _ValueContextChip(
+              ValueContextChip(
                 icon: Icons.calendar_month_outlined,
                 label: 'Release',
                 value: releaseDate == null
                     ? _displayValue(item.releaseYear?.toString())
-                    : _formatDate(releaseDate),
+                    : formatDate(releaseDate),
               ),
-              _ValueContextChip(
+              ValueContextChip(
                 icon: Icons.qr_code_2,
                 label: 'Barcode',
                 value: _displayValue(item.barcode),
@@ -1113,156 +1153,9 @@ class _ValueByGradePanel extends StatelessWidget {
   }
 }
 
-class _ValueContextChip extends StatelessWidget {
-  const _ValueContextChip({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      decoration: BoxDecoration(
-        color: _kClzValueChip,
-        border: Border.all(color: _kClzValueChipBorder),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: _kClzChartBar),
-          const SizedBox(width: 5),
-          Text(
-            '$label: ',
-            style: const TextStyle(
-              color: _kClzTextMuted,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FooterReadonlyField extends StatelessWidget {
-  const _FooterReadonlyField({
-    required this.label,
-    required this.value,
-    required this.width,
-  });
-
-  final String label;
-  final String value;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    final display = value.trim().isEmpty ? '-' : value.trim();
-    return SizedBox(
-      width: width,
-      height: 48,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: const Color(0xFF191919),
-          border: Border.all(color: const Color(0xFF3D3D3D)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: _kClzTextMuted, fontSize: 10),
-              ),
-              Text(
-                display,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FooterTextField extends StatelessWidget {
-  const _FooterTextField({
-    required this.label,
-    required this.controller,
-    required this.width,
-    this.keyboardType,
-  });
-
-  final String label;
-  final TextEditingController controller;
-  final double width;
-  final TextInputType? keyboardType;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: 48,
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-        decoration: InputDecoration(
-          labelText: label,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniBadge extends StatelessWidget {
-  const _MiniBadge(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF0E81A6),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
-        ),
-      ),
-    );
-  }
-}
+// ---------------------------------------------------------------------------
+// Data class returned by the dialog
+// ---------------------------------------------------------------------------
 
 class OwnedComicEditSelection {
   const OwnedComicEditSelection({
@@ -1284,7 +1177,14 @@ class OwnedComicEditSelection {
     required this.keyReason,
     required this.rating,
     required this.readStatus,
+    this.startedAt,
+    this.finishedAt,
     required this.tags,
+    this.soldAt,
+    this.sellPriceCents,
+    this.soldTo,
+    this.customFieldEdits = const {},
+    this.itemImageEdits = const [],
   });
 
   final String? condition;
@@ -1305,58 +1205,19 @@ class OwnedComicEditSelection {
   final String? keyReason;
   final int? rating;
   final String? readStatus;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
   final String? tags;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
+  final String? soldTo;
+  final Map<String, String?> customFieldEdits;
+  final List<ItemImageEdit> itemImageEdits;
 }
 
-class _IssuePill extends StatelessWidget {
-  const _IssuePill({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: _kClzAccent,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-int? _parseMoneyCents(String value, {int? fallback}) {
-  final normalized = value.trim().replaceAll(',', '.');
-  if (normalized.isEmpty) {
-    return null;
-  }
-  final parsed = double.tryParse(normalized);
-  if (parsed == null) {
-    return fallback;
-  }
-  return (parsed * 100).round();
-}
-
-String? _emptyToNull(String value) {
-  final trimmed = value.trim();
-  return trimmed.isEmpty ? null : trimmed;
-}
-
-String _formatDate(DateTime value) {
-  final month = value.month.toString().padLeft(2, '0');
-  final day = value.day.toString().padLeft(2, '0');
-  return '${value.year}-$month-$day';
-}
+// ---------------------------------------------------------------------------
+// Comics-specific format helpers
+// ---------------------------------------------------------------------------
 
 String _displayValue(String? value, {String fallback = '-'}) {
   final normalized = value?.trim();
@@ -1364,9 +1225,7 @@ String _displayValue(String? value, {String fallback = '-'}) {
 }
 
 String _formatMoney(int? cents, String currency) {
-  if (cents == null) {
-    return '-';
-  }
+  if (cents == null) return '-';
   final normalizedCurrency = currency.trim().isEmpty ? 'USD' : currency.trim();
   final prefix = _currencyPrefix(normalizedCurrency);
   final absolute = cents.abs();
@@ -1386,12 +1245,8 @@ String _currencyPrefix(String currency) {
 }
 
 String _formatPaidVsCover(int? paidCents, int? coverCents) {
-  if (paidCents == null || coverCents == null || coverCents == 0) {
-    return '-';
-  }
+  if (paidCents == null || coverCents == null || coverCents == 0) return '-';
   final percent = ((paidCents - coverCents) * 100 / coverCents).round();
-  if (percent == 0) {
-    return 'at cover';
-  }
+  if (percent == 0) return 'at cover';
   return percent > 0 ? '+$percent%' : '$percent%';
 }

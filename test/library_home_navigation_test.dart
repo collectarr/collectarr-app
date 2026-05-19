@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/library_home_catalog.dart';
-import 'package:collectarr_app/features/library/library_home_nav_models.dart';
+import 'package:collectarr_app/features/library/home/library_home_catalog.dart';
+import 'package:collectarr_app/features/library/home/library_home_nav_models.dart';
 import 'package:collectarr_app/features/library/library_type_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 

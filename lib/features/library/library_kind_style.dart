@@ -40,10 +40,10 @@ LinearGradient libraryChromeGradient(
 
 IconData libraryIconForKind(String kind) {
   return switch (kind) {
-    'anime' => Icons.animation,
+    'anime' => Icons.smart_display,
     'book' => Icons.menu_book_outlined,
     'boardgame' => Icons.casino_outlined,
-    'comic' => Icons.menu_book,
+    'comic' => Icons.style,
     'game' => Icons.sports_esports,
     'manga' => Icons.auto_stories,
     'movie' => Icons.movie_outlined,
@@ -55,9 +55,10 @@ IconData libraryIconForKind(String kind) {
 
 String librarySidebarTitleForKind(String kind) {
   return switch (kind) {
-    'anime' || 'movie' || 'tv' => 'Years',
+    'movie' => 'Years',
     'music' => 'Artists',
-    'book' || 'game' || 'boardgame' || 'manga' => 'Publishers',
+    'manga' || 'anime' || 'tv' => 'Series',
+    'book' || 'game' || 'boardgame' => 'Publishers',
     _ => 'Titles',
   };
 }

@@ -48,9 +48,50 @@ class OwnedItemsCache extends Table {
   TextColumn get keyReason => text().nullable()();
   IntColumn get rating => integer().nullable()();
   TextColumn get readStatus => text().nullable()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
+  DateTimeColumn get finishedAt => dateTime().nullable()();
   TextColumn get tags => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
+  DateTimeColumn get soldAt => dateTime().nullable()();
+  IntColumn get sellPriceCents => integer().nullable()();
+  TextColumn get soldTo => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class CustomFieldDefinitionsCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get fieldType => text()(); // text, number, date, bool, select
+  TextColumn get mediaKind => text().nullable()(); // null = all media types
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  TextColumn get options => text().nullable()(); // JSON array for select type
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class CustomFieldValuesCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get ownedItemId => text()();
+  TextColumn get fieldDefinitionId => text()();
+  TextColumn get value => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class ItemImagesCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get ownedItemId => text()();
+  TextColumn get imageData => text()(); // base64-encoded image data
+  TextColumn get caption => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -89,22 +130,61 @@ class SyncQueue extends Table {
   OwnedItemsCache,
   WishlistItemsCache,
   SyncQueue,
+  CustomFieldDefinitionsCache,
+  CustomFieldValuesCache,
+  ItemImagesCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          await m.createTable(customFieldDefinitionsCache);
+          await m.createTable(customFieldValuesCache);
+          await m.createTable(itemImagesCache);
+          await _addColumnsIfMissing('owned_items_cache', {
+            'sold_at': 'INTEGER',
+            'sell_price_cents': 'INTEGER',
+            'sold_to': 'TEXT',
+          });
+        }
+        if (from < 3) {
+          await _addColumnsIfMissing('owned_items_cache', {
+            'started_at': 'INTEGER',
+            'finished_at': 'INTEGER',
+          });
+        }
+      },
       beforeOpen: (_) async {
         await _ensureCatalogCacheColumns();
       },
     );
+  }
+
+  Future<void> _addColumnsIfMissing(
+    String table,
+    Map<String, String> columns,
+  ) async {
+    final existing =
+        await customSelect('PRAGMA table_info($table)').get();
+    final existingNames = {
+      for (final row in existing) row.read<String>('name'),
+    };
+    for (final entry in columns.entries) {
+      if (!existingNames.contains(entry.key)) {
+        await customStatement(
+          'ALTER TABLE $table ADD COLUMN ${entry.key} ${entry.value}',
+        );
+      }
+    }
   }
 
   Future<void> _ensureCatalogCacheColumns() async {

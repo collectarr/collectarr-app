@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/comics/comics_workspace_projection.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_projection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ComicsGroupingPreferenceStore {

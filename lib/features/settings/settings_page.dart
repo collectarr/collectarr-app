@@ -10,17 +10,20 @@ import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
-import 'package:collectarr_app/features/collection/collection_csv.dart';
-import 'package:collectarr_app/features/collection/import_export/import_export_wizard.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/selected_library_provider.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -278,6 +281,61 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       ],
                     ),
                   ),
+                  if (sync.syncLog.isNotEmpty)
+                    _SettingsPanel(
+                      icon: Icons.history_outlined,
+                      title: 'Sync history',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final entry in sync.syncLog.reversed)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    entry.success
+                                        ? Icons.check_circle_outline
+                                        : Icons.error_outline,
+                                    size: 16,
+                                    color: entry.success
+                                        ? Colors.green
+                                        : Colors.red,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _formatSyncTime(entry.timestamp),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (entry.success)
+                                    Text(
+                                      '${entry.pushed} pushed'
+                                      '${entry.rejected > 0 ? ', ${entry.rejected} rejected' : ''}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    )
+                                  else
+                                    Expanded(
+                                      child: Text(
+                                        entry.errorMessage ?? 'Failed',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.red,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   _SettingsPanel(
                     icon: Icons.qr_code_2_outlined,
                     title: 'Device pairing',
@@ -406,6 +464,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ],
                         ),
                       ],
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.tune_outlined,
+                    title: 'Custom fields',
+                    child: CustomFieldsSettings(
+                      db: ref.read(localDatabaseProvider),
                     ),
                   ),
                   _SettingsPanel(
@@ -822,10 +887,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _copyBackup({required bool clzFriendly}) async {
     final state = await ref.read(shelfProvider.future);
+    final db = ref.read(localDatabaseProvider);
+    final cfRepo = CustomFieldRepository(db);
+    final cfDefs = await cfRepo.listDefinitions();
+    final cfValues = await cfRepo.listAllValues();
     final csv = CollectionCsv();
     final data = clzFriendly
-        ? csv.exportClzFriendlyShelf(state.entries)
-        : csv.exportShelf(state.entries);
+        ? csv.exportClzFriendlyShelf(
+            state.entries,
+            customFieldDefinitions: cfDefs,
+            customFieldValuesByItem: cfValues,
+          )
+        : csv.exportShelf(
+            state.entries,
+            customFieldDefinitions: cfDefs,
+            customFieldValuesByItem: cfValues,
+          );
     await Clipboard.setData(ClipboardData(text: data));
     if (!mounted) {
       return;
@@ -843,12 +920,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _showImportExportWizard() async {
     final state = await ref.read(shelfProvider.future);
+    final db = ref.read(localDatabaseProvider);
+    final cfRepo = CustomFieldRepository(db);
+    final cfDefs = await cfRepo.listDefinitions();
+    final cfValues = await cfRepo.listAllValues();
     if (!mounted) {
       return;
     }
     final imported = await showDialog<int>(
       context: context,
-      builder: (context) => ImportExportWizardDialog(entries: state.entries),
+      builder: (context) => ImportExportWizardDialog(
+        entries: state.entries,
+        customFieldDefinitions: cfDefs,
+        customFieldValuesByItem: cfValues,
+      ),
     );
     if (imported != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

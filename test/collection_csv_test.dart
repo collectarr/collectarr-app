@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/collection/collection_csv.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -320,5 +321,129 @@ void main() {
     expect(rows[0].releaseDate, DateTime.utc(2026, 5, 11));
     expect(rows[0].purchaseDate, DateTime.utc(2026, 5, 12));
     expect(rows[1].releaseDate, DateTime.utc(2025, 12, 31));
+  });
+
+  test('csv export includes custom field columns', () {
+    final defs = [
+      CustomFieldDefinition(
+        id: 'def-1',
+        name: 'Location',
+        fieldType: 'text',
+        createdAt: DateTime.utc(2026, 1, 1),
+      ),
+      CustomFieldDefinition(
+        id: 'def-2',
+        name: 'Rating',
+        fieldType: 'number',
+        createdAt: DateTime.utc(2026, 1, 1),
+      ),
+    ];
+    final cfValues = {
+      'owned-1': [
+        CustomFieldValue(
+          id: 'v1',
+          ownedItemId: 'owned-1',
+          fieldDefinitionId: 'def-1',
+          value: 'Shelf A',
+          updatedAt: DateTime.utc(2026, 1, 1),
+        ),
+        CustomFieldValue(
+          id: 'v2',
+          ownedItemId: 'owned-1',
+          fieldDefinitionId: 'def-2',
+          value: '9',
+          updatedAt: DateTime.utc(2026, 1, 1),
+        ),
+      ],
+    };
+
+    final csv = CollectionCsv();
+    final exported = csv.exportShelf(
+      [
+        ShelfEntry(
+          itemId: 'comic-1',
+          catalogItem: CatalogItem(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Test',
+          ),
+          ownedItem: OwnedItem(
+            id: 'owned-1',
+            itemId: 'comic-1',
+            quantity: 1,
+            updatedAt: DateTime.utc(2026, 1, 1),
+          ),
+        ),
+      ],
+      customFieldDefinitions: defs,
+      customFieldValuesByItem: cfValues,
+    );
+
+    expect(exported, contains('cf_Location'));
+    expect(exported, contains('cf_Rating'));
+    expect(exported, contains('Shelf A'));
+    expect(exported, contains(',9'));
+  });
+
+  test('csv parse extracts cf_ columns into customFieldValues', () {
+    final csv = CollectionCsv();
+    final rows = csv.parse(
+      const CsvEncoder().convert([
+        ['item_id', 'status', 'title', 'cf_Location', 'cf_Score'],
+        ['comic-1', 'owned', 'Test', 'Shelf B', '42'],
+        ['comic-2', 'owned', 'Test 2', '', ''],
+      ]),
+    );
+
+    expect(rows[0].customFieldValues, {'Location': 'Shelf B', 'Score': '42'});
+    expect(rows[1].customFieldValues, isEmpty);
+  });
+
+  test('csv roundtrip preserves custom field values', () {
+    final defs = [
+      CustomFieldDefinition(
+        id: 'def-1',
+        name: 'Notes',
+        fieldType: 'text',
+        createdAt: DateTime.utc(2026, 1, 1),
+      ),
+    ];
+    final cfValues = {
+      'owned-1': [
+        CustomFieldValue(
+          id: 'v1',
+          ownedItemId: 'owned-1',
+          fieldDefinitionId: 'def-1',
+          value: 'Special note, with comma',
+          updatedAt: DateTime.utc(2026, 1, 1),
+        ),
+      ],
+    };
+
+    final csv = CollectionCsv();
+    final exported = csv.exportShelf(
+      [
+        ShelfEntry(
+          itemId: 'comic-1',
+          catalogItem: CatalogItem(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Test',
+          ),
+          ownedItem: OwnedItem(
+            id: 'owned-1',
+            itemId: 'comic-1',
+            quantity: 1,
+            updatedAt: DateTime.utc(2026, 1, 1),
+          ),
+        ),
+      ],
+      customFieldDefinitions: defs,
+      customFieldValuesByItem: cfValues,
+    );
+
+    final parsed = csv.parse(exported);
+    expect(parsed.single.customFieldValues['Notes'],
+        'Special note, with comma');
   });
 }

@@ -5,10 +5,11 @@ const Color _kDefaultMutedText = Color(0xFFB8B8B8);
 const double _kTwoColumnBreakpoint = 420;
 
 class LibraryInspectorFactData {
-  const LibraryInspectorFactData(this.label, this.value);
+  const LibraryInspectorFactData(this.label, this.value, {this.onTap});
 
   final String label;
   final String value;
+  final VoidCallback? onTap;
 }
 
 class LibraryInspectorSection extends StatelessWidget {
@@ -112,7 +113,7 @@ class LibraryInspectorFactGrid extends StatelessWidget {
           return Column(
             children: [
               for (final fact in facts)
-                LibraryInspectorFact(fact.label, fact.value),
+                LibraryInspectorFact(fact.label, fact.value, onTap: fact.onTap),
             ],
           );
         }
@@ -122,7 +123,7 @@ class LibraryInspectorFactGrid extends StatelessWidget {
             for (final fact in facts)
               SizedBox(
                 width: constraints.maxWidth / 2,
-                child: LibraryInspectorFact(fact.label, fact.value),
+                child: LibraryInspectorFact(fact.label, fact.value, onTap: fact.onTap),
               ),
           ],
         );
@@ -137,11 +138,13 @@ class LibraryInspectorFact extends StatelessWidget {
     this.value, {
     super.key,
     this.mutedTextColor = _kDefaultMutedText,
+    this.onTap,
   });
 
   final String label;
   final String value;
   final Color mutedTextColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -162,15 +165,32 @@ class LibraryInspectorFact extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+            child: onTap != null && value != '-' && value.isNotEmpty
+                ? InkWell(
+                    onTap: onTap,
+                    borderRadius: BorderRadius.circular(4),
+                    child: Text(
+                      value,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                            decorationColor:
+                                Colors.white.withValues(alpha: 0.4),
+                          ),
+                    ),
+                  )
+                : Text(
+                    value,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
-            ),
           ),
         ],
       ),
@@ -246,5 +266,56 @@ class LibraryInspectorChip extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class LibraryEmptyInspector extends StatelessWidget {
+  const LibraryEmptyInspector({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.accent = _kDefaultAccent,
+    this.mutedTextColor = _kDefaultMutedText,
+    this.backgroundColor,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color accent;
+  final Color mutedTextColor;
+  final Color? backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 42, color: accent),
+          const SizedBox(height: 12),
+          Text(
+            'No $label selected',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Select an item to inspect metadata, cover, and local status.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: mutedTextColor,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
+      ),
+    );
+    if (backgroundColor != null) {
+      return ColoredBox(color: backgroundColor!, child: content);
+    }
+    return content;
   }
 }

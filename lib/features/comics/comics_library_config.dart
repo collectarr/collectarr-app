@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   kind: 'comic',
   title: 'Comics',
-  icon: Icons.menu_book,
+  icon: Icons.style,
   preferencePrefix: 'comics',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {

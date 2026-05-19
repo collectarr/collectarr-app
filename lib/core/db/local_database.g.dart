@@ -942,6 +942,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> readStatus = GeneratedColumn<String>(
       'read_status', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
   @override
   late final GeneratedColumn<String> tags = GeneratedColumn<String>(
@@ -959,6 +971,22 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
       'deleted_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _soldAtMeta = const VerificationMeta('soldAt');
+  @override
+  late final GeneratedColumn<DateTime> soldAt = GeneratedColumn<DateTime>(
+      'sold_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _sellPriceCentsMeta =
+      const VerificationMeta('sellPriceCents');
+  @override
+  late final GeneratedColumn<int> sellPriceCents = GeneratedColumn<int>(
+      'sell_price_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _soldToMeta = const VerificationMeta('soldTo');
+  @override
+  late final GeneratedColumn<String> soldTo = GeneratedColumn<String>(
+      'sold_to', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -983,9 +1011,14 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         keyReason,
         rating,
         readStatus,
+        startedAt,
+        finishedAt,
         tags,
         updatedAt,
-        deletedAt
+        deletedAt,
+        soldAt,
+        sellPriceCents,
+        soldTo
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1109,6 +1142,16 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           readStatus.isAcceptableOrUnknown(
               data['read_status']!, _readStatusMeta));
     }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
     if (data.containsKey('tags')) {
       context.handle(
           _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
@@ -1122,6 +1165,20 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
     if (data.containsKey('deleted_at')) {
       context.handle(_deletedAtMeta,
           deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('sold_at')) {
+      context.handle(_soldAtMeta,
+          soldAt.isAcceptableOrUnknown(data['sold_at']!, _soldAtMeta));
+    }
+    if (data.containsKey('sell_price_cents')) {
+      context.handle(
+          _sellPriceCentsMeta,
+          sellPriceCents.isAcceptableOrUnknown(
+              data['sell_price_cents']!, _sellPriceCentsMeta));
+    }
+    if (data.containsKey('sold_to')) {
+      context.handle(_soldToMeta,
+          soldTo.isAcceptableOrUnknown(data['sold_to']!, _soldToMeta));
     }
     return context;
   }
@@ -1176,12 +1233,22 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.int, data['${effectivePrefix}rating']),
       readStatus: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}read_status']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
       tags: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tags']),
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      soldAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}sold_at']),
+      sellPriceCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sell_price_cents']),
+      soldTo: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sold_to']),
     );
   }
 
@@ -1215,9 +1282,14 @@ class OwnedItemsCacheData extends DataClass
   final String? keyReason;
   final int? rating;
   final String? readStatus;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
   final String? tags;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
+  final String? soldTo;
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
@@ -1241,9 +1313,14 @@ class OwnedItemsCacheData extends DataClass
       this.keyReason,
       this.rating,
       this.readStatus,
+      this.startedAt,
+      this.finishedAt,
       this.tags,
       required this.updatedAt,
-      this.deletedAt});
+      this.deletedAt,
+      this.soldAt,
+      this.sellPriceCents,
+      this.soldTo});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1305,12 +1382,27 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || readStatus != null) {
       map['read_status'] = Variable<String>(readStatus);
     }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
     if (!nullToAbsent || tags != null) {
       map['tags'] = Variable<String>(tags);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || soldAt != null) {
+      map['sold_at'] = Variable<DateTime>(soldAt);
+    }
+    if (!nullToAbsent || sellPriceCents != null) {
+      map['sell_price_cents'] = Variable<int>(sellPriceCents);
+    }
+    if (!nullToAbsent || soldTo != null) {
+      map['sold_to'] = Variable<String>(soldTo);
     }
     return map;
   }
@@ -1373,11 +1465,24 @@ class OwnedItemsCacheData extends DataClass
       readStatus: readStatus == null && nullToAbsent
           ? const Value.absent()
           : Value(readStatus),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
       tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
+      soldAt:
+          soldAt == null && nullToAbsent ? const Value.absent() : Value(soldAt),
+      sellPriceCents: sellPriceCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sellPriceCents),
+      soldTo:
+          soldTo == null && nullToAbsent ? const Value.absent() : Value(soldTo),
     );
   }
 
@@ -1407,9 +1512,14 @@ class OwnedItemsCacheData extends DataClass
       keyReason: serializer.fromJson<String?>(json['keyReason']),
       rating: serializer.fromJson<int?>(json['rating']),
       readStatus: serializer.fromJson<String?>(json['readStatus']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
       tags: serializer.fromJson<String?>(json['tags']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      soldAt: serializer.fromJson<DateTime?>(json['soldAt']),
+      sellPriceCents: serializer.fromJson<int?>(json['sellPriceCents']),
+      soldTo: serializer.fromJson<String?>(json['soldTo']),
     );
   }
   @override
@@ -1438,9 +1548,14 @@ class OwnedItemsCacheData extends DataClass
       'keyReason': serializer.toJson<String?>(keyReason),
       'rating': serializer.toJson<int?>(rating),
       'readStatus': serializer.toJson<String?>(readStatus),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
       'tags': serializer.toJson<String?>(tags),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'soldAt': serializer.toJson<DateTime?>(soldAt),
+      'sellPriceCents': serializer.toJson<int?>(sellPriceCents),
+      'soldTo': serializer.toJson<String?>(soldTo),
     };
   }
 
@@ -1467,9 +1582,14 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> keyReason = const Value.absent(),
           Value<int?> rating = const Value.absent(),
           Value<String?> readStatus = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
           Value<String?> tags = const Value.absent(),
           DateTime? updatedAt,
-          Value<DateTime?> deletedAt = const Value.absent()}) =>
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<DateTime?> soldAt = const Value.absent(),
+          Value<int?> sellPriceCents = const Value.absent(),
+          Value<String?> soldTo = const Value.absent()}) =>
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
@@ -1500,9 +1620,15 @@ class OwnedItemsCacheData extends DataClass
         keyReason: keyReason.present ? keyReason.value : this.keyReason,
         rating: rating.present ? rating.value : this.rating,
         readStatus: readStatus.present ? readStatus.value : this.readStatus,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
         tags: tags.present ? tags.value : this.tags,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        soldAt: soldAt.present ? soldAt.value : this.soldAt,
+        sellPriceCents:
+            sellPriceCents.present ? sellPriceCents.value : this.sellPriceCents,
+        soldTo: soldTo.present ? soldTo.value : this.soldTo,
       );
   OwnedItemsCacheData copyWithCompanion(OwnedItemsCacheCompanion data) {
     return OwnedItemsCacheData(
@@ -1544,9 +1670,17 @@ class OwnedItemsCacheData extends DataClass
       rating: data.rating.present ? data.rating.value : this.rating,
       readStatus:
           data.readStatus.present ? data.readStatus.value : this.readStatus,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
       tags: data.tags.present ? data.tags.value : this.tags,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      soldAt: data.soldAt.present ? data.soldAt.value : this.soldAt,
+      sellPriceCents: data.sellPriceCents.present
+          ? data.sellPriceCents.value
+          : this.sellPriceCents,
+      soldTo: data.soldTo.present ? data.soldTo.value : this.soldTo,
     );
   }
 
@@ -1575,9 +1709,14 @@ class OwnedItemsCacheData extends DataClass
           ..write('keyReason: $keyReason, ')
           ..write('rating: $rating, ')
           ..write('readStatus: $readStatus, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('soldAt: $soldAt, ')
+          ..write('sellPriceCents: $sellPriceCents, ')
+          ..write('soldTo: $soldTo')
           ..write(')'))
         .toString();
   }
@@ -1606,9 +1745,14 @@ class OwnedItemsCacheData extends DataClass
         keyReason,
         rating,
         readStatus,
+        startedAt,
+        finishedAt,
         tags,
         updatedAt,
-        deletedAt
+        deletedAt,
+        soldAt,
+        sellPriceCents,
+        soldTo
       ]);
   @override
   bool operator ==(Object other) =>
@@ -1636,9 +1780,14 @@ class OwnedItemsCacheData extends DataClass
           other.keyReason == this.keyReason &&
           other.rating == this.rating &&
           other.readStatus == this.readStatus &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
           other.tags == this.tags &&
           other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt);
+          other.deletedAt == this.deletedAt &&
+          other.soldAt == this.soldAt &&
+          other.sellPriceCents == this.sellPriceCents &&
+          other.soldTo == this.soldTo);
 }
 
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
@@ -1664,9 +1813,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> keyReason;
   final Value<int?> rating;
   final Value<String?> readStatus;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
   final Value<String?> tags;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
+  final Value<DateTime?> soldAt;
+  final Value<int?> sellPriceCents;
+  final Value<String?> soldTo;
   final Value<int> rowid;
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
@@ -1691,9 +1845,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.keyReason = const Value.absent(),
     this.rating = const Value.absent(),
     this.readStatus = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
     this.tags = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.soldAt = const Value.absent(),
+    this.sellPriceCents = const Value.absent(),
+    this.soldTo = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OwnedItemsCacheCompanion.insert({
@@ -1719,9 +1878,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.keyReason = const Value.absent(),
     this.rating = const Value.absent(),
     this.readStatus = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
     this.tags = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
+    this.soldAt = const Value.absent(),
+    this.sellPriceCents = const Value.absent(),
+    this.soldTo = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
@@ -1749,9 +1913,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? keyReason,
     Expression<int>? rating,
     Expression<String>? readStatus,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
     Expression<String>? tags,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
+    Expression<DateTime>? soldAt,
+    Expression<int>? sellPriceCents,
+    Expression<String>? soldTo,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1777,9 +1946,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (keyReason != null) 'key_reason': keyReason,
       if (rating != null) 'rating': rating,
       if (readStatus != null) 'read_status': readStatus,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
       if (tags != null) 'tags': tags,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
+      if (soldAt != null) 'sold_at': soldAt,
+      if (sellPriceCents != null) 'sell_price_cents': sellPriceCents,
+      if (soldTo != null) 'sold_to': soldTo,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1807,9 +1981,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? keyReason,
       Value<int?>? rating,
       Value<String?>? readStatus,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
       Value<String?>? tags,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
+      Value<DateTime?>? soldAt,
+      Value<int?>? sellPriceCents,
+      Value<String?>? soldTo,
       Value<int>? rowid}) {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
@@ -1834,9 +2013,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      soldAt: soldAt ?? this.soldAt,
+      sellPriceCents: sellPriceCents ?? this.sellPriceCents,
+      soldTo: soldTo ?? this.soldTo,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1910,6 +2094,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (readStatus.present) {
       map['read_status'] = Variable<String>(readStatus.value);
     }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
     if (tags.present) {
       map['tags'] = Variable<String>(tags.value);
     }
@@ -1918,6 +2108,15 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     }
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (soldAt.present) {
+      map['sold_at'] = Variable<DateTime>(soldAt.value);
+    }
+    if (sellPriceCents.present) {
+      map['sell_price_cents'] = Variable<int>(sellPriceCents.value);
+    }
+    if (soldTo.present) {
+      map['sold_to'] = Variable<String>(soldTo.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -1950,9 +2149,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('keyReason: $keyReason, ')
           ..write('rating: $rating, ')
           ..write('readStatus: $readStatus, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
           ..write('tags: $tags, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('soldAt: $soldAt, ')
+          ..write('sellPriceCents: $sellPriceCents, ')
+          ..write('soldTo: $soldTo, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2832,6 +3036,1070 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
   }
 }
 
+class $CustomFieldDefinitionsCacheTable extends CustomFieldDefinitionsCache
+    with
+        TableInfo<$CustomFieldDefinitionsCacheTable,
+            CustomFieldDefinitionsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomFieldDefinitionsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fieldTypeMeta =
+      const VerificationMeta('fieldType');
+  @override
+  late final GeneratedColumn<String> fieldType = GeneratedColumn<String>(
+      'field_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediaKindMeta =
+      const VerificationMeta('mediaKind');
+  @override
+  late final GeneratedColumn<String> mediaKind = GeneratedColumn<String>(
+      'media_kind', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _optionsMeta =
+      const VerificationMeta('options');
+  @override
+  late final GeneratedColumn<String> options = GeneratedColumn<String>(
+      'options', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, fieldType, mediaKind, sortOrder, options, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'custom_field_definitions_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CustomFieldDefinitionsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('field_type')) {
+      context.handle(_fieldTypeMeta,
+          fieldType.isAcceptableOrUnknown(data['field_type']!, _fieldTypeMeta));
+    } else if (isInserting) {
+      context.missing(_fieldTypeMeta);
+    }
+    if (data.containsKey('media_kind')) {
+      context.handle(_mediaKindMeta,
+          mediaKind.isAcceptableOrUnknown(data['media_kind']!, _mediaKindMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    if (data.containsKey('options')) {
+      context.handle(_optionsMeta,
+          options.isAcceptableOrUnknown(data['options']!, _optionsMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CustomFieldDefinitionsCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomFieldDefinitionsCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      fieldType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}field_type'])!,
+      mediaKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_kind']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      options: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}options']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $CustomFieldDefinitionsCacheTable createAlias(String alias) {
+    return $CustomFieldDefinitionsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class CustomFieldDefinitionsCacheData extends DataClass
+    implements Insertable<CustomFieldDefinitionsCacheData> {
+  final String id;
+  final String name;
+  final String fieldType;
+  final String? mediaKind;
+  final int sortOrder;
+  final String? options;
+  final DateTime createdAt;
+  const CustomFieldDefinitionsCacheData(
+      {required this.id,
+      required this.name,
+      required this.fieldType,
+      this.mediaKind,
+      required this.sortOrder,
+      this.options,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['field_type'] = Variable<String>(fieldType);
+    if (!nullToAbsent || mediaKind != null) {
+      map['media_kind'] = Variable<String>(mediaKind);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || options != null) {
+      map['options'] = Variable<String>(options);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  CustomFieldDefinitionsCacheCompanion toCompanion(bool nullToAbsent) {
+    return CustomFieldDefinitionsCacheCompanion(
+      id: Value(id),
+      name: Value(name),
+      fieldType: Value(fieldType),
+      mediaKind: mediaKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaKind),
+      sortOrder: Value(sortOrder),
+      options: options == null && nullToAbsent
+          ? const Value.absent()
+          : Value(options),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory CustomFieldDefinitionsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomFieldDefinitionsCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      fieldType: serializer.fromJson<String>(json['fieldType']),
+      mediaKind: serializer.fromJson<String?>(json['mediaKind']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      options: serializer.fromJson<String?>(json['options']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'fieldType': serializer.toJson<String>(fieldType),
+      'mediaKind': serializer.toJson<String?>(mediaKind),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'options': serializer.toJson<String?>(options),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  CustomFieldDefinitionsCacheData copyWith(
+          {String? id,
+          String? name,
+          String? fieldType,
+          Value<String?> mediaKind = const Value.absent(),
+          int? sortOrder,
+          Value<String?> options = const Value.absent(),
+          DateTime? createdAt}) =>
+      CustomFieldDefinitionsCacheData(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        fieldType: fieldType ?? this.fieldType,
+        mediaKind: mediaKind.present ? mediaKind.value : this.mediaKind,
+        sortOrder: sortOrder ?? this.sortOrder,
+        options: options.present ? options.value : this.options,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  CustomFieldDefinitionsCacheData copyWithCompanion(
+      CustomFieldDefinitionsCacheCompanion data) {
+    return CustomFieldDefinitionsCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      fieldType: data.fieldType.present ? data.fieldType.value : this.fieldType,
+      mediaKind: data.mediaKind.present ? data.mediaKind.value : this.mediaKind,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      options: data.options.present ? data.options.value : this.options,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomFieldDefinitionsCacheData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('fieldType: $fieldType, ')
+          ..write('mediaKind: $mediaKind, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('options: $options, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, name, fieldType, mediaKind, sortOrder, options, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomFieldDefinitionsCacheData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.fieldType == this.fieldType &&
+          other.mediaKind == this.mediaKind &&
+          other.sortOrder == this.sortOrder &&
+          other.options == this.options &&
+          other.createdAt == this.createdAt);
+}
+
+class CustomFieldDefinitionsCacheCompanion
+    extends UpdateCompanion<CustomFieldDefinitionsCacheData> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> fieldType;
+  final Value<String?> mediaKind;
+  final Value<int> sortOrder;
+  final Value<String?> options;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const CustomFieldDefinitionsCacheCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.fieldType = const Value.absent(),
+    this.mediaKind = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.options = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CustomFieldDefinitionsCacheCompanion.insert({
+    required String id,
+    required String name,
+    required String fieldType,
+    this.mediaKind = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.options = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        fieldType = Value(fieldType),
+        createdAt = Value(createdAt);
+  static Insertable<CustomFieldDefinitionsCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? fieldType,
+    Expression<String>? mediaKind,
+    Expression<int>? sortOrder,
+    Expression<String>? options,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (fieldType != null) 'field_type': fieldType,
+      if (mediaKind != null) 'media_kind': mediaKind,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (options != null) 'options': options,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CustomFieldDefinitionsCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String>? fieldType,
+      Value<String?>? mediaKind,
+      Value<int>? sortOrder,
+      Value<String?>? options,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return CustomFieldDefinitionsCacheCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      fieldType: fieldType ?? this.fieldType,
+      mediaKind: mediaKind ?? this.mediaKind,
+      sortOrder: sortOrder ?? this.sortOrder,
+      options: options ?? this.options,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (fieldType.present) {
+      map['field_type'] = Variable<String>(fieldType.value);
+    }
+    if (mediaKind.present) {
+      map['media_kind'] = Variable<String>(mediaKind.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (options.present) {
+      map['options'] = Variable<String>(options.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomFieldDefinitionsCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('fieldType: $fieldType, ')
+          ..write('mediaKind: $mediaKind, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('options: $options, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CustomFieldValuesCacheTable extends CustomFieldValuesCache
+    with TableInfo<$CustomFieldValuesCacheTable, CustomFieldValuesCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomFieldValuesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fieldDefinitionIdMeta =
+      const VerificationMeta('fieldDefinitionId');
+  @override
+  late final GeneratedColumn<String> fieldDefinitionId =
+      GeneratedColumn<String>('field_definition_id', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+      'value', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, ownedItemId, fieldDefinitionId, value, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'custom_field_values_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CustomFieldValuesCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('field_definition_id')) {
+      context.handle(
+          _fieldDefinitionIdMeta,
+          fieldDefinitionId.isAcceptableOrUnknown(
+              data['field_definition_id']!, _fieldDefinitionIdMeta));
+    } else if (isInserting) {
+      context.missing(_fieldDefinitionIdMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+          _valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CustomFieldValuesCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomFieldValuesCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      fieldDefinitionId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}field_definition_id'])!,
+      value: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}value']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $CustomFieldValuesCacheTable createAlias(String alias) {
+    return $CustomFieldValuesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class CustomFieldValuesCacheData extends DataClass
+    implements Insertable<CustomFieldValuesCacheData> {
+  final String id;
+  final String ownedItemId;
+  final String fieldDefinitionId;
+  final String? value;
+  final DateTime updatedAt;
+  const CustomFieldValuesCacheData(
+      {required this.id,
+      required this.ownedItemId,
+      required this.fieldDefinitionId,
+      this.value,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['field_definition_id'] = Variable<String>(fieldDefinitionId);
+    if (!nullToAbsent || value != null) {
+      map['value'] = Variable<String>(value);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  CustomFieldValuesCacheCompanion toCompanion(bool nullToAbsent) {
+    return CustomFieldValuesCacheCompanion(
+      id: Value(id),
+      ownedItemId: Value(ownedItemId),
+      fieldDefinitionId: Value(fieldDefinitionId),
+      value:
+          value == null && nullToAbsent ? const Value.absent() : Value(value),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CustomFieldValuesCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomFieldValuesCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      fieldDefinitionId: serializer.fromJson<String>(json['fieldDefinitionId']),
+      value: serializer.fromJson<String?>(json['value']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'fieldDefinitionId': serializer.toJson<String>(fieldDefinitionId),
+      'value': serializer.toJson<String?>(value),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  CustomFieldValuesCacheData copyWith(
+          {String? id,
+          String? ownedItemId,
+          String? fieldDefinitionId,
+          Value<String?> value = const Value.absent(),
+          DateTime? updatedAt}) =>
+      CustomFieldValuesCacheData(
+        id: id ?? this.id,
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        fieldDefinitionId: fieldDefinitionId ?? this.fieldDefinitionId,
+        value: value.present ? value.value : this.value,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  CustomFieldValuesCacheData copyWithCompanion(
+      CustomFieldValuesCacheCompanion data) {
+    return CustomFieldValuesCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      fieldDefinitionId: data.fieldDefinitionId.present
+          ? data.fieldDefinitionId.value
+          : this.fieldDefinitionId,
+      value: data.value.present ? data.value.value : this.value,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomFieldValuesCacheData(')
+          ..write('id: $id, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('fieldDefinitionId: $fieldDefinitionId, ')
+          ..write('value: $value, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, ownedItemId, fieldDefinitionId, value, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomFieldValuesCacheData &&
+          other.id == this.id &&
+          other.ownedItemId == this.ownedItemId &&
+          other.fieldDefinitionId == this.fieldDefinitionId &&
+          other.value == this.value &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CustomFieldValuesCacheCompanion
+    extends UpdateCompanion<CustomFieldValuesCacheData> {
+  final Value<String> id;
+  final Value<String> ownedItemId;
+  final Value<String> fieldDefinitionId;
+  final Value<String?> value;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const CustomFieldValuesCacheCompanion({
+    this.id = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.fieldDefinitionId = const Value.absent(),
+    this.value = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CustomFieldValuesCacheCompanion.insert({
+    required String id,
+    required String ownedItemId,
+    required String fieldDefinitionId,
+    this.value = const Value.absent(),
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        ownedItemId = Value(ownedItemId),
+        fieldDefinitionId = Value(fieldDefinitionId),
+        updatedAt = Value(updatedAt);
+  static Insertable<CustomFieldValuesCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? ownedItemId,
+    Expression<String>? fieldDefinitionId,
+    Expression<String>? value,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (fieldDefinitionId != null) 'field_definition_id': fieldDefinitionId,
+      if (value != null) 'value': value,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CustomFieldValuesCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? ownedItemId,
+      Value<String>? fieldDefinitionId,
+      Value<String?>? value,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return CustomFieldValuesCacheCompanion(
+      id: id ?? this.id,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      fieldDefinitionId: fieldDefinitionId ?? this.fieldDefinitionId,
+      value: value ?? this.value,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (fieldDefinitionId.present) {
+      map['field_definition_id'] = Variable<String>(fieldDefinitionId.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomFieldValuesCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('fieldDefinitionId: $fieldDefinitionId, ')
+          ..write('value: $value, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ItemImagesCacheTable extends ItemImagesCache
+    with TableInfo<$ItemImagesCacheTable, ItemImagesCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ItemImagesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageDataMeta =
+      const VerificationMeta('imageData');
+  @override
+  late final GeneratedColumn<String> imageData = GeneratedColumn<String>(
+      'image_data', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _captionMeta =
+      const VerificationMeta('caption');
+  @override
+  late final GeneratedColumn<String> caption = GeneratedColumn<String>(
+      'caption', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, ownedItemId, imageData, caption, sortOrder, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'item_images_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ItemImagesCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('image_data')) {
+      context.handle(_imageDataMeta,
+          imageData.isAcceptableOrUnknown(data['image_data']!, _imageDataMeta));
+    } else if (isInserting) {
+      context.missing(_imageDataMeta);
+    }
+    if (data.containsKey('caption')) {
+      context.handle(_captionMeta,
+          caption.isAcceptableOrUnknown(data['caption']!, _captionMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ItemImagesCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ItemImagesCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      imageData: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_data'])!,
+      caption: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}caption']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $ItemImagesCacheTable createAlias(String alias) {
+    return $ItemImagesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class ItemImagesCacheData extends DataClass
+    implements Insertable<ItemImagesCacheData> {
+  final String id;
+  final String ownedItemId;
+  final String imageData;
+  final String? caption;
+  final int sortOrder;
+  final DateTime createdAt;
+  const ItemImagesCacheData(
+      {required this.id,
+      required this.ownedItemId,
+      required this.imageData,
+      this.caption,
+      required this.sortOrder,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['image_data'] = Variable<String>(imageData);
+    if (!nullToAbsent || caption != null) {
+      map['caption'] = Variable<String>(caption);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  ItemImagesCacheCompanion toCompanion(bool nullToAbsent) {
+    return ItemImagesCacheCompanion(
+      id: Value(id),
+      ownedItemId: Value(ownedItemId),
+      imageData: Value(imageData),
+      caption: caption == null && nullToAbsent
+          ? const Value.absent()
+          : Value(caption),
+      sortOrder: Value(sortOrder),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory ItemImagesCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ItemImagesCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      imageData: serializer.fromJson<String>(json['imageData']),
+      caption: serializer.fromJson<String?>(json['caption']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'imageData': serializer.toJson<String>(imageData),
+      'caption': serializer.toJson<String?>(caption),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  ItemImagesCacheData copyWith(
+          {String? id,
+          String? ownedItemId,
+          String? imageData,
+          Value<String?> caption = const Value.absent(),
+          int? sortOrder,
+          DateTime? createdAt}) =>
+      ItemImagesCacheData(
+        id: id ?? this.id,
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        imageData: imageData ?? this.imageData,
+        caption: caption.present ? caption.value : this.caption,
+        sortOrder: sortOrder ?? this.sortOrder,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  ItemImagesCacheData copyWithCompanion(ItemImagesCacheCompanion data) {
+    return ItemImagesCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      imageData: data.imageData.present ? data.imageData.value : this.imageData,
+      caption: data.caption.present ? data.caption.value : this.caption,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemImagesCacheData(')
+          ..write('id: $id, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('imageData: $imageData, ')
+          ..write('caption: $caption, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, ownedItemId, imageData, caption, sortOrder, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ItemImagesCacheData &&
+          other.id == this.id &&
+          other.ownedItemId == this.ownedItemId &&
+          other.imageData == this.imageData &&
+          other.caption == this.caption &&
+          other.sortOrder == this.sortOrder &&
+          other.createdAt == this.createdAt);
+}
+
+class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
+  final Value<String> id;
+  final Value<String> ownedItemId;
+  final Value<String> imageData;
+  final Value<String?> caption;
+  final Value<int> sortOrder;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const ItemImagesCacheCompanion({
+    this.id = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.imageData = const Value.absent(),
+    this.caption = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ItemImagesCacheCompanion.insert({
+    required String id,
+    required String ownedItemId,
+    required String imageData,
+    this.caption = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        ownedItemId = Value(ownedItemId),
+        imageData = Value(imageData),
+        createdAt = Value(createdAt);
+  static Insertable<ItemImagesCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? ownedItemId,
+    Expression<String>? imageData,
+    Expression<String>? caption,
+    Expression<int>? sortOrder,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (imageData != null) 'image_data': imageData,
+      if (caption != null) 'caption': caption,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ItemImagesCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? ownedItemId,
+      Value<String>? imageData,
+      Value<String?>? caption,
+      Value<int>? sortOrder,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return ItemImagesCacheCompanion(
+      id: id ?? this.id,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      imageData: imageData ?? this.imageData,
+      caption: caption ?? this.caption,
+      sortOrder: sortOrder ?? this.sortOrder,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (imageData.present) {
+      map['image_data'] = Variable<String>(imageData.value);
+    }
+    if (caption.present) {
+      map['caption'] = Variable<String>(caption.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemImagesCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('imageData: $imageData, ')
+          ..write('caption: $caption, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -2841,12 +4109,25 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $WishlistItemsCacheTable wishlistItemsCache =
       $WishlistItemsCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
+  late final $CustomFieldDefinitionsCacheTable customFieldDefinitionsCache =
+      $CustomFieldDefinitionsCacheTable(this);
+  late final $CustomFieldValuesCacheTable customFieldValuesCache =
+      $CustomFieldValuesCacheTable(this);
+  late final $ItemImagesCacheTable itemImagesCache =
+      $ItemImagesCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [catalogCache, ownedItemsCache, wishlistItemsCache, syncQueue];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        catalogCache,
+        ownedItemsCache,
+        wishlistItemsCache,
+        syncQueue,
+        customFieldDefinitionsCache,
+        customFieldValuesCache,
+        itemImagesCache
+      ];
 }
 
 typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
@@ -3219,9 +4500,14 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> keyReason,
   Value<int?> rating,
   Value<String?> readStatus,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
   Value<String?> tags,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
+  Value<DateTime?> soldAt,
+  Value<int?> sellPriceCents,
+  Value<String?> soldTo,
   Value<int> rowid,
 });
 typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
@@ -3248,9 +4534,14 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> keyReason,
   Value<int?> rating,
   Value<String?> readStatus,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
   Value<String?> tags,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
+  Value<DateTime?> soldAt,
+  Value<int?> sellPriceCents,
+  Value<String?> soldTo,
   Value<int> rowid,
 });
 
@@ -3332,6 +4623,12 @@ class $$OwnedItemsCacheTableFilterComposer
   ColumnFilters<String> get readStatus => $composableBuilder(
       column: $table.readStatus, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnFilters(column));
 
@@ -3340,6 +4637,16 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get soldAt => $composableBuilder(
+      column: $table.soldAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get soldTo => $composableBuilder(
+      column: $table.soldTo, builder: (column) => ColumnFilters(column));
 }
 
 class $$OwnedItemsCacheTableOrderingComposer
@@ -3423,6 +4730,12 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<String> get readStatus => $composableBuilder(
       column: $table.readStatus, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnOrderings(column));
 
@@ -3431,6 +4744,16 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
       column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get soldAt => $composableBuilder(
+      column: $table.soldAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get soldTo => $composableBuilder(
+      column: $table.soldTo, builder: (column) => ColumnOrderings(column));
 }
 
 class $$OwnedItemsCacheTableAnnotationComposer
@@ -3508,6 +4831,12 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get readStatus => $composableBuilder(
       column: $table.readStatus, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
   GeneratedColumn<String> get tags =>
       $composableBuilder(column: $table.tags, builder: (column) => column);
 
@@ -3516,6 +4845,15 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get soldAt =>
+      $composableBuilder(column: $table.soldAt, builder: (column) => column);
+
+  GeneratedColumn<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents, builder: (column) => column);
+
+  GeneratedColumn<String> get soldTo =>
+      $composableBuilder(column: $table.soldTo, builder: (column) => column);
 }
 
 class $$OwnedItemsCacheTableTableManager extends RootTableManager<
@@ -3568,9 +4906,14 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> keyReason = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> readStatus = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
+            Value<DateTime?> soldAt = const Value.absent(),
+            Value<int?> sellPriceCents = const Value.absent(),
+            Value<String?> soldTo = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion(
@@ -3596,9 +4939,14 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             keyReason: keyReason,
             rating: rating,
             readStatus: readStatus,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
             tags: tags,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
+            soldAt: soldAt,
+            sellPriceCents: sellPriceCents,
+            soldTo: soldTo,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -3624,9 +4972,14 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> keyReason = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> readStatus = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
             Value<String?> tags = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
+            Value<DateTime?> soldAt = const Value.absent(),
+            Value<int?> sellPriceCents = const Value.absent(),
+            Value<String?> soldTo = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion.insert(
@@ -3652,9 +5005,14 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             keyReason: keyReason,
             rating: rating,
             readStatus: readStatus,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
             tags: tags,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
+            soldAt: soldAt,
+            sellPriceCents: sellPriceCents,
+            soldTo: soldTo,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -4122,6 +5480,589 @@ typedef $$SyncQueueTableProcessedTableManager = ProcessedTableManager<
     ),
     SyncQueueData,
     PrefetchHooks Function()>;
+typedef $$CustomFieldDefinitionsCacheTableCreateCompanionBuilder
+    = CustomFieldDefinitionsCacheCompanion Function({
+  required String id,
+  required String name,
+  required String fieldType,
+  Value<String?> mediaKind,
+  Value<int> sortOrder,
+  Value<String?> options,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$CustomFieldDefinitionsCacheTableUpdateCompanionBuilder
+    = CustomFieldDefinitionsCacheCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String> fieldType,
+  Value<String?> mediaKind,
+  Value<int> sortOrder,
+  Value<String?> options,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$CustomFieldDefinitionsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $CustomFieldDefinitionsCacheTable> {
+  $$CustomFieldDefinitionsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fieldType => $composableBuilder(
+      column: $table.fieldType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaKind => $composableBuilder(
+      column: $table.mediaKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get options => $composableBuilder(
+      column: $table.options, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$CustomFieldDefinitionsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CustomFieldDefinitionsCacheTable> {
+  $$CustomFieldDefinitionsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fieldType => $composableBuilder(
+      column: $table.fieldType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaKind => $composableBuilder(
+      column: $table.mediaKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get options => $composableBuilder(
+      column: $table.options, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CustomFieldDefinitionsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CustomFieldDefinitionsCacheTable> {
+  $$CustomFieldDefinitionsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get fieldType =>
+      $composableBuilder(column: $table.fieldType, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaKind =>
+      $composableBuilder(column: $table.mediaKind, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get options =>
+      $composableBuilder(column: $table.options, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$CustomFieldDefinitionsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CustomFieldDefinitionsCacheTable,
+    CustomFieldDefinitionsCacheData,
+    $$CustomFieldDefinitionsCacheTableFilterComposer,
+    $$CustomFieldDefinitionsCacheTableOrderingComposer,
+    $$CustomFieldDefinitionsCacheTableAnnotationComposer,
+    $$CustomFieldDefinitionsCacheTableCreateCompanionBuilder,
+    $$CustomFieldDefinitionsCacheTableUpdateCompanionBuilder,
+    (
+      CustomFieldDefinitionsCacheData,
+      BaseReferences<_$LocalDatabase, $CustomFieldDefinitionsCacheTable,
+          CustomFieldDefinitionsCacheData>
+    ),
+    CustomFieldDefinitionsCacheData,
+    PrefetchHooks Function()> {
+  $$CustomFieldDefinitionsCacheTableTableManager(
+      _$LocalDatabase db, $CustomFieldDefinitionsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomFieldDefinitionsCacheTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomFieldDefinitionsCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CustomFieldDefinitionsCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> fieldType = const Value.absent(),
+            Value<String?> mediaKind = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String?> options = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CustomFieldDefinitionsCacheCompanion(
+            id: id,
+            name: name,
+            fieldType: fieldType,
+            mediaKind: mediaKind,
+            sortOrder: sortOrder,
+            options: options,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            required String fieldType,
+            Value<String?> mediaKind = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String?> options = const Value.absent(),
+            required DateTime createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CustomFieldDefinitionsCacheCompanion.insert(
+            id: id,
+            name: name,
+            fieldType: fieldType,
+            mediaKind: mediaKind,
+            sortOrder: sortOrder,
+            options: options,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CustomFieldDefinitionsCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $CustomFieldDefinitionsCacheTable,
+        CustomFieldDefinitionsCacheData,
+        $$CustomFieldDefinitionsCacheTableFilterComposer,
+        $$CustomFieldDefinitionsCacheTableOrderingComposer,
+        $$CustomFieldDefinitionsCacheTableAnnotationComposer,
+        $$CustomFieldDefinitionsCacheTableCreateCompanionBuilder,
+        $$CustomFieldDefinitionsCacheTableUpdateCompanionBuilder,
+        (
+          CustomFieldDefinitionsCacheData,
+          BaseReferences<_$LocalDatabase, $CustomFieldDefinitionsCacheTable,
+              CustomFieldDefinitionsCacheData>
+        ),
+        CustomFieldDefinitionsCacheData,
+        PrefetchHooks Function()>;
+typedef $$CustomFieldValuesCacheTableCreateCompanionBuilder
+    = CustomFieldValuesCacheCompanion Function({
+  required String id,
+  required String ownedItemId,
+  required String fieldDefinitionId,
+  Value<String?> value,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$CustomFieldValuesCacheTableUpdateCompanionBuilder
+    = CustomFieldValuesCacheCompanion Function({
+  Value<String> id,
+  Value<String> ownedItemId,
+  Value<String> fieldDefinitionId,
+  Value<String?> value,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$CustomFieldValuesCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $CustomFieldValuesCacheTable> {
+  $$CustomFieldValuesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fieldDefinitionId => $composableBuilder(
+      column: $table.fieldDefinitionId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$CustomFieldValuesCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CustomFieldValuesCacheTable> {
+  $$CustomFieldValuesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fieldDefinitionId => $composableBuilder(
+      column: $table.fieldDefinitionId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CustomFieldValuesCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CustomFieldValuesCacheTable> {
+  $$CustomFieldValuesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get fieldDefinitionId => $composableBuilder(
+      column: $table.fieldDefinitionId, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CustomFieldValuesCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CustomFieldValuesCacheTable,
+    CustomFieldValuesCacheData,
+    $$CustomFieldValuesCacheTableFilterComposer,
+    $$CustomFieldValuesCacheTableOrderingComposer,
+    $$CustomFieldValuesCacheTableAnnotationComposer,
+    $$CustomFieldValuesCacheTableCreateCompanionBuilder,
+    $$CustomFieldValuesCacheTableUpdateCompanionBuilder,
+    (
+      CustomFieldValuesCacheData,
+      BaseReferences<_$LocalDatabase, $CustomFieldValuesCacheTable,
+          CustomFieldValuesCacheData>
+    ),
+    CustomFieldValuesCacheData,
+    PrefetchHooks Function()> {
+  $$CustomFieldValuesCacheTableTableManager(
+      _$LocalDatabase db, $CustomFieldValuesCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomFieldValuesCacheTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomFieldValuesCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CustomFieldValuesCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String> fieldDefinitionId = const Value.absent(),
+            Value<String?> value = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CustomFieldValuesCacheCompanion(
+            id: id,
+            ownedItemId: ownedItemId,
+            fieldDefinitionId: fieldDefinitionId,
+            value: value,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String ownedItemId,
+            required String fieldDefinitionId,
+            Value<String?> value = const Value.absent(),
+            required DateTime updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CustomFieldValuesCacheCompanion.insert(
+            id: id,
+            ownedItemId: ownedItemId,
+            fieldDefinitionId: fieldDefinitionId,
+            value: value,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CustomFieldValuesCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $CustomFieldValuesCacheTable,
+        CustomFieldValuesCacheData,
+        $$CustomFieldValuesCacheTableFilterComposer,
+        $$CustomFieldValuesCacheTableOrderingComposer,
+        $$CustomFieldValuesCacheTableAnnotationComposer,
+        $$CustomFieldValuesCacheTableCreateCompanionBuilder,
+        $$CustomFieldValuesCacheTableUpdateCompanionBuilder,
+        (
+          CustomFieldValuesCacheData,
+          BaseReferences<_$LocalDatabase, $CustomFieldValuesCacheTable,
+              CustomFieldValuesCacheData>
+        ),
+        CustomFieldValuesCacheData,
+        PrefetchHooks Function()>;
+typedef $$ItemImagesCacheTableCreateCompanionBuilder = ItemImagesCacheCompanion
+    Function({
+  required String id,
+  required String ownedItemId,
+  required String imageData,
+  Value<String?> caption,
+  Value<int> sortOrder,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$ItemImagesCacheTableUpdateCompanionBuilder = ItemImagesCacheCompanion
+    Function({
+  Value<String> id,
+  Value<String> ownedItemId,
+  Value<String> imageData,
+  Value<String?> caption,
+  Value<int> sortOrder,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$ItemImagesCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $ItemImagesCacheTable> {
+  $$ItemImagesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imageData => $composableBuilder(
+      column: $table.imageData, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get caption => $composableBuilder(
+      column: $table.caption, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ItemImagesCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ItemImagesCacheTable> {
+  $$ItemImagesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imageData => $composableBuilder(
+      column: $table.imageData, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get caption => $composableBuilder(
+      column: $table.caption, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ItemImagesCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ItemImagesCacheTable> {
+  $$ItemImagesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get imageData =>
+      $composableBuilder(column: $table.imageData, builder: (column) => column);
+
+  GeneratedColumn<String> get caption =>
+      $composableBuilder(column: $table.caption, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$ItemImagesCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ItemImagesCacheTable,
+    ItemImagesCacheData,
+    $$ItemImagesCacheTableFilterComposer,
+    $$ItemImagesCacheTableOrderingComposer,
+    $$ItemImagesCacheTableAnnotationComposer,
+    $$ItemImagesCacheTableCreateCompanionBuilder,
+    $$ItemImagesCacheTableUpdateCompanionBuilder,
+    (
+      ItemImagesCacheData,
+      BaseReferences<_$LocalDatabase, $ItemImagesCacheTable,
+          ItemImagesCacheData>
+    ),
+    ItemImagesCacheData,
+    PrefetchHooks Function()> {
+  $$ItemImagesCacheTableTableManager(
+      _$LocalDatabase db, $ItemImagesCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ItemImagesCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ItemImagesCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ItemImagesCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String> imageData = const Value.absent(),
+            Value<String?> caption = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ItemImagesCacheCompanion(
+            id: id,
+            ownedItemId: ownedItemId,
+            imageData: imageData,
+            caption: caption,
+            sortOrder: sortOrder,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String ownedItemId,
+            required String imageData,
+            Value<String?> caption = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            required DateTime createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ItemImagesCacheCompanion.insert(
+            id: id,
+            ownedItemId: ownedItemId,
+            imageData: imageData,
+            caption: caption,
+            sortOrder: sortOrder,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ItemImagesCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $ItemImagesCacheTable,
+    ItemImagesCacheData,
+    $$ItemImagesCacheTableFilterComposer,
+    $$ItemImagesCacheTableOrderingComposer,
+    $$ItemImagesCacheTableAnnotationComposer,
+    $$ItemImagesCacheTableCreateCompanionBuilder,
+    $$ItemImagesCacheTableUpdateCompanionBuilder,
+    (
+      ItemImagesCacheData,
+      BaseReferences<_$LocalDatabase, $ItemImagesCacheTable,
+          ItemImagesCacheData>
+    ),
+    ItemImagesCacheData,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -4134,4 +6075,13 @@ class $LocalDatabaseManager {
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
+  $$CustomFieldDefinitionsCacheTableTableManager
+      get customFieldDefinitionsCache =>
+          $$CustomFieldDefinitionsCacheTableTableManager(
+              _db, _db.customFieldDefinitionsCache);
+  $$CustomFieldValuesCacheTableTableManager get customFieldValuesCache =>
+      $$CustomFieldValuesCacheTableTableManager(
+          _db, _db.customFieldValuesCache);
+  $$ItemImagesCacheTableTableManager get itemImagesCache =>
+      $$ItemImagesCacheTableTableManager(_db, _db.itemImagesCache);
 }

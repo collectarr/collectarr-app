@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 bool comicItemHasMissingCover(CatalogItem item) {
   return !_hasText(item.displayCoverUrl);

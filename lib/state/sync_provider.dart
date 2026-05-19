@@ -10,14 +10,32 @@ import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
-import 'package:collectarr_app/features/collection/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:uuid/uuid.dart';
+
+class SyncLogEntry {
+  const SyncLogEntry({
+    required this.timestamp,
+    required this.success,
+    this.pushed = 0,
+    this.pulled = 0,
+    this.rejected = 0,
+    this.errorMessage,
+  });
+
+  final DateTime timestamp;
+  final bool success;
+  final int pushed;
+  final int pulled;
+  final int rejected;
+  final String? errorMessage;
+}
 
 class SyncState {
   const SyncState({
@@ -28,6 +46,7 @@ class SyncState {
     this.errorMessage,
     this.warningMessage,
     this.rejectedChanges = const [],
+    this.syncLog = const [],
   });
 
   final int pendingCount;
@@ -37,6 +56,7 @@ class SyncState {
   final String? errorMessage;
   final String? warningMessage;
   final List<SyncRejectedChange> rejectedChanges;
+  final List<SyncLogEntry> syncLog;
 
   SyncState copyWith({
     int? pendingCount,
@@ -46,6 +66,7 @@ class SyncState {
     String? errorMessage,
     String? warningMessage,
     List<SyncRejectedChange>? rejectedChanges,
+    List<SyncLogEntry>? syncLog,
     bool clearError = false,
     bool clearWarning = false,
     bool clearRejectedChanges = false,
@@ -61,6 +82,7 @@ class SyncState {
       rejectedChanges: clearRejectedChanges
           ? const []
           : rejectedChanges ?? this.rejectedChanges,
+      syncLog: syncLog ?? this.syncLog,
     );
   }
 }
@@ -81,7 +103,10 @@ class SyncController extends StateNotifier<SyncState> {
     state = state.copyWith(pendingCount: count, lastSyncedAt: lastSyncedAt);
   }
 
+  static const _maxLogEntries = 20;
+
   Future<void> syncNow() async {
+    final preSyncPending = state.pendingCount;
     state = state.copyWith(
       isSyncing: true,
       isOffline: false,
@@ -112,11 +137,18 @@ class SyncController extends StateNotifier<SyncState> {
       ref.invalidate(wishlistProvider);
       ref.invalidate(shelfProvider);
       final count = await _queue().pendingCount();
+      final log = _appendLog(SyncLogEntry(
+        timestamp: result.serverTime,
+        success: true,
+        pushed: preSyncPending,
+        rejected: result.rejectedCount,
+      ));
       state = SyncState(
         pendingCount: count,
         lastSyncedAt: result.serverTime,
         warningMessage: _syncWarningMessage(result),
         rejectedChanges: result.rejectedChanges,
+        syncLog: log,
       );
     } catch (error, stackTrace) {
       developer.log(
@@ -126,12 +158,19 @@ class SyncController extends StateNotifier<SyncState> {
         stackTrace: stackTrace,
       );
       final count = await _queue().pendingCount();
+      final log = _appendLog(SyncLogEntry(
+        timestamp: DateTime.now().toUtc(),
+        success: false,
+        pushed: preSyncPending,
+        errorMessage: error.toString(),
+      ));
       state = SyncState(
         pendingCount: count,
         isOffline: true,
         lastSyncedAt: state.lastSyncedAt,
         errorMessage: error.toString(),
         rejectedChanges: state.rejectedChanges,
+        syncLog: log,
       );
     }
   }
@@ -177,6 +216,14 @@ class SyncController extends StateNotifier<SyncState> {
 
   SyncQueueRepository _queue() {
     return SyncQueueRepository(ref.read(localDatabaseProvider));
+  }
+
+  List<SyncLogEntry> _appendLog(SyncLogEntry entry) {
+    final log = [...state.syncLog, entry];
+    if (log.length > _maxLogEntries) {
+      return log.sublist(log.length - _maxLogEntries);
+    }
+    return log;
   }
 
   Future<DateTime?> _readLastSyncedAt() async {

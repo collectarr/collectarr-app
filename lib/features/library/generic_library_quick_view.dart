@@ -8,6 +8,10 @@ class GenericToolbarCounts {
     this.wishlist = 0,
     this.missingCover = 0,
     this.missingMetadata = 0,
+    this.totalPricePaidCents = 0,
+    this.totalCoverPriceCents = 0,
+    this.totalSellPriceCents = 0,
+    this.priceCurrency,
   });
 
   final int shown;
@@ -16,6 +20,10 @@ class GenericToolbarCounts {
   final int wishlist;
   final int missingCover;
   final int missingMetadata;
+  final int totalPricePaidCents;
+  final int totalCoverPriceCents;
+  final int totalSellPriceCents;
+  final String? priceCurrency;
 }
 
 enum GenericQuickView {

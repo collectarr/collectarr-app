@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/comics/comics_inspector.dart';
+import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:collectarr_app/features/library/library_item_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,29 +99,34 @@ class _RecordingCollectionMutations extends CollectionMutations {
   final _MutationCalls calls;
 
   @override
-  Future<void> updateItem(
-    OwnedItem item, {
-    String? condition,
-    String? grade,
-    DateTime? purchaseDate,
-    int? pricePaidCents,
-    String? currency,
-    String? personalNotes,
-    int? quantity,
-    String? storageBox,
-    int? indexNumber,
-    int? coverPriceCents,
-    String? rawOrSlabbed,
-    String? gradingCompany,
-    String? graderNotes,
-    String? signedBy,
-    bool? keyComic,
-    String? keyReason,
-    int? rating,
-    String? readStatus,
-    String? tags,
-    bool notify = true,
-  }) async {
+    Future<void> updateItem(
+      OwnedItem item, {
+      String? condition,
+      int? coverPriceCents,
+      String? currency,
+      DateTime? finishedAt,
+      String? grade,
+      String? graderNotes,
+      String? gradingCompany,
+      int? indexNumber,
+      bool? keyComic,
+      String? keyReason,
+      bool notify = true,
+      String? personalNotes,
+      int? pricePaidCents,
+      DateTime? purchaseDate,
+      int? quantity,
+      int? rating,
+      String? rawOrSlabbed,
+      String? readStatus,
+      int? sellPriceCents,
+      String? signedBy,
+      DateTime? soldAt,
+      String? soldTo,
+      DateTime? startedAt,
+      String? storageBox,
+      String? tags,
+    }) async {
     calls.updateCalls++;
   }
 }
@@ -129,3 +134,5 @@ class _RecordingCollectionMutations extends CollectionMutations {
 class _MutationCalls {
   int updateCalls = 0;
 }
+
+

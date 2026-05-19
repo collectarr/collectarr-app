@@ -252,6 +252,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     addTarget: _addTarget,
                     isAdding: _isAdding,
                     isQueueingIngest: _isQueueingIngest,
+                    isAdmin: ref.watch(authControllerProvider).isAdmin,
                     onAddTargetChanged: (value) =>
                         setState(() => _addTarget = value),
                     onAdd: selectedResult == null && selectedCandidate == null
@@ -2181,6 +2182,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
     required this.addTarget,
     required this.isAdding,
     required this.isQueueingIngest,
+    required this.isAdmin,
     required this.onAddTargetChanged,
     required this.onAdd,
     required this.onQueueIngest,
@@ -2196,6 +2198,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
   final LibraryAddTarget addTarget;
   final bool isAdding;
   final bool isQueueingIngest;
+  final bool isAdmin;
   final ValueChanged<LibraryAddTarget> onAddTargetChanged;
   final VoidCallback? onAdd;
   final VoidCallback? onQueueIngest;
@@ -2236,19 +2239,20 @@ class _LibraryAddBottomBar extends StatelessWidget {
                 ),
                 if (selectedCandidate != null) ...[
                   LibraryAddResultBadge(providerLabel),
-                  _LibraryAddBottomActionButton(
-                    tooltip: selectedQueuedIngest == null
-                        ? 'Queue Core ingest'
-                        : 'Core ingest queued',
-                    icon: Icons.playlist_add_check,
-                    label: selectedQueuedIngest == null
-                        ? 'Queue ingest'
-                        : 'Queued ${selectedQueuedIngest!.shortId}',
-                    accent: accent,
-                    onPressed: selectedQueuedIngest != null || isQueueingIngest
-                        ? null
-                        : onQueueIngest,
-                  ),
+                  if (isAdmin)
+                    _LibraryAddBottomActionButton(
+                      tooltip: selectedQueuedIngest == null
+                          ? 'Queue Core ingest'
+                          : 'Core ingest queued',
+                      icon: Icons.playlist_add_check,
+                      label: selectedQueuedIngest == null
+                          ? 'Queue ingest'
+                          : 'Queued ${selectedQueuedIngest!.shortId}',
+                      accent: accent,
+                      onPressed: selectedQueuedIngest != null || isQueueingIngest
+                          ? null
+                          : onQueueIngest,
+                    ),
                   _LibraryAddBottomActionButton(
                     icon: Icons.outbox_outlined,
                     tooltip: 'Propose metadata to Core',

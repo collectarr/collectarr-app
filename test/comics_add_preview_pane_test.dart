@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/comics/comics_add_preview_pane.dart';
+import 'package:collectarr_app/features/comics/add/comics_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

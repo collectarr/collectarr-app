@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/generic_library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/generic_library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/physical_media_formats.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

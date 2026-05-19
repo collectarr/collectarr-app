@@ -1,5 +1,6 @@
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/library/generic_library_inspector.dart';
+import 'package:collectarr_app/features/library/inspector/generic_library_inspector.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_sidebar.dart';
 import 'package:collectarr_app/features/library/generic_library_workspace.dart';
@@ -41,6 +42,8 @@ class GenericLibraryBody extends StatelessWidget {
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEditItem,
+    this.onFilterByValue,
+    this.db,
   });
 
   final LibraryTypeConfig type;
@@ -71,6 +74,8 @@ class GenericLibraryBody extends StatelessWidget {
   final ValueChanged<GenericLibraryItem> onAddWishlist;
   final ValueChanged<GenericLibraryItem> onRemoveWishlist;
   final ValueChanged<GenericLibraryItem> onEditItem;
+  final ValueChanged<String>? onFilterByValue;
+  final LocalDatabase? db;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +114,8 @@ class GenericLibraryBody extends StatelessWidget {
             items: projection.filteredItems,
             viewState: viewState,
             selectedId: selectedId,
+            groupMode: groupMode,
+            selectedBucket: selectedBucket,
             accent: accent,
             hasActiveFilter: hasActiveFilter,
             onAdd: onAdd,
@@ -134,6 +141,8 @@ class GenericLibraryBody extends StatelessWidget {
               ? null
               : () => onRemoveWishlist(selected!),
           onEdit: selected == null ? null : () => onEditItem(selected),
+          onFilterByValue: onFilterByValue,
+          db: db,
         );
 
         final workspaceContent = Column(

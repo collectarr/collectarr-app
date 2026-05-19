@@ -21,6 +21,7 @@ class GenericCompactLibraryToolbar extends StatelessWidget {
     required this.onQuickViewSelected,
     required this.hasActiveFilters,
     required this.onClearFilters,
+    this.onRandomPick,
   });
 
   final LibraryTypeConfig type;
@@ -37,6 +38,7 @@ class GenericCompactLibraryToolbar extends StatelessWidget {
   final ValueChanged<GenericQuickView> onQuickViewSelected;
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
+  final VoidCallback? onRandomPick;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,7 @@ class GenericCompactLibraryToolbar extends StatelessWidget {
             hasActiveFilters: hasActiveFilters,
             onQuickViewSelected: onQuickViewSelected,
             onClearFilters: onClearFilters,
+            onRandomPick: onRandomPick,
           ),
           Tooltip(
             message: 'Cover size',

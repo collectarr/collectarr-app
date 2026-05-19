@@ -13,6 +13,7 @@ class GenericLibraryToolsButton extends StatelessWidget {
     required this.hasActiveFilters,
     required this.onQuickViewSelected,
     required this.onClearFilters,
+    this.onRandomPick,
   });
 
   final LibraryTypeConfig type;
@@ -22,6 +23,7 @@ class GenericLibraryToolsButton extends StatelessWidget {
   final bool hasActiveFilters;
   final ValueChanged<GenericQuickView> onQuickViewSelected;
   final VoidCallback onClearFilters;
+  final VoidCallback? onRandomPick;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,12 @@ class GenericLibraryToolsButton extends StatelessWidget {
           label: 'Statistics',
           onSelected: () => _showGenericStatsDialog(context, type, counts),
         ),
+        if (onRandomPick != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.casino_outlined,
+            label: 'Random pick',
+            onSelected: onRandomPick!,
+          ),
         LibraryUtilityMenuAction(
           icon: Icons.filter_alt_off_outlined,
           label: 'Clear filters',
@@ -79,16 +87,58 @@ void _showGenericStatsDialog(
     context: context,
     builder: (context) => AlertDialog(
       title: Text('${type.pluralLabel} statistics'),
-      content: Wrap(
-        spacing: 8,
-        runSpacing: 8,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _StatsChip('Shown', counts.shown),
-          _StatsChip('Total', counts.total),
-          _StatsChip('Owned', counts.owned),
-          _StatsChip('Wishlist', counts.wishlist),
-          _StatsChip('Missing covers', counts.missingCover),
-          _StatsChip('Missing metadata', counts.missingMetadata),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _StatsChip('Shown', counts.shown),
+              _StatsChip('Total', counts.total),
+              _StatsChip('Owned', counts.owned),
+              _StatsChip('Wishlist', counts.wishlist),
+              _StatsChip('Missing covers', counts.missingCover),
+              _StatsChip('Missing metadata', counts.missingMetadata),
+            ],
+          ),
+          if (counts.totalPricePaidCents > 0 ||
+              counts.totalCoverPriceCents > 0 ||
+              counts.totalSellPriceCents > 0) ...[
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            Text(
+              'Collection Value',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (counts.totalPricePaidCents > 0)
+                  _StatsChipMoney(
+                    'Total paid',
+                    counts.totalPricePaidCents,
+                    counts.priceCurrency,
+                  ),
+                if (counts.totalCoverPriceCents > 0)
+                  _StatsChipMoney(
+                    'Cover value',
+                    counts.totalCoverPriceCents,
+                    counts.priceCurrency,
+                  ),
+                if (counts.totalSellPriceCents > 0)
+                  _StatsChipMoney(
+                    'Sold total',
+                    counts.totalSellPriceCents,
+                    counts.priceCurrency,
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
       actions: [
@@ -112,6 +162,24 @@ class _StatsChip extends StatelessWidget {
     return Chip(
       label: Text('$label $value'),
       avatar: const Icon(Icons.query_stats, size: 16),
+    );
+  }
+}
+
+class _StatsChipMoney extends StatelessWidget {
+  const _StatsChipMoney(this.label, this.cents, this.currency);
+
+  final String label;
+  final int cents;
+  final String? currency;
+
+  @override
+  Widget build(BuildContext context) {
+    final cur = currency ?? 'USD';
+    final amount = (cents / 100).toStringAsFixed(2);
+    return Chip(
+      label: Text('$label $amount $cur'),
+      avatar: const Icon(Icons.attach_money, size: 16),
     );
   }
 }

@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_bulk_edit.dart';
-import 'package:collectarr_app/features/comics/comics_inspector.dart';
+import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:flutter/material.dart';
 
 Future<bool> showComicsBulkEditDialog({

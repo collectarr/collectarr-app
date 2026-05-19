@@ -22,9 +22,14 @@ class OwnedItem {
     this.keyReason,
     this.rating,
     this.readStatus,
+    this.startedAt,
+    this.finishedAt,
     this.tags,
     required this.updatedAt,
     this.deletedAt,
+    this.soldAt,
+    this.sellPriceCents,
+    this.soldTo,
   });
 
   final String id;
@@ -49,11 +54,17 @@ class OwnedItem {
   final String? keyReason;
   final int? rating;
   final String? readStatus;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
   final String? tags;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
+  final String? soldTo;
 
   bool get isDeleted => deletedAt != null;
+  bool get isSold => soldAt != null;
 
   Map<String, dynamic> toSyncPayload() {
     return {
@@ -78,7 +89,12 @@ class OwnedItem {
       'key_reason': keyReason,
       'rating': rating,
       'read_status': readStatus,
+      'started_at': startedAt?.toUtc().toIso8601String(),
+      'finished_at': finishedAt?.toUtc().toIso8601String(),
       'tags': tags,
+      'sold_at': soldAt?.toUtc().toIso8601String(),
+      'sell_price_cents': sellPriceCents,
+      'sold_to': soldTo,
     };
   }
 
@@ -108,11 +124,22 @@ class OwnedItem {
       keyReason: json['key_reason'] as String?,
       rating: json['rating'] as int?,
       readStatus: json['read_status'] as String?,
+      startedAt: json['started_at'] == null
+          ? null
+          : DateTime.parse(json['started_at'] as String),
+      finishedAt: json['finished_at'] == null
+          ? null
+          : DateTime.parse(json['finished_at'] as String),
       tags: json['tags'] as String?,
       updatedAt: DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] == null
           ? null
           : DateTime.parse(json['deleted_at'] as String),
+      soldAt: json['sold_at'] == null
+          ? null
+          : DateTime.parse(json['sold_at'] as String),
+      sellPriceCents: json['sell_price_cents'] as int?,
+      soldTo: json['sold_to'] as String?,
     );
   }
 
@@ -139,9 +166,14 @@ class OwnedItem {
     String? keyReason,
     int? rating,
     String? readStatus,
+    DateTime? startedAt,
+    DateTime? finishedAt,
     String? tags,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    DateTime? soldAt,
+    int? sellPriceCents,
+    String? soldTo,
   }) {
     return OwnedItem(
       id: id ?? this.id,
@@ -166,9 +198,14 @@ class OwnedItem {
       keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
       tags: tags ?? this.tags,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      soldAt: soldAt ?? this.soldAt,
+      sellPriceCents: sellPriceCents ?? this.sellPriceCents,
+      soldTo: soldTo ?? this.soldTo,
     );
   }
 }

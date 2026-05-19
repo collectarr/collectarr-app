@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/collection/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic_library_projection_item.dart';
 import 'package:collectarr_app/features/library/generic_library_quick_view.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
@@ -10,13 +10,14 @@ import 'package:flutter/material.dart';
 export 'generic_library_projection_item.dart';
 export 'generic_library_quick_view.dart';
 
-enum GenericLibraryGroupMode { title, publisher, year, ownership }
+enum GenericLibraryGroupMode { series, title, publisher, year, ownership }
 
 String genericGroupModeLabel(
   GenericLibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
   return switch (mode) {
+    GenericLibraryGroupMode.series => 'Series',
     GenericLibraryGroupMode.title => 'Title',
     GenericLibraryGroupMode.publisher =>
       type.workspace.kind == 'music' ? 'Artist' : 'Publisher',
@@ -30,6 +31,7 @@ String genericGroupModeSidebarTitle(
   LibraryTypeConfig type,
 ) {
   return switch (mode) {
+    GenericLibraryGroupMode.series => 'Series',
     GenericLibraryGroupMode.title => 'Titles',
     GenericLibraryGroupMode.publisher =>
       type.workspace.kind == 'music' ? 'Artists' : 'Publishers',
@@ -40,6 +42,7 @@ String genericGroupModeSidebarTitle(
 
 IconData genericGroupModeIcon(GenericLibraryGroupMode mode) {
   return switch (mode) {
+    GenericLibraryGroupMode.series => Icons.collections_bookmark_outlined,
     GenericLibraryGroupMode.title => Icons.sort_by_alpha,
     GenericLibraryGroupMode.publisher => Icons.business_outlined,
     GenericLibraryGroupMode.year => Icons.calendar_today_outlined,
@@ -50,14 +53,9 @@ IconData genericGroupModeIcon(GenericLibraryGroupMode mode) {
 List<GenericLibraryGroupMode> genericGroupModesForType(
   LibraryTypeConfig type,
 ) {
-  final modes = <GenericLibraryGroupMode>[
-    GenericLibraryGroupMode.title,
-    GenericLibraryGroupMode.publisher,
-    GenericLibraryGroupMode.year,
-    GenericLibraryGroupMode.ownership,
-  ];
   if (type.workspace.kind == 'music') {
     return [
+      GenericLibraryGroupMode.series,
       GenericLibraryGroupMode.publisher,
       GenericLibraryGroupMode.year,
       GenericLibraryGroupMode.title,
@@ -65,10 +63,28 @@ List<GenericLibraryGroupMode> genericGroupModesForType(
     ];
   }
   if (type.workspace.kind == 'anime' ||
-      type.workspace.kind == 'movie' ||
       type.workspace.kind == 'tv') {
     return [
+      GenericLibraryGroupMode.series,
       GenericLibraryGroupMode.year,
+      GenericLibraryGroupMode.publisher,
+      GenericLibraryGroupMode.title,
+      GenericLibraryGroupMode.ownership,
+    ];
+  }
+  if (type.workspace.kind == 'manga') {
+    return [
+      GenericLibraryGroupMode.series,
+      GenericLibraryGroupMode.publisher,
+      GenericLibraryGroupMode.year,
+      GenericLibraryGroupMode.title,
+      GenericLibraryGroupMode.ownership,
+    ];
+  }
+  if (type.workspace.kind == 'movie') {
+    return [
+      GenericLibraryGroupMode.year,
+      GenericLibraryGroupMode.series,
       GenericLibraryGroupMode.publisher,
       GenericLibraryGroupMode.title,
       GenericLibraryGroupMode.ownership,
@@ -76,16 +92,22 @@ List<GenericLibraryGroupMode> genericGroupModesForType(
   }
   if (type.workspace.kind == 'book' ||
       type.workspace.kind == 'game' ||
-      type.workspace.kind == 'boardgame' ||
-      type.workspace.kind == 'manga') {
+      type.workspace.kind == 'boardgame') {
     return [
       GenericLibraryGroupMode.publisher,
+      GenericLibraryGroupMode.series,
       GenericLibraryGroupMode.year,
       GenericLibraryGroupMode.title,
       GenericLibraryGroupMode.ownership,
     ];
   }
-  return modes;
+  return [
+    GenericLibraryGroupMode.series,
+    GenericLibraryGroupMode.title,
+    GenericLibraryGroupMode.publisher,
+    GenericLibraryGroupMode.year,
+    GenericLibraryGroupMode.ownership,
+  ];
 }
 
 GenericLibraryGroupMode genericDefaultGroupMode(LibraryTypeConfig type) {
@@ -110,6 +132,7 @@ class GenericLibraryProjection {
     required String? selectedItemId,
     required GenericQuickView? quickView,
     required GenericLibraryGroupMode groupMode,
+    Map<String, List<String>> customFieldValuesByItem = const {},
   }) {
     final allItems = genericItemsForShelf(shelf, type);
     final normalizedQuery = query.trim().toLowerCase();
@@ -117,7 +140,11 @@ class GenericLibraryProjection {
       for (final item in allItems)
         if (_matchesBucket(item, type, groupMode, selectedBucket) &&
             _matchesQuickView(item, quickView) &&
-            _matchesQuery(item, normalizedQuery))
+            _matchesQuery(
+              item,
+              normalizedQuery,
+              customFieldValuesByItem,
+            ))
           item,
     ]..sort((a, b) => compareLibraryWorkspaceEntries(
           a.entry,
@@ -199,6 +226,9 @@ String genericBucketForItemMode(
   final entry = item.entry;
   final publisher = entry.publisher?.trim();
   return switch (groupMode) {
+    GenericLibraryGroupMode.series => entry.title.trim().isEmpty
+        ? 'Unknown series'
+        : entry.title.trim(),
     GenericLibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
     GenericLibraryGroupMode.publisher => publisher == null || publisher.isEmpty
@@ -244,12 +274,16 @@ bool _matchesQuickView(GenericLibraryItem item, GenericQuickView? quickView) {
   };
 }
 
-bool _matchesQuery(GenericLibraryItem item, String query) {
+bool _matchesQuery(
+  GenericLibraryItem item,
+  String query,
+  Map<String, List<String>> customFieldValuesByItem,
+) {
   if (query.isEmpty) {
     return true;
   }
   final entry = item.entry;
-  return _containsQuery(entry.title, query) ||
+  if (_containsQuery(entry.title, query) ||
       _containsQuery(entry.itemNumber, query) ||
       _containsQuery(entry.publisher, query) ||
       _containsQuery(entry.variant, query) ||
@@ -257,7 +291,19 @@ bool _matchesQuery(GenericLibraryItem item, String query) {
       _containsQuery(entry.releaseYear?.toString(), query) ||
       _containsQuery(entry.condition, query) ||
       _containsQuery(entry.grade, query) ||
-      _containsQuery(entry.storageBox, query);
+      _containsQuery(entry.storageBox, query)) {
+    return true;
+  }
+  final ownedId = item.source.ownedItem?.id;
+  if (ownedId != null) {
+    final cfValues = customFieldValuesByItem[ownedId];
+    if (cfValues != null) {
+      for (final v in cfValues) {
+        if (_containsQuery(v, query)) return true;
+      }
+    }
+  }
+  return false;
 }
 
 GenericToolbarCounts _toolbarCountsForItems({
@@ -268,8 +314,13 @@ GenericToolbarCounts _toolbarCountsForItems({
   var wishlist = 0;
   var missingCover = 0;
   var missingMetadata = 0;
+  var totalPricePaid = 0;
+  var totalCoverPrice = 0;
+  var totalSellPrice = 0;
+  String? currency;
   for (final item in allItems) {
     final entry = item.entry;
+    final ownedItem = item.source.ownedItem;
     if (entry.isOwned) {
       owned += 1;
     }
@@ -282,6 +333,12 @@ GenericToolbarCounts _toolbarCountsForItems({
     if (entry.hasMissingMetadata) {
       missingMetadata += 1;
     }
+    if (ownedItem != null) {
+      totalPricePaid += ownedItem.pricePaidCents ?? 0;
+      totalCoverPrice += ownedItem.coverPriceCents ?? 0;
+      totalSellPrice += ownedItem.sellPriceCents ?? 0;
+      currency ??= ownedItem.currency;
+    }
   }
   return GenericToolbarCounts(
     shown: shown,
@@ -290,6 +347,10 @@ GenericToolbarCounts _toolbarCountsForItems({
     wishlist: wishlist,
     missingCover: missingCover,
     missingMetadata: missingMetadata,
+    totalPricePaidCents: totalPricePaid,
+    totalCoverPriceCents: totalCoverPrice,
+    totalSellPriceCents: totalSellPrice,
+    priceCurrency: currency,
   );
 }
 
