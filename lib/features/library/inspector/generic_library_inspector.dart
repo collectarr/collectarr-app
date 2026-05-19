@@ -22,6 +22,7 @@ class GenericLibraryInspector extends StatelessWidget {
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEdit,
+    this.onFilterByValue,
     this.db,
   });
 
@@ -34,6 +35,7 @@ class GenericLibraryInspector extends StatelessWidget {
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
   final VoidCallback? onEdit;
+  final ValueChanged<String>? onFilterByValue;
   final LocalDatabase? db;
 
   @override
@@ -97,6 +99,7 @@ class GenericLibraryInspector extends StatelessWidget {
                 type: type,
                 entry: selected,
                 accent: accent,
+                onFilterByValue: onFilterByValue,
               ),
               GenericPersonalSection(
                 entry: selected,

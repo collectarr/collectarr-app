@@ -42,6 +42,7 @@ class GenericLibraryBody extends StatelessWidget {
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEditItem,
+    this.onFilterByValue,
     this.db,
   });
 
@@ -73,6 +74,7 @@ class GenericLibraryBody extends StatelessWidget {
   final ValueChanged<GenericLibraryItem> onAddWishlist;
   final ValueChanged<GenericLibraryItem> onRemoveWishlist;
   final ValueChanged<GenericLibraryItem> onEditItem;
+  final ValueChanged<String>? onFilterByValue;
   final LocalDatabase? db;
 
   @override
@@ -139,6 +141,7 @@ class GenericLibraryBody extends StatelessWidget {
               ? null
               : () => onRemoveWishlist(selected!),
           onEdit: selected == null ? null : () => onEditItem(selected),
+          onFilterByValue: onFilterByValue,
           db: db,
         );
 

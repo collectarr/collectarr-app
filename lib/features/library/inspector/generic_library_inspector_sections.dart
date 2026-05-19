@@ -15,11 +15,20 @@ class GenericMetadataSection extends StatelessWidget {
     required this.type,
     required this.entry,
     required this.accent,
+    this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final Color accent;
+  final ValueChanged<String>? onFilterByValue;
+
+  VoidCallback? _tapFor(String? value) {
+    if (onFilterByValue == null || value == null || value.trim().isEmpty) {
+      return null;
+    }
+    return () => onFilterByValue!(value.trim());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +43,7 @@ class GenericMetadataSection extends StatelessWidget {
             LibraryInspectorFactData(
               labels.publisher,
               genericLibraryDash(entry.publisher),
+              onTap: _tapFor(entry.publisher),
             ),
             LibraryInspectorFactData(
               'Released',
@@ -45,10 +55,12 @@ class GenericMetadataSection extends StatelessWidget {
             LibraryInspectorFactData(
               labels.number,
               genericLibraryDash(entry.itemNumber),
+              onTap: _tapFor(entry.itemNumber),
             ),
             LibraryInspectorFactData(
               labels.variant,
               genericLibraryDash(entry.variant),
+              onTap: _tapFor(entry.variant),
             ),
             LibraryInspectorFactData(
               labels.barcode,

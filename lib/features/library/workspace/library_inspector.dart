@@ -5,10 +5,11 @@ const Color _kDefaultMutedText = Color(0xFFB8B8B8);
 const double _kTwoColumnBreakpoint = 420;
 
 class LibraryInspectorFactData {
-  const LibraryInspectorFactData(this.label, this.value);
+  const LibraryInspectorFactData(this.label, this.value, {this.onTap});
 
   final String label;
   final String value;
+  final VoidCallback? onTap;
 }
 
 class LibraryInspectorSection extends StatelessWidget {
@@ -112,7 +113,7 @@ class LibraryInspectorFactGrid extends StatelessWidget {
           return Column(
             children: [
               for (final fact in facts)
-                LibraryInspectorFact(fact.label, fact.value),
+                LibraryInspectorFact(fact.label, fact.value, onTap: fact.onTap),
             ],
           );
         }
@@ -122,7 +123,7 @@ class LibraryInspectorFactGrid extends StatelessWidget {
             for (final fact in facts)
               SizedBox(
                 width: constraints.maxWidth / 2,
-                child: LibraryInspectorFact(fact.label, fact.value),
+                child: LibraryInspectorFact(fact.label, fact.value, onTap: fact.onTap),
               ),
           ],
         );
@@ -137,11 +138,13 @@ class LibraryInspectorFact extends StatelessWidget {
     this.value, {
     super.key,
     this.mutedTextColor = _kDefaultMutedText,
+    this.onTap,
   });
 
   final String label;
   final String value;
   final Color mutedTextColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -162,15 +165,32 @@ class LibraryInspectorFact extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+            child: onTap != null && value != '-' && value.isNotEmpty
+                ? InkWell(
+                    onTap: onTap,
+                    borderRadius: BorderRadius.circular(4),
+                    child: Text(
+                      value,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                            decorationColor:
+                                Colors.white.withValues(alpha: 0.4),
+                          ),
+                    ),
+                  )
+                : Text(
+                    value,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
-            ),
           ),
         ],
       ),

@@ -223,6 +223,9 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         (actions) => actions.removeWishlist(item),
       ),
       onEditItem: (item) => unawaited(_showEditDialog(item)),
+      onFilterByValue: (value) => setState(() {
+        _searchController.text = value;
+      }),
       db: ref.read(localDatabaseProvider),
     );
   }
