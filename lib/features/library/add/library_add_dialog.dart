@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
@@ -56,11 +57,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _yearController = TextEditingController();
   final _variantController = TextEditingController();
   final _coverController = TextEditingController();
+  final _storageBoxController = TextEditingController();
   final _uuid = const Uuid();
 
   List<CatalogItem> _results = const [];
   List<ProviderCandidate> _providerResults = const [];
   final _queuedProviderIngests = <String, _QueuedProviderIngest>{};
+  final _checkedResultIds = <String>{};
+  final _checkedProviderIds = <String>{};
   String? _error;
   late String _selectedProvider;
   bool _searchedProvider = false;
@@ -73,6 +77,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   String? _selectedResultId;
   String? _selectedProviderCandidateId;
   String? _physicalFormatId;
+  String _defaultCondition = 'Near Mint';
+  String _defaultGrade = 'Ungraded';
+  DateTime? _defaultPurchaseDate;
   DateTime? _lastProviderSearchAt;
   String? _lastProviderSearchSignature;
   int _coreSearchGeneration = 0;
@@ -104,6 +111,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _yearController.dispose();
     _variantController.dispose();
     _coverController.dispose();
+    _storageBoxController.dispose();
     super.dispose();
   }
 
@@ -187,6 +195,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         selectedResultId: _selectedResultId,
                         selectedProviderCandidateId:
                             _selectedProviderCandidateId,
+                        checkedResultIds: _checkedResultIds,
+                        checkedProviderIds: _checkedProviderIds,
                         onSelectResult: (id) => setState(() {
                           _selectedResultId = id;
                           _selectedProviderCandidateId = null;
@@ -194,6 +204,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onSelectProviderCandidate: (id) => setState(() {
                           _selectedProviderCandidateId = id;
                           _selectedResultId = null;
+                        }),
+                        onToggleResultCheck: (id) => setState(() {
+                          if (!_checkedResultIds.remove(id)) {
+                            _checkedResultIds.add(id);
+                          }
+                        }),
+                        onToggleProviderCheck: (id) => setState(() {
+                          if (!_checkedProviderIds.remove(id)) {
+                            _checkedProviderIds.add(id);
+                          }
                         }),
                         onSearchCore: _search,
                       );
@@ -245,41 +265,65 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   ),
                 ),
                 if (_mode != _LibraryAddDialogMode.manual)
-                  _LibraryAddBottomBar(
-                    type: widget.type,
-                    accent: accent,
-                    selectedItem: selectedResult,
-                    selectedCandidate: selectedCandidate,
-                    selectedQueuedIngest: selectedQueuedIngest,
-                    providerLabel: selectedProviderLabel,
-                    addTarget: _addTarget,
-                    isAdding: _isAdding,
-                    isQueueingIngest: _isQueueingIngest,
-                    isAdmin: ref.watch(authControllerProvider).isAdmin,
-                    onAddTargetChanged: (value) =>
-                        setState(() => _addTarget = value),
-                    onAdd: selectedResult == null && selectedCandidate == null
-                        ? null
-                        : () {
-                            final item = selectedResult;
-                            final candidate = selectedCandidate;
-                            if (item != null) {
-                              _addItems([item], _addTarget);
-                              return;
-                            }
-                            if (candidate != null) {
-                              _addProviderCandidate(
-                                candidate,
-                                _addTarget,
-                              );
-                            }
-                          },
-                    onQueueIngest: selectedCandidate == null
-                        ? null
-                        : () => _queueProviderIngest(selectedCandidate),
-                    onPropose: selectedCandidate == null
-                        ? null
-                        : () => _proposeCandidate(selectedCandidate),
+                  Builder(
+                    builder: (context) {
+                      final checkedItems = [
+                        for (final item in _results)
+                          if (_checkedResultIds.contains(item.id)) item,
+                      ];
+                      final addItems = checkedItems.isNotEmpty
+                          ? checkedItems
+                          : [if (selectedResult != null) selectedResult];
+                      final addCount = addItems.length;
+                      return _LibraryAddBottomBar(
+                        type: widget.type,
+                        accent: accent,
+                        selectedItem: selectedResult,
+                        selectedCandidate: selectedCandidate,
+                        selectedQueuedIngest: selectedQueuedIngest,
+                        providerLabel: selectedProviderLabel,
+                        addTarget: _addTarget,
+                        addCount: addCount,
+                        isAdding: _isAdding,
+                        isQueueingIngest: _isQueueingIngest,
+                        isAdmin: ref.watch(authControllerProvider).isAdmin,
+                        defaultCondition: _defaultCondition,
+                        defaultGrade: _defaultGrade,
+                        defaultStorageBoxController: _storageBoxController,
+                        defaultPurchaseDate: _defaultPurchaseDate,
+                        onAddTargetChanged: (value) =>
+                            setState(() => _addTarget = value),
+                        onDefaultConditionChanged: (value) =>
+                            setState(() => _defaultCondition = value),
+                        onDefaultGradeChanged: (value) =>
+                            setState(() => _defaultGrade = value),
+                        onDefaultPurchaseDateChanged: (value) =>
+                            setState(() => _defaultPurchaseDate = value),
+                        onAdd: addItems.isEmpty &&
+                                selectedCandidate == null
+                            ? null
+                            : () {
+                                if (addItems.isNotEmpty) {
+                                  _addItems(addItems, _addTarget);
+                                  return;
+                                }
+                                final candidate = selectedCandidate;
+                                if (candidate != null) {
+                                  _addProviderCandidate(
+                                    candidate,
+                                    _addTarget,
+                                  );
+                                }
+                              },
+                        onQueueIngest: selectedCandidate == null
+                            ? null
+                            : () =>
+                                _queueProviderIngest(selectedCandidate),
+                        onPropose: selectedCandidate == null
+                            ? null
+                            : () => _proposeCandidate(selectedCandidate),
+                      );
+                    },
                   ),
               ],
             ),
@@ -780,6 +824,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         mutations: ref.read(collectionMutationsProvider),
         items: items,
         target: target,
+        defaults: LibraryAddDefaults(
+          condition: _defaultCondition,
+          grade: _defaultGrade,
+          purchaseDate: _defaultPurchaseDate,
+          storageBox: _storageBoxController.text,
+        ),
       );
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -1366,8 +1416,12 @@ class _SearchPane extends StatelessWidget {
     required this.searchedProvider,
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
+    required this.checkedResultIds,
+    required this.checkedProviderIds,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
+    required this.onToggleResultCheck,
+    required this.onToggleProviderCheck,
     required this.onSearchCore,
   });
 
@@ -1382,8 +1436,12 @@ class _SearchPane extends StatelessWidget {
   final bool searchedProvider;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
+  final Set<String> checkedResultIds;
+  final Set<String> checkedProviderIds;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
+  final ValueChanged<String> onToggleResultCheck;
+  final ValueChanged<String> onToggleProviderCheck;
   final VoidCallback onSearchCore;
 
   @override
@@ -1405,9 +1463,13 @@ class _SearchPane extends StatelessWidget {
         queuedProviderIngests: queuedProviderIngests,
         selectedResultId: selectedResultId,
         selectedProviderCandidateId: selectedProviderCandidateId,
+        checkedResultIds: checkedResultIds,
+        checkedProviderIds: checkedProviderIds,
         onSearchCore: onSearchCore,
         onSelectResult: onSelectResult,
         onSelectProviderCandidate: onSelectProviderCandidate,
+        onToggleResultCheck: onToggleResultCheck,
+        onToggleProviderCheck: onToggleProviderCheck,
       ),
     );
   }
@@ -1552,9 +1614,13 @@ class _SearchResultsList extends StatelessWidget {
     required this.queuedProviderIngests,
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
+    required this.checkedResultIds,
+    required this.checkedProviderIds,
     required this.onSearchCore,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
+    required this.onToggleResultCheck,
+    required this.onToggleProviderCheck,
   });
 
   final LibraryTypeConfig type;
@@ -1568,9 +1634,13 @@ class _SearchResultsList extends StatelessWidget {
   final Map<String, _QueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
+  final Set<String> checkedResultIds;
+  final Set<String> checkedProviderIds;
   final VoidCallback onSearchCore;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
+  final ValueChanged<String> onToggleResultCheck;
+  final ValueChanged<String> onToggleProviderCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -1614,7 +1684,9 @@ class _SearchResultsList extends StatelessWidget {
                   item: item,
                   accent: accent,
                   selected: item.id == selectedResultId,
+                  checked: checkedResultIds.contains(item.id),
                   onSelect: () => onSelectResult(item.id),
+                  onToggleCheck: () => onToggleResultCheck(item.id),
                 ),
             ],
           ),
@@ -2140,13 +2212,17 @@ class _SearchResultTile extends StatelessWidget {
     required this.item,
     required this.accent,
     required this.selected,
+    required this.checked,
     required this.onSelect,
+    required this.onToggleCheck,
   });
 
   final CatalogItem item;
   final Color accent;
   final bool selected;
+  final bool checked;
   final VoidCallback onSelect;
+  final VoidCallback onToggleCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -2172,11 +2248,21 @@ class _SearchResultTile extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           child: Row(
             children: [
               SizedBox(
-                width: 42,
+                width: 28,
+                child: Checkbox(
+                  value: checked,
+                  onChanged: (_) => onToggleCheck(),
+                  activeColor: accent,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              SizedBox(
+                width: 38,
                 height: 56,
                 child: LibraryCoverImage(
                   title: item.title,
@@ -2558,10 +2644,18 @@ class _LibraryAddBottomBar extends StatelessWidget {
     required this.selectedQueuedIngest,
     required this.providerLabel,
     required this.addTarget,
+    required this.addCount,
     required this.isAdding,
     required this.isQueueingIngest,
     required this.isAdmin,
+    required this.defaultCondition,
+    required this.defaultGrade,
+    required this.defaultStorageBoxController,
+    required this.defaultPurchaseDate,
     required this.onAddTargetChanged,
+    required this.onDefaultConditionChanged,
+    required this.onDefaultGradeChanged,
+    required this.onDefaultPurchaseDateChanged,
     required this.onAdd,
     required this.onQueueIngest,
     required this.onPropose,
@@ -2574,10 +2668,18 @@ class _LibraryAddBottomBar extends StatelessWidget {
   final _QueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;
   final LibraryAddTarget addTarget;
+  final int addCount;
   final bool isAdding;
   final bool isQueueingIngest;
   final bool isAdmin;
+  final String defaultCondition;
+  final String defaultGrade;
+  final TextEditingController defaultStorageBoxController;
+  final DateTime? defaultPurchaseDate;
   final ValueChanged<LibraryAddTarget> onAddTargetChanged;
+  final ValueChanged<String> onDefaultConditionChanged;
+  final ValueChanged<String> onDefaultGradeChanged;
+  final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
   final VoidCallback? onAdd;
   final VoidCallback? onQueueIngest;
   final VoidCallback? onPropose;
@@ -2585,9 +2687,10 @@ class _LibraryAddBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasSelection = selectedItem != null || selectedCandidate != null;
-    final addLabel = hasSelection
+    final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
+    final addLabel = effectiveCount > 0
         ? LibraryAddCopy.addToTargetLabel(
-            count: 1,
+            count: effectiveCount,
             type: type,
             target: addTarget,
           )
@@ -2608,7 +2711,9 @@ class _LibraryAddBottomBar extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 LibraryAddResultBadge(
-                    hasSelection ? '1 selected' : '0 selected'),
+                    effectiveCount > 0
+                        ? '$effectiveCount selected'
+                        : '0 selected'),
                 _LibraryAddTargetMenu(
                   value: addTarget,
                   enabled: !isAdding,
@@ -2642,6 +2747,19 @@ class _LibraryAddBottomBar extends StatelessWidget {
                 ],
               ],
             ),
+            if (addTarget == LibraryAddTarget.owned) ...[
+              const SizedBox(height: 8),
+              _AddTargetDefaultsBar(
+                accent: accent,
+                condition: defaultCondition,
+                grade: defaultGrade,
+                storageBoxController: defaultStorageBoxController,
+                purchaseDate: defaultPurchaseDate,
+                onConditionChanged: onDefaultConditionChanged,
+                onGradeChanged: onDefaultGradeChanged,
+                onPurchaseDateChanged: onDefaultPurchaseDateChanged,
+              ),
+            ],
             const SizedBox(height: 8),
             Row(
               children: [
@@ -2690,6 +2808,272 @@ class _LibraryAddBottomActionButton extends StatelessWidget {
         style: _libraryAddOutlinedButtonStyle(accent),
         icon: Icon(icon, size: 17),
         label: Text(label),
+      ),
+    );
+  }
+}
+
+const double _kCompactControlHeight = 30;
+const double _kCompactMenuItemHeight = 30;
+const Color _kCompactMenuBackground = Color(0xFF183246);
+const Color _kCompactMenuText = Color(0xFFBFEFFF);
+
+class _AddTargetDefaultsBar extends StatelessWidget {
+  const _AddTargetDefaultsBar({
+    required this.accent,
+    required this.condition,
+    required this.grade,
+    required this.storageBoxController,
+    required this.purchaseDate,
+    required this.onConditionChanged,
+    required this.onGradeChanged,
+    required this.onPurchaseDateChanged,
+  });
+
+  final Color accent;
+  final String condition;
+  final String grade;
+  final TextEditingController storageBoxController;
+  final DateTime? purchaseDate;
+  final ValueChanged<String> onConditionChanged;
+  final ValueChanged<String> onGradeChanged;
+  final ValueChanged<DateTime?> onPurchaseDateChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        const Text(
+          'Owned defaults',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        _CompactDropdown(
+          width: 118,
+          value: condition,
+          items: ComicInspector.conditions,
+          label: 'Condition',
+          accent: accent,
+          onChanged: (v) {
+            if (v != null) onConditionChanged(v);
+          },
+        ),
+        _CompactDropdown(
+          width: 104,
+          value: grade,
+          items: ComicInspector.grades,
+          label: 'Grade',
+          accent: accent,
+          onChanged: (v) {
+            if (v != null) onGradeChanged(v);
+          },
+        ),
+        SizedBox(
+          width: 132,
+          height: _kCompactControlHeight,
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: _kCompactMenuBackground,
+              border: Border.all(color: accent.withValues(alpha: 0.82)),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: TextField(
+              controller: storageBoxController,
+              keyboardType: TextInputType.text,
+              inputFormatters: [_noNewlineFormatter],
+              expands: true,
+              minLines: null,
+              maxLines: null,
+              textAlign: TextAlign.center,
+              textInputAction: TextInputAction.done,
+              textAlignVertical: TextAlignVertical.center,
+              strutStyle: const StrutStyle(
+                fontSize: 13,
+                height: 1,
+                forceStrutHeight: true,
+              ),
+              style: const TextStyle(
+                color: _kCompactMenuText,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                height: 1,
+              ),
+              decoration: const InputDecoration(
+                isDense: true,
+                isCollapsed: true,
+                filled: false,
+                fillColor: Colors.transparent,
+                border: InputBorder.none,
+                labelText: 'Storage box',
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+        ),
+        InkWell(
+          onTap: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: purchaseDate ?? DateTime.now(),
+              firstDate: DateTime(1970),
+              lastDate: DateTime(2100),
+            );
+            onPurchaseDateChanged(picked);
+          },
+          borderRadius: BorderRadius.circular(3),
+          child: Container(
+            width: 150,
+            height: _kCompactControlHeight,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: _kCompactMenuBackground,
+              border: Border.all(color: accent.withValues(alpha: 0.82)),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.calendar_today, size: 14, color: _kCompactMenuText),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    purchaseDate == null
+                        ? 'Purchase date'
+                        : _formatDate(purchaseDate!),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      color: _kCompactMenuText,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (purchaseDate != null)
+          IconButton(
+            tooltip: 'Clear purchase date',
+            onPressed: () => onPurchaseDateChanged(null),
+            icon: const Icon(Icons.clear, size: 18),
+          ),
+      ],
+    );
+  }
+}
+
+String _formatDate(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+class _CompactDropdown extends StatelessWidget {
+  const _CompactDropdown({
+    required this.width,
+    required this.value,
+    required this.items,
+    required this.label,
+    required this.accent,
+    required this.onChanged,
+  });
+
+  final double width;
+  final String? value;
+  final List<String> items;
+  final String label;
+  final Color accent;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedValue = items.contains(value) ? value : null;
+    return PopupMenuButton<String?>(
+      initialValue: selectedValue,
+      tooltip: label,
+      position: PopupMenuPosition.under,
+      color: _kCompactMenuBackground,
+      elevation: 10,
+      constraints: BoxConstraints(minWidth: width, maxWidth: 220),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(3),
+        side: BorderSide(color: accent.withValues(alpha: 0.74)),
+      ),
+      onSelected: onChanged,
+      itemBuilder: (context) => [
+        for (final item in items)
+          PopupMenuItem<String?>(
+            value: item,
+            height: _kCompactMenuItemHeight,
+            padding: EdgeInsets.zero,
+            child: Container(
+              height: _kCompactMenuItemHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: item == selectedValue
+                    ? accent.withValues(alpha: 0.26)
+                    : Colors.transparent,
+                border: item == selectedValue
+                    ? Border(left: BorderSide(color: accent, width: 3))
+                    : null,
+              ),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 18,
+                    child: item == selectedValue
+                        ? Icon(Icons.check,
+                            color: _kCompactMenuText, size: 15)
+                        : null,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    item,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: _kCompactMenuText,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+      child: Container(
+        width: width,
+        height: _kCompactControlHeight,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: _kCompactMenuBackground,
+          border: Border.all(color: accent.withValues(alpha: 0.82)),
+          borderRadius: BorderRadius.circular(3),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                selectedValue ?? label,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(
+                  color: _kCompactMenuText,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.arrow_drop_down,
+                color: _kCompactMenuText, size: 18),
+          ],
+        ),
       ),
     );
   }
