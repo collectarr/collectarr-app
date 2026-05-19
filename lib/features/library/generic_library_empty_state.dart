@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:flutter/material.dart';
 
