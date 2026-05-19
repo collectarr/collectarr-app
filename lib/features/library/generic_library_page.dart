@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -143,6 +144,10 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                 }),
                 hasActiveFilters: _hasActiveFilter,
                 onClearFilters: _clearFilters,
+                onRandomPick: projection != null &&
+                        projection.filteredItems.isNotEmpty
+                    ? () => _pickRandomItem(projection)
+                    : null,
                 counts: projection?.counts ?? const GenericToolbarCounts(),
               ),
               Expanded(
@@ -262,6 +267,15 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       _searchController.clear();
     });
   }
+
+  void _pickRandomItem(GenericLibraryProjection projection) {
+    final items = projection.filteredItems;
+    if (items.isEmpty) return;
+    final random = items[_random.nextInt(items.length)];
+    setState(() => _selectedId = random.entry.id);
+  }
+
+  static final _random = math.Random();
 
   Future<void> _loadViewState() async {
     final state = await _adapter.viewProfile.load();

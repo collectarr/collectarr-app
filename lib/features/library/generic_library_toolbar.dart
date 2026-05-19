@@ -35,6 +35,7 @@ class GenericLibraryToolbar extends StatelessWidget {
     required this.onQuickViewSelected,
     required this.hasActiveFilters,
     required this.onClearFilters,
+    this.onRandomPick,
   });
 
   final LibraryTypeConfig type;
@@ -58,6 +59,7 @@ class GenericLibraryToolbar extends StatelessWidget {
   final ValueChanged<GenericQuickView> onQuickViewSelected;
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
+  final VoidCallback? onRandomPick;
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +84,7 @@ class GenericLibraryToolbar extends StatelessWidget {
               onQuickViewSelected: onQuickViewSelected,
               hasActiveFilters: hasActiveFilters,
               onClearFilters: onClearFilters,
+              onRandomPick: onRandomPick,
             );
           }
           return Padding(
@@ -117,6 +120,7 @@ class GenericLibraryToolbar extends StatelessWidget {
                       hasActiveFilters: hasActiveFilters,
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
+                      onRandomPick: onRandomPick,
                     ),
                     LibraryViewTableControls(
                       state: LibraryViewTableControlState(

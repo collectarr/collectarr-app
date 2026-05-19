@@ -13,6 +13,7 @@ class GenericLibraryToolsButton extends StatelessWidget {
     required this.hasActiveFilters,
     required this.onQuickViewSelected,
     required this.onClearFilters,
+    this.onRandomPick,
   });
 
   final LibraryTypeConfig type;
@@ -22,6 +23,7 @@ class GenericLibraryToolsButton extends StatelessWidget {
   final bool hasActiveFilters;
   final ValueChanged<GenericQuickView> onQuickViewSelected;
   final VoidCallback onClearFilters;
+  final VoidCallback? onRandomPick;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,12 @@ class GenericLibraryToolsButton extends StatelessWidget {
           label: 'Statistics',
           onSelected: () => _showGenericStatsDialog(context, type, counts),
         ),
+        if (onRandomPick != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.casino_outlined,
+            label: 'Random pick',
+            onSelected: onRandomPick!,
+          ),
         LibraryUtilityMenuAction(
           icon: Icons.filter_alt_off_outlined,
           label: 'Clear filters',
