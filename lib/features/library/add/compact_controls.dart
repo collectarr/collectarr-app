@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+export 'package:collectarr_app/core/utils/text_utils.dart'
+    show noNewlineFormatter, formatCompactDate;
 
 const double kCompactControlHeight = 30;
 const double kCompactMenuItemHeight = 30;
 const Color kCompactMenuBackground = Color(0xFF183246);
 const Color kCompactMenuText = Color(0xFFBFEFFF);
-
-final TextInputFormatter noNewlineFormatter =
-    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]'));
-
-String formatCompactDate(DateTime d) {
-  final local = d.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-}
 
 class CompactDropdown extends StatelessWidget {
   const CompactDropdown({

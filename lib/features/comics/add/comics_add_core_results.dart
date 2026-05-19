@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/comics/add/comics_add_result_row.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_results_summary_bar.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_series_header.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:flutter/material.dart';
 
@@ -642,7 +643,7 @@ String _addIssueSubtitle(List<CatalogItem> items) {
       .map((item) => item.releaseDate)
       .whereType<DateTime>()
       .toList(growable: false);
-  final releaseDate = dates.isEmpty ? null : _formatDate(dates.first);
+  final releaseDate = dates.isEmpty ? null : formatCompactDate(dates.first);
   return [
     if (standardCount > 0)
       '$standardCount standard cover${standardCount == 1 ? '' : 's'}',
@@ -674,7 +675,7 @@ String _addResultTitle(CatalogItem item) {
 String _addResultSubtitle(CatalogItem item) {
   final parts = [
     if (item.variant != null && item.variant!.isNotEmpty) item.variant,
-    if (item.releaseDate != null) _formatDate(item.releaseDate!),
+    if (item.releaseDate != null) formatCompactDate(item.releaseDate!),
     if (item.publisher != null && item.publisher!.isNotEmpty) item.publisher,
     if (item.barcode != null && item.barcode!.isNotEmpty) item.barcode,
   ].whereType<String>().toList(growable: false);
@@ -693,7 +694,7 @@ List<String> _addResultBadges(CatalogItem item) {
 
 String _addResultTrailing(CatalogItem item) {
   if (item.releaseDate != null) {
-    return _formatDate(item.releaseDate!);
+    return formatCompactDate(item.releaseDate!);
   }
   if (item.releaseYear != null) {
     return item.releaseYear!.toString();
@@ -770,7 +771,4 @@ String normalizedCoreKey(String title) {
   return normalized.isEmpty ? 'unknown' : normalized;
 }
 
-String _formatDate(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-}
+

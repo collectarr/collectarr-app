@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/comics/comics_barcode_lookup.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_bottom_bar.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_preview_pane.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_manual_metadata_dialogs.dart';
 import 'package:collectarr_app/features/comics/comics_provider_search_state.dart';
@@ -35,8 +36,6 @@ const Color _kClzToolbar = kClzToolbar;
 const Color _kClzPanel = kClzPanel;
 const Color _kClzAccent = kClzAccent;
 final ThemeData _kClzAddComicDialogTheme = kClzAddComicDialogTheme;
-final TextInputFormatter _noNewlineFormatter =
-    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]'));
 
 class AddComicDialog extends ConsumerStatefulWidget {
   const AddComicDialog({super.key});
@@ -1953,7 +1952,7 @@ class _PrimarySearchField extends StatelessWidget {
         child: TextField(
           controller: controller,
           keyboardType: TextInputType.text,
-          inputFormatters: [_noNewlineFormatter],
+          inputFormatters: [noNewlineFormatter],
           expands: true,
           minLines: null,
           maxLines: null,
@@ -2015,7 +2014,7 @@ class _FilterField extends StatelessWidget {
         child: TextField(
           controller: controller,
           keyboardType: keyboardType ?? TextInputType.text,
-          inputFormatters: [...?inputFormatters, _noNewlineFormatter],
+          inputFormatters: [...?inputFormatters, noNewlineFormatter],
           expands: true,
           minLines: null,
           maxLines: null,
