@@ -205,7 +205,10 @@ class ComicsAddDialogState extends ConsumerState<ComicsAddDialog> {
               ),
               child: Column(
                 children: [
-                  _AddComicTitleBar(onClose: () => Navigator.of(context).pop()),
+                  _AddComicTitleBar(
+                    icon: libraryType.workspace.icon,
+                    onClose: () => Navigator.of(context).pop(),
+                  ),
                   _AddComicModeBar(
                     mode: _mode,
                     queryController: _controller,
@@ -1308,7 +1311,7 @@ class ComicsAddDialogState extends ConsumerState<ComicsAddDialog> {
       return;
     }
     setState(() => _isSubmitting = false);
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(true);
     final wishlist = target == LibraryAddTarget.wishlist;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1346,7 +1349,7 @@ class ComicsAddDialogState extends ConsumerState<ComicsAddDialog> {
       if (!mounted) {
         return;
       }
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -1435,4 +1438,3 @@ class ComicsAddDialogState extends ConsumerState<ComicsAddDialog> {
     }
   }
 }
-

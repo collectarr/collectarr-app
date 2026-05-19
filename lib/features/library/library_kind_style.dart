@@ -40,14 +40,14 @@ LinearGradient libraryChromeGradient(
 
 IconData libraryIconForKind(String kind) {
   return switch (kind) {
-    'anime' => Icons.smart_display,
+    'anime' => Icons.movie_filter_outlined,
     'book' => Icons.menu_book_outlined,
     'boardgame' => Icons.casino_outlined,
-    'comic' => Icons.style,
+    'comic' => Icons.library_books,
     'game' => Icons.sports_esports,
     'manga' => Icons.auto_stories,
     'movie' => Icons.movie_outlined,
-    'music' => Icons.album_outlined,
+    'music' => Icons.music_note,
     'tv' => Icons.tv,
     _ => Icons.category_outlined,
   };

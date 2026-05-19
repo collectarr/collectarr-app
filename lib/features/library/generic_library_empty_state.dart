@@ -65,6 +65,10 @@ class GenericLibraryEmptyState extends StatelessWidget {
               else
                 FilledButton.icon(
                   onPressed: onAdd,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: Colors.white,
+                  ),
                   icon: const Icon(Icons.add),
                   label: const Text('Add from Collectarr Core'),
                 ),

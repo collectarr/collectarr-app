@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic_library_compact_toolbar.dart';
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_tools_menu.dart';
+import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
@@ -73,6 +74,7 @@ class GenericLibraryToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = libraryAccentForKind(type.workspace.kind);
     return LibraryToolbarFrame(
       backgroundColor: kClzToolbar,
       dividerColor: kClzDivider,
@@ -106,8 +108,8 @@ class GenericLibraryToolbar extends StatelessWidget {
                   onAdd: onAdd,
                   onScanBarcode: onScan,
                   onRefreshMetadata: onRefreshMetadata,
-                  addBackgroundColor: kClzYellow,
-                  addForegroundColor: const Color(0xFF151515),
+                  addBackgroundColor: accent,
+                  addForegroundColor: _toolbarForegroundForAccent(accent),
                 ),
                 const LibraryWorkspaceSeparator(color: kClzDivider),
                 LibraryToolbarSearch(
@@ -170,4 +172,8 @@ class GenericLibraryToolbar extends StatelessWidget {
       ),
     );
   }
+}
+
+Color _toolbarForegroundForAccent(Color accent) {
+  return Colors.white;
 }

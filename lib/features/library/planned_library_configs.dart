@@ -43,7 +43,7 @@ const mangaLibraryConfig = LibraryTypeConfig(
 const animeWorkspaceConfig = LibraryWorkspaceConfig(
   kind: 'anime',
   title: 'Anime',
-  icon: Icons.smart_display,
+  icon: Icons.movie_filter_outlined,
   preferencePrefix: 'anime',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
@@ -204,7 +204,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
 const musicWorkspaceConfig = LibraryWorkspaceConfig(
   kind: 'music',
   title: 'Music',
-  icon: Icons.album_outlined,
+  icon: Icons.music_note,
   preferencePrefix: 'music',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
@@ -224,8 +224,8 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
 
 const musicLibraryConfig = LibraryTypeConfig(
   workspace: musicWorkspaceConfig,
-  singularLabel: 'Music Release',
-  pluralLabel: 'Music Releases',
+  singularLabel: 'Music',
+  pluralLabel: 'Music',
   defaultMetadataProvider: 'musicbrainz',
   metadataProviders: [
     musicBrainzMetadataProvider,

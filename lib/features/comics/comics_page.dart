@@ -209,8 +209,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   }
 
   Future<void> _showAddComicDialog(BuildContext context) async {
-    await showAddComicsDialog(context);
-    if (mounted) {
+    final added = await showAddComicsDialog(context);
+    if (added == true && mounted) {
       ref.invalidate(shelfProvider);
     }
   }

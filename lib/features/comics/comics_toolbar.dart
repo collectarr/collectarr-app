@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_controls.dart';
+import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +29,7 @@ class ComicsToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = libraryAccentForKind('comic');
     return LibraryToolbarFrame(
       backgroundColor: kClzToolbar,
       dividerColor: kClzDivider,
@@ -35,17 +38,17 @@ class ComicsToolbar extends StatelessWidget {
         child: Row(
           children: [
             LibraryToolbarPrimaryActions(
-              addLabel: 'Add Comics',
+              addLabel: 'Add ${comicsLibraryConfig.pluralLabel}',
               onAdd: onAddComic,
               onScanBarcode: onScanBarcode,
               onRefreshMetadata: onRefreshMetadata,
-              addBackgroundColor: kClzYellow,
-              addForegroundColor: const Color(0xFF151515),
+              addBackgroundColor: accent,
+              addForegroundColor: Colors.white,
             ),
             const LibraryWorkspaceSeparator(color: kClzDivider),
             LibraryToolbarSearch(
               controller: controller,
-              hintText: 'Search comics...',
+              hintText: 'Search ${comicsLibraryConfig.pluralLabel.toLowerCase()}...',
               selectedFilterLabel: controlState.utility.selectedSeries,
               onSearch: onSearch,
               onClearFilter: onClearSeries,

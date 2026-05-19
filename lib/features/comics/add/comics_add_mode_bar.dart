@@ -1,8 +1,12 @@
 part of 'comics_add_dialog.dart';
 
 class _AddComicTitleBar extends StatelessWidget {
-  const _AddComicTitleBar({required this.onClose});
+  const _AddComicTitleBar({
+    required this.icon,
+    required this.onClose,
+  });
 
+  final IconData icon;
   final VoidCallback onClose;
 
   @override
@@ -18,7 +22,7 @@ class _AddComicTitleBar extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 8),
-          const Icon(Icons.public, color: Color(0xFF03A9DE), size: 18),
+          Icon(icon, color: _kClzAccent, size: 18),
           const SizedBox(width: 8),
           const Expanded(
             child: Text(

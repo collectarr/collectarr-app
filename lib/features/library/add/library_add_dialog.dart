@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/library_media_field_labels.dart';
-import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
@@ -133,7 +132,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     final selectedProvider = _activeProvider;
     final isBusy = _isSearching || _isSearchingProvider;
-    final accent = libraryAccentForKind(widget.type.workspace.kind);
+    final accent = kClzAccent;
     final selectedResult = _selectedResult;
     final selectedCandidate = _selectedProviderCandidate;
     final selectedProviderLabel = selectedCandidate == null
@@ -305,8 +304,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             setState(() => _defaultGrade = value),
                         onDefaultPurchaseDateChanged: (value) =>
                             setState(() => _defaultPurchaseDate = value),
-                        onAdd: addItems.isEmpty &&
-                                selectedCandidate == null
+                        onAdd: addItems.isEmpty && selectedCandidate == null
                             ? null
                             : () {
                                 if (addItems.isNotEmpty) {
@@ -323,8 +321,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                               },
                         onQueueIngest: selectedCandidate == null
                             ? null
-                            : () =>
-                                _queueProviderIngest(selectedCandidate),
+                            : () => _queueProviderIngest(selectedCandidate),
                         onPropose: selectedCandidate == null
                             ? null
                             : () => _proposeCandidate(selectedCandidate),
@@ -909,9 +906,7 @@ ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kClzAccent]) {
 }
 
 Color _foregroundForAccent(Color accent) {
-  return ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
-      ? Colors.white
-      : const Color(0xFF101010);
+  return Colors.white;
 }
 
 ThemeData _libraryAddDialogTheme(Color accent) {
