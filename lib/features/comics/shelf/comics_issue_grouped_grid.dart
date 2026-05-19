@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/comics/comics_clz_style.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
-import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 /// Groups comic items by issue number with collapsible headers,

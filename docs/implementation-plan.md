@@ -67,10 +67,11 @@
 ## 🔜 Next Up
 
 ### 🎯 Comics MVP Polish
-- [ ] Semantic Add Series vs Add Issue: series tree for full runs vs flat issue list
+- [x] Semantic Add Series vs Add Issue: browse-series callback navigates from series to issue mode
 - [ ] Issue/variant tree density improvements + whole-series and multi-issue selection
-- [ ] Real cover behavior for GCD + ComicVine variant enrichment
-- [ ] Generated fallback covers only when no usable cover exists
+- [x] Real cover behavior for GCD + ComicVine variant enrichment
+- [x] Generated fallback covers only when no usable cover exists
+- [x] Music physical media formats (Vinyl, CD, Cassette, Digital)
 
 ### 📚 Media-Specific Forms
 - [ ] Books: ISBN/barcode fields, reading progress, edition data

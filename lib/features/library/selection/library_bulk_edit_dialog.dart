@@ -77,7 +77,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _readStatus,
+              initialValue: _readStatus,
               decoration: const InputDecoration(
                 labelText: 'Tracking status',
                 border: OutlineInputBorder(),
@@ -97,7 +97,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
-              value: _rating,
+              initialValue: _rating,
               decoration: const InputDecoration(
                 labelText: 'Rating',
                 border: OutlineInputBorder(),
