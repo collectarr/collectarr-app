@@ -82,9 +82,9 @@
 - [x] Inspector: kind-specific grading details for comics/manga
 
 ### 🖥️ Platform Smoke Tests
-- [ ] Web: sqlite3 WASM load, Core connection, Add dialog, import/export, covers
-- [ ] Windows: local DB, resizable panes, keyboard shortcuts, barcode fallback
-- [ ] Android: camera scanner, manual fallback, connection presets, narrow layout
+- [x] Web: sqlite3 WASM load, Core connection, Add dialog, import/export, covers
+- [x] Windows: local DB, resizable panes, keyboard shortcuts, barcode fallback
+- [x] Android: camera scanner, manual fallback, connection presets, narrow layout
 
 ### 🧩 Post-MVP
 - [x] QR scanning for pairing (not just QR rendering)
