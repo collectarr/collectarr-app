@@ -698,9 +698,9 @@ class ApiClient {
     if (ids.isEmpty) {
       return const [];
     }
-    final response = await _dio.get<List<dynamic>>(
+    final response = await _dio.post<List<dynamic>>(
       '/story-arcs/facets',
-      queryParameters: {'item_ids': ids.join(',')},
+      data: {'item_ids': ids},
     );
     final data = response.data;
     if (data == null) {
@@ -740,9 +740,9 @@ class ApiClient {
     if (ids.isEmpty) {
       return const [];
     }
-    final response = await _dio.get<List<dynamic>>(
+    final response = await _dio.post<List<dynamic>>(
       '/characters/facets',
-      queryParameters: {'item_ids': ids.join(',')},
+      data: {'item_ids': ids},
     );
     final data = response.data;
     if (data == null) {

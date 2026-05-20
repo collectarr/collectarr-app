@@ -95,7 +95,11 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
                 ),
               );
               final entries = shelfProjection.entries;
-              _ensureFacetBucketsLoaded(state, uiState.groupMode);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  _ensureFacetBucketsLoaded(state, uiState.groupMode);
+                }
+              });
               final facetBuckets = _facetBucketsForMode(uiState.groupMode);
               final usesExternalFacets =
                   _usesExternalFacetBuckets(uiState.groupMode);
