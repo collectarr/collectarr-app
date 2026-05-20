@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_c
 import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
+import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -52,6 +53,8 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   ComicsPageUiState pageState = ComicsPageUiState.initial();
   late final TextEditingController _controller;
   Map<String, List<String>> _customFieldValuesByItem = const {};
+  final _facetBucketsByMode = <ComicsShelfGroupMode, _ComicsFacetBuckets>{};
+  final _facetLoadsInFlight = <ComicsShelfGroupMode>{};
 
   @override
   void initState() {
@@ -95,6 +98,10 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 ),
               );
               final entries = shelfProjection.entries;
+              _ensureFacetBucketsLoaded(state, uiState.groupMode);
+              final facetBuckets = _facetBucketsForMode(uiState.groupMode);
+              final usesExternalFacets =
+                  _usesExternalFacetBuckets(uiState.groupMode);
               return ComicsWorkspace(
                 shelfState: state,
                 entries: entries,
@@ -102,6 +109,13 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 selectedItemId: uiState.selectedItemId,
                 selectedGroup: uiState.selectedGroup,
                 groupMode: uiState.groupMode,
+                groupLoading: _facetLoadsInFlight.contains(uiState.groupMode),
+                facetBuckets: usesExternalFacets
+                    ? (facetBuckets?.buckets ?? const [])
+                    : null,
+                facetItemIdsByBucket: usesExternalFacets
+                    ? (facetBuckets?.itemIdsByBucket ?? const {})
+                    : null,
                 viewMode: viewState.viewMode,
                 detailsLayout: viewState.detailsLayout,
                 sortColumn: viewState.sortColumn,
@@ -512,6 +526,133 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   void _handleGroupModeChanged(ComicsShelfGroupMode mode) {
     setState(() => pageState = pageState.withGroupMode(mode));
     const ComicsGroupingPreferenceStore().write(mode);
+    final shelfState = ref.read(shelfProvider).asData?.value;
+    if (shelfState != null) {
+      _ensureFacetBucketsLoaded(shelfState, mode);
+    }
+  }
+
+  bool _usesExternalFacetBuckets(ComicsShelfGroupMode mode) {
+    return mode == ComicsShelfGroupMode.storyArc ||
+        mode == ComicsShelfGroupMode.character;
+  }
+
+  _ComicsFacetBuckets? _facetBucketsForMode(ComicsShelfGroupMode mode) {
+    if (!_usesExternalFacetBuckets(mode)) {
+      return null;
+    }
+    final state = ref.read(shelfProvider).asData?.value;
+    if (state == null) {
+      return null;
+    }
+    final cached = _facetBucketsByMode[mode];
+    final signature = _shelfSignature(state);
+    if (cached == null || cached.shelfSignature != signature) {
+      return null;
+    }
+    return cached;
+  }
+
+  void _ensureFacetBucketsLoaded(
+    ShelfState shelf,
+    ComicsShelfGroupMode mode,
+  ) {
+    if (!_usesExternalFacetBuckets(mode) ||
+        _facetLoadsInFlight.contains(mode)) {
+      return;
+    }
+    final signature = _shelfSignature(shelf);
+    final cached = _facetBucketsByMode[mode];
+    if (cached != null && cached.shelfSignature == signature) {
+      return;
+    }
+    _facetLoadsInFlight.add(mode);
+    unawaited(_loadFacetBuckets(mode, shelf, signature));
+  }
+
+  Future<void> _loadFacetBuckets(
+    ComicsShelfGroupMode mode,
+    ShelfState shelf,
+    String signature,
+  ) async {
+    try {
+      final itemIds = {
+        for (final entry in comicsShelfEntriesOnly(shelf.entries)) entry.itemId,
+      };
+      final rows = mode == ComicsShelfGroupMode.storyArc
+          ? await ref.read(apiClientProvider).storyArcFacets(itemIds)
+          : await ref.read(apiClientProvider).characterFacets(itemIds);
+      final byBucket = <String, Set<String>>{};
+      for (final row in rows) {
+        final name = _rowText(row, 'name');
+        if (name == null) {
+          continue;
+        }
+        for (final itemId in _rowTextList(row, 'item_ids')) {
+          if (itemIds.contains(itemId)) {
+            byBucket.putIfAbsent(name, () => <String>{}).add(itemId);
+          }
+        }
+      }
+      final buckets = [
+        for (final entry in byBucket.entries)
+          LibrarySeriesBucket(title: entry.key, count: entry.value.length),
+      ]..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+      if (!mounted) {
+        return;
+      }
+      final latestShelf = ref.read(shelfProvider).asData?.value;
+      if (latestShelf == null || _shelfSignature(latestShelf) != signature) {
+        return;
+      }
+      setState(() {
+        _facetBucketsByMode[mode] = _ComicsFacetBuckets(
+          shelfSignature: signature,
+          buckets: buckets,
+          itemIdsByBucket: byBucket,
+        );
+        if (pageState.groupMode == mode &&
+            pageState.selectedGroup != null &&
+            !buckets.any((bucket) => bucket.title == pageState.selectedGroup)) {
+          pageState = pageState.withoutSelectedGroup();
+        }
+      });
+    } catch (_) {
+      // Keep the local shelf usable when optional metadata facets are unavailable.
+    } finally {
+      _facetLoadsInFlight.remove(mode);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  String _shelfSignature(ShelfState shelf) {
+    final ids = [
+      for (final entry in comicsShelfEntriesOnly(shelf.entries)) entry.itemId,
+    ]..sort();
+    return ids.join('|');
+  }
+
+  String? _rowText(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value == null) {
+      return null;
+    }
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  List<String> _rowTextList(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value is! Iterable) {
+      return const [];
+    }
+    return [
+      for (final item in value)
+        if (item != null && item.toString().trim().isNotEmpty)
+          item.toString().trim(),
+    ];
   }
 }
 
@@ -524,4 +665,16 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(child: Text(message));
   }
+}
+
+class _ComicsFacetBuckets {
+  const _ComicsFacetBuckets({
+    required this.shelfSignature,
+    required this.buckets,
+    required this.itemIdsByBucket,
+  });
+
+  final String shelfSignature;
+  final List<LibrarySeriesBucket> buckets;
+  final Map<String, Set<String>> itemIdsByBucket;
 }

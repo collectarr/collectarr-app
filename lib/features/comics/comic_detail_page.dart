@@ -193,12 +193,16 @@ class _ComicDetailBody extends ConsumerWidget {
         if (comic.characters.isNotEmpty)
           _MetadataSection(
             title: 'Characters',
-            children: [_CreditWrap(credits: comic.characters)],
+            children: [
+              _CreditWrap(credits: comic.characters, showAvatars: true)
+            ],
           ),
         if (comic.storyArcs.isNotEmpty)
           _MetadataSection(
             title: 'Story arcs',
-            children: [_CreditWrap(credits: comic.storyArcs)],
+            children: [
+              _CreditWrap(credits: comic.storyArcs, showOrdinal: true)
+            ],
           ),
         if (comic.seriesId != null)
           SeriesRelationsSection(seriesId: comic.seriesId!),
@@ -636,9 +640,15 @@ class _InfoGrid extends StatelessWidget {
 }
 
 class _CreditWrap extends StatelessWidget {
-  const _CreditWrap({required this.credits});
+  const _CreditWrap({
+    required this.credits,
+    this.showAvatars = false,
+    this.showOrdinal = false,
+  });
 
   final List<ComicCredit> credits;
+  final bool showAvatars;
+  final bool showOrdinal;
 
   @override
   Widget build(BuildContext context) {
@@ -648,26 +658,56 @@ class _CreditWrap extends StatelessWidget {
       children: [
         for (final credit in credits)
           _MetadataChip(
-            label: credit.role == null
-                ? credit.name
-                : '${credit.name} - ${credit.role}',
+            label: _creditLabel(credit),
+            tooltip: _creditTooltip(credit),
+            avatarUrl: showAvatars ? credit.imageUrl : null,
           ),
       ],
     );
   }
+
+  String _creditLabel(ComicCredit credit) {
+    final parts = [
+      credit.name,
+      if (showOrdinal && credit.ordinal != null) '#${credit.ordinal}',
+      if (credit.role != null && credit.role!.trim().isNotEmpty) credit.role!,
+    ];
+    return parts.join(' - ');
+  }
+
+  String? _creditTooltip(ComicCredit credit) {
+    final details = [
+      if (credit.aliases.isNotEmpty) 'Aliases: ${credit.aliases.join(', ')}',
+      if (credit.publisher != null) 'Publisher: ${credit.publisher}',
+      if (credit.description != null) credit.description!,
+    ];
+    return details.isEmpty ? null : details.join('\n');
+  }
 }
 
 class _MetadataChip extends StatelessWidget {
-  const _MetadataChip({required this.label});
+  const _MetadataChip({
+    required this.label,
+    this.tooltip,
+    this.avatarUrl,
+  });
 
   final String label;
+  final String? tooltip;
+  final String? avatarUrl;
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
+    final chip = Chip(
+      avatar: avatarUrl == null || avatarUrl!.isEmpty
+          ? null
+          : CircleAvatar(
+              backgroundImage: CachedNetworkImageProvider(avatarUrl!),
+            ),
       label: Text(label),
       visualDensity: VisualDensity.compact,
     );
+    return tooltip == null ? chip : Tooltip(message: tooltip!, child: chip);
   }
 }
 

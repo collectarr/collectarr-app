@@ -25,6 +25,7 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
     required this.shelfState,
     required this.queryController,
     required this.selectedGroup,
+    required this.groupLoading,
     required this.onGroupModeChanged,
     required this.viewMode,
     required this.detailsLayout,
@@ -74,6 +75,7 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
   final ShelfState shelfState;
   final TextEditingController queryController;
   final String? selectedGroup;
+  final bool groupLoading;
   final ValueChanged<ComicsShelfGroupMode> onGroupModeChanged;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
@@ -218,6 +220,14 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          if (groupLoading) ...[
+                            const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                           _ComicsGroupingMenu(
                             groupMode: projection.groupMode,
                             onChanged: onGroupModeChanged,

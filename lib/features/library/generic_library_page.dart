@@ -417,18 +417,15 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     required Set<String> shelfItemIds,
   }) async {
     final api = ref.read(apiClientProvider);
-    final arcs = await api.searchStoryArcs(limit: 200);
+    final arcs = await api.storyArcFacets(shelfItemIds);
     final byBucket = <String, Set<String>>{};
     for (final row in arcs) {
-      final storyArcId = _rowText(row, 'id');
       final name = _rowText(row, 'name');
-      if (storyArcId == null || name == null) {
+      if (name == null) {
         continue;
       }
-      final links = await api.getStoryArcItems(storyArcId);
       final matches = <String>{};
-      for (final link in links) {
-        final itemId = _rowText(link, 'item_id');
+      for (final itemId in _rowTextList(row, 'item_ids')) {
         if (itemId != null && shelfItemIds.contains(itemId)) {
           matches.add(itemId);
         }
@@ -449,18 +446,15 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     required Set<String> shelfItemIds,
   }) async {
     final api = ref.read(apiClientProvider);
-    final characters = await api.searchCharacters(limit: 200);
+    final characters = await api.characterFacets(shelfItemIds);
     final byBucket = <String, Set<String>>{};
     for (final row in characters) {
-      final characterId = _rowText(row, 'id');
       final name = _rowText(row, 'name');
-      if (characterId == null || name == null) {
+      if (name == null) {
         continue;
       }
-      final appearances = await api.getCharacterAppearances(characterId);
       final matches = <String>{};
-      for (final link in appearances) {
-        final itemId = _rowText(link, 'item_id');
+      for (final itemId in _rowTextList(row, 'item_ids')) {
         if (itemId != null && shelfItemIds.contains(itemId)) {
           matches.add(itemId);
         }
@@ -525,6 +519,17 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     }
     final text = value.toString().trim();
     return text.isEmpty ? null : text;
+  }
+
+  List<String?> _rowTextList(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value is! Iterable) {
+      return const [];
+    }
+    return [
+      for (final item in value)
+        if (item != null) item.toString().trim(),
+    ];
   }
 
   void _clearFilters() {

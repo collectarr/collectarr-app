@@ -691,6 +691,27 @@ class ApiClient {
         .toList(growable: false);
   }
 
+  Future<List<Map<String, dynamic>>> storyArcFacets(
+    Iterable<String> itemIds,
+  ) async {
+    final ids = itemIds.where((id) => id.trim().isNotEmpty).toSet().toList();
+    if (ids.isEmpty) {
+      return const [];
+    }
+    final response = await _dio.get<List<dynamic>>(
+      '/story-arcs/facets',
+      queryParameters: {'item_ids': ids.join(',')},
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
+  }
+
   Future<List<Map<String, dynamic>>> searchCharacters({
     String? query,
     int limit = 50,
@@ -701,6 +722,27 @@ class ApiClient {
         if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
         'limit': limit,
       },
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
+  }
+
+  Future<List<Map<String, dynamic>>> characterFacets(
+    Iterable<String> itemIds,
+  ) async {
+    final ids = itemIds.where((id) => id.trim().isNotEmpty).toSet().toList();
+    if (ids.isEmpty) {
+      return const [];
+    }
+    final response = await _dio.get<List<dynamic>>(
+      '/characters/facets',
+      queryParameters: {'item_ids': ids.join(',')},
     );
     final data = response.data;
     if (data == null) {

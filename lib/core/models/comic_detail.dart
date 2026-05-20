@@ -285,12 +285,24 @@ class ComicCredit {
     this.role,
     this.apiDetailUrl,
     this.siteDetailUrl,
+    this.aliases = const [],
+    this.description,
+    this.imageUrl,
+    this.firstAppearanceItemId,
+    this.ordinal,
+    this.publisher,
   });
 
   final String name;
   final String? role;
   final String? apiDetailUrl;
   final String? siteDetailUrl;
+  final List<String> aliases;
+  final String? description;
+  final String? imageUrl;
+  final String? firstAppearanceItemId;
+  final int? ordinal;
+  final String? publisher;
 
   factory ComicCredit.fromJson(Map<String, dynamic> json) {
     return ComicCredit(
@@ -298,6 +310,15 @@ class ComicCredit {
       role: json['role'] as String?,
       apiDetailUrl: json['api_detail_url'] as String?,
       siteDetailUrl: json['site_detail_url'] as String?,
+      aliases: [
+        for (final alias in (json['aliases'] as List<dynamic>? ?? const []))
+          alias.toString(),
+      ],
+      description: json['description'] as String?,
+      imageUrl: json['image_url'] as String?,
+      firstAppearanceItemId: json['first_appearance_item_id'] as String?,
+      ordinal: json['ordinal'] as int?,
+      publisher: json['publisher'] as String?,
     );
   }
 }

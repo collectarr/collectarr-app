@@ -854,6 +854,71 @@ void main() {
     expect(find.text('Superman, Vol. 4 #9'), findsNothing);
   });
 
+  testWidgets('comics page groups local shelf by story arc and character',
+      (tester) async {
+    final api = _FakeApiClient();
+    tester.view.physicalSize = const Size(1400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          shelfProvider.overrideWith(
+            (ref) async => ShelfState(
+              entries: [
+                ShelfEntry(itemId: 'comic-1', catalogItem: catalogItems[0]),
+                ShelfEntry(itemId: 'comic-2', catalogItem: catalogItems[1]),
+              ],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: ComicsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Story Arcs').last);
+    await tester.pumpAndSettle();
+
+    expect(api.lastStoryArcFacetIds, containsAll(['comic-1', 'comic-2']));
+    expect(find.text('Death of Superman'), findsOneWidget);
+
+    await tester.tap(find.text('Death of Superman'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+    expect(find.text('Superman, Vol. 4 #9'), findsNothing);
+
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Characters').last);
+    await tester.pumpAndSettle();
+
+    expect(api.lastCharacterFacetIds, containsAll(['comic-1', 'comic-2']));
+    expect(find.text('Superman'), findsWidgets);
+
+    await tester.tap(find.text('Superman').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Superman, Vol. 4 #8A'), findsWidgets);
+    expect(find.text('Superman, Vol. 4 #9'), findsNothing);
+  });
+
   testWidgets('comics page filters local shelf by metadata', (tester) async {
     tester.view.physicalSize = const Size(1400, 1400);
     tester.view.devicePixelRatio = 1;
@@ -1041,6 +1106,8 @@ class _FakeApiClient extends ApiClient {
   MetadataSearchQuery? lastSearchQuery;
   String? lastDetailId;
   final lookupBarcodes = <String>[];
+  List<String> lastStoryArcFacetIds = const [];
+  List<String> lastCharacterFacetIds = const [];
 
   @override
   Future<List<Map<String, dynamic>>> searchMetadata(
@@ -1192,6 +1259,37 @@ class _FakeApiClient extends ApiClient {
         },
       ],
     };
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> storyArcFacets(
+    Iterable<String> itemIds,
+  ) async {
+    lastStoryArcFacetIds = itemIds.toList(growable: false);
+    return [
+      {
+        'id': 'arc-1',
+        'name': 'Death of Superman',
+        'item_count': 1,
+        'item_ids': ['comic-1'],
+      },
+    ];
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> characterFacets(
+    Iterable<String> itemIds,
+  ) async {
+    lastCharacterFacetIds = itemIds.toList(growable: false);
+    return [
+      {
+        'id': 'character-1',
+        'name': 'Superman',
+        'item_count': 1,
+        'item_ids': ['comic-1'],
+        'role_counts': {'main': 1},
+      },
+    ];
   }
 
   @override

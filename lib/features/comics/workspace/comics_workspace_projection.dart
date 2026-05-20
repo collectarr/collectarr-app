@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 
 enum ComicsShelfGroupMode {
   series,
+  storyArc,
+  character,
   publisher,
   year,
   grade,
@@ -18,6 +20,8 @@ extension ComicsShelfGroupModeLabels on ComicsShelfGroupMode {
   String get label {
     return switch (this) {
       ComicsShelfGroupMode.series => 'Series',
+      ComicsShelfGroupMode.storyArc => 'Story Arcs',
+      ComicsShelfGroupMode.character => 'Characters',
       ComicsShelfGroupMode.publisher => 'Publisher',
       ComicsShelfGroupMode.year => 'Year',
       ComicsShelfGroupMode.grade => 'Grade',
@@ -29,6 +33,8 @@ extension ComicsShelfGroupModeLabels on ComicsShelfGroupMode {
   IconData get icon {
     return switch (this) {
       ComicsShelfGroupMode.series => Icons.folder,
+      ComicsShelfGroupMode.storyArc => Icons.auto_stories_outlined,
+      ComicsShelfGroupMode.character => Icons.groups_2_outlined,
       ComicsShelfGroupMode.publisher => Icons.business,
       ComicsShelfGroupMode.year => Icons.calendar_month,
       ComicsShelfGroupMode.grade => Icons.workspace_premium,
@@ -83,6 +89,8 @@ class ComicsWorkspaceProjection {
     required ComicsShelfGroupMode groupMode,
     required String? selectedGroup,
     required String? selectedItemId,
+    List<LibrarySeriesBucket>? overrideBuckets,
+    Map<String, Set<String>>? itemIdsByBucket,
   }) {
     final source = [
       for (final entry in entries)
@@ -91,11 +99,15 @@ class ComicsWorkspaceProjection {
           item: _catalogItemForEntry(entry),
         ),
     ];
+    final selectedItemIds =
+        selectedGroup == null ? null : itemIdsByBucket?[selectedGroup];
     final visibleEntries = selectedGroup == null
         ? source
         : source
             .where(
-              (entry) => _entryGroupLabel(entry, groupMode) == selectedGroup,
+              (entry) => selectedItemIds != null
+                  ? selectedItemIds.contains(entry.item.id)
+                  : _entryGroupLabel(entry, groupMode) == selectedGroup,
             )
             .toList(growable: false);
     final visibleItems = [
@@ -103,7 +115,7 @@ class ComicsWorkspaceProjection {
     ];
     return ComicsWorkspaceProjection(
       groupMode: groupMode,
-      groups: _entryGroupBuckets(source, groupMode),
+      groups: overrideBuckets ?? _entryGroupBuckets(source, groupMode),
       selectedGroup: selectedGroup,
       visibleItems: visibleItems,
       selectedItem: _selectedItem(visibleItems, selectedItemId),
@@ -200,6 +212,8 @@ String _entryGroupLabel(
   ComicsShelfGroupMode mode,
 ) {
   return switch (mode) {
+    ComicsShelfGroupMode.storyArc => 'No Story Arc',
+    ComicsShelfGroupMode.character => 'No Character',
     ComicsShelfGroupMode.grade => _nonEmpty(
         source.entry.ownedItem?.grade,
         source.entry.isOwned ? 'Ungraded' : 'Not owned',
@@ -217,6 +231,8 @@ String _itemGroupLabel(CatalogItem item, ComicsShelfGroupMode mode) {
   return switch (mode) {
     ComicsShelfGroupMode.series =>
       item.seriesTitle?.isNotEmpty == true ? item.seriesTitle! : item.title,
+    ComicsShelfGroupMode.storyArc => 'No Story Arc',
+    ComicsShelfGroupMode.character => 'No Character',
     ComicsShelfGroupMode.publisher =>
       _nonEmpty(item.publisher, 'Unknown Publisher'),
     ComicsShelfGroupMode.year => item.releaseYear?.toString() ??
