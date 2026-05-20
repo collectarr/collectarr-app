@@ -610,20 +610,18 @@ void main() {
     await tester.tap(find.byTooltip('Edit comic'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Edit - Superman, Vol. 4'), findsOneWidget);
+    expect(find.textContaining('Edit comic'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Details'), findsOneWidget);
     expect(find.widgetWithText(Tab, 'Value'), findsOneWidget);
     expect(find.widgetWithText(Tab, 'Personal'), findsOneWidget);
     expect(find.text('Cover'), findsOneWidget);
-    expect(find.widgetWithText(Tab, 'Plot'), findsOneWidget);
-    expect(find.widgetWithText(TextField, 'Personal notes'), findsWidgets);
+    expect(find.widgetWithText(Tab, 'Synopsis'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(Tab, 'Personal'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(TextField, 'Quantity'), findsOneWidget);
-    expect(find.widgetWithText(TextField, 'Storage box'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Personal notes'), findsWidgets);
+    expect(find.widgetWithText(TextField, 'Storage'), findsOneWidget);
     expect(find.text('Key comic'), findsOneWidget);
   });
 
@@ -1052,6 +1050,8 @@ void main() {
         itemNumber: '3',
       ),
     ];
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
     tester.view.physicalSize = const Size(1400, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -1060,6 +1060,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          localDatabaseProvider.overrideWithValue(db),
           shelfProvider.overrideWith(
             (ref) async => ShelfState(
               entries: [

@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/generic_library_metadata_refresh
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
@@ -49,14 +50,14 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
   ConsumerState<GenericLibraryPage> createState() => _GenericLibraryPageState();
 }
 
-class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
+class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
+    with LibraryPageUtilities {
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
   String? _selectedId;
   String? _selectedBucket;
   GenericQuickView? _quickView;
   GenericLibraryGroupMode? _groupMode;
-  Map<String, List<String>> _customFieldValuesByItem = const {};
   var _selection = LibrarySelectionState.empty();
   final _facetBucketsByMode = <GenericLibraryGroupMode, _LibraryFacetBuckets>{};
   final _facetLoadsInFlight = <GenericLibraryGroupMode>{};
@@ -70,7 +71,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     super.initState();
     _viewState = _adapter.viewProfile.defaults();
     unawaited(_loadViewState());
-    unawaited(_loadCustomFieldValues());
+    unawaited(loadCustomFieldValues());
   }
 
   @override
@@ -88,7 +89,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
             _viewState?.toPreferenceSnapshot().chrome,
           );
       unawaited(_loadViewState());
-      unawaited(_loadCustomFieldValues());
+      unawaited(loadCustomFieldValues());
     }
   }
 
@@ -102,7 +103,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
     ref.listen<AsyncValue<ShelfState>>(shelfProvider, (_, next) {
-      unawaited(_loadCustomFieldValues());
+      unawaited(loadCustomFieldValues());
       final shelfState = next.asData?.value;
       if (shelfState != null) {
         _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
@@ -299,7 +300,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       groupMode: mode,
       overrideBuckets: facetBuckets?.buckets,
       constrainedItemIds: constrainedItemIds,
-      customFieldValuesByItem: _customFieldValuesByItem,
+      customFieldValuesByItem: customFieldValuesByItem,
     );
   }
 
@@ -420,13 +421,13 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     final arcs = await api.storyArcFacets(shelfItemIds);
     final byBucket = <String, Set<String>>{};
     for (final row in arcs) {
-      final name = _rowText(row, 'name');
+      final name = LibraryPageUtilities.rowText(row, 'name');
       if (name == null) {
         continue;
       }
       final matches = <String>{};
-      for (final itemId in _rowTextList(row, 'item_ids')) {
-        if (itemId != null && shelfItemIds.contains(itemId)) {
+      for (final itemId in LibraryPageUtilities.rowTextList(row, 'item_ids')) {
+        if (shelfItemIds.contains(itemId)) {
           matches.add(itemId);
         }
       }
@@ -449,13 +450,13 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     final characters = await api.characterFacets(shelfItemIds);
     final byBucket = <String, Set<String>>{};
     for (final row in characters) {
-      final name = _rowText(row, 'name');
+      final name = LibraryPageUtilities.rowText(row, 'name');
       if (name == null) {
         continue;
       }
       final matches = <String>{};
-      for (final itemId in _rowTextList(row, 'item_ids')) {
-        if (itemId != null && shelfItemIds.contains(itemId)) {
+      for (final itemId in LibraryPageUtilities.rowTextList(row, 'item_ids')) {
+        if (shelfItemIds.contains(itemId)) {
           matches.add(itemId);
         }
       }
@@ -512,26 +513,6 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     return ids.join('|');
   }
 
-  String? _rowText(Map<String, dynamic> row, String key) {
-    final value = row[key];
-    if (value == null) {
-      return null;
-    }
-    final text = value.toString().trim();
-    return text.isEmpty ? null : text;
-  }
-
-  List<String?> _rowTextList(Map<String, dynamic> row, String key) {
-    final value = row[key];
-    if (value is! Iterable) {
-      return const [];
-    }
-    return [
-      for (final item in value)
-        if (item != null) item.toString().trim(),
-    ];
-  }
-
   void _clearFilters() {
     setState(() {
       _selectedBucket = null;
@@ -553,22 +534,6 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     final state = await _adapter.viewProfile.load();
     if (mounted) {
       setState(() => _viewState = state);
-    }
-  }
-
-  Future<void> _loadCustomFieldValues() async {
-    final db = ref.read(localDatabaseProvider);
-    final repo = CustomFieldRepository(db);
-    final allValues = await repo.listAllValues();
-    final flat = <String, List<String>>{};
-    for (final entry in allValues.entries) {
-      flat[entry.key] = [
-        for (final v in entry.value)
-          if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
-      ];
-    }
-    if (mounted) {
-      setState(() => _customFieldValuesByItem = flat);
     }
   }
 
@@ -719,7 +684,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       return;
     }
     ref.invalidate(shelfProvider);
-    unawaited(_loadCustomFieldValues());
+    unawaited(loadCustomFieldValues());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${widget.type.singularLabel} updated')),
     );

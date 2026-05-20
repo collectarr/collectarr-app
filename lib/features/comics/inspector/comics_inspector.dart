@@ -13,8 +13,10 @@ import 'package:collectarr_app/features/comics/inspector/comics_inspector_format
 import 'package:collectarr_app/features/comics/comics_personal_details_editor.dart';
 import 'package:collectarr_app/features/comics/inspector/comics_rich_metadata_inspector.dart';
 import 'package:collectarr_app/features/comics/metadata_correction_dialog.dart';
-import 'package:collectarr_app/features/comics/owned_comic_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/generic_library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/library_item_state.dart';
+import 'package:collectarr_app/features/library/library_kind_style.dart';
+import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:flutter/material.dart';
@@ -234,14 +236,18 @@ class ComicInspector extends ConsumerWidget {
     final cfValues = await customFieldRepo.listValuesForItem(ownedItem.id);
     final images = await itemImageRepo.listForItem(ownedItem.id);
     if (!context.mounted) return;
-    final selection = await showDialog<OwnedComicEditSelection>(
+    final catalog = ref.read(mediaCatalogProvider).maybeWhen(
+          data: (value) => value,
+          orElse: () => fallbackMediaCatalog,
+        );
+    final selection = await showDialog<GenericLibraryEditSelection>(
       context: context,
-      builder: (context) => OwnedComicEditDialog(
+      builder: (context) => GenericLibraryEditDialog(
+        type: comicsLibraryConfig,
         item: item,
         ownedItem: ownedItem,
-        conditions: conditions,
-        grades: grades,
-        cover: _CoverImage(item: item),
+        accent: libraryAccentForKind('comic'),
+        physicalFormats: physicalMediaFormatsForKind(catalog, 'comic'),
         customFieldDefinitions: definitions,
         customFieldValues: cfValues,
         itemImages: images,
@@ -250,33 +256,40 @@ class ComicInspector extends ConsumerWidget {
     if (selection == null) {
       return;
     }
-    await ref.read(collectionMutationsProvider).updateItem(
-          ownedItem,
-          condition: selection.condition,
-          grade: selection.grade,
-          purchaseDate: selection.purchaseDate,
-          pricePaidCents: selection.pricePaidCents,
-          currency: selection.currency,
-          personalNotes: selection.personalNotes,
-          quantity: selection.quantity,
-          storageBox: selection.storageBox,
-          indexNumber: selection.indexNumber,
-          coverPriceCents: selection.coverPriceCents,
-          rawOrSlabbed: selection.rawOrSlabbed,
-          gradingCompany: selection.gradingCompany,
-          graderNotes: selection.graderNotes,
-          signedBy: selection.signedBy,
-          keyComic: selection.keyComic,
-          keyReason: selection.keyReason,
-          rating: selection.rating,
-          readStatus: selection.readStatus,
-          startedAt: selection.startedAt,
-          finishedAt: selection.finishedAt,
-          tags: selection.tags,
-          soldAt: selection.soldAt,
-          sellPriceCents: selection.sellPriceCents,
-          soldTo: selection.soldTo,
+    await ref.read(collectionMutationsProvider).updateCatalogSnapshot(
+          selection.catalogItem,
+          notify: false,
         );
+    final personal = selection.personal;
+    if (personal != null) {
+      await ref.read(collectionMutationsProvider).updateItem(
+            ownedItem,
+            condition: personal.condition,
+            grade: personal.grade,
+            purchaseDate: personal.purchaseDate,
+            pricePaidCents: personal.pricePaidCents,
+            currency: personal.currency,
+            personalNotes: personal.personalNotes,
+            quantity: personal.quantity,
+            storageBox: personal.storageBox,
+            indexNumber: ownedItem.indexNumber,
+            coverPriceCents: personal.coverPriceCents ?? ownedItem.coverPriceCents,
+            rawOrSlabbed: personal.rawOrSlabbed ?? ownedItem.rawOrSlabbed,
+            gradingCompany: personal.gradingCompany ?? ownedItem.gradingCompany,
+            graderNotes: personal.graderNotes ?? ownedItem.graderNotes,
+            signedBy: personal.signedBy ?? ownedItem.signedBy,
+            keyComic: personal.keyComic ?? ownedItem.keyComic,
+            keyReason: personal.keyReason ?? ownedItem.keyReason,
+            rating: personal.rating,
+            readStatus: personal.readStatus,
+            startedAt: personal.startedAt,
+            finishedAt: personal.finishedAt,
+            tags: personal.tags,
+            soldAt: personal.soldAt,
+            sellPriceCents: personal.sellPriceCents,
+            soldTo: personal.soldTo,
+          );
+    }
     // Save custom field values
     final now = DateTime.now();
     final cfList = selection.customFieldEdits.entries.map((e) {

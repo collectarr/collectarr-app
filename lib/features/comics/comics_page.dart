@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/comics/comics_barcode_add_workflow.dart';
@@ -11,8 +10,8 @@ import 'package:collectarr_app/features/comics/comics_filter_store.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_grouping_store.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
-import 'package:collectarr_app/features/comics/comics_page_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_page_dialogs.dart';
+import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/comics/comics_page_state.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_projection.dart';
@@ -21,6 +20,7 @@ import 'package:collectarr_app/features/comics/workspace/comics_workspace_projec
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/library_kind_style.dart';
+import 'package:collectarr_app/features/library/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
@@ -49,10 +49,10 @@ class ComicsPage extends ConsumerStatefulWidget {
   ConsumerState<ComicsPage> createState() => _ComicsPageState();
 }
 
-class _ComicsPageState extends ConsumerState<ComicsPage> {
+class _ComicsPageState extends ConsumerState<ComicsPage>
+    with LibraryPageUtilities {
   ComicsPageUiState pageState = ComicsPageUiState.initial();
   late final TextEditingController _controller;
-  Map<String, List<String>> _customFieldValuesByItem = const {};
   final _facetBucketsByMode = <ComicsShelfGroupMode, _ComicsFacetBuckets>{};
   final _facetLoadsInFlight = <ComicsShelfGroupMode>{};
 
@@ -63,7 +63,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     _loadViewPreferences();
     _loadFilterPreferences();
     _loadGroupingPreference();
-    unawaited(_loadCustomFieldValues());
+    unawaited(loadCustomFieldValues());
   }
 
   @override
@@ -75,7 +75,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
-    ref.listen(shelfProvider, (_, __) => unawaited(_loadCustomFieldValues()));
+    ref.listen(shelfProvider, (_, __) => unawaited(loadCustomFieldValues()));
 
     return Scaffold(
       backgroundColor: _kClzCanvas,
@@ -93,7 +93,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                     state: state,
                     query: uiState.query,
                     filters: uiState.filterSelection,
-                    customFieldValuesByItem: _customFieldValuesByItem,
+                    customFieldValuesByItem: customFieldValuesByItem,
                   ),
                 ),
               );
@@ -256,56 +256,78 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     setState(() => pageState = pageState.withoutSelection());
   }
 
+  List<ShelfEntry> _selectedEntries(List<ShelfEntry> visibleEntries) {
+    final ids = pageState.selectionState.itemIds;
+    return [
+      for (final entry in visibleEntries)
+        if (ids.contains(entry.itemId)) entry,
+    ];
+  }
+
   Future<void> _showBulkEditDialog(
     BuildContext context,
     List<ShelfEntry> visibleEntries,
   ) async {
-    final changed = await showComicsBulkEditDialog(
+    final entries = _selectedEntries(visibleEntries);
+    if (entries.isEmpty) return;
+    final selection = await showDialog<LibraryBulkEditSelection>(
       context: context,
-      actions: _bulkActions(),
-      visibleEntries: visibleEntries,
-      selectedItemIds: pageState.selectionState.itemIds,
+      builder: (context) => LibraryBulkEditDialog(
+        type: comicsLibraryConfig,
+        selectedCount: entries.length,
+      ),
     );
-    if (changed && mounted) {
-      _clearSelection();
-    }
+    if (selection == null || !mounted) return;
+    await _bulkActions().editSelected(entries: entries, selection: selection);
+    _clearSelection();
   }
 
   Future<void> _bulkMoveToOwned(List<ShelfEntry> visibleEntries) async {
-    final changed = await moveSelectedComicsToOwned(
-      actions: _bulkActions(),
-      visibleEntries: visibleEntries,
-      selectedItemIds: pageState.selectionState.itemIds,
+    final entries = _selectedEntries(visibleEntries);
+    if (entries.isEmpty) return;
+    await _bulkActions().moveSelectedToOwned(
+      entries,
+      defaultCondition: comicsLibraryConfig.defaultCondition,
+      defaultGrade: comicsLibraryConfig.defaultGrade,
     );
-    if (changed && mounted) {
-      _clearSelection();
-    }
+    if (mounted) _clearSelection();
   }
 
   Future<void> _bulkMoveToWishlist(List<ShelfEntry> visibleEntries) async {
-    final changed = await moveSelectedComicsToWishlist(
-      actions: _bulkActions(),
-      visibleEntries: visibleEntries,
-      selectedItemIds: pageState.selectionState.itemIds,
-    );
-    if (changed && mounted) {
-      _clearSelection();
-    }
+    final entries = _selectedEntries(visibleEntries);
+    if (entries.isEmpty) return;
+    await _bulkActions().moveSelectedToWishlist(entries);
+    if (mounted) _clearSelection();
   }
 
   Future<void> _bulkRemove(
     BuildContext context,
     List<ShelfEntry> visibleEntries,
   ) async {
-    final changed = await confirmAndRemoveSelectedComics(
+    final entries = _selectedEntries(visibleEntries);
+    if (entries.isEmpty) return;
+    final confirmed = await showDialog<bool>(
       context: context,
-      actions: _bulkActions(),
-      visibleEntries: visibleEntries,
-      selectedItemIds: pageState.selectionState.itemIds,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove selected comics?'),
+        content: Text(
+          'This removes ${entries.length} selected item${entries.length == 1 ? '' : 's'} from the local shelf and queues the change for sync.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
     );
-    if (changed && mounted) {
-      _clearSelection();
-    }
+    if (confirmed != true || !mounted) return;
+    await _bulkActions().removeSelected(entries);
+    _clearSelection();
   }
 
   LibraryBulkActions _bulkActions() {
@@ -479,22 +501,6 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     );
   }
 
-  Future<void> _loadCustomFieldValues() async {
-    final db = ref.read(localDatabaseProvider);
-    final repo = CustomFieldRepository(db);
-    final allValues = await repo.listAllValues();
-    final flat = <String, List<String>>{};
-    for (final entry in allValues.entries) {
-      flat[entry.key] = [
-        for (final v in entry.value)
-          if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
-      ];
-    }
-    if (mounted) {
-      setState(() => _customFieldValuesByItem = flat);
-    }
-  }
-
   void _setWorkspaceViewState(ComicsWorkspaceViewState next) {
     setState(
       () => pageState = pageState.copyWith(workspaceViewState: next),
@@ -634,26 +640,11 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     return ids.join('|');
   }
 
-  String? _rowText(Map<String, dynamic> row, String key) {
-    final value = row[key];
-    if (value == null) {
-      return null;
-    }
-    final text = value.toString().trim();
-    return text.isEmpty ? null : text;
-  }
+  String? _rowText(Map<String, dynamic> row, String key) =>
+      LibraryPageUtilities.rowText(row, key);
 
-  List<String> _rowTextList(Map<String, dynamic> row, String key) {
-    final value = row[key];
-    if (value is! Iterable) {
-      return const [];
-    }
-    return [
-      for (final item in value)
-        if (item != null && item.toString().trim().isNotEmpty)
-          item.toString().trim(),
-    ];
-  }
+  List<String> _rowTextList(Map<String, dynamic> row, String key) =>
+      LibraryPageUtilities.rowTextList(row, key);
 }
 
 class _ErrorState extends StatelessWidget {
