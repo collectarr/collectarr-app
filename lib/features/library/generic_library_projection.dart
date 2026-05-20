@@ -10,7 +10,15 @@ import 'package:flutter/material.dart';
 export 'generic_library_projection_item.dart';
 export 'generic_library_quick_view.dart';
 
-enum GenericLibraryGroupMode { series, title, publisher, year, ownership }
+enum GenericLibraryGroupMode {
+  series,
+  storyArc,
+  character,
+  title,
+  publisher,
+  year,
+  ownership,
+}
 
 String genericGroupModeLabel(
   GenericLibraryGroupMode mode,
@@ -18,6 +26,8 @@ String genericGroupModeLabel(
 ) {
   return switch (mode) {
     GenericLibraryGroupMode.series => 'Series',
+    GenericLibraryGroupMode.storyArc => 'Story Arc',
+    GenericLibraryGroupMode.character => 'Character',
     GenericLibraryGroupMode.title => 'Title',
     GenericLibraryGroupMode.publisher =>
       type.workspace.kind == 'music' ? 'Artist' : 'Publisher',
@@ -32,6 +42,8 @@ String genericGroupModeSidebarTitle(
 ) {
   return switch (mode) {
     GenericLibraryGroupMode.series => 'Series',
+    GenericLibraryGroupMode.storyArc => 'Story Arcs',
+    GenericLibraryGroupMode.character => 'Characters',
     GenericLibraryGroupMode.title => 'Titles',
     GenericLibraryGroupMode.publisher =>
       type.workspace.kind == 'music' ? 'Artists' : 'Publishers',
@@ -43,6 +55,8 @@ String genericGroupModeSidebarTitle(
 IconData genericGroupModeIcon(GenericLibraryGroupMode mode) {
   return switch (mode) {
     GenericLibraryGroupMode.series => Icons.collections_bookmark_outlined,
+    GenericLibraryGroupMode.storyArc => Icons.auto_stories_outlined,
+    GenericLibraryGroupMode.character => Icons.groups_2_outlined,
     GenericLibraryGroupMode.title => Icons.sort_by_alpha,
     GenericLibraryGroupMode.publisher => Icons.business_outlined,
     GenericLibraryGroupMode.year => Icons.calendar_today_outlined,
@@ -62,8 +76,18 @@ List<GenericLibraryGroupMode> genericGroupModesForType(
       GenericLibraryGroupMode.ownership,
     ];
   }
-  if (type.workspace.kind == 'anime' ||
-      type.workspace.kind == 'tv') {
+  if (type.workspace.kind == 'comic') {
+    return [
+      GenericLibraryGroupMode.series,
+      GenericLibraryGroupMode.storyArc,
+      GenericLibraryGroupMode.character,
+      GenericLibraryGroupMode.publisher,
+      GenericLibraryGroupMode.year,
+      GenericLibraryGroupMode.title,
+      GenericLibraryGroupMode.ownership,
+    ];
+  }
+  if (type.workspace.kind == 'anime' || type.workspace.kind == 'tv') {
     return [
       GenericLibraryGroupMode.series,
       GenericLibraryGroupMode.year,
@@ -132,6 +156,8 @@ class GenericLibraryProjection {
     required String? selectedItemId,
     required GenericQuickView? quickView,
     required GenericLibraryGroupMode groupMode,
+    List<LibrarySeriesBucket>? overrideBuckets,
+    Set<String>? constrainedItemIds,
     Map<String, List<String>> customFieldValuesByItem = const {},
   }) {
     final allItems = genericItemsForShelf(shelf, type);
@@ -139,6 +165,7 @@ class GenericLibraryProjection {
     final filteredItems = [
       for (final item in allItems)
         if (_matchesBucket(item, type, groupMode, selectedBucket) &&
+            _matchesConstrainedItemIds(item, constrainedItemIds) &&
             _matchesQuickView(item, quickView) &&
             _matchesQuery(
               item,
@@ -159,7 +186,8 @@ class GenericLibraryProjection {
     return GenericLibraryProjection(
       allItems: allItems,
       filteredItems: filteredItems,
-      buckets: genericBucketsForItems(allItems, type, groupMode),
+      buckets:
+          overrideBuckets ?? genericBucketsForItems(allItems, type, groupMode),
       selectedItem: genericSelectedItem(filteredItems, selectedItemId),
       counts: counts,
     );
@@ -227,6 +255,8 @@ String genericBucketForItemMode(
   final publisher = entry.publisher?.trim();
   return switch (groupMode) {
     GenericLibraryGroupMode.series => _seriesBucket(entry),
+    GenericLibraryGroupMode.storyArc => 'Story arc',
+    GenericLibraryGroupMode.character => 'Character',
     GenericLibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
     GenericLibraryGroupMode.publisher => publisher == null || publisher.isEmpty
@@ -269,6 +299,14 @@ bool _matchesBucket(
 ) {
   return selectedBucket == null ||
       genericBucketForItemMode(item, type, groupMode) == selectedBucket;
+}
+
+bool _matchesConstrainedItemIds(
+  GenericLibraryItem item,
+  Set<String>? constrainedItemIds,
+) {
+  return constrainedItemIds == null ||
+      constrainedItemIds.contains(item.entry.id);
 }
 
 bool _matchesQuickView(GenericLibraryItem item, GenericQuickView? quickView) {

@@ -25,7 +25,9 @@ import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,6 +58,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   GenericLibraryGroupMode? _groupMode;
   Map<String, List<String>> _customFieldValuesByItem = const {};
   var _selection = LibrarySelectionState.empty();
+  final _facetBucketsByMode = <GenericLibraryGroupMode, _LibraryFacetBuckets>{};
+  final _facetLoadsInFlight = <GenericLibraryGroupMode>{};
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -77,6 +81,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       _selectedBucket = null;
       _quickView = null;
       _groupMode = null;
+      _facetBucketsByMode.clear();
+      _facetLoadsInFlight.clear();
       _searchController.clear();
       _viewState = _adapter.viewProfile.defaults().withChrome(
             _viewState?.toPreferenceSnapshot().chrome,
@@ -95,9 +101,18 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
-    ref.listen(shelfProvider, (_, __) => unawaited(_loadCustomFieldValues()));
+    ref.listen<AsyncValue<ShelfState>>(shelfProvider, (_, next) {
+      unawaited(_loadCustomFieldValues());
+      final shelfState = next.asData?.value;
+      if (shelfState != null) {
+        _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
+      }
+    });
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final shelfState = shelf.asData?.value;
+    if (shelfState != null) {
+      _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
+    }
     final projection = shelfState == null
         ? null
         : _projectionForShelf(
@@ -148,17 +163,17 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                 }),
                 hasActiveFilters: _hasActiveFilter,
                 onClearFilters: _clearFilters,
-                onRandomPick: projection != null &&
-                        projection.filteredItems.isNotEmpty
-                    ? () => _pickRandomItem(projection)
-                    : null,
+                onRandomPick:
+                    projection != null && projection.filteredItems.isNotEmpty
+                        ? () => _pickRandomItem(projection)
+                        : null,
                 counts: projection?.counts ?? const GenericToolbarCounts(),
                 shelfState: shelfState,
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
                 selectionCallbacks: (
-                  onSelectionModeChanged: (enabled) =>
-                      setState(() => _selection = _selection.setEnabled(enabled)),
+                  onSelectionModeChanged: (enabled) => setState(
+                      () => _selection = _selection.setEnabled(enabled)),
                   onClearSelection: () =>
                       setState(() => _selection = _selection.clear()),
                   onBulkEdit: () => _bulkEdit(projection),
@@ -197,6 +212,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       selectedId: _selectedId,
       selectedBucket: _selectedBucket,
       groupMode: _activeGroupMode,
+      groupLoading: _facetLoadsInFlight.contains(_activeGroupMode),
       accent: widget.accent,
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => _showAddDialog(),
@@ -212,6 +228,10 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       onGroupModeChanged: (mode) => setState(() {
         _groupMode = mode;
         _selectedBucket = null;
+        final shelfState = ref.read(shelfProvider).asData?.value;
+        if (shelfState != null) {
+          _ensureFacetBucketsLoaded(shelfState, mode);
+        }
       }),
       onSortChanged: (column) => _updateViewState(
         (state) => state.withSortColumn(column, _adapter.viewProfile),
@@ -262,15 +282,23 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     ShelfState shelf,
     LibraryWorkspaceViewState viewState,
   ) {
+    final mode = _activeGroupMode;
+    final facetBuckets = _facetBucketsForMode(mode, shelf);
+    final constrainedItemIds =
+        (_usesExternalFacetBuckets(mode) && _selectedBucket != null)
+            ? facetBuckets?.itemIdsByBucket[_selectedBucket!]
+            : null;
     return GenericLibraryProjection.fromShelf(
       shelf: shelf,
       type: widget.type,
       viewState: viewState,
       query: _searchController.text,
-      selectedBucket: _selectedBucket,
+      selectedBucket: _usesExternalFacetBuckets(mode) ? null : _selectedBucket,
       selectedItemId: _selectedId,
       quickView: _quickView,
-      groupMode: _activeGroupMode,
+      groupMode: mode,
+      overrideBuckets: facetBuckets?.buckets,
+      constrainedItemIds: constrainedItemIds,
       customFieldValuesByItem: _customFieldValuesByItem,
     );
   }
@@ -282,6 +310,222 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       _searchController.text.trim().isNotEmpty ||
       _selectedBucket != null ||
       _quickView != null;
+
+  bool _usesExternalFacetBuckets(GenericLibraryGroupMode mode) {
+    if (widget.type.workspace.kind != 'comic') {
+      return false;
+    }
+    return mode == GenericLibraryGroupMode.storyArc ||
+        mode == GenericLibraryGroupMode.character;
+  }
+
+  _LibraryFacetBuckets? _facetBucketsForMode(
+    GenericLibraryGroupMode mode,
+    ShelfState shelf,
+  ) {
+    if (!_usesExternalFacetBuckets(mode)) {
+      return null;
+    }
+    final signature = _shelfSignature(shelf);
+    final cached = _facetBucketsByMode[mode];
+    if (cached != null && cached.shelfSignature == signature) {
+      return cached;
+    }
+    return _LibraryFacetBuckets(
+      shelfSignature: signature,
+      buckets: [
+        LibrarySeriesBucket(
+          title: genericAllBucketLabel(widget.type),
+          count: genericItemsForShelf(shelf, widget.type).length,
+        ),
+      ],
+      itemIdsByBucket: const {},
+    );
+  }
+
+  void _ensureFacetBucketsLoaded(
+    ShelfState shelf,
+    GenericLibraryGroupMode mode,
+  ) {
+    if (!_usesExternalFacetBuckets(mode)) {
+      return;
+    }
+    final signature = _shelfSignature(shelf);
+    final cached = _facetBucketsByMode[mode];
+    if (cached != null && cached.shelfSignature == signature) {
+      return;
+    }
+    if (_facetLoadsInFlight.contains(mode)) {
+      return;
+    }
+    _facetLoadsInFlight.add(mode);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    unawaited(_loadFacetBuckets(mode, shelf, signature));
+  }
+
+  Future<void> _loadFacetBuckets(
+    GenericLibraryGroupMode mode,
+    ShelfState shelf,
+    String signature,
+  ) async {
+    final shelfItems = genericItemsForShelf(shelf, widget.type);
+    final shelfItemIds = {
+      for (final item in shelfItems) item.entry.id,
+    };
+    try {
+      final buckets = switch (mode) {
+        GenericLibraryGroupMode.storyArc => await _fetchStoryArcBuckets(
+            signature: signature,
+            shelfItemIds: shelfItemIds,
+          ),
+        GenericLibraryGroupMode.character => await _fetchCharacterBuckets(
+            signature: signature,
+            shelfItemIds: shelfItemIds,
+          ),
+        _ => null,
+      };
+      if (buckets == null || !mounted) {
+        return;
+      }
+      final latestShelf = ref.read(shelfProvider).asData?.value;
+      if (latestShelf == null || _shelfSignature(latestShelf) != signature) {
+        return;
+      }
+      setState(() {
+        _facetBucketsByMode[mode] = buckets;
+        if (_selectedBucket != null &&
+            !buckets.buckets.any((bucket) => bucket.title == _selectedBucket)) {
+          _selectedBucket = null;
+        }
+      });
+    } catch (_) {
+      // Keep fallback grouping ([All ...]) when facets fail to load.
+    } finally {
+      _facetLoadsInFlight.remove(mode);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  Future<_LibraryFacetBuckets> _fetchStoryArcBuckets({
+    required String signature,
+    required Set<String> shelfItemIds,
+  }) async {
+    final api = ref.read(apiClientProvider);
+    final arcs = await api.searchStoryArcs(limit: 200);
+    final byBucket = <String, Set<String>>{};
+    for (final row in arcs) {
+      final storyArcId = _rowText(row, 'id');
+      final name = _rowText(row, 'name');
+      if (storyArcId == null || name == null) {
+        continue;
+      }
+      final links = await api.getStoryArcItems(storyArcId);
+      final matches = <String>{};
+      for (final link in links) {
+        final itemId = _rowText(link, 'item_id');
+        if (itemId != null && shelfItemIds.contains(itemId)) {
+          matches.add(itemId);
+        }
+      }
+      if (matches.isNotEmpty) {
+        byBucket.putIfAbsent(name, () => <String>{}).addAll(matches);
+      }
+    }
+    return _buildFacetBuckets(
+      signature: signature,
+      shelfItemCount: shelfItemIds.length,
+      byBucket: byBucket,
+    );
+  }
+
+  Future<_LibraryFacetBuckets> _fetchCharacterBuckets({
+    required String signature,
+    required Set<String> shelfItemIds,
+  }) async {
+    final api = ref.read(apiClientProvider);
+    final characters = await api.searchCharacters(limit: 200);
+    final byBucket = <String, Set<String>>{};
+    for (final row in characters) {
+      final characterId = _rowText(row, 'id');
+      final name = _rowText(row, 'name');
+      if (characterId == null || name == null) {
+        continue;
+      }
+      final appearances = await api.getCharacterAppearances(characterId);
+      final matches = <String>{};
+      for (final link in appearances) {
+        final itemId = _rowText(link, 'item_id');
+        if (itemId != null && shelfItemIds.contains(itemId)) {
+          matches.add(itemId);
+        }
+      }
+      if (matches.isNotEmpty) {
+        byBucket.putIfAbsent(name, () => <String>{}).addAll(matches);
+      }
+    }
+    return _buildFacetBuckets(
+      signature: signature,
+      shelfItemCount: shelfItemIds.length,
+      byBucket: byBucket,
+    );
+  }
+
+  _LibraryFacetBuckets _buildFacetBuckets({
+    required String signature,
+    required int shelfItemCount,
+    required Map<String, Set<String>> byBucket,
+  }) {
+    final buckets = <LibrarySeriesBucket>[
+      LibrarySeriesBucket(
+        title: genericAllBucketLabel(widget.type),
+        count: shelfItemCount,
+      ),
+      for (final entry in byBucket.entries)
+        LibrarySeriesBucket(
+          title: entry.key,
+          count: entry.value.length,
+        ),
+    ];
+    if (buckets.length > 1) {
+      final header = buckets.first;
+      final rest = buckets.sublist(1)
+        ..sort(
+          (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+        );
+      buckets
+        ..clear()
+        ..add(header)
+        ..addAll(rest);
+    }
+    return _LibraryFacetBuckets(
+      shelfSignature: signature,
+      buckets: buckets,
+      itemIdsByBucket: byBucket,
+    );
+  }
+
+  String _shelfSignature(ShelfState shelf) {
+    final ids = [
+      for (final item in genericItemsForShelf(shelf, widget.type))
+        item.entry.id,
+    ]..sort();
+    return ids.join('|');
+  }
+
+  String? _rowText(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value == null) {
+      return null;
+    }
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
 
   void _clearFilters() {
     setState(() {
@@ -380,9 +624,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     final cfValues = owned != null
         ? await customFieldRepo.listValuesForItem(owned.id)
         : <dynamic>[];
-    final images = owned != null
-        ? await itemImageRepo.listForItem(owned.id)
-        : <dynamic>[];
+    final images =
+        owned != null ? await itemImageRepo.listForItem(owned.id) : <dynamic>[];
     if (!mounted) return;
     final result = await showDialog<GenericLibraryEditSelection>(
       context: context,
@@ -612,4 +855,16 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     setState(() => _selection = _selection.clear());
     ref.invalidate(shelfProvider);
   }
+}
+
+class _LibraryFacetBuckets {
+  const _LibraryFacetBuckets({
+    required this.shelfSignature,
+    required this.buckets,
+    required this.itemIdsByBucket,
+  });
+
+  final String shelfSignature;
+  final List<LibrarySeriesBucket> buckets;
+  final Map<String, Set<String>> itemIdsByBucket;
 }

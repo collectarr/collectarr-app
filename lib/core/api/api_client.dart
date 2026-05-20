@@ -656,6 +656,78 @@ class ApiClient {
         .toList(growable: false);
   }
 
+  Future<List<Map<String, dynamic>>> searchStoryArcs({
+    String? query,
+    int limit = 50,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/story-arcs',
+      queryParameters: {
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        'limit': limit,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
+  }
+
+  Future<List<Map<String, dynamic>>> getStoryArcItems(String storyArcId) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/story-arcs/${Uri.encodeComponent(storyArcId)}/items',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
+  }
+
+  Future<List<Map<String, dynamic>>> searchCharacters({
+    String? query,
+    int limit = 50,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/characters',
+      queryParameters: {
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        'limit': limit,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
+  }
+
+  Future<List<Map<String, dynamic>>> getCharacterAppearances(
+    String characterId,
+  ) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/characters/${Uri.encodeComponent(characterId)}/appearances',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
+  }
+
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
       {String? kind}) async {
     final response = await _dio.get<Map<String, dynamic>>(
