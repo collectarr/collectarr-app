@@ -112,7 +112,9 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final shelfState = shelf.asData?.value;
     if (shelfState != null) {
-      _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
+      });
     }
     final projection = shelfState == null
         ? null
@@ -403,8 +405,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           _selectedBucket = null;
         }
       });
-    } catch (_) {
-      // Keep fallback grouping ([All ...]) when facets fail to load.
+    } catch (e, st) {
+      debugPrint('Facet load failed for $mode: $e\n$st');
     } finally {
       _facetLoadsInFlight.remove(mode);
       if (mounted) {
@@ -510,7 +512,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       for (final item in genericItemsForShelf(shelf, widget.type))
         item.entry.id,
     ]..sort();
-    return ids.join('|');
+    return '${ids.length}:${Object.hashAll(ids)}';
   }
 
   void _clearFilters() {
