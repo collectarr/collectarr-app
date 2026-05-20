@@ -125,32 +125,34 @@ class EditSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(11),
-      decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
         color: const Color(0xFF202426),
-        border: Border(
+        shape: Border(
           left: BorderSide(color: accent, width: 2),
           top: const BorderSide(color: Color(0xFF3D3D3D)),
           right: const BorderSide(color: Color(0xFF3D3D3D)),
           bottom: const BorderSide(color: Color(0xFF3D3D3D)),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: accent,
-              fontWeight: FontWeight.w900,
-              fontSize: 13,
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(11),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: accent,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 9),
+              child,
+            ],
           ),
-          const SizedBox(height: 9),
-          child,
-        ],
+        ),
       ),
     );
   }

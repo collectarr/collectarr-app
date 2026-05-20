@@ -396,10 +396,10 @@ class _ColumnGroupPanel extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainer,
-          border: Border.all(color: colorScheme.outlineVariant),
+      child: Material(
+        color: colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: colorScheme.outlineVariant),
           borderRadius: BorderRadius.circular(3),
         ),
         child: ExpansionTile(

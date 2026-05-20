@@ -617,12 +617,14 @@ void main() {
     expect(find.text('Cover'), findsOneWidget);
     expect(find.widgetWithText(Tab, 'Synopsis'), findsOneWidget);
 
+    // Key comic is in the Main tab's grading section (visible by default).
+    expect(find.text('Key comic'), findsOneWidget);
+
     await tester.tap(find.widgetWithText(Tab, 'Personal'));
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(TextField, 'Personal notes'), findsWidgets);
     expect(find.widgetWithText(TextField, 'Storage'), findsOneWidget);
-    expect(find.text('Key comic'), findsOneWidget);
   });
 
   testWidgets('comics page filters local shelf by ownership', (tester) async {
