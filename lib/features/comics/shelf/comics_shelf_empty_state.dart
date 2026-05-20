@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
-import 'package:collectarr_app/features/library/generic_library_empty_state.dart';
-import 'package:collectarr_app/features/library/library_kind_style.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_empty_state.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:flutter/material.dart';
 
 class ComicsEmptyState extends StatelessWidget {

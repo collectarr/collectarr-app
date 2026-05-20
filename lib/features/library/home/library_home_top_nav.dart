@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/home/library_home_counts.dart';
 import 'package:collectarr_app/features/library/home/library_home_nav_button.dart';
 import 'package:collectarr_app/features/library/home/library_home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/library_home_overflow_menu.dart';
-import 'package:collectarr_app/features/library/library_kind_style.dart';
-import 'package:collectarr_app/features/library/library_type_registry.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:flutter/material.dart';
 
 class MediaLibraryNav extends StatelessWidget {
@@ -51,27 +51,28 @@ class MediaLibraryNav extends StatelessWidget {
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 132,
-            child: Row(
-              children: [
-                const SizedBox(width: 10),
-                Icon(selectedIcon, size: 20, color: Colors.white),
-                const SizedBox(width: 7),
-                Expanded(
-                  child: Text(
-                    selected.pluralLabel,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 120),
+            child: IntrinsicWidth(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10, right: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(selectedIcon, size: 20, color: Colors.white),
+                    const SizedBox(width: 7),
+                    Text(
+                      selected.pluralLabel,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-              ],
+              ),
             ),
           ),
           Container(width: 1, height: 24, color: Colors.white24),

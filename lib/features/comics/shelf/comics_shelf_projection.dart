@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

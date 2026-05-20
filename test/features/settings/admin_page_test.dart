@@ -25,8 +25,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    // ─── Dashboard tab (default) ───
     expect(find.text('Metadata dashboard'), findsOneWidget);
-    expect(find.text('Canonical catalog browser'), findsOneWidget);
     expect(find.text('1 providers live'), findsOneWidget);
     expect(find.text('3 providers registered'), findsOneWidget);
     expect(find.text('12 items'), findsOneWidget);
@@ -43,12 +43,23 @@ void main() {
 
     expect(api.reindexCount, 1);
     expect(find.text('Reindexed 12'), findsOneWidget);
+
+    // ─── Logs tab ───
+    await tester.tap(find.text('Logs'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Search index history'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
 
     await _scrollUntilVisible(tester, find.text('Admin audit log'));
     expect(find.text('metadata.correction'), findsOneWidget);
     expect(find.text('admin@example.com'), findsOneWidget);
+
+    // ─── Catalog tab ───
+    await tester.tap(find.text('Catalog'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Canonical catalog browser'), findsOneWidget);
 
     await _scrollUntilVisible(
       tester,
@@ -78,6 +89,48 @@ void main() {
 
     expect(api.lastCatalogUpdateTitle, 'Absolute Batman Deluxe');
     expect(find.text('Metadata correction saved.'), findsOneWidget);
+
+    // Inspect + duplicates (also on Catalog tab)
+    await tester.ensureVisible(
+        find.widgetWithText(OutlinedButton, 'Inspect').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Absolute Batman #1A'), findsWidgets);
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Inspect').first);
+    await tester.pumpAndSettle();
+
+    expect(api.lastInspectKind, 'comic');
+    expect(api.lastInspectId, 'item-1');
+    expect(find.text('Inspect: Absolute Batman #1B'), findsOneWidget);
+    expect(find.text('Absolute Batman #1B'), findsOneWidget);
+    expect(find.text('Provider links'), findsOneWidget);
+    expect(find.text('Item audit history'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Close'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Merge into first'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Merge into first'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Merge review:'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Type MERGE to confirm'),
+      'MERGE',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Merge selected'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastMergeTargetItemId, 'item-1');
+    expect(api.lastMergeSourceItemIds, ['item-2']);
+    expect(find.text('Merged 1 duplicate items.'), findsOneWidget);
+    expect(find.text('No duplicate candidates detected.'), findsOneWidget);
+    expect(find.text('Inspect: Absolute Batman #1B'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Close'));
+    await tester.pumpAndSettle();
+
+    // ─── Providers tab ───
+    await tester.tap(find.text('Providers'));
+    await tester.pumpAndSettle();
 
     await _scrollUntilVisible(tester, find.text('Provider ingest jobs'));
     expect(find.text('Provider ingest jobs'), findsOneWidget);
@@ -134,45 +187,7 @@ void main() {
 
     expect(api.lastRetryHistoryId, 7);
 
-    await _scrollUntilVisible(
-      tester,
-      find.widgetWithText(OutlinedButton, 'Inspect'),
-      delta: 500,
-    );
-    expect(find.text('Absolute Batman #1A'), findsWidgets);
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Inspect'));
-    await tester.pumpAndSettle();
-
-    expect(api.lastInspectKind, 'comic');
-    expect(api.lastInspectId, 'item-1');
-    expect(find.text('Inspect: Absolute Batman #1B'), findsOneWidget);
-    expect(find.text('Absolute Batman #1B'), findsOneWidget);
-    expect(find.text('Provider links'), findsOneWidget);
-    expect(find.text('Item audit history'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, 'Close'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.text('Merge into first'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Merge into first'));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('Merge review:'), findsOneWidget);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Type MERGE to confirm'),
-      'MERGE',
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Merge selected'));
-    await tester.pumpAndSettle();
-
-    expect(api.lastMergeTargetItemId, 'item-1');
-    expect(api.lastMergeSourceItemIds, ['item-2']);
-    expect(find.text('Merged 1 duplicate items.'), findsOneWidget);
-    expect(find.text('No duplicate candidates detected.'), findsOneWidget);
-    expect(find.text('Inspect: Absolute Batman #1B'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, 'Close'));
-    await tester.pumpAndSettle();
-
+    // Provider ingest by ID
     await _scrollUntilVisible(
       tester,
       find.widgetWithText(TextField, 'Provider item ID'),
@@ -187,7 +202,6 @@ void main() {
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, 'direct-123');
-    expect(find.text('Absolute Batman #1A'), findsWidgets);
 
     await _scrollUntilVisible(
       tester,
@@ -219,7 +233,6 @@ void main() {
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, '12345');
-    expect(find.text('Absolute Batman #1A'), findsWidgets);
   });
 }
 
@@ -231,7 +244,9 @@ Future<void> _scrollUntilVisible(
   await tester.scrollUntilVisible(
     finder,
     delta,
-    scrollable: find.byType(Scrollable).first,
+    scrollable: find.byWidgetPredicate(
+      (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+    ).first,
     maxScrolls: 50,
   );
   await tester.pumpAndSettle();

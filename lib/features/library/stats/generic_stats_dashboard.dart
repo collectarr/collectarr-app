@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/comics/stats/comics_stats_cards.dart';
 import 'package:collectarr_app/features/comics/stats/comics_stats_style.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:flutter/material.dart';
 
 /// Shows a rich statistics dashboard dialog for any media type.

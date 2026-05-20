@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/inspector/generic_library_inspec
 import 'package:collectarr_app/features/library/inspector/generic_library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
-import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';

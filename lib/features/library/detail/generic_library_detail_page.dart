@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/detail/generic_library_detail_header.dart';
 import 'package:collectarr_app/features/library/detail/generic_library_detail_sections.dart';
-import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 

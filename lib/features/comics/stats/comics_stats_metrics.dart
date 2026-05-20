@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/comics/comics_metadata_gaps.dart';
+import 'package:collectarr_app/features/comics/inspector/comics_metadata_gaps.dart';
 
 Map<String, int> topComicsSeriesCounts(List<ShelfEntry> entries) {
   return _countBy(entries, (entry) => entry.catalogItem?.title ?? 'Missing');

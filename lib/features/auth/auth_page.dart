@@ -159,92 +159,32 @@ class _AuthTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          height: 40,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: const BoxDecoration(
-            color: _authTopBar,
-            border: Border(bottom: BorderSide(color: Color(0xFF1B6F80))),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.cloud_queue, color: Colors.white),
-              SizedBox(width: 8),
-              Text(
-                'Collectarr',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
-              ),
-              SizedBox(width: 18),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      Text('Comics workspace'),
-                      SizedBox(width: 14),
-                      _HeaderStatusBadge(
-                        icon: Icons.storage,
-                        label: 'Local database',
-                      ),
-                      SizedBox(width: 8),
-                      _HeaderStatusBadge(
-                        icon: Icons.cloud_queue,
-                        label: 'Metadata core',
-                      ),
-                      SizedBox(width: 8),
-                      _HeaderStatusBadge(
-                        icon: Icons.sync_disabled,
-                        label: 'Sync after login',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _HeaderStatusBadge extends StatelessWidget {
-  const _HeaderStatusBadge({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0x33222222),
-        border: Border.all(color: _authDivider),
-        borderRadius: BorderRadius.circular(2),
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: const BoxDecoration(
+        color: _authTopBar,
+        border: Border(bottom: BorderSide(color: Color(0xFF1B6F80))),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Row(
-          children: [
-            Icon(icon, color: _authAccent, size: 14),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: const TextStyle(
-                color: _authMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
+      child: const Row(
+        children: [
+          Icon(Icons.cloud_queue, color: Colors.white, size: 22),
+          SizedBox(width: 8),
+          Text(
+            'Collectarr',
+            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+          ),
+          Spacer(),
+          Text(
+            'v1.0',
+            style: TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+        ],
       ),
     );
   }
 }
+
 
 class _AuthBrandPanel extends StatelessWidget {
   const _AuthBrandPanel();
@@ -265,27 +205,35 @@ class _AuthBrandPanel extends StatelessWidget {
             const _MiniWorkspacePreview(),
             const SizedBox(height: 28),
             Text(
-              'Collectarr Comics',
+              'Collectarr',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: _authAccent,
                     fontWeight: FontWeight.w900,
                     height: 1,
                   ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
+            Text(
+              'Your self-hosted media collection manager',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 14),
             const Text(
-              'Sign in to your metadata hub. Your owned comics, wishlist, grades, prices, notes, and shelves stay local on this device unless you connect your own sync service.',
+              'Comics, manga, movies, games, music, books — all in one place. '  
+              'Your data stays on your server.',
               style: TextStyle(color: _authMuted, height: 1.35),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             const Wrap(
-              spacing: 8,
+              spacing: 10,
               runSpacing: 8,
               children: [
-                _AuthBadge(icon: Icons.storage, label: 'Local library'),
-                _AuthBadge(icon: Icons.cloud_queue, label: 'Metadata core'),
-                _AuthBadge(icon: Icons.sync, label: 'Optional sync'),
-                _AuthBadge(icon: Icons.qr_code_scanner, label: 'Barcode ready'),
+                _AuthFeatureChip(icon: Icons.storage, label: 'Self-hosted'),
+                _AuthFeatureChip(icon: Icons.qr_code_scanner, label: 'Barcode scan'),
+                _AuthFeatureChip(icon: Icons.sync, label: 'Multi-device sync'),
               ],
             ),
           ],
@@ -939,29 +887,35 @@ class CollectarrRestoreScreen extends StatelessWidget {
   }
 }
 
-class _AuthBadge extends StatelessWidget {
-  const _AuthBadge({required this.icon, required this.label});
+class _AuthFeatureChip extends StatelessWidget {
+  const _AuthFeatureChip({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF303030),
-        border: Border.all(color: _authDivider),
+        color: _authAccent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _authAccent.withValues(alpha: 0.32)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 15, color: _authAccent),
-            const SizedBox(width: 5),
-            Text(label, style: const TextStyle(fontSize: 12)),
-          ],
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: _authAccent),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.white70,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

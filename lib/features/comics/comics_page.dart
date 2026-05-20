@@ -4,11 +4,11 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/comics/comics_barcode_add_workflow.dart';
+import 'package:collectarr_app/features/comics/add/comics_barcode_add_workflow.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/comics/comics_filter_store.dart';
-import 'package:collectarr_app/features/comics/comics_filters.dart';
-import 'package:collectarr_app/features/comics/comics_grouping_store.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_filter_store.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_filters.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_grouping_store.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_page_dialogs.dart';
 import 'package:collectarr_app/features/comics/comics_page_state.dart';
@@ -18,8 +18,8 @@ import 'package:collectarr_app/features/comics/workspace/comics_workspace.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
-import 'package:collectarr_app/features/library/library_kind_style.dart';
-import 'package:collectarr_app/features/library/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -29,8 +29,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const Color _kClzCanvas = kClzCanvas;
-
-final ThemeData _kClzComicsTheme = kClzComicsTheme;
 
 class ComicsPage extends ConsumerStatefulWidget {
   const ComicsPage({
@@ -78,9 +76,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
       backgroundColor: _kClzCanvas,
       body: SafeArea(
         bottom: false,
-        child: Theme(
-          data: _kClzComicsTheme,
-          child: shelf.when(
+        child: shelf.when(
             data: (state) {
               final uiState = pageState;
               final viewState = uiState.workspaceViewState;
@@ -184,7 +180,6 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
             loading: () => const Center(child: CircularProgressIndicator()),
           ),
         ),
-      ),
     );
   }
 

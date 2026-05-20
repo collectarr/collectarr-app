@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:flutter/material.dart';
 
 class LibraryBulkEditSelection {

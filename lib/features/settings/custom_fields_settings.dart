@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/library/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 

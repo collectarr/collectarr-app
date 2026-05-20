@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
-import 'package:collectarr_app/features/library/generic_library_display.dart';
-import 'package:collectarr_app/features/library/library_media_field_labels.dart';
-import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_display.dart';
+import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
-import 'package:collectarr_app/features/library/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 
 class LibraryAddCopy {
   const LibraryAddCopy._();

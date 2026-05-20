@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_filters.dart';
 import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_views.dart';
 import 'package:collectarr_app/features/comics/stats/comics_stats.dart';
-import 'package:collectarr_app/features/comics/comics_toolbar.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_toolbar.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_chrome.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_controls.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_projection.dart';
@@ -212,9 +212,21 @@ class ComicsWorkspaceDesktopLayout extends StatelessWidget {
                   SizedBox(
                     width: effectiveSidebarWidth,
                     child: LibrarySeriesSidebar(
-                      series: projection.groups,
-                      selectedSeries: selectedGroup,
-                      onSelectSeries: onSelectGroup,
+                      series: [
+                        LibrarySeriesBucket(
+                          title: '[All Comics]',
+                          count: projection.visibleCount,
+                        ),
+                        ...projection.groups,
+                      ],
+                      selectedSeries: selectedGroup ?? '[All Comics]',
+                      onSelectSeries: (bucket) {
+                        if (bucket == '[All Comics]') {
+                          onClearGroup();
+                        } else {
+                          onSelectGroup(bucket);
+                        }
+                      },
                       title: projection.groupMode.label,
                       icon: projection.groupMode.icon,
                       trailing: Row(

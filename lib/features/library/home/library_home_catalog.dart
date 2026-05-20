@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/library_nav_preferences.dart';
-import 'package:collectarr_app/features/library/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_style.dart';
-import 'package:collectarr_app/features/library/library_type_registry.dart';
-import 'package:collectarr_app/features/library/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';

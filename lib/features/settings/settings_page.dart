@@ -14,12 +14,12 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/library_kind_style.dart';
-import 'package:collectarr_app/features/library/library_nav_preferences.dart';
-import 'package:collectarr_app/features/library/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
-import 'package:collectarr_app/features/library/selected_library_provider.dart';
+import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -108,7 +108,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               animationDuration: animationDuration,
             ),
             bottom: const TabBar(
-              isScrollable: true,
+              tabAlignment: TabAlignment.fill,
               tabs: [
                 Tab(icon: Icon(Icons.route_outlined), text: 'Connection'),
                 Tab(

@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/season.dart';
-import 'package:collectarr_app/features/library/volumes_provider.dart';
+import 'package:collectarr_app/features/library/providers/volumes_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

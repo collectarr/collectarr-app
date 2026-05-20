@@ -5,8 +5,8 @@ import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -98,429 +98,539 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Widget build(BuildContext context) {
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin'),
-        backgroundColor: libraryAccentChromeFallbackColor(accent),
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: LibraryAccentChrome(
-          accent: accent,
-          animationDuration: animationDuration,
+    return DefaultTabController(
+      length: 5,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Admin'),
+          backgroundColor: libraryAccentChromeFallbackColor(accent),
+          surfaceTintColor: Colors.transparent,
+          flexibleSpace: LibraryAccentChrome(
+            accent: accent,
+            animationDuration: animationDuration,
+          ),
+          bottom: const TabBar(
+            tabs: [
+              Tab(icon: Icon(Icons.dashboard_outlined), text: 'Dashboard'),
+              Tab(icon: Icon(Icons.inventory_2_outlined), text: 'Catalog'),
+              Tab(icon: Icon(Icons.hub_outlined), text: 'Providers'),
+              Tab(icon: Icon(Icons.history_outlined), text: 'Logs'),
+              Tab(icon: Icon(Icons.settings_outlined), text: 'System'),
+            ],
+          ),
         ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _AdminPanel(
-            icon: Icons.dashboard_customize_outlined,
-            title: 'Metadata dashboard',
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
+        body: TabBarView(
+          children: [
+            // ─── Dashboard ───
+            ListView(
+              padding: const EdgeInsets.all(16),
               children: [
-                IconButton(
-                  tooltip: 'Reindex search',
-                  onPressed: _isReindexing ? null : _reindexSearch,
-                  icon: _isReindexing
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.manage_search_outlined),
-                ),
-                IconButton(
-                  tooltip: 'Refresh dashboard',
-                  onPressed: _isLoadingDashboard ? null : _loadDashboard,
-                  icon: _isLoadingDashboard
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.refresh),
-                ),
-              ],
-            ),
-            child: _DashboardSummary(
-              summary: _summary,
-              searchStatus: _searchStatus,
-              lastReindex: _lastReindex,
-              configuredProviders: _configuredProviderCount(),
-              registeredProviders: _providers.length,
-              selectedProviderLabel: _selectedProviderLabel(),
-              lastIngest: _lastIngest,
-              errorMessage: _dashboardErrorMessage,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.inventory_2_outlined,
-            title: 'Canonical catalog browser',
-            trailing: IconButton(
-              tooltip: 'Search catalog',
-              onPressed: _isSearchingCatalog ? null : _searchCatalog,
-              icon: _isSearchingCatalog
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.search),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final kindField = _ProviderKindSelector(
-                      value: _catalogKindFilter,
-                      kinds: _catalogKindOptions(),
-                      kindLabels: _catalogKindLabels(),
-                      isLoading: _isLoadingProviders,
-                      onChanged: (value) {
-                        setState(() {
-                          _catalogKindFilter =
-                              value == null || value.isEmpty ? null : value;
-                        });
-                        _searchCatalog();
-                      },
-                    );
-                    final queryField = TextField(
-                      controller: _catalogQueryController,
-                      decoration: const InputDecoration(
-                        labelText: 'Catalog search',
-                        prefixIcon: Icon(Icons.manage_search_outlined),
-                        border: OutlineInputBorder(),
+                _AdminPanel(
+                  icon: Icons.dashboard_customize_outlined,
+                  title: 'Metadata dashboard',
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'Reindex search',
+                        onPressed: _isReindexing ? null : _reindexSearch,
+                        icon: _isReindexing
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2),
+                              )
+                            : const Icon(Icons.manage_search_outlined),
                       ),
-                      textInputAction: TextInputAction.search,
-                      onSubmitted: (_) => _searchCatalog(),
-                    );
-                    final searchButton = FilledButton.icon(
-                      onPressed: _isSearchingCatalog ? null : _searchCatalog,
-                      icon: _isSearchingCatalog
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.search),
-                      label: const Text('Search'),
-                    );
-                    if (constraints.maxWidth < 640) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          kindField,
-                          const SizedBox(height: 12),
-                          queryField,
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: searchButton,
-                          ),
-                        ],
-                      );
-                    }
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(width: 180, child: kindField),
-                        const SizedBox(width: 12),
-                        Expanded(child: queryField),
-                        const SizedBox(width: 12),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: searchButton,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                if (_catalogStatusMessage != null ||
-                    _catalogErrorMessage != null) ...[
-                  const SizedBox(height: 12),
-                  _MessageRow(
-                    message: _catalogErrorMessage ?? _catalogStatusMessage!,
-                    isError: _catalogErrorMessage != null,
+                      IconButton(
+                        tooltip: 'Refresh dashboard',
+                        onPressed:
+                            _isLoadingDashboard ? null : _loadDashboard,
+                        icon: _isLoadingDashboard
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2),
+                              )
+                            : const Icon(Icons.refresh),
+                      ),
+                    ],
                   ),
-                ],
-                const SizedBox(height: 12),
-                _CatalogItemList(
-                  items: _catalogItems,
-                  inspectingItemId: _inspectingItemId,
-                  updatingItemId: _updatingCatalogItemId,
-                  onInspect: _inspectCatalogItem,
-                  onEdit: _showMetadataCorrectionDialog,
-                  onInspectCovers: _showCoverInspectionDialog,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.history_outlined,
-            title: 'Search index history',
-            child: _SearchHistoryList(history: _searchHistory),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.manage_history_outlined,
-            title: 'Admin audit log',
-            child: _AdminAuditLogList(logs: _auditLogs),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.report_problem_outlined,
-            title: 'Provider ingest history',
-            child: _ProviderIngestHistoryList(
-              history: _ingestHistory,
-              retryingHistoryId: _retryingHistoryId,
-              onRetry: _retryIngestHistory,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.queue_outlined,
-            title: 'Provider ingest jobs',
-            trailing: IconButton(
-              tooltip: 'Refresh ingest jobs',
-              onPressed: _isPollingIngestJobs
-                  ? null
-                  : () => unawaited(_refreshIngestJobs()),
-              icon: _isPollingIngestJobs
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.refresh),
-            ),
-            child: _ProviderIngestJobPanel(
-              jobs: _ingestJobs,
-              summary: _ingestJobSummary,
-              autoRefresh: _autoRefreshIngestJobs,
-              isPolling: _isPollingIngestJobs,
-              refreshedAt: _ingestJobsRefreshedAt,
-              statusFilter: _ingestJobStatusFilter,
-              providerFilter: _ingestJobProviderFilter,
-              selectedProvider: _selectedProvider,
-              providers: _providerOptions(forIngest: true),
-              isLoadingProviders: _isLoadingProviders,
-              providerItemIdController: _jobProviderItemIdController,
-              queryController: _ingestJobQueryController,
-              isRunningJobs: _isRunningJobs,
-              actionJobId: _jobActionId,
-              onProviderChanged: _changeSelectedProvider,
-              onAutoRefreshChanged: _changeIngestJobAutoRefresh,
-              onStatusFilterChanged: _changeIngestJobStatusFilter,
-              onProviderFilterChanged: _changeIngestJobProviderFilter,
-              onApplyFilters: () => unawaited(_refreshIngestJobs()),
-              onRefresh: () => unawaited(_refreshIngestJobs()),
-              onQueueCurrent: _queueCurrentProviderItemId,
-              onRunPending: _runPendingIngestJobs,
-              onRun: _runIngestJob,
-              onRetry: _retryIngestJob,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.hub_outlined,
-            title: 'Provider status',
-            trailing: IconButton(
-              tooltip: 'Refresh providers',
-              onPressed: _isLoadingProviders ? null : _loadProviders,
-              icon: _isLoadingProviders
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.refresh),
-            ),
-            child: _ProviderStatusList(providers: _providers),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.join_inner_outlined,
-            title: 'Duplicate candidates',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_duplicateStatusMessage != null ||
-                    _duplicateErrorMessage != null) ...[
-                  _MessageRow(
-                    message: _duplicateErrorMessage ?? _duplicateStatusMessage!,
-                    isError: _duplicateErrorMessage != null,
+                  child: _DashboardSummary(
+                    summary: _summary,
+                    searchStatus: _searchStatus,
+                    lastReindex: _lastReindex,
+                    configuredProviders: _configuredProviderCount(),
+                    registeredProviders: _providers.length,
+                    selectedProviderLabel: _selectedProviderLabel(),
+                    lastIngest: _lastIngest,
+                    errorMessage: _dashboardErrorMessage,
                   ),
-                  const SizedBox(height: 12),
-                ],
-                _DuplicateCandidateList(
-                  candidates: _duplicates,
-                  inspectingItemId: _inspectingItemId,
-                  actionItemId: _duplicateActionItemId,
-                  onInspect: _inspectDuplicateCandidate,
-                  onIgnore: _ignoreDuplicateCandidate,
-                  onMerge: _mergeDuplicateCandidate,
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 12),
-          if (_lastIngest != null || _inspectErrorMessage != null) ...[
-            _AdminPanel(
-              icon: Icons.fact_check_outlined,
-              title: 'Canonical item inspector',
-              child: _inspectErrorMessage != null
-                  ? _MessageRow(
-                      message: _inspectErrorMessage!,
-                      isError: true,
-                    )
-                  : _CanonicalItemSummary(
-                      item: _lastIngest!.item,
-                      created: _lastIngest?.created,
-                      auditLogs: const <AdminAuditLogEntry>[],
-                    ),
-            ),
-            const SizedBox(height: 12),
-          ],
-          _AdminPanel(
-            icon: Icons.people_outline,
-            title: 'User management',
-            child: const AdminUsersPanel(),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.image_outlined,
-            title: 'Image cache',
-            child: const AdminImageCachePanel(),
-          ),
-          const SizedBox(height: 12),
-          _AdminPanel(
-            icon: Icons.travel_explore_outlined,
-            title: 'Provider ingest',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            // ─── Catalog ───
+            ListView(
+              padding: const EdgeInsets.all(16),
               children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isNarrow = constraints.maxWidth < 720;
-                    final kindField = _ProviderKindSelector(
-                      value: _selectedProviderKindFilter,
-                      kinds: _providerKindOptions(forSearch: true),
-                      kindLabels: _catalogKindLabels(),
-                      isLoading: _isLoadingProviders,
-                      onChanged: _changeProviderKindFilter,
-                    );
-                    final searchableProviders = _providerOptions();
-                    final providerField = _ProviderSelector(
-                      value: _selectedProvider,
-                      providers: searchableProviders,
-                      isLoading: _isLoadingProviders,
-                      onChanged: (value) {
-                        _changeSelectedProvider(value);
-                      },
-                    );
-                    final queryField = TextField(
-                      controller: _queryController,
-                      decoration: const InputDecoration(
-                        labelText: 'Provider query',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
-                      ),
-                      textInputAction: TextInputAction.search,
-                      onSubmitted: (_) => _searchProvider(),
-                    );
-                    final providerItemIdField = TextField(
-                      controller: _providerItemIdController,
-                      decoration: const InputDecoration(
-                        labelText: 'Provider item ID',
-                        prefixIcon: Icon(Icons.tag_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => _ingestProviderItemId(),
-                    );
-                    final searchButton = FilledButton.icon(
-                      onPressed: _isSearching ? null : _searchProvider,
-                      icon: _isSearching
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.manage_search),
-                      label: const Text('Search'),
-                    );
-                    final ingestIdButton = OutlinedButton.icon(
-                      onPressed:
-                          _isDirectIngesting || searchableProviders.isEmpty
-                              ? null
-                              : _ingestProviderItemId,
-                      icon: _isDirectIngesting
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.download_for_offline_outlined),
-                      label: const Text('Ingest ID'),
-                    );
-                    if (isNarrow) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          providerField,
-                          const SizedBox(height: 12),
-                          kindField,
-                          const SizedBox(height: 12),
-                          queryField,
-                          const SizedBox(height: 12),
-                          providerItemIdField,
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [searchButton, ingestIdButton],
+                _AdminPanel(
+                  icon: Icons.inventory_2_outlined,
+                  title: 'Canonical catalog browser',
+                  trailing: IconButton(
+                    tooltip: 'Search catalog',
+                    onPressed:
+                        _isSearchingCatalog ? null : _searchCatalog,
+                    icon: _isSearchingCatalog
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2),
+                          )
+                        : const Icon(Icons.search),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final kindField = _ProviderKindSelector(
+                            value: _catalogKindFilter,
+                            kinds: _catalogKindOptions(),
+                            kindLabels: _catalogKindLabels(),
+                            isLoading: _isLoadingProviders,
+                            onChanged: (value) {
+                              setState(() {
+                                _catalogKindFilter =
+                                    value == null || value.isEmpty
+                                        ? null
+                                        : value;
+                              });
+                              _searchCatalog();
+                            },
+                          );
+                          final queryField = TextField(
+                            controller: _catalogQueryController,
+                            decoration: const InputDecoration(
+                              labelText: 'Catalog search',
+                              prefixIcon:
+                                  Icon(Icons.manage_search_outlined),
+                              border: OutlineInputBorder(),
                             ),
-                          ),
-                        ],
-                      );
-                    }
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(width: 150, child: kindField),
-                        const SizedBox(width: 12),
-                        SizedBox(width: 220, child: providerField),
-                        const SizedBox(width: 12),
-                        Expanded(child: queryField),
-                        const SizedBox(width: 12),
-                        SizedBox(width: 220, child: providerItemIdField),
-                        const SizedBox(width: 12),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [searchButton, ingestIdButton],
-                          ),
+                            textInputAction: TextInputAction.search,
+                            onSubmitted: (_) => _searchCatalog(),
+                          );
+                          final searchButton = FilledButton.icon(
+                            onPressed: _isSearchingCatalog
+                                ? null
+                                : _searchCatalog,
+                            icon: _isSearchingCatalog
+                                ? const SizedBox.square(
+                                    dimension: 18,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.search),
+                            label: const Text('Search'),
+                          );
+                          if (constraints.maxWidth < 640) {
+                            return Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.stretch,
+                              children: [
+                                kindField,
+                                const SizedBox(height: 12),
+                                queryField,
+                                const SizedBox(height: 12),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: searchButton,
+                                ),
+                              ],
+                            );
+                          }
+                          return Row(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(width: 180, child: kindField),
+                              const SizedBox(width: 12),
+                              Expanded(child: queryField),
+                              const SizedBox(width: 12),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 4),
+                                child: searchButton,
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      if (_catalogStatusMessage != null ||
+                          _catalogErrorMessage != null) ...[
+                        const SizedBox(height: 12),
+                        _MessageRow(
+                          message: _catalogErrorMessage ??
+                              _catalogStatusMessage!,
+                          isError: _catalogErrorMessage != null,
                         ),
                       ],
-                    );
-                  },
+                      const SizedBox(height: 12),
+                      _CatalogItemList(
+                        items: _catalogItems,
+                        inspectingItemId: _inspectingItemId,
+                        updatingItemId: _updatingCatalogItemId,
+                        onInspect: _inspectCatalogItem,
+                        onEdit: _showMetadataCorrectionDialog,
+                        onInspectCovers: _showCoverInspectionDialog,
+                      ),
+                    ],
+                  ),
                 ),
-                if (_statusMessage != null || _errorMessage != null) ...[
+                const SizedBox(height: 12),
+                _AdminPanel(
+                  icon: Icons.join_inner_outlined,
+                  title: 'Duplicate candidates',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (_duplicateStatusMessage != null ||
+                          _duplicateErrorMessage != null) ...[
+                        _MessageRow(
+                          message: _duplicateErrorMessage ??
+                              _duplicateStatusMessage!,
+                          isError: _duplicateErrorMessage != null,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      _DuplicateCandidateList(
+                        candidates: _duplicates,
+                        inspectingItemId: _inspectingItemId,
+                        actionItemId: _duplicateActionItemId,
+                        onInspect: _inspectDuplicateCandidate,
+                        onIgnore: _ignoreDuplicateCandidate,
+                        onMerge: _mergeDuplicateCandidate,
+                      ),
+                    ],
+                  ),
+                ),
+                if (_lastIngest != null ||
+                    _inspectErrorMessage != null) ...[
                   const SizedBox(height: 12),
-                  _MessageRow(
-                    message: _errorMessage ?? _statusMessage!,
-                    isError: _errorMessage != null,
+                  _AdminPanel(
+                    icon: Icons.fact_check_outlined,
+                    title: 'Canonical item inspector',
+                    child: _inspectErrorMessage != null
+                        ? _MessageRow(
+                            message: _inspectErrorMessage!,
+                            isError: true,
+                          )
+                        : _CanonicalItemSummary(
+                            item: _lastIngest!.item,
+                            created: _lastIngest?.created,
+                            auditLogs: const <AdminAuditLogEntry>[],
+                          ),
                   ),
                 ],
+              ],
+            ),
+            // ─── Providers ───
+            ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _AdminPanel(
+                  icon: Icons.hub_outlined,
+                  title: 'Provider status',
+                  trailing: IconButton(
+                    tooltip: 'Refresh providers',
+                    onPressed:
+                        _isLoadingProviders ? null : _loadProviders,
+                    icon: _isLoadingProviders
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh),
+                  ),
+                  child: _ProviderStatusList(providers: _providers),
+                ),
                 const SizedBox(height: 12),
-                _ProviderResultsList(
-                  results: _results,
-                  ingestingProviderItemId: _ingestingProviderItemId,
-                  canIngestProvider: _providerSupportsIngest,
-                  onIngest: _ingestProviderItem,
+                _AdminPanel(
+                  icon: Icons.travel_explore_outlined,
+                  title: 'Provider ingest',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isNarrow =
+                              constraints.maxWidth < 720;
+                          final kindField = _ProviderKindSelector(
+                            value: _selectedProviderKindFilter,
+                            kinds: _providerKindOptions(
+                                forSearch: true),
+                            kindLabels: _catalogKindLabels(),
+                            isLoading: _isLoadingProviders,
+                            onChanged: _changeProviderKindFilter,
+                          );
+                          final searchableProviders =
+                              _providerOptions();
+                          final providerField = _ProviderSelector(
+                            value: _selectedProvider,
+                            providers: searchableProviders,
+                            isLoading: _isLoadingProviders,
+                            onChanged: (value) {
+                              _changeSelectedProvider(value);
+                            },
+                          );
+                          final queryField = TextField(
+                            controller: _queryController,
+                            decoration: const InputDecoration(
+                              labelText: 'Provider query',
+                              prefixIcon: Icon(Icons.search),
+                              border: OutlineInputBorder(),
+                            ),
+                            textInputAction:
+                                TextInputAction.search,
+                            onSubmitted: (_) =>
+                                _searchProvider(),
+                          );
+                          final providerItemIdField = TextField(
+                            controller:
+                                _providerItemIdController,
+                            decoration: const InputDecoration(
+                              labelText: 'Provider item ID',
+                              prefixIcon:
+                                  Icon(Icons.tag_outlined),
+                              border: OutlineInputBorder(),
+                            ),
+                            textInputAction:
+                                TextInputAction.done,
+                            onSubmitted: (_) =>
+                                _ingestProviderItemId(),
+                          );
+                          final searchButton =
+                              FilledButton.icon(
+                            onPressed: _isSearching
+                                ? null
+                                : _searchProvider,
+                            icon: _isSearching
+                                ? const SizedBox.square(
+                                    dimension: 18,
+                                    child:
+                                        CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                  )
+                                : const Icon(
+                                    Icons.manage_search),
+                            label: const Text('Search'),
+                          );
+                          final ingestIdButton =
+                              OutlinedButton.icon(
+                            onPressed: _isDirectIngesting ||
+                                    searchableProviders.isEmpty
+                                ? null
+                                : _ingestProviderItemId,
+                            icon: _isDirectIngesting
+                                ? const SizedBox.square(
+                                    dimension: 18,
+                                    child:
+                                        CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                  )
+                                : const Icon(Icons
+                                    .download_for_offline_outlined),
+                            label: const Text('Ingest ID'),
+                          );
+                          if (isNarrow) {
+                            return Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.stretch,
+                              children: [
+                                providerField,
+                                const SizedBox(height: 12),
+                                kindField,
+                                const SizedBox(height: 12),
+                                queryField,
+                                const SizedBox(height: 12),
+                                providerItemIdField,
+                                const SizedBox(height: 12),
+                                Align(
+                                  alignment:
+                                      Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      searchButton,
+                                      ingestIdButton
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                          return Row(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                  width: 150,
+                                  child: kindField),
+                              const SizedBox(width: 12),
+                              SizedBox(
+                                  width: 220,
+                                  child: providerField),
+                              const SizedBox(width: 12),
+                              Expanded(child: queryField),
+                              const SizedBox(width: 12),
+                              SizedBox(
+                                  width: 220,
+                                  child:
+                                      providerItemIdField),
+                              const SizedBox(width: 12),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(
+                                        top: 4),
+                                child: Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    searchButton,
+                                    ingestIdButton
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      if (_statusMessage != null ||
+                          _errorMessage != null) ...[
+                        const SizedBox(height: 12),
+                        _MessageRow(
+                          message:
+                              _errorMessage ?? _statusMessage!,
+                          isError: _errorMessage != null,
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      _ProviderResultsList(
+                        results: _results,
+                        ingestingProviderItemId:
+                            _ingestingProviderItemId,
+                        canIngestProvider:
+                            _providerSupportsIngest,
+                        onIngest: _ingestProviderItem,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
+                  icon: Icons.queue_outlined,
+                  title: 'Provider ingest jobs',
+                  trailing: IconButton(
+                    tooltip: 'Refresh ingest jobs',
+                    onPressed: _isPollingIngestJobs
+                        ? null
+                        : () =>
+                            unawaited(_refreshIngestJobs()),
+                    icon: _isPollingIngestJobs
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh),
+                  ),
+                  child: _ProviderIngestJobPanel(
+                    jobs: _ingestJobs,
+                    summary: _ingestJobSummary,
+                    autoRefresh: _autoRefreshIngestJobs,
+                    isPolling: _isPollingIngestJobs,
+                    refreshedAt: _ingestJobsRefreshedAt,
+                    statusFilter: _ingestJobStatusFilter,
+                    providerFilter: _ingestJobProviderFilter,
+                    selectedProvider: _selectedProvider,
+                    providers:
+                        _providerOptions(forIngest: true),
+                    isLoadingProviders: _isLoadingProviders,
+                    providerItemIdController:
+                        _jobProviderItemIdController,
+                    queryController:
+                        _ingestJobQueryController,
+                    isRunningJobs: _isRunningJobs,
+                    actionJobId: _jobActionId,
+                    onProviderChanged:
+                        _changeSelectedProvider,
+                    onAutoRefreshChanged:
+                        _changeIngestJobAutoRefresh,
+                    onStatusFilterChanged:
+                        _changeIngestJobStatusFilter,
+                    onProviderFilterChanged:
+                        _changeIngestJobProviderFilter,
+                    onApplyFilters: () =>
+                        unawaited(_refreshIngestJobs()),
+                    onRefresh: () =>
+                        unawaited(_refreshIngestJobs()),
+                    onQueueCurrent:
+                        _queueCurrentProviderItemId,
+                    onRunPending: _runPendingIngestJobs,
+                    onRun: _runIngestJob,
+                    onRetry: _retryIngestJob,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
+                  icon: Icons.report_problem_outlined,
+                  title: 'Provider ingest history',
+                  child: _ProviderIngestHistoryList(
+                    history: _ingestHistory,
+                    retryingHistoryId: _retryingHistoryId,
+                    onRetry: _retryIngestHistory,
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            // ─── Logs ───
+            ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _AdminPanel(
+                  icon: Icons.history_outlined,
+                  title: 'Search index history',
+                  child:
+                      _SearchHistoryList(history: _searchHistory),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
+                  icon: Icons.manage_history_outlined,
+                  title: 'Admin audit log',
+                  child: _AdminAuditLogList(logs: _auditLogs),
+                ),
+              ],
+            ),
+            // ─── System ───
+            ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _AdminPanel(
+                  icon: Icons.people_outline,
+                  title: 'User management',
+                  child: const AdminUsersPanel(),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
+                  icon: Icons.image_outlined,
+                  title: 'Image cache',
+                  child: const AdminImageCachePanel(),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -4652,7 +4762,6 @@ String _providerKindLabel(String kind, Map<String, String> labels) {
     return label;
   }
   return switch (kind) {
-    'bluray' => 'Blu-ray',
     'boardgame' => 'Board game',
     'tv' => 'TV',
     _ => kind.isEmpty ? kind : '${kind[0].toUpperCase()}${kind.substring(1)}',

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
-import 'package:collectarr_app/features/comics/comics_duplicate_items.dart';
-import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/inspector/comics_duplicate_items.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_filters.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_control_models.dart';
 import 'package:flutter/material.dart';

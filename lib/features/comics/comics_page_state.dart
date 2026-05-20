@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_filters.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.dart';

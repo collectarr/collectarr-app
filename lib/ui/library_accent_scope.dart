@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:flutter/material.dart';
 
 class LibraryAccentScope extends InheritedWidget {

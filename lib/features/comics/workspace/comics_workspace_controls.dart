@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_control_models.dart';
-import 'package:collectarr_app/features/comics/comics_workspace_utility_controls.dart';
+import 'package:collectarr_app/features/comics/workspace/comics_workspace_utility_controls.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_view_table_controls.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/comics/workspace/comics_workspace_control_models.dart';
-export 'package:collectarr_app/features/comics/comics_workspace_utility_controls.dart';
+export 'package:collectarr_app/features/comics/workspace/comics_workspace_utility_controls.dart';
 
 class ComicsWorkspaceControlStrip extends StatelessWidget {
   const ComicsWorkspaceControlStrip({
@@ -22,11 +22,6 @@ class ComicsWorkspaceControlStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryWorkspaceControlStrip(
       children: [
-        LibrarySelectionControls(
-          enabled: state.selectionEnabled,
-          selectedCount: state.selectedCount,
-          callbacks: callbacks.selection,
-        ),
         ComicsWorkspaceUtilityControls(
           state: state.utility,
           callbacks: callbacks.utility,

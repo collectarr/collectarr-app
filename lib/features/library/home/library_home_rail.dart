@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/home/library_home_catalog.dart';
 import 'package:collectarr_app/features/library/home/library_home_counts.dart';
-import 'package:collectarr_app/features/library/library_kind_style.dart';
-import 'package:collectarr_app/features/library/library_type_registry.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:flutter/material.dart';
 
 class MediaLibraryRail extends StatelessWidget {
@@ -38,7 +38,9 @@ class MediaLibraryRail extends StatelessWidget {
           children: [
             SizedBox(
               height: 42,
-              child: Icon(Icons.cloud_queue, color: accent, size: 22),
+              child: Center(
+                child: Icon(Icons.cloud_queue, color: accent, size: 22),
+              ),
             ),
             const Divider(height: 1, color: kClzDivider),
             Expanded(

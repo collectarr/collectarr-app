@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/auth/auth_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
+import 'package:collectarr_app/ui/app_zoom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +17,7 @@ class CollectarrApp extends StatelessWidget {
     return MaterialApp(
       title: 'Collectarr',
       theme: _collectarrDarkTheme(),
+      builder: (context, child) => AppZoomWrapper(child: child!),
       home: const AuthGate(),
     );
   }

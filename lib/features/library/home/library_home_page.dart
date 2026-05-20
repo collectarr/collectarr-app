@@ -1,14 +1,14 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/comics/comics_page.dart';
-import 'package:collectarr_app/features/library/generic_library_page.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_page.dart';
 import 'package:collectarr_app/features/library/home/library_home_catalog.dart';
 import 'package:collectarr_app/features/library/home/library_home_counts.dart';
 import 'package:collectarr_app/features/library/home/library_home_navigation.dart';
-import 'package:collectarr_app/features/library/library_kind_style.dart';
-import 'package:collectarr_app/features/library/library_nav_preferences.dart';
-import 'package:collectarr_app/features/library/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/selected_library_provider.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,24 +72,21 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           );
 
     if (navPreferences.placement == LibraryNavPlacement.left) {
-      return Theme(
-        data: kClzComicsTheme,
-        child: Material(
-          color: kClzCanvas,
-          child: Row(
-            children: [
-              MediaLibraryRail(
-                types: visibleTypes,
-                counts: counts,
-                registry: registry,
-                selectedKind: selected.kind,
-                onSelected: (type) => ref
-                    .read(selectedLibraryKindProvider.notifier)
-                    .state = type.kind,
-              ),
-              Expanded(child: content),
-            ],
-          ),
+      return Material(
+        color: kClzCanvas,
+        child: Row(
+          children: [
+            MediaLibraryRail(
+              types: visibleTypes,
+              counts: counts,
+              registry: registry,
+              selectedKind: selected.kind,
+              onSelected: (type) => ref
+                  .read(selectedLibraryKindProvider.notifier)
+                  .state = type.kind,
+            ),
+            Expanded(child: content),
+          ],
         ),
       );
     }

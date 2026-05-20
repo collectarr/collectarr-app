@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/comics/add/comics_add_dialog.dart';
-import 'package:collectarr_app/features/comics/comics_filters.dart';
+import 'package:collectarr_app/features/comics/shelf/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_projection.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.dart';
