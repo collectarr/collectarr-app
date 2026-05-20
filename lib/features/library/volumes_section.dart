@@ -42,16 +42,23 @@ class VolumesSection extends ConsumerWidget {
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Divider(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                'Volumes',
+                'Volumes (${volumes.length})',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            ...volumes.map((volume) => _VolumeTile(volume: volume)),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: volumes.length,
+              itemBuilder: (_, index) =>
+                  _VolumeTile(volume: volumes[index]),
+            ),
           ],
         );
       },
@@ -106,10 +113,12 @@ class _VolumeTileState extends State<_VolumeTile> {
         if (_expanded && volume.episodes.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(left: 56, right: 16, bottom: 8),
-            child: Column(
-              children: volume.episodes
-                  .map((ch) => _ChapterRow(chapter: ch))
-                  .toList(),
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: volume.episodes.length,
+              itemBuilder: (_, index) =>
+                  _ChapterRow(chapter: volume.episodes[index]),
             ),
           ),
       ],
