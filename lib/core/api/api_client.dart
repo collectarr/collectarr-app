@@ -765,13 +765,38 @@ class ApiClient {
       return raw;
     }
     if (parsed.hasScheme) {
-      return raw;
+      return _rewriteKnownProviderImageUrl(parsed) ?? raw;
     }
     if (!raw.startsWith('/')) {
       return raw;
     }
     final base = Uri.tryParse(baseUrl);
     return base?.resolve(raw).toString() ?? raw;
+  }
+
+  String? _rewriteKnownProviderImageUrl(Uri uri) {
+    final host = uri.host.toLowerCase();
+    if (!host.endsWith('mangadex.org')) {
+      return null;
+    }
+    final segments = uri.pathSegments;
+    if (segments.length < 2 || segments.first != 'covers') {
+      return null;
+    }
+    final providerItemId = segments[1].trim();
+    if (providerItemId.isEmpty) {
+      return null;
+    }
+    final base = Uri.tryParse(baseUrl);
+    if (base == null) {
+      return null;
+    }
+    return base
+        .resolve(
+          '/metadata/providers/mangadex/images/'
+          '${Uri.encodeComponent(providerItemId)}',
+        )
+        .toString();
   }
 }
 

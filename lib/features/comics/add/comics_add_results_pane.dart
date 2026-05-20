@@ -451,6 +451,7 @@ class _ProviderFlatIssueRow extends StatelessWidget {
       badges: [
         providerLabel,
         if (identity.isVariant) 'variant',
+        ..._providerPreviewBadges(candidate),
       ],
       trailing: '',
       onTap: onSelect,
@@ -477,6 +478,7 @@ class _ProviderSeriesHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectableCount = group.items.length;
+    final previewBadges = _providerSeriesPreviewBadges(group);
     return InkWell(
       onTap: onToggleCollapsed,
       child: DecoratedBox(
@@ -529,6 +531,17 @@ class _ProviderSeriesHeader extends StatelessWidget {
                         fontSize: 11,
                       ),
                     ),
+                    if (previewBadges.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: [
+                          for (final badge in previewBadges)
+                            LibraryAddResultBadge(badge),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -596,6 +609,7 @@ class _ProviderIssueRow extends StatelessWidget {
         badges: [
           providerLabel,
           if (candidate.isVariant) 'variant',
+          ..._providerPreviewBadges(candidate),
         ],
         trailing: '',
         onTap: onSelect,
@@ -682,6 +696,14 @@ class _ProviderSeriesGroup {
 
   int get variantCount =>
       issues.fold(0, (total, issue) => total + issue.variantCount);
+
+  List<String> get storyArcPreview => _mergedPreviewValues(
+        items.map((candidate) => candidate.storyArcPreview),
+      );
+
+  List<String> get characterPreview => _mergedPreviewValues(
+        items.map((candidate) => candidate.characterPreview),
+      );
 
   String get subtitle {
     return [
@@ -925,6 +947,77 @@ String _normalizedProviderKey(String provider, String title) {
       .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
       .replaceAll(RegExp(r'^-+|-+$'), '');
   return normalized.isEmpty ? provider : normalized;
+}
+
+List<String> _providerSeriesPreviewBadges(_ProviderSeriesGroup group) {
+  return [
+    ..._providerPreviewBadgesFromValues(
+      prefix: 'arc',
+      values: group.storyArcPreview,
+    ),
+    ..._providerPreviewBadgesFromValues(
+      prefix: 'char',
+      values: group.characterPreview,
+    ),
+  ];
+}
+
+List<String> _providerPreviewBadges(ProviderCandidate candidate) {
+  return [
+    ..._providerPreviewBadgesFromValues(
+      prefix: 'arc',
+      values: candidate.storyArcPreview,
+    ),
+    ..._providerPreviewBadgesFromValues(
+      prefix: 'char',
+      values: candidate.characterPreview,
+    ),
+  ];
+}
+
+List<String> _providerPreviewBadgesFromValues({
+  required String prefix,
+  required List<String> values,
+}) {
+  final unique = _mergedPreviewValues([values]);
+  if (unique.isEmpty) {
+    return const <String>[];
+  }
+  final first = _truncatePreviewValue(unique.first);
+  final extraCount = unique.length - 1;
+  if (extraCount <= 0) {
+    return <String>['$prefix: $first'];
+  }
+  return <String>['$prefix: $first +$extraCount'];
+}
+
+List<String> _mergedPreviewValues(Iterable<List<String>> source) {
+  final merged = <String>[];
+  final seen = <String>{};
+  for (final values in source) {
+    for (final value in values) {
+      final clean = value.trim();
+      if (clean.isEmpty) {
+        continue;
+      }
+      final normalized = clean.toLowerCase();
+      if (!seen.add(normalized)) {
+        continue;
+      }
+      merged.add(clean);
+      if (merged.length >= 4) {
+        return merged;
+      }
+    }
+  }
+  return merged;
+}
+
+String _truncatePreviewValue(String value) {
+  if (value.length <= 30) {
+    return value;
+  }
+  return '${value.substring(0, 27).trimRight()}...';
 }
 
 class _ProviderCandidateIdentity {

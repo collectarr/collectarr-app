@@ -8,39 +8,38 @@ class _DialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 34,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4A4A4A), Color(0xFF1B1B1B)],
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4A4A4A), Color(0xFF1B1B1B)],
+          ),
+          border: Border(bottom: BorderSide(color: accent)),
         ),
-        border: Border(bottom: BorderSide(color: accent)),
-      ),
-      child: Row(
-        children: [
-          Icon(type.workspace.icon, size: 18, color: accent),
-          const SizedBox(width: 8),
-          Text(
-            'Add ${type.pluralLabel} from Collectarr Core',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
+        child: Row(
+          children: [
+            const SizedBox(width: 8),
+            Icon(type.workspace.icon, size: 18, color: accent),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Add ${type.pluralLabel} from Collectarr Core',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
-          ),
-          const Spacer(),
-          IconButton(
-            tooltip: 'Close',
-            onPressed: () => Navigator.of(context).pop(false),
-            icon: const Icon(Icons.close, size: 18),
-            style: IconButton.styleFrom(
-              minimumSize: const Size(30, 30),
-              padding: EdgeInsets.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            IconButton(
+              tooltip: 'Close',
+              onPressed: () => Navigator.of(context).pop(false),
+              icon: const Icon(Icons.close, size: 18),
+              visualDensity: VisualDensity.compact,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -363,32 +362,26 @@ class _LibraryAddModeTextField extends StatelessWidget {
           controller: controller,
           keyboardType: keyboardType ?? TextInputType.text,
           inputFormatters: [noNewlineFormatter],
-          expands: true,
-          minLines: null,
-          maxLines: null,
+          minLines: 1,
+          maxLines: 1,
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
-          strutStyle: const StrutStyle(
-            fontSize: 15,
-            height: 1,
-            forceStrutHeight: true,
-          ),
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
             color: Color(0xFFEDEDED),
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            height: 1,
           ),
           decoration: InputDecoration(
             isDense: true,
-            isCollapsed: true,
             filled: false,
             fillColor: Colors.transparent,
             border: InputBorder.none,
             semanticCounterText: label,
             hintText: hintText,
-            contentPadding: EdgeInsets.zero,
+            hintStyle: const TextStyle(color: Color(0xFF9EA9B0)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
         ),
       ),

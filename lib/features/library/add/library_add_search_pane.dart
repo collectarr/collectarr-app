@@ -77,12 +77,14 @@ class _SearchPaneNoticeStack extends StatelessWidget {
     required this.error,
     required this.queuedProviderIngests,
     required this.isBusy,
+    required this.accent,
     required this.onSearchCore,
   });
 
   final String? error;
   final Map<String, _QueuedProviderIngest> queuedProviderIngests;
   final bool isBusy;
+  final Color accent;
   final VoidCallback onSearchCore;
 
   @override
@@ -97,6 +99,7 @@ class _SearchPaneNoticeStack extends StatelessWidget {
         if (queuedProviderIngests.isNotEmpty)
           _QueuedIngestNotice(
             count: queuedProviderIngests.length,
+            accent: accent,
             onSearchCore: isBusy ? null : onSearchCore,
           ),
         if (error != null)
@@ -154,10 +157,12 @@ class _ErrorBanner extends StatelessWidget {
 class _QueuedIngestNotice extends StatelessWidget {
   const _QueuedIngestNotice({
     required this.count,
+    required this.accent,
     required this.onSearchCore,
   });
 
   final int count;
+  final Color accent;
   final VoidCallback? onSearchCore;
 
   @override
@@ -166,13 +171,13 @@ class _QueuedIngestNotice extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: const Color(0xFF183246),
-        border: Border.all(color: kClzAccent.withValues(alpha: 0.65)),
+        border: Border.all(color: accent.withValues(alpha: 0.65)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         child: Row(
           children: [
-            const Icon(Icons.playlist_add_check, size: 18, color: kClzAccent),
+            Icon(Icons.playlist_add_check, size: 18, color: accent),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -187,7 +192,7 @@ class _QueuedIngestNotice extends StatelessWidget {
             const SizedBox(width: 8),
             OutlinedButton.icon(
               onPressed: onSearchCore,
-              style: _libraryAddOutlinedButtonStyle(),
+              style: _libraryAddOutlinedButtonStyle(accent),
               icon: const Icon(Icons.refresh, size: 16),
               label: const Text('Search Core again'),
             ),
@@ -245,6 +250,7 @@ class _SearchResultsList extends StatelessWidget {
       error: error,
       queuedProviderIngests: queuedProviderIngests,
       isBusy: isBusy,
+      accent: accent,
       onSearchCore: onSearchCore,
     );
     if (isBusy && results.isEmpty && providerResults.isEmpty) {
@@ -259,6 +265,7 @@ class _SearchResultsList extends StatelessWidget {
             height: 280,
             child: _NoSearchResults(
               type: type,
+              accent: accent,
               selectedProvider: selectedProvider,
               searchedProvider: searchedProvider,
             ),
@@ -375,6 +382,7 @@ class _MangaCandidateTreeList extends StatelessWidget {
       children: [
         for (var i = 0; i < results.length; i++) ...[
           _MangaCandidateNode(
+            key: ValueKey(results[i].localCatalogId),
             candidate: results[i],
             accent: accent,
             providerLabel: providerLabel(results[i].provider),
@@ -393,6 +401,7 @@ class _MangaCandidateTreeList extends StatelessWidget {
 
 class _MangaCandidateNode extends ConsumerStatefulWidget {
   const _MangaCandidateNode({
+    super.key,
     required this.candidate,
     required this.accent,
     required this.providerLabel,
@@ -423,7 +432,6 @@ class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
       widget.providerLabel,
       if (candidate.summary != null && candidate.summary!.trim().isNotEmpty)
         candidate.summary,
-      candidate.providerItemId,
     ].whereType<String>().join(' | ');
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -443,9 +451,19 @@ class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
           InkWell(
             onTap: widget.onSelect,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               child: Row(
                 children: [
+                  IconButton(
+                    tooltip: _expanded ? 'Collapse volumes' : 'Expand volumes',
+                    onPressed: () => setState(() => _expanded = !_expanded),
+                    icon: Icon(
+                      _expanded ? Icons.expand_more : Icons.chevron_right,
+                      color: widget.accent,
+                      size: 20,
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
                   SizedBox(
                     width: 42,
                     height: 56,
@@ -497,25 +515,10 @@ class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Column(
-                    children: [
-                      Icon(
-                        widget.selected
-                            ? Icons.check_circle
-                            : Icons.radio_button_unchecked,
-                        color: widget.selected ? widget.accent : kClzTextMuted,
-                        size: 18,
-                      ),
-                      IconButton(
-                        tooltip:
-                            _expanded ? 'Collapse volumes' : 'Expand volumes',
-                        onPressed: () => setState(() => _expanded = !_expanded),
-                        icon: Icon(
-                          _expanded ? Icons.expand_less : Icons.expand_more,
-                          color: widget.accent,
-                        ),
-                      ),
-                    ],
+                  Icon(
+                    widget.selected ? Icons.check_circle : Icons.chevron_right,
+                    color: widget.selected ? widget.accent : kClzTextMuted,
+                    size: 20,
                   ),
                 ],
               ),
@@ -524,7 +527,10 @@ class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
           if (_expanded)
             Padding(
               padding: const EdgeInsets.fromLTRB(56, 0, 12, 10),
-              child: _MangaCandidateVolumes(candidate: candidate),
+              child: _MangaCandidateVolumes(
+                candidate: candidate,
+                accent: widget.accent,
+              ),
             ),
         ],
       ),
@@ -533,9 +539,13 @@ class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
 }
 
 class _MangaCandidateVolumes extends ConsumerWidget {
-  const _MangaCandidateVolumes({required this.candidate});
+  const _MangaCandidateVolumes({
+    required this.candidate,
+    required this.accent,
+  });
 
   final ProviderCandidate candidate;
+  final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -548,15 +558,18 @@ class _MangaCandidateVolumes extends ConsumerWidget {
       ),
     );
     return volumesAsync.when(
-      loading: () => const Row(
+      loading: () => Row(
         children: [
           SizedBox(
             width: 16,
             height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(accent),
+            ),
           ),
-          SizedBox(width: 8),
-          Expanded(
+          const SizedBox(width: 8),
+          const Expanded(
             child: Text(
               'Loading volumes and chapters...',
               style: TextStyle(color: kClzTextMuted),
@@ -577,7 +590,11 @@ class _MangaCandidateVolumes extends ConsumerWidget {
         }
         return Column(
           children: [
-            for (final volume in volumes) _MangaVolumeNode(volume: volume),
+            for (final volume in volumes)
+              _MangaVolumeNode(
+                volume: volume,
+                accent: accent,
+              ),
           ],
         );
       },
@@ -586,9 +603,13 @@ class _MangaCandidateVolumes extends ConsumerWidget {
 }
 
 class _MangaVolumeNode extends StatefulWidget {
-  const _MangaVolumeNode({required this.volume});
+  const _MangaVolumeNode({
+    required this.volume,
+    required this.accent,
+  });
 
   final Season volume;
+  final Color accent;
 
   @override
   State<_MangaVolumeNode> createState() => _MangaVolumeNodeState();
@@ -614,7 +635,7 @@ class _MangaVolumeNodeState extends State<_MangaVolumeNode> {
             ListTile(
               dense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-              leading: const Icon(Icons.menu_book, size: 18),
+              leading: Icon(Icons.menu_book, size: 18, color: widget.accent),
               title: Text(
                 volume.title,
                 style: const TextStyle(fontWeight: FontWeight.w700),
@@ -1021,11 +1042,13 @@ class _ProviderCandidateTile extends StatelessWidget {
 class _NoSearchResults extends StatelessWidget {
   const _NoSearchResults({
     required this.type,
+    required this.accent,
     required this.selectedProvider,
     required this.searchedProvider,
   });
 
   final LibraryTypeConfig type;
+  final Color accent;
   final String selectedProvider;
   final bool searchedProvider;
 
@@ -1037,7 +1060,7 @@ class _NoSearchResults extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(type.workspace.icon, size: 28, color: kClzAccent),
+            Icon(type.workspace.icon, size: 28, color: accent),
             const SizedBox(height: 8),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 360),

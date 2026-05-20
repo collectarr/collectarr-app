@@ -14,6 +14,8 @@ class ProviderCandidate {
     this.volumeStartYear,
     this.variantName,
     this.isVariantOverride,
+    this.characterPreview = const <String>[],
+    this.storyArcPreview = const <String>[],
   });
 
   final String provider;
@@ -28,6 +30,8 @@ class ProviderCandidate {
   final int? volumeStartYear;
   final String? variantName;
   final bool? isVariantOverride;
+  final List<String> characterPreview;
+  final List<String> storyArcPreview;
 
   factory ProviderCandidate.fromJson(
     Map<String, dynamic> json, {
@@ -52,6 +56,8 @@ class ProviderCandidate {
       volumeStartYear: json['volume_start_year'] as int?,
       variantName: json['variant_name'] as String?,
       isVariantOverride: json['is_variant'] as bool?,
+      characterPreview: _stringListField(json['character_preview']),
+      storyArcPreview: _stringListField(json['story_arc_preview']),
     );
   }
 
@@ -94,6 +100,17 @@ class ProviderCandidate {
     final safeProviderItemId = Uri.encodeComponent(providerItemId);
     return 'provider:$safeProvider:$safeKind:$safeProviderItemId';
   }
+}
+
+List<String> _stringListField(Object? value) {
+  if (value is! List) {
+    return const <String>[];
+  }
+  return value
+      .whereType<String>()
+      .map((entry) => entry.trim())
+      .where((entry) => entry.isNotEmpty)
+      .toList(growable: false);
 }
 
 String _safeIdPart(String value) {

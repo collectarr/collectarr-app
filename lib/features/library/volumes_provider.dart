@@ -7,7 +7,7 @@ final volumesProvider = FutureProvider.family<List<Season>,
   final api = ref.watch(apiClientProvider);
   return api
       .getProviderVolumes(params.provider, params.providerItemId)
-      .timeout(const Duration(seconds: 60));
+      .timeout(const Duration(seconds: 20));
 });
 
 final itemVolumesProvider =

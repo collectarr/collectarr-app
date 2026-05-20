@@ -141,6 +141,37 @@ void main() {
     expect(find.text('1 issue | 1 cover | 1 variant'), findsOneWidget);
   });
 
+  testWidgets('provider issue and series rows show arc/character previews',
+      (tester) async {
+    await tester.pumpWidget(
+      _host(
+        includeVariants: true,
+        hideInShelf: false,
+        providerResults: const [
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: 'one',
+            title: 'Spider-Man #1 [Regular Cover]',
+            kind: 'comic',
+            storyArcPreview: ['Spider-Verse', 'Edge of Spider-Verse'],
+            characterPreview: ['Spider-Man', 'Miles Morales'],
+          ),
+          ProviderCandidate(
+            provider: 'comicvine',
+            providerItemId: 'two',
+            title: 'Spider-Man #2 [Regular Cover]',
+            kind: 'comic',
+            storyArcPreview: ['Spider-Verse'],
+            characterPreview: ['Spider-Man'],
+          ),
+        ],
+      ),
+    );
+
+    expect(find.text('arc: Spider-Verse +1'), findsWidgets);
+    expect(find.text('char: Spider-Man +1'), findsWidgets);
+  });
+
   testWidgets('provider issue sorting can be descending', (tester) async {
     await tester.pumpWidget(
       _host(

@@ -16,6 +16,8 @@ void main() {
       'volume_start_year': 1963,
       'variant_name': 'Regular Cover',
       'is_variant': false,
+      'character_preview': ['Spider-Man', 'Aunt May'],
+      'story_arc_preview': ['Spider-Island'],
     });
 
     expect(candidate.provider, 'comicvine');
@@ -30,6 +32,8 @@ void main() {
     expect(candidate.volumeStartYear, 1963);
     expect(candidate.variantName, 'Regular Cover');
     expect(candidate.isVariant, isFalse);
+    expect(candidate.characterPreview, ['Spider-Man', 'Aunt May']);
+    expect(candidate.storyArcPreview, ['Spider-Island']);
   });
 
   test('rejects older provider responses without an explicit fallback kind',
