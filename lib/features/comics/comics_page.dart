@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/comics/comics_barcode_add_workflow.dart';
@@ -11,7 +10,6 @@ import 'package:collectarr_app/features/comics/comics_filter_store.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_grouping_store.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
-import 'package:collectarr_app/features/comics/comics_page_bulk_actions.dart';
 import 'package:collectarr_app/features/comics/comics_page_dialogs.dart';
 import 'package:collectarr_app/features/comics/comics_page_state.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
@@ -21,8 +19,8 @@ import 'package:collectarr_app/features/comics/workspace/comics_workspace_projec
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/library_kind_style.dart';
+import 'package:collectarr_app/features/library/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
-import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -48,10 +46,12 @@ class ComicsPage extends ConsumerStatefulWidget {
   ConsumerState<ComicsPage> createState() => _ComicsPageState();
 }
 
-class _ComicsPageState extends ConsumerState<ComicsPage> {
+class _ComicsPageState extends ConsumerState<ComicsPage>
+    with LibraryPageUtilities {
   ComicsPageUiState pageState = ComicsPageUiState.initial();
   late final TextEditingController _controller;
-  Map<String, List<String>> _customFieldValuesByItem = const {};
+  final _facetBucketsByMode = <ComicsShelfGroupMode, FacetBuckets>{};
+  final _facetLoadsInFlight = <ComicsShelfGroupMode>{};
 
   @override
   void initState() {
@@ -60,7 +60,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     _loadViewPreferences();
     _loadFilterPreferences();
     _loadGroupingPreference();
-    unawaited(_loadCustomFieldValues());
+    unawaited(loadCustomFieldValues());
   }
 
   @override
@@ -72,7 +72,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
-    ref.listen(shelfProvider, (_, __) => unawaited(_loadCustomFieldValues()));
+    ref.listen(shelfProvider, (_, __) => unawaited(loadCustomFieldValues()));
 
     return Scaffold(
       backgroundColor: _kClzCanvas,
@@ -90,11 +90,19 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                     state: state,
                     query: uiState.query,
                     filters: uiState.filterSelection,
-                    customFieldValuesByItem: _customFieldValuesByItem,
+                    customFieldValuesByItem: customFieldValuesByItem,
                   ),
                 ),
               );
               final entries = shelfProjection.entries;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  _ensureFacetBucketsLoaded(state, uiState.groupMode);
+                }
+              });
+              final facetBuckets = _facetBucketsForMode(uiState.groupMode);
+              final usesExternalFacets =
+                  _usesExternalFacetBuckets(uiState.groupMode);
               return ComicsWorkspace(
                 shelfState: state,
                 entries: entries,
@@ -102,6 +110,13 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
                 selectedItemId: uiState.selectedItemId,
                 selectedGroup: uiState.selectedGroup,
                 groupMode: uiState.groupMode,
+                groupLoading: _facetLoadsInFlight.contains(uiState.groupMode),
+                facetBuckets: usesExternalFacets
+                    ? (facetBuckets?.buckets ?? const [])
+                    : null,
+                facetItemIdsByBucket: usesExternalFacets
+                    ? (facetBuckets?.itemIdsByBucket ?? const {})
+                    : null,
                 viewMode: viewState.viewMode,
                 detailsLayout: viewState.detailsLayout,
                 sortColumn: viewState.sortColumn,
@@ -242,60 +257,62 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     setState(() => pageState = pageState.withoutSelection());
   }
 
+  List<ShelfEntry> _selectedEntries(List<ShelfEntry> visibleEntries) {
+    final ids = pageState.selectionState.itemIds;
+    return [
+      for (final entry in visibleEntries)
+        if (ids.contains(entry.itemId)) entry,
+    ];
+  }
+
   Future<void> _showBulkEditDialog(
     BuildContext context,
     List<ShelfEntry> visibleEntries,
   ) async {
-    final changed = await showComicsBulkEditDialog(
-      context: context,
-      actions: _bulkActions(),
-      visibleEntries: visibleEntries,
-      selectedItemIds: pageState.selectionState.itemIds,
+    final entries = _selectedEntries(visibleEntries);
+    if (entries.isEmpty) return;
+    final selection = await showBulkEditDialog(
+      context,
+      type: comicsLibraryConfig,
+      selectedCount: entries.length,
     );
-    if (changed && mounted) {
-      _clearSelection();
-    }
+    if (selection == null || !mounted) return;
+    await bulkActions().editSelected(entries: entries, selection: selection);
+    _clearSelection();
   }
 
   Future<void> _bulkMoveToOwned(List<ShelfEntry> visibleEntries) async {
-    final changed = await moveSelectedComicsToOwned(
-      actions: _bulkActions(),
-      visibleEntries: visibleEntries,
-      selectedItemIds: pageState.selectionState.itemIds,
+    final entries = _selectedEntries(visibleEntries);
+    if (entries.isEmpty) return;
+    await bulkActions().moveSelectedToOwned(
+      entries,
+      defaultCondition: comicsLibraryConfig.defaultCondition,
+      defaultGrade: comicsLibraryConfig.defaultGrade,
     );
-    if (changed && mounted) {
-      _clearSelection();
-    }
+    if (mounted) _clearSelection();
   }
 
   Future<void> _bulkMoveToWishlist(List<ShelfEntry> visibleEntries) async {
-    final changed = await moveSelectedComicsToWishlist(
-      actions: _bulkActions(),
-      visibleEntries: visibleEntries,
-      selectedItemIds: pageState.selectionState.itemIds,
-    );
-    if (changed && mounted) {
-      _clearSelection();
-    }
+    final entries = _selectedEntries(visibleEntries);
+    if (entries.isEmpty) return;
+    await bulkActions().moveSelectedToWishlist(entries);
+    if (mounted) _clearSelection();
   }
 
   Future<void> _bulkRemove(
     BuildContext context,
     List<ShelfEntry> visibleEntries,
   ) async {
-    final changed = await confirmAndRemoveSelectedComics(
-      context: context,
-      actions: _bulkActions(),
-      visibleEntries: visibleEntries,
-      selectedItemIds: pageState.selectionState.itemIds,
+    final entries = _selectedEntries(visibleEntries);
+    if (entries.isEmpty) return;
+    final confirmed = await confirmBulkRemove(
+      context,
+      count: entries.length,
+      itemLabel: 'comics',
     );
-    if (changed && mounted) {
-      _clearSelection();
-    }
-  }
-
-  LibraryBulkActions _bulkActions() {
-    return LibraryBulkActions(ref.read(collectionMutationsProvider));
+    if (!confirmed || !mounted) return;
+    await bulkActions().removeSelected(entries);
+    _clearSelection();
   }
 
   void _handleSortChanged(LibrarySortColumn column) {
@@ -465,22 +482,6 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
     );
   }
 
-  Future<void> _loadCustomFieldValues() async {
-    final db = ref.read(localDatabaseProvider);
-    final repo = CustomFieldRepository(db);
-    final allValues = await repo.listAllValues();
-    final flat = <String, List<String>>{};
-    for (final entry in allValues.entries) {
-      flat[entry.key] = [
-        for (final v in entry.value)
-          if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
-      ];
-    }
-    if (mounted) {
-      setState(() => _customFieldValuesByItem = flat);
-    }
-  }
-
   void _setWorkspaceViewState(ComicsWorkspaceViewState next) {
     setState(
       () => pageState = pageState.copyWith(workspaceViewState: next),
@@ -512,6 +513,93 @@ class _ComicsPageState extends ConsumerState<ComicsPage> {
   void _handleGroupModeChanged(ComicsShelfGroupMode mode) {
     setState(() => pageState = pageState.withGroupMode(mode));
     const ComicsGroupingPreferenceStore().write(mode);
+    final shelfState = ref.read(shelfProvider).asData?.value;
+    if (shelfState != null) {
+      _ensureFacetBucketsLoaded(shelfState, mode);
+    }
+  }
+
+  bool _usesExternalFacetBuckets(ComicsShelfGroupMode mode) {
+    return mode == ComicsShelfGroupMode.storyArc ||
+        mode == ComicsShelfGroupMode.character;
+  }
+
+  FacetBuckets? _facetBucketsForMode(ComicsShelfGroupMode mode) {
+    if (!_usesExternalFacetBuckets(mode)) {
+      return null;
+    }
+    final state = ref.read(shelfProvider).asData?.value;
+    if (state == null) {
+      return null;
+    }
+    final cached = _facetBucketsByMode[mode];
+    final signature = _comicsShelfSignature(state);
+    if (cached == null || cached.shelfSignature != signature) {
+      return null;
+    }
+    return cached;
+  }
+
+  void _ensureFacetBucketsLoaded(
+    ShelfState shelf,
+    ComicsShelfGroupMode mode,
+  ) {
+    if (!_usesExternalFacetBuckets(mode) ||
+        _facetLoadsInFlight.contains(mode)) {
+      return;
+    }
+    final signature = _comicsShelfSignature(shelf);
+    final cached = _facetBucketsByMode[mode];
+    if (cached != null && cached.shelfSignature == signature) {
+      return;
+    }
+    _facetLoadsInFlight.add(mode);
+    unawaited(_loadFacetBuckets(mode, shelf, signature));
+  }
+
+  Future<void> _loadFacetBuckets(
+    ComicsShelfGroupMode mode,
+    ShelfState shelf,
+    String signature,
+  ) async {
+    try {
+      final itemIds = {
+        for (final entry in comicsShelfEntriesOnly(shelf.entries)) entry.itemId,
+      };
+      final buckets = await fetchFacetBuckets(
+        itemIds: itemIds,
+        signature: signature,
+        isStoryArc: mode == ComicsShelfGroupMode.storyArc,
+      );
+      if (!mounted) return;
+      final latestShelf = ref.read(shelfProvider).asData?.value;
+      if (latestShelf == null ||
+          _comicsShelfSignature(latestShelf) != signature) {
+        return;
+      }
+      setState(() {
+        _facetBucketsByMode[mode] = buckets;
+        if (pageState.groupMode == mode &&
+            pageState.selectedGroup != null &&
+            !buckets.buckets
+                .any((b) => b.title == pageState.selectedGroup)) {
+          pageState = pageState.withoutSelectedGroup();
+        }
+      });
+    } catch (e, st) {
+      debugPrint('Facet load failed for $mode: $e\n$st');
+    } finally {
+      _facetLoadsInFlight.remove(mode);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  String _comicsShelfSignature(ShelfState shelf) {
+    return LibraryPageUtilities.shelfSignature([
+      for (final entry in comicsShelfEntriesOnly(shelf.entries)) entry.itemId,
+    ]);
   }
 }
 

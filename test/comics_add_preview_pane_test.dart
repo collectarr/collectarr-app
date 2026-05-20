@@ -23,6 +23,8 @@ void main() {
                       'Over the Garden Wall (2015 series) #1 [Baltimore Comic Con Exclusive Cover]',
                   kind: 'comic',
                   summary: 'August 2015 · 3.99 USD · 28 pages · variant',
+                  storyArcPreview: ['Into the Unknown'],
+                  characterPreview: ['Wirt', 'Greg'],
                 ),
                 selectedProviderLabel: 'GCD',
                 selectedIsOwned: false,
@@ -51,6 +53,8 @@ void main() {
     expect(find.textContaining('Cover price: 3.99 USD'), findsOneWidget);
     expect(find.textContaining('Pages: 28 pages'), findsOneWidget);
     expect(find.textContaining('Type: Variant cover'), findsOneWidget);
+    expect(find.textContaining('Story arcs: Into the Unknown'), findsOneWidget);
+    expect(find.textContaining('Characters: Wirt, Greg'), findsOneWidget);
     expect(find.textContaining('Provider: gcd (148725)'), findsNothing);
     expect(find.text('Metadata candidate'), findsOneWidget);
   });

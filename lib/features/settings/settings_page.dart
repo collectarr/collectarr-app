@@ -1249,11 +1249,8 @@ class _LibraryNavSettings extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           buildDefaultDragHandles: false,
           itemCount: types.length,
-          onReorder: (oldIndex, newIndex) {
+          onReorderItem: (oldIndex, newIndex) {
             final reordered = types.map((type) => type.kind).toList();
-            if (newIndex > oldIndex) {
-              newIndex -= 1;
-            }
             final moved = reordered.removeAt(oldIndex);
             reordered.insert(newIndex, moved);
             onOrderChanged(reordered);

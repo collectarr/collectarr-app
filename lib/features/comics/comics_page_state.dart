@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/comics/comics_filters.dart';
-import 'package:collectarr_app/features/comics/comics_page_selection_state.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_projection.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_state.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
@@ -23,7 +23,7 @@ class ComicsPageUiState {
       groupMode: ComicsShelfGroupMode.series,
       workspaceViewState: comicsWorkspaceViewProfile.defaults(),
       filterSelection: ComicsFilterSelection.none,
-      selectionState: ComicsPageSelectionState.empty(),
+      selectionState: LibrarySelectionState.empty(),
     );
   }
 
@@ -33,7 +33,7 @@ class ComicsPageUiState {
   final ComicsShelfGroupMode groupMode;
   final ComicsWorkspaceViewState workspaceViewState;
   final ComicsFilterSelection filterSelection;
-  final ComicsPageSelectionState selectionState;
+  final LibrarySelectionState selectionState;
 
   ComicsPageUiState copyWith({
     String? query,
@@ -44,7 +44,7 @@ class ComicsPageUiState {
     ComicsShelfGroupMode? groupMode,
     ComicsWorkspaceViewState? workspaceViewState,
     ComicsFilterSelection? filterSelection,
-    ComicsPageSelectionState? selectionState,
+    LibrarySelectionState? selectionState,
   }) {
     return ComicsPageUiState(
       query: query ?? this.query,

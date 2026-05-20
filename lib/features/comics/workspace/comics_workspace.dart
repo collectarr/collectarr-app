@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/comics/comics_compact_view.dart';
 import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_desktop.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_projection.dart';
+import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,9 @@ class ComicsWorkspace extends StatelessWidget {
     required this.selectedItemId,
     required this.selectedGroup,
     required this.groupMode,
+    required this.groupLoading,
+    required this.facetBuckets,
+    required this.facetItemIdsByBucket,
     required this.viewMode,
     required this.detailsLayout,
     required this.sortColumn,
@@ -69,6 +73,9 @@ class ComicsWorkspace extends StatelessWidget {
   final String? selectedItemId;
   final String? selectedGroup;
   final ComicsShelfGroupMode groupMode;
+  final bool groupLoading;
+  final List<LibrarySeriesBucket>? facetBuckets;
+  final Map<String, Set<String>>? facetItemIdsByBucket;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final LibrarySortColumn sortColumn;
@@ -125,6 +132,8 @@ class ComicsWorkspace extends StatelessWidget {
       groupMode: groupMode,
       selectedGroup: selectedGroup,
       selectedItemId: selectedItemId,
+      overrideBuckets: facetBuckets,
+      itemIdsByBucket: facetItemIdsByBucket,
     );
 
     if (!isWide) {
@@ -163,6 +172,7 @@ class ComicsWorkspace extends StatelessWidget {
       shelfState: shelfState,
       queryController: queryController,
       selectedGroup: selectedGroup,
+      groupLoading: groupLoading,
       onGroupModeChanged: onGroupModeChanged,
       viewMode: viewMode,
       detailsLayout: detailsLayout,

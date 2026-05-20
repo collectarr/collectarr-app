@@ -24,6 +24,7 @@ class GenericLibraryBody extends StatelessWidget {
     required this.selectedId,
     required this.selectedBucket,
     required this.groupMode,
+    this.groupLoading = false,
     required this.accent,
     required this.hasActiveFilter,
     required this.onAdd,
@@ -53,6 +54,7 @@ class GenericLibraryBody extends StatelessWidget {
   final String? selectedId;
   final String? selectedBucket;
   final GenericLibraryGroupMode groupMode;
+  final bool groupLoading;
   final Color accent;
   final bool hasActiveFilter;
   final VoidCallback onAdd;
@@ -173,6 +175,7 @@ class GenericLibraryBody extends StatelessWidget {
                     accent: accent,
                     buckets: projection.buckets,
                     groupMode: groupMode,
+                    groupLoading: groupLoading,
                     selectedBucket:
                         selectedBucket ?? genericAllBucketLabel(type),
                     onSelected: (bucket) => onBucketChanged(

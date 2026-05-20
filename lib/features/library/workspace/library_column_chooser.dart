@@ -179,13 +179,10 @@ class _LibraryColumnChooserDialogState
                                 child: child,
                               );
                             },
-                            onReorder: (oldIndex, newIndex) {
+                            onReorderItem: (oldIndex, newIndex) {
                               setState(() {
                                 final reordered =
                                     selectedColumns.toList(growable: true);
-                                if (newIndex > oldIndex) {
-                                  newIndex -= 1;
-                                }
                                 final column = reordered.removeAt(oldIndex);
                                 reordered.insert(newIndex, column);
                                 _selected = {

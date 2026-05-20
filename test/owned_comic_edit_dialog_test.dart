@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/comics/owned_comic_edit_dialog.dart';
+import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/edit/generic_library_edit_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('owned comic edit dialog returns edited personal fields',
+  testWidgets('comic edit dialog returns edited personal fields',
       (tester) async {
     tester.view.physicalSize = const Size(1400, 1000);
     tester.view.devicePixelRatio = 1;
@@ -34,7 +35,7 @@ void main() {
       storageBox: 'Box 1',
       updatedAt: DateTime.utc(2026, 5, 11),
     );
-    OwnedComicEditSelection? selection;
+    GenericLibraryEditSelection? selection;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -42,14 +43,13 @@ void main() {
           builder: (context) => Scaffold(
             body: FilledButton(
               onPressed: () async {
-                selection = await showDialog<OwnedComicEditSelection>(
+                selection = await showDialog<GenericLibraryEditSelection>(
                   context: context,
-                  builder: (context) => OwnedComicEditDialog(
+                  builder: (context) => GenericLibraryEditDialog(
+                    type: comicsLibraryConfig,
                     item: item,
                     ownedItem: ownedItem,
-                    conditions: const ['Near Mint', 'Fine'],
-                    grades: const ['Ungraded', '9.8'],
-                    cover: const ColoredBox(color: Colors.blue),
+                    accent: const Color(0xFF10A8D8),
                   ),
                 );
               },
@@ -72,35 +72,19 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Edit - Superman, Vol. 4'), findsOneWidget);
-    expect(find.text('Collection Status'), findsOneWidget);
-    expect(find.text('1 / 9'), findsOneWidget);
-    expect(find.text('Comic'), findsOneWidget);
-    await tester.tap(find.text('Value'));
-    await tester.pumpAndSettle();
-    expect(find.text('Value by grade'), findsOneWidget);
-    expect(find.text('Research integration placeholder'), findsNothing);
-    expect(find.text('Paid: '), findsOneWidget);
-    expect(find.text(r'$12.99'), findsOneWidget);
-    expect(find.text('Cover: '), findsOneWidget);
-    expect(find.text(r'$3.99'), findsOneWidget);
-    expect(find.text('Barcode: '), findsOneWidget);
-    expect(find.text('76194134192700811'), findsOneWidget);
-    await tester.tap(find.text('Main'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
-    expect(find.text('2 / 9'), findsOneWidget);
+    expect(find.textContaining('Edit'), findsWidgets);
+
+    // Navigate to Personal tab and change storage box
     await tester.tap(find.text('Personal'));
     await tester.pumpAndSettle();
     await tester.enterText(
-        find.widgetWithText(TextField, 'Storage box'), 'Box 6');
+        find.widgetWithText(TextField, 'Storage'), 'Box 6');
 
-    await tester.tap(find.text('OK'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
-    expect(selection?.storageBox, 'Box 6');
-    expect(selection?.condition, 'Near Mint');
-    expect(selection?.grade, '9.8');
+    expect(selection?.personal?.storageBox, 'Box 6');
+    expect(selection?.personal?.condition, 'Near Mint');
+    expect(selection?.personal?.grade, '9.8');
   });
 }

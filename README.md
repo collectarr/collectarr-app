@@ -26,6 +26,8 @@ personal sync lives in `collectarr/collectarr-sync`.
 - 📊 **Sync history** — timestamped log with push/pull/reject counts
 - 🏷️ **Custom fields** — user-defined fields per media type with search/filter and CSV support
 - 🖼️ **Multiple images per item** — local item photos with captions and sort order
+- 🧩 **Story arc & character facets** — filter library by story arcs and characters with facet buckets
+- 🪄 **Provider previews** — see story arc, character, and credit previews in add/search dialogs
 - 🎨 **Animated accent theming** — smooth color transitions across all UI elements when switching libraries
 
 ## 🚀 Quick Start

@@ -11,6 +11,7 @@ class GenericLibrarySidebar extends StatelessWidget {
     required this.accent,
     required this.buckets,
     required this.groupMode,
+    this.groupLoading = false,
     required this.selectedBucket,
     required this.onSelected,
     required this.onGroupModeChanged,
@@ -21,6 +22,7 @@ class GenericLibrarySidebar extends StatelessWidget {
   final Color accent;
   final List<LibrarySeriesBucket> buckets;
   final GenericLibraryGroupMode groupMode;
+  final bool groupLoading;
   final String selectedBucket;
   final ValueChanged<String> onSelected;
   final ValueChanged<GenericLibraryGroupMode> onGroupModeChanged;
@@ -44,6 +46,14 @@ class GenericLibrarySidebar extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (groupLoading) ...[
+            const SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 8),
+          ],
           _GenericGroupingMenu(
             type: type,
             groupMode: groupMode,

@@ -64,7 +64,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
           physics: const NeverScrollableScrollPhysics(),
           buildDefaultDragHandles: false,
           itemCount: _definitions.length,
-          onReorder: _onReorder,
+          onReorderItem: _onReorder,
           itemBuilder: (context, index) {
             final def = _definitions[index];
             return _DefinitionTile(
@@ -87,7 +87,6 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   }
 
   Future<void> _onReorder(int oldIndex, int newIndex) async {
-    if (newIndex > oldIndex) newIndex -= 1;
     final reordered = List.of(_definitions);
     final item = reordered.removeAt(oldIndex);
     reordered.insert(newIndex, item);

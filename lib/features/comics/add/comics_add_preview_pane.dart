@@ -284,6 +284,14 @@ class _AddPreviewDescription extends StatelessWidget {
       if (identity.issueLabel != 'Result')
         _PreviewFact('Issue', identity.issueLabel),
       _PreviewFact('Cover', identity.variantLabel),
+      _PreviewFact(
+        'Story arcs',
+        _previewCollectionValue(selectedCandidate.storyArcPreview),
+      ),
+      _PreviewFact(
+        'Characters',
+        _previewCollectionValue(selectedCandidate.characterPreview),
+      ),
       ...summaryFacts,
     ]);
   }
@@ -401,6 +409,19 @@ class _AddPreviewDescription extends StatelessWidget {
     final whole = absolute ~/ 100;
     final fraction = (absolute % 100).toString().padLeft(2, '0');
     return '${currency ?? ''} $sign$whole.$fraction'.trim();
+  }
+
+  String? _previewCollectionValue(List<String> values) {
+    if (values.isEmpty) {
+      return null;
+    }
+    const visibleCount = 3;
+    final visible = values.take(visibleCount).join(', ');
+    final extraCount = values.length - visibleCount;
+    if (extraCount > 0) {
+      return '$visible +$extraCount more';
+    }
+    return visible;
   }
 }
 
@@ -546,5 +567,3 @@ class _AddPreviewChips extends StatelessWidget {
     );
   }
 }
-
-

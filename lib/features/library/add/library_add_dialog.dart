@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/workspace/library_cover_image.da
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -132,7 +133,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     final selectedProvider = _activeProvider;
     final isBusy = _isSearching || _isSearchingProvider;
-    final accent = kClzAccent;
+    final accent = LibraryAccentScope.accentOf(context, fallback: kClzAccent);
     final selectedResult = _selectedResult;
     final selectedCandidate = _selectedProviderCandidate;
     final selectedProviderLabel = selectedCandidate == null

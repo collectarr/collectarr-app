@@ -19,12 +19,13 @@ import 'package:collectarr_app/features/library/generic_library_metadata_refresh
 import 'package:collectarr_app/features/library/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic_library_toolbar.dart';
 import 'package:collectarr_app/features/library/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/library_type_config.dart';
 import 'package:collectarr_app/features/library/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
-import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -47,15 +48,17 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
   ConsumerState<GenericLibraryPage> createState() => _GenericLibraryPageState();
 }
 
-class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
+class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
+    with LibraryPageUtilities {
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
   String? _selectedId;
   String? _selectedBucket;
   GenericQuickView? _quickView;
   GenericLibraryGroupMode? _groupMode;
-  Map<String, List<String>> _customFieldValuesByItem = const {};
   var _selection = LibrarySelectionState.empty();
+  final _facetBucketsByMode = <GenericLibraryGroupMode, FacetBuckets>{};
+  final _facetLoadsInFlight = <GenericLibraryGroupMode>{};
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -66,7 +69,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     super.initState();
     _viewState = _adapter.viewProfile.defaults();
     unawaited(_loadViewState());
-    unawaited(_loadCustomFieldValues());
+    unawaited(loadCustomFieldValues());
   }
 
   @override
@@ -77,12 +80,14 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       _selectedBucket = null;
       _quickView = null;
       _groupMode = null;
+      _facetBucketsByMode.clear();
+      _facetLoadsInFlight.clear();
       _searchController.clear();
       _viewState = _adapter.viewProfile.defaults().withChrome(
             _viewState?.toPreferenceSnapshot().chrome,
           );
       unawaited(_loadViewState());
-      unawaited(_loadCustomFieldValues());
+      unawaited(loadCustomFieldValues());
     }
   }
 
@@ -95,9 +100,20 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
-    ref.listen(shelfProvider, (_, __) => unawaited(_loadCustomFieldValues()));
+    ref.listen<AsyncValue<ShelfState>>(shelfProvider, (_, next) {
+      unawaited(loadCustomFieldValues());
+      final shelfState = next.asData?.value;
+      if (shelfState != null) {
+        _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
+      }
+    });
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final shelfState = shelf.asData?.value;
+    if (shelfState != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
+      });
+    }
     final projection = shelfState == null
         ? null
         : _projectionForShelf(
@@ -148,17 +164,17 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
                 }),
                 hasActiveFilters: _hasActiveFilter,
                 onClearFilters: _clearFilters,
-                onRandomPick: projection != null &&
-                        projection.filteredItems.isNotEmpty
-                    ? () => _pickRandomItem(projection)
-                    : null,
+                onRandomPick:
+                    projection != null && projection.filteredItems.isNotEmpty
+                        ? () => _pickRandomItem(projection)
+                        : null,
                 counts: projection?.counts ?? const GenericToolbarCounts(),
                 shelfState: shelfState,
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
                 selectionCallbacks: (
-                  onSelectionModeChanged: (enabled) =>
-                      setState(() => _selection = _selection.setEnabled(enabled)),
+                  onSelectionModeChanged: (enabled) => setState(
+                      () => _selection = _selection.setEnabled(enabled)),
                   onClearSelection: () =>
                       setState(() => _selection = _selection.clear()),
                   onBulkEdit: () => _bulkEdit(projection),
@@ -197,6 +213,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       selectedId: _selectedId,
       selectedBucket: _selectedBucket,
       groupMode: _activeGroupMode,
+      groupLoading: _facetLoadsInFlight.contains(_activeGroupMode),
       accent: widget.accent,
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => _showAddDialog(),
@@ -212,6 +229,10 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       onGroupModeChanged: (mode) => setState(() {
         _groupMode = mode;
         _selectedBucket = null;
+        final shelfState = ref.read(shelfProvider).asData?.value;
+        if (shelfState != null) {
+          _ensureFacetBucketsLoaded(shelfState, mode);
+        }
       }),
       onSortChanged: (column) => _updateViewState(
         (state) => state.withSortColumn(column, _adapter.viewProfile),
@@ -262,16 +283,24 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     ShelfState shelf,
     LibraryWorkspaceViewState viewState,
   ) {
+    final mode = _activeGroupMode;
+    final facetBuckets = _facetBucketsForMode(mode, shelf);
+    final constrainedItemIds =
+        (_usesExternalFacetBuckets(mode) && _selectedBucket != null)
+            ? facetBuckets?.itemIdsByBucket[_selectedBucket!]
+            : null;
     return GenericLibraryProjection.fromShelf(
       shelf: shelf,
       type: widget.type,
       viewState: viewState,
       query: _searchController.text,
-      selectedBucket: _selectedBucket,
+      selectedBucket: _usesExternalFacetBuckets(mode) ? null : _selectedBucket,
       selectedItemId: _selectedId,
       quickView: _quickView,
-      groupMode: _activeGroupMode,
-      customFieldValuesByItem: _customFieldValuesByItem,
+      groupMode: mode,
+      overrideBuckets: facetBuckets?.buckets,
+      constrainedItemIds: constrainedItemIds,
+      customFieldValuesByItem: customFieldValuesByItem,
     );
   }
 
@@ -282,6 +311,108 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       _searchController.text.trim().isNotEmpty ||
       _selectedBucket != null ||
       _quickView != null;
+
+  bool _usesExternalFacetBuckets(GenericLibraryGroupMode mode) {
+    if (widget.type.workspace.kind != 'comic') {
+      return false;
+    }
+    return mode == GenericLibraryGroupMode.storyArc ||
+        mode == GenericLibraryGroupMode.character;
+  }
+
+  FacetBuckets? _facetBucketsForMode(
+    GenericLibraryGroupMode mode,
+    ShelfState shelf,
+  ) {
+    if (!_usesExternalFacetBuckets(mode)) {
+      return null;
+    }
+    final signature = _genericShelfSignature(shelf);
+    final cached = _facetBucketsByMode[mode];
+    if (cached != null && cached.shelfSignature == signature) {
+      return cached;
+    }
+    return FacetBuckets(
+      shelfSignature: signature,
+      buckets: [
+        LibrarySeriesBucket(
+          title: genericAllBucketLabel(widget.type),
+          count: genericItemsForShelf(shelf, widget.type).length,
+        ),
+      ],
+      itemIdsByBucket: const {},
+    );
+  }
+
+  void _ensureFacetBucketsLoaded(
+    ShelfState shelf,
+    GenericLibraryGroupMode mode,
+  ) {
+    if (!_usesExternalFacetBuckets(mode)) {
+      return;
+    }
+    final signature = _genericShelfSignature(shelf);
+    final cached = _facetBucketsByMode[mode];
+    if (cached != null && cached.shelfSignature == signature) {
+      return;
+    }
+    if (_facetLoadsInFlight.contains(mode)) {
+      return;
+    }
+    _facetLoadsInFlight.add(mode);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    unawaited(_loadFacetBuckets(mode, shelf, signature));
+  }
+
+  Future<void> _loadFacetBuckets(
+    GenericLibraryGroupMode mode,
+    ShelfState shelf,
+    String signature,
+  ) async {
+    final shelfItemIds = {
+      for (final item in genericItemsForShelf(shelf, widget.type))
+        item.entry.id,
+    };
+    try {
+      final buckets = await fetchFacetBuckets(
+        itemIds: shelfItemIds,
+        signature: signature,
+        isStoryArc: mode == GenericLibraryGroupMode.storyArc,
+        allBucketLabel: genericAllBucketLabel(widget.type),
+      );
+      if (!mounted) return;
+      final latestShelf = ref.read(shelfProvider).asData?.value;
+      if (latestShelf == null ||
+          _genericShelfSignature(latestShelf) != signature) {
+        return;
+      }
+      setState(() {
+        _facetBucketsByMode[mode] = buckets;
+        if (_selectedBucket != null &&
+            !buckets.buckets.any((b) => b.title == _selectedBucket)) {
+          _selectedBucket = null;
+        }
+      });
+    } catch (e, st) {
+      debugPrint('Facet load failed for $mode: $e\n$st');
+    } finally {
+      _facetLoadsInFlight.remove(mode);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  String _genericShelfSignature(ShelfState shelf) {
+    return LibraryPageUtilities.shelfSignature([
+      for (final item in genericItemsForShelf(shelf, widget.type))
+        item.entry.id,
+    ]);
+  }
 
   void _clearFilters() {
     setState(() {
@@ -304,22 +435,6 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     final state = await _adapter.viewProfile.load();
     if (mounted) {
       setState(() => _viewState = state);
-    }
-  }
-
-  Future<void> _loadCustomFieldValues() async {
-    final db = ref.read(localDatabaseProvider);
-    final repo = CustomFieldRepository(db);
-    final allValues = await repo.listAllValues();
-    final flat = <String, List<String>>{};
-    for (final entry in allValues.entries) {
-      flat[entry.key] = [
-        for (final v in entry.value)
-          if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
-      ];
-    }
-    if (mounted) {
-      setState(() => _customFieldValuesByItem = flat);
     }
   }
 
@@ -380,9 +495,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
     final cfValues = owned != null
         ? await customFieldRepo.listValuesForItem(owned.id)
         : <dynamic>[];
-    final images = owned != null
-        ? await itemImageRepo.listForItem(owned.id)
-        : <dynamic>[];
+    final images =
+        owned != null ? await itemImageRepo.listForItem(owned.id) : <dynamic>[];
     if (!mounted) return;
     final result = await showDialog<GenericLibraryEditSelection>(
       context: context,
@@ -421,13 +535,13 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
         quantity: personal.quantity,
         storageBox: personal.storageBox,
         indexNumber: owned.indexNumber,
-        coverPriceCents: personal.coverPriceCents ?? owned.coverPriceCents,
-        rawOrSlabbed: personal.rawOrSlabbed ?? owned.rawOrSlabbed,
-        gradingCompany: personal.gradingCompany ?? owned.gradingCompany,
-        graderNotes: personal.graderNotes ?? owned.graderNotes,
-        signedBy: personal.signedBy ?? owned.signedBy,
-        keyComic: personal.keyComic ?? owned.keyComic,
-        keyReason: personal.keyReason ?? owned.keyReason,
+        coverPriceCents: personal.coverPriceCents,
+        rawOrSlabbed: personal.rawOrSlabbed,
+        gradingCompany: personal.gradingCompany,
+        graderNotes: personal.graderNotes,
+        signedBy: personal.signedBy,
+        keyComic: personal.keyComic,
+        keyReason: personal.keyReason,
         rating: personal.rating,
         readStatus: personal.readStatus,
         startedAt: personal.startedAt,
@@ -471,7 +585,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       return;
     }
     ref.invalidate(shelfProvider);
-    unawaited(_loadCustomFieldValues());
+    unawaited(loadCustomFieldValues());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${widget.type.singularLabel} updated')),
     );
@@ -535,20 +649,17 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
 
   Future<void> _bulkEdit(GenericLibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
-    final selection = await showDialog<LibraryBulkEditSelection>(
-      context: context,
-      builder: (context) => LibraryBulkEditDialog(
-        type: widget.type,
-        selectedCount: _selection.selectedCount,
-      ),
+    final selection = await showBulkEditDialog(
+      context,
+      type: widget.type,
+      selectedCount: _selection.selectedCount,
     );
     if (selection == null || !mounted) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
       _selection.itemIds,
     );
-    final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
-    await actions.editSelected(entries: entries, selection: selection);
+    await bulkActions().editSelected(entries: entries, selection: selection);
     setState(() => _selection = _selection.clear());
     ref.invalidate(shelfProvider);
   }
@@ -559,8 +670,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       projection.filteredItems,
       _selection.itemIds,
     );
-    final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
-    await actions.moveSelectedToOwned(
+    await bulkActions().moveSelectedToOwned(
       entries,
       defaultCondition: widget.type.defaultCondition,
       defaultGrade: widget.type.defaultGrade,
@@ -575,8 +685,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       projection.filteredItems,
       _selection.itemIds,
     );
-    final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
-    await actions.moveSelectedToWishlist(entries);
+    await bulkActions().moveSelectedToWishlist(entries);
     setState(() => _selection = _selection.clear());
     ref.invalidate(shelfProvider);
   }
@@ -587,28 +696,12 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage> {
       projection.filteredItems,
       _selection.itemIds,
     );
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Remove selected items?'),
-        content: Text(
-          'This removes ${entries.length} selected item${entries.length == 1 ? '' : 's'} from the local shelf and queues the change for sync.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Remove'),
-          ),
-        ],
-      ),
+    final confirmed = await confirmBulkRemove(
+      context,
+      count: entries.length,
     );
-    if (confirmed != true || !mounted) return;
-    final actions = LibraryBulkActions(ref.read(collectionMutationsProvider));
-    await actions.removeSelected(entries);
+    if (!confirmed || !mounted) return;
+    await bulkActions().removeSelected(entries);
     setState(() => _selection = _selection.clear());
     ref.invalidate(shelfProvider);
   }
