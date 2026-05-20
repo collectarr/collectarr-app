@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/comics/comics_filters.dart';
 import 'package:collectarr_app/features/comics/comics_grouping_store.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/comics/comics_page_dialogs.dart';
-import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/comics/comics_page_state.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_helpers.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_projection.dart';
@@ -22,8 +21,6 @@ import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_c
 import 'package:collectarr_app/features/library/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
-import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
-import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -53,7 +50,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
     with LibraryPageUtilities {
   ComicsPageUiState pageState = ComicsPageUiState.initial();
   late final TextEditingController _controller;
-  final _facetBucketsByMode = <ComicsShelfGroupMode, _ComicsFacetBuckets>{};
+  final _facetBucketsByMode = <ComicsShelfGroupMode, FacetBuckets>{};
   final _facetLoadsInFlight = <ComicsShelfGroupMode>{};
 
   @override
@@ -270,22 +267,20 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
   ) async {
     final entries = _selectedEntries(visibleEntries);
     if (entries.isEmpty) return;
-    final selection = await showDialog<LibraryBulkEditSelection>(
-      context: context,
-      builder: (context) => LibraryBulkEditDialog(
-        type: comicsLibraryConfig,
-        selectedCount: entries.length,
-      ),
+    final selection = await showBulkEditDialog(
+      context,
+      type: comicsLibraryConfig,
+      selectedCount: entries.length,
     );
     if (selection == null || !mounted) return;
-    await _bulkActions().editSelected(entries: entries, selection: selection);
+    await bulkActions().editSelected(entries: entries, selection: selection);
     _clearSelection();
   }
 
   Future<void> _bulkMoveToOwned(List<ShelfEntry> visibleEntries) async {
     final entries = _selectedEntries(visibleEntries);
     if (entries.isEmpty) return;
-    await _bulkActions().moveSelectedToOwned(
+    await bulkActions().moveSelectedToOwned(
       entries,
       defaultCondition: comicsLibraryConfig.defaultCondition,
       defaultGrade: comicsLibraryConfig.defaultGrade,
@@ -296,7 +291,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
   Future<void> _bulkMoveToWishlist(List<ShelfEntry> visibleEntries) async {
     final entries = _selectedEntries(visibleEntries);
     if (entries.isEmpty) return;
-    await _bulkActions().moveSelectedToWishlist(entries);
+    await bulkActions().moveSelectedToWishlist(entries);
     if (mounted) _clearSelection();
   }
 
@@ -306,32 +301,14 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
   ) async {
     final entries = _selectedEntries(visibleEntries);
     if (entries.isEmpty) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Remove selected comics?'),
-        content: Text(
-          'This removes ${entries.length} selected item${entries.length == 1 ? '' : 's'} from the local shelf and queues the change for sync.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Remove'),
-          ),
-        ],
-      ),
+    final confirmed = await confirmBulkRemove(
+      context,
+      count: entries.length,
+      itemLabel: 'comics',
     );
-    if (confirmed != true || !mounted) return;
-    await _bulkActions().removeSelected(entries);
+    if (!confirmed || !mounted) return;
+    await bulkActions().removeSelected(entries);
     _clearSelection();
-  }
-
-  LibraryBulkActions _bulkActions() {
-    return LibraryBulkActions(ref.read(collectionMutationsProvider));
   }
 
   void _handleSortChanged(LibrarySortColumn column) {
@@ -543,7 +520,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
         mode == ComicsShelfGroupMode.character;
   }
 
-  _ComicsFacetBuckets? _facetBucketsForMode(ComicsShelfGroupMode mode) {
+  FacetBuckets? _facetBucketsForMode(ComicsShelfGroupMode mode) {
     if (!_usesExternalFacetBuckets(mode)) {
       return null;
     }
@@ -552,7 +529,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
       return null;
     }
     final cached = _facetBucketsByMode[mode];
-    final signature = _shelfSignature(state);
+    final signature = _comicsShelfSignature(state);
     if (cached == null || cached.shelfSignature != signature) {
       return null;
     }
@@ -567,7 +544,7 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
         _facetLoadsInFlight.contains(mode)) {
       return;
     }
-    final signature = _shelfSignature(shelf);
+    final signature = _comicsShelfSignature(shelf);
     final cached = _facetBucketsByMode[mode];
     if (cached != null && cached.shelfSignature == signature) {
       return;
@@ -585,46 +562,28 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
       final itemIds = {
         for (final entry in comicsShelfEntriesOnly(shelf.entries)) entry.itemId,
       };
-      final rows = mode == ComicsShelfGroupMode.storyArc
-          ? await ref.read(apiClientProvider).storyArcFacets(itemIds)
-          : await ref.read(apiClientProvider).characterFacets(itemIds);
-      final byBucket = <String, Set<String>>{};
-      for (final row in rows) {
-        final name = _rowText(row, 'name');
-        if (name == null) {
-          continue;
-        }
-        for (final itemId in _rowTextList(row, 'item_ids')) {
-          if (itemIds.contains(itemId)) {
-            byBucket.putIfAbsent(name, () => <String>{}).add(itemId);
-          }
-        }
-      }
-      final buckets = [
-        for (final entry in byBucket.entries)
-          LibrarySeriesBucket(title: entry.key, count: entry.value.length),
-      ]..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-      if (!mounted) {
-        return;
-      }
+      final buckets = await fetchFacetBuckets(
+        itemIds: itemIds,
+        signature: signature,
+        isStoryArc: mode == ComicsShelfGroupMode.storyArc,
+      );
+      if (!mounted) return;
       final latestShelf = ref.read(shelfProvider).asData?.value;
-      if (latestShelf == null || _shelfSignature(latestShelf) != signature) {
+      if (latestShelf == null ||
+          _comicsShelfSignature(latestShelf) != signature) {
         return;
       }
       setState(() {
-        _facetBucketsByMode[mode] = _ComicsFacetBuckets(
-          shelfSignature: signature,
-          buckets: buckets,
-          itemIdsByBucket: byBucket,
-        );
+        _facetBucketsByMode[mode] = buckets;
         if (pageState.groupMode == mode &&
             pageState.selectedGroup != null &&
-            !buckets.any((bucket) => bucket.title == pageState.selectedGroup)) {
+            !buckets.buckets
+                .any((b) => b.title == pageState.selectedGroup)) {
           pageState = pageState.withoutSelectedGroup();
         }
       });
-    } catch (_) {
-      // Keep the local shelf usable when optional metadata facets are unavailable.
+    } catch (e, st) {
+      debugPrint('Facet load failed for $mode: $e\n$st');
     } finally {
       _facetLoadsInFlight.remove(mode);
       if (mounted) {
@@ -633,18 +592,11 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
     }
   }
 
-  String _shelfSignature(ShelfState shelf) {
-    final ids = [
+  String _comicsShelfSignature(ShelfState shelf) {
+    return LibraryPageUtilities.shelfSignature([
       for (final entry in comicsShelfEntriesOnly(shelf.entries)) entry.itemId,
-    ]..sort();
-    return ids.join('|');
+    ]);
   }
-
-  String? _rowText(Map<String, dynamic> row, String key) =>
-      LibraryPageUtilities.rowText(row, key);
-
-  List<String> _rowTextList(Map<String, dynamic> row, String key) =>
-      LibraryPageUtilities.rowTextList(row, key);
 }
 
 class _ErrorState extends StatelessWidget {
@@ -656,16 +608,4 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(child: Text(message));
   }
-}
-
-class _ComicsFacetBuckets {
-  const _ComicsFacetBuckets({
-    required this.shelfSignature,
-    required this.buckets,
-    required this.itemIdsByBucket,
-  });
-
-  final String shelfSignature;
-  final List<LibrarySeriesBucket> buckets;
-  final Map<String, Set<String>> itemIdsByBucket;
 }
