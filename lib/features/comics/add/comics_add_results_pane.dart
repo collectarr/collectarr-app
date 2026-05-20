@@ -991,6 +991,10 @@ List<String> _providerPreviewBadgesFromValues({
   return <String>['$prefix: $first +$extraCount'];
 }
 
+const int _kMaxMergedPreviewValues = 4;
+const int _kMaxPreviewLength = 30;
+const int _kTruncatedPreviewLength = 27;
+
 List<String> _mergedPreviewValues(Iterable<List<String>> source) {
   final merged = <String>[];
   final seen = <String>{};
@@ -1005,7 +1009,7 @@ List<String> _mergedPreviewValues(Iterable<List<String>> source) {
         continue;
       }
       merged.add(clean);
-      if (merged.length >= 4) {
+      if (merged.length >= _kMaxMergedPreviewValues) {
         return merged;
       }
     }
@@ -1014,10 +1018,10 @@ List<String> _mergedPreviewValues(Iterable<List<String>> source) {
 }
 
 String _truncatePreviewValue(String value) {
-  if (value.length <= 30) {
+  if (value.length <= _kMaxPreviewLength) {
     return value;
   }
-  return '${value.substring(0, 27).trimRight()}...';
+  return '${value.substring(0, _kTruncatedPreviewLength).trimRight()}...';
 }
 
 class _ProviderCandidateIdentity {
