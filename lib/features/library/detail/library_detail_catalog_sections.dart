@@ -21,16 +21,113 @@ class LibraryDetailMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final presentation = buildLibraryMetadataPresentation(
+      type: type,
+      entry: entry,
+      onFilterByValue: onFilterByValue,
+      includeIdentityFacts: true,
+    );
     return LibraryInspectorSection(
-      title: 'Catalog metadata',
+      title: 'Catalog identity',
       accentColor: accent,
       children: [
-        LibraryMetadataContent(
-          type: type,
-          entry: entry,
-          includeIdentityFacts: true,
-          onFilterByValue: onFilterByValue,
-        ),
+        LibraryInspectorFactGrid(facts: presentation.identityFacts),
+      ],
+    );
+  }
+}
+
+class LibraryDetailContextSection extends StatelessWidget {
+  const LibraryDetailContextSection({
+    super.key,
+    required this.type,
+    required this.entry,
+    required this.accent,
+    this.onFilterByValue,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceEntry entry;
+  final Color accent;
+  final ValueChanged<String>? onFilterByValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final presentation = buildLibraryMetadataPresentation(
+      type: type,
+      entry: entry,
+      onFilterByValue: onFilterByValue,
+    );
+    return LibraryInspectorSection(
+      title: 'Catalog context',
+      accentColor: accent,
+      children: [
+        LibraryInspectorFactGrid(facts: presentation.contextFacts),
+        if (presentation.genres.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Genres',
+            values: presentation.genres,
+            onValueTap: onFilterByValue,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class LibraryDetailCreditsSection extends StatelessWidget {
+  const LibraryDetailCreditsSection({
+    super.key,
+    required this.type,
+    required this.entry,
+    required this.accent,
+    this.onFilterByValue,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceEntry entry;
+  final Color accent;
+  final ValueChanged<String>? onFilterByValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final presentation = buildLibraryMetadataPresentation(
+      type: type,
+      entry: entry,
+      onFilterByValue: onFilterByValue,
+    );
+    if (!presentation.hasCredits) {
+      return const SizedBox.shrink();
+    }
+    return LibraryInspectorSection(
+      title: 'Credits & Discovery',
+      accentColor: accent,
+      children: [
+        if (presentation.creators.isNotEmpty)
+          LibraryMetadataCreditsList(
+            title: 'Creators',
+            credits: presentation.creators,
+            onValueTap: onFilterByValue,
+          ),
+        if (presentation.characters.isNotEmpty) ...[
+          if (presentation.creators.isNotEmpty) const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Characters',
+            values: presentation.characters,
+            onValueTap: onFilterByValue,
+          ),
+        ],
+        if (presentation.storyArcs.isNotEmpty) ...[
+          if (presentation.creators.isNotEmpty ||
+              presentation.characters.isNotEmpty)
+            const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Story Arcs',
+            values: presentation.storyArcs,
+            onValueTap: onFilterByValue,
+          ),
+        ],
       ],
     );
   }
