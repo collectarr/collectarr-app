@@ -108,7 +108,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               animationDuration: animationDuration,
             ),
             bottom: const TabBar(
-              tabAlignment: TabAlignment.fill,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
               tabs: [
                 Tab(icon: Icon(Icons.route_outlined), text: 'Connection'),
                 Tab(
