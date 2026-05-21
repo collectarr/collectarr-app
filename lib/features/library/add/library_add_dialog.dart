@@ -70,6 +70,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _storageBoxController = TextEditingController();
   final _uuid = const Uuid();
 
+  // Advanced search fields
+  final _searchSeriesController = TextEditingController();
+  final _searchNumberController = TextEditingController();
+  final _searchPublisherController = TextEditingController();
+  final _searchYearController = TextEditingController();
+  bool _showAdvancedSearch = false;
+
   List<CatalogItem> _results = const [];
   List<ProviderCandidate> _providerResults = const [];
   final _queuedProviderIngests = <String, _QueuedProviderIngest>{};
@@ -86,6 +93,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
   String? _selectedResultId;
   String? _selectedProviderCandidateId;
+  AdminProviderPreview? _candidatePreview;
+  bool _isFetchingPreview = false;
+  String? _lastPreviewCandidateId;
   String? _physicalFormatId;
   String _defaultCondition = 'Near Mint';
   String _defaultGrade = 'Ungraded';
@@ -132,6 +142,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _variantController.dispose();
     _coverController.dispose();
     _storageBoxController.dispose();
+    _searchSeriesController.dispose();
+    _searchNumberController.dispose();
+    _searchPublisherController.dispose();
+    _searchYearController.dispose();
     super.dispose();
   }
 
@@ -194,6 +208,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   onLookupBarcode: _lookupBarcode,
                   onManual: () =>
                       setState(() => _mode = _LibraryAddDialogMode.manual),
+                  showAdvanced: _showAdvancedSearch,
+                  onToggleAdvanced: () => setState(
+                      () => _showAdvancedSearch = !_showAdvancedSearch),
+                  seriesController: _searchSeriesController,
+                  numberController: _searchNumberController,
+                  publisherController: _searchPublisherController,
+                  yearController: _searchYearController,
                 ),
                 if (_barcodeController.text.trim().isNotEmpty)
                   _BarcodePrefillBanner(
@@ -222,10 +243,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           _selectedResultId = id;
                           _selectedProviderCandidateId = null;
                         }),
-                        onSelectProviderCandidate: (id) => setState(() {
-                          _selectedProviderCandidateId = id;
-                          _selectedResultId = null;
-                        }),
+                        onSelectProviderCandidate: (id) {
+                          setState(() {
+                            _selectedProviderCandidateId = id;
+                            _selectedResultId = null;
+                          });
+                          final candidate = _providerResults
+                              .where((c) => c.localCatalogId == id)
+                              .firstOrNull;
+                          if (candidate != null) {
+                            _fetchCandidatePreview(candidate);
+                          }
+                        },
                         onToggleResultCheck: (id) => setState(() {
                           if (!_checkedResultIds.remove(id)) {
                             _checkedResultIds.add(id);
@@ -243,6 +272,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         accent: accent,
                         item: selectedResult,
                         candidate: selectedCandidate,
+                        candidatePreview: _candidatePreview,
+                        isFetchingPreview: _isFetchingPreview,
                         providerLabel: selectedProviderLabel,
                         searched: _results.isNotEmpty || _searchedProvider,
                       );
@@ -383,7 +414,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   Future<void> _search() async {
     final query = _queryController.text.trim();
-    if (query.isEmpty) {
+    if (query.isEmpty &&
+        _searchSeriesController.text.trim().isEmpty &&
+        _searchNumberController.text.trim().isEmpty &&
+        _searchPublisherController.text.trim().isEmpty &&
+        _searchYearController.text.trim().isEmpty) {
       setState(() => _error = 'Enter a title, creator, series, or keyword.');
       return;
     }
@@ -394,13 +429,25 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _providerResults = const [];
       _searchedProvider = false;
     });
+    final series = _searchSeriesController.text.trim();
+    final issueNumber = _searchNumberController.text.trim();
+    final publisher = _searchPublisherController.text.trim();
+    final yearText = _searchYearController.text.trim();
+    final year = yearText.isNotEmpty ? int.tryParse(yearText) : null;
     try {
       final api = ref.read(apiClientProvider);
       final items = await searchAndCacheLibraryMetadata(
         api: api,
         type: widget.type,
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
-        input: LibraryMetadataSearchInput(query: query, limit: 20),
+        input: LibraryMetadataSearchInput(
+          query: query.isNotEmpty ? query : null,
+          series: series.isNotEmpty ? series : null,
+          issueNumber: issueNumber.isNotEmpty ? issueNumber : null,
+          publisher: publisher.isNotEmpty ? publisher : null,
+          year: year,
+          limit: 20,
+        ),
       ).timeout(_coreSearchTimeout);
       final shouldSearchProvider =
           widget.type.supportedMetadataProviders.isNotEmpty;
@@ -580,6 +627,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         widget.type,
         provider: provider,
         query: query,
+        series: _searchSeriesController.text.trim().isNotEmpty
+            ? _searchSeriesController.text.trim()
+            : null,
+        issueNumber: _searchNumberController.text.trim().isNotEmpty
+            ? _searchNumberController.text.trim()
+            : null,
+        year: _searchYearController.text.trim().isNotEmpty
+            ? int.tryParse(_searchYearController.text.trim())
+            : null,
       );
       if (!mounted) {
         return;
@@ -619,6 +675,32 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _lastProviderSearchSignature = signature;
     _lastProviderSearchAt = now;
     return shouldSkip;
+  }
+
+  Future<void> _fetchCandidatePreview(ProviderCandidate candidate) async {
+    final candidateId = candidate.localCatalogId;
+    if (_lastPreviewCandidateId == candidateId) return;
+    _lastPreviewCandidateId = candidateId;
+    setState(() {
+      _isFetchingPreview = true;
+      _candidatePreview = null;
+    });
+    try {
+      final api = ref.read(apiClientProvider);
+      final preview = await api.providerPreview(
+        provider: candidate.provider,
+        providerItemId: candidate.providerItemId,
+      );
+      if (mounted && _lastPreviewCandidateId == candidateId) {
+        setState(() => _candidatePreview = preview);
+      }
+    } catch (_) {
+      // Silently fail — candidate basic fields still shown.
+    } finally {
+      if (mounted && _lastPreviewCandidateId == candidateId) {
+        setState(() => _isFetchingPreview = false);
+      }
+    }
   }
 
   Future<bool> _clearRejectedMetadataSession(

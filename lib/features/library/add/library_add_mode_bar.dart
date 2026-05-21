@@ -99,6 +99,12 @@ class _LibraryAddModeBar extends StatelessWidget {
     required this.onSearch,
     required this.onLookupBarcode,
     required this.onManual,
+    required this.showAdvanced,
+    required this.onToggleAdvanced,
+    required this.seriesController,
+    required this.numberController,
+    required this.publisherController,
+    required this.yearController,
   });
 
   final LibraryTypeConfig type;
@@ -112,6 +118,12 @@ class _LibraryAddModeBar extends StatelessWidget {
   final VoidCallback onSearch;
   final VoidCallback onLookupBarcode;
   final VoidCallback onManual;
+  final bool showAdvanced;
+  final VoidCallback onToggleAdvanced;
+  final TextEditingController seriesController;
+  final TextEditingController numberController;
+  final TextEditingController publisherController;
+  final TextEditingController yearController;
 
   @override
   Widget build(BuildContext context) {
@@ -135,25 +147,47 @@ class _LibraryAddModeBar extends StatelessWidget {
             ),
             const SizedBox(height: 7),
             switch (mode) {
-              _LibraryAddDialogMode.search => Row(
+              _LibraryAddDialogMode.search => Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: _LibraryAddModeTextField(
-                        fieldKey: const ValueKey('library-add-query-field'),
-                        controller: queryController,
-                        label: 'Search Collectarr Core',
-                        hintText: _searchHint,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _LibraryAddModeTextField(
+                            fieldKey:
+                                const ValueKey('library-add-query-field'),
+                            controller: queryController,
+                            label: 'Search Collectarr Core',
+                            hintText: _searchHint,
+                            onSubmitted: onSearch,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        _AdvancedToggleButton(
+                          expanded: showAdvanced,
+                          accent: accent,
+                          onPressed: onToggleAdvanced,
+                        ),
+                        const SizedBox(width: 6),
+                        _LibraryAddModeButton(
+                          label: _searchButtonLabel,
+                          icon: Icons.search,
+                          accent: accent,
+                          isBusy: isSearching,
+                          onPressed: isBusy ? null : onSearch,
+                        ),
+                      ],
+                    ),
+                    if (showAdvanced) ...[
+                      const SizedBox(height: 6),
+                      _AdvancedSearchFields(
+                        seriesController: seriesController,
+                        numberController: numberController,
+                        publisherController: publisherController,
+                        yearController: yearController,
                         onSubmitted: onSearch,
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    _LibraryAddModeButton(
-                      label: _searchButtonLabel,
-                      icon: Icons.search,
-                      accent: accent,
-                      isBusy: isSearching,
-                      onPressed: isBusy ? null : onSearch,
-                    ),
+                    ],
                   ],
                 ),
               _LibraryAddDialogMode.barcode => Row(
@@ -461,6 +495,155 @@ class _LibraryAddModeButton extends StatelessWidget {
               style: style,
               child: child,
             ),
+    );
+  }
+}
+
+class _AdvancedToggleButton extends StatelessWidget {
+  const _AdvancedToggleButton({
+    required this.expanded,
+    required this.accent,
+    required this.onPressed,
+  });
+
+  final bool expanded;
+  final Color accent;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _kLibraryAddModeControlHeight,
+      width: _kLibraryAddModeControlHeight,
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(
+          expanded ? Icons.unfold_less : Icons.unfold_more,
+          size: 20,
+        ),
+        tooltip: expanded ? 'Hide advanced fields' : 'Show advanced fields',
+        style: IconButton.styleFrom(
+          foregroundColor: expanded ? accent : const Color(0xFF9EA9B0),
+          backgroundColor:
+              expanded ? accent.withValues(alpha: 0.15) : Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(3),
+            side: BorderSide(
+              color: expanded ? accent.withValues(alpha: 0.5) : const Color(0xFF50565A),
+            ),
+          ),
+          padding: EdgeInsets.zero,
+        ),
+      ),
+    );
+  }
+}
+
+class _AdvancedSearchFields extends StatelessWidget {
+  const _AdvancedSearchFields({
+    required this.seriesController,
+    required this.numberController,
+    required this.publisherController,
+    required this.yearController,
+    required this.onSubmitted,
+  });
+
+  final TextEditingController seriesController;
+  final TextEditingController numberController;
+  final TextEditingController publisherController;
+  final TextEditingController yearController;
+  final VoidCallback onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 3,
+          child: _AdvancedField(
+            controller: seriesController,
+            hint: 'Series...',
+            onSubmitted: onSubmitted,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          flex: 1,
+          child: _AdvancedField(
+            controller: numberController,
+            hint: '#',
+            keyboardType: TextInputType.number,
+            onSubmitted: onSubmitted,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          flex: 2,
+          child: _AdvancedField(
+            controller: publisherController,
+            hint: 'Publisher...',
+            onSubmitted: onSubmitted,
+          ),
+        ),
+        const SizedBox(width: 6),
+        SizedBox(
+          width: 60,
+          child: _AdvancedField(
+            controller: yearController,
+            hint: 'Year',
+            keyboardType: TextInputType.number,
+            onSubmitted: onSubmitted,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AdvancedField extends StatelessWidget {
+  const _AdvancedField({
+    required this.controller,
+    required this.hint,
+    required this.onSubmitted,
+    this.keyboardType,
+  });
+
+  final TextEditingController controller;
+  final String hint;
+  final VoidCallback onSubmitted;
+  final TextInputType? keyboardType;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 30,
+      child: _LibraryAddModeFieldFrame(
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardType ?? TextInputType.text,
+          inputFormatters: [noNewlineFormatter],
+          textInputAction: TextInputAction.search,
+          textAlignVertical: TextAlignVertical.center,
+          onSubmitted: (_) => onSubmitted(),
+          style: const TextStyle(
+            color: Color(0xFFEDEDED),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            filled: false,
+            border: InputBorder.none,
+            hintText: hint,
+            hintStyle: const TextStyle(
+              color: Color(0xFF9EA9B0),
+              fontSize: 13,
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          ),
+        ),
+      ),
     );
   }
 }

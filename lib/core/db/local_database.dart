@@ -149,6 +149,19 @@ class SyncQueue extends Table {
   Set<Column> get primaryKey => {entityType, entityId};
 }
 
+class LoansCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get ownedItemId => text()();
+  TextColumn get borrowerName => text()();
+  DateTimeColumn get lentDate => dateTime()();
+  DateTimeColumn get dueDate => dateTime().nullable()();
+  DateTimeColumn get returnedDate => dateTime().nullable()();
+  TextColumn get notes => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -157,13 +170,14 @@ class SyncQueue extends Table {
   CustomFieldDefinitionsCache,
   CustomFieldValuesCache,
   ItemImagesCache,
+  LoansCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {

@@ -34,6 +34,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     required this.accent,
     required this.item,
     required this.candidate,
+    required this.candidatePreview,
+    required this.isFetchingPreview,
     required this.providerLabel,
     required this.searched,
   });
@@ -42,6 +44,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   final Color accent;
   final CatalogItem? item;
   final ProviderCandidate? candidate;
+  final AdminProviderPreview? candidatePreview;
+  final bool isFetchingPreview;
   final String providerLabel;
   final bool searched;
 
@@ -63,15 +67,19 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     }
     final title = selectedItem?.title ?? selectedCandidate!.title;
     final itemNumber = selectedItem?.itemNumber;
-    final synopsis = selectedItem?.synopsis ?? selectedCandidate?.summary;
-    final coverUrl =
-        selectedItem?.displayCoverUrl ?? selectedCandidate?.imageUrl;
+    final preview = candidatePreview;
+    final synopsis = selectedItem?.synopsis ??
+        preview?.synopsis ??
+        selectedCandidate?.summary;
+    final coverUrl = selectedItem?.displayCoverUrl ??
+        preview?.coverImageUrl ??
+        selectedCandidate?.imageUrl;
     final rows = selectedItem == null
-        ? <(String, String?)>[
-            if (selectedCandidate?.seriesTitle != null)
-              ('Artist / Series', selectedCandidate?.seriesTitle),
-          ]
+        ? (preview != null
+            ? _metadataRowsForFullPreview(preview)
+            : _metadataRowsForCandidate(selectedCandidate!))
         : _metadataRowsForItem(selectedItem, type);
+    final tracks = preview?.tracks ?? const [];
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -130,10 +138,13 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                   Expanded(
                     child: ListView(
                       children: [
-                        Text('Plot', style: TextStyle(color: accent)),
-                        const SizedBox(height: 6),
-                        Text(synopsis ?? 'No metadata summary available yet.'),
-                        const SizedBox(height: 22),
+                        if (synopsis != null &&
+                            synopsis.trim().isNotEmpty) ...[
+                          Text('Plot', style: TextStyle(color: accent)),
+                          const SizedBox(height: 6),
+                          Text(synopsis),
+                          const SizedBox(height: 22),
+                        ],
                         Text('Details', style: TextStyle(color: accent)),
                         const SizedBox(height: 8),
                         for (final row in rows)
@@ -142,6 +153,37 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                               label: row.$1,
                               value: row.$2!,
                             ),
+                        if (isFetchingPreview) ...[
+                          const SizedBox(height: 16),
+                          const Row(
+                            children: [
+                              SizedBox.square(
+                                dimension: 14,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Fetching full metadata...',
+                                style: TextStyle(color: kClzTextMuted),
+                              ),
+                            ],
+                          ),
+                        ],
+                        if (tracks.isNotEmpty) ...[
+                          const SizedBox(height: 22),
+                          Text(
+                            'Tracks (${tracks.length})',
+                            style: TextStyle(color: accent),
+                          ),
+                          const SizedBox(height: 8),
+                          for (var i = 0; i < tracks.length; i++)
+                            _PreviewTrackRow(
+                              index: i + 1,
+                              track: tracks[i],
+                              accent: accent,
+                            ),
+                        ],
                       ],
                     ),
                   ),
@@ -177,6 +219,27 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       ),
     );
   }
+}
+
+List<(String, String?)> _metadataRowsForCandidate(
+    ProviderCandidate candidate) {
+  return [
+    if (candidate.seriesTitle != null)
+      ('Artist / Series', candidate.seriesTitle),
+    if (candidate.issueNumber != null) ('Issue #', candidate.issueNumber),
+    if (candidate.publisher != null) ('Publisher', candidate.publisher),
+    if (candidate.volumeStartYear != null)
+      ('Year', candidate.volumeStartYear.toString()),
+    if (candidate.variantName != null) ('Variant', candidate.variantName),
+    if (candidate.issueCount != null)
+      ('Issues', candidate.issueCount.toString()),
+    if (candidate.characterPreview.isNotEmpty)
+      ('Characters', candidate.characterPreview.join(', ')),
+    if (candidate.storyArcPreview.isNotEmpty)
+      ('Story Arcs', candidate.storyArcPreview.join(', ')),
+    ('Provider', candidate.provider),
+    ('Provider ID', candidate.providerItemId),
+  ];
 }
 
 List<(String, String?)> _metadataRowsForItem(
@@ -240,6 +303,104 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+List<(String, String?)> _metadataRowsForFullPreview(
+    AdminProviderPreview preview) {
+  final releaseDateStr = preview.releaseDate != null
+      ? '${preview.releaseDate!.year}-${preview.releaseDate!.month.toString().padLeft(2, '0')}-${preview.releaseDate!.day.toString().padLeft(2, '0')}'
+      : null;
+  return [
+    if (preview.seriesTitle != null) ('Artist / Series', preview.seriesTitle),
+    if (preview.publisher != null) ('Label / Publisher', preview.publisher),
+    if (preview.imprint != null) ('Imprint', preview.imprint),
+    if (releaseDateStr != null) ('Released', releaseDateStr),
+    if (preview.volumeStartYear != null)
+      ('Year', preview.volumeStartYear.toString()),
+    if (preview.itemNumber != null) ('Issue #', preview.itemNumber),
+    if (preview.barcode != null) ('Barcode', preview.barcode),
+    if (preview.isbn != null) ('ISBN', preview.isbn),
+    if (preview.country != null) ('Country', preview.country),
+    if (preview.language != null) ('Language', preview.language),
+    if (preview.physicalFormatLabel != null)
+      ('Format', preview.physicalFormatLabel),
+    if (preview.variantName != null) ('Variant', preview.variantName),
+    if (preview.trackCount != null) ('Tracks', preview.trackCount.toString()),
+    if (preview.runtimeMinutes != null)
+      ('Runtime', '${preview.runtimeMinutes} min'),
+    if (preview.pageCount != null) ('Pages', preview.pageCount.toString()),
+    if (preview.genres.isNotEmpty) ('Genres', preview.genres.join(', ')),
+    if (preview.creators.isNotEmpty)
+      ('Creators',
+          preview.creators.map((c) => c.role != null ? '${c.name} (${c.role})' : c.name).join(', ')),
+    if (preview.characters.isNotEmpty)
+      ('Characters', preview.characters.join(', ')),
+    if (preview.storyArcs.isNotEmpty)
+      ('Story Arcs', preview.storyArcs.join(', ')),
+    if (preview.seriesGroup != null) ('Series Group', preview.seriesGroup),
+    ('Provider', preview.provider),
+    ('Provider ID', preview.providerItemId),
+  ];
+}
+
+class _PreviewTrackRow extends StatelessWidget {
+  const _PreviewTrackRow({
+    required this.index,
+    required this.track,
+    required this.accent,
+  });
+
+  final int index;
+  final ProviderPreviewTrack track;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = track.durationSeconds;
+    final durationStr = duration != null
+        ? '${duration ~/ 60}:${(duration % 60).toString().padLeft(2, '0')}'
+        : null;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 26,
+            child: Text(
+              '${track.position ?? index}',
+              style: TextStyle(
+                color: accent.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              track.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          if (durationStr != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(
+                durationStr,
+                style: const TextStyle(
+                  color: kClzTextMuted,
+                  fontSize: 13,
+                ),
+              ),
+            ),
         ],
       ),
     );

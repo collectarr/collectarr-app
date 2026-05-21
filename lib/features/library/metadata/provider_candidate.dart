@@ -14,6 +14,8 @@ class ProviderCandidate {
     this.volumeStartYear,
     this.variantName,
     this.isVariantOverride,
+    this.publisher,
+    this.issueCount,
     this.characterPreview = const <String>[],
     this.storyArcPreview = const <String>[],
   });
@@ -30,6 +32,8 @@ class ProviderCandidate {
   final int? volumeStartYear;
   final String? variantName;
   final bool? isVariantOverride;
+  final String? publisher;
+  final int? issueCount;
   final List<String> characterPreview;
   final List<String> storyArcPreview;
 
@@ -56,6 +60,8 @@ class ProviderCandidate {
       volumeStartYear: json['volume_start_year'] as int?,
       variantName: json['variant_name'] as String?,
       isVariantOverride: json['is_variant'] as bool?,
+      publisher: json['publisher'] as String?,
+      issueCount: json['issue_count'] as int?,
       characterPreview: _stringListField(json['character_preview']),
       storyArcPreview: _stringListField(json['story_arc_preview']),
     );

@@ -5083,6 +5083,403 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   }
 }
 
+class $LoansCacheTable extends LoansCache
+    with TableInfo<$LoansCacheTable, LoansCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LoansCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _borrowerNameMeta =
+      const VerificationMeta('borrowerName');
+  @override
+  late final GeneratedColumn<String> borrowerName = GeneratedColumn<String>(
+      'borrower_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _lentDateMeta =
+      const VerificationMeta('lentDate');
+  @override
+  late final GeneratedColumn<DateTime> lentDate = GeneratedColumn<DateTime>(
+      'lent_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _dueDateMeta =
+      const VerificationMeta('dueDate');
+  @override
+  late final GeneratedColumn<DateTime> dueDate = GeneratedColumn<DateTime>(
+      'due_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _returnedDateMeta =
+      const VerificationMeta('returnedDate');
+  @override
+  late final GeneratedColumn<DateTime> returnedDate = GeneratedColumn<DateTime>(
+      'returned_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, ownedItemId, borrowerName, lentDate, dueDate, returnedDate, notes];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'loans_cache';
+  @override
+  VerificationContext validateIntegrity(Insertable<LoansCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('borrower_name')) {
+      context.handle(
+          _borrowerNameMeta,
+          borrowerName.isAcceptableOrUnknown(
+              data['borrower_name']!, _borrowerNameMeta));
+    } else if (isInserting) {
+      context.missing(_borrowerNameMeta);
+    }
+    if (data.containsKey('lent_date')) {
+      context.handle(_lentDateMeta,
+          lentDate.isAcceptableOrUnknown(data['lent_date']!, _lentDateMeta));
+    } else if (isInserting) {
+      context.missing(_lentDateMeta);
+    }
+    if (data.containsKey('due_date')) {
+      context.handle(_dueDateMeta,
+          dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta));
+    }
+    if (data.containsKey('returned_date')) {
+      context.handle(
+          _returnedDateMeta,
+          returnedDate.isAcceptableOrUnknown(
+              data['returned_date']!, _returnedDateMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LoansCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LoansCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      borrowerName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}borrower_name'])!,
+      lentDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}lent_date'])!,
+      dueDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}due_date']),
+      returnedDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}returned_date']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+    );
+  }
+
+  @override
+  $LoansCacheTable createAlias(String alias) {
+    return $LoansCacheTable(attachedDatabase, alias);
+  }
+}
+
+class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
+  final String id;
+  final String ownedItemId;
+  final String borrowerName;
+  final DateTime lentDate;
+  final DateTime? dueDate;
+  final DateTime? returnedDate;
+  final String? notes;
+  const LoansCacheData(
+      {required this.id,
+      required this.ownedItemId,
+      required this.borrowerName,
+      required this.lentDate,
+      this.dueDate,
+      this.returnedDate,
+      this.notes});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['borrower_name'] = Variable<String>(borrowerName);
+    map['lent_date'] = Variable<DateTime>(lentDate);
+    if (!nullToAbsent || dueDate != null) {
+      map['due_date'] = Variable<DateTime>(dueDate);
+    }
+    if (!nullToAbsent || returnedDate != null) {
+      map['returned_date'] = Variable<DateTime>(returnedDate);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  LoansCacheCompanion toCompanion(bool nullToAbsent) {
+    return LoansCacheCompanion(
+      id: Value(id),
+      ownedItemId: Value(ownedItemId),
+      borrowerName: Value(borrowerName),
+      lentDate: Value(lentDate),
+      dueDate: dueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dueDate),
+      returnedDate: returnedDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(returnedDate),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+    );
+  }
+
+  factory LoansCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LoansCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      borrowerName: serializer.fromJson<String>(json['borrowerName']),
+      lentDate: serializer.fromJson<DateTime>(json['lentDate']),
+      dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
+      returnedDate: serializer.fromJson<DateTime?>(json['returnedDate']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'borrowerName': serializer.toJson<String>(borrowerName),
+      'lentDate': serializer.toJson<DateTime>(lentDate),
+      'dueDate': serializer.toJson<DateTime?>(dueDate),
+      'returnedDate': serializer.toJson<DateTime?>(returnedDate),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  LoansCacheData copyWith(
+          {String? id,
+          String? ownedItemId,
+          String? borrowerName,
+          DateTime? lentDate,
+          Value<DateTime?> dueDate = const Value.absent(),
+          Value<DateTime?> returnedDate = const Value.absent(),
+          Value<String?> notes = const Value.absent()}) =>
+      LoansCacheData(
+        id: id ?? this.id,
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        borrowerName: borrowerName ?? this.borrowerName,
+        lentDate: lentDate ?? this.lentDate,
+        dueDate: dueDate.present ? dueDate.value : this.dueDate,
+        returnedDate:
+            returnedDate.present ? returnedDate.value : this.returnedDate,
+        notes: notes.present ? notes.value : this.notes,
+      );
+  LoansCacheData copyWithCompanion(LoansCacheCompanion data) {
+    return LoansCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      borrowerName: data.borrowerName.present
+          ? data.borrowerName.value
+          : this.borrowerName,
+      lentDate: data.lentDate.present ? data.lentDate.value : this.lentDate,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      returnedDate: data.returnedDate.present
+          ? data.returnedDate.value
+          : this.returnedDate,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LoansCacheData(')
+          ..write('id: $id, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('borrowerName: $borrowerName, ')
+          ..write('lentDate: $lentDate, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('returnedDate: $returnedDate, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, ownedItemId, borrowerName, lentDate, dueDate, returnedDate, notes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LoansCacheData &&
+          other.id == this.id &&
+          other.ownedItemId == this.ownedItemId &&
+          other.borrowerName == this.borrowerName &&
+          other.lentDate == this.lentDate &&
+          other.dueDate == this.dueDate &&
+          other.returnedDate == this.returnedDate &&
+          other.notes == this.notes);
+}
+
+class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
+  final Value<String> id;
+  final Value<String> ownedItemId;
+  final Value<String> borrowerName;
+  final Value<DateTime> lentDate;
+  final Value<DateTime?> dueDate;
+  final Value<DateTime?> returnedDate;
+  final Value<String?> notes;
+  final Value<int> rowid;
+  const LoansCacheCompanion({
+    this.id = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.borrowerName = const Value.absent(),
+    this.lentDate = const Value.absent(),
+    this.dueDate = const Value.absent(),
+    this.returnedDate = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LoansCacheCompanion.insert({
+    required String id,
+    required String ownedItemId,
+    required String borrowerName,
+    required DateTime lentDate,
+    this.dueDate = const Value.absent(),
+    this.returnedDate = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        ownedItemId = Value(ownedItemId),
+        borrowerName = Value(borrowerName),
+        lentDate = Value(lentDate);
+  static Insertable<LoansCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? ownedItemId,
+    Expression<String>? borrowerName,
+    Expression<DateTime>? lentDate,
+    Expression<DateTime>? dueDate,
+    Expression<DateTime>? returnedDate,
+    Expression<String>? notes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (borrowerName != null) 'borrower_name': borrowerName,
+      if (lentDate != null) 'lent_date': lentDate,
+      if (dueDate != null) 'due_date': dueDate,
+      if (returnedDate != null) 'returned_date': returnedDate,
+      if (notes != null) 'notes': notes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LoansCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? ownedItemId,
+      Value<String>? borrowerName,
+      Value<DateTime>? lentDate,
+      Value<DateTime?>? dueDate,
+      Value<DateTime?>? returnedDate,
+      Value<String?>? notes,
+      Value<int>? rowid}) {
+    return LoansCacheCompanion(
+      id: id ?? this.id,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      borrowerName: borrowerName ?? this.borrowerName,
+      lentDate: lentDate ?? this.lentDate,
+      dueDate: dueDate ?? this.dueDate,
+      returnedDate: returnedDate ?? this.returnedDate,
+      notes: notes ?? this.notes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (borrowerName.present) {
+      map['borrower_name'] = Variable<String>(borrowerName.value);
+    }
+    if (lentDate.present) {
+      map['lent_date'] = Variable<DateTime>(lentDate.value);
+    }
+    if (dueDate.present) {
+      map['due_date'] = Variable<DateTime>(dueDate.value);
+    }
+    if (returnedDate.present) {
+      map['returned_date'] = Variable<DateTime>(returnedDate.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LoansCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('borrowerName: $borrowerName, ')
+          ..write('lentDate: $lentDate, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('returnedDate: $returnedDate, ')
+          ..write('notes: $notes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -5098,6 +5495,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $CustomFieldValuesCacheTable(this);
   late final $ItemImagesCacheTable itemImagesCache =
       $ItemImagesCacheTable(this);
+  late final $LoansCacheTable loansCache = $LoansCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5109,7 +5507,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         syncQueue,
         customFieldDefinitionsCache,
         customFieldValuesCache,
-        itemImagesCache
+        itemImagesCache,
+        loansCache
       ];
 }
 
@@ -7404,6 +7803,209 @@ typedef $$ItemImagesCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     ItemImagesCacheData,
     PrefetchHooks Function()>;
+typedef $$LoansCacheTableCreateCompanionBuilder = LoansCacheCompanion Function({
+  required String id,
+  required String ownedItemId,
+  required String borrowerName,
+  required DateTime lentDate,
+  Value<DateTime?> dueDate,
+  Value<DateTime?> returnedDate,
+  Value<String?> notes,
+  Value<int> rowid,
+});
+typedef $$LoansCacheTableUpdateCompanionBuilder = LoansCacheCompanion Function({
+  Value<String> id,
+  Value<String> ownedItemId,
+  Value<String> borrowerName,
+  Value<DateTime> lentDate,
+  Value<DateTime?> dueDate,
+  Value<DateTime?> returnedDate,
+  Value<String?> notes,
+  Value<int> rowid,
+});
+
+class $$LoansCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $LoansCacheTable> {
+  $$LoansCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get borrowerName => $composableBuilder(
+      column: $table.borrowerName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lentDate => $composableBuilder(
+      column: $table.lentDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get dueDate => $composableBuilder(
+      column: $table.dueDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get returnedDate => $composableBuilder(
+      column: $table.returnedDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+}
+
+class $$LoansCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $LoansCacheTable> {
+  $$LoansCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get borrowerName => $composableBuilder(
+      column: $table.borrowerName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lentDate => $composableBuilder(
+      column: $table.lentDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get dueDate => $composableBuilder(
+      column: $table.dueDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get returnedDate => $composableBuilder(
+      column: $table.returnedDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LoansCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $LoansCacheTable> {
+  $$LoansCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get borrowerName => $composableBuilder(
+      column: $table.borrowerName, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lentDate =>
+      $composableBuilder(column: $table.lentDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dueDate =>
+      $composableBuilder(column: $table.dueDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get returnedDate => $composableBuilder(
+      column: $table.returnedDate, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+}
+
+class $$LoansCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $LoansCacheTable,
+    LoansCacheData,
+    $$LoansCacheTableFilterComposer,
+    $$LoansCacheTableOrderingComposer,
+    $$LoansCacheTableAnnotationComposer,
+    $$LoansCacheTableCreateCompanionBuilder,
+    $$LoansCacheTableUpdateCompanionBuilder,
+    (
+      LoansCacheData,
+      BaseReferences<_$LocalDatabase, $LoansCacheTable, LoansCacheData>
+    ),
+    LoansCacheData,
+    PrefetchHooks Function()> {
+  $$LoansCacheTableTableManager(_$LocalDatabase db, $LoansCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LoansCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LoansCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LoansCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String> borrowerName = const Value.absent(),
+            Value<DateTime> lentDate = const Value.absent(),
+            Value<DateTime?> dueDate = const Value.absent(),
+            Value<DateTime?> returnedDate = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LoansCacheCompanion(
+            id: id,
+            ownedItemId: ownedItemId,
+            borrowerName: borrowerName,
+            lentDate: lentDate,
+            dueDate: dueDate,
+            returnedDate: returnedDate,
+            notes: notes,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String ownedItemId,
+            required String borrowerName,
+            required DateTime lentDate,
+            Value<DateTime?> dueDate = const Value.absent(),
+            Value<DateTime?> returnedDate = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LoansCacheCompanion.insert(
+            id: id,
+            ownedItemId: ownedItemId,
+            borrowerName: borrowerName,
+            lentDate: lentDate,
+            dueDate: dueDate,
+            returnedDate: returnedDate,
+            notes: notes,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$LoansCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $LoansCacheTable,
+    LoansCacheData,
+    $$LoansCacheTableFilterComposer,
+    $$LoansCacheTableOrderingComposer,
+    $$LoansCacheTableAnnotationComposer,
+    $$LoansCacheTableCreateCompanionBuilder,
+    $$LoansCacheTableUpdateCompanionBuilder,
+    (
+      LoansCacheData,
+      BaseReferences<_$LocalDatabase, $LoansCacheTable, LoansCacheData>
+    ),
+    LoansCacheData,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -7425,4 +8027,6 @@ class $LocalDatabaseManager {
           _db, _db.customFieldValuesCache);
   $$ItemImagesCacheTableTableManager get itemImagesCache =>
       $$ItemImagesCacheTableTableManager(_db, _db.itemImagesCache);
+  $$LoansCacheTableTableManager get loansCache =>
+      $$LoansCacheTableTableManager(_db, _db.loansCache);
 }

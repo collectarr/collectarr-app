@@ -152,9 +152,12 @@ class InspectorMetadataSection extends StatelessWidget {
         ],
         if (entry.genres != null && entry.genres!.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
-            label: 'Genres',
-            values: entry.genres!,
+          Text(
+            entry.genres!.join(', '),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
         ],
       ],
