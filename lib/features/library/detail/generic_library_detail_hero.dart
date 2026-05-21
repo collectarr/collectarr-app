@@ -65,6 +65,7 @@ class GenericDetailHero extends StatelessWidget {
                     title: entry.title,
                     itemNumber: entry.itemNumber,
                     imageUrl: entry.displayCoverUrl,
+                    ownedItemId: entry.ownedItemId,
                   ),
                 ),
               ),

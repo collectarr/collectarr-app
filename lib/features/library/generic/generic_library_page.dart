@@ -5,7 +5,9 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
@@ -184,6 +186,9 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     projection != null && projection.filteredItems.isNotEmpty
                         ? () => _pickRandomItem(projection)
                         : null,
+                onDownloadAllCovers: shelfState != null
+                    ? () => _downloadAllCovers(shelfState)
+                    : null,
                 counts: projection?.counts ?? const GenericToolbarCounts(),
                 shelfState: shelfState,
                 selectionEnabled: _selection.enabled,
@@ -445,6 +450,40 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (items.isEmpty) return;
     final random = items[_random.nextInt(items.length)];
     setState(() => _selectedId = random.entry.id);
+  }
+
+  Future<void> _downloadAllCovers(ShelfState shelfState) async {
+    final db = ref.read(localDatabaseProvider);
+    final imagesRepo = ItemImagesCacheRepository(db);
+    final service = ImageDownloadService(imagesRepo: imagesRepo);
+
+    // Build map: ownedItemId → coverUrl for items that have owned entries.
+    final itemsToCover = <String, String?>{};
+    for (final entry in shelfState.entries) {
+      final ownedId = entry.ownedItem?.id;
+      if (ownedId == null) continue;
+      itemsToCover[ownedId] = entry.catalogItem?.displayCoverUrl;
+    }
+    if (itemsToCover.isEmpty) return;
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Downloading covers for ${itemsToCover.length} items...'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    final results = await service.downloadCoversForItems(itemsToCover);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Downloaded ${results.length} covers.'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   static final _random = math.Random();

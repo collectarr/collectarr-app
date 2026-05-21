@@ -39,6 +39,7 @@ class GenericLibraryToolbar extends StatelessWidget {
     required this.hasActiveFilters,
     required this.onClearFilters,
     this.onRandomPick,
+    this.onDownloadAllCovers,
     this.selectionEnabled = false,
     this.selectedCount = 0,
     this.selectionCallbacks,
@@ -67,6 +68,7 @@ class GenericLibraryToolbar extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
+  final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final bool selectionEnabled;
   final int selectedCount;
@@ -97,6 +99,7 @@ class GenericLibraryToolbar extends StatelessWidget {
               hasActiveFilters: hasActiveFilters,
               onClearFilters: onClearFilters,
               onRandomPick: onRandomPick,
+              onDownloadAllCovers: onDownloadAllCovers,
             );
           }
           return Padding(
@@ -141,6 +144,7 @@ class GenericLibraryToolbar extends StatelessWidget {
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
                       onRandomPick: onRandomPick,
+                      onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
                     ),
                     LibraryViewTableControls(

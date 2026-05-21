@@ -5,6 +5,7 @@ class LibraryWorkspaceEntry {
     required this.id,
     required this.mediaType,
     required this.title,
+    this.ownedItemId,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -32,6 +33,7 @@ class LibraryWorkspaceEntry {
   });
 
   final String id;
+  final String? ownedItemId;
   final String mediaType;
   final String title;
   final String? itemNumber;

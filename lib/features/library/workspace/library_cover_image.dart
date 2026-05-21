@@ -1,15 +1,18 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LibraryCoverImage extends StatelessWidget {
+class LibraryCoverImage extends ConsumerWidget {
   const LibraryCoverImage({
     required this.title,
     this.itemNumber,
     this.imageUrl,
     this.localBase64,
+    this.ownedItemId,
     this.borderRadius = 4,
     super.key,
   });
@@ -18,19 +21,26 @@ class LibraryCoverImage extends StatelessWidget {
   final String? itemNumber;
   final String? imageUrl;
   final String? localBase64;
+  final String? ownedItemId;
   final double borderRadius;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Resolve local image: prefer explicit localBase64, then look up from DB.
+    var local = localBase64;
+    if (local == null && ownedItemId != null) {
+      local = ref.watch(localCoverImageProvider(ownedItemId!)).value;
+    }
+
     final placeholder = LibraryGeneratedCover(
       title: title,
       itemNumber: itemNumber,
       borderRadius: borderRadius,
     );
     // Prefer local offline bytes when available
-    if (localBase64 != null && localBase64!.isNotEmpty) {
+    if (local != null && local.isNotEmpty) {
       try {
-        final bytes = base64Decode(localBase64!);
+        final bytes = base64Decode(local);
         return ClipRRect(
           borderRadius: BorderRadius.circular(borderRadius),
           child: Image.memory(

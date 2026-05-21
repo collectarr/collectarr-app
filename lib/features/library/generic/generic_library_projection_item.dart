@@ -15,6 +15,7 @@ class GenericLibraryItem {
       source: source,
       entry: LibraryWorkspaceEntry(
         id: item.id,
+        ownedItemId: source.ownedItem?.id,
         mediaType: item.kind,
         title: item.title,
         itemNumber: item.itemNumber,

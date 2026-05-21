@@ -17,6 +17,7 @@ class GenericLibraryToolsButton extends StatelessWidget {
     required this.onQuickViewSelected,
     required this.onClearFilters,
     this.onRandomPick,
+    this.onDownloadAllCovers,
     this.shelfState,
   });
 
@@ -28,6 +29,7 @@ class GenericLibraryToolsButton extends StatelessWidget {
   final ValueChanged<GenericQuickView> onQuickViewSelected;
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
+  final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
 
   @override
@@ -79,6 +81,12 @@ class GenericLibraryToolsButton extends StatelessWidget {
           enabled: hasActiveFilters,
           onSelected: onClearFilters,
         ),
+        if (onDownloadAllCovers != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.download_outlined,
+            label: 'Download all covers',
+            onSelected: onDownloadAllCovers!,
+          ),
         LibraryUtilityMenuAction(
           icon: Icons.image_not_supported_outlined,
           label: 'Missing covers',

@@ -59,6 +59,7 @@ class LibraryCoverTile extends StatelessWidget {
                       title: entry.title,
                       itemNumber: entry.itemNumber,
                       imageUrl: entry.displayCoverUrl,
+                      ownedItemId: entry.ownedItemId,
                     ),
                     Positioned(
                       left: 4,
