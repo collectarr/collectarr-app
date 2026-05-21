@@ -646,6 +646,19 @@ class ApiClient {
         .toList(growable: false);
   }
 
+  Future<Map<String, dynamic>> getSeries(String seriesId) async {
+    final response = await _dio.get<Map<String, dynamic>>('/series/$seriesId');
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/series/$seriesId returned an empty response body');
+    }
+    return data;
+  }
+
+  Future<List<Map<String, dynamic>>> getSeriesItems(String seriesId) {
+    return _fetchList('/series/$seriesId/items');
+  }
+
   Future<List<Season>> getProviderSeasons(
     String provider,
     String providerItemId,

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_conten
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/series_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -31,11 +32,32 @@ class LibraryDetailMetadataSection extends StatelessWidget {
       onFilterByValue: onFilterByValue,
       includeIdentityFacts: true,
     );
+    final identityFacts = presentation.identityFacts.map((fact) {
+      if (fact.label == 'Series' &&
+          entry.seriesId != null &&
+          entry.seriesId!.trim().isNotEmpty &&
+          entry.seriesTitle != null &&
+          entry.seriesTitle!.trim().isNotEmpty) {
+        return LibraryInspectorFactData(
+          fact.label,
+          fact.value,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => SeriesDetailPage(
+                seriesId: entry.seriesId!,
+                seriesTitle: entry.seriesTitle!,
+              ),
+            ),
+          ),
+        );
+      }
+      return fact;
+    }).toList(growable: false);
     return LibraryInspectorSection(
       title: 'Catalog identity',
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(facts: presentation.identityFacts),
+        LibraryInspectorFactGrid(facts: identityFacts),
       ],
     );
   }

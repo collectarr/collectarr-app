@@ -26,6 +26,7 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     id: item.id,
     mediaType: item.kind,
     title: item.title,
+    seriesId: item.seriesId,
     itemNumber: item.itemNumber,
     synopsis: item.synopsis,
     coverImageUrl: item.coverImageUrl,

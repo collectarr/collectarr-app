@@ -6,6 +6,7 @@ class LibraryWorkspaceEntry {
     required this.mediaType,
     required this.title,
     this.ownedItemId,
+    this.seriesId,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -49,6 +50,7 @@ class LibraryWorkspaceEntry {
 
   final String id;
   final String? ownedItemId;
+  final String? seriesId;
   final String mediaType;
   final String title;
   final String? itemNumber;
