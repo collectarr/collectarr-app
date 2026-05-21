@@ -113,6 +113,10 @@ class LibraryDetailPage extends StatelessWidget {
               entry: entry,
               accent: accent,
             ),
+            LibraryDetailMetadataHealthSection(
+              entry: entry,
+              accent: accent,
+            ),
             LibraryDetailCoverStatusSection(entry: entry, accent: accent),
             LibraryDetailPersonalSection(
               entry: entry,

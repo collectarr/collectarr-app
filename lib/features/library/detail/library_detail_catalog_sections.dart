@@ -207,6 +207,53 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
   }
 }
 
+class LibraryDetailMetadataHealthSection extends StatelessWidget {
+  const LibraryDetailMetadataHealthSection({
+    super.key,
+    required this.entry,
+    required this.accent,
+  });
+
+  final LibraryWorkspaceEntry entry;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final health = _buildMetadataHealth(entry);
+    return LibraryInspectorSection(
+      title: 'Metadata health',
+      accentColor: accent,
+      children: [
+        LibraryInspectorFactGrid(
+          facts: [
+            LibraryInspectorFactData('Score', '${health.score}/100'),
+            LibraryInspectorFactData('Status', health.label),
+            LibraryInspectorFactData(
+              'Missing signals',
+              health.missingSignals.length.toString(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          health.summary,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: kClzTextMuted,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        if (health.missingSignals.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          LibraryInspectorChipWrap(
+            label: 'Needs attention',
+            values: health.missingSignals,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class LibraryDetailCoverStatusSection extends StatelessWidget {
   const LibraryDetailCoverStatusSection({
     super.key,
@@ -365,4 +412,111 @@ _MetadataSourceKind _sourceKind(String entryId) {
     return _MetadataSourceKind.providerPlaceholder;
   }
   return _MetadataSourceKind.localSnapshot;
+}
+
+class _MetadataHealth {
+  const _MetadataHealth({
+    required this.score,
+    required this.label,
+    required this.summary,
+    required this.missingSignals,
+  });
+
+  final int score;
+  final String label;
+  final String summary;
+  final List<String> missingSignals;
+}
+
+_MetadataHealth _buildMetadataHealth(LibraryWorkspaceEntry entry) {
+  var score = 0;
+  final missingSignals = <String>[];
+
+  void addSignal({
+    required bool present,
+    required int weight,
+    required String missingLabel,
+  }) {
+    if (present) {
+      score += weight;
+    } else {
+      missingSignals.add(missingLabel);
+    }
+  }
+
+  addSignal(
+    present: entry.displayCoverUrl != null,
+    weight: 18,
+    missingLabel: 'Cover image',
+  );
+  addSignal(
+    present: entry.synopsis?.trim().isNotEmpty ?? false,
+    weight: 16,
+    missingLabel: 'Synopsis',
+  );
+  addSignal(
+    present: entry.publisher?.trim().isNotEmpty ?? false,
+    weight: 10,
+    missingLabel: 'Publisher',
+  );
+  addSignal(
+    present: entry.releaseDate != null || entry.releaseYear != null,
+    weight: 10,
+    missingLabel: 'Release date',
+  );
+  addSignal(
+    present: entry.seriesTitle?.trim().isNotEmpty ?? false,
+    weight: 10,
+    missingLabel: 'Series',
+  );
+  addSignal(
+    present: entry.itemNumber?.trim().isNotEmpty ?? false,
+    weight: 6,
+    missingLabel: 'Item number',
+  );
+  addSignal(
+    present: (entry.creators?.isNotEmpty ?? false),
+    weight: 12,
+    missingLabel: 'Creators',
+  );
+  addSignal(
+    present: (entry.characters?.isNotEmpty ?? false),
+    weight: 6,
+    missingLabel: 'Characters',
+  );
+  addSignal(
+    present: (entry.storyArcs?.isNotEmpty ?? false),
+    weight: 4,
+    missingLabel: 'Story arcs',
+  );
+  addSignal(
+    present: (entry.genres?.isNotEmpty ?? false),
+    weight: 4,
+    missingLabel: 'Genres',
+  );
+  addSignal(
+    present: !(entry.hasMissingMetadata || entry.hasMissingCover),
+    weight: 4,
+    missingLabel: 'Catalog refresh',
+  );
+
+  final label = switch (score) {
+    >= 85 => 'Strong',
+    >= 65 => 'Usable',
+    >= 45 => 'Thin',
+    _ => 'Needs work',
+  };
+  final summary = switch (label) {
+    'Strong' => 'This record has enough structured metadata to browse and compare confidently.',
+    'Usable' => 'The core metadata is present, but a refresh would still add useful context.',
+    'Thin' => 'This record is browsable, but several discovery and quality signals are still missing.',
+    _ => 'This record needs a metadata refresh before it will feel trustworthy in the library.',
+  };
+
+  return _MetadataHealth(
+    score: score,
+    label: label,
+    summary: summary,
+    missingSignals: missingSignals,
+  );
 }
