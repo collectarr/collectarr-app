@@ -743,6 +743,37 @@ class ApiClient {
     return _fetchList('/story-arcs/facets', data: {'item_ids': ids});
   }
 
+  Future<List<Map<String, dynamic>>> searchCreators({
+    String? query,
+    int limit = 50,
+  }) {
+    return _fetchList(
+      '/creators',
+      queryParameters: {
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        'limit': limit,
+      },
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> creatorFacets(
+    Iterable<String> itemIds,
+  ) {
+    final ids = itemIds.where((id) => id.trim().isNotEmpty).toSet().toList();
+    if (ids.isEmpty) {
+      return Future.value(const []);
+    }
+    return _fetchList('/creators/facets', data: {'item_ids': ids});
+  }
+
+  Future<List<Map<String, dynamic>>> getCreatorCredits(
+    String creatorId,
+  ) {
+    return _fetchList(
+      '/creators/${Uri.encodeComponent(creatorId)}/credits',
+    );
+  }
+
   Future<List<Map<String, dynamic>>> searchCharacters({
     String? query,
     int limit = 50,

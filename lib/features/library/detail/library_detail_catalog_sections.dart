@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -111,7 +112,11 @@ class LibraryDetailCreditsSection extends StatelessWidget {
           LibraryMetadataCreditsList(
             title: 'Creators',
             credits: presentation.creators,
-            onValueTap: onFilterByValue,
+            onValueTap: (value) => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => CreatorDetailPage(creatorName: value),
+              ),
+            ),
           ),
         if (presentation.characters.isNotEmpty) ...[
           if (presentation.creators.isNotEmpty) const SizedBox(height: 8),
