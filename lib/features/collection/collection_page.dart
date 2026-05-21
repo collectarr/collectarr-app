@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/config/comics_library_config.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';

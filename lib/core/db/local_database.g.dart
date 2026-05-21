@@ -138,6 +138,96 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
       'episode_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _trackCountMeta =
+      const VerificationMeta('trackCount');
+  @override
+  late final GeneratedColumn<int> trackCount = GeneratedColumn<int>(
+      'track_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _tracksJsonMeta =
+      const VerificationMeta('tracksJson');
+  @override
+  late final GeneratedColumn<String> tracksJson = GeneratedColumn<String>(
+      'tracks_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _creatorsJsonMeta =
+      const VerificationMeta('creatorsJson');
+  @override
+  late final GeneratedColumn<String> creatorsJson = GeneratedColumn<String>(
+      'creators_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _charactersJsonMeta =
+      const VerificationMeta('charactersJson');
+  @override
+  late final GeneratedColumn<String> charactersJson = GeneratedColumn<String>(
+      'characters_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _storyArcsJsonMeta =
+      const VerificationMeta('storyArcsJson');
+  @override
+  late final GeneratedColumn<String> storyArcsJson = GeneratedColumn<String>(
+      'story_arcs_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _genresJsonMeta =
+      const VerificationMeta('genresJson');
+  @override
+  late final GeneratedColumn<String> genresJson = GeneratedColumn<String>(
+      'genres_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pageCountMeta =
+      const VerificationMeta('pageCount');
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+      'page_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _coverPriceCentsMeta =
+      const VerificationMeta('coverPriceCents');
+  @override
+  late final GeneratedColumn<int> coverPriceCents = GeneratedColumn<int>(
+      'cover_price_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _catalogCurrencyMeta =
+      const VerificationMeta('catalogCurrency');
+  @override
+  late final GeneratedColumn<String> catalogCurrency = GeneratedColumn<String>(
+      'catalog_currency', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _countryMeta =
+      const VerificationMeta('country');
+  @override
+  late final GeneratedColumn<String> country = GeneratedColumn<String>(
+      'country', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _languageMeta =
+      const VerificationMeta('language');
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+      'language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ageRatingMeta =
+      const VerificationMeta('ageRating');
+  @override
+  late final GeneratedColumn<String> ageRating = GeneratedColumn<String>(
+      'age_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _imprintMeta =
+      const VerificationMeta('imprint');
+  @override
+  late final GeneratedColumn<String> imprint = GeneratedColumn<String>(
+      'imprint', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _subtitleMeta =
+      const VerificationMeta('subtitle');
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+      'subtitle', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seriesGroupMeta =
+      const VerificationMeta('seriesGroup');
+  @override
+  late final GeneratedColumn<String> seriesGroup = GeneratedColumn<String>(
+      'series_group', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _cachedAtMeta =
       const VerificationMeta('cachedAt');
   @override
@@ -168,6 +258,21 @@ class $CatalogCacheTable extends CatalogCache
         volumeStartYear,
         seasonNumber,
         episodeNumber,
+        trackCount,
+        tracksJson,
+        creatorsJson,
+        charactersJson,
+        storyArcsJson,
+        genresJson,
+        pageCount,
+        coverPriceCents,
+        catalogCurrency,
+        country,
+        language,
+        ageRating,
+        imprint,
+        subtitle,
+        seriesGroup,
         cachedAt
       ];
   @override
@@ -301,6 +406,84 @@ class $CatalogCacheTable extends CatalogCache
           episodeNumber.isAcceptableOrUnknown(
               data['episode_number']!, _episodeNumberMeta));
     }
+    if (data.containsKey('track_count')) {
+      context.handle(
+          _trackCountMeta,
+          trackCount.isAcceptableOrUnknown(
+              data['track_count']!, _trackCountMeta));
+    }
+    if (data.containsKey('tracks_json')) {
+      context.handle(
+          _tracksJsonMeta,
+          tracksJson.isAcceptableOrUnknown(
+              data['tracks_json']!, _tracksJsonMeta));
+    }
+    if (data.containsKey('creators_json')) {
+      context.handle(
+          _creatorsJsonMeta,
+          creatorsJson.isAcceptableOrUnknown(
+              data['creators_json']!, _creatorsJsonMeta));
+    }
+    if (data.containsKey('characters_json')) {
+      context.handle(
+          _charactersJsonMeta,
+          charactersJson.isAcceptableOrUnknown(
+              data['characters_json']!, _charactersJsonMeta));
+    }
+    if (data.containsKey('story_arcs_json')) {
+      context.handle(
+          _storyArcsJsonMeta,
+          storyArcsJson.isAcceptableOrUnknown(
+              data['story_arcs_json']!, _storyArcsJsonMeta));
+    }
+    if (data.containsKey('genres_json')) {
+      context.handle(
+          _genresJsonMeta,
+          genresJson.isAcceptableOrUnknown(
+              data['genres_json']!, _genresJsonMeta));
+    }
+    if (data.containsKey('page_count')) {
+      context.handle(_pageCountMeta,
+          pageCount.isAcceptableOrUnknown(data['page_count']!, _pageCountMeta));
+    }
+    if (data.containsKey('cover_price_cents')) {
+      context.handle(
+          _coverPriceCentsMeta,
+          coverPriceCents.isAcceptableOrUnknown(
+              data['cover_price_cents']!, _coverPriceCentsMeta));
+    }
+    if (data.containsKey('catalog_currency')) {
+      context.handle(
+          _catalogCurrencyMeta,
+          catalogCurrency.isAcceptableOrUnknown(
+              data['catalog_currency']!, _catalogCurrencyMeta));
+    }
+    if (data.containsKey('country')) {
+      context.handle(_countryMeta,
+          country.isAcceptableOrUnknown(data['country']!, _countryMeta));
+    }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    }
+    if (data.containsKey('age_rating')) {
+      context.handle(_ageRatingMeta,
+          ageRating.isAcceptableOrUnknown(data['age_rating']!, _ageRatingMeta));
+    }
+    if (data.containsKey('imprint')) {
+      context.handle(_imprintMeta,
+          imprint.isAcceptableOrUnknown(data['imprint']!, _imprintMeta));
+    }
+    if (data.containsKey('subtitle')) {
+      context.handle(_subtitleMeta,
+          subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta));
+    }
+    if (data.containsKey('series_group')) {
+      context.handle(
+          _seriesGroupMeta,
+          seriesGroup.isAcceptableOrUnknown(
+              data['series_group']!, _seriesGroupMeta));
+    }
     if (data.containsKey('cached_at')) {
       context.handle(_cachedAtMeta,
           cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta));
@@ -360,6 +543,36 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
       episodeNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      trackCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}track_count']),
+      tracksJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tracks_json']),
+      creatorsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}creators_json']),
+      charactersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}characters_json']),
+      storyArcsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}story_arcs_json']),
+      genresJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}genres_json']),
+      pageCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}page_count']),
+      coverPriceCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}cover_price_cents']),
+      catalogCurrency: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_currency']),
+      country: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}country']),
+      language: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language']),
+      ageRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}age_rating']),
+      imprint: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}imprint']),
+      subtitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subtitle']),
+      seriesGroup: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_group']),
       cachedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}cached_at'])!,
     );
@@ -395,6 +608,21 @@ class CatalogCacheData extends DataClass
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
+  final int? trackCount;
+  final String? tracksJson;
+  final String? creatorsJson;
+  final String? charactersJson;
+  final String? storyArcsJson;
+  final String? genresJson;
+  final int? pageCount;
+  final int? coverPriceCents;
+  final String? catalogCurrency;
+  final String? country;
+  final String? language;
+  final String? ageRating;
+  final String? imprint;
+  final String? subtitle;
+  final String? seriesGroup;
   final DateTime cachedAt;
   const CatalogCacheData(
       {required this.id,
@@ -419,6 +647,21 @@ class CatalogCacheData extends DataClass
       this.volumeStartYear,
       this.seasonNumber,
       this.episodeNumber,
+      this.trackCount,
+      this.tracksJson,
+      this.creatorsJson,
+      this.charactersJson,
+      this.storyArcsJson,
+      this.genresJson,
+      this.pageCount,
+      this.coverPriceCents,
+      this.catalogCurrency,
+      this.country,
+      this.language,
+      this.ageRating,
+      this.imprint,
+      this.subtitle,
+      this.seriesGroup,
       required this.cachedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -482,6 +725,51 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || episodeNumber != null) {
       map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    if (!nullToAbsent || trackCount != null) {
+      map['track_count'] = Variable<int>(trackCount);
+    }
+    if (!nullToAbsent || tracksJson != null) {
+      map['tracks_json'] = Variable<String>(tracksJson);
+    }
+    if (!nullToAbsent || creatorsJson != null) {
+      map['creators_json'] = Variable<String>(creatorsJson);
+    }
+    if (!nullToAbsent || charactersJson != null) {
+      map['characters_json'] = Variable<String>(charactersJson);
+    }
+    if (!nullToAbsent || storyArcsJson != null) {
+      map['story_arcs_json'] = Variable<String>(storyArcsJson);
+    }
+    if (!nullToAbsent || genresJson != null) {
+      map['genres_json'] = Variable<String>(genresJson);
+    }
+    if (!nullToAbsent || pageCount != null) {
+      map['page_count'] = Variable<int>(pageCount);
+    }
+    if (!nullToAbsent || coverPriceCents != null) {
+      map['cover_price_cents'] = Variable<int>(coverPriceCents);
+    }
+    if (!nullToAbsent || catalogCurrency != null) {
+      map['catalog_currency'] = Variable<String>(catalogCurrency);
+    }
+    if (!nullToAbsent || country != null) {
+      map['country'] = Variable<String>(country);
+    }
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    if (!nullToAbsent || ageRating != null) {
+      map['age_rating'] = Variable<String>(ageRating);
+    }
+    if (!nullToAbsent || imprint != null) {
+      map['imprint'] = Variable<String>(imprint);
+    }
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
+    if (!nullToAbsent || seriesGroup != null) {
+      map['series_group'] = Variable<String>(seriesGroup);
     }
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
@@ -549,6 +837,51 @@ class CatalogCacheData extends DataClass
       episodeNumber: episodeNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(episodeNumber),
+      trackCount: trackCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackCount),
+      tracksJson: tracksJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tracksJson),
+      creatorsJson: creatorsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(creatorsJson),
+      charactersJson: charactersJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(charactersJson),
+      storyArcsJson: storyArcsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storyArcsJson),
+      genresJson: genresJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(genresJson),
+      pageCount: pageCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageCount),
+      coverPriceCents: coverPriceCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverPriceCents),
+      catalogCurrency: catalogCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogCurrency),
+      country: country == null && nullToAbsent
+          ? const Value.absent()
+          : Value(country),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+      ageRating: ageRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ageRating),
+      imprint: imprint == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imprint),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
+      seriesGroup: seriesGroup == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seriesGroup),
       cachedAt: Value(cachedAt),
     );
   }
@@ -581,6 +914,21 @@ class CatalogCacheData extends DataClass
       volumeStartYear: serializer.fromJson<int?>(json['volumeStartYear']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      trackCount: serializer.fromJson<int?>(json['trackCount']),
+      tracksJson: serializer.fromJson<String?>(json['tracksJson']),
+      creatorsJson: serializer.fromJson<String?>(json['creatorsJson']),
+      charactersJson: serializer.fromJson<String?>(json['charactersJson']),
+      storyArcsJson: serializer.fromJson<String?>(json['storyArcsJson']),
+      genresJson: serializer.fromJson<String?>(json['genresJson']),
+      pageCount: serializer.fromJson<int?>(json['pageCount']),
+      coverPriceCents: serializer.fromJson<int?>(json['coverPriceCents']),
+      catalogCurrency: serializer.fromJson<String?>(json['catalogCurrency']),
+      country: serializer.fromJson<String?>(json['country']),
+      language: serializer.fromJson<String?>(json['language']),
+      ageRating: serializer.fromJson<String?>(json['ageRating']),
+      imprint: serializer.fromJson<String?>(json['imprint']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
+      seriesGroup: serializer.fromJson<String?>(json['seriesGroup']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -610,6 +958,21 @@ class CatalogCacheData extends DataClass
       'volumeStartYear': serializer.toJson<int?>(volumeStartYear),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'trackCount': serializer.toJson<int?>(trackCount),
+      'tracksJson': serializer.toJson<String?>(tracksJson),
+      'creatorsJson': serializer.toJson<String?>(creatorsJson),
+      'charactersJson': serializer.toJson<String?>(charactersJson),
+      'storyArcsJson': serializer.toJson<String?>(storyArcsJson),
+      'genresJson': serializer.toJson<String?>(genresJson),
+      'pageCount': serializer.toJson<int?>(pageCount),
+      'coverPriceCents': serializer.toJson<int?>(coverPriceCents),
+      'catalogCurrency': serializer.toJson<String?>(catalogCurrency),
+      'country': serializer.toJson<String?>(country),
+      'language': serializer.toJson<String?>(language),
+      'ageRating': serializer.toJson<String?>(ageRating),
+      'imprint': serializer.toJson<String?>(imprint),
+      'subtitle': serializer.toJson<String?>(subtitle),
+      'seriesGroup': serializer.toJson<String?>(seriesGroup),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -637,6 +1000,21 @@ class CatalogCacheData extends DataClass
           Value<int?> volumeStartYear = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent(),
+          Value<int?> trackCount = const Value.absent(),
+          Value<String?> tracksJson = const Value.absent(),
+          Value<String?> creatorsJson = const Value.absent(),
+          Value<String?> charactersJson = const Value.absent(),
+          Value<String?> storyArcsJson = const Value.absent(),
+          Value<String?> genresJson = const Value.absent(),
+          Value<int?> pageCount = const Value.absent(),
+          Value<int?> coverPriceCents = const Value.absent(),
+          Value<String?> catalogCurrency = const Value.absent(),
+          Value<String?> country = const Value.absent(),
+          Value<String?> language = const Value.absent(),
+          Value<String?> ageRating = const Value.absent(),
+          Value<String?> imprint = const Value.absent(),
+          Value<String?> subtitle = const Value.absent(),
+          Value<String?> seriesGroup = const Value.absent(),
           DateTime? cachedAt}) =>
       CatalogCacheData(
         id: id ?? this.id,
@@ -673,6 +1051,28 @@ class CatalogCacheData extends DataClass
             seasonNumber.present ? seasonNumber.value : this.seasonNumber,
         episodeNumber:
             episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        trackCount: trackCount.present ? trackCount.value : this.trackCount,
+        tracksJson: tracksJson.present ? tracksJson.value : this.tracksJson,
+        creatorsJson:
+            creatorsJson.present ? creatorsJson.value : this.creatorsJson,
+        charactersJson:
+            charactersJson.present ? charactersJson.value : this.charactersJson,
+        storyArcsJson:
+            storyArcsJson.present ? storyArcsJson.value : this.storyArcsJson,
+        genresJson: genresJson.present ? genresJson.value : this.genresJson,
+        pageCount: pageCount.present ? pageCount.value : this.pageCount,
+        coverPriceCents: coverPriceCents.present
+            ? coverPriceCents.value
+            : this.coverPriceCents,
+        catalogCurrency: catalogCurrency.present
+            ? catalogCurrency.value
+            : this.catalogCurrency,
+        country: country.present ? country.value : this.country,
+        language: language.present ? language.value : this.language,
+        ageRating: ageRating.present ? ageRating.value : this.ageRating,
+        imprint: imprint.present ? imprint.value : this.imprint,
+        subtitle: subtitle.present ? subtitle.value : this.subtitle,
+        seriesGroup: seriesGroup.present ? seriesGroup.value : this.seriesGroup,
         cachedAt: cachedAt ?? this.cachedAt,
       );
   CatalogCacheData copyWithCompanion(CatalogCacheCompanion data) {
@@ -722,6 +1122,35 @@ class CatalogCacheData extends DataClass
       episodeNumber: data.episodeNumber.present
           ? data.episodeNumber.value
           : this.episodeNumber,
+      trackCount:
+          data.trackCount.present ? data.trackCount.value : this.trackCount,
+      tracksJson:
+          data.tracksJson.present ? data.tracksJson.value : this.tracksJson,
+      creatorsJson: data.creatorsJson.present
+          ? data.creatorsJson.value
+          : this.creatorsJson,
+      charactersJson: data.charactersJson.present
+          ? data.charactersJson.value
+          : this.charactersJson,
+      storyArcsJson: data.storyArcsJson.present
+          ? data.storyArcsJson.value
+          : this.storyArcsJson,
+      genresJson:
+          data.genresJson.present ? data.genresJson.value : this.genresJson,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      coverPriceCents: data.coverPriceCents.present
+          ? data.coverPriceCents.value
+          : this.coverPriceCents,
+      catalogCurrency: data.catalogCurrency.present
+          ? data.catalogCurrency.value
+          : this.catalogCurrency,
+      country: data.country.present ? data.country.value : this.country,
+      language: data.language.present ? data.language.value : this.language,
+      ageRating: data.ageRating.present ? data.ageRating.value : this.ageRating,
+      imprint: data.imprint.present ? data.imprint.value : this.imprint,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      seriesGroup:
+          data.seriesGroup.present ? data.seriesGroup.value : this.seriesGroup,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -751,6 +1180,21 @@ class CatalogCacheData extends DataClass
           ..write('volumeStartYear: $volumeStartYear, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
+          ..write('trackCount: $trackCount, ')
+          ..write('tracksJson: $tracksJson, ')
+          ..write('creatorsJson: $creatorsJson, ')
+          ..write('charactersJson: $charactersJson, ')
+          ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('genresJson: $genresJson, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('coverPriceCents: $coverPriceCents, ')
+          ..write('catalogCurrency: $catalogCurrency, ')
+          ..write('country: $country, ')
+          ..write('language: $language, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('imprint: $imprint, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('seriesGroup: $seriesGroup, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
@@ -780,6 +1224,21 @@ class CatalogCacheData extends DataClass
         volumeStartYear,
         seasonNumber,
         episodeNumber,
+        trackCount,
+        tracksJson,
+        creatorsJson,
+        charactersJson,
+        storyArcsJson,
+        genresJson,
+        pageCount,
+        coverPriceCents,
+        catalogCurrency,
+        country,
+        language,
+        ageRating,
+        imprint,
+        subtitle,
+        seriesGroup,
         cachedAt
       ]);
   @override
@@ -808,6 +1267,21 @@ class CatalogCacheData extends DataClass
           other.volumeStartYear == this.volumeStartYear &&
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber &&
+          other.trackCount == this.trackCount &&
+          other.tracksJson == this.tracksJson &&
+          other.creatorsJson == this.creatorsJson &&
+          other.charactersJson == this.charactersJson &&
+          other.storyArcsJson == this.storyArcsJson &&
+          other.genresJson == this.genresJson &&
+          other.pageCount == this.pageCount &&
+          other.coverPriceCents == this.coverPriceCents &&
+          other.catalogCurrency == this.catalogCurrency &&
+          other.country == this.country &&
+          other.language == this.language &&
+          other.ageRating == this.ageRating &&
+          other.imprint == this.imprint &&
+          other.subtitle == this.subtitle &&
+          other.seriesGroup == this.seriesGroup &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -834,6 +1308,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<int?> volumeStartYear;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
+  final Value<int?> trackCount;
+  final Value<String?> tracksJson;
+  final Value<String?> creatorsJson;
+  final Value<String?> charactersJson;
+  final Value<String?> storyArcsJson;
+  final Value<String?> genresJson;
+  final Value<int?> pageCount;
+  final Value<int?> coverPriceCents;
+  final Value<String?> catalogCurrency;
+  final Value<String?> country;
+  final Value<String?> language;
+  final Value<String?> ageRating;
+  final Value<String?> imprint;
+  final Value<String?> subtitle;
+  final Value<String?> seriesGroup;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const CatalogCacheCompanion({
@@ -859,6 +1348,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.volumeStartYear = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
+    this.trackCount = const Value.absent(),
+    this.tracksJson = const Value.absent(),
+    this.creatorsJson = const Value.absent(),
+    this.charactersJson = const Value.absent(),
+    this.storyArcsJson = const Value.absent(),
+    this.genresJson = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.coverPriceCents = const Value.absent(),
+    this.catalogCurrency = const Value.absent(),
+    this.country = const Value.absent(),
+    this.language = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.imprint = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.seriesGroup = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -885,6 +1389,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.volumeStartYear = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
+    this.trackCount = const Value.absent(),
+    this.tracksJson = const Value.absent(),
+    this.creatorsJson = const Value.absent(),
+    this.charactersJson = const Value.absent(),
+    this.storyArcsJson = const Value.absent(),
+    this.genresJson = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.coverPriceCents = const Value.absent(),
+    this.catalogCurrency = const Value.absent(),
+    this.country = const Value.absent(),
+    this.language = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.imprint = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.seriesGroup = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -914,6 +1433,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<int>? volumeStartYear,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
+    Expression<int>? trackCount,
+    Expression<String>? tracksJson,
+    Expression<String>? creatorsJson,
+    Expression<String>? charactersJson,
+    Expression<String>? storyArcsJson,
+    Expression<String>? genresJson,
+    Expression<int>? pageCount,
+    Expression<int>? coverPriceCents,
+    Expression<String>? catalogCurrency,
+    Expression<String>? country,
+    Expression<String>? language,
+    Expression<String>? ageRating,
+    Expression<String>? imprint,
+    Expression<String>? subtitle,
+    Expression<String>? seriesGroup,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -941,6 +1475,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (volumeStartYear != null) 'volume_start_year': volumeStartYear,
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (trackCount != null) 'track_count': trackCount,
+      if (tracksJson != null) 'tracks_json': tracksJson,
+      if (creatorsJson != null) 'creators_json': creatorsJson,
+      if (charactersJson != null) 'characters_json': charactersJson,
+      if (storyArcsJson != null) 'story_arcs_json': storyArcsJson,
+      if (genresJson != null) 'genres_json': genresJson,
+      if (pageCount != null) 'page_count': pageCount,
+      if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
+      if (catalogCurrency != null) 'catalog_currency': catalogCurrency,
+      if (country != null) 'country': country,
+      if (language != null) 'language': language,
+      if (ageRating != null) 'age_rating': ageRating,
+      if (imprint != null) 'imprint': imprint,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (seriesGroup != null) 'series_group': seriesGroup,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -969,6 +1518,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<int?>? volumeStartYear,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
+      Value<int?>? trackCount,
+      Value<String?>? tracksJson,
+      Value<String?>? creatorsJson,
+      Value<String?>? charactersJson,
+      Value<String?>? storyArcsJson,
+      Value<String?>? genresJson,
+      Value<int?>? pageCount,
+      Value<int?>? coverPriceCents,
+      Value<String?>? catalogCurrency,
+      Value<String?>? country,
+      Value<String?>? language,
+      Value<String?>? ageRating,
+      Value<String?>? imprint,
+      Value<String?>? subtitle,
+      Value<String?>? seriesGroup,
       Value<DateTime>? cachedAt,
       Value<int>? rowid}) {
     return CatalogCacheCompanion(
@@ -994,6 +1558,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       volumeStartYear: volumeStartYear ?? this.volumeStartYear,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
+      trackCount: trackCount ?? this.trackCount,
+      tracksJson: tracksJson ?? this.tracksJson,
+      creatorsJson: creatorsJson ?? this.creatorsJson,
+      charactersJson: charactersJson ?? this.charactersJson,
+      storyArcsJson: storyArcsJson ?? this.storyArcsJson,
+      genresJson: genresJson ?? this.genresJson,
+      pageCount: pageCount ?? this.pageCount,
+      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
+      catalogCurrency: catalogCurrency ?? this.catalogCurrency,
+      country: country ?? this.country,
+      language: language ?? this.language,
+      ageRating: ageRating ?? this.ageRating,
+      imprint: imprint ?? this.imprint,
+      subtitle: subtitle ?? this.subtitle,
+      seriesGroup: seriesGroup ?? this.seriesGroup,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1069,6 +1648,51 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (episodeNumber.present) {
       map['episode_number'] = Variable<int>(episodeNumber.value);
     }
+    if (trackCount.present) {
+      map['track_count'] = Variable<int>(trackCount.value);
+    }
+    if (tracksJson.present) {
+      map['tracks_json'] = Variable<String>(tracksJson.value);
+    }
+    if (creatorsJson.present) {
+      map['creators_json'] = Variable<String>(creatorsJson.value);
+    }
+    if (charactersJson.present) {
+      map['characters_json'] = Variable<String>(charactersJson.value);
+    }
+    if (storyArcsJson.present) {
+      map['story_arcs_json'] = Variable<String>(storyArcsJson.value);
+    }
+    if (genresJson.present) {
+      map['genres_json'] = Variable<String>(genresJson.value);
+    }
+    if (pageCount.present) {
+      map['page_count'] = Variable<int>(pageCount.value);
+    }
+    if (coverPriceCents.present) {
+      map['cover_price_cents'] = Variable<int>(coverPriceCents.value);
+    }
+    if (catalogCurrency.present) {
+      map['catalog_currency'] = Variable<String>(catalogCurrency.value);
+    }
+    if (country.present) {
+      map['country'] = Variable<String>(country.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (ageRating.present) {
+      map['age_rating'] = Variable<String>(ageRating.value);
+    }
+    if (imprint.present) {
+      map['imprint'] = Variable<String>(imprint.value);
+    }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
+    if (seriesGroup.present) {
+      map['series_group'] = Variable<String>(seriesGroup.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -1103,6 +1727,21 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('volumeStartYear: $volumeStartYear, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
+          ..write('trackCount: $trackCount, ')
+          ..write('tracksJson: $tracksJson, ')
+          ..write('creatorsJson: $creatorsJson, ')
+          ..write('charactersJson: $charactersJson, ')
+          ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('genresJson: $genresJson, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('coverPriceCents: $coverPriceCents, ')
+          ..write('catalogCurrency: $catalogCurrency, ')
+          ..write('country: $country, ')
+          ..write('language: $language, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('imprint: $imprint, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('seriesGroup: $seriesGroup, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4498,6 +5137,21 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<int?> volumeStartYear,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
+  Value<int?> trackCount,
+  Value<String?> tracksJson,
+  Value<String?> creatorsJson,
+  Value<String?> charactersJson,
+  Value<String?> storyArcsJson,
+  Value<String?> genresJson,
+  Value<int?> pageCount,
+  Value<int?> coverPriceCents,
+  Value<String?> catalogCurrency,
+  Value<String?> country,
+  Value<String?> language,
+  Value<String?> ageRating,
+  Value<String?> imprint,
+  Value<String?> subtitle,
+  Value<String?> seriesGroup,
   required DateTime cachedAt,
   Value<int> rowid,
 });
@@ -4525,6 +5179,21 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<int?> volumeStartYear,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
+  Value<int?> trackCount,
+  Value<String?> tracksJson,
+  Value<String?> creatorsJson,
+  Value<String?> charactersJson,
+  Value<String?> storyArcsJson,
+  Value<String?> genresJson,
+  Value<int?> pageCount,
+  Value<int?> coverPriceCents,
+  Value<String?> catalogCurrency,
+  Value<String?> country,
+  Value<String?> language,
+  Value<String?> ageRating,
+  Value<String?> imprint,
+  Value<String?> subtitle,
+  Value<String?> seriesGroup,
   Value<DateTime> cachedAt,
   Value<int> rowid,
 });
@@ -4607,6 +5276,54 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<int> get episodeNumber => $composableBuilder(
       column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get trackCount => $composableBuilder(
+      column: $table.trackCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tracksJson => $composableBuilder(
+      column: $table.tracksJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get creatorsJson => $composableBuilder(
+      column: $table.creatorsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get charactersJson => $composableBuilder(
+      column: $table.charactersJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storyArcsJson => $composableBuilder(
+      column: $table.storyArcsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogCurrency => $composableBuilder(
+      column: $table.catalogCurrency,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get country => $composableBuilder(
+      column: $table.country, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imprint => $composableBuilder(
+      column: $table.imprint, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesGroup => $composableBuilder(
+      column: $table.seriesGroup, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnFilters(column));
@@ -4696,6 +5413,56 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.episodeNumber,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get trackCount => $composableBuilder(
+      column: $table.trackCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tracksJson => $composableBuilder(
+      column: $table.tracksJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get creatorsJson => $composableBuilder(
+      column: $table.creatorsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get charactersJson => $composableBuilder(
+      column: $table.charactersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storyArcsJson => $composableBuilder(
+      column: $table.storyArcsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogCurrency => $composableBuilder(
+      column: $table.catalogCurrency,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get country => $composableBuilder(
+      column: $table.country, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imprint => $composableBuilder(
+      column: $table.imprint, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesGroup => $composableBuilder(
+      column: $table.seriesGroup, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
 }
@@ -4775,6 +5542,51 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<int> get episodeNumber => $composableBuilder(
       column: $table.episodeNumber, builder: (column) => column);
 
+  GeneratedColumn<int> get trackCount => $composableBuilder(
+      column: $table.trackCount, builder: (column) => column);
+
+  GeneratedColumn<String> get tracksJson => $composableBuilder(
+      column: $table.tracksJson, builder: (column) => column);
+
+  GeneratedColumn<String> get creatorsJson => $composableBuilder(
+      column: $table.creatorsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get charactersJson => $composableBuilder(
+      column: $table.charactersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get storyArcsJson => $composableBuilder(
+      column: $table.storyArcsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogCurrency => $composableBuilder(
+      column: $table.catalogCurrency, builder: (column) => column);
+
+  GeneratedColumn<String> get country =>
+      $composableBuilder(column: $table.country, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get ageRating =>
+      $composableBuilder(column: $table.ageRating, builder: (column) => column);
+
+  GeneratedColumn<String> get imprint =>
+      $composableBuilder(column: $table.imprint, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesGroup => $composableBuilder(
+      column: $table.seriesGroup, builder: (column) => column);
+
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
 }
@@ -4827,6 +5639,21 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> volumeStartYear = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
+            Value<int?> trackCount = const Value.absent(),
+            Value<String?> tracksJson = const Value.absent(),
+            Value<String?> creatorsJson = const Value.absent(),
+            Value<String?> charactersJson = const Value.absent(),
+            Value<String?> storyArcsJson = const Value.absent(),
+            Value<String?> genresJson = const Value.absent(),
+            Value<int?> pageCount = const Value.absent(),
+            Value<int?> coverPriceCents = const Value.absent(),
+            Value<String?> catalogCurrency = const Value.absent(),
+            Value<String?> country = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<String?> imprint = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String?> seriesGroup = const Value.absent(),
             Value<DateTime> cachedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -4853,6 +5680,21 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             volumeStartYear: volumeStartYear,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
+            trackCount: trackCount,
+            tracksJson: tracksJson,
+            creatorsJson: creatorsJson,
+            charactersJson: charactersJson,
+            storyArcsJson: storyArcsJson,
+            genresJson: genresJson,
+            pageCount: pageCount,
+            coverPriceCents: coverPriceCents,
+            catalogCurrency: catalogCurrency,
+            country: country,
+            language: language,
+            ageRating: ageRating,
+            imprint: imprint,
+            subtitle: subtitle,
+            seriesGroup: seriesGroup,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -4879,6 +5721,21 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> volumeStartYear = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
+            Value<int?> trackCount = const Value.absent(),
+            Value<String?> tracksJson = const Value.absent(),
+            Value<String?> creatorsJson = const Value.absent(),
+            Value<String?> charactersJson = const Value.absent(),
+            Value<String?> storyArcsJson = const Value.absent(),
+            Value<String?> genresJson = const Value.absent(),
+            Value<int?> pageCount = const Value.absent(),
+            Value<int?> coverPriceCents = const Value.absent(),
+            Value<String?> catalogCurrency = const Value.absent(),
+            Value<String?> country = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<String?> imprint = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String?> seriesGroup = const Value.absent(),
             required DateTime cachedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -4905,6 +5762,21 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             volumeStartYear: volumeStartYear,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
+            trackCount: trackCount,
+            tracksJson: tracksJson,
+            creatorsJson: creatorsJson,
+            charactersJson: charactersJson,
+            storyArcsJson: storyArcsJson,
+            genresJson: genresJson,
+            pageCount: pageCount,
+            coverPriceCents: coverPriceCents,
+            catalogCurrency: catalogCurrency,
+            country: country,
+            language: language,
+            ageRating: ageRating,
+            imprint: imprint,
+            subtitle: subtitle,
+            seriesGroup: seriesGroup,
             cachedAt: cachedAt,
             rowid: rowid,
           ),

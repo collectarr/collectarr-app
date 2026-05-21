@@ -1728,110 +1728,173 @@ class _DashboardSummary extends StatelessWidget {
     if (errorMessage != null && summary == null && searchStatus == null) {
       return _MessageRow(message: errorMessage!, isError: true);
     }
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _StatusChip(
-          icon: Icons.extension_outlined,
-          label: '$configuredProviders providers live',
+        // ── Providers ──
+        _DashboardSection(
+          title: 'Providers',
+          children: [
+            _StatusChip(
+              icon: Icons.extension_outlined,
+              label: '$configuredProviders live',
+            ),
+            _StatusChip(
+              icon: Icons.manage_search_outlined,
+              label: '$registeredProviders registered',
+            ),
+            _StatusChip(
+              icon: Icons.source_outlined,
+              label: selectedProviderLabel,
+            ),
+          ],
         ),
-        _StatusChip(
-          icon: Icons.manage_search_outlined,
-          label: '$registeredProviders providers registered',
+        if (summary != null) ...[
+          const SizedBox(height: 12),
+          // ── Catalog ──
+          _DashboardSection(
+            title: 'Catalog',
+            children: [
+              _StatusChip(
+                icon: Icons.library_books_outlined,
+                label: '${summary.items} items',
+              ),
+              _StatusChip(
+                icon: Icons.category_outlined,
+                label: '${summary.series} series',
+              ),
+              _StatusChip(
+                icon: Icons.link_outlined,
+                label: '${summary.providerLinks} provider links',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // ── Coverage ──
+          _DashboardSection(
+            title: 'Coverage',
+            children: [
+              _StatusChip(
+                icon: Icons.image_search_outlined,
+                label: summary.coverCoverageLabel,
+              ),
+              _StatusChip(
+                icon: Icons.hub_outlined,
+                label: summary.providerCoverageLabel,
+              ),
+              _StatusChip(
+                icon: Icons.image_outlined,
+                label: '${summary.missingCoverItems} missing covers',
+              ),
+              _StatusChip(
+                icon: Icons.link_off_outlined,
+                label: '${summary.missingProviderLinkItems} missing IDs',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // ── Ingests ──
+          _DashboardSection(
+            title: 'Ingests',
+            children: [
+              _StatusChip(
+                icon: Icons.join_inner_outlined,
+                label: '${summary.duplicateCandidateGroups} duplicate groups',
+              ),
+              _StatusChip(
+                icon: summary.providerIngestFailures == 0
+                    ? Icons.download_done_outlined
+                    : Icons.error_outline,
+                label: '${summary.providerIngestFailures} failures',
+              ),
+              _StatusChip(
+                icon: Icons.download_for_offline_outlined,
+                label: '${summary.providerIngestSuccesses} ok',
+              ),
+              _StatusChip(
+                icon: Icons.pending_actions_outlined,
+                label: '${summary.pendingProposals} pending',
+              ),
+              if (lastIngest != null)
+                _StatusChip(
+                  icon: lastIngest!.created
+                      ? Icons.add_circle_outline
+                      : Icons.fact_check_outlined,
+                  label: lastIngest!.created ? 'Last: new' : 'Last: exists',
+                ),
+            ],
+          ),
+        ] else
+          const Padding(
+            padding: EdgeInsets.only(top: 12),
+            child: _StatusChip(
+              icon: Icons.hourglass_empty,
+              label: 'Catalog metrics loading',
+            ),
+          ),
+        const SizedBox(height: 12),
+        // ── Search ──
+        _DashboardSection(
+          title: 'Search index',
+          children: [
+            if (searchStatus == null)
+              const _StatusChip(
+                icon: Icons.manage_search_outlined,
+                label: 'Loading…',
+              )
+            else
+              _StatusChip(
+                icon: searchStatus.ok
+                    ? Icons.check_circle_outline
+                    : Icons.error_outline,
+                label: searchStatus.ok
+                    ? '${searchStatus.documentCount ?? '-'} docs'
+                    : 'Unavailable',
+              ),
+            if (lastReindex != null)
+              _StatusChip(
+                icon: lastReindex!.ok
+                    ? Icons.published_with_changes_outlined
+                    : Icons.error_outline,
+                label: lastReindex!.ok
+                    ? 'Reindexed ${lastReindex!.indexedDocuments}'
+                    : 'Reindex failed',
+              ),
+          ],
         ),
-        _StatusChip(
-          icon: Icons.source_outlined,
-          label: selectedProviderLabel,
-        ),
-        if (summary == null) ...[
-          const _StatusChip(
-            icon: Icons.hourglass_empty,
-            label: 'Catalog metrics loading',
-          ),
-        ] else ...[
-          _StatusChip(
-            icon: Icons.library_books_outlined,
-            label: '${summary.items} items',
-          ),
-          _StatusChip(
-            icon: Icons.category_outlined,
-            label: '${summary.series} series',
-          ),
-          _StatusChip(
-            icon: Icons.link_outlined,
-            label: '${summary.providerLinks} provider links',
-          ),
-          _StatusChip(
-            icon: Icons.image_search_outlined,
-            label: summary.coverCoverageLabel,
-          ),
-          _StatusChip(
-            icon: Icons.hub_outlined,
-            label: summary.providerCoverageLabel,
-          ),
-          _StatusChip(
-            icon: Icons.image_outlined,
-            label: '${summary.missingCoverItems} missing covers',
-          ),
-          _StatusChip(
-            icon: Icons.link_off_outlined,
-            label: '${summary.missingProviderLinkItems} missing IDs',
-          ),
-          _StatusChip(
-            icon: Icons.join_inner_outlined,
-            label: '${summary.duplicateCandidateGroups} duplicate groups',
-          ),
-          _StatusChip(
-            icon: summary.providerIngestFailures == 0
-                ? Icons.download_done_outlined
-                : Icons.error_outline,
-            label: '${summary.providerIngestFailures} ingest failures',
-          ),
-          _StatusChip(
-            icon: Icons.download_for_offline_outlined,
-            label: '${summary.providerIngestSuccesses} ingests ok',
-          ),
-          _StatusChip(
-            icon: Icons.pending_actions_outlined,
-            label: '${summary.pendingProposals} pending proposals',
-          ),
+        if (errorMessage != null) ...[
+          const SizedBox(height: 12),
+          _StatusChip(icon: Icons.error_outline, label: errorMessage!),
         ],
-        if (searchStatus == null)
-          const _StatusChip(
-            icon: Icons.manage_search_outlined,
-            label: 'Search status loading',
-          )
-        else
-          _StatusChip(
-            icon: searchStatus.ok
-                ? Icons.check_circle_outline
-                : Icons.error_outline,
-            label: searchStatus.ok
-                ? '${searchStatus.indexName}: ${searchStatus.documentCount ?? '-'} docs'
-                : 'Search unavailable',
-          ),
-        if (lastReindex != null)
-          _StatusChip(
-            icon: lastReindex!.ok
-                ? Icons.published_with_changes_outlined
-                : Icons.error_outline,
-            label: lastReindex!.ok
-                ? 'Reindexed ${lastReindex!.indexedDocuments}'
-                : 'Reindex failed',
-          ),
-        if (lastIngest != null)
-          _StatusChip(
-            icon: lastIngest!.created
-                ? Icons.add_circle_outline
-                : Icons.fact_check_outlined,
-            label: lastIngest!.created ? 'Last ingest new' : 'Already indexed',
-          ),
-        if (errorMessage != null)
-          _StatusChip(
-            icon: Icons.error_outline,
-            label: errorMessage!,
-          ),
+      ],
+    );
+  }
+}
+
+class _DashboardSection extends StatelessWidget {
+  const _DashboardSection({required this.title, required this.children});
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+              ),
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: children,
+        ),
       ],
     );
   }
@@ -1870,6 +1933,7 @@ class _ProviderSelector extends StatelessWidget {
       key: ValueKey(selected),
       initialValue: selected,
       isExpanded: true,
+      dropdownColor: const Color(0xFF2A2A2A),
       hint: Text(isLoading ? 'Loading providers...' : 'Select provider'),
       decoration: const InputDecoration(
         labelText: 'Provider',
@@ -1921,6 +1985,7 @@ class _ProviderKindSelector extends StatelessWidget {
       key: ValueKey('provider-kind-$selected'),
       initialValue: selected,
       isExpanded: true,
+      dropdownColor: const Color(0xFF2A2A2A),
       decoration: const InputDecoration(
         labelText: 'Media kind',
         prefixIcon: Icon(Icons.category_outlined),
@@ -2041,7 +2106,6 @@ class _CatalogItemTile extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     _MiniChip(label: item.kind),
-                    _MiniChip(label: 'ID ${_shortId(item.id)}'),
                     if (item.publisher != null)
                       _MiniChip(label: item.publisher!),
                     if (item.barcode != null) _MiniChip(label: item.barcode!),
@@ -2198,6 +2262,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 initialValue: filterValue,
                 isExpanded: true,
+                dropdownColor: const Color(0xFF2A2A2A),
                 decoration: const InputDecoration(
                   labelText: 'Status filter',
                   border: OutlineInputBorder(),
@@ -2217,6 +2282,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 initialValue: providerFilterValue,
                 isExpanded: true,
+                dropdownColor: const Color(0xFF2A2A2A),
                 decoration: const InputDecoration(
                   labelText: 'Provider filter',
                   border: OutlineInputBorder(),
@@ -4244,6 +4310,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       padding: const EdgeInsets.only(bottom: 12),
       child: DropdownButtonFormField<String>(
         initialValue: _physicalFormatId,
+        dropdownColor: const Color(0xFF2A2A2A),
         decoration: const InputDecoration(
           labelText: 'Physical format',
           border: OutlineInputBorder(),

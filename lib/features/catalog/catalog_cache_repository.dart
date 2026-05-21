@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:drift/drift.dart';
@@ -42,6 +44,41 @@ class CatalogCacheRepository {
               volumeStartYear: Value(item.volumeStartYear),
               seasonNumber: Value(item.seasonNumber),
               episodeNumber: Value(item.episodeNumber),
+              trackCount: Value(item.trackCount),
+              tracksJson: Value(
+                item.tracks != null && item.tracks!.isNotEmpty
+                    ? jsonEncode(item.tracks)
+                    : null,
+              ),
+              creatorsJson: Value(
+                item.creators != null && item.creators!.isNotEmpty
+                    ? jsonEncode(item.creators)
+                    : null,
+              ),
+              charactersJson: Value(
+                item.characters != null && item.characters!.isNotEmpty
+                    ? jsonEncode(item.characters)
+                    : null,
+              ),
+              storyArcsJson: Value(
+                item.storyArcs != null && item.storyArcs!.isNotEmpty
+                    ? jsonEncode(item.storyArcs)
+                    : null,
+              ),
+              genresJson: Value(
+                item.genres != null && item.genres!.isNotEmpty
+                    ? jsonEncode(item.genres)
+                    : null,
+              ),
+              pageCount: Value(item.pageCount),
+              coverPriceCents: Value(item.coverPriceCents),
+              catalogCurrency: Value(item.currency),
+              country: Value(item.country),
+              language: Value(item.language),
+              ageRating: Value(item.ageRating),
+              imprint: Value(item.imprint),
+              subtitle: Value(item.subtitle),
+              seriesGroup: Value(item.seriesGroup),
               cachedAt: now,
             ),
         ],
@@ -91,6 +128,21 @@ class CatalogCacheRepository {
           volumeStartYear: row.volumeStartYear,
           seasonNumber: row.seasonNumber,
           episodeNumber: row.episodeNumber,
+          trackCount: row.trackCount,
+          tracks: _decodeTracks(row.tracksJson),
+          creators: _decodeListOfMaps(row.creatorsJson),
+          characters: _decodeStringList(row.charactersJson),
+          storyArcs: _decodeStringList(row.storyArcsJson),
+          genres: _decodeStringList(row.genresJson),
+          pageCount: row.pageCount,
+          coverPriceCents: row.coverPriceCents,
+          currency: row.catalogCurrency,
+          country: row.country,
+          language: row.language,
+          ageRating: row.ageRating,
+          imprint: row.imprint,
+          subtitle: row.subtitle,
+          seriesGroup: row.seriesGroup,
         ),
     };
   }
@@ -177,7 +229,48 @@ class CatalogCacheRepository {
       volumeStartYear: row.volumeStartYear,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
+      trackCount: row.trackCount,
+      tracks: _decodeTracks(row.tracksJson),
+      creators: _decodeListOfMaps(row.creatorsJson),
+      characters: _decodeStringList(row.charactersJson),
+      storyArcs: _decodeStringList(row.storyArcsJson),
+      genres: _decodeStringList(row.genresJson),
+      pageCount: row.pageCount,
+      coverPriceCents: row.coverPriceCents,
+      currency: row.catalogCurrency,
+      country: row.country,
+      language: row.language,
+      ageRating: row.ageRating,
+      imprint: row.imprint,
+      subtitle: row.subtitle,
+      seriesGroup: row.seriesGroup,
     );
+  }
+
+  static List<Map<String, dynamic>>? _decodeTracks(String? json) {
+    return _decodeListOfMaps(json);
+  }
+
+  static List<Map<String, dynamic>>? _decodeListOfMaps(String? json) {
+    if (json == null || json.isEmpty) {
+      return null;
+    }
+    final decoded = jsonDecode(json);
+    if (decoded is! List) {
+      return null;
+    }
+    return decoded.cast<Map<String, dynamic>>().toList(growable: false);
+  }
+
+  static List<String>? _decodeStringList(String? json) {
+    if (json == null || json.isEmpty) {
+      return null;
+    }
+    final decoded = jsonDecode(json);
+    if (decoded is! List) {
+      return null;
+    }
+    return decoded.cast<String>().toList(growable: false);
   }
 
   String _compactBarcode(String value) {

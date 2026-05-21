@@ -36,13 +36,11 @@ class LibraryViewTableControlCallbacks {
     required this.onEditColumns,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
-    required this.onViewPresetSelected,
     required this.onCoverSizeChanged,
   });
 
   final VoidCallback onEditColumns;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
-  final ValueChanged<LibraryWorkspacePreset> onViewPresetSelected;
   final ValueChanged<double> onCoverSizeChanged;
 }

@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
-enum _LibraryViewOption { coverSmall, coverMedium, coverLarge }
-
 class LibraryViewControls extends StatelessWidget {
   const LibraryViewControls({
     super.key,
@@ -14,7 +12,6 @@ class LibraryViewControls extends StatelessWidget {
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
-    this.onPresetSelected,
   });
 
   final LibraryViewMode viewMode;
@@ -25,7 +22,6 @@ class LibraryViewControls extends StatelessWidget {
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
-  final ValueChanged<LibraryWorkspacePreset>? onPresetSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +42,13 @@ class LibraryViewControls extends StatelessWidget {
               icon: Tooltip(
                 message: 'Card view',
                 child: Icon(Icons.view_module),
+              ),
+            ),
+            ButtonSegment(
+              value: LibraryViewMode.cardFlow,
+              icon: Tooltip(
+                message: 'Card flow',
+                child: Icon(Icons.view_agenda),
               ),
             ),
             ButtonSegment(
@@ -90,105 +93,29 @@ class LibraryViewControls extends StatelessWidget {
               onDetailsLayoutChanged(selection.first),
           showSelectedIcon: false,
         ),
-        const SizedBox(width: 8),
-        PopupMenuButton<Object>(
-          tooltip: 'View options',
-          icon: const Icon(Icons.tune),
-          onSelected: _handleViewOptionSelected,
-          itemBuilder: (context) => [
-            const PopupMenuItem<Object>(
-              enabled: false,
-              child: Text('Cover size'),
+        const SizedBox(width: 12),
+        Tooltip(
+          message: 'Cover size',
+          child: Icon(Icons.photo_size_select_small, size: 18,
+              color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+        SizedBox(
+          width: 120,
+          child: SliderTheme(
+            data: SliderThemeData(
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+              trackHeight: 3,
             ),
-            PopupMenuItem<Object>(
-              value: _LibraryViewOption.coverSmall,
-              child: _ViewOptionTile(
-                icon: Icons.photo_size_select_small,
-                label: 'Small covers',
-                selected: _isCoverSizeNear(minCoverSize),
-              ),
+            child: Slider(
+              value: coverSize.clamp(minCoverSize, maxCoverSize),
+              min: minCoverSize,
+              max: maxCoverSize,
+              onChanged: onCoverSizeChanged,
             ),
-            PopupMenuItem<Object>(
-              value: _LibraryViewOption.coverMedium,
-              child: _ViewOptionTile(
-                icon: Icons.photo_size_select_actual_outlined,
-                label: 'Medium covers',
-                selected: _isCoverSizeNear(_mediumCoverSize),
-              ),
-            ),
-            PopupMenuItem<Object>(
-              value: _LibraryViewOption.coverLarge,
-              child: _ViewOptionTile(
-                icon: Icons.photo_size_select_large,
-                label: 'Large covers',
-                selected: _isCoverSizeNear(maxCoverSize),
-              ),
-            ),
-            if (onPresetSelected != null) ...[
-              const PopupMenuDivider(),
-              const PopupMenuItem<Object>(
-                enabled: false,
-                child: Text('Presets'),
-              ),
-              for (final preset in LibraryWorkspacePreset.values)
-                PopupMenuItem<Object>(
-                  value: preset,
-                  child: ListTile(
-                    leading: Icon(preset.icon),
-                    title: Text(preset.label),
-                    dense: true,
-                  ),
-                ),
-            ],
-          ],
+          ),
         ),
       ],
-    );
-  }
-
-  double get _mediumCoverSize =>
-      minCoverSize + (maxCoverSize - minCoverSize) / 2;
-
-  bool _isCoverSizeNear(double size) {
-    return (coverSize - size).abs() <= 8;
-  }
-
-  void _handleViewOptionSelected(Object option) {
-    if (option is LibraryWorkspacePreset) {
-      onPresetSelected?.call(option);
-      return;
-    }
-    switch (option) {
-      case _LibraryViewOption.coverSmall:
-        onCoverSizeChanged(minCoverSize);
-      case _LibraryViewOption.coverMedium:
-        onCoverSizeChanged(_mediumCoverSize);
-      case _LibraryViewOption.coverLarge:
-        onCoverSizeChanged(maxCoverSize);
-      default:
-        break;
-    }
-  }
-}
-
-class _ViewOptionTile extends StatelessWidget {
-  const _ViewOptionTile({
-    required this.icon,
-    required this.label,
-    required this.selected,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      leading: Icon(icon),
-      title: Text(label),
-      trailing: selected ? const Icon(Icons.check, size: 18) : null,
     );
   }
 }

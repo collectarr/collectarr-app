@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/features/updater/app_update_panel.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
@@ -97,7 +98,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Theme(
       data: buildLibraryAccentTheme(Theme.of(context), accent),
       child: DefaultTabController(
-        length: 5,
+        length: 6,
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Settings'),
@@ -117,6 +118,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 Tab(icon: Icon(Icons.palette_outlined), text: 'Appearance'),
                 Tab(icon: Icon(Icons.backup_outlined), text: 'Data'),
                 Tab(icon: Icon(Icons.account_circle_outlined), text: 'Account'),
+                Tab(icon: Icon(Icons.system_update_outlined), text: 'Updates'),
               ],
             ),
           ),
@@ -582,6 +584,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ),
                       ],
                     ),
+                  ),
+                ],
+              ),
+              // ── Updates tab ──────────────────────────────────────────
+              _SettingsTabBody(
+                children: [
+                  _SettingsPanel(
+                    icon: Icons.system_update_outlined,
+                    title: 'App updates',
+                    child: const AppUpdatePanel(),
                   ),
                 ],
               ),

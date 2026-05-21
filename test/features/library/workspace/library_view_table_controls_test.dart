@@ -29,7 +29,6 @@ void main() {
                   onViewModeChanged: (value) =>
                       setState(() => viewMode = value),
                   onDetailsLayoutChanged: (_) {},
-                  onViewPresetSelected: (_) {},
                   onCoverSizeChanged: (_) {},
                 ),
               );
@@ -43,7 +42,7 @@ void main() {
     expect(find.byTooltip('Cover view'), findsOneWidget);
     expect(find.byTooltip('Card view'), findsOneWidget);
     expect(find.byTooltip('List view'), findsOneWidget);
-    expect(find.byTooltip('View options'), findsOneWidget);
+    expect(find.byTooltip('Cover size'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Select columns'));
     await tester.pump();

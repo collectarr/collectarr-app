@@ -8,6 +8,7 @@ class LibraryCoverTile extends StatelessWidget {
     required this.entry,
     required this.selected,
     required this.onTap,
+    this.onSecondaryTapUp,
     this.selectedColor = const Color(0xFF075F75),
     this.accentColor = const Color(0xFF10A8D8),
     this.selectionColor = const Color(0xFFFFD400),
@@ -18,6 +19,7 @@ class LibraryCoverTile extends StatelessWidget {
   final LibraryWorkspaceEntry entry;
   final bool selected;
   final VoidCallback onTap;
+  final GestureTapUpCallback? onSecondaryTapUp;
   final Color selectedColor;
   final Color accentColor;
   final Color selectionColor;
@@ -48,6 +50,7 @@ class LibraryCoverTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
+          onSecondaryTapUp: onSecondaryTapUp,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -97,6 +100,17 @@ class LibraryCoverTile extends StatelessWidget {
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     ),
               ),
+              if (entry.releaseYear != null)
+                Text(
+                  entry.releaseYear.toString(),
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: selected
+                            ? Colors.white70
+                            : mutedTextColor.withValues(alpha: 0.6),
+                        fontSize: 10,
+                      ),
+                ),
             ],
           ),
         ),

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_projection_item.dart';
+import 'package:collectarr_app/features/library/generic/library_projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
 class LibraryBulkActions {
@@ -110,7 +110,7 @@ class LibraryBulkActions {
 }
 
 List<ShelfEntry> selectedShelfEntries(
-  List<GenericLibraryItem> visibleItems,
+  List<LibraryProjectionItem> visibleItems,
   Set<String> selectedItemIds,
 ) {
   return [

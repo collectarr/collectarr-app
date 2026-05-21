@@ -19,6 +19,7 @@ class MediaTrackingStatusField extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       isExpanded: true,
+      dropdownColor: const Color(0xFF2A2A2A),
       initialValue: profile.normalizeStorageValue(value),
       decoration: InputDecoration(
         labelText: label ?? '${profile.name} status',

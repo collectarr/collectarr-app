@@ -6,6 +6,7 @@ class LibraryTableInkRow extends StatelessWidget {
     required this.selected,
     required this.odd,
     required this.onTap,
+    this.onSecondaryTapUp,
     required this.child,
     required this.selectedColor,
     required this.oddColor,
@@ -21,6 +22,7 @@ class LibraryTableInkRow extends StatelessWidget {
   final bool selected;
   final bool odd;
   final VoidCallback onTap;
+  final GestureTapUpCallback? onSecondaryTapUp;
   final Widget child;
   final Color selectedColor;
   final Color oddColor;
@@ -51,6 +53,7 @@ class LibraryTableInkRow extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
+        onSecondaryTapUp: onSecondaryTapUp,
         hoverColor: hoverColor,
         child: Padding(
           padding: EdgeInsets.fromLTRB(

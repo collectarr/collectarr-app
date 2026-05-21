@@ -29,6 +29,21 @@ class LibraryWorkspaceEntry {
     this.volumeNumber,
     this.seasonNumber,
     this.episodeNumber,
+    this.trackCount,
+    this.tracks,
+    this.creators,
+    this.characters,
+    this.storyArcs,
+    this.genres,
+    this.pageCount,
+    this.coverPriceCents,
+    this.catalogCurrency,
+    this.country,
+    this.language,
+    this.ageRating,
+    this.imprint,
+    this.subtitle,
+    this.seriesGroup,
     required this.updatedAt,
   });
 
@@ -59,6 +74,21 @@ class LibraryWorkspaceEntry {
   final int? volumeNumber;
   final int? seasonNumber;
   final int? episodeNumber;
+  final int? trackCount;
+  final List<Map<String, dynamic>>? tracks;
+  final List<Map<String, dynamic>>? creators;
+  final List<String>? characters;
+  final List<String>? storyArcs;
+  final List<String>? genres;
+  final int? pageCount;
+  final int? coverPriceCents;
+  final String? catalogCurrency;
+  final String? country;
+  final String? language;
+  final String? ageRating;
+  final String? imprint;
+  final String? subtitle;
+  final String? seriesGroup;
   final DateTime updatedAt;
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
@@ -93,6 +123,16 @@ int compareLibraryWorkspaceEntries(
     LibrarySortColumn.wishlist =>
       _compareBools(left.isWishlisted, right.isWishlisted),
     LibrarySortColumn.updated => left.updatedAt.compareTo(right.updatedAt),
+    LibrarySortColumn.country =>
+      _compareNullableStrings(left.country, right.country),
+    LibrarySortColumn.language =>
+      _compareNullableStrings(left.language, right.language),
+    LibrarySortColumn.pageCount =>
+      _compareNullableInts(left.pageCount, right.pageCount),
+    LibrarySortColumn.ageRating =>
+      _compareNullableStrings(left.ageRating, right.ageRating),
+    LibrarySortColumn.imprint =>
+      _compareNullableStrings(left.imprint, right.imprint),
   };
   if (result != 0) {
     return ascending ? result : -result;

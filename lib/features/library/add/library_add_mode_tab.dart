@@ -27,9 +27,9 @@ class LibraryAddModeTab extends StatelessWidget {
       borderRadius: BorderRadius.circular(3),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 140),
-        height: 32,
+        height: 34,
         margin: const EdgeInsets.only(right: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
           color: selected ? selectedColor : const Color(0xFF2D2F31),
           border: Border.all(

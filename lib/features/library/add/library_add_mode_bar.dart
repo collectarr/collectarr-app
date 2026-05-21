@@ -240,7 +240,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 38,
+      height: 42,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: const Color(0xFF272A2C),
@@ -317,17 +317,20 @@ class _LibraryAddModeActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 30,
+      height: 32,
       child: TextButton.icon(
         onPressed: onPressed,
-        icon: Icon(icon, size: 17),
+        icon: Icon(icon, size: 18),
         label: Text(label),
         style: TextButton.styleFrom(
           foregroundColor: accent,
           visualDensity: VisualDensity.compact,
-          padding: const EdgeInsets.symmetric(horizontal: 9),
-          textStyle: const TextStyle(fontWeight: FontWeight.w800),
-          minimumSize: const Size(0, 30),
+          padding: const EdgeInsets.symmetric(horizontal: 11),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 13,
+          ),
+          minimumSize: const Size(0, 32),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       ),

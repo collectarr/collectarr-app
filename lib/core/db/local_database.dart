@@ -26,6 +26,21 @@ class CatalogCache extends Table {
   IntColumn get volumeStartYear => integer().nullable()();
   IntColumn get seasonNumber => integer().nullable()();
   IntColumn get episodeNumber => integer().nullable()();
+  IntColumn get trackCount => integer().nullable()();
+  TextColumn get tracksJson => text().nullable()();
+  TextColumn get creatorsJson => text().nullable()();
+  TextColumn get charactersJson => text().nullable()();
+  TextColumn get storyArcsJson => text().nullable()();
+  TextColumn get genresJson => text().nullable()();
+  IntColumn get pageCount => integer().nullable()();
+  IntColumn get coverPriceCents => integer().nullable()();
+  TextColumn get catalogCurrency => text().nullable()();
+  TextColumn get country => text().nullable()();
+  TextColumn get language => text().nullable()();
+  TextColumn get ageRating => text().nullable()();
+  TextColumn get imprint => text().nullable()();
+  TextColumn get subtitle => text().nullable()();
+  TextColumn get seriesGroup => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -148,7 +163,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {

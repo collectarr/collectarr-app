@@ -260,6 +260,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _fieldType,
+                dropdownColor: const Color(0xFF2A2A2A),
                 decoration: const InputDecoration(labelText: 'Field type'),
                 items: [
                   for (final type in _fieldTypes)
@@ -275,6 +276,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _mediaKind,
+                dropdownColor: const Color(0xFF2A2A2A),
                 decoration: const InputDecoration(
                   labelText: 'Applies to',
                   hintText: 'All libraries',

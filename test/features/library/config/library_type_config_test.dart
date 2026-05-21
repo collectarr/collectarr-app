@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/comics/comics_library_config.dart';
-import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
+import 'package:collectarr_app/features/library/config/comics_library_config.dart';
+import 'package:collectarr_app/features/library/config/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/config/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';

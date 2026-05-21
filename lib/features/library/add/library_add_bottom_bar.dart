@@ -246,9 +246,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
               controller: storageBoxController,
               keyboardType: TextInputType.text,
               inputFormatters: [noNewlineFormatter],
-              expands: true,
-              minLines: null,
-              maxLines: null,
+              maxLines: 1,
               textAlign: TextAlign.center,
               textInputAction: TextInputAction.done,
               textAlignVertical: TextAlignVertical.center,
@@ -257,8 +255,8 @@ class _AddTargetDefaultsBar extends StatelessWidget {
                 height: 1,
                 forceStrutHeight: true,
               ),
-              style: const TextStyle(
-                color: kCompactMenuText,
+              style: TextStyle(
+                color: compactMenuTextFor(accent),
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
                 height: 1,
@@ -326,16 +324,27 @@ class _LibraryAddTargetMenu extends StatelessWidget {
       enabled: enabled,
       tooltip: 'Add target',
       position: PopupMenuPosition.under,
+      color: compactMenuBackgroundFor(accent),
+      elevation: 10,
+      constraints: const BoxConstraints(minWidth: 158, maxWidth: 210),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(3),
+        side: BorderSide(color: accent.withValues(alpha: 0.74)),
+      ),
       padding: EdgeInsets.zero,
       onSelected: onChanged,
       itemBuilder: (context) => [
-        PopupMenuItem(
+        compactPopupMenuItem(
           value: LibraryAddTarget.owned,
-          child: Text(LibraryAddTarget.owned.actionLabel),
+          label: LibraryAddTarget.owned.actionLabel,
+          selected: value == LibraryAddTarget.owned,
+          accent: accent,
         ),
-        PopupMenuItem(
+        compactPopupMenuItem(
           value: LibraryAddTarget.wishlist,
-          child: Text(LibraryAddTarget.wishlist.actionLabel),
+          label: LibraryAddTarget.wishlist.actionLabel,
+          selected: value == LibraryAddTarget.wishlist,
+          accent: accent,
         ),
       ],
       child: CompactMenuButton(

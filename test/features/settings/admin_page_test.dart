@@ -27,15 +27,15 @@ void main() {
 
     // ─── Dashboard tab (default) ───
     expect(find.text('Metadata dashboard'), findsOneWidget);
-    expect(find.text('1 providers live'), findsOneWidget);
-    expect(find.text('3 providers registered'), findsOneWidget);
+    expect(find.text('1 live'), findsOneWidget);
+    expect(find.text('3 registered'), findsOneWidget);
     expect(find.text('12 items'), findsOneWidget);
     expect(find.text('1 duplicate groups'), findsOneWidget);
     expect(find.text('75% covers'), findsOneWidget);
     expect(find.text('92% provider IDs'), findsOneWidget);
-    expect(find.text('1 ingest failures'), findsOneWidget);
-    expect(find.text('5 ingests ok'), findsOneWidget);
-    expect(find.text('items: 12 docs'), findsOneWidget);
+    expect(find.text('1 failures'), findsOneWidget);
+    expect(find.text('5 ok'), findsOneWidget);
+    expect(find.text('12 docs'), findsOneWidget);
     expect(find.text('GCD'), findsWidgets);
 
     await tester.tap(find.byTooltip('Reindex search'));

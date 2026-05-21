@@ -137,14 +137,30 @@ ThemeData buildClzComicsTheme() {
       ),
       contentTextStyle: const TextStyle(color: Colors.white),
     ),
-    popupMenuTheme: const PopupMenuThemeData(
+    popupMenuTheme: PopupMenuThemeData(
       color: kClzPanelRaised,
       surfaceTintColor: Colors.transparent,
-      textStyle: TextStyle(color: Colors.white),
+      textStyle: const TextStyle(color: Colors.white),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: const BorderSide(color: kClzDivider),
+      ),
+      elevation: 12,
     ),
-    dropdownMenuTheme: const DropdownMenuThemeData(
-      textStyle: TextStyle(color: Colors.white),
-      inputDecorationTheme: InputDecorationTheme(
+    dropdownMenuTheme: DropdownMenuThemeData(
+      textStyle: const TextStyle(color: Colors.white),
+      menuStyle: MenuStyle(
+        backgroundColor: const WidgetStatePropertyAll(kClzPanelRaised),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        elevation: const WidgetStatePropertyAll(12),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+            side: const BorderSide(color: kClzDivider),
+          ),
+        ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: Color(0xFF101010),
         border: OutlineInputBorder(

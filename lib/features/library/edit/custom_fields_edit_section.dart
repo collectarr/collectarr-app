@@ -81,6 +81,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
         ),
       'select' => DropdownButtonFormField<String>(
           initialValue: value,
+          dropdownColor: kEditPanelRaised,
           decoration: InputDecoration(labelText: def.name),
           items: [
             const DropdownMenuItem<String>(value: null, child: Text('—')),

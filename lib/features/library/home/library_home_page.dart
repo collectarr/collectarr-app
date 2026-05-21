@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
-import 'package:collectarr_app/features/comics/comics_page.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_page.dart';
+import 'package:collectarr_app/features/library/generic/library_page.dart';
 import 'package:collectarr_app/features/library/home/library_home_catalog.dart';
 import 'package:collectarr_app/features/library/home/library_home_counts.dart';
 import 'package:collectarr_app/features/library/home/library_home_navigation.dart';
@@ -57,19 +56,13 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       animationDuration: animationDuration,
     );
     final selectedConfig = libraryConfigForCatalogType(selected, registry);
-    final content = selected.kind == 'comic'
-        ? ComicsPage(
-            topBar: navPreferences.placement == LibraryNavPlacement.top
-                ? topBar
-                : titleBar,
-          )
-        : GenericLibraryPage(
-            type: selectedConfig,
-            topBar: navPreferences.placement == LibraryNavPlacement.top
-                ? topBar
-                : titleBar,
-            accent: libraryAccentForKind(selected.kind),
-          );
+    final content = LibraryPage(
+      type: selectedConfig,
+      topBar: navPreferences.placement == LibraryNavPlacement.top
+          ? topBar
+          : titleBar,
+      accent: libraryAccentForKind(selected.kind),
+    );
 
     if (navPreferences.placement == LibraryNavPlacement.left) {
       return Material(

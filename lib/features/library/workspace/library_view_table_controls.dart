@@ -35,7 +35,6 @@ class LibraryViewTableControls extends StatelessWidget {
           onViewModeChanged: callbacks.onViewModeChanged,
           onDetailsLayoutChanged: callbacks.onDetailsLayoutChanged,
           onCoverSizeChanged: callbacks.onCoverSizeChanged,
-          onPresetSelected: callbacks.onViewPresetSelected,
         ),
       ],
     );

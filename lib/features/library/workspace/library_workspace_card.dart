@@ -11,6 +11,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required this.entry,
     required this.selected,
     required this.onTap,
+    this.onSecondaryTapUp,
     required this.dateFormatter,
     required this.moneyFormatter,
     this.selectedColor = const Color(0xFF075F75),
@@ -22,6 +23,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final LibraryWorkspaceEntry entry;
   final bool selected;
   final VoidCallback onTap;
+  final GestureTapUpCallback? onSecondaryTapUp;
   final LibraryDateFormatter dateFormatter;
   final LibraryMoneyFormatter moneyFormatter;
   final Color selectedColor;
@@ -45,6 +47,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
+          onSecondaryTapUp: onSecondaryTapUp,
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: Row(

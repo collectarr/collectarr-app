@@ -8,11 +8,13 @@ import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
+import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -91,8 +93,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   DateTime? _lastProviderSearchAt;
   String? _lastProviderSearchSignature;
   int _coreSearchGeneration = 0;
+  double _resultsPaneWidth = 390;
   static const _providerSearchDebounce = Duration(milliseconds: 450);
   static const _coreSearchTimeout = Duration(seconds: 35);
+  static const _minResultsPaneWidth = 280.0;
+  static const _maxResultsPaneWidth = 520.0;
+  static const _minPreviewPaneWidth = 420.0;
+  double? _dialogWidth;
+  double? _dialogHeight;
+  static const _minDialogWidth = 640.0;
+  static const _maxDialogWidth = 1400.0;
+  static const _minDialogHeight = 480.0;
+  static const _maxDialogHeight = 1000.0;
 
   @override
   void initState() {
@@ -152,19 +164,20 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           vertical: 24,
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1040, maxHeight: 780),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: kClzPanel,
-              border: Border.all(color: kClzDivider),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0xCC000000),
-                  blurRadius: 22,
-                  offset: Offset(0, 8),
-                ),
-              ],
-            ),
+          constraints: BoxConstraints(
+            maxWidth: (_dialogWidth ?? 1040).clamp(_minDialogWidth, _maxDialogWidth),
+            maxHeight: (_dialogHeight ?? 780).clamp(_minDialogHeight, _maxDialogHeight),
+          ),
+          child: _ResizableDialogShell(
+            accent: accent,
+            onResizeWidth: (delta) => setState(() {
+              _dialogWidth = ((_dialogWidth ?? 1040) + delta)
+                  .clamp(_minDialogWidth, _maxDialogWidth);
+            }),
+            onResizeHeight: (delta) => setState(() {
+              _dialogHeight = ((_dialogHeight ?? 780) + delta)
+                  .clamp(_minDialogHeight, _maxDialogHeight);
+            }),
             child: Column(
               children: [
                 _DialogHeader(type: widget.type, accent: accent),
@@ -254,9 +267,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         return manualPane;
                       }
                       if (constraints.maxWidth < 720) {
+                        final searchHeight =
+                            constraints.maxHeight > 400 ? 300.0 : constraints.maxHeight * 0.5;
                         return Column(
                           children: [
-                            SizedBox(height: 300, child: searchPane),
+                            SizedBox(height: searchHeight, child: searchPane),
                             Expanded(child: previewPane),
                           ],
                         );
@@ -264,8 +279,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          SizedBox(width: 390, child: searchPane),
-                          const _LibraryAddPaneResizeDivider(),
+                          SizedBox(
+                            width: _clampedResultsPaneWidth(
+                              constraints.maxWidth,
+                            ),
+                            child: searchPane,
+                          ),
+                          _LibraryAddPaneResizeDivider(
+                            onDragDelta: (delta) => _resizeResultsPane(
+                              delta,
+                              constraints.maxWidth,
+                            ),
+                          ),
                           Expanded(child: previewPane),
                         ],
                       );
@@ -337,6 +362,23 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         ),
       ),
     );
+  }
+
+  double _clampedResultsPaneWidth(double availableWidth) {
+    final maxWidth = (availableWidth - _minPreviewPaneWidth)
+        .clamp(_minResultsPaneWidth, _maxResultsPaneWidth)
+        .toDouble();
+    return _resultsPaneWidth.clamp(_minResultsPaneWidth, maxWidth).toDouble();
+  }
+
+  void _resizeResultsPane(double delta, double availableWidth) {
+    setState(() {
+      final maxWidth = (availableWidth - _minPreviewPaneWidth)
+          .clamp(_minResultsPaneWidth, _maxResultsPaneWidth)
+          .toDouble();
+      _resultsPaneWidth =
+          (_resultsPaneWidth + delta).clamp(_minResultsPaneWidth, maxWidth);
+    });
   }
 
   Future<void> _search() async {
@@ -426,7 +468,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _selectedResultId = found.isEmpty ? null : found.first.id;
           _selectedProviderCandidateId = null;
           _error =
-              found.isEmpty && widget.type.supportedMetadataProviders.isEmpty
+              found.isEmpty &&
+                      widget.type.supportedMetadataProviders.isEmpty
                   ? 'No item found for barcode $barcode.'
                   : null;
         });
@@ -613,12 +656,78 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       return;
     }
     try {
+      // Preview: fetch + normalize without creating in core DB.
+      final preview = await ref.read(apiClientProvider).adminProviderPreview(
+            provider: candidate.provider,
+            providerItemId: candidate.providerItemId,
+          );
+      if (!mounted) return;
+
+      final previewItem = _catalogItemFromPreview(preview);
+      final catalog = ref.read(mediaCatalogProvider).maybeWhen(
+        data: (value) => value,
+        orElse: () => fallbackMediaCatalog,
+      );
+
+      // Open edit dialog so the user can review / modify all fields.
+      final result = await showDialog<LibraryEditSelection>(
+        context: context,
+        builder: (context) => LibraryEditDialog(
+          type: widget.type,
+          item: previewItem,
+          ownedItem: null, // catalog-only tabs
+          accent: LibraryAccentScope.accentOf(context),
+          physicalFormats: physicalMediaFormatsForKind(
+            catalog,
+            widget.type.workspace.kind,
+          ),
+        ),
+      );
+      if (result == null || !mounted) return;
+
+      // Ingest: create item in core DB.
       final ingest = await ref.read(apiClientProvider).adminProviderIngest(
             provider: candidate.provider,
             providerItemId: candidate.providerItemId,
           );
-      final ingestedItem = _catalogItemFromIngestResult(ingest.item);
-      await _addItems([ingestedItem], target);
+
+      // Apply user corrections if any fields differ from the ingested item.
+      final edited = result.catalogItem;
+      final ingested = _catalogItemFromIngestResult(ingest.item);
+      if (mounted) {
+        await _applyIngestCorrections(
+          kind: ingested.kind,
+          itemId: ingest.itemId,
+          preview: previewItem,
+          edited: edited,
+        );
+      }
+
+      // Use the ingested item as base but overlay the user's edits.
+      final finalItem = CatalogItem(
+        id: ingested.id,
+        kind: ingested.kind,
+        title: edited.title,
+        itemNumber: edited.itemNumber,
+        synopsis: edited.synopsis,
+        coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
+        thumbnailImageUrl:
+            edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
+        editionTitle: edited.editionTitle,
+        physicalFormat: edited.physicalFormat,
+        physicalFormatLabel: edited.physicalFormatLabel,
+        publisher: edited.publisher,
+        releaseDate: edited.releaseDate,
+        releaseYear: edited.releaseYear,
+        barcode: edited.barcode,
+        variant: edited.variant,
+        seriesTitle: ingested.seriesTitle,
+        volumeName: ingested.volumeName,
+        volumeStartYear: ingested.volumeStartYear,
+        imprint: edited.imprint,
+        seriesGroup: edited.seriesGroup,
+      );
+      await _addItems([finalItem], target);
     } catch (error) {
       if (mounted &&
           await _clearRejectedMetadataSession(error, 'Provider ingest')) {
@@ -632,6 +741,92 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
       }
     }
+  }
+
+  CatalogItem _catalogItemFromPreview(AdminProviderPreview preview) {
+    return CatalogItem(
+      id: 'preview:${preview.provider}:${preview.providerItemId}',
+      kind: preview.kind,
+      title: preview.title,
+      itemNumber: preview.itemNumber,
+      synopsis: preview.synopsis,
+      coverImageUrl: preview.coverImageUrl,
+      thumbnailImageUrl: preview.coverImageUrl,
+      editionTitle: preview.editionTitle,
+      physicalFormat: preview.physicalFormat,
+      physicalFormatLabel: preview.physicalFormatLabel,
+      publisher: preview.publisher,
+      releaseDate: preview.releaseDate,
+      releaseYear: preview.releaseDate?.year ?? preview.volumeStartYear,
+      barcode: preview.barcode,
+      variant: preview.variantName,
+      seriesTitle: preview.seriesTitle,
+      volumeName: preview.volumeName,
+      volumeStartYear: preview.volumeStartYear,
+      imprint: preview.imprint,
+      seriesGroup: preview.seriesGroup,
+      pageCount: preview.pageCount,
+      country: preview.country,
+      language: preview.language,
+      ageRating: preview.ageRating,
+      subtitle: preview.subtitle,
+      coverPriceCents: preview.coverPriceCents,
+      currency: preview.currency,
+      trackCount: preview.trackCount,
+    );
+  }
+
+  /// Sends a PATCH correction for any fields the user changed from the preview.
+  Future<void> _applyIngestCorrections({
+    required String kind,
+    required String itemId,
+    required CatalogItem preview,
+    required CatalogItem edited,
+  }) async {
+    final corrections = <String, dynamic>{};
+    if (edited.title != preview.title) corrections['title'] = edited.title;
+    if (edited.itemNumber != preview.itemNumber) {
+      corrections['item_number'] = edited.itemNumber;
+    }
+    if (edited.synopsis != preview.synopsis) {
+      corrections['synopsis'] = edited.synopsis;
+    }
+    if (edited.publisher != preview.publisher) {
+      corrections['publisher'] = edited.publisher;
+    }
+    if (edited.releaseDate != preview.releaseDate) {
+      corrections['release_date'] = edited.releaseDate?.toIso8601String();
+    }
+    if (edited.barcode != preview.barcode) {
+      corrections['barcode'] = edited.barcode;
+    }
+    if (edited.variant != preview.variant) {
+      corrections['variant_name'] = edited.variant;
+    }
+    if (edited.physicalFormat != preview.physicalFormat) {
+      corrections['physical_format'] = edited.physicalFormat;
+    }
+    if (edited.coverImageUrl != preview.coverImageUrl) {
+      corrections['cover_image_url'] = edited.coverImageUrl;
+    }
+    if (edited.thumbnailImageUrl != preview.thumbnailImageUrl) {
+      corrections['thumbnail_image_url'] = edited.thumbnailImageUrl;
+    }
+    if (corrections.isEmpty) return;
+    await ref.read(apiClientProvider).adminUpdateCatalogItem(
+          kind: kind,
+          id: itemId,
+          title: corrections['title'] as String?,
+          itemNumber: corrections['item_number'] as String?,
+          synopsis: corrections['synopsis'] as String?,
+          publisher: corrections['publisher'] as String?,
+          releaseDate: edited.releaseDate,
+          barcode: corrections['barcode'] as String?,
+          variantName: corrections['variant_name'] as String?,
+          physicalFormat: corrections['physical_format'] as String?,
+          coverImageUrl: corrections['cover_image_url'] as String?,
+          thumbnailImageUrl: corrections['thumbnail_image_url'] as String?,
+        );
   }
 
   CatalogItem _catalogItemFromIngestResult(AdminMetadataItem item) {
@@ -885,15 +1080,7 @@ const double _kLibraryAddModeControlHeight = 36;
 const BorderSide _kLibraryAddBorder = BorderSide(color: kClzDivider);
 
 ButtonStyle _libraryAddFilledButtonStyle([Color accent = kClzAccent]) {
-  return FilledButton.styleFrom(
-    backgroundColor: accent,
-    foregroundColor: _foregroundForAccent(accent),
-    minimumSize: const Size(0, _kLibraryAddControlHeight),
-    padding: const EdgeInsets.symmetric(horizontal: 14),
-    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    visualDensity: VisualDensity.compact,
-    textStyle: const TextStyle(fontWeight: FontWeight.w900),
-  );
+  return libraryAddFilledButtonStyle(accent);
 }
 
 ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kClzAccent]) {
@@ -913,26 +1100,5 @@ Color _foregroundForAccent(Color accent) {
 }
 
 ThemeData _libraryAddDialogTheme(Color accent) {
-  final base = kClzAddComicDialogTheme;
-  final scheme = base.colorScheme.copyWith(
-    primary: accent,
-    secondary: accent,
-  );
-  return base.copyWith(
-    colorScheme: scheme,
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: accent,
-        foregroundColor: _foregroundForAccent(accent),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-        visualDensity: VisualDensity.compact,
-      ),
-    ),
-    inputDecorationTheme: base.inputDecorationTheme.copyWith(
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: accent),
-      ),
-    ),
-    progressIndicatorTheme: ProgressIndicatorThemeData(color: accent),
-  );
+  return libraryAddDialogTheme(accent);
 }

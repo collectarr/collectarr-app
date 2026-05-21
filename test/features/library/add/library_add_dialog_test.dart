@@ -180,6 +180,13 @@ void main() {
 
   testWidgets('barcode lookup falls back to provider search on Core miss',
       (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'admin@test.com',
+      'collectarr.auth.is_admin': true,
+    });
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -331,4 +338,17 @@ class _FakeLibraryAddApiClient extends ApiClient {
       updatedAt: DateTime.utc(2026),
     );
   }
+}
+
+String _jwtExpiringAt(DateTime expiresAt) {
+  final encodedHeader = _base64UrlJson({'alg': 'none', 'typ': 'JWT'});
+  final encodedPayload = _base64UrlJson({
+    'sub': '00000000-0000-0000-0000-000000000001',
+    'exp': expiresAt.millisecondsSinceEpoch ~/ 1000,
+  });
+  return '$encodedHeader.$encodedPayload.signature';
+}
+
+String _base64UrlJson(Map<String, Object> value) {
+  return base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
 }

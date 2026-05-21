@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/providers/library_nav_preference
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
+import 'package:collectarr_app/features/settings/sync_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
@@ -48,13 +49,15 @@ class _AppShellState extends ConsumerState<AppShell> {
           child: pages[selectedIndex].child,
         ),
       ),
-      floatingActionButton: _LibraryAwareSyncButton(
-        sync: sync,
-        accent: accent,
-        animationsEnabled: uiPreferences.animationsEnabled,
-        tooltip: _syncTooltip(sync),
-        onPressed: sync.isSyncing ? null : _syncNow,
-      ),
+      floatingActionButton: selectedIndex == 0
+          ? _LibraryAwareSyncButton(
+              sync: sync,
+              accent: accent,
+              animationsEnabled: uiPreferences.animationsEnabled,
+              tooltip: _syncTooltip(sync),
+              onPressed: sync.isSyncing ? null : _syncNow,
+            )
+          : null,
       bottomNavigationBar: _LibraryAwareNavigationBar(
         pages: pages,
         selectedIndex: selectedIndex,
@@ -92,6 +95,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           label: 'Admin',
           icon: Icons.admin_panel_settings_outlined,
           child: AdminPage(),
+          adminOnly: true,
         ),
       const _ShellPage(
         label: 'Settings',
@@ -114,6 +118,12 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   Future<void> _syncNow() async {
+    final accent = libraryAccentForKind(_activeLibraryKind());
+    final confirmed = await showSyncSettingsDialog(
+      context: context,
+      accent: accent,
+    );
+    if (confirmed != true || !mounted) return;
     await ref.read(syncControllerProvider.notifier).syncNow();
     if (!mounted) {
       return;
@@ -160,11 +170,13 @@ class _ShellPage {
     required this.label,
     required this.icon,
     required this.child,
+    this.adminOnly = false,
   });
 
   final String label;
   final IconData icon;
   final Widget child;
+  final bool adminOnly;
 }
 
 class _LibraryAwareSyncButton extends StatelessWidget {
@@ -286,7 +298,17 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
               destinations: [
                 for (final page in pages)
                   NavigationDestination(
-                    icon: Icon(page.icon),
+                    icon: page.adminOnly
+                        ? Badge(
+                            label: const Icon(
+                              Icons.shield_outlined,
+                              size: 9,
+                              color: Colors.white,
+                            ),
+                            backgroundColor: Colors.white24,
+                            child: Icon(page.icon),
+                          )
+                        : Icon(page.icon),
                     label: page.label,
                   ),
               ],

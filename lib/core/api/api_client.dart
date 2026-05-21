@@ -412,6 +412,25 @@ class ApiClient {
         .toList(growable: false);
   }
 
+  Future<AdminProviderPreview> adminProviderPreview({
+    required String provider,
+    required String providerItemId,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/admin/providers/preview',
+      data: {
+        'provider': provider,
+        'provider_item_id': providerItemId,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+          '/admin/providers/preview returned an empty response body');
+    }
+    return AdminProviderPreview.fromJson(data);
+  }
+
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,

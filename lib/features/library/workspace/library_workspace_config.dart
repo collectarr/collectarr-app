@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum LibraryViewMode { grid, card, list }
+enum LibraryViewMode { grid, card, cardFlow, list }
 
 enum LibraryDetailsLayout { right, bottom, hidden }
 
@@ -39,7 +39,12 @@ enum LibrarySortColumn {
   price,
   storageBox,
   wishlist,
-  updated
+  updated,
+  country,
+  language,
+  pageCount,
+  ageRating,
+  imprint,
 }
 
 enum LibraryTableColumn {
@@ -56,7 +61,12 @@ enum LibraryTableColumn {
   price,
   storageBox,
   wishlist,
-  updated
+  updated,
+  country,
+  language,
+  pageCount,
+  ageRating,
+  imprint,
 }
 
 enum LibraryTableColumnGroup { main, edition, value, personal }

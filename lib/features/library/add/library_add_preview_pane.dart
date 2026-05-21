@@ -1,16 +1,27 @@
 part of 'library_add_dialog.dart';
 
 class _LibraryAddPaneResizeDivider extends StatelessWidget {
-  const _LibraryAddPaneResizeDivider();
+  const _LibraryAddPaneResizeDivider({this.onDragDelta});
+
+  final ValueChanged<double>? onDragDelta;
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
-      child: SizedBox(
-        width: 10,
-        child: Center(
-          child: Container(width: 2, color: kClzDivider),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: onDragDelta == null
+            ? null
+            : (details) => onDragDelta!(details.delta.dx),
+        child: Tooltip(
+          message: 'Resize results pane',
+          child: SizedBox(
+            width: 10,
+            child: Center(
+              child: Container(width: 2, color: kClzDivider),
+            ),
+          ),
         ),
       ),
     );
@@ -56,19 +67,11 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     final coverUrl =
         selectedItem?.displayCoverUrl ?? selectedCandidate?.imageUrl;
     final rows = selectedItem == null
-        ? [
-            ('Provider', selectedCandidate?.provider),
-            ('Provider ID', selectedCandidate?.providerItemId),
-            ('Kind', selectedCandidate?.kind),
+        ? <(String, String?)>[
+            if (selectedCandidate?.seriesTitle != null)
+              ('Artist / Series', selectedCandidate?.seriesTitle),
           ]
-        : [
-            ('Catalog ID', selectedItem.id),
-            ('Kind', selectedItem.kind),
-            ('Publisher', selectedItem.publisher),
-            ('Year', selectedItem.releaseYear?.toString()),
-            ('Barcode', selectedItem.barcode),
-            ('Edition', selectedItem.displayEditionLabel),
-          ];
+        : _metadataRowsForItem(selectedItem, type);
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -176,6 +179,35 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   }
 }
 
+List<(String, String?)> _metadataRowsForItem(
+  CatalogItem item,
+  LibraryTypeConfig type,
+) {
+  final labels = libraryMediaFieldLabels(type);
+  return [
+    if (item.seriesTitle != null) ('Series / Artist', item.seriesTitle),
+    (labels.publisher, item.publisher),
+    ('Released', item.releaseDate != null
+        ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
+        : item.releaseYear?.toString()),
+    if (item.itemNumber != null) (labels.number, item.itemNumber),
+    if (item.displayEditionLabel != null)
+      (labels.variant, item.displayEditionLabel),
+    (labels.barcode, item.barcode),
+    if (item.trackCount != null) ('Tracks', item.trackCount.toString()),
+    if (item.pageCount != null) ('Pages', item.pageCount.toString()),
+    if (item.country != null) ('Country', item.country),
+    if (item.language != null) ('Language', item.language),
+    if (item.genres != null && item.genres!.isNotEmpty)
+      ('Genres', item.genres!.join(', ')),
+    if (item.creators != null && item.creators!.isNotEmpty)
+      ('Creators', item.creators!
+          .map((c) => c['name'] as String? ?? '')
+          .where((n) => n.isNotEmpty)
+          .join(', ')),
+  ];
+}
+
 class _LibraryAddPreviewMetadataRow extends StatelessWidget {
   const _LibraryAddPreviewMetadataRow({
     required this.label,
@@ -210,6 +242,87 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A decorated dialog shell with resize handles on the right and bottom edges.
+class _ResizableDialogShell extends StatelessWidget {
+  const _ResizableDialogShell({
+    required this.accent,
+    required this.onResizeWidth,
+    required this.onResizeHeight,
+    required this.child,
+  });
+
+  final Color accent;
+  final ValueChanged<double> onResizeWidth;
+  final ValueChanged<double> onResizeHeight;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: kClzPanel,
+            border: Border.all(color: kClzDivider),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0xCC000000),
+                blurRadius: 22,
+                offset: Offset(0, 8),
+              ),
+            ],
+          ),
+          child: child,
+        ),
+        // Right edge resize handle.
+        Positioned(
+          top: 0,
+          bottom: 0,
+          right: 0,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.resizeColumn,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragUpdate: (d) => onResizeWidth(d.delta.dx * 2),
+              child: const SizedBox(width: 6),
+            ),
+          ),
+        ),
+        // Bottom edge resize handle.
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.resizeRow,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onVerticalDragUpdate: (d) => onResizeHeight(d.delta.dy * 2),
+              child: const SizedBox(height: 6),
+            ),
+          ),
+        ),
+        // Bottom-right corner resize handle.
+        Positioned(
+          right: 0,
+          bottom: 0,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.resizeDownRight,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanUpdate: (d) {
+                onResizeWidth(d.delta.dx * 2);
+                onResizeHeight(d.delta.dy * 2);
+              },
+              child: const SizedBox(width: 12, height: 12),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

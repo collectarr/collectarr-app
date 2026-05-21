@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:flutter/material.dart';
 
 class LibraryBulkEditSelection {
@@ -64,6 +65,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             if (conditions.isNotEmpty) ...[
               DropdownButtonFormField<String>(
                 initialValue: _condition,
+                dropdownColor: kClzPanelRaised,
                 decoration: const InputDecoration(
                   labelText: 'Condition',
                   border: OutlineInputBorder(),
@@ -86,6 +88,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             if (grades.isNotEmpty) ...[
               DropdownButtonFormField<String>(
                 initialValue: _grade,
+                dropdownColor: kClzPanelRaised,
                 decoration: const InputDecoration(
                   labelText: 'Grade',
                   border: OutlineInputBorder(),
@@ -125,6 +128,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _readStatus,
+              dropdownColor: kClzPanelRaised,
               decoration: const InputDecoration(
                 labelText: 'Tracking status',
                 border: OutlineInputBorder(),
@@ -145,6 +149,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
               initialValue: _rating,
+              dropdownColor: kClzPanelRaised,
               decoration: const InputDecoration(
                 labelText: 'Rating',
                 border: OutlineInputBorder(),

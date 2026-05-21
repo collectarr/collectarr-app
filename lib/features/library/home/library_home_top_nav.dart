@@ -32,6 +32,19 @@ class MediaLibraryNav extends StatelessWidget {
     final accent = libraryAccentForKind(selected.kind);
     final selectedIcon = registry.byKind(selected.kind)?.workspace.icon ??
         libraryIconForKind(selected.kind);
+
+    // Compute a fixed width for the title section based on the longest name.
+    // Use character count * approximate character width for the bold 16px font.
+    var maxLabelLength = 0;
+    for (final t in types) {
+      if (t.pluralLabel.length > maxLabelLength) {
+        maxLabelLength = t.pluralLabel.length;
+      }
+    }
+    // icon(20) + gap(7) + ~9px per char (bold 16px) + left(10) + right(8)
+    final titleSectionWidth = (20.0 + 7 + maxLabelLength * 9 + 10 + 8)
+        .clamp(120.0, 220.0);
+
     return AnimatedContainer(
       duration: animationDuration,
       curve: Curves.easeOutCubic,
@@ -51,27 +64,27 @@ class MediaLibraryNav extends StatelessWidget {
       ),
       child: Row(
         children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 120),
-            child: IntrinsicWidth(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10, right: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(selectedIcon, size: 20, color: Colors.white),
-                    const SizedBox(width: 7),
-                    Text(
+          SizedBox(
+            width: titleSectionWidth,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10, right: 8),
+              child: Row(
+                children: [
+                  Icon(selectedIcon, size: 20, color: Colors.white),
+                  const SizedBox(width: 7),
+                  Flexible(
+                    child: Text(
                       selected.pluralLabel,
                       maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -193,26 +206,29 @@ class MediaLibraryNavStrip extends StatelessWidget {
         return Row(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 7),
-                child: Row(
-                  children: [
-                    for (final type in split.visible)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 5),
-                        child: MediaLibraryNavButton(
-                          type: type,
-                          color: libraryAccentForKind(type.kind),
-                          icon: registry.byKind(type.kind)?.workspace.icon ??
-                              libraryIconForKind(type.kind),
-                          selected: type.kind == selectedKind,
-                          count: counts[type.kind]?.total ?? 0,
-                          onPressed: () => onSelected(type),
-                          animationDuration: animationDuration,
+              child: Center(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final type in split.visible)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 5),
+                          child: MediaLibraryNavButton(
+                            type: type,
+                            color: libraryAccentForKind(type.kind),
+                            icon: registry.byKind(type.kind)?.workspace.icon ??
+                                libraryIconForKind(type.kind),
+                            selected: type.kind == selectedKind,
+                            count: counts[type.kind]?.total ?? 0,
+                            onPressed: () => onSelected(type),
+                            animationDuration: animationDuration,
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

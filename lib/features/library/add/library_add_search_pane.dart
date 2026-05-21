@@ -632,24 +632,63 @@ class _MangaVolumeNodeState extends State<_MangaVolumeNode> {
         ),
         child: Column(
           children: [
-            ListTile(
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-              leading: Icon(Icons.menu_book, size: 18, color: widget.accent),
-              title: Text(
-                volume.title,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-              subtitle: Text('$count chapters'),
-              trailing: chapters.isEmpty
-                  ? null
-                  : Icon(
-                      _expanded ? Icons.expand_less : Icons.expand_more,
-                      size: 18,
-                    ),
+            InkWell(
               onTap: chapters.isEmpty
                   ? null
                   : () => setState(() => _expanded = !_expanded),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Row(
+                  children: [
+                    if (volume.posterUrl != null && volume.posterUrl!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: SizedBox(
+                          width: 28,
+                          height: 38,
+                          child: LibraryCoverImage(
+                            title: volume.title,
+                            imageUrl: volume.posterUrl,
+                          ),
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Icon(
+                          Icons.menu_book,
+                          size: 18,
+                          color: widget.accent,
+                        ),
+                      ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            volume.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            '$count chapter${count == 1 ? '' : 's'}',
+                            style: const TextStyle(
+                              color: kClzTextMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (chapters.isNotEmpty)
+                      Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                        size: 18,
+                      ),
+                  ],
+                ),
+              ),
             ),
             if (_expanded && chapters.isNotEmpty)
               Padding(
@@ -918,7 +957,13 @@ class _SearchResultTile extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: 5),
-                    LibraryAddResultBadge(item.kind),
+                    Row(
+                      children: [
+                        const LibraryAddResultBadge('core'),
+                        const SizedBox(width: 4),
+                        LibraryAddResultBadge(item.kind),
+                      ],
+                    ),
                   ],
                 ),
               ),

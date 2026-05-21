@@ -23,6 +23,21 @@ class CatalogItem {
     this.volumeStartYear,
     this.seasonNumber,
     this.episodeNumber,
+    this.trackCount,
+    this.tracks,
+    this.creators,
+    this.characters,
+    this.storyArcs,
+    this.genres,
+    this.pageCount,
+    this.coverPriceCents,
+    this.currency,
+    this.country,
+    this.language,
+    this.ageRating,
+    this.imprint,
+    this.subtitle,
+    this.seriesGroup,
   });
 
   final String id;
@@ -48,6 +63,21 @@ class CatalogItem {
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
+  final int? trackCount;
+  final List<Map<String, dynamic>>? tracks;
+  final List<Map<String, dynamic>>? creators;
+  final List<String>? characters;
+  final List<String>? storyArcs;
+  final List<String>? genres;
+  final int? pageCount;
+  final int? coverPriceCents;
+  final String? currency;
+  final String? country;
+  final String? language;
+  final String? ageRating;
+  final String? imprint;
+  final String? subtitle;
+  final String? seriesGroup;
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
   String? get displayEditionLabel =>
@@ -106,6 +136,25 @@ class CatalogItem {
       volumeStartYear: json['volume_start_year'] as int?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
+      trackCount: json['track_count'] as int?,
+      tracks: (json['tracks'] as List?)
+          ?.cast<Map<String, dynamic>>()
+          .toList(growable: false),
+      creators: (json['creators'] as List?)
+          ?.cast<Map<String, dynamic>>()
+          .toList(growable: false),
+      characters: (json['characters'] as List?)?.cast<String>().toList(growable: false),
+      storyArcs: (json['story_arcs'] as List?)?.cast<String>().toList(growable: false),
+      genres: (json['genres'] as List?)?.cast<String>().toList(growable: false),
+      pageCount: json['page_count'] as int?,
+      coverPriceCents: json['cover_price_cents'] as int?,
+      currency: json['currency'] as String?,
+      country: json['country'] as String?,
+      language: json['language'] as String?,
+      ageRating: json['age_rating'] as String?,
+      imprint: json['imprint'] as String?,
+      subtitle: json['subtitle'] as String?,
+      seriesGroup: json['series_group'] as String?,
     );
   }
 

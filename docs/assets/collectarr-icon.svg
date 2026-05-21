@@ -12,7 +12,7 @@
       <stop offset="0.45" stop-color="#E96BA8"/>
       <stop offset="1" stop-color="#E0A52B"/>
     </linearGradient>
-    <linearGradient id="cloud" x1="156" y1="118" x2="356" y2="216" gradientUnits="userSpaceOnUse">
+    <linearGradient id="cloud" x1="175" y1="118" x2="375" y2="216" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#F2FCFF"/>
       <stop offset="1" stop-color="#AEEFFF"/>
     </linearGradient>
@@ -26,7 +26,7 @@
 
   <g filter="url(#soft-shadow)">
     <path
-      d="M166 203h178c31 0 56-24 56-54s-25-54-56-54c-7 0-15 2-22 5-17-27-47-45-82-45-45 0-83 31-94 72-5-1-10-2-15-2-31 0-56 24-56 54s25 24 56 24h35Z"
+      d="M185 203h178c31 0 56-24 56-54s-25-54-56-54c-7 0-15 2-22 5-17-27-47-45-82-45-45 0-83 31-94 72-5-1-10-2-15-2-31 0-56 24-56 54s25 24 56 24h35Z"
       fill="none"
       stroke="url(#cloud)"
       stroke-width="28"

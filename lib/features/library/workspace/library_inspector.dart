@@ -226,17 +226,37 @@ class LibraryInspectorChipSection extends StatelessWidget {
 }
 
 class LibraryInspectorChipWrap extends StatelessWidget {
-  const LibraryInspectorChipWrap({super.key, required this.values});
+  const LibraryInspectorChipWrap({
+    super.key,
+    required this.values,
+    this.label,
+  });
 
   final List<String> values;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final value in values) LibraryInspectorChip(value),
+        if (label != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              label!,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Colors.white70,
+                  ),
+            ),
+          ),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final value in values) LibraryInspectorChip(value),
+          ],
+        ),
       ],
     );
   }

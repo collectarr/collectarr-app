@@ -8,6 +8,16 @@ const double kCompactMenuItemHeight = 30;
 const Color kCompactMenuBackground = Color(0xFF183246);
 const Color kCompactMenuText = Color(0xFFBFEFFF);
 
+/// Derives a dark background tinted by [accent] for popup menus and buttons.
+Color compactMenuBackgroundFor(Color accent) {
+  return Color.alphaBlend(accent.withValues(alpha: 0.18), const Color(0xFF161616));
+}
+
+/// Derives a light text color tinted by [accent] for popup menus and buttons.
+Color compactMenuTextFor(Color accent) {
+  return Color.alphaBlend(accent.withValues(alpha: 0.40), Colors.white);
+}
+
 class CompactDropdown extends StatelessWidget {
   const CompactDropdown({
     super.key,
@@ -29,11 +39,12 @@ class CompactDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedValue = items.contains(value) ? value : null;
+    final bg = compactMenuBackgroundFor(accent);
     return PopupMenuButton<String?>(
       initialValue: selectedValue,
       tooltip: label,
       position: PopupMenuPosition.under,
-      color: kCompactMenuBackground,
+      color: bg,
       elevation: 10,
       constraints: BoxConstraints(minWidth: width, maxWidth: 220),
       shape: RoundedRectangleBorder(
@@ -84,11 +95,12 @@ class CompactDropdownWithNone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedValue = items.contains(value) ? value : null;
+    final bg = compactMenuBackgroundFor(accent);
     return PopupMenuButton<String?>(
       initialValue: selectedValue,
       tooltip: label,
       position: PopupMenuPosition.under,
-      color: kCompactMenuBackground,
+      color: bg,
       elevation: 10,
       constraints: BoxConstraints(minWidth: width, maxWidth: 220),
       shape: RoundedRectangleBorder(
@@ -152,6 +164,7 @@ class CompactPopupMenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = compactMenuTextFor(accent);
     return Container(
       height: kCompactMenuItemHeight,
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -166,7 +179,7 @@ class CompactPopupMenuRow extends StatelessWidget {
           SizedBox(
             width: 18,
             child: selected
-                ? const Icon(Icons.check, color: kCompactMenuText, size: 15)
+                ? Icon(Icons.check, color: textColor, size: 15)
                 : null,
           ),
           const SizedBox(width: 4),
@@ -175,8 +188,8 @@ class CompactPopupMenuRow extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: kCompactMenuText,
+              style: TextStyle(
+                color: textColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -204,7 +217,7 @@ class CompactInputShell extends StatelessWidget {
       height: kCompactControlHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: kCompactMenuBackground,
+        color: compactMenuBackgroundFor(accent),
         border: Border.all(color: accent.withValues(alpha: 0.82)),
         borderRadius: BorderRadius.circular(3),
       ),
@@ -256,7 +269,8 @@ class CompactMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = enabled ? kCompactMenuText : const Color(0xFF7B8790);
+    final textColor = compactMenuTextFor(accent);
+    final color = enabled ? textColor : const Color(0xFF7B8790);
     return Opacity(
       opacity: enabled ? 1 : 0.62,
       child: CompactMenuFrame(
@@ -276,7 +290,7 @@ class CompactMenuFrame extends StatelessWidget {
     required this.width,
     required this.label,
     required this.accent,
-    this.enabledColor = kCompactMenuText,
+    this.enabledColor,
     this.leading,
     this.trailing,
   });
@@ -284,25 +298,26 @@ class CompactMenuFrame extends StatelessWidget {
   final double width;
   final String label;
   final Color accent;
-  final Color enabledColor;
+  final Color? enabledColor;
   final IconData? leading;
   final IconData? trailing;
 
   @override
   Widget build(BuildContext context) {
+    final color = enabledColor ?? compactMenuTextFor(accent);
     return Container(
       width: width,
       height: kCompactControlHeight,
       padding: const EdgeInsets.symmetric(horizontal: 9),
       decoration: BoxDecoration(
-        color: kCompactMenuBackground,
+        color: compactMenuBackgroundFor(accent),
         border: Border.all(color: accent.withValues(alpha: 0.82)),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Row(
         children: [
           if (leading != null) ...[
-            Icon(leading, color: enabledColor, size: 15),
+            Icon(leading, color: color, size: 15),
             const SizedBox(width: 6),
           ],
           Expanded(
@@ -311,13 +326,13 @@ class CompactMenuFrame extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: enabledColor,
+                color: color,
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
               ),
             ),
           ),
-          if (trailing != null) Icon(trailing, color: enabledColor, size: 18),
+          if (trailing != null) Icon(trailing, color: color, size: 18),
         ],
       ),
     );

@@ -8,7 +8,6 @@ void main() {
     var viewMode = LibraryViewMode.grid;
     var detailsLayout = LibraryDetailsLayout.right;
     var coverSize = 128.0;
-    LibraryWorkspacePreset? preset;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -24,7 +23,6 @@ void main() {
               onDetailsLayoutChanged: (value) =>
                   setState(() => detailsLayout = value),
               onCoverSizeChanged: (value) => setState(() => coverSize = value),
-              onPresetSelected: (value) => preset = value,
             ),
           ),
         ),
@@ -39,9 +37,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(detailsLayout, LibraryDetailsLayout.hidden);
 
-    await tester.tap(find.byTooltip('View options'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ListTile, 'List'));
-    expect(preset, LibraryWorkspacePreset.list);
+    // Cover size slider is present
+    expect(find.byType(Slider), findsOneWidget);
   });
 }

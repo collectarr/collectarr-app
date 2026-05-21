@@ -1,0 +1,292 @@
+import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:flutter/material.dart';
+
+/// A tall card showing a large cover beside rich metadata, used in "card flow"
+/// mode. Intended for a single- or two-column vertical feed layout.
+class LibraryCardFlowTile extends StatelessWidget {
+  const LibraryCardFlowTile({
+    required this.entry,
+    required this.selected,
+    required this.onTap,
+    this.onSecondaryTapUp,
+    required this.dateFormatter,
+    required this.moneyFormatter,
+    this.selectedColor = const Color(0xFF075F75),
+    this.accentColor = const Color(0xFF10A8D8),
+    this.mutedTextColor = const Color(0xFFB8B8B8),
+    super.key,
+  });
+
+  final LibraryWorkspaceEntry entry;
+  final bool selected;
+  final VoidCallback onTap;
+  final GestureTapUpCallback? onSecondaryTapUp;
+  final LibraryDateFormatter dateFormatter;
+  final LibraryMoneyFormatter moneyFormatter;
+  final Color selectedColor;
+  final Color accentColor;
+  final Color mutedTextColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: selected ? selectedColor : const Color(0xFF181818),
+        border: Border.all(
+          color: selected ? accentColor : const Color(0xFF363636),
+          width: selected ? 2 : 1,
+        ),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          onSecondaryTapUp: onSecondaryTapUp,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Large cover ──
+                SizedBox(
+                  width: 120,
+                  height: 184,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LibraryCoverImage(
+                          title: entry.title,
+                          itemNumber: entry.itemNumber,
+                          imageUrl: entry.displayCoverUrl,
+                          ownedItemId: entry.ownedItemId,
+                        ),
+                      ),
+                      Positioned(
+                        left: 4,
+                        top: 4,
+                        child: LibraryCoverBadges(
+                          isOwned: entry.isOwned,
+                          isWishlisted: entry.isWishlisted,
+                          hasMissingCover: entry.hasMissingCover,
+                          hasMissingMetadata: entry.hasMissingMetadata,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
+                // ── Metadata ──
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title + issue
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              entry.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: selected
+                                    ? Colors.white
+                                    : const Color(0xFF82DDF2),
+                                fontWeight: FontWeight.w900,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          if (entry.itemNumber != null) ...[
+                            const SizedBox(width: 6),
+                            _IssuePill(label: '#${entry.itemNumber}'),
+                          ],
+                        ],
+                      ),
+                      // Series / subtitle
+                      if (entry.seriesTitle != null &&
+                          entry.seriesTitle != entry.title) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          entry.seriesTitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: accentColor.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      // Variant | date | publisher
+                      Text(
+                        [
+                          if (entry.variant != null &&
+                              entry.variant!.isNotEmpty)
+                            entry.variant,
+                          if (entry.releaseDate != null)
+                            dateFormatter(entry.releaseDate!)
+                          else if (entry.releaseYear != null)
+                            entry.releaseYear.toString(),
+                          if (entry.publisher != null &&
+                              entry.publisher!.isNotEmpty)
+                            entry.publisher,
+                        ].whereType<String>().join('  ·  '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: mutedTextColor,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Meta pills
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          if (entry.grade != null)
+                            _MetaPill(
+                              icon: Icons.workspace_premium,
+                              label: entry.grade!,
+                              accentColor: accentColor,
+                            ),
+                          if (entry.condition != null)
+                            _MetaPill(
+                              icon: Icons.fact_check_outlined,
+                              label: entry.condition!,
+                              accentColor: accentColor,
+                            ),
+                          if (entry.storageBox != null)
+                            _MetaPill(
+                              icon: Icons.inventory_2_outlined,
+                              label: entry.storageBox!,
+                              accentColor: accentColor,
+                            ),
+                          if (entry.pricePaidCents != null)
+                            _MetaPill(
+                              icon: Icons.attach_money,
+                              label: moneyFormatter(
+                                entry.pricePaidCents,
+                                entry.currency,
+                              ),
+                              accentColor: accentColor,
+                            ),
+                          if (entry.isWishlisted)
+                            _MetaPill(
+                              icon: Icons.star,
+                              label: 'Wishlist',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.trackCount != null)
+                            _MetaPill(
+                              icon: Icons.music_note,
+                              label: '${entry.trackCount} tracks',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.pageCount != null)
+                            _MetaPill(
+                              icon: Icons.menu_book,
+                              label: '${entry.pageCount} pg',
+                              accentColor: accentColor,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Synopsis snippet
+                      if (entry.synopsis != null &&
+                          entry.synopsis!.isNotEmpty)
+                        Text(
+                          entry.synopsis!,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: mutedTextColor.withValues(alpha: 0.7),
+                            fontSize: 11,
+                            height: 1.4,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Private helpers ────────────────────────────────────────────────────────
+
+class _IssuePill extends StatelessWidget {
+  const _IssuePill({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFD400),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w800,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MetaPill extends StatelessWidget {
+  const _MetaPill({
+    required this.icon,
+    required this.label,
+    required this.accentColor,
+  });
+  final IconData icon;
+  final String label;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: accentColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: accentColor),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+              color: accentColor,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

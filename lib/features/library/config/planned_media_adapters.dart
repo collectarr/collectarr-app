@@ -183,6 +183,11 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.storageBox => 118.0,
     LibraryTableColumn.wishlist => 82.0,
     LibraryTableColumn.updated => 112.0,
+    LibraryTableColumn.country => 100.0,
+    LibraryTableColumn.language => 100.0,
+    LibraryTableColumn.pageCount => 80.0,
+    LibraryTableColumn.ageRating => 100.0,
+    LibraryTableColumn.imprint => 140.0,
   };
 }
 
@@ -242,6 +247,11 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.storageBox => 'Storage Box',
     LibraryTableColumn.wishlist => 'Wishlist',
     LibraryTableColumn.updated => 'Updated',
+    LibraryTableColumn.country => 'Country',
+    LibraryTableColumn.language => 'Language',
+    LibraryTableColumn.pageCount => 'Pages',
+    LibraryTableColumn.ageRating => 'Age Rating',
+    LibraryTableColumn.imprint => 'Imprint',
   };
 }
 
@@ -300,6 +310,12 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
     LibraryTableColumn.storageBox ||
     LibraryTableColumn.wishlist =>
       LibraryTableColumnGroup.personal,
+    LibraryTableColumn.country ||
+    LibraryTableColumn.language ||
+    LibraryTableColumn.pageCount ||
+    LibraryTableColumn.ageRating ||
+    LibraryTableColumn.imprint =>
+      LibraryTableColumnGroup.edition,
   };
 }
 
@@ -314,7 +330,10 @@ String plannedMediaTableColumnGroupLabel(LibraryTableColumnGroup group) {
 
 bool plannedMediaTableColumnIsNumeric(LibraryTableColumn column) {
   return switch (column) {
-    LibraryTableColumn.issue || LibraryTableColumn.price => true,
+    LibraryTableColumn.issue ||
+    LibraryTableColumn.price ||
+    LibraryTableColumn.pageCount =>
+      true,
     _ => false,
   };
 }
@@ -335,5 +354,10 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.storageBox => LibrarySortColumn.storageBox,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
     LibraryTableColumn.updated => LibrarySortColumn.updated,
+    LibraryTableColumn.country => LibrarySortColumn.country,
+    LibraryTableColumn.language => LibrarySortColumn.language,
+    LibraryTableColumn.pageCount => LibrarySortColumn.pageCount,
+    LibraryTableColumn.ageRating => LibrarySortColumn.ageRating,
+    LibraryTableColumn.imprint => LibrarySortColumn.imprint,
   };
 }

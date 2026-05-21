@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/comics/comics_library_config.dart';
+import 'package:collectarr_app/features/library/config/comics_library_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';

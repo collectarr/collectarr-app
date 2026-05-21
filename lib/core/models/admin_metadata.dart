@@ -108,6 +108,182 @@ class AdminProviderIngestResult {
   }
 }
 
+class ProviderPreviewCredit {
+  const ProviderPreviewCredit({required this.name, this.role});
+  final String name;
+  final String? role;
+
+  factory ProviderPreviewCredit.fromJson(Map<String, dynamic> json) {
+    return ProviderPreviewCredit(
+      name: json['name'] as String,
+      role: json['role'] as String?,
+    );
+  }
+}
+
+class ProviderPreviewTrack {
+  const ProviderPreviewTrack({
+    this.position,
+    required this.title,
+    this.durationSeconds,
+    this.artist,
+    this.discNumber,
+  });
+  final int? position;
+  final String title;
+  final int? durationSeconds;
+  final String? artist;
+  final int? discNumber;
+
+  factory ProviderPreviewTrack.fromJson(Map<String, dynamic> json) {
+    return ProviderPreviewTrack(
+      position: json['position'] as int?,
+      title: json['title'] as String,
+      durationSeconds: json['duration_seconds'] as int?,
+      artist: json['artist'] as String?,
+      discNumber: json['disc_number'] as int?,
+    );
+  }
+}
+
+class AdminProviderPreview {
+  const AdminProviderPreview({
+    required this.provider,
+    required this.providerItemId,
+    required this.kind,
+    required this.title,
+    this.itemNumber,
+    this.synopsis,
+    this.seriesTitle,
+    this.volumeName,
+    this.volumeNumber,
+    this.volumeStartYear,
+    this.publisher,
+    this.imprint,
+    this.editionTitle,
+    this.editionFormat,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.releaseDate,
+    this.barcode,
+    this.isbn,
+    this.variantName,
+    this.coverImageUrl,
+    this.coverPriceCents,
+    this.currency,
+    this.country,
+    this.language,
+    this.ageRating,
+    this.subtitle,
+    this.seriesGroup,
+    this.pageCount,
+    this.runtimeMinutes,
+    this.trackCount,
+    this.creators = const [],
+    this.characters = const [],
+    this.storyArcs = const [],
+    this.genres = const [],
+    this.tracks = const [],
+  });
+
+  final String provider;
+  final String providerItemId;
+  final String kind;
+  final String title;
+  final String? itemNumber;
+  final String? synopsis;
+  final String? seriesTitle;
+  final String? volumeName;
+  final int? volumeNumber;
+  final int? volumeStartYear;
+  final String? publisher;
+  final String? imprint;
+  final String? editionTitle;
+  final String? editionFormat;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final DateTime? releaseDate;
+  final String? barcode;
+  final String? isbn;
+  final String? variantName;
+  final String? coverImageUrl;
+  final int? coverPriceCents;
+  final String? currency;
+  final String? country;
+  final String? language;
+  final String? ageRating;
+  final String? subtitle;
+  final String? seriesGroup;
+  final int? pageCount;
+  final int? runtimeMinutes;
+  final int? trackCount;
+  final List<ProviderPreviewCredit> creators;
+  final List<String> characters;
+  final List<String> storyArcs;
+  final List<String> genres;
+  final List<ProviderPreviewTrack> tracks;
+
+  factory AdminProviderPreview.fromJson(Map<String, dynamic> json) {
+    return AdminProviderPreview(
+      provider: json['provider'] as String,
+      providerItemId: json['provider_item_id'] as String,
+      kind: json['kind'] as String,
+      title: json['title'] as String,
+      itemNumber: json['item_number'] as String?,
+      synopsis: json['synopsis'] as String?,
+      seriesTitle: json['series_title'] as String?,
+      volumeName: json['volume_name'] as String?,
+      volumeNumber: json['volume_number'] as int?,
+      volumeStartYear: json['volume_start_year'] as int?,
+      publisher: json['publisher'] as String?,
+      imprint: json['imprint'] as String?,
+      editionTitle: json['edition_title'] as String?,
+      editionFormat: json['edition_format'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      releaseDate: json['release_date'] != null
+          ? DateTime.tryParse(json['release_date'] as String)
+          : null,
+      barcode: json['barcode'] as String?,
+      isbn: json['isbn'] as String?,
+      variantName: json['variant_name'] as String?,
+      coverImageUrl: json['cover_image_url'] as String?,
+      coverPriceCents: json['cover_price_cents'] as int?,
+      currency: json['currency'] as String?,
+      country: json['country'] as String?,
+      language: json['language'] as String?,
+      ageRating: json['age_rating'] as String?,
+      subtitle: json['subtitle'] as String?,
+      seriesGroup: json['series_group'] as String?,
+      pageCount: json['page_count'] as int?,
+      runtimeMinutes: json['runtime_minutes'] as int?,
+      trackCount: json['track_count'] as int?,
+      creators: (json['creators'] as List<dynamic>?)
+              ?.map((e) =>
+                  ProviderPreviewCredit.fromJson(e as Map<String, dynamic>))
+              .toList(growable: false) ??
+          const [],
+      characters: (json['characters'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList(growable: false) ??
+          const [],
+      storyArcs: (json['story_arcs'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList(growable: false) ??
+          const [],
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList(growable: false) ??
+          const [],
+      tracks: (json['tracks'] as List<dynamic>?)
+              ?.map((e) =>
+                  ProviderPreviewTrack.fromJson(e as Map<String, dynamic>))
+              .toList(growable: false) ??
+          const [],
+    );
+  }
+}
+
 class AdminCatalogSummary {
   const AdminCatalogSummary({
     required this.items,

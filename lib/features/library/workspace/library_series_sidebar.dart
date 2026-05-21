@@ -1,10 +1,18 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class LibrarySeriesBucket {
-  const LibrarySeriesBucket({required this.title, required this.count});
+  const LibrarySeriesBucket({
+    required this.title,
+    required this.count,
+    this.coverUrl,
+    this.startYear,
+  });
 
   final String title;
   final int count;
+  final String? coverUrl;
+  final int? startYear;
 }
 
 class LibrarySeriesSidebar extends StatelessWidget {
@@ -119,27 +127,65 @@ class _LibrarySeriesRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasCover = bucket.coverUrl != null && bucket.coverUrl!.isNotEmpty;
     return Material(
       color: selected ? selectionColor : Colors.transparent,
       child: InkWell(
         onTap: onTap,
         hoverColor: selectionColor.withValues(alpha: 0.35),
         child: SizedBox(
-          height: 32,
+          height: hasCover ? 36 : 32,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(
-                    bucket.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: selected ? Colors.white : mutedTextColor,
-                          fontWeight:
-                              selected ? FontWeight.w800 : FontWeight.w500,
+                if (hasCover) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: SizedBox(
+                      width: 22,
+                      height: 28,
+                      child: CachedNetworkImage(
+                        imageUrl: bucket.coverUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => const ColoredBox(
+                          color: Color(0xFF333333),
                         ),
+                        errorWidget: (_, __, ___) => const ColoredBox(
+                          color: Color(0xFF333333),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        bucket.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: selected ? Colors.white : mutedTextColor,
+                              fontWeight:
+                                  selected ? FontWeight.w800 : FontWeight.w500,
+                            ),
+                      ),
+                      if (bucket.startYear != null)
+                        Text(
+                          bucket.startYear.toString(),
+                          maxLines: 1,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: selected
+                                    ? Colors.white70
+                                    : mutedTextColor.withValues(alpha: 0.6),
+                                fontSize: 10,
+                              ),
+                        ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
