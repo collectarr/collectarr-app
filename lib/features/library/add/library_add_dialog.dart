@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dar
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
@@ -1175,10 +1176,6 @@ ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kClzAccent]) {
     visualDensity: VisualDensity.compact,
     textStyle: const TextStyle(fontWeight: FontWeight.w800),
   );
-}
-
-Color _foregroundForAccent(Color accent) {
-  return Colors.white;
 }
 
 ThemeData _libraryAddDialogTheme(Color accent) {

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_location_sec
 import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
@@ -198,7 +199,8 @@ class LibraryInspector extends ConsumerWidget {
                   accent: accent,
                 ),
               ],
-              if (selected.tracks != null &&
+              if (libraryShowsTrackData(selected.mediaType) &&
+                  selected.tracks != null &&
                   selected.tracks!.isNotEmpty)
                 _InspectorTrackList(
                   tracks: selected.tracks!,
@@ -207,7 +209,8 @@ class LibraryInspector extends ConsumerWidget {
                   coverUrl: selected.displayCoverUrl,
                   title: selected.title,
                 ),
-              if (selected.synopsis != null &&
+              if (libraryShowsSynopsis(selected.mediaType) &&
+                  selected.synopsis != null &&
                   selected.synopsis!.trim().isNotEmpty)
                 LibraryInspectorSection(
                   title: 'Summary',

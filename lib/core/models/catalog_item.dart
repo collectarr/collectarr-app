@@ -25,14 +25,17 @@ class CatalogItem {
     this.episodeNumber,
     this.trackCount,
     this.tracks,
+    this.catalogNumber,
     this.creators,
     this.characters,
     this.storyArcs,
+    this.platforms,
     this.genres,
     this.pageCount,
     this.coverPriceCents,
     this.currency,
     this.country,
+    this.releaseStatus,
     this.language,
     this.ageRating,
     this.imprint,
@@ -65,14 +68,17 @@ class CatalogItem {
   final int? episodeNumber;
   final int? trackCount;
   final List<Map<String, dynamic>>? tracks;
+  final String? catalogNumber;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
+  final List<String>? platforms;
   final List<String>? genres;
   final int? pageCount;
   final int? coverPriceCents;
   final String? currency;
   final String? country;
+  final String? releaseStatus;
   final String? language;
   final String? ageRating;
   final String? imprint;
@@ -108,6 +114,9 @@ class CatalogItem {
       'volume_start_year': volumeStartYear,
       'season_number': seasonNumber,
       'episode_number': episodeNumber,
+      'catalog_number': catalogNumber,
+      'platforms': platforms,
+      'release_status': releaseStatus,
     };
   }
 
@@ -140,16 +149,19 @@ class CatalogItem {
       tracks: (json['tracks'] as List?)
           ?.cast<Map<String, dynamic>>()
           .toList(growable: false),
+      catalogNumber: json['catalog_number'] as String?,
       creators: (json['creators'] as List?)
           ?.cast<Map<String, dynamic>>()
           .toList(growable: false),
       characters: (json['characters'] as List?)?.cast<String>().toList(growable: false),
       storyArcs: (json['story_arcs'] as List?)?.cast<String>().toList(growable: false),
+      platforms: (json['platforms'] as List?)?.cast<String>().toList(growable: false),
       genres: (json['genres'] as List?)?.cast<String>().toList(growable: false),
       pageCount: json['page_count'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
       currency: json['currency'] as String?,
       country: json['country'] as String?,
+      releaseStatus: json['release_status'] as String?,
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,
       imprint: json['imprint'] as String?,

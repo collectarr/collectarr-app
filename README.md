@@ -28,6 +28,7 @@ personal sync lives in `collectarr-sync`.
 - **Multiple images per item** — local item photos with captions and sort order
 - **Story arc & character facets** — filter library by story arcs and characters with facet buckets
 - **Provider previews** — see story arc, character, and credit previews in add/search dialogs
+- **Media-aware metadata UI** — shared inspector/add preview with type-specific music, game, and video metadata presentation
 - **Animated accent theming** — smooth color transitions across all UI elements when switching libraries
 
 ## Quick Start
@@ -56,6 +57,21 @@ IndexedDB.
 ```powershell
 flutter run -d windows
 ```
+
+## Extending Library Metadata
+
+When you add a new library kind or want richer metadata for an existing one,
+the app now has a single shared metadata pipeline instead of separate per-screen
+renderers.
+
+1. Add or update the library config and field labels for the new kind.
+2. Project any new canonical fields into `CatalogItem`, the Drift cache, and `LibraryWorkspaceEntry`.
+3. Reuse the default shared metadata presenter, or register a kind-specific presenter in `lib/features/library/metadata/library_metadata_content.dart` when that media type needs a different fact layout.
+4. Keep add/search labels aligned with the same type config so preview rows and inspector rows use the same terminology.
+
+That keeps new library support additive: most kinds can ride the shared UI,
+while exceptions only need a focused presenter registration instead of a new UI
+stack.
 
 ## Release Policy
 

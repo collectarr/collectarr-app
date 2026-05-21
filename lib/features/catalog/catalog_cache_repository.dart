@@ -65,6 +65,11 @@ class CatalogCacheRepository {
                     ? jsonEncode(item.storyArcs)
                     : null,
               ),
+              platformsJson: Value(
+                item.platforms != null && item.platforms!.isNotEmpty
+                    ? jsonEncode(item.platforms)
+                    : null,
+              ),
               genresJson: Value(
                 item.genres != null && item.genres!.isNotEmpty
                     ? jsonEncode(item.genres)
@@ -73,7 +78,9 @@ class CatalogCacheRepository {
               pageCount: Value(item.pageCount),
               coverPriceCents: Value(item.coverPriceCents),
               catalogCurrency: Value(item.currency),
+              catalogNumber: Value(item.catalogNumber),
               country: Value(item.country),
+              releaseStatus: Value(item.releaseStatus),
               language: Value(item.language),
               ageRating: Value(item.ageRating),
               imprint: Value(item.imprint),
@@ -133,11 +140,14 @@ class CatalogCacheRepository {
           creators: _decodeListOfMaps(row.creatorsJson),
           characters: _decodeStringList(row.charactersJson),
           storyArcs: _decodeStringList(row.storyArcsJson),
+          platforms: _decodeStringList(row.platformsJson),
           genres: _decodeStringList(row.genresJson),
           pageCount: row.pageCount,
           coverPriceCents: row.coverPriceCents,
           currency: row.catalogCurrency,
+          catalogNumber: row.catalogNumber,
           country: row.country,
+          releaseStatus: row.releaseStatus,
           language: row.language,
           ageRating: row.ageRating,
           imprint: row.imprint,
@@ -234,11 +244,14 @@ class CatalogCacheRepository {
       creators: _decodeListOfMaps(row.creatorsJson),
       characters: _decodeStringList(row.charactersJson),
       storyArcs: _decodeStringList(row.storyArcsJson),
+      platforms: _decodeStringList(row.platformsJson),
       genres: _decodeStringList(row.genresJson),
       pageCount: row.pageCount,
       coverPriceCents: row.coverPriceCents,
       currency: row.catalogCurrency,
+      catalogNumber: row.catalogNumber,
       country: row.country,
+      releaseStatus: row.releaseStatus,
       language: row.language,
       ageRating: row.ageRating,
       imprint: row.imprint,

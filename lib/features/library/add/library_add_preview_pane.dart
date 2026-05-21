@@ -76,8 +76,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
         ? (preview != null
-            ? _metadataRowsForFullPreview(preview)
-            : _metadataRowsForCandidate(selectedCandidate!))
+        ? _metadataRowsForFullPreview(preview, type)
+        : _metadataRowsForCandidate(selectedCandidate!, type))
         : _metadataRowsForItem(selectedItem, type);
     final provenanceRows = _provenanceRows(
       type: type,
@@ -93,6 +93,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       isFetchingPreview: isFetchingPreview,
     );
     final previewDiff = _previewDiffRows(
+      type: type,
       candidate: selectedCandidate,
       preview: preview,
     );
@@ -101,7 +102,9 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       candidate: selectedCandidate,
       preview: preview,
     );
-    final tracks = preview?.tracks ?? const [];
+    final tracks = libraryShowsTrackData(type.workspace.kind)
+      ? (preview?.tracks ?? const [])
+      : const <ProviderPreviewTrack>[];
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -165,7 +168,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                   Expanded(
                     child: ListView(
                       children: [
-                        if (synopsis != null &&
+                        if (libraryShowsSynopsis(type.workspace.kind) &&
+                          synopsis != null &&
                             synopsis.trim().isNotEmpty) ...[
                           Text('Plot', style: TextStyle(color: accent)),
                           const SizedBox(height: 6),
@@ -279,17 +283,20 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
 }
 
 List<(String, String?)> _metadataRowsForCandidate(
-    ProviderCandidate candidate) {
+  ProviderCandidate candidate,
+  LibraryTypeConfig type,
+) {
+  final labels = libraryMediaFieldLabels(type);
   return [
     if (candidate.seriesTitle != null)
-      ('Artist / Series', candidate.seriesTitle),
-    if (candidate.issueNumber != null) ('Issue #', candidate.issueNumber),
-    if (candidate.publisher != null) ('Publisher', candidate.publisher),
+      (_previewSeriesLabel(type), candidate.seriesTitle),
+    if (candidate.issueNumber != null) (labels.number, candidate.issueNumber),
+    if (candidate.publisher != null) (labels.publisher, candidate.publisher),
     if (candidate.volumeStartYear != null)
       ('Year', candidate.volumeStartYear.toString()),
-    if (candidate.variantName != null) ('Variant', candidate.variantName),
+    if (candidate.variantName != null) (labels.variant, candidate.variantName),
     if (candidate.issueCount != null)
-      ('Issues', candidate.issueCount.toString()),
+      (_previewCountLabel(type), candidate.issueCount.toString()),
   ];
 }
 
@@ -299,7 +306,7 @@ List<(String, String?)> _metadataRowsForItem(
 ) {
   final labels = libraryMediaFieldLabels(type);
   return [
-    if (item.seriesTitle != null) ('Series / Artist', item.seriesTitle),
+    if (item.seriesTitle != null) (_previewSeriesLabel(type), item.seriesTitle),
     (labels.publisher, item.publisher),
     ('Released', item.releaseDate != null
         ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
@@ -308,9 +315,15 @@ List<(String, String?)> _metadataRowsForItem(
     if (item.displayEditionLabel != null)
       (labels.variant, item.displayEditionLabel),
     (labels.barcode, item.barcode),
-    if (item.trackCount != null) ('Tracks', item.trackCount.toString()),
+    if (libraryShowsTrackData(type.workspace.kind) &&
+      item.trackCount != null)
+      ('Tracks', item.trackCount.toString()),
+    if (item.catalogNumber != null) ('Catalog No.', item.catalogNumber),
+    if (item.platforms != null && item.platforms!.isNotEmpty)
+      ('Platforms', item.platforms!.join(', ')),
     if (item.pageCount != null) ('Pages', item.pageCount.toString()),
     if (item.country != null) ('Country', item.country),
+    if (item.releaseStatus != null) ('Release Status', item.releaseStatus),
     if (item.language != null) ('Language', item.language),
   ];
 }
@@ -473,29 +486,39 @@ class _PreviewDiffRow {
 }
 
 List<(String, String?)> _metadataRowsForFullPreview(
-    AdminProviderPreview preview) {
+  AdminProviderPreview preview,
+  LibraryTypeConfig type,
+) {
+  final labels = libraryMediaFieldLabels(type);
   final releaseDateStr = preview.releaseDate != null
       ? '${preview.releaseDate!.year}-${preview.releaseDate!.month.toString().padLeft(2, '0')}-${preview.releaseDate!.day.toString().padLeft(2, '0')}'
       : null;
   return [
-    if (preview.seriesTitle != null) ('Artist / Series', preview.seriesTitle),
-    if (preview.publisher != null) ('Label / Publisher', preview.publisher),
+    if (preview.seriesTitle != null) (_previewSeriesLabel(type), preview.seriesTitle),
+    if (preview.publisher != null) (labels.publisher, preview.publisher),
     if (preview.imprint != null) ('Imprint', preview.imprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
     if (preview.volumeStartYear != null)
       ('Year', preview.volumeStartYear.toString()),
-    if (preview.itemNumber != null) ('Issue #', preview.itemNumber),
-    if (preview.barcode != null) ('Barcode', preview.barcode),
+    if (preview.itemNumber != null) (labels.number, preview.itemNumber),
+    if (preview.barcode != null) (labels.barcode, preview.barcode),
     if (preview.isbn != null) ('ISBN', preview.isbn),
     if (preview.country != null) ('Country', preview.country),
     if (preview.language != null) ('Language', preview.language),
     if (preview.physicalFormatLabel != null)
       ('Format', preview.physicalFormatLabel),
-    if (preview.variantName != null) ('Variant', preview.variantName),
-    if (preview.trackCount != null) ('Tracks', preview.trackCount.toString()),
+    if (preview.variantName != null) (labels.variant, preview.variantName),
+    if (libraryShowsTrackData(preview.kind) && preview.trackCount != null)
+      ('Tracks', preview.trackCount.toString()),
+    if (preview.catalogNumber != null)
+      ('Catalog No.', preview.catalogNumber),
+    if (preview.platforms.isNotEmpty)
+      ('Platforms', preview.platforms.join(', ')),
     if (preview.runtimeMinutes != null)
       ('Runtime', '${preview.runtimeMinutes} min'),
     if (preview.pageCount != null) ('Pages', preview.pageCount.toString()),
+    if (preview.releaseStatus != null)
+      ('Release Status', preview.releaseStatus),
     if (preview.seriesGroup != null) ('Series Group', preview.seriesGroup),
   ];
 }
@@ -552,12 +575,14 @@ List<_PreviewDiscoverySectionData> _discoverySections({
 }
 
 List<_PreviewDiffRow> _previewDiffRows({
+  required LibraryTypeConfig type,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
   if (candidate == null || preview == null) {
     return const <_PreviewDiffRow>[];
   }
+  final labels = libraryMediaFieldLabels(type);
   final rows = <_PreviewDiffRow>[];
 
   void addScalar(String label, String? before, String? after) {
@@ -598,9 +623,9 @@ List<_PreviewDiffRow> _previewDiffRows({
   }
 
   addScalar('Summary', candidate.summary, preview.synopsis);
-  addScalar('Series', candidate.seriesTitle, preview.seriesTitle);
-  addScalar('Number', candidate.issueNumber, preview.itemNumber);
-  addScalar('Publisher', candidate.publisher, preview.publisher);
+  addScalar(_previewSeriesLabel(type), candidate.seriesTitle, preview.seriesTitle);
+  addScalar(labels.number, candidate.issueNumber, preview.itemNumber);
+  addScalar(labels.publisher, candidate.publisher, preview.publisher);
   addScalar(
     'Year',
     candidate.volumeStartYear?.toString(),
@@ -608,7 +633,7 @@ List<_PreviewDiffRow> _previewDiffRows({
         ? preview.releaseDate!.year.toString()
         : preview.volumeStartYear?.toString(),
   );
-  addScalar('Variant', candidate.variantName, preview.variantName);
+  addScalar(labels.variant, candidate.variantName, preview.variantName);
   addScalar(
     'Format',
     null,
@@ -623,6 +648,20 @@ List<_PreviewDiffRow> _previewDiffRows({
   addList('Story Arcs', candidate.storyArcPreview, preview.storyArcs);
 
   return rows;
+}
+
+String _previewSeriesLabel(LibraryTypeConfig type) {
+  return type.workspace.kind == 'music' ? 'Artist' : 'Series';
+}
+
+String _previewCountLabel(LibraryTypeConfig type) {
+  return switch (type.workspace.kind) {
+    'comic' => 'Issues',
+    'manga' || 'book' => 'Volumes',
+    'anime' || 'tv' => 'Seasons',
+    'music' => 'Releases',
+    _ => 'Items',
+  };
 }
 
 String? _normalizePreviewDiffValue(String? value) {

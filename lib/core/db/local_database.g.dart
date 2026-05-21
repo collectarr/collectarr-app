@@ -168,6 +168,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> storyArcsJson = GeneratedColumn<String>(
       'story_arcs_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _platformsJsonMeta =
+      const VerificationMeta('platformsJson');
+  @override
+  late final GeneratedColumn<String> platformsJson = GeneratedColumn<String>(
+      'platforms_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _genresJsonMeta =
       const VerificationMeta('genresJson');
   @override
@@ -192,11 +198,23 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> catalogCurrency = GeneratedColumn<String>(
       'catalog_currency', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _catalogNumberMeta =
+      const VerificationMeta('catalogNumber');
+  @override
+  late final GeneratedColumn<String> catalogNumber = GeneratedColumn<String>(
+      'catalog_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _countryMeta =
       const VerificationMeta('country');
   @override
   late final GeneratedColumn<String> country = GeneratedColumn<String>(
       'country', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseStatusMeta =
+      const VerificationMeta('releaseStatus');
+  @override
+  late final GeneratedColumn<String> releaseStatus = GeneratedColumn<String>(
+      'release_status', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _languageMeta =
       const VerificationMeta('language');
@@ -263,11 +281,14 @@ class $CatalogCacheTable extends CatalogCache
         creatorsJson,
         charactersJson,
         storyArcsJson,
+        platformsJson,
         genresJson,
         pageCount,
         coverPriceCents,
         catalogCurrency,
+        catalogNumber,
         country,
+        releaseStatus,
         language,
         ageRating,
         imprint,
@@ -436,6 +457,12 @@ class $CatalogCacheTable extends CatalogCache
           storyArcsJson.isAcceptableOrUnknown(
               data['story_arcs_json']!, _storyArcsJsonMeta));
     }
+    if (data.containsKey('platforms_json')) {
+      context.handle(
+          _platformsJsonMeta,
+          platformsJson.isAcceptableOrUnknown(
+              data['platforms_json']!, _platformsJsonMeta));
+    }
     if (data.containsKey('genres_json')) {
       context.handle(
           _genresJsonMeta,
@@ -458,9 +485,21 @@ class $CatalogCacheTable extends CatalogCache
           catalogCurrency.isAcceptableOrUnknown(
               data['catalog_currency']!, _catalogCurrencyMeta));
     }
+    if (data.containsKey('catalog_number')) {
+      context.handle(
+          _catalogNumberMeta,
+          catalogNumber.isAcceptableOrUnknown(
+              data['catalog_number']!, _catalogNumberMeta));
+    }
     if (data.containsKey('country')) {
       context.handle(_countryMeta,
           country.isAcceptableOrUnknown(data['country']!, _countryMeta));
+    }
+    if (data.containsKey('release_status')) {
+      context.handle(
+          _releaseStatusMeta,
+          releaseStatus.isAcceptableOrUnknown(
+              data['release_status']!, _releaseStatusMeta));
     }
     if (data.containsKey('language')) {
       context.handle(_languageMeta,
@@ -553,6 +592,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}characters_json']),
       storyArcsJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}story_arcs_json']),
+      platformsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}platforms_json']),
       genresJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}genres_json']),
       pageCount: attachedDatabase.typeMapping
@@ -561,8 +602,12 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.int, data['${effectivePrefix}cover_price_cents']),
       catalogCurrency: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_currency']),
+      catalogNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}catalog_number']),
       country: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}country']),
+      releaseStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_status']),
       language: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}language']),
       ageRating: attachedDatabase.typeMapping
@@ -613,11 +658,14 @@ class CatalogCacheData extends DataClass
   final String? creatorsJson;
   final String? charactersJson;
   final String? storyArcsJson;
+  final String? platformsJson;
   final String? genresJson;
   final int? pageCount;
   final int? coverPriceCents;
   final String? catalogCurrency;
+  final String? catalogNumber;
   final String? country;
+  final String? releaseStatus;
   final String? language;
   final String? ageRating;
   final String? imprint;
@@ -652,11 +700,14 @@ class CatalogCacheData extends DataClass
       this.creatorsJson,
       this.charactersJson,
       this.storyArcsJson,
+      this.platformsJson,
       this.genresJson,
       this.pageCount,
       this.coverPriceCents,
       this.catalogCurrency,
+      this.catalogNumber,
       this.country,
+      this.releaseStatus,
       this.language,
       this.ageRating,
       this.imprint,
@@ -741,6 +792,9 @@ class CatalogCacheData extends DataClass
     if (!nullToAbsent || storyArcsJson != null) {
       map['story_arcs_json'] = Variable<String>(storyArcsJson);
     }
+    if (!nullToAbsent || platformsJson != null) {
+      map['platforms_json'] = Variable<String>(platformsJson);
+    }
     if (!nullToAbsent || genresJson != null) {
       map['genres_json'] = Variable<String>(genresJson);
     }
@@ -753,8 +807,14 @@ class CatalogCacheData extends DataClass
     if (!nullToAbsent || catalogCurrency != null) {
       map['catalog_currency'] = Variable<String>(catalogCurrency);
     }
+    if (!nullToAbsent || catalogNumber != null) {
+      map['catalog_number'] = Variable<String>(catalogNumber);
+    }
     if (!nullToAbsent || country != null) {
       map['country'] = Variable<String>(country);
+    }
+    if (!nullToAbsent || releaseStatus != null) {
+      map['release_status'] = Variable<String>(releaseStatus);
     }
     if (!nullToAbsent || language != null) {
       map['language'] = Variable<String>(language);
@@ -852,6 +912,9 @@ class CatalogCacheData extends DataClass
       storyArcsJson: storyArcsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(storyArcsJson),
+      platformsJson: platformsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(platformsJson),
       genresJson: genresJson == null && nullToAbsent
           ? const Value.absent()
           : Value(genresJson),
@@ -864,9 +927,15 @@ class CatalogCacheData extends DataClass
       catalogCurrency: catalogCurrency == null && nullToAbsent
           ? const Value.absent()
           : Value(catalogCurrency),
+      catalogNumber: catalogNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogNumber),
       country: country == null && nullToAbsent
           ? const Value.absent()
           : Value(country),
+      releaseStatus: releaseStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseStatus),
       language: language == null && nullToAbsent
           ? const Value.absent()
           : Value(language),
@@ -919,11 +988,14 @@ class CatalogCacheData extends DataClass
       creatorsJson: serializer.fromJson<String?>(json['creatorsJson']),
       charactersJson: serializer.fromJson<String?>(json['charactersJson']),
       storyArcsJson: serializer.fromJson<String?>(json['storyArcsJson']),
+      platformsJson: serializer.fromJson<String?>(json['platformsJson']),
       genresJson: serializer.fromJson<String?>(json['genresJson']),
       pageCount: serializer.fromJson<int?>(json['pageCount']),
       coverPriceCents: serializer.fromJson<int?>(json['coverPriceCents']),
       catalogCurrency: serializer.fromJson<String?>(json['catalogCurrency']),
+      catalogNumber: serializer.fromJson<String?>(json['catalogNumber']),
       country: serializer.fromJson<String?>(json['country']),
+      releaseStatus: serializer.fromJson<String?>(json['releaseStatus']),
       language: serializer.fromJson<String?>(json['language']),
       ageRating: serializer.fromJson<String?>(json['ageRating']),
       imprint: serializer.fromJson<String?>(json['imprint']),
@@ -963,11 +1035,14 @@ class CatalogCacheData extends DataClass
       'creatorsJson': serializer.toJson<String?>(creatorsJson),
       'charactersJson': serializer.toJson<String?>(charactersJson),
       'storyArcsJson': serializer.toJson<String?>(storyArcsJson),
+      'platformsJson': serializer.toJson<String?>(platformsJson),
       'genresJson': serializer.toJson<String?>(genresJson),
       'pageCount': serializer.toJson<int?>(pageCount),
       'coverPriceCents': serializer.toJson<int?>(coverPriceCents),
       'catalogCurrency': serializer.toJson<String?>(catalogCurrency),
+      'catalogNumber': serializer.toJson<String?>(catalogNumber),
       'country': serializer.toJson<String?>(country),
+      'releaseStatus': serializer.toJson<String?>(releaseStatus),
       'language': serializer.toJson<String?>(language),
       'ageRating': serializer.toJson<String?>(ageRating),
       'imprint': serializer.toJson<String?>(imprint),
@@ -1005,11 +1080,14 @@ class CatalogCacheData extends DataClass
           Value<String?> creatorsJson = const Value.absent(),
           Value<String?> charactersJson = const Value.absent(),
           Value<String?> storyArcsJson = const Value.absent(),
+          Value<String?> platformsJson = const Value.absent(),
           Value<String?> genresJson = const Value.absent(),
           Value<int?> pageCount = const Value.absent(),
           Value<int?> coverPriceCents = const Value.absent(),
           Value<String?> catalogCurrency = const Value.absent(),
+          Value<String?> catalogNumber = const Value.absent(),
           Value<String?> country = const Value.absent(),
+          Value<String?> releaseStatus = const Value.absent(),
           Value<String?> language = const Value.absent(),
           Value<String?> ageRating = const Value.absent(),
           Value<String?> imprint = const Value.absent(),
@@ -1059,6 +1137,8 @@ class CatalogCacheData extends DataClass
             charactersJson.present ? charactersJson.value : this.charactersJson,
         storyArcsJson:
             storyArcsJson.present ? storyArcsJson.value : this.storyArcsJson,
+        platformsJson:
+            platformsJson.present ? platformsJson.value : this.platformsJson,
         genresJson: genresJson.present ? genresJson.value : this.genresJson,
         pageCount: pageCount.present ? pageCount.value : this.pageCount,
         coverPriceCents: coverPriceCents.present
@@ -1067,7 +1147,11 @@ class CatalogCacheData extends DataClass
         catalogCurrency: catalogCurrency.present
             ? catalogCurrency.value
             : this.catalogCurrency,
+        catalogNumber:
+            catalogNumber.present ? catalogNumber.value : this.catalogNumber,
         country: country.present ? country.value : this.country,
+        releaseStatus:
+            releaseStatus.present ? releaseStatus.value : this.releaseStatus,
         language: language.present ? language.value : this.language,
         ageRating: ageRating.present ? ageRating.value : this.ageRating,
         imprint: imprint.present ? imprint.value : this.imprint,
@@ -1135,6 +1219,9 @@ class CatalogCacheData extends DataClass
       storyArcsJson: data.storyArcsJson.present
           ? data.storyArcsJson.value
           : this.storyArcsJson,
+      platformsJson: data.platformsJson.present
+          ? data.platformsJson.value
+          : this.platformsJson,
       genresJson:
           data.genresJson.present ? data.genresJson.value : this.genresJson,
       pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
@@ -1144,7 +1231,13 @@ class CatalogCacheData extends DataClass
       catalogCurrency: data.catalogCurrency.present
           ? data.catalogCurrency.value
           : this.catalogCurrency,
+      catalogNumber: data.catalogNumber.present
+          ? data.catalogNumber.value
+          : this.catalogNumber,
       country: data.country.present ? data.country.value : this.country,
+      releaseStatus: data.releaseStatus.present
+          ? data.releaseStatus.value
+          : this.releaseStatus,
       language: data.language.present ? data.language.value : this.language,
       ageRating: data.ageRating.present ? data.ageRating.value : this.ageRating,
       imprint: data.imprint.present ? data.imprint.value : this.imprint,
@@ -1185,11 +1278,14 @@ class CatalogCacheData extends DataClass
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
           ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('platformsJson: $platformsJson, ')
           ..write('genresJson: $genresJson, ')
           ..write('pageCount: $pageCount, ')
           ..write('coverPriceCents: $coverPriceCents, ')
           ..write('catalogCurrency: $catalogCurrency, ')
+          ..write('catalogNumber: $catalogNumber, ')
           ..write('country: $country, ')
+          ..write('releaseStatus: $releaseStatus, ')
           ..write('language: $language, ')
           ..write('ageRating: $ageRating, ')
           ..write('imprint: $imprint, ')
@@ -1229,11 +1325,14 @@ class CatalogCacheData extends DataClass
         creatorsJson,
         charactersJson,
         storyArcsJson,
+        platformsJson,
         genresJson,
         pageCount,
         coverPriceCents,
         catalogCurrency,
+        catalogNumber,
         country,
+        releaseStatus,
         language,
         ageRating,
         imprint,
@@ -1272,11 +1371,14 @@ class CatalogCacheData extends DataClass
           other.creatorsJson == this.creatorsJson &&
           other.charactersJson == this.charactersJson &&
           other.storyArcsJson == this.storyArcsJson &&
+          other.platformsJson == this.platformsJson &&
           other.genresJson == this.genresJson &&
           other.pageCount == this.pageCount &&
           other.coverPriceCents == this.coverPriceCents &&
           other.catalogCurrency == this.catalogCurrency &&
+          other.catalogNumber == this.catalogNumber &&
           other.country == this.country &&
+          other.releaseStatus == this.releaseStatus &&
           other.language == this.language &&
           other.ageRating == this.ageRating &&
           other.imprint == this.imprint &&
@@ -1313,11 +1415,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> creatorsJson;
   final Value<String?> charactersJson;
   final Value<String?> storyArcsJson;
+  final Value<String?> platformsJson;
   final Value<String?> genresJson;
   final Value<int?> pageCount;
   final Value<int?> coverPriceCents;
   final Value<String?> catalogCurrency;
+  final Value<String?> catalogNumber;
   final Value<String?> country;
+  final Value<String?> releaseStatus;
   final Value<String?> language;
   final Value<String?> ageRating;
   final Value<String?> imprint;
@@ -1353,11 +1458,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
     this.storyArcsJson = const Value.absent(),
+    this.platformsJson = const Value.absent(),
     this.genresJson = const Value.absent(),
     this.pageCount = const Value.absent(),
     this.coverPriceCents = const Value.absent(),
     this.catalogCurrency = const Value.absent(),
+    this.catalogNumber = const Value.absent(),
     this.country = const Value.absent(),
+    this.releaseStatus = const Value.absent(),
     this.language = const Value.absent(),
     this.ageRating = const Value.absent(),
     this.imprint = const Value.absent(),
@@ -1394,11 +1502,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
     this.storyArcsJson = const Value.absent(),
+    this.platformsJson = const Value.absent(),
     this.genresJson = const Value.absent(),
     this.pageCount = const Value.absent(),
     this.coverPriceCents = const Value.absent(),
     this.catalogCurrency = const Value.absent(),
+    this.catalogNumber = const Value.absent(),
     this.country = const Value.absent(),
+    this.releaseStatus = const Value.absent(),
     this.language = const Value.absent(),
     this.ageRating = const Value.absent(),
     this.imprint = const Value.absent(),
@@ -1438,11 +1549,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? creatorsJson,
     Expression<String>? charactersJson,
     Expression<String>? storyArcsJson,
+    Expression<String>? platformsJson,
     Expression<String>? genresJson,
     Expression<int>? pageCount,
     Expression<int>? coverPriceCents,
     Expression<String>? catalogCurrency,
+    Expression<String>? catalogNumber,
     Expression<String>? country,
+    Expression<String>? releaseStatus,
     Expression<String>? language,
     Expression<String>? ageRating,
     Expression<String>? imprint,
@@ -1480,11 +1594,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (creatorsJson != null) 'creators_json': creatorsJson,
       if (charactersJson != null) 'characters_json': charactersJson,
       if (storyArcsJson != null) 'story_arcs_json': storyArcsJson,
+      if (platformsJson != null) 'platforms_json': platformsJson,
       if (genresJson != null) 'genres_json': genresJson,
       if (pageCount != null) 'page_count': pageCount,
       if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
       if (catalogCurrency != null) 'catalog_currency': catalogCurrency,
+      if (catalogNumber != null) 'catalog_number': catalogNumber,
       if (country != null) 'country': country,
+      if (releaseStatus != null) 'release_status': releaseStatus,
       if (language != null) 'language': language,
       if (ageRating != null) 'age_rating': ageRating,
       if (imprint != null) 'imprint': imprint,
@@ -1523,11 +1640,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? creatorsJson,
       Value<String?>? charactersJson,
       Value<String?>? storyArcsJson,
+      Value<String?>? platformsJson,
       Value<String?>? genresJson,
       Value<int?>? pageCount,
       Value<int?>? coverPriceCents,
       Value<String?>? catalogCurrency,
+      Value<String?>? catalogNumber,
       Value<String?>? country,
+      Value<String?>? releaseStatus,
       Value<String?>? language,
       Value<String?>? ageRating,
       Value<String?>? imprint,
@@ -1563,11 +1683,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       creatorsJson: creatorsJson ?? this.creatorsJson,
       charactersJson: charactersJson ?? this.charactersJson,
       storyArcsJson: storyArcsJson ?? this.storyArcsJson,
+      platformsJson: platformsJson ?? this.platformsJson,
       genresJson: genresJson ?? this.genresJson,
       pageCount: pageCount ?? this.pageCount,
       coverPriceCents: coverPriceCents ?? this.coverPriceCents,
       catalogCurrency: catalogCurrency ?? this.catalogCurrency,
+      catalogNumber: catalogNumber ?? this.catalogNumber,
       country: country ?? this.country,
+      releaseStatus: releaseStatus ?? this.releaseStatus,
       language: language ?? this.language,
       ageRating: ageRating ?? this.ageRating,
       imprint: imprint ?? this.imprint,
@@ -1663,6 +1786,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (storyArcsJson.present) {
       map['story_arcs_json'] = Variable<String>(storyArcsJson.value);
     }
+    if (platformsJson.present) {
+      map['platforms_json'] = Variable<String>(platformsJson.value);
+    }
     if (genresJson.present) {
       map['genres_json'] = Variable<String>(genresJson.value);
     }
@@ -1675,8 +1801,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (catalogCurrency.present) {
       map['catalog_currency'] = Variable<String>(catalogCurrency.value);
     }
+    if (catalogNumber.present) {
+      map['catalog_number'] = Variable<String>(catalogNumber.value);
+    }
     if (country.present) {
       map['country'] = Variable<String>(country.value);
+    }
+    if (releaseStatus.present) {
+      map['release_status'] = Variable<String>(releaseStatus.value);
     }
     if (language.present) {
       map['language'] = Variable<String>(language.value);
@@ -1732,11 +1864,14 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
           ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('platformsJson: $platformsJson, ')
           ..write('genresJson: $genresJson, ')
           ..write('pageCount: $pageCount, ')
           ..write('coverPriceCents: $coverPriceCents, ')
           ..write('catalogCurrency: $catalogCurrency, ')
+          ..write('catalogNumber: $catalogNumber, ')
           ..write('country: $country, ')
+          ..write('releaseStatus: $releaseStatus, ')
           ..write('language: $language, ')
           ..write('ageRating: $ageRating, ')
           ..write('imprint: $imprint, ')
@@ -7375,11 +7510,14 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
   Value<String?> storyArcsJson,
+  Value<String?> platformsJson,
   Value<String?> genresJson,
   Value<int?> pageCount,
   Value<int?> coverPriceCents,
   Value<String?> catalogCurrency,
+  Value<String?> catalogNumber,
   Value<String?> country,
+  Value<String?> releaseStatus,
   Value<String?> language,
   Value<String?> ageRating,
   Value<String?> imprint,
@@ -7417,11 +7555,14 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
   Value<String?> storyArcsJson,
+  Value<String?> platformsJson,
   Value<String?> genresJson,
   Value<int?> pageCount,
   Value<int?> coverPriceCents,
   Value<String?> catalogCurrency,
+  Value<String?> catalogNumber,
   Value<String?> country,
+  Value<String?> releaseStatus,
   Value<String?> language,
   Value<String?> ageRating,
   Value<String?> imprint,
@@ -7526,6 +7667,9 @@ class $$CatalogCacheTableFilterComposer
   ColumnFilters<String> get storyArcsJson => $composableBuilder(
       column: $table.storyArcsJson, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get platformsJson => $composableBuilder(
+      column: $table.platformsJson, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get genresJson => $composableBuilder(
       column: $table.genresJson, builder: (column) => ColumnFilters(column));
 
@@ -7540,8 +7684,14 @@ class $$CatalogCacheTableFilterComposer
       column: $table.catalogCurrency,
       builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get country => $composableBuilder(
       column: $table.country, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get language => $composableBuilder(
       column: $table.language, builder: (column) => ColumnFilters(column));
@@ -7664,6 +7814,10 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.storyArcsJson,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get platformsJson => $composableBuilder(
+      column: $table.platformsJson,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get genresJson => $composableBuilder(
       column: $table.genresJson, builder: (column) => ColumnOrderings(column));
 
@@ -7678,8 +7832,16 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.catalogCurrency,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get country => $composableBuilder(
       column: $table.country, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get language => $composableBuilder(
       column: $table.language, builder: (column) => ColumnOrderings(column));
@@ -7790,6 +7952,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get storyArcsJson => $composableBuilder(
       column: $table.storyArcsJson, builder: (column) => column);
 
+  GeneratedColumn<String> get platformsJson => $composableBuilder(
+      column: $table.platformsJson, builder: (column) => column);
+
   GeneratedColumn<String> get genresJson => $composableBuilder(
       column: $table.genresJson, builder: (column) => column);
 
@@ -7802,8 +7967,14 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get catalogCurrency => $composableBuilder(
       column: $table.catalogCurrency, builder: (column) => column);
 
+  GeneratedColumn<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber, builder: (column) => column);
+
   GeneratedColumn<String> get country =>
       $composableBuilder(column: $table.country, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus, builder: (column) => column);
 
   GeneratedColumn<String> get language =>
       $composableBuilder(column: $table.language, builder: (column) => column);
@@ -7877,11 +8048,14 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
             Value<String?> storyArcsJson = const Value.absent(),
+            Value<String?> platformsJson = const Value.absent(),
             Value<String?> genresJson = const Value.absent(),
             Value<int?> pageCount = const Value.absent(),
             Value<int?> coverPriceCents = const Value.absent(),
             Value<String?> catalogCurrency = const Value.absent(),
+            Value<String?> catalogNumber = const Value.absent(),
             Value<String?> country = const Value.absent(),
+            Value<String?> releaseStatus = const Value.absent(),
             Value<String?> language = const Value.absent(),
             Value<String?> ageRating = const Value.absent(),
             Value<String?> imprint = const Value.absent(),
@@ -7918,11 +8092,14 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
             storyArcsJson: storyArcsJson,
+            platformsJson: platformsJson,
             genresJson: genresJson,
             pageCount: pageCount,
             coverPriceCents: coverPriceCents,
             catalogCurrency: catalogCurrency,
+            catalogNumber: catalogNumber,
             country: country,
+            releaseStatus: releaseStatus,
             language: language,
             ageRating: ageRating,
             imprint: imprint,
@@ -7959,11 +8136,14 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
             Value<String?> storyArcsJson = const Value.absent(),
+            Value<String?> platformsJson = const Value.absent(),
             Value<String?> genresJson = const Value.absent(),
             Value<int?> pageCount = const Value.absent(),
             Value<int?> coverPriceCents = const Value.absent(),
             Value<String?> catalogCurrency = const Value.absent(),
+            Value<String?> catalogNumber = const Value.absent(),
             Value<String?> country = const Value.absent(),
+            Value<String?> releaseStatus = const Value.absent(),
             Value<String?> language = const Value.absent(),
             Value<String?> ageRating = const Value.absent(),
             Value<String?> imprint = const Value.absent(),
@@ -8000,11 +8180,14 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
             storyArcsJson: storyArcsJson,
+            platformsJson: platformsJson,
             genresJson: genresJson,
             pageCount: pageCount,
             coverPriceCents: coverPriceCents,
             catalogCurrency: catalogCurrency,
+            catalogNumber: catalogNumber,
             country: country,
+            releaseStatus: releaseStatus,
             language: language,
             ageRating: ageRating,
             imprint: imprint,

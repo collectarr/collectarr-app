@@ -32,14 +32,17 @@ class LibraryWorkspaceEntry {
     this.episodeNumber,
     this.trackCount,
     this.tracks,
+    this.catalogNumber,
     this.creators,
     this.characters,
     this.storyArcs,
+    this.platforms,
     this.genres,
     this.pageCount,
     this.coverPriceCents,
     this.catalogCurrency,
     this.country,
+    this.releaseStatus,
     this.language,
     this.ageRating,
     this.imprint,
@@ -78,14 +81,17 @@ class LibraryWorkspaceEntry {
   final int? episodeNumber;
   final int? trackCount;
   final List<Map<String, dynamic>>? tracks;
+  final String? catalogNumber;
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
+  final List<String>? platforms;
   final List<String>? genres;
   final int? pageCount;
   final int? coverPriceCents;
   final String? catalogCurrency;
   final String? country;
+  final String? releaseStatus;
   final String? language;
   final String? ageRating;
   final String? imprint;

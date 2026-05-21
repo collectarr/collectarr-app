@@ -31,11 +31,14 @@ class CatalogCache extends Table {
   TextColumn get creatorsJson => text().nullable()();
   TextColumn get charactersJson => text().nullable()();
   TextColumn get storyArcsJson => text().nullable()();
+  TextColumn get platformsJson => text().nullable()();
   TextColumn get genresJson => text().nullable()();
   IntColumn get pageCount => integer().nullable()();
   IntColumn get coverPriceCents => integer().nullable()();
   TextColumn get catalogCurrency => text().nullable()();
+  TextColumn get catalogNumber => text().nullable()();
   TextColumn get country => text().nullable()();
+  TextColumn get releaseStatus => text().nullable()();
   TextColumn get language => text().nullable()();
   TextColumn get ageRating => text().nullable()();
   TextColumn get imprint => text().nullable()();
@@ -247,7 +250,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {

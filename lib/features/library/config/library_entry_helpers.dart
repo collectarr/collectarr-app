@@ -16,6 +16,24 @@ bool itemHasMissingDetails(CatalogItem item) {
       (item.synopsis == null || item.synopsis!.trim().isEmpty);
 }
 
+bool libraryShowsTrackData(String mediaType) {
+  return mediaType.trim().toLowerCase() == 'music';
+}
+
+bool libraryShowsSynopsis(String mediaType) {
+  switch (mediaType.trim().toLowerCase()) {
+    case 'comic':
+    case 'manga':
+    case 'anime':
+    case 'book':
+    case 'movie':
+    case 'tv':
+      return true;
+    default:
+      return false;
+  }
+}
+
 LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
   CatalogItem item,
   OwnedItem? ownedItem,
@@ -52,14 +70,17 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     episodeNumber: item.episodeNumber,
     trackCount: item.trackCount,
     tracks: item.tracks,
+    catalogNumber: item.catalogNumber,
     creators: item.creators,
     characters: item.characters,
     storyArcs: item.storyArcs,
+    platforms: item.platforms,
     genres: item.genres,
     pageCount: item.pageCount,
     coverPriceCents: item.coverPriceCents,
     catalogCurrency: item.currency,
     country: item.country,
+    releaseStatus: item.releaseStatus,
     language: item.language,
     ageRating: item.ageRating,
     imprint: item.imprint,

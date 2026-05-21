@@ -179,10 +179,13 @@ class AdminProviderPreview {
     this.pageCount,
     this.runtimeMinutes,
     this.trackCount,
+    this.catalogNumber,
     this.creators = const [],
     this.characters = const [],
     this.storyArcs = const [],
+    this.platforms = const [],
     this.genres = const [],
+    this.releaseStatus,
     this.tracks = const [],
   });
 
@@ -217,10 +220,13 @@ class AdminProviderPreview {
   final int? pageCount;
   final int? runtimeMinutes;
   final int? trackCount;
+  final String? catalogNumber;
   final List<ProviderPreviewCredit> creators;
   final List<String> characters;
   final List<String> storyArcs;
+  final List<String> platforms;
   final List<String> genres;
+  final String? releaseStatus;
   final List<ProviderPreviewTrack> tracks;
 
   factory AdminProviderPreview.fromJson(Map<String, dynamic> json) {
@@ -258,6 +264,7 @@ class AdminProviderPreview {
       pageCount: json['page_count'] as int?,
       runtimeMinutes: json['runtime_minutes'] as int?,
       trackCount: json['track_count'] as int?,
+        catalogNumber: json['catalog_number'] as String?,
       creators: (json['creators'] as List<dynamic>?)
               ?.map((e) =>
                   ProviderPreviewCredit.fromJson(e as Map<String, dynamic>))
@@ -271,10 +278,15 @@ class AdminProviderPreview {
               ?.map((e) => e as String)
               .toList(growable: false) ??
           const [],
+        platforms: (json['platforms'] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toList(growable: false) ??
+          const [],
       genres: (json['genres'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList(growable: false) ??
           const [],
+        releaseStatus: json['release_status'] as String?,
       tracks: (json['tracks'] as List<dynamic>?)
               ?.map((e) =>
                   ProviderPreviewTrack.fromJson(e as Map<String, dynamic>))

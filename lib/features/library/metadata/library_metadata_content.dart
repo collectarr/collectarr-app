@@ -32,14 +32,30 @@ class LibraryMetadataPresentation {
       creators.isNotEmpty || characters.isNotEmpty || storyArcs.isNotEmpty;
 }
 
+typedef _MetadataFactTapResolver = VoidCallback? Function(String? value);
+typedef _LibraryMetadataPresentationBuilder = LibraryMetadataPresentation
+    Function({
+      required LibraryTypeConfig type,
+      required LibraryWorkspaceEntry entry,
+      required bool includeIdentityFacts,
+      required _MetadataFactTapResolver tapFor,
+    });
+
+const Map<String, _LibraryMetadataPresentationBuilder>
+    _libraryMetadataPresentationBuilders = {
+  'music': _buildMusicMetadataPresentation,
+  'game': _buildGameMetadataPresentation,
+  'movie': _buildVideoMetadataPresentation,
+  'tv': _buildVideoMetadataPresentation,
+  'anime': _buildVideoMetadataPresentation,
+};
+
 LibraryMetadataPresentation buildLibraryMetadataPresentation({
   required LibraryTypeConfig type,
   required LibraryWorkspaceEntry entry,
   ValueChanged<String>? onFilterByValue,
   bool includeIdentityFacts = false,
 }) {
-  final labels = libraryMediaFieldLabels(type);
-
   VoidCallback? tapFor(String? value) {
     if (onFilterByValue == null || value == null || value.trim().isEmpty) {
       return null;
@@ -47,6 +63,38 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
     return () => onFilterByValue(value.trim());
   }
 
+  final builder = _libraryMetadataPresentationBuilders[type.workspace.kind];
+  if (builder != null) {
+    return builder(
+      type: type,
+      entry: entry,
+      includeIdentityFacts: includeIdentityFacts,
+      tapFor: tapFor,
+    );
+  }
+
+  return _buildDefaultMetadataPresentation(
+    type: type,
+    entry: entry,
+    includeIdentityFacts: includeIdentityFacts,
+    tapFor: tapFor,
+  );
+}
+
+LibraryMetadataPresentation _buildDefaultMetadataPresentation({
+  required LibraryTypeConfig type,
+  required LibraryWorkspaceEntry entry,
+  required bool includeIdentityFacts,
+  required _MetadataFactTapResolver tapFor,
+}) {
+  final labels = libraryMediaFieldLabels(type);
+  final usesSeasonHierarchy = switch (type.workspace.kind) {
+    'tv' || 'anime' => true,
+    _ => false,
+  };
+  final hasVolume = entry.volumeName != null || entry.volumeNumber != null;
+  final hasSeason = entry.seasonNumber != null;
+  final hasEpisode = entry.episodeNumber != null;
   return LibraryMetadataPresentation(
     identityFacts: [
       if (includeIdentityFacts) ...[
@@ -60,17 +108,22 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
           entry.seriesTitle!,
           onTap: tapFor(entry.seriesTitle),
         ),
-      if (entry.volumeName != null || entry.volumeNumber != null)
+      if (hasVolume && (!usesSeasonHierarchy || !hasSeason))
         LibraryInspectorFactData(
           'Volume',
           entry.volumeName ?? 'Vol. ${entry.volumeNumber}',
         ),
-      if (entry.seasonNumber != null)
+      if (usesSeasonHierarchy && hasSeason && hasEpisode)
+        LibraryInspectorFactData(
+          'Season / Episode',
+          'Season ${entry.seasonNumber}, Ep. ${entry.episodeNumber}',
+        ),
+      if (hasSeason && (!usesSeasonHierarchy || !hasEpisode))
         LibraryInspectorFactData(
           'Season',
           'Season ${entry.seasonNumber}',
         ),
-      if (entry.episodeNumber != null)
+      if (hasEpisode && (!usesSeasonHierarchy || !hasSeason))
         LibraryInspectorFactData(
           'Episode',
           'Ep. ${entry.episodeNumber}',
@@ -107,6 +160,8 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
           'Pages',
           entry.pageCount.toString(),
         ),
+      if (entry.catalogNumber != null)
+        LibraryInspectorFactData('Catalog No.', entry.catalogNumber!),
       if (entry.coverPriceCents != null)
         LibraryInspectorFactData(
           'Cover Price',
@@ -128,10 +183,231 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
         LibraryInspectorFactData('Subtitle', entry.subtitle!),
       if (entry.country != null)
         LibraryInspectorFactData('Country', entry.country!),
+      if (entry.releaseStatus != null)
+        LibraryInspectorFactData('Release Status', entry.releaseStatus!),
       if (entry.language != null)
         LibraryInspectorFactData('Language', entry.language!),
       if (entry.ageRating != null)
         LibraryInspectorFactData('Age Rating', entry.ageRating!),
+      if (entry.platforms != null && entry.platforms!.isNotEmpty)
+        LibraryInspectorFactData('Platforms', entry.platforms!.join(', ')),
+      LibraryInspectorFactData(
+        'Cover',
+        entry.hasMissingCover ? 'Missing' : 'Ready',
+      ),
+      LibraryInspectorFactData(
+        'Metadata',
+        entry.hasMissingMetadata ? 'Missing' : 'Ready',
+      ),
+    ],
+    creators: entry.creators ?? const <Map<String, dynamic>>[],
+    characters: entry.characters ?? const <String>[],
+    storyArcs: entry.storyArcs ?? const <String>[],
+    genres: entry.genres ?? const <String>[],
+  );
+}
+
+LibraryMetadataPresentation _buildVideoMetadataPresentation({
+  required LibraryTypeConfig type,
+  required LibraryWorkspaceEntry entry,
+  required bool includeIdentityFacts,
+  required _MetadataFactTapResolver tapFor,
+}) {
+  final labels = libraryMediaFieldLabels(type);
+  final hasVolume = entry.volumeName != null || entry.volumeNumber != null;
+  final hasSeason = entry.seasonNumber != null;
+  final hasEpisode = entry.episodeNumber != null;
+  return LibraryMetadataPresentation(
+    identityFacts: [
+      if (includeIdentityFacts) ...[
+        LibraryInspectorFactData('Kind', type.singularLabel),
+        LibraryInspectorFactData('ID', entry.id),
+        LibraryInspectorFactData('Title', entry.title),
+      ],
+      if (entry.seriesTitle != null)
+        LibraryInspectorFactData(
+          'Series',
+          entry.seriesTitle!,
+          onTap: tapFor(entry.seriesTitle),
+        ),
+      if (hasSeason && hasEpisode)
+        LibraryInspectorFactData(
+          'Season / Episode',
+          'Season ${entry.seasonNumber}, Ep. ${entry.episodeNumber}',
+        ),
+      if (hasSeason && !hasEpisode)
+        LibraryInspectorFactData('Season', 'Season ${entry.seasonNumber}'),
+      if (!hasSeason && hasEpisode)
+        LibraryInspectorFactData('Episode', 'Ep. ${entry.episodeNumber}'),
+      if (hasVolume && !hasSeason)
+        LibraryInspectorFactData(
+          'Volume',
+          entry.volumeName ?? 'Vol. ${entry.volumeNumber}',
+        ),
+      if (entry.variant != null)
+        LibraryInspectorFactData(
+          labels.variant,
+          entry.variant!,
+          onTap: tapFor(entry.variant),
+        ),
+      if (entry.barcode != null)
+        LibraryInspectorFactData(labels.barcode, entry.barcode!),
+    ],
+    contextFacts: [
+      if (entry.publisher != null)
+        LibraryInspectorFactData(
+          labels.publisher,
+          entry.publisher!,
+          onTap: tapFor(entry.publisher),
+        ),
+      LibraryInspectorFactData(
+        'Released',
+        genericLibraryDash(
+          formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
+        ),
+      ),
+      if (entry.country != null)
+        LibraryInspectorFactData('Country', entry.country!),
+      if (entry.language != null)
+        LibraryInspectorFactData('Language', entry.language!),
+      if (entry.ageRating != null)
+        LibraryInspectorFactData('Age Rating', entry.ageRating!),
+      if (entry.subtitle != null)
+        LibraryInspectorFactData('Subtitle', entry.subtitle!),
+      LibraryInspectorFactData(
+        'Cover',
+        entry.hasMissingCover ? 'Missing' : 'Ready',
+      ),
+      LibraryInspectorFactData(
+        'Metadata',
+        entry.hasMissingMetadata ? 'Missing' : 'Ready',
+      ),
+    ],
+    creators: entry.creators ?? const <Map<String, dynamic>>[],
+    characters: entry.characters ?? const <String>[],
+    storyArcs: entry.storyArcs ?? const <String>[],
+    genres: entry.genres ?? const <String>[],
+  );
+}
+
+LibraryMetadataPresentation _buildGameMetadataPresentation({
+  required LibraryTypeConfig type,
+  required LibraryWorkspaceEntry entry,
+  required bool includeIdentityFacts,
+  required _MetadataFactTapResolver tapFor,
+}) {
+  final labels = libraryMediaFieldLabels(type);
+  return LibraryMetadataPresentation(
+    identityFacts: [
+      if (includeIdentityFacts) ...[
+        LibraryInspectorFactData('Kind', type.singularLabel),
+        LibraryInspectorFactData('ID', entry.id),
+        LibraryInspectorFactData('Title', entry.title),
+      ],
+      if (entry.variant != null)
+        LibraryInspectorFactData(
+          labels.variant,
+          entry.variant!,
+          onTap: tapFor(entry.variant),
+        ),
+      if (entry.barcode != null)
+        LibraryInspectorFactData(labels.barcode, entry.barcode!),
+      if (entry.ageRating != null)
+        LibraryInspectorFactData('Age Rating', entry.ageRating!),
+    ],
+    contextFacts: [
+      if (entry.platforms != null && entry.platforms!.isNotEmpty)
+        LibraryInspectorFactData('Platforms', entry.platforms!.join(', ')),
+      if (entry.publisher != null)
+        LibraryInspectorFactData(
+          labels.publisher,
+          entry.publisher!,
+          onTap: tapFor(entry.publisher),
+        ),
+      LibraryInspectorFactData(
+        'Released',
+        genericLibraryDash(
+          formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
+        ),
+      ),
+      if (entry.country != null)
+        LibraryInspectorFactData('Country', entry.country!),
+      if (entry.language != null)
+        LibraryInspectorFactData('Language', entry.language!),
+      LibraryInspectorFactData(
+        'Cover',
+        entry.hasMissingCover ? 'Missing' : 'Ready',
+      ),
+      LibraryInspectorFactData(
+        'Metadata',
+        entry.hasMissingMetadata ? 'Missing' : 'Ready',
+      ),
+    ],
+    creators: entry.creators ?? const <Map<String, dynamic>>[],
+    characters: entry.characters ?? const <String>[],
+    storyArcs: entry.storyArcs ?? const <String>[],
+    genres: entry.genres ?? const <String>[],
+  );
+}
+
+LibraryMetadataPresentation _buildMusicMetadataPresentation({
+  required LibraryTypeConfig type,
+  required LibraryWorkspaceEntry entry,
+  required bool includeIdentityFacts,
+  required _MetadataFactTapResolver tapFor,
+}) {
+  final labels = libraryMediaFieldLabels(type);
+  return LibraryMetadataPresentation(
+    identityFacts: [
+      if (includeIdentityFacts) ...[
+        LibraryInspectorFactData('Kind', type.singularLabel),
+        LibraryInspectorFactData('ID', entry.id),
+        LibraryInspectorFactData('Title', entry.title),
+      ],
+      if (entry.seriesTitle != null)
+        LibraryInspectorFactData(
+          'Artist',
+          entry.seriesTitle!,
+          onTap: tapFor(entry.seriesTitle),
+        ),
+      if (entry.volumeName != null || entry.volumeNumber != null)
+        LibraryInspectorFactData(
+          'Disc',
+          entry.volumeName ?? 'Disc ${entry.volumeNumber}',
+        ),
+      if (entry.variant != null)
+        LibraryInspectorFactData(
+          labels.variant,
+          entry.variant!,
+          onTap: tapFor(entry.variant),
+        ),
+      if (entry.barcode != null)
+        LibraryInspectorFactData(
+          labels.barcode,
+          entry.barcode!,
+        ),
+    ],
+    contextFacts: [
+      if (entry.publisher != null)
+        LibraryInspectorFactData(
+          labels.publisher,
+          entry.publisher!,
+          onTap: tapFor(entry.publisher),
+        ),
+      LibraryInspectorFactData(
+        'Released',
+        genericLibraryDash(
+          formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
+        ),
+      ),
+      if (entry.catalogNumber != null)
+        LibraryInspectorFactData('Catalog No.', entry.catalogNumber!),
+      if (entry.releaseStatus != null)
+        LibraryInspectorFactData('Release Status', entry.releaseStatus!),
+      if (entry.country != null)
+        LibraryInspectorFactData('Country', entry.country!),
+      if (entry.language != null)
+        LibraryInspectorFactData('Language', entry.language!),
       LibraryInspectorFactData(
         'Cover',
         entry.hasMissingCover ? 'Missing' : 'Ready',
@@ -161,13 +437,6 @@ class LibraryMetadataContent extends StatelessWidget {
   final LibraryWorkspaceEntry entry;
   final ValueChanged<String>? onFilterByValue;
   final bool includeIdentityFacts;
-
-  VoidCallback? _tapFor(String? value) {
-    if (onFilterByValue == null || value == null || value.trim().isEmpty) {
-      return null;
-    }
-    return () => onFilterByValue!(value.trim());
-  }
 
   @override
   Widget build(BuildContext context) {
