@@ -21,6 +21,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.onDownloadAllCovers,
     this.shelfState,
     this.onSmartLists,
+    this.onPrintReport,
   });
 
   final LibraryTypeConfig type;
@@ -34,6 +35,7 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onPrintReport;
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +122,12 @@ class LibraryToolsButton extends StatelessWidget {
             icon: Icons.auto_awesome_mosaic,
             label: 'Smart Lists...',
             onSelected: onSmartLists!,
+          ),
+        if (onPrintReport != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.print_outlined,
+            label: 'Print / PDF report',
+            onSelected: onPrintReport!,
           ),
       ],
     );
