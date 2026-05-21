@@ -82,25 +82,29 @@ class SyncService {
       await catalog.upsertAll(catalogSnapshots);
       await ownedItems.upsertAll(owned);
       await wishlistItems.upsertAll(wishlist);
+      // Store image bytes locally for any snapshots that carried them.
+      if (imageDataByItemId.isNotEmpty && owned.isNotEmpty) {
+        final imagesRepo = ItemImagesCacheRepository(db);
+        final ownedByItemId = <String, String>{};
+        for (final item in owned) {
+          ownedByItemId[item.itemId] = item.id;
+        }
+        for (final entry in imageDataByItemId.entries) {
+          final ownedItemId = ownedByItemId[entry.key];
+          if (ownedItemId == null) continue;
+          // Deterministic ID so re-syncing the same image is an update, not a
+          // duplicate insert.
+          final deterministicId =
+              _uuid.v5(Uuid.NAMESPACE_URL, '$ownedItemId:front_cover');
+          await imagesRepo.upsert(
+            id: deterministicId,
+            ownedItemId: ownedItemId,
+            imageType: 'front_cover',
+            imageData: entry.value,
+          );
+        }
+      }
     });
-    // Store image bytes locally for any snapshots that carried them.
-    if (imageDataByItemId.isNotEmpty && owned.isNotEmpty) {
-      final imagesRepo = ItemImagesCacheRepository(db);
-      final ownedByItemId = <String, String>{};
-      for (final item in owned) {
-        ownedByItemId[item.itemId] = item.id;
-      }
-      for (final entry in imageDataByItemId.entries) {
-        final ownedItemId = ownedByItemId[entry.key];
-        if (ownedItemId == null) continue;
-        await imagesRepo.upsert(
-          id: _uuid.v4(),
-          ownedItemId: ownedItemId,
-          imageType: 'front_cover',
-          imageData: entry.value,
-        );
-      }
-    }
   }
 
   CatalogItem _catalogItemFromEntity(Map<String, dynamic> entity) {

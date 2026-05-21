@@ -72,15 +72,21 @@ class ImageDownloadService {
     Map<String, String?> ownedItemIdToCoverUrl, {
     String imageType = 'front_cover',
   }) async {
+    final entries = ownedItemIdToCoverUrl.entries.toList();
+    final downloaded = await Future.wait(
+      entries.map(
+        (entry) => downloadAndStoreCover(
+          ownedItemId: entry.key,
+          coverImageUrl: entry.value,
+          imageType: imageType,
+        ),
+      ),
+    );
     final results = <String, String>{};
-    for (final entry in ownedItemIdToCoverUrl.entries) {
-      final data = await downloadAndStoreCover(
-        ownedItemId: entry.key,
-        coverImageUrl: entry.value,
-        imageType: imageType,
-      );
+    for (var i = 0; i < entries.length; i++) {
+      final data = downloaded[i];
       if (data != null) {
-        results[entry.key] = data;
+        results[entries[i].key] = data;
       }
     }
     return results;

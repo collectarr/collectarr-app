@@ -48,7 +48,10 @@ class ItemImagesCacheRepository {
           ..where((row) =>
               row.ownedItemId.equals(ownedItemId) &
               row.imageType.equals(imageType))
-          ..orderBy([(row) => OrderingTerm.asc(row.sortOrder)])
+          ..orderBy([
+            (row) => OrderingTerm.asc(row.sortOrder),
+            (row) => OrderingTerm.asc(row.createdAt),
+          ])
           ..limit(1))
         .getSingleOrNull();
   }
