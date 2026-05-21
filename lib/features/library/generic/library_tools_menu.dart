@@ -22,6 +22,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.shelfState,
     this.onSmartLists,
     this.onPrintReport,
+    this.onShareCollection,
   });
 
   final LibraryTypeConfig type;
@@ -36,6 +37,7 @@ class LibraryToolsButton extends StatelessWidget {
   final ShelfState? shelfState;
   final VoidCallback? onSmartLists;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onShareCollection;
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +130,12 @@ class LibraryToolsButton extends StatelessWidget {
             icon: Icons.print_outlined,
             label: 'Print / PDF report',
             onSelected: onPrintReport!,
+          ),
+        if (onShareCollection != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.share_outlined,
+            label: 'Share collection...',
+            onSelected: onShareCollection!,
           ),
       ],
     );

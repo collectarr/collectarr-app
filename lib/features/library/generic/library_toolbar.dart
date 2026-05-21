@@ -47,6 +47,7 @@ class LibraryToolbar extends StatelessWidget {
     this.shelfState,
     this.onSmartLists,
     this.onPrintReport,
+    this.onShareCollection,
   });
 
   final LibraryTypeConfig type;
@@ -79,6 +80,7 @@ class LibraryToolbar extends StatelessWidget {
   final LibrarySelectionCallbacks? selectionCallbacks;
   final VoidCallback? onSmartLists;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onShareCollection;
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +162,7 @@ class LibraryToolbar extends StatelessWidget {
                       shelfState: shelfState,
                       onSmartLists: onSmartLists,
                       onPrintReport: onPrintReport,
+                      onShareCollection: onShareCollection,
                     ),
                     if (onEditFilters != null)
                       _FilterButton(

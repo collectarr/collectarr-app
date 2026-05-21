@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/generic/library_toolbar.dart';
 import 'package:collectarr_app/features/library/generic/library_view_preference_store.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
+import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -203,6 +204,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 onPrintReport: projection != null &&
                         projection.filteredItems.isNotEmpty
                     ? () => _printReport(projection)
+                    : null,
+                onShareCollection: projection != null &&
+                        projection.filteredItems.isNotEmpty
+                    ? () => _shareCollection(projection)
                     : null,
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
@@ -522,6 +527,15 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   void _printReport(LibraryProjection projection) {
     final items = projection.filteredItems.map((i) => i.entry).toList();
     printCollectionReport(
+      title: widget.type.workspace.title,
+      items: items,
+    );
+  }
+
+  void _shareCollection(LibraryProjection projection) {
+    final items = projection.filteredItems.map((i) => i.entry).toList();
+    showCollectionShareDialog(
+      context: context,
       title: widget.type.workspace.title,
       items: items,
     );
