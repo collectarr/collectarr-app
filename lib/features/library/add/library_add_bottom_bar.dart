@@ -269,8 +269,12 @@ class _AddTargetDefaultsBar extends StatelessWidget {
                 filled: false,
                 fillColor: Colors.transparent,
                 border: InputBorder.none,
-                labelText: 'Storage box',
-                floatingLabelBehavior: FloatingLabelBehavior.never,
+                hintText: 'Storage box',
+                hintStyle: TextStyle(
+                  color: Color(0xFF7B8790),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
                 contentPadding: EdgeInsets.zero,
               ),
             ),
@@ -322,6 +326,7 @@ class _LibraryAddTargetMenu extends StatelessWidget {
       enabled: enabled,
       tooltip: 'Add target',
       position: PopupMenuPosition.under,
+      padding: EdgeInsets.zero,
       onSelected: onChanged,
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -333,7 +338,7 @@ class _LibraryAddTargetMenu extends StatelessWidget {
           child: Text(LibraryAddTarget.wishlist.actionLabel),
         ),
       ],
-      child: _LibraryAddCompactMenuFrame(
+      child: CompactMenuButton(
         width: 158,
         label: value.actionLabel,
         accent: accent,

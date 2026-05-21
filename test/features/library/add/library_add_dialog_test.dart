@@ -111,7 +111,7 @@ void main() {
     await tester.tap(find.text('Search Manga'));
     await tester.pumpAndSettle();
 
-    expect(api.lastProvider, 'mangadex');
+    expect(api.lastProvider, 'anilist');
     expect(api.lastProviderKind, 'manga');
     expect(api.lastProviderQuery, 'Naruto');
     expect(find.textContaining('A ninja candidate.'), findsWidgets);
@@ -122,8 +122,8 @@ void main() {
     await tester.tap(find.byTooltip('Queue Core ingest'));
     await tester.pumpAndSettle();
 
-    expect(api.lastIngestProvider, 'mangadex');
-    expect(api.lastIngestProviderItemId, 'mangadex-1');
+    expect(api.lastIngestProvider, 'anilist');
+    expect(api.lastIngestProviderItemId, 'anilist-1');
     expect(find.textContaining('Queued'), findsWidgets);
     expect(find.text('Search Core again'), findsOneWidget);
     expect(find.textContaining('job-1'), findsWidgets);
@@ -133,8 +133,8 @@ void main() {
     await tester.tap(find.byTooltip('Propose metadata to Core'));
     await tester.pumpAndSettle();
 
-    expect(api.lastProposalProvider, 'mangadex');
-    expect(api.lastProposalProviderItemId, 'mangadex-1');
+    expect(api.lastProposalProvider, 'anilist');
+    expect(api.lastProposalProviderItemId, 'anilist-1');
     expect(api.lastProposalTitle, 'Naruto Vol. 1');
   });
 

@@ -108,8 +108,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               animationDuration: animationDuration,
             ),
             bottom: const TabBar(
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
               tabs: [
                 Tab(icon: Icon(Icons.route_outlined), text: 'Connection'),
                 Tab(
@@ -150,6 +148,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       children: [
                         TextField(
                           controller: _metadataController,
+                          maxLines: 1,
                           onChanged: (_) => _scheduleConnectionAutoSave(),
                           decoration: const InputDecoration(
                             labelText: 'Metadata API URL',
@@ -185,6 +184,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ],
                         TextField(
                           controller: _syncController,
+                          maxLines: 1,
                           onChanged: (_) => _scheduleConnectionAutoSave(),
                           decoration: const InputDecoration(
                             labelText: 'Sync service URL',
@@ -194,6 +194,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         const SizedBox(height: 12),
                         TextField(
                           controller: _syncKeyController,
+                          maxLines: 1,
                           onChanged: (_) => _scheduleConnectionAutoSave(),
                           obscureText: true,
                           decoration: const InputDecoration(
@@ -411,7 +412,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           secondary: const Icon(Icons.gradient_outlined),
                           title: const Text('Animations'),
                           subtitle: const Text(
-                            'Animate library color transitions and navigation highlights.',
+                            'Enable or disable all UI animations, transitions and effects.',
                           ),
                           value: uiPreferences.animationsEnabled,
                           onChanged: (value) => ref
@@ -790,16 +791,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _checkMetadata() async {
+    final url = _metadataController.text.trim();
     setState(() {
       _metadataDiagnostic = const _DiagnosticState.checking();
     });
     try {
-      final data = await ApiClient(baseUrl: _metadataController.text).health();
+      final data = await ApiClient(baseUrl: url).health();
+      if (!mounted) return;
       final status = data['status']?.toString() ?? 'unknown';
       setState(() {
         _metadataDiagnostic = _DiagnosticState.ok('Metadata server: $status');
       });
     } catch (error) {
+      if (!mounted) return;
       setState(() {
         _metadataDiagnostic = _DiagnosticState.error(
           ConnectionDiagnostics.metadataError(
@@ -822,6 +826,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       );
       final data = await client.status();
       final devices = await client.devices();
+      if (!mounted) return;
       final protocol = data['protocol_version']?.toString() ?? 'unknown';
       final version = data['schema_version']?.toString() ?? 'unknown';
       final entities = data['entity_count']?.toString() ?? 'unknown';
@@ -834,6 +839,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _syncDevices = devices;
       });
     } catch (error) {
+      if (!mounted) return;
       setState(() {
         _syncDiagnostic = _DiagnosticState.error(
           ConnectionDiagnostics.syncError(

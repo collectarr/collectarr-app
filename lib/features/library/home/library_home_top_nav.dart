@@ -83,6 +83,7 @@ class MediaLibraryNav extends StatelessWidget {
               registry: registry,
               selectedKind: selected.kind,
               onSelected: onSelected,
+              animationDuration: animationDuration,
             ),
           ),
           const SizedBox(
@@ -172,6 +173,7 @@ class MediaLibraryNavStrip extends StatelessWidget {
     required this.registry,
     required this.selectedKind,
     required this.onSelected,
+    this.animationDuration = const Duration(milliseconds: 320),
   });
 
   final List<CatalogMediaType> types;
@@ -179,6 +181,7 @@ class MediaLibraryNavStrip extends StatelessWidget {
   final LibraryTypeRegistry registry;
   final String selectedKind;
   final ValueChanged<CatalogMediaType> onSelected;
+  final Duration animationDuration;
 
   @override
   Widget build(BuildContext context) {
@@ -206,6 +209,7 @@ class MediaLibraryNavStrip extends StatelessWidget {
                           selected: type.kind == selectedKind,
                           count: counts[type.kind]?.total ?? 0,
                           onPressed: () => onSelected(type),
+                          animationDuration: animationDuration,
                         ),
                       ),
                   ],

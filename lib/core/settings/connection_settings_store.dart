@@ -9,12 +9,15 @@ class ConnectionSettingsStore {
   Future<ConnectionSettings> read() async {
     final prefs = await SharedPreferences.getInstance();
     return ConnectionSettings(
-      metadataBaseUrl: prefs.getString(_metadataBaseUrlKey) ??
-          ConnectionSettings.defaultMetadataBaseUrl,
-      syncBaseUrl: prefs.getString(_syncBaseUrlKey) ??
-          ConnectionSettings.defaultSyncBaseUrl,
-      syncKey:
-          prefs.getString(_syncKeyKey) ?? ConnectionSettings.defaultSyncKey,
+      metadataBaseUrl: (prefs.getString(_metadataBaseUrlKey) ??
+              ConnectionSettings.defaultMetadataBaseUrl)
+          .trim(),
+      syncBaseUrl: (prefs.getString(_syncBaseUrlKey) ??
+              ConnectionSettings.defaultSyncBaseUrl)
+          .trim(),
+      syncKey: (prefs.getString(_syncKeyKey) ??
+              ConnectionSettings.defaultSyncKey)
+          .trim(),
       isLoaded: true,
     );
   }

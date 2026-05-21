@@ -11,6 +11,7 @@ class MediaLibraryNavButton extends StatelessWidget {
     required this.selected,
     required this.count,
     required this.onPressed,
+    this.animationDuration = const Duration(milliseconds: 320),
   });
 
   final CatalogMediaType type;
@@ -19,26 +20,39 @@ class MediaLibraryNavButton extends StatelessWidget {
   final bool selected;
   final int count;
   final VoidCallback onPressed;
+  final Duration animationDuration;
 
   @override
   Widget build(BuildContext context) {
-    final background = selected
-        ? Colors.white.withValues(alpha: 0.24)
-        : Colors.black.withValues(alpha: 0.28);
     final borderColor = selected ? Colors.white.withValues(alpha: 0.72) : color;
     return Tooltip(
       message: type.pluralLabel,
       child: Material(
-        color: background,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(3),
-          side: BorderSide(color: borderColor),
-        ),
+        type: MaterialType.transparency,
         child: InkWell(
           borderRadius: BorderRadius.circular(3),
           onTap: selected ? null : onPressed,
-          child: SizedBox(
+          child: AnimatedContainer(
+            duration: animationDuration,
+            curve: Curves.easeOutCubic,
             height: 30,
+            decoration: BoxDecoration(
+              gradient: selected
+                  ? LinearGradient(
+                      colors: [
+                        color.withValues(alpha: 0.38),
+                        color.withValues(alpha: 0.14),
+                      ],
+                    )
+                  : LinearGradient(
+                      colors: [
+                        Colors.black.withValues(alpha: 0.28),
+                        Colors.black.withValues(alpha: 0.28),
+                      ],
+                    ),
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(color: borderColor),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

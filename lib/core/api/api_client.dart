@@ -9,10 +9,10 @@ import 'package:flutter/foundation.dart';
 class ApiClient {
   static const requestTimeout = Duration(seconds: 30);
 
-  ApiClient({String baseUrl = 'http://localhost:8010'})
+  ApiClient({String baseUrl = 'http://127.0.0.1:8010'})
       : _dio = Dio(
           BaseOptions(
-            baseUrl: baseUrl,
+            baseUrl: baseUrl.trim(),
             connectTimeout: requestTimeout,
             receiveTimeout: requestTimeout,
             sendTimeout: requestTimeout,

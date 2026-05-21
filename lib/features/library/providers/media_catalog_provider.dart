@@ -134,8 +134,8 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     singularLabel: 'Manga',
     pluralLabel: 'Manga',
     routeSegments: ['manga'],
-    defaultProvider: 'mangadex',
-    providers: ['mangadex', 'anilist', 'comicvine'],
+    defaultProvider: 'anilist',
+    providers: ['anilist', 'mangadex', 'comicvine'],
   ),
   CatalogMediaType(
     kind: 'anime',

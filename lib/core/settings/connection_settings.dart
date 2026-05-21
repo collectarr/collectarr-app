@@ -8,11 +8,11 @@ class ConnectionSettings {
 
   static const defaultMetadataBaseUrl = String.fromEnvironment(
     'COLLECTARR_API_BASE_URL',
-    defaultValue: 'http://localhost:8010',
+    defaultValue: 'http://127.0.0.1:8010',
   );
   static const defaultSyncBaseUrl = String.fromEnvironment(
     'COLLECTARR_SYNC_BASE_URL',
-    defaultValue: 'http://localhost:8020',
+    defaultValue: 'http://127.0.0.1:8020',
   );
   static const defaultSyncKey = String.fromEnvironment(
     'COLLECTARR_SYNC_KEY',

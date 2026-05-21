@@ -65,7 +65,7 @@ void main() {
     expect(collectarrLibraryTypes.byKind('boardgame')?.defaultMetadataProvider,
         'bgg');
     expect(collectarrLibraryTypes.byKind('manga')?.defaultMetadataProvider,
-        'mangadex');
+        'anilist');
     expect(collectarrLibraryTypes.byKind('anime')?.defaultMetadataProvider,
         'anilist');
     expect(collectarrLibraryTypes.byKind('book')?.defaultMetadataProvider,
@@ -83,7 +83,7 @@ void main() {
     );
     expect(
       collectarrLibraryTypes.providersForKind('manga').map((row) => row.id),
-      ['mangadex', 'anilist', 'comicvine'],
+      ['anilist', 'mangadex', 'comicvine'],
     );
     expect(
       collectarrLibraryTypes.providersForKind('anime').map((row) => row.id),

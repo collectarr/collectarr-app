@@ -22,7 +22,7 @@ void main() {
     expect(catalog.map((type) => type.kind), containsAll(['comic', 'manga']));
     expect(
       catalog.firstWhere((type) => type.kind == 'manga').providers,
-      ['mangadex', 'anilist', 'comicvine'],
+      ['anilist', 'mangadex', 'comicvine'],
     );
   });
 
