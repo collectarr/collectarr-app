@@ -6985,6 +6985,318 @@ class ReadingQueueCacheCompanion
   }
 }
 
+class $PickListValuesCacheTable extends PickListValuesCache
+    with TableInfo<$PickListValuesCacheTable, PickListValuesCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PickListValuesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _listNameMeta =
+      const VerificationMeta('listName');
+  @override
+  late final GeneratedColumn<String> listName = GeneratedColumn<String>(
+      'list_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediaKindMeta =
+      const VerificationMeta('mediaKind');
+  @override
+  late final GeneratedColumn<String> mediaKind = GeneratedColumn<String>(
+      'media_kind', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+      'value', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, listName, mediaKind, value, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pick_list_values_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<PickListValuesCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('list_name')) {
+      context.handle(_listNameMeta,
+          listName.isAcceptableOrUnknown(data['list_name']!, _listNameMeta));
+    } else if (isInserting) {
+      context.missing(_listNameMeta);
+    }
+    if (data.containsKey('media_kind')) {
+      context.handle(_mediaKindMeta,
+          mediaKind.isAcceptableOrUnknown(data['media_kind']!, _mediaKindMeta));
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+          _valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PickListValuesCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PickListValuesCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      listName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}list_name'])!,
+      mediaKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_kind']),
+      value: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}value'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $PickListValuesCacheTable createAlias(String alias) {
+    return $PickListValuesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class PickListValuesCacheData extends DataClass
+    implements Insertable<PickListValuesCacheData> {
+  final String id;
+  final String listName;
+  final String? mediaKind;
+  final String value;
+  final int sortOrder;
+  const PickListValuesCacheData(
+      {required this.id,
+      required this.listName,
+      this.mediaKind,
+      required this.value,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['list_name'] = Variable<String>(listName);
+    if (!nullToAbsent || mediaKind != null) {
+      map['media_kind'] = Variable<String>(mediaKind);
+    }
+    map['value'] = Variable<String>(value);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  PickListValuesCacheCompanion toCompanion(bool nullToAbsent) {
+    return PickListValuesCacheCompanion(
+      id: Value(id),
+      listName: Value(listName),
+      mediaKind: mediaKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaKind),
+      value: Value(value),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory PickListValuesCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PickListValuesCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      listName: serializer.fromJson<String>(json['listName']),
+      mediaKind: serializer.fromJson<String?>(json['mediaKind']),
+      value: serializer.fromJson<String>(json['value']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'listName': serializer.toJson<String>(listName),
+      'mediaKind': serializer.toJson<String?>(mediaKind),
+      'value': serializer.toJson<String>(value),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  PickListValuesCacheData copyWith(
+          {String? id,
+          String? listName,
+          Value<String?> mediaKind = const Value.absent(),
+          String? value,
+          int? sortOrder}) =>
+      PickListValuesCacheData(
+        id: id ?? this.id,
+        listName: listName ?? this.listName,
+        mediaKind: mediaKind.present ? mediaKind.value : this.mediaKind,
+        value: value ?? this.value,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  PickListValuesCacheData copyWithCompanion(PickListValuesCacheCompanion data) {
+    return PickListValuesCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      listName: data.listName.present ? data.listName.value : this.listName,
+      mediaKind: data.mediaKind.present ? data.mediaKind.value : this.mediaKind,
+      value: data.value.present ? data.value.value : this.value,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PickListValuesCacheData(')
+          ..write('id: $id, ')
+          ..write('listName: $listName, ')
+          ..write('mediaKind: $mediaKind, ')
+          ..write('value: $value, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, listName, mediaKind, value, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PickListValuesCacheData &&
+          other.id == this.id &&
+          other.listName == this.listName &&
+          other.mediaKind == this.mediaKind &&
+          other.value == this.value &&
+          other.sortOrder == this.sortOrder);
+}
+
+class PickListValuesCacheCompanion
+    extends UpdateCompanion<PickListValuesCacheData> {
+  final Value<String> id;
+  final Value<String> listName;
+  final Value<String?> mediaKind;
+  final Value<String> value;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const PickListValuesCacheCompanion({
+    this.id = const Value.absent(),
+    this.listName = const Value.absent(),
+    this.mediaKind = const Value.absent(),
+    this.value = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PickListValuesCacheCompanion.insert({
+    required String id,
+    required String listName,
+    this.mediaKind = const Value.absent(),
+    required String value,
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        listName = Value(listName),
+        value = Value(value);
+  static Insertable<PickListValuesCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? listName,
+    Expression<String>? mediaKind,
+    Expression<String>? value,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (listName != null) 'list_name': listName,
+      if (mediaKind != null) 'media_kind': mediaKind,
+      if (value != null) 'value': value,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PickListValuesCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? listName,
+      Value<String?>? mediaKind,
+      Value<String>? value,
+      Value<int>? sortOrder,
+      Value<int>? rowid}) {
+    return PickListValuesCacheCompanion(
+      id: id ?? this.id,
+      listName: listName ?? this.listName,
+      mediaKind: mediaKind ?? this.mediaKind,
+      value: value ?? this.value,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (listName.present) {
+      map['list_name'] = Variable<String>(listName.value);
+    }
+    if (mediaKind.present) {
+      map['media_kind'] = Variable<String>(mediaKind.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PickListValuesCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('listName: $listName, ')
+          ..write('mediaKind: $mediaKind, ')
+          ..write('value: $value, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -7010,6 +7322,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $UserFolderItemsCacheTable(this);
   late final $ReadingQueueCacheTable readingQueueCache =
       $ReadingQueueCacheTable(this);
+  late final $PickListValuesCacheTable pickListValuesCache =
+      $PickListValuesCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7027,7 +7341,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         smartListsCache,
         userFoldersCache,
         userFolderItemsCache,
-        readingQueueCache
+        readingQueueCache,
+        pickListValuesCache
       ];
 }
 
@@ -10378,6 +10693,184 @@ typedef $$ReadingQueueCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     ReadingQueueCacheData,
     PrefetchHooks Function()>;
+typedef $$PickListValuesCacheTableCreateCompanionBuilder
+    = PickListValuesCacheCompanion Function({
+  required String id,
+  required String listName,
+  Value<String?> mediaKind,
+  required String value,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+typedef $$PickListValuesCacheTableUpdateCompanionBuilder
+    = PickListValuesCacheCompanion Function({
+  Value<String> id,
+  Value<String> listName,
+  Value<String?> mediaKind,
+  Value<String> value,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$PickListValuesCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $PickListValuesCacheTable> {
+  $$PickListValuesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get listName => $composableBuilder(
+      column: $table.listName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaKind => $composableBuilder(
+      column: $table.mediaKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$PickListValuesCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $PickListValuesCacheTable> {
+  $$PickListValuesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get listName => $composableBuilder(
+      column: $table.listName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaKind => $composableBuilder(
+      column: $table.mediaKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PickListValuesCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $PickListValuesCacheTable> {
+  $$PickListValuesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get listName =>
+      $composableBuilder(column: $table.listName, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaKind =>
+      $composableBuilder(column: $table.mediaKind, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$PickListValuesCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $PickListValuesCacheTable,
+    PickListValuesCacheData,
+    $$PickListValuesCacheTableFilterComposer,
+    $$PickListValuesCacheTableOrderingComposer,
+    $$PickListValuesCacheTableAnnotationComposer,
+    $$PickListValuesCacheTableCreateCompanionBuilder,
+    $$PickListValuesCacheTableUpdateCompanionBuilder,
+    (
+      PickListValuesCacheData,
+      BaseReferences<_$LocalDatabase, $PickListValuesCacheTable,
+          PickListValuesCacheData>
+    ),
+    PickListValuesCacheData,
+    PrefetchHooks Function()> {
+  $$PickListValuesCacheTableTableManager(
+      _$LocalDatabase db, $PickListValuesCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PickListValuesCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PickListValuesCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PickListValuesCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> listName = const Value.absent(),
+            Value<String?> mediaKind = const Value.absent(),
+            Value<String> value = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PickListValuesCacheCompanion(
+            id: id,
+            listName: listName,
+            mediaKind: mediaKind,
+            value: value,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String listName,
+            Value<String?> mediaKind = const Value.absent(),
+            required String value,
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PickListValuesCacheCompanion.insert(
+            id: id,
+            listName: listName,
+            mediaKind: mediaKind,
+            value: value,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PickListValuesCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $PickListValuesCacheTable,
+    PickListValuesCacheData,
+    $$PickListValuesCacheTableFilterComposer,
+    $$PickListValuesCacheTableOrderingComposer,
+    $$PickListValuesCacheTableAnnotationComposer,
+    $$PickListValuesCacheTableCreateCompanionBuilder,
+    $$PickListValuesCacheTableUpdateCompanionBuilder,
+    (
+      PickListValuesCacheData,
+      BaseReferences<_$LocalDatabase, $PickListValuesCacheTable,
+          PickListValuesCacheData>
+    ),
+    PickListValuesCacheData,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -10411,4 +10904,6 @@ class $LocalDatabaseManager {
       $$UserFolderItemsCacheTableTableManager(_db, _db.userFolderItemsCache);
   $$ReadingQueueCacheTableTableManager get readingQueueCache =>
       $$ReadingQueueCacheTableTableManager(_db, _db.readingQueueCache);
+  $$PickListValuesCacheTableTableManager get pickListValuesCache =>
+      $$PickListValuesCacheTableTableManager(_db, _db.pickListValuesCache);
 }

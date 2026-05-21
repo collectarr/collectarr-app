@@ -215,6 +215,17 @@ class ReadingQueueCache extends Table {
   Set<Column> get primaryKey => {ownedItemId};
 }
 
+class PickListValuesCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get listName => text()(); // e.g. 'condition', 'grade', 'tags'
+  TextColumn get mediaKind => text().nullable()();
+  TextColumn get value => text()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -229,13 +240,14 @@ class ReadingQueueCache extends Table {
   UserFoldersCache,
   UserFolderItemsCache,
   ReadingQueueCache,
+  PickListValuesCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration {
