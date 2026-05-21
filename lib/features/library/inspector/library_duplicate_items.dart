@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter/material.dart';
 
-class ComicsDuplicateGroup {
-  const ComicsDuplicateGroup({
+class LibraryDuplicateGroup {
+  const LibraryDuplicateGroup({
     required this.key,
     required this.label,
     required this.reason,
@@ -17,7 +17,7 @@ class ComicsDuplicateGroup {
   int get count => entries.length;
 }
 
-List<ComicsDuplicateGroup> duplicateComicsShelfGroups(
+List<LibraryDuplicateGroup> findDuplicateShelfGroups(
   List<ShelfEntry> entries,
 ) {
   final barcodeBuckets = <String, _DuplicateBucket>{};
@@ -82,25 +82,24 @@ List<ComicsDuplicateGroup> duplicateComicsShelfGroups(
   return groups;
 }
 
-Future<void> showComicsDuplicateItemsDialog(
+Future<void> showDuplicateItemsDialog(
   BuildContext context, {
-  required List<ComicsDuplicateGroup> duplicateGroups,
+  required List<LibraryDuplicateGroup> duplicateGroups,
 }) {
   return showDialog<void>(
     context: context,
-    builder: (context) => ComicsDuplicateItemsDialog(
+    builder: (context) => _DuplicateItemsDialog(
       duplicateGroups: duplicateGroups,
     ),
   );
 }
 
-class ComicsDuplicateItemsDialog extends StatelessWidget {
-  const ComicsDuplicateItemsDialog({
-    super.key,
+class _DuplicateItemsDialog extends StatelessWidget {
+  const _DuplicateItemsDialog({
     required this.duplicateGroups,
   });
 
-  final List<ComicsDuplicateGroup> duplicateGroups;
+  final List<LibraryDuplicateGroup> duplicateGroups;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +134,7 @@ class ComicsDuplicateItemsDialog extends StatelessWidget {
 class _DuplicateGroupTile extends StatelessWidget {
   const _DuplicateGroupTile({required this.group});
 
-  final ComicsDuplicateGroup group;
+  final LibraryDuplicateGroup group;
 
   @override
   Widget build(BuildContext context) {
@@ -263,13 +262,13 @@ void _addToBucket(
   bucket.entries.add(entry);
 }
 
-List<ComicsDuplicateGroup> _duplicateGroups(
+List<LibraryDuplicateGroup> _duplicateGroups(
   Map<String, _DuplicateBucket> buckets,
 ) {
   return [
     for (final bucket in buckets.entries)
       if (bucket.value.entries.length > 1)
-        ComicsDuplicateGroup(
+        LibraryDuplicateGroup(
           key: bucket.key,
           label: bucket.value.label,
           reason: bucket.value.reason,

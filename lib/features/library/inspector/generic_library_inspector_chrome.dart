@@ -62,6 +62,7 @@ class GenericInspectorActionBar extends StatelessWidget {
     required this.onToggleWishlist,
     required this.onEdit,
     required this.onOpenDetails,
+    this.onCorrectMetadata,
   });
 
   final LibraryTypeConfig type;
@@ -70,6 +71,7 @@ class GenericInspectorActionBar extends StatelessWidget {
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback onOpenDetails;
+  final VoidCallback? onCorrectMetadata;
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +113,13 @@ class GenericInspectorActionBar extends StatelessWidget {
               onPressed: onEdit,
               icon: Icons.edit_outlined,
             ),
+            if (onCorrectMetadata != null) ...[              const SizedBox(width: 4),
+              _GenericInspectorActionButton(
+                tooltip: 'Correct metadata',
+                onPressed: onCorrectMetadata,
+                icon: Icons.fact_check_outlined,
+              ),
+            ],
             const Spacer(),
             DecoratedBox(
               decoration: BoxDecoration(

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/comics/inspector/comics_duplicate_items.dart';
+import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
 import 'package:collectarr_app/features/comics/comics_library_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +79,7 @@ class ComicsWorkspaceProjection {
           groupMode != ComicsShelfGroupMode.series || activeGroup == null
               ? const <int>[]
               : _missingIssueNumbers(visibleItems),
-      duplicateGroups: const <ComicsDuplicateGroup>[],
+      duplicateGroups: const <LibraryDuplicateGroup>[],
       totalCount: items.length,
     );
   }
@@ -123,7 +123,7 @@ class ComicsWorkspaceProjection {
           groupMode != ComicsShelfGroupMode.series || selectedGroup == null
               ? const <int>[]
               : _missingIssueNumbers(visibleItems),
-      duplicateGroups: duplicateComicsShelfGroups(entries),
+      duplicateGroups: findDuplicateShelfGroups(entries),
       totalCount: source.length,
     );
   }
@@ -134,7 +134,7 @@ class ComicsWorkspaceProjection {
   final List<CatalogItem> visibleItems;
   final CatalogItem? selectedItem;
   final List<int> missingIssues;
-  final List<ComicsDuplicateGroup> duplicateGroups;
+  final List<LibraryDuplicateGroup> duplicateGroups;
   final int totalCount;
 
   List<LibrarySeriesBucket> get series => groups;

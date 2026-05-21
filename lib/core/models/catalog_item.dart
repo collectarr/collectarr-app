@@ -7,6 +7,7 @@ class CatalogItem {
     this.synopsis,
     this.coverImageUrl,
     this.thumbnailImageUrl,
+    this.coverImageData,
     this.editionTitle,
     this.physicalFormat,
     this.physicalFormatLabel,
@@ -31,6 +32,7 @@ class CatalogItem {
   final String? synopsis;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final String? coverImageData; // base64-encoded processed image bytes
   final String? editionTitle;
   final String? physicalFormat;
   final String? physicalFormatLabel;
@@ -60,6 +62,7 @@ class CatalogItem {
       'synopsis': synopsis,
       'cover_image_url': coverImageUrl,
       'thumbnail_image_url': thumbnailImageUrl,
+      if (coverImageData != null) 'cover_image_data': coverImageData,
       'edition_title': editionTitle,
       'physical_format': physicalFormat,
       'physical_format_label': physicalFormatLabel,
@@ -87,6 +90,7 @@ class CatalogItem {
       synopsis: json['synopsis'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      coverImageData: json['cover_image_data'] as String?,
       editionTitle: json['edition_title'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,

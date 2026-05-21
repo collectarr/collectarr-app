@@ -1,16 +1,21 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/detail/generic_library_detail_page.dart';
 import 'package:collectarr_app/features/library/inspector/generic_library_inspector_header.dart';
 import 'package:collectarr_app/features/library/inspector/generic_library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/inspector/generic_metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
+import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GenericLibraryInspector extends StatelessWidget {
+class GenericLibraryInspector extends ConsumerWidget {
   const GenericLibraryInspector({
     super.key,
     required this.type,
@@ -39,7 +44,7 @@ class GenericLibraryInspector extends StatelessWidget {
   final LocalDatabase? db;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selected = entry;
     if (selected == null) {
       return GenericEmptyInspector(type: type, accent: accent);
@@ -61,6 +66,23 @@ class GenericLibraryInspector extends StatelessWidget {
                 onToggleWishlist:
                     selected.isWishlisted ? onRemoveWishlist : onAddWishlist,
                 onEdit: onEdit,
+                onCorrectMetadata: type.supportedMetadataProviders.isNotEmpty
+                    ? () => showGenericMetadataCorrectionDialog(
+                          context: context,
+                          ref: ref,
+                          item: CatalogItem(
+                            id: selected.id,
+                            kind: type.workspace.kind,
+                            title: selected.title,
+                            itemNumber: selected.itemNumber,
+                            publisher: selected.publisher,
+                            releaseYear: selected.releaseYear,
+                            barcode: selected.barcode,
+                            variant: selected.variant,
+                          ),
+                          type: type,
+                        )
+                    : null,
                 onOpenDetails: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => GenericLibraryDetailPage(
@@ -94,6 +116,32 @@ class GenericLibraryInspector extends StatelessWidget {
                 onRemoveWishlist: onRemoveWishlist,
                 onEdit: onEdit,
               ),
+              if (ownedItem != null &&
+                  (type.conditions.isNotEmpty || type.grades.isNotEmpty)) ...[
+                const SizedBox(height: 10),
+                InspectorCollectionFields(
+                  enabled: true,
+                  condition: ownedItem!.condition,
+                  grade: ownedItem!.grade,
+                  conditions: type.conditions,
+                  grades: type.grades,
+                  accent: accent,
+                  onConditionChanged: (value) => _updateConditionGrade(
+                    context,
+                    ref,
+                    ownedItem!,
+                    condition: value,
+                    grade: ownedItem!.grade,
+                  ),
+                  onGradeChanged: (value) => _updateConditionGrade(
+                    context,
+                    ref,
+                    ownedItem!,
+                    condition: ownedItem!.condition,
+                    grade: value,
+                  ),
+                ),
+              ],
               const SizedBox(height: 10),
               GenericMetadataSection(
                 type: type,
@@ -107,6 +155,11 @@ class GenericLibraryInspector extends StatelessWidget {
                 accent: accent,
                 kind: type.workspace.kind,
               ),
+              if (ownedItem != null)
+                InspectorPersonalDetailsEditor(
+                  ownedItem: ownedItem!,
+                  accent: accent,
+                ),
               if (ownedItem != null && db != null) ...[                InspectorCustomFieldsSection(
                   ownedItemId: ownedItem!.id,
                   mediaKind: type.workspace.kind,
@@ -149,5 +202,41 @@ class GenericLibraryInspector extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _updateConditionGrade(
+    BuildContext context,
+    WidgetRef ref,
+    OwnedItem item, {
+    required String? condition,
+    required String? grade,
+  }) async {
+    await ref.read(collectionMutationsProvider).updateItem(
+          item,
+          condition: condition,
+          grade: grade,
+          purchaseDate: item.purchaseDate,
+          pricePaidCents: item.pricePaidCents,
+          currency: item.currency,
+          personalNotes: item.personalNotes,
+          quantity: item.quantity,
+          storageBox: item.storageBox,
+          indexNumber: item.indexNumber,
+          coverPriceCents: item.coverPriceCents,
+          rawOrSlabbed: item.rawOrSlabbed,
+          gradingCompany: item.gradingCompany,
+          graderNotes: item.graderNotes,
+          signedBy: item.signedBy,
+          keyComic: item.keyComic,
+          keyReason: item.keyReason,
+          rating: item.rating,
+          readStatus: item.readStatus,
+          tags: item.tags,
+        );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Collection details updated')),
+      );
+    }
   }
 }

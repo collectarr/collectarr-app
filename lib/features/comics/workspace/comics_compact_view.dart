@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/comics/comics_clz_style.dart';
-import 'package:collectarr_app/features/comics/inspector/comics_duplicate_items.dart';
+import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
 import 'package:collectarr_app/features/comics/inspector/comics_inspector.dart';
 import 'package:collectarr_app/features/comics/shelf/comics_shelf_views.dart';
 import 'package:collectarr_app/features/comics/workspace/comics_workspace_view_config.dart';
@@ -43,7 +43,7 @@ class ComicsCompactView extends ConsumerWidget {
   final VoidCallback onEditFilters;
   final bool hasActiveFilters;
   final int activeFilterCount;
-  final List<ComicsDuplicateGroup> duplicateGroups;
+  final List<LibraryDuplicateGroup> duplicateGroups;
   final VoidCallback onClearFilters;
   final double coverSize;
   final ValueChanged<double> onCoverSizeChanged;
@@ -114,7 +114,7 @@ class _CompactComicsView extends StatelessWidget {
   final VoidCallback onEditFilters;
   final bool hasActiveFilters;
   final int activeFilterCount;
-  final List<ComicsDuplicateGroup> duplicateGroups;
+  final List<LibraryDuplicateGroup> duplicateGroups;
   final VoidCallback onClearFilters;
   final double coverSize;
   final ValueChanged<double> onCoverSizeChanged;
@@ -187,7 +187,7 @@ class _CompactComicsView extends StatelessWidget {
                       child: Badge(
                         label: Text(duplicateGroups.length.toString()),
                         child: IconButton.filledTonal(
-                          onPressed: () => showComicsDuplicateItemsDialog(
+                          onPressed: () => showDuplicateItemsDialog(
                             context,
                             duplicateGroups: duplicateGroups,
                           ),

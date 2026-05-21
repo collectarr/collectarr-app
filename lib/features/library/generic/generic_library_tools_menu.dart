@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/generic_library_projection.dart';
+import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/stats/generic_stats_dashboard.dart';
 import 'package:collectarr_app/features/library/workspace/library_utility_menu.dart';
@@ -62,6 +63,16 @@ class GenericLibraryToolsButton extends StatelessWidget {
             label: 'Random pick',
             onSelected: onRandomPick!,
           ),
+        if (shelfState != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.compare_arrows,
+            label: 'Find duplicates',
+            onSelected: () {
+              final groups =
+                  findDuplicateShelfGroups(shelfState!.entries);
+              showDuplicateItemsDialog(context, duplicateGroups: groups);
+            },
+          ),
         LibraryUtilityMenuAction(
           icon: Icons.filter_alt_off_outlined,
           label: 'Clear filters',
@@ -71,14 +82,18 @@ class GenericLibraryToolsButton extends StatelessWidget {
         LibraryUtilityMenuAction(
           icon: Icons.image_not_supported_outlined,
           label: 'Missing covers',
-          enabled: false,
+          enabled: counts.missingCover > 0,
           trailing: Text(counts.missingCover.toString()),
+          onSelected: () =>
+              onQuickViewSelected(GenericQuickView.missingCovers),
         ),
         LibraryUtilityMenuAction(
           icon: Icons.manage_search,
           label: 'Missing metadata',
-          enabled: false,
+          enabled: counts.missingMetadata > 0,
           trailing: Text(counts.missingMetadata.toString()),
+          onSelected: () =>
+              onQuickViewSelected(GenericQuickView.missingMetadata),
         ),
       ],
     );

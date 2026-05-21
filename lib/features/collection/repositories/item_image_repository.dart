@@ -20,6 +20,7 @@ class ItemImageRepository {
           ItemImagesCacheCompanion.insert(
             id: image.id,
             ownedItemId: image.ownedItemId,
+            imageType: Value(image.imageType),
             imageData: image.imageData,
             caption: Value(image.caption),
             sortOrder: Value(image.sortOrder),
@@ -58,6 +59,7 @@ class ItemImageRepository {
     return ItemImage(
       id: row.id,
       ownedItemId: row.ownedItemId,
+      imageType: row.imageType,
       imageData: row.imageData,
       caption: row.caption,
       sortOrder: row.sortOrder,

@@ -18,6 +18,12 @@ class InspectorItemImagesSection extends StatelessWidget {
   final LocalDatabase db;
   final Color accent;
 
+  static const _typeLabels = {
+    'front_cover': 'Front Cover',
+    'back_cover': 'Back Cover',
+    'auxiliary': 'Photos',
+  };
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ItemImage>>(
@@ -26,22 +32,47 @@ class InspectorItemImagesSection extends StatelessWidget {
         if (!snapshot.hasData) return const SizedBox.shrink();
         final images = snapshot.data!;
         if (images.isEmpty) return const SizedBox.shrink();
+
+        // Group by image type.
+        final groups = <String, List<ItemImage>>{};
+        for (final img in images) {
+          (groups[img.imageType] ??= []).add(img);
+        }
+
+        final label = groups.length == 1
+            ? '${_typeLabels[groups.keys.first] ?? groups.keys.first} (${images.length})'
+            : 'Images (${images.length})';
+
         return LibraryInspectorSection(
-          title: 'Photos (${images.length})',
+          title: label,
           accentColor: accent,
           children: [
-            SizedBox(
-              height: 100,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: images.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 6),
-                itemBuilder: (context, index) {
-                  final img = images[index];
-                  return _InspectorThumbnail(image: img);
-                },
+            for (final entry in groups.entries) ...[
+              if (groups.length > 1) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    _typeLabels[entry.key] ?? entry.key,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: accent.withValues(alpha: 0.8),
+                        ),
+                  ),
+                ),
+              ],
+              SizedBox(
+                height: 100,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: entry.value.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 6),
+                  itemBuilder: (context, index) {
+                    final img = entry.value[index];
+                    return _InspectorThumbnail(image: img);
+                  },
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+            ],
           ],
         );
       },

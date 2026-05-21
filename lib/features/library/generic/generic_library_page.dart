@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/edit/generic_library_edit_dialog
 import 'package:collectarr_app/features/library/generic/generic_library_metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic/generic_library_projection.dart';
 import 'package:collectarr_app/features/library/generic/generic_library_toolbar.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_view_preference_store.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -64,12 +65,26 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
       plannedMediaAdapter(widget.type);
 
+  GenericLibraryViewPreferenceStore get _viewPrefs =>
+      GenericLibraryViewPreferenceStore(widget.type.workspace.kind);
+
   @override
   void initState() {
     super.initState();
     _viewState = _adapter.viewProfile.defaults();
     unawaited(_loadViewState());
+    unawaited(_loadViewPreferences());
     unawaited(loadCustomFieldValues());
+  }
+
+  Future<void> _loadViewPreferences() async {
+    final quickView = await _viewPrefs.readQuickView();
+    final groupMode = await _viewPrefs.readGroupMode();
+    if (!mounted) return;
+    setState(() {
+      _quickView = quickView;
+      _groupMode = groupMode;
+    });
   }
 
   @override
@@ -87,6 +102,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             _viewState?.toPreferenceSnapshot().chrome,
           );
       unawaited(_loadViewState());
+      unawaited(_loadViewPreferences());
       unawaited(loadCustomFieldValues());
     }
   }
@@ -157,9 +173,11 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                   projection,
                 ),
                 quickView: _quickView,
-                onQuickViewSelected: (view) => setState(() {
-                  _quickView = _quickView == view ? null : view;
-                }),
+                onQuickViewSelected: (view) {
+                  final next = _quickView == view ? null : view;
+                  setState(() => _quickView = next);
+                  unawaited(_viewPrefs.writeQuickView(next));
+                },
                 hasActiveFilters: _hasActiveFilter,
                 onClearFilters: _clearFilters,
                 onRandomPick:
@@ -223,14 +241,17 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         }
       },
       onBucketChanged: (bucket) => setState(() => _selectedBucket = bucket),
-      onGroupModeChanged: (mode) => setState(() {
-        _groupMode = mode;
-        _selectedBucket = null;
-        final shelfState = ref.read(shelfProvider).asData?.value;
-        if (shelfState != null) {
-          _ensureFacetBucketsLoaded(shelfState, mode);
-        }
-      }),
+      onGroupModeChanged: (mode) {
+        setState(() {
+          _groupMode = mode;
+          _selectedBucket = null;
+          final shelfState = ref.read(shelfProvider).asData?.value;
+          if (shelfState != null) {
+            _ensureFacetBucketsLoaded(shelfState, mode);
+          }
+        });
+        unawaited(_viewPrefs.writeGroupMode(mode));
+      },
       onSortChanged: (column) => _updateViewState(
         (state) => state.withSortColumn(column, _adapter.viewProfile),
       ),
@@ -461,6 +482,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       context: context,
       builder: (context) => LibraryAddDialog(
         type: widget.type,
+        accent: widget.accent,
         initialQuery: _searchController.text,
         initialBarcode: barcode,
       ),
@@ -696,6 +718,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final confirmed = await confirmBulkRemove(
       context,
       count: entries.length,
+      itemLabel: widget.type.pluralLabel.toLowerCase(),
     );
     if (!confirmed || !mounted) return;
     await bulkActions().removeSelected(entries);

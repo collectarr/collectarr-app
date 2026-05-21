@@ -7,10 +7,12 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,6 +89,8 @@ class CollectionMutations {
     await _ownedCache().upsert(ownedItem);
     await _enqueueOwnedItem(ownedItem, 'upsert', now);
     await _enqueueCatalogSnapshotForItemId(itemId, now);
+    // Download cover image bytes in the background.
+    _downloadCoverForOwnedItem(ownedItem.id, itemId);
     final wishlistItem = await _wishlistCache().findActiveByItemId(itemId);
     if (wishlistItem != null) {
       await _wishlistCache().markDeleted(wishlistItem, now);
@@ -666,6 +670,32 @@ class CollectionMutations {
     }
     await _syncQueue().enqueue(_syncChangeForCatalogItem(item, changedAt));
   }
+
+  /// Fire-and-forget download of the cover image for a newly added item.
+  void _downloadCoverForOwnedItem(String ownedItemId, String itemId) {
+    Future(() async {
+      try {
+        // Skip if image already cached locally.
+        final cached = await _imagesCache().frontCoverBase64(ownedItemId);
+        if (cached != null) return;
+
+        final item = await _catalogCache().findById(itemId);
+        if (item == null) return;
+        final service = ImageDownloadService(
+          imagesRepo: _imagesCache(),
+        );
+        await service.downloadAndStoreCover(
+          ownedItemId: ownedItemId,
+          coverImageUrl: item.displayCoverUrl,
+        );
+      } catch (_) {
+        // Best-effort — never propagate errors from background image download.
+      }
+    });
+  }
+
+  ItemImagesCacheRepository _imagesCache() =>
+      ItemImagesCacheRepository(ref.read(localDatabaseProvider));
 }
 
 class CollectionImportPreview {

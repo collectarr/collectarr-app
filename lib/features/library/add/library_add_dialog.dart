@@ -40,12 +40,14 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   const LibraryAddDialog({
     super.key,
     required this.type,
+    this.accent,
     this.initialQuery,
     this.initialBarcode,
     this.autoLookupInitialBarcode = true,
   });
 
   final LibraryTypeConfig type;
+  final Color? accent;
   final String? initialQuery;
   final String? initialBarcode;
   final bool autoLookupInitialBarcode;
@@ -133,7 +135,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     final selectedProvider = _activeProvider;
     final isBusy = _isSearching || _isSearchingProvider;
-    final accent = LibraryAccentScope.accentOf(context, fallback: kClzAccent);
+    final accent = widget.accent ?? LibraryAccentScope.accentOf(context, fallback: kClzAccent);
     final selectedResult = _selectedResult;
     final selectedCandidate = _selectedProviderCandidate;
     final selectedProviderLabel = selectedCandidate == null

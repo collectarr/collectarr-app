@@ -45,7 +45,3 @@ const List<String> kGeneralConditions = [
   'Fair',
   'Poor',
 ];
-
-/// Legacy aliases kept for backward-compatibility.
-const List<String> kCollectionConditions = kComicConditions;
-const List<String> kCollectionGrades = kComicGrades;

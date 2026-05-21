@@ -95,6 +95,8 @@ class CustomFieldValuesCache extends Table {
 class ItemImagesCache extends Table {
   TextColumn get id => text()();
   TextColumn get ownedItemId => text()();
+  TextColumn get imageType =>
+      text().withDefault(const Constant('front_cover'))(); // front_cover, back_cover, auxiliary
   TextColumn get imageData => text()(); // base64-encoded image data
   TextColumn get caption => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
@@ -146,7 +148,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {

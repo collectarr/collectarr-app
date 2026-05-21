@@ -814,6 +814,81 @@ class ApiClient {
     return data;
   }
 
+  // ---------------------------------------------------------------------------
+  // Images — download & multi-image
+  // ---------------------------------------------------------------------------
+
+  /// Download a single processed image from the server as raw bytes.
+  Future<List<int>> downloadImageBytes(String objectKey) async {
+    final response = await _dio.get<List<int>>(
+      '/images/download',
+      queryParameters: {'object_key': objectKey},
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return response.data ?? const [];
+  }
+
+  /// Batch-download processed images.  Returns a map of object_key → base64.
+  Future<Map<String, String?>> batchDownloadImages(
+    List<String> objectKeys,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/images/batch-download',
+      data: objectKeys,
+    );
+    return response.data?.map(
+          (key, value) => MapEntry(key, value as String?),
+        ) ??
+        {};
+  }
+
+  /// List all image assets for an entity.
+  Future<List<Map<String, dynamic>>> listEntityImages({
+    required String entityType,
+    required String entityId,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/images/entity/$entityType/$entityId',
+    );
+    return (response.data ?? []).cast<Map<String, dynamic>>();
+  }
+
+  /// Upload a new image for an entity.
+  Future<Map<String, dynamic>> addEntityImage({
+    required String entityType,
+    required String entityId,
+    required String imageType,
+    required String imageDataBase64,
+    String? sourceUrl,
+    String? provider,
+    bool isPrimary = false,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/images/entity/$entityType/$entityId',
+      data: {
+        'image_type': imageType,
+        'image_data_base64': imageDataBase64,
+        if (sourceUrl != null) 'source_url': sourceUrl,
+        if (provider != null) 'provider': provider,
+        'is_primary': isPrimary,
+      },
+    );
+    return response.data ?? {};
+  }
+
+  /// Delete an image asset.
+  Future<void> deleteEntityImage(String imageId) async {
+    await _dio.delete('/images/$imageId');
+  }
+
+  /// Set an image as primary for its type.
+  Future<Map<String, dynamic>> setImagePrimary(String imageId) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/images/$imageId/primary',
+    );
+    return response.data ?? {};
+  }
+
   Map<String, dynamic> _resolveImageUrls(Map<String, dynamic> data) {
     return _resolveImageUrlsValue(data) as Map<String, dynamic>;
   }

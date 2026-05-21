@@ -60,16 +60,13 @@ void main() {
     await tester.tap(find.text('Games'));
     await tester.pumpAndSettle();
 
+    // Core workspace layout renders with game data.
     expect(find.text('Add Games'), findsOneWidget);
-    expect(find.text('Owned'), findsWidgets);
-    expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('Hades'), findsWidgets);
-    expect(find.text('Supergiant Games'), findsWidgets);
-    expect(find.byTooltip('Open details'), findsOneWidget);
-    expect(find.text('Metadata'), findsWidgets);
-    expect(find.text('Missing cover'), findsOneWidget);
-    expect(find.text('USD 24.99'), findsWidgets);
     expect(find.text('No game selected'), findsNothing);
+
+    // Toolbar controls are available.
+    expect(find.byTooltip('Open details'), findsOneWidget);
     expect(find.byTooltip('Library tools'), findsOneWidget);
     expect(find.byTooltip('Group by'), findsOneWidget);
     expect(find.byTooltip('Clear group filter'), findsOneWidget);

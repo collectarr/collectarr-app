@@ -6,8 +6,12 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:uuid/uuid.dart';
+
+const _uuid = Uuid();
 
 class SyncService {
   const SyncService({
@@ -56,10 +60,16 @@ class SyncService {
     final catalogSnapshots = <CatalogItem>[];
     final owned = <OwnedItem>[];
     final wishlist = <WishlistItem>[];
+    // Collect image data from snapshots keyed by item ID.
+    final imageDataByItemId = <String, String>{};
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
       if (type == 'library_item_snapshot' && entity['action'] == 'upsert') {
-        catalogSnapshots.add(_catalogItemFromEntity(entity));
+        final item = _catalogItemFromEntity(entity);
+        catalogSnapshots.add(item);
+        if (item.coverImageData != null) {
+          imageDataByItemId[item.id] = item.coverImageData!;
+        }
       }
       if (type == 'owned_item') {
         owned.add(_ownedItemFromEntity(entity));
@@ -73,6 +83,24 @@ class SyncService {
       await ownedItems.upsertAll(owned);
       await wishlistItems.upsertAll(wishlist);
     });
+    // Store image bytes locally for any snapshots that carried them.
+    if (imageDataByItemId.isNotEmpty && owned.isNotEmpty) {
+      final imagesRepo = ItemImagesCacheRepository(db);
+      final ownedByItemId = <String, String>{};
+      for (final item in owned) {
+        ownedByItemId[item.itemId] = item.id;
+      }
+      for (final entry in imageDataByItemId.entries) {
+        final ownedItemId = ownedByItemId[entry.key];
+        if (ownedItemId == null) continue;
+        await imagesRepo.upsert(
+          id: _uuid.v4(),
+          ownedItemId: ownedItemId,
+          imageType: 'front_cover',
+          imageData: entry.value,
+        );
+      }
+    }
   }
 
   CatalogItem _catalogItemFromEntity(Map<String, dynamic> entity) {
