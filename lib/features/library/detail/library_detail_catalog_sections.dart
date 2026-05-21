@@ -1,8 +1,6 @@
 import 'package:collectarr_app/ui/clz_style.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/generic/library_display.dart';
-import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -21,40 +19,14 @@ class LibraryDetailMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labels = libraryMediaFieldLabels(type);
     return LibraryInspectorSection(
       title: 'Catalog metadata',
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
-            LibraryInspectorFactData('Kind', type.singularLabel),
-            LibraryInspectorFactData('ID', entry.id),
-            LibraryInspectorFactData('Title', entry.title),
-            LibraryInspectorFactData(
-              labels.number,
-              genericLibraryDash(entry.itemNumber),
-            ),
-            LibraryInspectorFactData(
-              labels.publisher,
-              genericLibraryDash(entry.publisher),
-            ),
-            LibraryInspectorFactData(
-              'Released',
-              genericLibraryDash(
-                formatNullableDate(entry.releaseDate) ??
-                    entry.releaseYear?.toString(),
-              ),
-            ),
-            LibraryInspectorFactData(
-              labels.variant,
-              genericLibraryDash(entry.variant),
-            ),
-            LibraryInspectorFactData(
-              labels.barcode,
-              genericLibraryDash(entry.barcode),
-            ),
-          ],
+        LibraryMetadataContent(
+          type: type,
+          entry: entry,
+          includeIdentityFacts: true,
         ),
       ],
     );
