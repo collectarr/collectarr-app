@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -128,6 +129,69 @@ class LibraryDetailCreditsSection extends StatelessWidget {
             onValueTap: onFilterByValue,
           ),
         ],
+      ],
+    );
+  }
+}
+
+class LibraryDetailProvenanceSection extends StatelessWidget {
+  const LibraryDetailProvenanceSection({
+    super.key,
+    required this.type,
+    required this.entry,
+    required this.accent,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceEntry entry;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final sourceKind = _sourceKind(entry.id);
+    final defaultProvider = type.defaultSupportedMetadataProviderOption;
+    return LibraryInspectorSection(
+      title: 'Metadata provenance',
+      accentColor: accent,
+      children: [
+        LibraryInspectorFactGrid(
+          facts: [
+            LibraryInspectorFactData('Source', sourceKind.label),
+            LibraryInspectorFactData(
+              'Snapshot updated',
+              formatNullableDate(entry.updatedAt) ?? '-',
+            ),
+            LibraryInspectorFactData(
+              'Metadata state',
+              entry.hasMissingMetadata ? 'Incomplete' : 'Ready',
+            ),
+            LibraryInspectorFactData(
+              'Cover state',
+              entry.hasMissingCover ? 'Missing' : 'Ready',
+            ),
+            LibraryInspectorFactData(
+              'Image delivery',
+              entry.displayCoverUrl == null
+                  ? 'Generated fallback'
+                  : 'External provider URL',
+            ),
+            LibraryInspectorFactData(
+              'Preferred provider',
+              defaultProvider?.label ??
+                  type.metadataProviderLabel(
+                    type.defaultSupportedMetadataProvider,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          sourceKind.helpText,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: kClzTextMuted,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
       ],
     );
   }
@@ -261,4 +325,34 @@ class LibraryDetailProviderSection extends StatelessWidget {
       ],
     );
   }
+}
+
+enum _MetadataSourceKind {
+  localSnapshot,
+  providerPlaceholder,
+}
+
+extension on _MetadataSourceKind {
+  String get label {
+    return switch (this) {
+      _MetadataSourceKind.localSnapshot => 'Collectarr Core catalog snapshot',
+      _MetadataSourceKind.providerPlaceholder => 'Provider placeholder snapshot',
+    };
+  }
+
+  String get helpText {
+    return switch (this) {
+      _MetadataSourceKind.localSnapshot =>
+        'This item is being shown from the app\'s cached catalog snapshot. Metadata stays available offline until you refresh it from Collectarr Core.',
+      _MetadataSourceKind.providerPlaceholder =>
+        'This record started as a provider-side placeholder. Review and refresh it after full catalog metadata is available from Collectarr Core.',
+    };
+  }
+}
+
+_MetadataSourceKind _sourceKind(String entryId) {
+  if (entryId.startsWith('provider:')) {
+    return _MetadataSourceKind.providerPlaceholder;
+  }
+  return _MetadataSourceKind.localSnapshot;
 }

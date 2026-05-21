@@ -79,6 +79,13 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
             ? _metadataRowsForFullPreview(preview)
             : _metadataRowsForCandidate(selectedCandidate!))
         : _metadataRowsForItem(selectedItem, type);
+    final provenanceRows = _provenanceRows(
+      type: type,
+      item: selectedItem,
+      candidate: selectedCandidate,
+      preview: preview,
+      providerLabel: providerLabel,
+    );
     final tracks = preview?.tracks ?? const [];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -145,6 +152,15 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                           Text(synopsis),
                           const SizedBox(height: 22),
                         ],
+                        Text('Source', style: TextStyle(color: accent)),
+                        const SizedBox(height: 8),
+                        for (final row in provenanceRows)
+                          if (row.$2 != null && row.$2!.trim().isNotEmpty)
+                            _LibraryAddPreviewMetadataRow(
+                              label: row.$1,
+                              value: row.$2!,
+                            ),
+                        const SizedBox(height: 22),
                         Text('Details', style: TextStyle(color: accent)),
                         const SizedBox(height: 8),
                         for (final row in rows)
@@ -268,6 +284,63 @@ List<(String, String?)> _metadataRowsForItem(
           .map((c) => c['name'] as String? ?? '')
           .where((n) => n.isNotEmpty)
           .join(', ')),
+  ];
+}
+
+List<(String, String?)> _provenanceRows({
+  required LibraryTypeConfig type,
+  required CatalogItem? item,
+  required ProviderCandidate? candidate,
+  required AdminProviderPreview? preview,
+  required String providerLabel,
+}) {
+  if (item != null) {
+    return [
+      ('Source', 'Collectarr Core catalog snapshot'),
+      (
+        'Image delivery',
+        item.coverImageData != null
+            ? 'Local offline image bytes'
+            : item.displayCoverUrl != null
+                ? 'External provider URL'
+                : 'Generated fallback',
+      ),
+      ('Snapshot type', 'Cached metadata ready for local browsing'),
+    ];
+  }
+  final resolvedProvider = preview?.provider ?? candidate?.provider ?? providerLabel;
+  final resolvedProviderId = preview?.providerItemId ?? candidate?.providerItemId;
+  final isStub = candidate?.isStub ?? false;
+  final hasFullPreview = preview != null;
+  return [
+    (
+      'Source',
+      hasFullPreview
+          ? 'Live provider preview'
+          : isStub
+              ? 'Search-only provider stub'
+              : 'Provider search candidate',
+    ),
+    ('Provider', resolvedProvider),
+    ('Provider ID', resolvedProviderId),
+    (
+      'Status',
+      hasFullPreview
+          ? 'Full preview loaded'
+          : isStub
+              ? 'Catalog ingest not available yet'
+              : 'Preview pending',
+    ),
+    (
+      'Default flow',
+      type.metadataProviderLabel(type.defaultSupportedMetadataProvider),
+    ),
+    (
+      'Image availability',
+      (preview?.coverImageUrl ?? candidate?.imageUrl) != null
+          ? 'Provider image available'
+          : 'No provider image',
+    ),
   ];
 }
 

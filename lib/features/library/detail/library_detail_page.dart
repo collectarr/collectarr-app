@@ -108,6 +108,11 @@ class LibraryDetailPage extends StatelessWidget {
               accent: accent,
               onFilterByValue: onFilterByValue,
             ),
+            LibraryDetailProvenanceSection(
+              type: type,
+              entry: entry,
+              accent: accent,
+            ),
             LibraryDetailCoverStatusSection(entry: entry, accent: accent),
             LibraryDetailPersonalSection(
               entry: entry,
