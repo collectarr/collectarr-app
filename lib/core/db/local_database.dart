@@ -185,6 +185,27 @@ class SmartListsCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class UserFoldersCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get parentId => text().nullable()();
+  TextColumn get iconName => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class UserFolderItemsCache extends Table {
+  TextColumn get folderId => text()();
+  TextColumn get ownedItemId => text()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {folderId, ownedItemId};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -196,13 +217,15 @@ class SmartListsCache extends Table {
   LoansCache,
   LocationsCache,
   SmartListsCache,
+  UserFoldersCache,
+  UserFolderItemsCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {

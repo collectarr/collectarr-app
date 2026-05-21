@@ -6151,6 +6151,600 @@ class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
   }
 }
 
+class $UserFoldersCacheTable extends UserFoldersCache
+    with TableInfo<$UserFoldersCacheTable, UserFoldersCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserFoldersCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _parentIdMeta =
+      const VerificationMeta('parentId');
+  @override
+  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
+      'parent_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _iconNameMeta =
+      const VerificationMeta('iconName');
+  @override
+  late final GeneratedColumn<String> iconName = GeneratedColumn<String>(
+      'icon_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, description, parentId, iconName, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_folders_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<UserFoldersCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('parent_id')) {
+      context.handle(_parentIdMeta,
+          parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta));
+    }
+    if (data.containsKey('icon_name')) {
+      context.handle(_iconNameMeta,
+          iconName.isAcceptableOrUnknown(data['icon_name']!, _iconNameMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserFoldersCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserFoldersCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      parentId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}parent_id']),
+      iconName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon_name']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $UserFoldersCacheTable createAlias(String alias) {
+    return $UserFoldersCacheTable(attachedDatabase, alias);
+  }
+}
+
+class UserFoldersCacheData extends DataClass
+    implements Insertable<UserFoldersCacheData> {
+  final String id;
+  final String name;
+  final String? description;
+  final String? parentId;
+  final String? iconName;
+  final int sortOrder;
+  const UserFoldersCacheData(
+      {required this.id,
+      required this.name,
+      this.description,
+      this.parentId,
+      this.iconName,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<String>(parentId);
+    }
+    if (!nullToAbsent || iconName != null) {
+      map['icon_name'] = Variable<String>(iconName);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  UserFoldersCacheCompanion toCompanion(bool nullToAbsent) {
+    return UserFoldersCacheCompanion(
+      id: Value(id),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
+      iconName: iconName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconName),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory UserFoldersCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserFoldersCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      parentId: serializer.fromJson<String?>(json['parentId']),
+      iconName: serializer.fromJson<String?>(json['iconName']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'parentId': serializer.toJson<String?>(parentId),
+      'iconName': serializer.toJson<String?>(iconName),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  UserFoldersCacheData copyWith(
+          {String? id,
+          String? name,
+          Value<String?> description = const Value.absent(),
+          Value<String?> parentId = const Value.absent(),
+          Value<String?> iconName = const Value.absent(),
+          int? sortOrder}) =>
+      UserFoldersCacheData(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        description: description.present ? description.value : this.description,
+        parentId: parentId.present ? parentId.value : this.parentId,
+        iconName: iconName.present ? iconName.value : this.iconName,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  UserFoldersCacheData copyWithCompanion(UserFoldersCacheCompanion data) {
+    return UserFoldersCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      description:
+          data.description.present ? data.description.value : this.description,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
+      iconName: data.iconName.present ? data.iconName.value : this.iconName,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserFoldersCacheData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('parentId: $parentId, ')
+          ..write('iconName: $iconName, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, description, parentId, iconName, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserFoldersCacheData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.parentId == this.parentId &&
+          other.iconName == this.iconName &&
+          other.sortOrder == this.sortOrder);
+}
+
+class UserFoldersCacheCompanion extends UpdateCompanion<UserFoldersCacheData> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<String?> parentId;
+  final Value<String?> iconName;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const UserFoldersCacheCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.iconName = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserFoldersCacheCompanion.insert({
+    required String id,
+    required String name,
+    this.description = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.iconName = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name);
+  static Insertable<UserFoldersCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<String>? parentId,
+    Expression<String>? iconName,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (parentId != null) 'parent_id': parentId,
+      if (iconName != null) 'icon_name': iconName,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserFoldersCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String?>? description,
+      Value<String?>? parentId,
+      Value<String?>? iconName,
+      Value<int>? sortOrder,
+      Value<int>? rowid}) {
+    return UserFoldersCacheCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      parentId: parentId ?? this.parentId,
+      iconName: iconName ?? this.iconName,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (parentId.present) {
+      map['parent_id'] = Variable<String>(parentId.value);
+    }
+    if (iconName.present) {
+      map['icon_name'] = Variable<String>(iconName.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserFoldersCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('parentId: $parentId, ')
+          ..write('iconName: $iconName, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserFolderItemsCacheTable extends UserFolderItemsCache
+    with TableInfo<$UserFolderItemsCacheTable, UserFolderItemsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserFolderItemsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _folderIdMeta =
+      const VerificationMeta('folderId');
+  @override
+  late final GeneratedColumn<String> folderId = GeneratedColumn<String>(
+      'folder_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [folderId, ownedItemId, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_folder_items_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<UserFolderItemsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('folder_id')) {
+      context.handle(_folderIdMeta,
+          folderId.isAcceptableOrUnknown(data['folder_id']!, _folderIdMeta));
+    } else if (isInserting) {
+      context.missing(_folderIdMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {folderId, ownedItemId};
+  @override
+  UserFolderItemsCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserFolderItemsCacheData(
+      folderId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}folder_id'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $UserFolderItemsCacheTable createAlias(String alias) {
+    return $UserFolderItemsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class UserFolderItemsCacheData extends DataClass
+    implements Insertable<UserFolderItemsCacheData> {
+  final String folderId;
+  final String ownedItemId;
+  final int sortOrder;
+  const UserFolderItemsCacheData(
+      {required this.folderId,
+      required this.ownedItemId,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['folder_id'] = Variable<String>(folderId);
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  UserFolderItemsCacheCompanion toCompanion(bool nullToAbsent) {
+    return UserFolderItemsCacheCompanion(
+      folderId: Value(folderId),
+      ownedItemId: Value(ownedItemId),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory UserFolderItemsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserFolderItemsCacheData(
+      folderId: serializer.fromJson<String>(json['folderId']),
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'folderId': serializer.toJson<String>(folderId),
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  UserFolderItemsCacheData copyWith(
+          {String? folderId, String? ownedItemId, int? sortOrder}) =>
+      UserFolderItemsCacheData(
+        folderId: folderId ?? this.folderId,
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  UserFolderItemsCacheData copyWithCompanion(
+      UserFolderItemsCacheCompanion data) {
+    return UserFolderItemsCacheData(
+      folderId: data.folderId.present ? data.folderId.value : this.folderId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserFolderItemsCacheData(')
+          ..write('folderId: $folderId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(folderId, ownedItemId, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserFolderItemsCacheData &&
+          other.folderId == this.folderId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sortOrder == this.sortOrder);
+}
+
+class UserFolderItemsCacheCompanion
+    extends UpdateCompanion<UserFolderItemsCacheData> {
+  final Value<String> folderId;
+  final Value<String> ownedItemId;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const UserFolderItemsCacheCompanion({
+    this.folderId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserFolderItemsCacheCompanion.insert({
+    required String folderId,
+    required String ownedItemId,
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : folderId = Value(folderId),
+        ownedItemId = Value(ownedItemId);
+  static Insertable<UserFolderItemsCacheData> custom({
+    Expression<String>? folderId,
+    Expression<String>? ownedItemId,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (folderId != null) 'folder_id': folderId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserFolderItemsCacheCompanion copyWith(
+      {Value<String>? folderId,
+      Value<String>? ownedItemId,
+      Value<int>? sortOrder,
+      Value<int>? rowid}) {
+    return UserFolderItemsCacheCompanion(
+      folderId: folderId ?? this.folderId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (folderId.present) {
+      map['folder_id'] = Variable<String>(folderId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserFolderItemsCacheCompanion(')
+          ..write('folderId: $folderId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -6170,6 +6764,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $LocationsCacheTable locationsCache = $LocationsCacheTable(this);
   late final $SmartListsCacheTable smartListsCache =
       $SmartListsCacheTable(this);
+  late final $UserFoldersCacheTable userFoldersCache =
+      $UserFoldersCacheTable(this);
+  late final $UserFolderItemsCacheTable userFolderItemsCache =
+      $UserFolderItemsCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6184,7 +6782,9 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         itemImagesCache,
         loansCache,
         locationsCache,
-        smartListsCache
+        smartListsCache,
+        userFoldersCache,
+        userFolderItemsCache
       ];
 }
 
@@ -9048,6 +9648,346 @@ typedef $$SmartListsCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     SmartListsCacheData,
     PrefetchHooks Function()>;
+typedef $$UserFoldersCacheTableCreateCompanionBuilder
+    = UserFoldersCacheCompanion Function({
+  required String id,
+  required String name,
+  Value<String?> description,
+  Value<String?> parentId,
+  Value<String?> iconName,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+typedef $$UserFoldersCacheTableUpdateCompanionBuilder
+    = UserFoldersCacheCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String?> description,
+  Value<String?> parentId,
+  Value<String?> iconName,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$UserFoldersCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $UserFoldersCacheTable> {
+  $$UserFoldersCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get parentId => $composableBuilder(
+      column: $table.parentId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get iconName => $composableBuilder(
+      column: $table.iconName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$UserFoldersCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $UserFoldersCacheTable> {
+  $$UserFoldersCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get parentId => $composableBuilder(
+      column: $table.parentId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get iconName => $composableBuilder(
+      column: $table.iconName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$UserFoldersCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $UserFoldersCacheTable> {
+  $$UserFoldersCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get parentId =>
+      $composableBuilder(column: $table.parentId, builder: (column) => column);
+
+  GeneratedColumn<String> get iconName =>
+      $composableBuilder(column: $table.iconName, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$UserFoldersCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $UserFoldersCacheTable,
+    UserFoldersCacheData,
+    $$UserFoldersCacheTableFilterComposer,
+    $$UserFoldersCacheTableOrderingComposer,
+    $$UserFoldersCacheTableAnnotationComposer,
+    $$UserFoldersCacheTableCreateCompanionBuilder,
+    $$UserFoldersCacheTableUpdateCompanionBuilder,
+    (
+      UserFoldersCacheData,
+      BaseReferences<_$LocalDatabase, $UserFoldersCacheTable,
+          UserFoldersCacheData>
+    ),
+    UserFoldersCacheData,
+    PrefetchHooks Function()> {
+  $$UserFoldersCacheTableTableManager(
+      _$LocalDatabase db, $UserFoldersCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserFoldersCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserFoldersCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserFoldersCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> parentId = const Value.absent(),
+            Value<String?> iconName = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserFoldersCacheCompanion(
+            id: id,
+            name: name,
+            description: description,
+            parentId: parentId,
+            iconName: iconName,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<String?> description = const Value.absent(),
+            Value<String?> parentId = const Value.absent(),
+            Value<String?> iconName = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserFoldersCacheCompanion.insert(
+            id: id,
+            name: name,
+            description: description,
+            parentId: parentId,
+            iconName: iconName,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UserFoldersCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $UserFoldersCacheTable,
+    UserFoldersCacheData,
+    $$UserFoldersCacheTableFilterComposer,
+    $$UserFoldersCacheTableOrderingComposer,
+    $$UserFoldersCacheTableAnnotationComposer,
+    $$UserFoldersCacheTableCreateCompanionBuilder,
+    $$UserFoldersCacheTableUpdateCompanionBuilder,
+    (
+      UserFoldersCacheData,
+      BaseReferences<_$LocalDatabase, $UserFoldersCacheTable,
+          UserFoldersCacheData>
+    ),
+    UserFoldersCacheData,
+    PrefetchHooks Function()>;
+typedef $$UserFolderItemsCacheTableCreateCompanionBuilder
+    = UserFolderItemsCacheCompanion Function({
+  required String folderId,
+  required String ownedItemId,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+typedef $$UserFolderItemsCacheTableUpdateCompanionBuilder
+    = UserFolderItemsCacheCompanion Function({
+  Value<String> folderId,
+  Value<String> ownedItemId,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$UserFolderItemsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $UserFolderItemsCacheTable> {
+  $$UserFolderItemsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get folderId => $composableBuilder(
+      column: $table.folderId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$UserFolderItemsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $UserFolderItemsCacheTable> {
+  $$UserFolderItemsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get folderId => $composableBuilder(
+      column: $table.folderId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$UserFolderItemsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $UserFolderItemsCacheTable> {
+  $$UserFolderItemsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get folderId =>
+      $composableBuilder(column: $table.folderId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$UserFolderItemsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $UserFolderItemsCacheTable,
+    UserFolderItemsCacheData,
+    $$UserFolderItemsCacheTableFilterComposer,
+    $$UserFolderItemsCacheTableOrderingComposer,
+    $$UserFolderItemsCacheTableAnnotationComposer,
+    $$UserFolderItemsCacheTableCreateCompanionBuilder,
+    $$UserFolderItemsCacheTableUpdateCompanionBuilder,
+    (
+      UserFolderItemsCacheData,
+      BaseReferences<_$LocalDatabase, $UserFolderItemsCacheTable,
+          UserFolderItemsCacheData>
+    ),
+    UserFolderItemsCacheData,
+    PrefetchHooks Function()> {
+  $$UserFolderItemsCacheTableTableManager(
+      _$LocalDatabase db, $UserFolderItemsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserFolderItemsCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserFolderItemsCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserFolderItemsCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> folderId = const Value.absent(),
+            Value<String> ownedItemId = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserFolderItemsCacheCompanion(
+            folderId: folderId,
+            ownedItemId: ownedItemId,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String folderId,
+            required String ownedItemId,
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserFolderItemsCacheCompanion.insert(
+            folderId: folderId,
+            ownedItemId: ownedItemId,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UserFolderItemsCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $UserFolderItemsCacheTable,
+        UserFolderItemsCacheData,
+        $$UserFolderItemsCacheTableFilterComposer,
+        $$UserFolderItemsCacheTableOrderingComposer,
+        $$UserFolderItemsCacheTableAnnotationComposer,
+        $$UserFolderItemsCacheTableCreateCompanionBuilder,
+        $$UserFolderItemsCacheTableUpdateCompanionBuilder,
+        (
+          UserFolderItemsCacheData,
+          BaseReferences<_$LocalDatabase, $UserFolderItemsCacheTable,
+              UserFolderItemsCacheData>
+        ),
+        UserFolderItemsCacheData,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -9075,4 +10015,8 @@ class $LocalDatabaseManager {
       $$LocationsCacheTableTableManager(_db, _db.locationsCache);
   $$SmartListsCacheTableTableManager get smartListsCache =>
       $$SmartListsCacheTableTableManager(_db, _db.smartListsCache);
+  $$UserFoldersCacheTableTableManager get userFoldersCache =>
+      $$UserFoldersCacheTableTableManager(_db, _db.userFoldersCache);
+  $$UserFolderItemsCacheTableTableManager get userFolderItemsCache =>
+      $$UserFolderItemsCacheTableTableManager(_db, _db.userFolderItemsCache);
 }
