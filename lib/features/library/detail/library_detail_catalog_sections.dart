@@ -2,6 +2,7 @@ import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -116,7 +117,11 @@ class LibraryDetailCreditsSection extends StatelessWidget {
           LibraryInspectorChipWrap(
             label: 'Characters',
             values: presentation.characters,
-            onValueTap: onFilterByValue,
+            onValueTap: (value) => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => CharacterDetailPage(characterName: value),
+              ),
+            ),
           ),
         ],
         if (presentation.storyArcs.isNotEmpty) ...[
