@@ -206,6 +206,15 @@ class UserFolderItemsCache extends Table {
   Set<Column> get primaryKey => {folderId, ownedItemId};
 }
 
+class ReadingQueueCache extends Table {
+  TextColumn get ownedItemId => text()();
+  IntColumn get position => integer()();
+  DateTimeColumn get addedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {ownedItemId};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -219,13 +228,14 @@ class UserFolderItemsCache extends Table {
   SmartListsCache,
   UserFoldersCache,
   UserFolderItemsCache,
+  ReadingQueueCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {

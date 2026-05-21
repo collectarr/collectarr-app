@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_item_images_
 import 'package:collectarr_app/features/library/inspector/inspector_loan_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_location_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
+import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -186,6 +187,11 @@ class LibraryInspector extends ConsumerWidget {
                   accent: accent,
                 ),
                 InspectorFolderSection(
+                  ownedItemId: ownedItem!.id,
+                  db: db!,
+                  accent: accent,
+                ),
+                InspectorReadingQueueSection(
                   ownedItemId: ownedItem!.id,
                   db: db!,
                   accent: accent,

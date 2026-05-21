@@ -6745,6 +6745,246 @@ class UserFolderItemsCacheCompanion
   }
 }
 
+class $ReadingQueueCacheTable extends ReadingQueueCache
+    with TableInfo<$ReadingQueueCacheTable, ReadingQueueCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingQueueCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _positionMeta =
+      const VerificationMeta('position');
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+      'position', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _addedAtMeta =
+      const VerificationMeta('addedAt');
+  @override
+  late final GeneratedColumn<DateTime> addedAt = GeneratedColumn<DateTime>(
+      'added_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [ownedItemId, position, addedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_queue_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ReadingQueueCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(_positionMeta,
+          position.isAcceptableOrUnknown(data['position']!, _positionMeta));
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('added_at')) {
+      context.handle(_addedAtMeta,
+          addedAt.isAcceptableOrUnknown(data['added_at']!, _addedAtMeta));
+    } else if (isInserting) {
+      context.missing(_addedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  @override
+  ReadingQueueCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingQueueCacheData(
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      position: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}position'])!,
+      addedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}added_at'])!,
+    );
+  }
+
+  @override
+  $ReadingQueueCacheTable createAlias(String alias) {
+    return $ReadingQueueCacheTable(attachedDatabase, alias);
+  }
+}
+
+class ReadingQueueCacheData extends DataClass
+    implements Insertable<ReadingQueueCacheData> {
+  final String ownedItemId;
+  final int position;
+  final DateTime addedAt;
+  const ReadingQueueCacheData(
+      {required this.ownedItemId,
+      required this.position,
+      required this.addedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['position'] = Variable<int>(position);
+    map['added_at'] = Variable<DateTime>(addedAt);
+    return map;
+  }
+
+  ReadingQueueCacheCompanion toCompanion(bool nullToAbsent) {
+    return ReadingQueueCacheCompanion(
+      ownedItemId: Value(ownedItemId),
+      position: Value(position),
+      addedAt: Value(addedAt),
+    );
+  }
+
+  factory ReadingQueueCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingQueueCacheData(
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      position: serializer.fromJson<int>(json['position']),
+      addedAt: serializer.fromJson<DateTime>(json['addedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'position': serializer.toJson<int>(position),
+      'addedAt': serializer.toJson<DateTime>(addedAt),
+    };
+  }
+
+  ReadingQueueCacheData copyWith(
+          {String? ownedItemId, int? position, DateTime? addedAt}) =>
+      ReadingQueueCacheData(
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        position: position ?? this.position,
+        addedAt: addedAt ?? this.addedAt,
+      );
+  ReadingQueueCacheData copyWithCompanion(ReadingQueueCacheCompanion data) {
+    return ReadingQueueCacheData(
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      position: data.position.present ? data.position.value : this.position,
+      addedAt: data.addedAt.present ? data.addedAt.value : this.addedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingQueueCacheData(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('position: $position, ')
+          ..write('addedAt: $addedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ownedItemId, position, addedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingQueueCacheData &&
+          other.ownedItemId == this.ownedItemId &&
+          other.position == this.position &&
+          other.addedAt == this.addedAt);
+}
+
+class ReadingQueueCacheCompanion
+    extends UpdateCompanion<ReadingQueueCacheData> {
+  final Value<String> ownedItemId;
+  final Value<int> position;
+  final Value<DateTime> addedAt;
+  final Value<int> rowid;
+  const ReadingQueueCacheCompanion({
+    this.ownedItemId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.addedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReadingQueueCacheCompanion.insert({
+    required String ownedItemId,
+    required int position,
+    required DateTime addedAt,
+    this.rowid = const Value.absent(),
+  })  : ownedItemId = Value(ownedItemId),
+        position = Value(position),
+        addedAt = Value(addedAt);
+  static Insertable<ReadingQueueCacheData> custom({
+    Expression<String>? ownedItemId,
+    Expression<int>? position,
+    Expression<DateTime>? addedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (position != null) 'position': position,
+      if (addedAt != null) 'added_at': addedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReadingQueueCacheCompanion copyWith(
+      {Value<String>? ownedItemId,
+      Value<int>? position,
+      Value<DateTime>? addedAt,
+      Value<int>? rowid}) {
+    return ReadingQueueCacheCompanion(
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      position: position ?? this.position,
+      addedAt: addedAt ?? this.addedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (addedAt.present) {
+      map['added_at'] = Variable<DateTime>(addedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingQueueCacheCompanion(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('position: $position, ')
+          ..write('addedAt: $addedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -6768,6 +7008,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $UserFoldersCacheTable(this);
   late final $UserFolderItemsCacheTable userFolderItemsCache =
       $UserFolderItemsCacheTable(this);
+  late final $ReadingQueueCacheTable readingQueueCache =
+      $ReadingQueueCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6784,7 +7026,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         locationsCache,
         smartListsCache,
         userFoldersCache,
-        userFolderItemsCache
+        userFolderItemsCache,
+        readingQueueCache
       ];
 }
 
@@ -9988,6 +10231,153 @@ typedef $$UserFolderItemsCacheTableProcessedTableManager
         ),
         UserFolderItemsCacheData,
         PrefetchHooks Function()>;
+typedef $$ReadingQueueCacheTableCreateCompanionBuilder
+    = ReadingQueueCacheCompanion Function({
+  required String ownedItemId,
+  required int position,
+  required DateTime addedAt,
+  Value<int> rowid,
+});
+typedef $$ReadingQueueCacheTableUpdateCompanionBuilder
+    = ReadingQueueCacheCompanion Function({
+  Value<String> ownedItemId,
+  Value<int> position,
+  Value<DateTime> addedAt,
+  Value<int> rowid,
+});
+
+class $$ReadingQueueCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $ReadingQueueCacheTable> {
+  $$ReadingQueueCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get position => $composableBuilder(
+      column: $table.position, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get addedAt => $composableBuilder(
+      column: $table.addedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ReadingQueueCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ReadingQueueCacheTable> {
+  $$ReadingQueueCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get position => $composableBuilder(
+      column: $table.position, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get addedAt => $composableBuilder(
+      column: $table.addedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ReadingQueueCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ReadingQueueCacheTable> {
+  $$ReadingQueueCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get addedAt =>
+      $composableBuilder(column: $table.addedAt, builder: (column) => column);
+}
+
+class $$ReadingQueueCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ReadingQueueCacheTable,
+    ReadingQueueCacheData,
+    $$ReadingQueueCacheTableFilterComposer,
+    $$ReadingQueueCacheTableOrderingComposer,
+    $$ReadingQueueCacheTableAnnotationComposer,
+    $$ReadingQueueCacheTableCreateCompanionBuilder,
+    $$ReadingQueueCacheTableUpdateCompanionBuilder,
+    (
+      ReadingQueueCacheData,
+      BaseReferences<_$LocalDatabase, $ReadingQueueCacheTable,
+          ReadingQueueCacheData>
+    ),
+    ReadingQueueCacheData,
+    PrefetchHooks Function()> {
+  $$ReadingQueueCacheTableTableManager(
+      _$LocalDatabase db, $ReadingQueueCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingQueueCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingQueueCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingQueueCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ownedItemId = const Value.absent(),
+            Value<int> position = const Value.absent(),
+            Value<DateTime> addedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ReadingQueueCacheCompanion(
+            ownedItemId: ownedItemId,
+            position: position,
+            addedAt: addedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String ownedItemId,
+            required int position,
+            required DateTime addedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ReadingQueueCacheCompanion.insert(
+            ownedItemId: ownedItemId,
+            position: position,
+            addedAt: addedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ReadingQueueCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $ReadingQueueCacheTable,
+    ReadingQueueCacheData,
+    $$ReadingQueueCacheTableFilterComposer,
+    $$ReadingQueueCacheTableOrderingComposer,
+    $$ReadingQueueCacheTableAnnotationComposer,
+    $$ReadingQueueCacheTableCreateCompanionBuilder,
+    $$ReadingQueueCacheTableUpdateCompanionBuilder,
+    (
+      ReadingQueueCacheData,
+      BaseReferences<_$LocalDatabase, $ReadingQueueCacheTable,
+          ReadingQueueCacheData>
+    ),
+    ReadingQueueCacheData,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -10019,4 +10409,6 @@ class $LocalDatabaseManager {
       $$UserFoldersCacheTableTableManager(_db, _db.userFoldersCache);
   $$UserFolderItemsCacheTableTableManager get userFolderItemsCache =>
       $$UserFolderItemsCacheTableTableManager(_db, _db.userFolderItemsCache);
+  $$ReadingQueueCacheTableTableManager get readingQueueCache =>
+      $$ReadingQueueCacheTableTableManager(_db, _db.readingQueueCache);
 }
