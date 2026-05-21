@@ -48,7 +48,7 @@ class ImageDownloadService {
       }
       final base64Data = base64Encode(response.bodyBytes);
       await imagesRepo.upsert(
-        id: _uuid.v4(),
+        id: _uuid.v5(Uuid.NAMESPACE_URL, '$ownedItemId:$imageType'),
         ownedItemId: ownedItemId,
         imageType: imageType,
         imageData: base64Data,
@@ -71,22 +71,27 @@ class ImageDownloadService {
   Future<Map<String, String>> downloadCoversForItems(
     Map<String, String?> ownedItemIdToCoverUrl, {
     String imageType = 'front_cover',
+    int concurrency = 4,
   }) async {
     final entries = ownedItemIdToCoverUrl.entries.toList();
-    final downloaded = await Future.wait(
-      entries.map(
-        (entry) => downloadAndStoreCover(
-          ownedItemId: entry.key,
-          coverImageUrl: entry.value,
-          imageType: imageType,
-        ),
-      ),
-    );
     final results = <String, String>{};
-    for (var i = 0; i < entries.length; i++) {
-      final data = downloaded[i];
-      if (data != null) {
-        results[entries[i].key] = data;
+    for (var i = 0; i < entries.length; i += concurrency) {
+      final chunk = entries.skip(i).take(concurrency);
+      final downloaded = await Future.wait(
+        chunk.map(
+          (entry) => downloadAndStoreCover(
+            ownedItemId: entry.key,
+            coverImageUrl: entry.value,
+            imageType: imageType,
+          ),
+        ),
+      );
+      var j = 0;
+      for (final entry in chunk) {
+        final data = downloaded[j++];
+        if (data != null) {
+          results[entry.key] = data;
+        }
       }
     }
     return results;
