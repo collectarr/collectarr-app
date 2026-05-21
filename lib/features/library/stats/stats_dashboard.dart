@@ -36,6 +36,8 @@ class _GenericStatsDashboard extends StatelessWidget {
     final missingMetadata = _missingMetadataCount(state.entries);
     final valueCoverage =
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
+    final metadataQualityBands = _metadataQualityBands(state.entries);
+    final metadataAlertCounts = _metadataAlertCounts(state.entries);
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -181,6 +183,26 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 ),
                               ],
                             ),
+                            LibraryStatsDistributionCard(
+                              title: 'Metadata Quality',
+                              values: metadataQualityBands,
+                            ),
+                            LibraryStatsRankedCard(
+                              title: 'Metadata Alerts',
+                              values: metadataAlertCounts,
+                            ),
+                            LibraryStatsRankedCard(
+                              title: 'Top Creators',
+                              values: _topCreatorCounts(state.entries),
+                            ),
+                            LibraryStatsRankedCard(
+                              title: 'Top Characters',
+                              values: _topCharacterCounts(state.entries),
+                            ),
+                            LibraryStatsRankedCard(
+                              title: 'Top Story Arcs',
+                              values: _topStoryArcCounts(state.entries),
+                            ),
                           ];
                           return Wrap(
                             spacing: 10,
@@ -254,6 +276,111 @@ class _GenericStatsDashboard extends StatelessWidget {
     return count;
   }
 
+  static Map<String, int> _topCreatorCounts(List<ShelfEntry> entries) {
+    return _countMany(
+      entries,
+      (entry) => (entry.catalogItem?.creators ?? const <Map<String, dynamic>>[])
+          .map((credit) => credit['name']?.toString() ?? '')
+          .where((name) => name.trim().isNotEmpty),
+    );
+  }
+
+  static Map<String, int> _topCharacterCounts(List<ShelfEntry> entries) {
+    return _countMany(
+      entries,
+      (entry) => (entry.catalogItem?.characters ?? const <String>[])
+          .where((name) => name.trim().isNotEmpty),
+    );
+  }
+
+  static Map<String, int> _topStoryArcCounts(List<ShelfEntry> entries) {
+    return _countMany(
+      entries,
+      (entry) => (entry.catalogItem?.storyArcs ?? const <String>[])
+          .where((name) => name.trim().isNotEmpty),
+    );
+  }
+
+  static Map<String, int> _metadataQualityBands(List<ShelfEntry> entries) {
+    final counts = <String, int>{
+      'Strong': 0,
+      'Usable': 0,
+      'Thin': 0,
+      'Needs work': 0,
+    };
+    for (final entry in entries) {
+      final band = _metadataBand(entry);
+      counts[band] = (counts[band] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  static Map<String, int> _metadataAlertCounts(List<ShelfEntry> entries) {
+    final counts = <String, int>{};
+    for (final entry in entries) {
+      final item = entry.catalogItem;
+      if (item == null) {
+        counts['No catalog snapshot'] = (counts['No catalog snapshot'] ?? 0) + 1;
+        continue;
+      }
+      if (item.displayCoverUrl == null || item.displayCoverUrl!.trim().isEmpty) {
+        counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
+      }
+      if (item.synopsis == null || item.synopsis!.trim().isEmpty) {
+        counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
+      }
+      if (item.publisher == null || item.publisher!.trim().isEmpty) {
+        counts['Missing publisher'] = (counts['Missing publisher'] ?? 0) + 1;
+      }
+      if ((item.creators ?? const <Map<String, dynamic>>[]).isEmpty) {
+        counts['Missing creators'] = (counts['Missing creators'] ?? 0) + 1;
+      }
+      if (item.seriesTitle == null || item.seriesTitle!.trim().isEmpty) {
+        counts['Missing series'] = (counts['Missing series'] ?? 0) + 1;
+      }
+      if (item.id.startsWith('provider:')) {
+        counts['Provider placeholder'] = (counts['Provider placeholder'] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }
+
+  static String _metadataBand(ShelfEntry entry) {
+    final item = entry.catalogItem;
+    if (item == null) {
+      return 'Needs work';
+    }
+    var score = 0;
+    void add(bool present, int weight) {
+      if (present) {
+        score += weight;
+      }
+    }
+
+    add(item.displayCoverUrl != null && item.displayCoverUrl!.trim().isNotEmpty, 18);
+    add(item.synopsis != null && item.synopsis!.trim().isNotEmpty, 16);
+    add(item.publisher != null && item.publisher!.trim().isNotEmpty, 10);
+    add(item.releaseDate != null || item.releaseYear != null, 10);
+    add(item.seriesTitle != null && item.seriesTitle!.trim().isNotEmpty, 10);
+    add(item.itemNumber != null && item.itemNumber!.trim().isNotEmpty, 6);
+    add((item.creators ?? const <Map<String, dynamic>>[]).isNotEmpty, 12);
+    add((item.characters ?? const <String>[]).isNotEmpty, 6);
+    add((item.storyArcs ?? const <String>[]).isNotEmpty, 4);
+    add((item.genres ?? const <String>[]).isNotEmpty, 4);
+    add(!itemHasMissingCover(item) && !itemHasMissingDetails(item), 4);
+
+    if (score >= 85) {
+      return 'Strong';
+    }
+    if (score >= 65) {
+      return 'Usable';
+    }
+    if (score >= 45) {
+      return 'Thin';
+    }
+    return 'Needs work';
+  }
+
   static Map<String, int> _countBy(
     Iterable<ShelfEntry> entries,
     String Function(ShelfEntry entry) keyFor,
@@ -263,6 +390,28 @@ class _GenericStatsDashboard extends StatelessWidget {
       final key = keyFor(entry).trim();
       final normalized = key.isEmpty ? 'Unknown' : key;
       counts[normalized] = (counts[normalized] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  static Map<String, int> _countMany(
+    Iterable<ShelfEntry> entries,
+    Iterable<String> Function(ShelfEntry entry) valuesFor,
+  ) {
+    final counts = <String, int>{};
+    for (final entry in entries) {
+      final seen = <String>{};
+      for (final raw in valuesFor(entry)) {
+        final normalized = raw.trim();
+        if (normalized.isEmpty) {
+          continue;
+        }
+        final key = normalized.toLowerCase();
+        if (!seen.add(key)) {
+          continue;
+        }
+        counts[normalized] = (counts[normalized] ?? 0) + 1;
+      }
     }
     return counts;
   }
