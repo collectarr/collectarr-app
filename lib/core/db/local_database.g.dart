@@ -1934,6 +1934,12 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> soldTo = GeneratedColumn<String>(
       'sold_to', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _locationIdMeta =
+      const VerificationMeta('locationId');
+  @override
+  late final GeneratedColumn<String> locationId = GeneratedColumn<String>(
+      'location_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1965,7 +1971,8 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         deletedAt,
         soldAt,
         sellPriceCents,
-        soldTo
+        soldTo,
+        locationId
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2127,6 +2134,12 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
       context.handle(_soldToMeta,
           soldTo.isAcceptableOrUnknown(data['sold_to']!, _soldToMeta));
     }
+    if (data.containsKey('location_id')) {
+      context.handle(
+          _locationIdMeta,
+          locationId.isAcceptableOrUnknown(
+              data['location_id']!, _locationIdMeta));
+    }
     return context;
   }
 
@@ -2196,6 +2209,8 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.int, data['${effectivePrefix}sell_price_cents']),
       soldTo: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}sold_to']),
+      locationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location_id']),
     );
   }
 
@@ -2237,6 +2252,7 @@ class OwnedItemsCacheData extends DataClass
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
+  final String? locationId;
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
@@ -2267,7 +2283,8 @@ class OwnedItemsCacheData extends DataClass
       this.deletedAt,
       this.soldAt,
       this.sellPriceCents,
-      this.soldTo});
+      this.soldTo,
+      this.locationId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2351,6 +2368,9 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || soldTo != null) {
       map['sold_to'] = Variable<String>(soldTo);
     }
+    if (!nullToAbsent || locationId != null) {
+      map['location_id'] = Variable<String>(locationId);
+    }
     return map;
   }
 
@@ -2430,6 +2450,9 @@ class OwnedItemsCacheData extends DataClass
           : Value(sellPriceCents),
       soldTo:
           soldTo == null && nullToAbsent ? const Value.absent() : Value(soldTo),
+      locationId: locationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationId),
     );
   }
 
@@ -2467,6 +2490,7 @@ class OwnedItemsCacheData extends DataClass
       soldAt: serializer.fromJson<DateTime?>(json['soldAt']),
       sellPriceCents: serializer.fromJson<int?>(json['sellPriceCents']),
       soldTo: serializer.fromJson<String?>(json['soldTo']),
+      locationId: serializer.fromJson<String?>(json['locationId']),
     );
   }
   @override
@@ -2503,6 +2527,7 @@ class OwnedItemsCacheData extends DataClass
       'soldAt': serializer.toJson<DateTime?>(soldAt),
       'sellPriceCents': serializer.toJson<int?>(sellPriceCents),
       'soldTo': serializer.toJson<String?>(soldTo),
+      'locationId': serializer.toJson<String?>(locationId),
     };
   }
 
@@ -2536,7 +2561,8 @@ class OwnedItemsCacheData extends DataClass
           Value<DateTime?> deletedAt = const Value.absent(),
           Value<DateTime?> soldAt = const Value.absent(),
           Value<int?> sellPriceCents = const Value.absent(),
-          Value<String?> soldTo = const Value.absent()}) =>
+          Value<String?> soldTo = const Value.absent(),
+          Value<String?> locationId = const Value.absent()}) =>
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
@@ -2576,6 +2602,7 @@ class OwnedItemsCacheData extends DataClass
         sellPriceCents:
             sellPriceCents.present ? sellPriceCents.value : this.sellPriceCents,
         soldTo: soldTo.present ? soldTo.value : this.soldTo,
+        locationId: locationId.present ? locationId.value : this.locationId,
       );
   OwnedItemsCacheData copyWithCompanion(OwnedItemsCacheCompanion data) {
     return OwnedItemsCacheData(
@@ -2628,6 +2655,8 @@ class OwnedItemsCacheData extends DataClass
           ? data.sellPriceCents.value
           : this.sellPriceCents,
       soldTo: data.soldTo.present ? data.soldTo.value : this.soldTo,
+      locationId:
+          data.locationId.present ? data.locationId.value : this.locationId,
     );
   }
 
@@ -2663,7 +2692,8 @@ class OwnedItemsCacheData extends DataClass
           ..write('deletedAt: $deletedAt, ')
           ..write('soldAt: $soldAt, ')
           ..write('sellPriceCents: $sellPriceCents, ')
-          ..write('soldTo: $soldTo')
+          ..write('soldTo: $soldTo, ')
+          ..write('locationId: $locationId')
           ..write(')'))
         .toString();
   }
@@ -2699,7 +2729,8 @@ class OwnedItemsCacheData extends DataClass
         deletedAt,
         soldAt,
         sellPriceCents,
-        soldTo
+        soldTo,
+        locationId
       ]);
   @override
   bool operator ==(Object other) =>
@@ -2734,7 +2765,8 @@ class OwnedItemsCacheData extends DataClass
           other.deletedAt == this.deletedAt &&
           other.soldAt == this.soldAt &&
           other.sellPriceCents == this.sellPriceCents &&
-          other.soldTo == this.soldTo);
+          other.soldTo == this.soldTo &&
+          other.locationId == this.locationId);
 }
 
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
@@ -2768,6 +2800,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<DateTime?> soldAt;
   final Value<int?> sellPriceCents;
   final Value<String?> soldTo;
+  final Value<String?> locationId;
   final Value<int> rowid;
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
@@ -2800,6 +2833,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.soldAt = const Value.absent(),
     this.sellPriceCents = const Value.absent(),
     this.soldTo = const Value.absent(),
+    this.locationId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OwnedItemsCacheCompanion.insert({
@@ -2833,6 +2867,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.soldAt = const Value.absent(),
     this.sellPriceCents = const Value.absent(),
     this.soldTo = const Value.absent(),
+    this.locationId = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
@@ -2868,6 +2903,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<DateTime>? soldAt,
     Expression<int>? sellPriceCents,
     Expression<String>? soldTo,
+    Expression<String>? locationId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2901,6 +2937,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (soldAt != null) 'sold_at': soldAt,
       if (sellPriceCents != null) 'sell_price_cents': sellPriceCents,
       if (soldTo != null) 'sold_to': soldTo,
+      if (locationId != null) 'location_id': locationId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2936,6 +2973,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<DateTime?>? soldAt,
       Value<int?>? sellPriceCents,
       Value<String?>? soldTo,
+      Value<String?>? locationId,
       Value<int>? rowid}) {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
@@ -2968,6 +3006,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       soldAt: soldAt ?? this.soldAt,
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
+      locationId: locationId ?? this.locationId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3065,6 +3104,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (soldTo.present) {
       map['sold_to'] = Variable<String>(soldTo.value);
     }
+    if (locationId.present) {
+      map['location_id'] = Variable<String>(locationId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3104,6 +3146,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('soldAt: $soldAt, ')
           ..write('sellPriceCents: $sellPriceCents, ')
           ..write('soldTo: $soldTo, ')
+          ..write('locationId: $locationId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5480,6 +5523,319 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   }
 }
 
+class $LocationsCacheTable extends LocationsCache
+    with TableInfo<$LocationsCacheTable, LocationsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocationsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _parentIdMeta =
+      const VerificationMeta('parentId');
+  @override
+  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
+      'parent_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, parentId, description, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'locations_cache';
+  @override
+  VerificationContext validateIntegrity(Insertable<LocationsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('parent_id')) {
+      context.handle(_parentIdMeta,
+          parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocationsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocationsCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      parentId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}parent_id']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $LocationsCacheTable createAlias(String alias) {
+    return $LocationsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class LocationsCacheData extends DataClass
+    implements Insertable<LocationsCacheData> {
+  final String id;
+  final String name;
+  final String? parentId;
+  final String? description;
+  final int sortOrder;
+  const LocationsCacheData(
+      {required this.id,
+      required this.name,
+      this.parentId,
+      this.description,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<String>(parentId);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  LocationsCacheCompanion toCompanion(bool nullToAbsent) {
+    return LocationsCacheCompanion(
+      id: Value(id),
+      name: Value(name),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory LocationsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocationsCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      parentId: serializer.fromJson<String?>(json['parentId']),
+      description: serializer.fromJson<String?>(json['description']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'parentId': serializer.toJson<String?>(parentId),
+      'description': serializer.toJson<String?>(description),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  LocationsCacheData copyWith(
+          {String? id,
+          String? name,
+          Value<String?> parentId = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          int? sortOrder}) =>
+      LocationsCacheData(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        parentId: parentId.present ? parentId.value : this.parentId,
+        description: description.present ? description.value : this.description,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  LocationsCacheData copyWithCompanion(LocationsCacheCompanion data) {
+    return LocationsCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
+      description:
+          data.description.present ? data.description.value : this.description,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocationsCacheData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('parentId: $parentId, ')
+          ..write('description: $description, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, parentId, description, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocationsCacheData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.parentId == this.parentId &&
+          other.description == this.description &&
+          other.sortOrder == this.sortOrder);
+}
+
+class LocationsCacheCompanion extends UpdateCompanion<LocationsCacheData> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> parentId;
+  final Value<String?> description;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const LocationsCacheCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.description = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocationsCacheCompanion.insert({
+    required String id,
+    required String name,
+    this.parentId = const Value.absent(),
+    this.description = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name);
+  static Insertable<LocationsCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? parentId,
+    Expression<String>? description,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (parentId != null) 'parent_id': parentId,
+      if (description != null) 'description': description,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocationsCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String?>? parentId,
+      Value<String?>? description,
+      Value<int>? sortOrder,
+      Value<int>? rowid}) {
+    return LocationsCacheCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      parentId: parentId ?? this.parentId,
+      description: description ?? this.description,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (parentId.present) {
+      map['parent_id'] = Variable<String>(parentId.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocationsCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('parentId: $parentId, ')
+          ..write('description: $description, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -5496,6 +5852,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $ItemImagesCacheTable itemImagesCache =
       $ItemImagesCacheTable(this);
   late final $LoansCacheTable loansCache = $LoansCacheTable(this);
+  late final $LocationsCacheTable locationsCache = $LocationsCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5508,7 +5865,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         customFieldDefinitionsCache,
         customFieldValuesCache,
         itemImagesCache,
-        loansCache
+        loansCache,
+        locationsCache
       ];
 }
 
@@ -6233,6 +6591,7 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<DateTime?> soldAt,
   Value<int?> sellPriceCents,
   Value<String?> soldTo,
+  Value<String?> locationId,
   Value<int> rowid,
 });
 typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
@@ -6267,6 +6626,7 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<DateTime?> soldAt,
   Value<int?> sellPriceCents,
   Value<String?> soldTo,
+  Value<String?> locationId,
   Value<int> rowid,
 });
 
@@ -6372,6 +6732,9 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get soldTo => $composableBuilder(
       column: $table.soldTo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnFilters(column));
 }
 
 class $$OwnedItemsCacheTableOrderingComposer
@@ -6479,6 +6842,9 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<String> get soldTo => $composableBuilder(
       column: $table.soldTo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnOrderings(column));
 }
 
 class $$OwnedItemsCacheTableAnnotationComposer
@@ -6579,6 +6945,9 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get soldTo =>
       $composableBuilder(column: $table.soldTo, builder: (column) => column);
+
+  GeneratedColumn<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => column);
 }
 
 class $$OwnedItemsCacheTableTableManager extends RootTableManager<
@@ -6639,6 +7008,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<DateTime?> soldAt = const Value.absent(),
             Value<int?> sellPriceCents = const Value.absent(),
             Value<String?> soldTo = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion(
@@ -6672,6 +7042,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             soldAt: soldAt,
             sellPriceCents: sellPriceCents,
             soldTo: soldTo,
+            locationId: locationId,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -6705,6 +7076,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<DateTime?> soldAt = const Value.absent(),
             Value<int?> sellPriceCents = const Value.absent(),
             Value<String?> soldTo = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion.insert(
@@ -6738,6 +7110,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             soldAt: soldAt,
             sellPriceCents: sellPriceCents,
             soldTo: soldTo,
+            locationId: locationId,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -8006,6 +8379,180 @@ typedef $$LoansCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     LoansCacheData,
     PrefetchHooks Function()>;
+typedef $$LocationsCacheTableCreateCompanionBuilder = LocationsCacheCompanion
+    Function({
+  required String id,
+  required String name,
+  Value<String?> parentId,
+  Value<String?> description,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+typedef $$LocationsCacheTableUpdateCompanionBuilder = LocationsCacheCompanion
+    Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String?> parentId,
+  Value<String?> description,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$LocationsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $LocationsCacheTable> {
+  $$LocationsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get parentId => $composableBuilder(
+      column: $table.parentId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$LocationsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $LocationsCacheTable> {
+  $$LocationsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get parentId => $composableBuilder(
+      column: $table.parentId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LocationsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $LocationsCacheTable> {
+  $$LocationsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get parentId =>
+      $composableBuilder(column: $table.parentId, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$LocationsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $LocationsCacheTable,
+    LocationsCacheData,
+    $$LocationsCacheTableFilterComposer,
+    $$LocationsCacheTableOrderingComposer,
+    $$LocationsCacheTableAnnotationComposer,
+    $$LocationsCacheTableCreateCompanionBuilder,
+    $$LocationsCacheTableUpdateCompanionBuilder,
+    (
+      LocationsCacheData,
+      BaseReferences<_$LocalDatabase, $LocationsCacheTable, LocationsCacheData>
+    ),
+    LocationsCacheData,
+    PrefetchHooks Function()> {
+  $$LocationsCacheTableTableManager(
+      _$LocalDatabase db, $LocationsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocationsCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocationsCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocationsCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> parentId = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LocationsCacheCompanion(
+            id: id,
+            name: name,
+            parentId: parentId,
+            description: description,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<String?> parentId = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LocationsCacheCompanion.insert(
+            id: id,
+            name: name,
+            parentId: parentId,
+            description: description,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$LocationsCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $LocationsCacheTable,
+    LocationsCacheData,
+    $$LocationsCacheTableFilterComposer,
+    $$LocationsCacheTableOrderingComposer,
+    $$LocationsCacheTableAnnotationComposer,
+    $$LocationsCacheTableCreateCompanionBuilder,
+    $$LocationsCacheTableUpdateCompanionBuilder,
+    (
+      LocationsCacheData,
+      BaseReferences<_$LocalDatabase, $LocationsCacheTable, LocationsCacheData>
+    ),
+    LocationsCacheData,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -8029,4 +8576,6 @@ class $LocalDatabaseManager {
       $$ItemImagesCacheTableTableManager(_db, _db.itemImagesCache);
   $$LoansCacheTableTableManager get loansCache =>
       $$LoansCacheTableTableManager(_db, _db.loansCache);
+  $$LocationsCacheTableTableManager get locationsCache =>
+      $$LocationsCacheTableTableManager(_db, _db.locationsCache);
 }

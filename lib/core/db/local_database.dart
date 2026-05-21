@@ -78,6 +78,7 @@ class OwnedItemsCache extends Table {
   DateTimeColumn get soldAt => dateTime().nullable()();
   IntColumn get sellPriceCents => integer().nullable()();
   TextColumn get soldTo => text().nullable()();
+  TextColumn get locationId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -162,6 +163,17 @@ class LoansCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class LocationsCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get parentId => text().nullable()();
+  TextColumn get description => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -171,13 +183,14 @@ class LoansCache extends Table {
   CustomFieldValuesCache,
   ItemImagesCache,
   LoansCache,
+  LocationsCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {

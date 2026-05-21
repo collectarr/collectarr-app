@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/inspector/metadata_correction_di
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_loan_section.dart';
+import 'package:collectarr_app/features/library/inspector/inspector_location_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -174,6 +175,11 @@ class LibraryInspector extends ConsumerWidget {
                   accent: accent,
                 ),
                 InspectorLoanSection(
+                  ownedItemId: ownedItem!.id,
+                  db: db!,
+                  accent: accent,
+                ),
+                InspectorLocationSection(
                   ownedItemId: ownedItem!.id,
                   db: db!,
                   accent: accent,
