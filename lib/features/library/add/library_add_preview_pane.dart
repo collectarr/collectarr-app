@@ -86,6 +86,17 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       preview: preview,
       providerLabel: providerLabel,
     );
+    final statusSummary = _previewStatusSummary(
+      item: selectedItem,
+      candidate: selectedCandidate,
+      preview: preview,
+      isFetchingPreview: isFetchingPreview,
+    );
+    final discoverySections = _discoverySections(
+      item: selectedItem,
+      candidate: selectedCandidate,
+      preview: preview,
+    );
     final tracks = preview?.tracks ?? const [];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -138,6 +149,11 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
               ],
             ),
             Divider(height: 22, color: accent.withValues(alpha: 0.42)),
+            _LibraryAddPreviewStatusBanner(
+              accent: accent,
+              summary: statusSummary,
+            ),
+            const SizedBox(height: 14),
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,6 +176,17 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                               label: row.$1,
                               value: row.$2!,
                             ),
+                        if (discoverySections.isNotEmpty) ...[
+                          const SizedBox(height: 22),
+                          Text('Discovery', style: TextStyle(color: accent)),
+                          const SizedBox(height: 8),
+                          for (final section in discoverySections)
+                            _LibraryAddPreviewDiscoverySection(
+                              title: section.title,
+                              values: section.values,
+                              accent: accent,
+                            ),
+                        ],
                         const SizedBox(height: 22),
                         Text('Details', style: TextStyle(color: accent)),
                         const SizedBox(height: 8),
@@ -249,12 +276,6 @@ List<(String, String?)> _metadataRowsForCandidate(
     if (candidate.variantName != null) ('Variant', candidate.variantName),
     if (candidate.issueCount != null)
       ('Issues', candidate.issueCount.toString()),
-    if (candidate.characterPreview.isNotEmpty)
-      ('Characters', candidate.characterPreview.join(', ')),
-    if (candidate.storyArcPreview.isNotEmpty)
-      ('Story Arcs', candidate.storyArcPreview.join(', ')),
-    ('Provider', candidate.provider),
-    ('Provider ID', candidate.providerItemId),
   ];
 }
 
@@ -277,13 +298,6 @@ List<(String, String?)> _metadataRowsForItem(
     if (item.pageCount != null) ('Pages', item.pageCount.toString()),
     if (item.country != null) ('Country', item.country),
     if (item.language != null) ('Language', item.language),
-    if (item.genres != null && item.genres!.isNotEmpty)
-      ('Genres', item.genres!.join(', ')),
-    if (item.creators != null && item.creators!.isNotEmpty)
-      ('Creators', item.creators!
-          .map((c) => c['name'] as String? ?? '')
-          .where((n) => n.isNotEmpty)
-          .join(', ')),
   ];
 }
 
@@ -406,18 +420,165 @@ List<(String, String?)> _metadataRowsForFullPreview(
     if (preview.runtimeMinutes != null)
       ('Runtime', '${preview.runtimeMinutes} min'),
     if (preview.pageCount != null) ('Pages', preview.pageCount.toString()),
-    if (preview.genres.isNotEmpty) ('Genres', preview.genres.join(', ')),
-    if (preview.creators.isNotEmpty)
-      ('Creators',
-          preview.creators.map((c) => c.role != null ? '${c.name} (${c.role})' : c.name).join(', ')),
-    if (preview.characters.isNotEmpty)
-      ('Characters', preview.characters.join(', ')),
-    if (preview.storyArcs.isNotEmpty)
-      ('Story Arcs', preview.storyArcs.join(', ')),
     if (preview.seriesGroup != null) ('Series Group', preview.seriesGroup),
-    ('Provider', preview.provider),
-    ('Provider ID', preview.providerItemId),
   ];
+}
+
+String _previewStatusSummary({
+  required CatalogItem? item,
+  required ProviderCandidate? candidate,
+  required AdminProviderPreview? preview,
+  required bool isFetchingPreview,
+}) {
+  if (item != null) {
+    return 'Using cached Collectarr Core metadata already stored in the app.';
+  }
+  if (preview != null) {
+    return 'Live provider preview loaded. This is the best available metadata before ingest.';
+  }
+  if (candidate?.isStub ?? false) {
+    return 'This result is a search-only stub. It can be added, but full catalog ingest is not available yet.';
+  }
+  if (isFetchingPreview) {
+    return 'Fetching fuller provider metadata for the selected candidate.';
+  }
+  return 'This is a lightweight search candidate. Select it to inspect more provider metadata.';
+}
+
+List<_PreviewDiscoverySectionData> _discoverySections({
+  required CatalogItem? item,
+  required ProviderCandidate? candidate,
+  required AdminProviderPreview? preview,
+}) {
+  final creators = item?.creators
+          ?.map((credit) => credit['name']?.toString() ?? '')
+          .where((name) => name.trim().isNotEmpty)
+          .toList(growable: false) ??
+      (preview?.creators
+              .map((credit) => credit.role == null
+                  ? credit.name
+                  : '${credit.name} (${credit.role})')
+              .toList(growable: false) ??
+          const <String>[]);
+  final characters = item?.characters ?? preview?.characters ?? candidate?.characterPreview ?? const <String>[];
+  final storyArcs = item?.storyArcs ?? preview?.storyArcs ?? candidate?.storyArcPreview ?? const <String>[];
+  final genres = item?.genres ?? preview?.genres ?? const <String>[];
+
+  return [
+    if (creators.isNotEmpty)
+      _PreviewDiscoverySectionData('Creators', creators),
+    if (characters.isNotEmpty)
+      _PreviewDiscoverySectionData('Characters', characters),
+    if (storyArcs.isNotEmpty)
+      _PreviewDiscoverySectionData('Story Arcs', storyArcs),
+    if (genres.isNotEmpty) _PreviewDiscoverySectionData('Genres', genres),
+  ];
+}
+
+class _LibraryAddPreviewStatusBanner extends StatelessWidget {
+  const _LibraryAddPreviewStatusBanner({
+    required this.accent,
+    required this.summary,
+  });
+
+  final Color accent;
+  final String summary;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: accent.withValues(alpha: 0.4)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.info_outline, size: 16, color: accent),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                summary,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PreviewDiscoverySectionData {
+  const _PreviewDiscoverySectionData(this.title, this.values);
+
+  final String title;
+  final List<String> values;
+}
+
+class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
+  const _LibraryAddPreviewDiscoverySection({
+    required this.title,
+    required this.values,
+    required this.accent,
+  });
+
+  final String title;
+  final List<String> values;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: accent.withValues(alpha: 0.95),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final value in values)
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF183B44),
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(color: const Color(0x8837C7E8)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 4,
+                    ),
+                    child: Text(
+                      value,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _PreviewTrackRow extends StatelessWidget {
