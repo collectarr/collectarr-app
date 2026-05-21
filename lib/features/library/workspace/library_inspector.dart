@@ -203,10 +203,12 @@ class LibraryInspectorChipSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.values,
+    this.onValueTap,
   });
 
   final String title;
   final List<String> values;
+  final ValueChanged<String>? onValueTap;
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +219,11 @@ class LibraryInspectorChipSection extends StatelessWidget {
           spacing: 6,
           runSpacing: 6,
           children: [
-            for (final value in values.take(10)) LibraryInspectorChip(value),
+            for (final value in values.take(10))
+              LibraryInspectorChip(
+                value,
+                onTap: onValueTap == null ? null : () => onValueTap!(value),
+              ),
           ],
         ),
       ],
@@ -230,10 +236,12 @@ class LibraryInspectorChipWrap extends StatelessWidget {
     super.key,
     required this.values,
     this.label,
+    this.onValueTap,
   });
 
   final List<String> values;
   final String? label;
+  final ValueChanged<String>? onValueTap;
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +262,11 @@ class LibraryInspectorChipWrap extends StatelessWidget {
           spacing: 6,
           runSpacing: 6,
           children: [
-            for (final value in values) LibraryInspectorChip(value),
+            for (final value in values)
+              LibraryInspectorChip(
+                value,
+                onTap: onValueTap == null ? null : () => onValueTap!(value),
+              ),
           ],
         ),
       ],
@@ -263,13 +275,14 @@ class LibraryInspectorChipWrap extends StatelessWidget {
 }
 
 class LibraryInspectorChip extends StatelessWidget {
-  const LibraryInspectorChip(this.value, {super.key});
+  const LibraryInspectorChip(this.value, {super.key, this.onTap});
 
   final String value;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
+    final chip = DecoratedBox(
       decoration: BoxDecoration(
         color: const Color(0xFF183B44),
         borderRadius: BorderRadius.circular(3),
@@ -284,6 +297,17 @@ class LibraryInspectorChip extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
         ),
+      ),
+    );
+    if (onTap == null) {
+      return chip;
+    }
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(3),
+        child: chip,
       ),
     );
   }

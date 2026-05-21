@@ -18,6 +18,7 @@ class LibraryDetailPage extends StatelessWidget {
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEdit,
+    this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
@@ -29,6 +30,7 @@ class LibraryDetailPage extends StatelessWidget {
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
   final VoidCallback? onEdit;
+  final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +94,7 @@ class LibraryDetailPage extends StatelessWidget {
               type: type,
               entry: entry,
               accent: accent,
+              onFilterByValue: onFilterByValue,
             ),
             LibraryDetailCoverStatusSection(entry: entry, accent: accent),
             LibraryDetailPersonalSection(

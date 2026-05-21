@@ -100,6 +100,7 @@ class LibraryInspector extends ConsumerWidget {
                       onAddWishlist: onAddWishlist,
                       onRemoveWishlist: onRemoveWishlist,
                       onEdit: onEdit,
+                      onFilterByValue: onFilterByValue,
                     ),
                   ),
                 ),
