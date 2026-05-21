@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/generic/library_metadata_refresh
 import 'package:collectarr_app/features/library/generic/library_projection.dart';
 import 'package:collectarr_app/features/library/generic/library_toolbar.dart';
 import 'package:collectarr_app/features/library/generic/library_view_preference_store.dart';
+import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -197,6 +198,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     : null,
                 counts: projection?.counts ?? const LibraryToolbarCounts(),
                 shelfState: shelfState,
+                onSmartLists: () => _showSmartLists(shelfState),
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
                 selectionCallbacks: (
@@ -476,6 +478,39 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
     if (result != null && mounted) {
       setState(() => _filterSelection = result);
+    }
+  }
+
+  Future<void> _showSmartLists(ShelfState? shelfState) async {
+    final db = ref.read(localDatabaseProvider);
+    final result = await showSmartListsDialog(
+      context: context,
+      db: db,
+      mediaKind: widget.type.workspace.kind,
+      currentFilter: _filterSelection,
+      currentQuickView: _quickView,
+      currentSortColumn: _viewState?.sortColumn,
+      currentSortAscending: _viewState?.sortAscending,
+      currentSearchQuery: _searchController.text.isNotEmpty
+          ? _searchController.text
+          : null,
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _filterSelection = result.filterSelection;
+        _quickView = result.quickView;
+        if (result.searchQuery != null) {
+          _searchController.text = result.searchQuery!;
+        } else {
+          _searchController.clear();
+        }
+        if (result.sortColumn != null && _viewState != null) {
+          _viewState = _viewState!.copyWith(
+            sortColumn: result.sortColumn,
+            sortAscending: result.sortAscending ?? true,
+          );
+        }
+      });
     }
   }
 

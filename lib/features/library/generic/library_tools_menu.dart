@@ -20,6 +20,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.onRandomPick,
     this.onDownloadAllCovers,
     this.shelfState,
+    this.onSmartLists,
   });
 
   final LibraryTypeConfig type;
@@ -32,6 +33,7 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onRandomPick;
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
+  final VoidCallback? onSmartLists;
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +115,12 @@ class LibraryToolsButton extends StatelessWidget {
             showPrefillSettingsDialog(context: context, accent: accent);
           },
         ),
+        if (onSmartLists != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.auto_awesome_mosaic,
+            label: 'Smart Lists...',
+            onSelected: onSmartLists!,
+          ),
       ],
     );
   }

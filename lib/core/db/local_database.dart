@@ -174,6 +174,17 @@ class LocationsCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class SmartListsCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get mediaKind => text().nullable()();
+  TextColumn get criteriaJson => text()(); // serialized filter/sort/query
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -184,13 +195,14 @@ class LocationsCache extends Table {
   ItemImagesCache,
   LoansCache,
   LocationsCache,
+  SmartListsCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {

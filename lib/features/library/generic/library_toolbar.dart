@@ -45,6 +45,7 @@ class LibraryToolbar extends StatelessWidget {
     this.selectedCount = 0,
     this.selectionCallbacks,
     this.shelfState,
+    this.onSmartLists,
   });
 
   final LibraryTypeConfig type;
@@ -75,6 +76,7 @@ class LibraryToolbar extends StatelessWidget {
   final bool selectionEnabled;
   final int selectedCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
+  final VoidCallback? onSmartLists;
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +156,7 @@ class LibraryToolbar extends StatelessWidget {
                       onRandomPick: onRandomPick,
                       onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
+                      onSmartLists: onSmartLists,
                     ),
                     if (onEditFilters != null)
                       _FilterButton(

@@ -5836,6 +5836,321 @@ class LocationsCacheCompanion extends UpdateCompanion<LocationsCacheData> {
   }
 }
 
+class $SmartListsCacheTable extends SmartListsCache
+    with TableInfo<$SmartListsCacheTable, SmartListsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SmartListsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediaKindMeta =
+      const VerificationMeta('mediaKind');
+  @override
+  late final GeneratedColumn<String> mediaKind = GeneratedColumn<String>(
+      'media_kind', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _criteriaJsonMeta =
+      const VerificationMeta('criteriaJson');
+  @override
+  late final GeneratedColumn<String> criteriaJson = GeneratedColumn<String>(
+      'criteria_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, mediaKind, criteriaJson, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'smart_lists_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<SmartListsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('media_kind')) {
+      context.handle(_mediaKindMeta,
+          mediaKind.isAcceptableOrUnknown(data['media_kind']!, _mediaKindMeta));
+    }
+    if (data.containsKey('criteria_json')) {
+      context.handle(
+          _criteriaJsonMeta,
+          criteriaJson.isAcceptableOrUnknown(
+              data['criteria_json']!, _criteriaJsonMeta));
+    } else if (isInserting) {
+      context.missing(_criteriaJsonMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SmartListsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SmartListsCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      mediaKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_kind']),
+      criteriaJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}criteria_json'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $SmartListsCacheTable createAlias(String alias) {
+    return $SmartListsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class SmartListsCacheData extends DataClass
+    implements Insertable<SmartListsCacheData> {
+  final String id;
+  final String name;
+  final String? mediaKind;
+  final String criteriaJson;
+  final DateTime createdAt;
+  const SmartListsCacheData(
+      {required this.id,
+      required this.name,
+      this.mediaKind,
+      required this.criteriaJson,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || mediaKind != null) {
+      map['media_kind'] = Variable<String>(mediaKind);
+    }
+    map['criteria_json'] = Variable<String>(criteriaJson);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  SmartListsCacheCompanion toCompanion(bool nullToAbsent) {
+    return SmartListsCacheCompanion(
+      id: Value(id),
+      name: Value(name),
+      mediaKind: mediaKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaKind),
+      criteriaJson: Value(criteriaJson),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory SmartListsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SmartListsCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      mediaKind: serializer.fromJson<String?>(json['mediaKind']),
+      criteriaJson: serializer.fromJson<String>(json['criteriaJson']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'mediaKind': serializer.toJson<String?>(mediaKind),
+      'criteriaJson': serializer.toJson<String>(criteriaJson),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  SmartListsCacheData copyWith(
+          {String? id,
+          String? name,
+          Value<String?> mediaKind = const Value.absent(),
+          String? criteriaJson,
+          DateTime? createdAt}) =>
+      SmartListsCacheData(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        mediaKind: mediaKind.present ? mediaKind.value : this.mediaKind,
+        criteriaJson: criteriaJson ?? this.criteriaJson,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  SmartListsCacheData copyWithCompanion(SmartListsCacheCompanion data) {
+    return SmartListsCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      mediaKind: data.mediaKind.present ? data.mediaKind.value : this.mediaKind,
+      criteriaJson: data.criteriaJson.present
+          ? data.criteriaJson.value
+          : this.criteriaJson,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SmartListsCacheData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('mediaKind: $mediaKind, ')
+          ..write('criteriaJson: $criteriaJson, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, mediaKind, criteriaJson, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SmartListsCacheData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.mediaKind == this.mediaKind &&
+          other.criteriaJson == this.criteriaJson &&
+          other.createdAt == this.createdAt);
+}
+
+class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> mediaKind;
+  final Value<String> criteriaJson;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const SmartListsCacheCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.mediaKind = const Value.absent(),
+    this.criteriaJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SmartListsCacheCompanion.insert({
+    required String id,
+    required String name,
+    this.mediaKind = const Value.absent(),
+    required String criteriaJson,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        criteriaJson = Value(criteriaJson),
+        createdAt = Value(createdAt);
+  static Insertable<SmartListsCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? mediaKind,
+    Expression<String>? criteriaJson,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (mediaKind != null) 'media_kind': mediaKind,
+      if (criteriaJson != null) 'criteria_json': criteriaJson,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SmartListsCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String?>? mediaKind,
+      Value<String>? criteriaJson,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return SmartListsCacheCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      mediaKind: mediaKind ?? this.mediaKind,
+      criteriaJson: criteriaJson ?? this.criteriaJson,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (mediaKind.present) {
+      map['media_kind'] = Variable<String>(mediaKind.value);
+    }
+    if (criteriaJson.present) {
+      map['criteria_json'] = Variable<String>(criteriaJson.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SmartListsCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('mediaKind: $mediaKind, ')
+          ..write('criteriaJson: $criteriaJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -5853,6 +6168,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $ItemImagesCacheTable(this);
   late final $LoansCacheTable loansCache = $LoansCacheTable(this);
   late final $LocationsCacheTable locationsCache = $LocationsCacheTable(this);
+  late final $SmartListsCacheTable smartListsCache =
+      $SmartListsCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5866,7 +6183,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         customFieldValuesCache,
         itemImagesCache,
         loansCache,
-        locationsCache
+        locationsCache,
+        smartListsCache
       ];
 }
 
@@ -8553,6 +8871,183 @@ typedef $$LocationsCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     LocationsCacheData,
     PrefetchHooks Function()>;
+typedef $$SmartListsCacheTableCreateCompanionBuilder = SmartListsCacheCompanion
+    Function({
+  required String id,
+  required String name,
+  Value<String?> mediaKind,
+  required String criteriaJson,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$SmartListsCacheTableUpdateCompanionBuilder = SmartListsCacheCompanion
+    Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String?> mediaKind,
+  Value<String> criteriaJson,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$SmartListsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $SmartListsCacheTable> {
+  $$SmartListsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaKind => $composableBuilder(
+      column: $table.mediaKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get criteriaJson => $composableBuilder(
+      column: $table.criteriaJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SmartListsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $SmartListsCacheTable> {
+  $$SmartListsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaKind => $composableBuilder(
+      column: $table.mediaKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get criteriaJson => $composableBuilder(
+      column: $table.criteriaJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SmartListsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $SmartListsCacheTable> {
+  $$SmartListsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaKind =>
+      $composableBuilder(column: $table.mediaKind, builder: (column) => column);
+
+  GeneratedColumn<String> get criteriaJson => $composableBuilder(
+      column: $table.criteriaJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SmartListsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $SmartListsCacheTable,
+    SmartListsCacheData,
+    $$SmartListsCacheTableFilterComposer,
+    $$SmartListsCacheTableOrderingComposer,
+    $$SmartListsCacheTableAnnotationComposer,
+    $$SmartListsCacheTableCreateCompanionBuilder,
+    $$SmartListsCacheTableUpdateCompanionBuilder,
+    (
+      SmartListsCacheData,
+      BaseReferences<_$LocalDatabase, $SmartListsCacheTable,
+          SmartListsCacheData>
+    ),
+    SmartListsCacheData,
+    PrefetchHooks Function()> {
+  $$SmartListsCacheTableTableManager(
+      _$LocalDatabase db, $SmartListsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SmartListsCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SmartListsCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SmartListsCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> mediaKind = const Value.absent(),
+            Value<String> criteriaJson = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SmartListsCacheCompanion(
+            id: id,
+            name: name,
+            mediaKind: mediaKind,
+            criteriaJson: criteriaJson,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<String?> mediaKind = const Value.absent(),
+            required String criteriaJson,
+            required DateTime createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SmartListsCacheCompanion.insert(
+            id: id,
+            name: name,
+            mediaKind: mediaKind,
+            criteriaJson: criteriaJson,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SmartListsCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $SmartListsCacheTable,
+    SmartListsCacheData,
+    $$SmartListsCacheTableFilterComposer,
+    $$SmartListsCacheTableOrderingComposer,
+    $$SmartListsCacheTableAnnotationComposer,
+    $$SmartListsCacheTableCreateCompanionBuilder,
+    $$SmartListsCacheTableUpdateCompanionBuilder,
+    (
+      SmartListsCacheData,
+      BaseReferences<_$LocalDatabase, $SmartListsCacheTable,
+          SmartListsCacheData>
+    ),
+    SmartListsCacheData,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -8578,4 +9073,6 @@ class $LocalDatabaseManager {
       $$LoansCacheTableTableManager(_db, _db.loansCache);
   $$LocationsCacheTableTableManager get locationsCache =>
       $$LocationsCacheTableTableManager(_db, _db.locationsCache);
+  $$SmartListsCacheTableTableManager get smartListsCache =>
+      $$SmartListsCacheTableTableManager(_db, _db.smartListsCache);
 }
