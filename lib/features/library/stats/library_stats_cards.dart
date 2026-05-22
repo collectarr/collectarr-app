@@ -120,6 +120,42 @@ class LibraryStatsRankedCard extends StatelessWidget {
   }
 }
 
+class LibraryStatsMoneyRankedCard extends StatelessWidget {
+  const LibraryStatsMoneyRankedCard({
+    super.key,
+    required this.title,
+    required this.values,
+    required this.currency,
+  });
+
+  final String title;
+  final Map<String, int> values;
+  final String? currency;
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = values.entries.toList(growable: false)
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final total = entries.fold<int>(0, (sum, entry) => sum + entry.value);
+    return _StatsPanel(
+      title: title,
+      child: entries.isEmpty
+          ? const Text('-', style: TextStyle(color: kLibraryStatsTextMuted))
+          : Column(
+              children: [
+                for (final entry in entries.take(5))
+                  _MoneyDistributionRow(
+                    label: entry.key,
+                    cents: entry.value,
+                    fraction: total == 0 ? 0 : entry.value / total,
+                    currency: currency,
+                  ),
+              ],
+            ),
+    );
+  }
+}
+
 class LibraryStatsHealthCard extends StatelessWidget {
   const LibraryStatsHealthCard({
     super.key,
@@ -283,6 +319,70 @@ class _DistributionRow extends StatelessWidget {
             width: 24,
             child: Text(
               count.toString(),
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                color: kLibraryStatsTextMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MoneyDistributionRow extends StatelessWidget {
+  const _MoneyDistributionRow({
+    required this.label,
+    required this.cents,
+    required this.fraction,
+    required this.currency,
+  });
+
+  final String label;
+  final int cents;
+  final double fraction;
+  final String? currency;
+
+  @override
+  Widget build(BuildContext context) {
+    final prefix = currency == null || currency!.isEmpty ? '' : '${currency!} ';
+    final amount = '${prefix}${(cents / 100).toStringAsFixed(2)}';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 74,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: fraction.clamp(0, 1).toDouble(),
+                minHeight: 7,
+                backgroundColor: kLibraryStatsMeterBackground,
+                valueColor: const AlwaysStoppedAnimation(kLibraryStatsAccent),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 72,
+            child: Text(
+              amount,
               textAlign: TextAlign.right,
               style: const TextStyle(
                 color: kLibraryStatsTextMuted,

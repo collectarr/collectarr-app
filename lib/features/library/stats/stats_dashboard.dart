@@ -32,6 +32,12 @@ class _GenericStatsDashboard extends StatelessWidget {
     final totalValue = state.totalPaidCents == null
         ? '-'
         : formatMoney(state.totalPaidCents, state.primaryCurrency);
+    final netValue = state.totalPaidCents == null || state.totalSellCents == null
+        ? null
+        : formatMoney(
+            state.totalSellCents! - state.totalPaidCents!,
+            state.primaryCurrency,
+          );
     final collectionValue = state.hasMixedCoverPriceCurrencies
       ? '${state.coverPricedCount} valued'
       : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
@@ -127,6 +133,12 @@ class _GenericStatsDashboard extends StatelessWidget {
                               label: 'Sold total',
                               value: sellValue,
                             ),
+                          if (netValue != null)
+                            LibraryStatsTile(
+                              icon: Icons.trending_up,
+                              label: 'Net',
+                              value: netValue,
+                            ),
                           LibraryStatsTile(
                             icon: Icons.image_not_supported_outlined,
                             label: 'Missing covers',
@@ -163,6 +175,20 @@ class _GenericStatsDashboard extends StatelessWidget {
                               LibraryStatsDistributionCard(
                                 title: 'Conditions',
                                 values: state.conditionCounts,
+                              ),
+                            if (!state.hasMixedCurrencies &&
+                                state.primaryCurrency != null)
+                              LibraryStatsMoneyRankedCard(
+                                title: 'Most Invested Locations',
+                                values: _topInvestedLocations(state.entries),
+                                currency: state.primaryCurrency,
+                              ),
+                            if (!state.hasMixedCurrencies &&
+                                state.primaryCurrency != null)
+                              LibraryStatsMoneyRankedCard(
+                                title: 'Most Invested Series',
+                                values: _topInvestedSeries(state.entries),
+                                currency: state.primaryCurrency,
                               ),
                             _TrackingStatusCard(entries: state.entries),
                             LibraryStatsHealthCard(
@@ -308,6 +334,25 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
+  static Map<String, int> _topInvestedLocations(List<ShelfEntry> entries) {
+    return _sumBy(
+      entries,
+      (entry) => entry.locationPath ?? 'No location',
+      (entry) => entry.ownedItem?.pricePaidCents,
+    );
+  }
+
+  static Map<String, int> _topInvestedSeries(List<ShelfEntry> entries) {
+    return _sumBy(
+      entries,
+      (entry) =>
+          entry.catalogItem?.series?.seriesTitle ??
+          entry.catalogItem?.title ??
+          'Unknown',
+      (entry) => entry.ownedItem?.pricePaidCents,
+    );
+  }
+
   static Map<String, int> _metadataQualityBands(List<ShelfEntry> entries) {
     final counts = <String, int>{
       'Strong': 0,
@@ -433,6 +478,24 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
     return counts;
+  }
+
+  static Map<String, int> _sumBy(
+    Iterable<ShelfEntry> entries,
+    String Function(ShelfEntry entry) keyFor,
+    int? Function(ShelfEntry entry) amountFor,
+  ) {
+    final totals = <String, int>{};
+    for (final entry in entries) {
+      final amount = amountFor(entry);
+      if (amount == null || amount <= 0) {
+        continue;
+      }
+      final key = keyFor(entry).trim();
+      final normalized = key.isEmpty ? 'Unknown' : key;
+      totals[normalized] = (totals[normalized] ?? 0) + amount;
+    }
+    return totals;
   }
 }
 
