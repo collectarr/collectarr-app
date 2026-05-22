@@ -299,6 +299,7 @@ class _SearchResultsList extends StatelessWidget {
       );
     }
     final fallbackProviderLabel = _fallbackProviderLabel();
+    final mixedProviderSummary = _mixedProviderSummary();
     return ListView(
       padding: EdgeInsets.zero,
       children: [
@@ -332,8 +333,10 @@ class _SearchResultsList extends StatelessWidget {
               requestedProvider: type.metadataProviderLabel(selectedProvider),
               fallbackProvider: fallbackProviderLabel,
             ),
+          if (mixedProviderSummary != null)
+            _ProviderMixedNotice(summary: mixedProviderSummary),
           _ResultSectionHeader(
-            label: '${type.metadataProviderLabel(selectedProvider)} candidates',
+            label: _providerSectionLabel(),
           ),
           if (type.presentation.usesTreeProviderCandidates)
             _MangaCandidateTreeList(
@@ -375,12 +378,56 @@ class _SearchResultsList extends StatelessWidget {
   }
 
   String? _fallbackProviderLabel() {
-    for (final item in providerResults) {
-      if (item.provider != selectedProvider) {
-        return type.metadataProviderLabel(item.provider);
-      }
+    final providers = _providerIdsInOrder();
+    if (providers.length != 1) {
+      return null;
+    }
+    final onlyProvider = providers.first;
+    if (onlyProvider != selectedProvider) {
+      return type.metadataProviderLabel(onlyProvider);
     }
     return null;
+  }
+
+  String _providerSectionLabel() {
+    final providers = _providerIdsInOrder();
+    if (providers.length == 1) {
+      return '${type.metadataProviderLabel(providers.first)} candidates';
+    }
+    return 'Provider candidates';
+  }
+
+  String? _mixedProviderSummary() {
+    final providers = _providerIdsInOrder();
+    if (providers.length <= 1) {
+      return null;
+    }
+    final labels = providers.map(type.metadataProviderLabel).toList(growable: false);
+    if (providers.contains(selectedProvider)) {
+      return 'Showing matches from ${_joinLabels(labels)}.';
+    }
+    return 'Requested ${type.metadataProviderLabel(selectedProvider)}, but showing matches from ${_joinLabels(labels)}.';
+  }
+
+  List<String> _providerIdsInOrder() {
+    final providers = <String>[];
+    for (final item in providerResults) {
+      if (!providers.contains(item.provider)) {
+        providers.add(item.provider);
+      }
+    }
+    return providers;
+  }
+
+  String _joinLabels(List<String> labels) {
+    if (labels.length <= 1) {
+      return labels.isEmpty ? 'providers' : labels.first;
+    }
+    if (labels.length == 2) {
+      return '${labels.first} and ${labels.last}';
+    }
+    final leading = labels.take(labels.length - 1).join(', ');
+    return '$leading, and ${labels.last}';
   }
 
   List<Widget> _withDividers(BuildContext context, List<Widget> tiles) {
@@ -863,6 +910,39 @@ class _ProviderFallbackNotice extends StatelessWidget {
           Expanded(
             child: Text(
               '$requestedProvider unavailable, $fallbackProvider fallback used.',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProviderMixedNotice extends StatelessWidget {
+  const _ProviderMixedNotice({required this.summary});
+
+  final String summary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: const BoxDecoration(
+        color: Color(0xFF183246),
+        border: Border(bottom: _kLibraryAddBorder),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.layers_outlined, size: 18, color: kClzTextMuted),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              summary,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,

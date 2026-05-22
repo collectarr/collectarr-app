@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
@@ -148,41 +149,86 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
     }
     final size = MediaQuery.sizeOf(context);
     final previewWidth = (size.width * 0.55).clamp(280.0, 720.0);
-    await showDialog<void>(
+    await showGeneralDialog<void>(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: const Color(0xE6101010),
-        insetPadding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: size.width * 0.92,
-            maxHeight: size.height * 0.92,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: InteractiveViewer(
-              minScale: 0.5,
-              maxScale: 5,
-              child: Center(
-                child: SizedBox(
-                  width: previewWidth,
-                  child: AspectRatio(
-                    aspectRatio: 2 / 3,
-                    child: LibraryCoverImage(
-                      title: widget.title,
-                      itemNumber: widget.itemNumber,
-                      imageUrl: widget.imageUrl,
-                      localBase64: widget.localBase64,
-                      ownedItemId: widget.ownedItemId,
-                      borderRadius: 10,
+      barrierLabel: 'Close cover preview',
+      barrierDismissible: true,
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return SafeArea(
+          child: Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                Center(
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: size.width * 0.92,
+                        maxHeight: size.height * 0.92,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: InteractiveViewer(
+                          minScale: 0.5,
+                          maxScale: 5,
+                          child: Center(
+                            child: SizedBox(
+                              width: previewWidth,
+                              child: AspectRatio(
+                                aspectRatio: 2 / 3,
+                                child: _CoverFrame(
+                                  borderRadius: 10,
+                                  child: LibraryCoverImage(
+                                    title: widget.title,
+                                    itemNumber: widget.itemNumber,
+                                    imageUrl: widget.imageUrl,
+                                    localBase64: widget.localBase64,
+                                    ownedItemId: widget.ownedItemId,
+                                    borderRadius: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ),
-      ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: Tween<double>(begin: 0, end: 1).animate(curved),
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.03),
+              end: Offset.zero,
+            ).animate(curved),
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.88, end: 1).animate(curved),
+              child: child,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -208,7 +254,9 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                 duration: const Duration(milliseconds: 170),
                 curve: Curves.easeOutCubic,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                  borderRadius: BorderRadius.circular(
+                    widget.borderRadius + 8,
+                  ),
                   boxShadow: [
                     if (_hovered)
                       BoxShadow(
@@ -219,14 +267,16 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                       ),
                   ],
                 ),
-                clipBehavior: Clip.antiAlias,
-                child: LibraryCoverImage(
-                  title: widget.title,
-                  itemNumber: widget.itemNumber,
-                  imageUrl: widget.imageUrl,
-                  localBase64: widget.localBase64,
-                  ownedItemId: widget.ownedItemId,
+                child: _CoverFrame(
                   borderRadius: widget.borderRadius,
+                  child: LibraryCoverImage(
+                    title: widget.title,
+                    itemNumber: widget.itemNumber,
+                    imageUrl: widget.imageUrl,
+                    localBase64: widget.localBase64,
+                    ownedItemId: widget.ownedItemId,
+                    borderRadius: widget.borderRadius,
+                  ),
                 ),
               ),
               IgnorePointer(
@@ -235,7 +285,9 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                   opacity: _hovered ? 1 : 0,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(widget.borderRadius),
+                      borderRadius: BorderRadius.circular(
+                        widget.borderRadius + 8,
+                      ),
                       gradient: const LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -293,6 +345,74 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CoverFrame extends StatelessWidget {
+  const _CoverFrame({
+    required this.child,
+    required this.borderRadius,
+  });
+
+  final Widget child;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final shortestSide = math.min(
+          constraints.maxWidth,
+          constraints.maxHeight,
+        );
+        final inset = shortestSide.isFinite
+            ? (shortestSide * 0.055).clamp(3.0, 12.0)
+            : 6.0;
+        final outerRadius = borderRadius + inset;
+        final frameStroke = (inset * 0.22).clamp(1.0, 2.25);
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(outerRadius),
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF253039),
+                Color(0xFF131A20),
+                Color(0xFF090C10),
+              ],
+            ),
+            border: Border.all(
+              color: const Color(0x80FFFFFF),
+              width: frameStroke,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0xCC000000),
+                blurRadius: 18,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(inset),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0xFF06080A),
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border.all(
+                  color: const Color(0x22000000),
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(borderRadius),
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

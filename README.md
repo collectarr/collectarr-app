@@ -4,14 +4,28 @@
 
 # Collectarr App
 
-> Flutter client for Collectarr — your personal collection manager across web, Windows, and Android.
+> A local-first collection manager for comics, manga, books, games, movies, TV, music, and more.
 
-The app owns the local Drift database, offline-first library UI, import/export,
-barcode UX, sync client UX, and user-facing collection workflows. The canonical
-metadata catalog lives in `collectarr-core`. Optional multi-device
-personal sync lives in `collectarr-sync`.
+Collectarr is built for people who want a CLZ-style collection workflow without
+locking the entire experience behind a hosted metadata UI. The app keeps your
+library locally, works offline, supports multiple media types, and talks to
+`collectarr-core` only for canonical metadata, provider search, admin tooling,
+and optional shared services. Optional multi-device sync lives in
+`collectarr-sync`.
 
-## Features
+The goal is simple: fast local shelves, rich metadata, flexible ownership
+tracking, and a UI that feels like a serious collection tool instead of a thin
+web wrapper.
+
+## What Collectarr Focuses On
+
+- **Local-first ownership** — your collection state lives in the app, not only on a remote account
+- **Multi-media support** — one app for comics, manga, books, games, movies, TV, music, and board games
+- **Collector workflows** — variants, formats, barcode flows, grouped shelves, bulk editing, and custom fields
+- **Provider-backed metadata** — canonical metadata comes from `collectarr-core` and its provider integrations
+- **Admin-friendly architecture** — image cache controls, ingest flows, proposals, and provider health exist as first-class features
+
+## Highlights
 
 - **Offline-first local library** — personal collection + wishlist stored in local Drift DB
 - **Catalog snapshots** — cached Core data so saved items stay useful offline
@@ -29,7 +43,24 @@ personal sync lives in `collectarr-sync`.
 - **Story arc & character facets** — filter library by story arcs and characters with facet buckets
 - **Provider previews** — see story arc, character, and credit previews in add/search dialogs
 - **Media-aware metadata UI** — shared inspector/add preview with type-specific music, game, and video metadata presentation
+- **Explicit add selection** — add/search results stay unselected until you choose one, while direct provider previews are prefetched in bounded batches
 - **Animated accent theming** — smooth color transitions across all UI elements when switching libraries
+
+## Collectarr vs CLZ
+
+| Area | Collectarr | CLZ |
+|------|------------|-----|
+| Ownership model | Local-first database in the app with optional sync | Primarily account/cloud-centric workflow |
+| Media scope | Multi-media in one product: comics, manga, books, games, movies, TV, music, board games | Split across separate product lines / apps |
+| Metadata architecture | Open provider pipeline via `collectarr-core` | Closed commercial metadata stack |
+| Admin / power-user tooling | Built-in provider health, ingest, proposals, image cache, audit-style workflows | End-user product first, limited self-host/admin surfaces |
+| Offline behavior | Strong offline shelf usage with cached catalog snapshots | Depends more on CLZ service/app model |
+| Custom workflows | Easier to extend in code: custom fields, import/export, provider rules, UI behavior | Mature polished product, but less customizable by developers |
+| Best fit | Users who want control, flexibility, and a hackable stack | Users who want a polished turnkey commercial solution |
+
+Collectarr deliberately takes inspiration from CLZ's strengths around browsing,
+shelf views, and collector ergonomics, but it optimizes for ownership of data,
+multi-media support, and extensibility.
 
 ## Quick Start
 
@@ -58,6 +89,19 @@ IndexedDB.
 flutter run -d windows
 ```
 
+## Product Shape
+
+The app is the local client layer. It owns:
+
+- local Drift storage for your library state
+- collection workflows such as add, edit, barcode, import/export, shelves, and inspectors
+- media-aware presentation and collector-specific UI
+- optional sync client behavior
+
+It does not try to duplicate the Core backend's responsibilities. Canonical
+metadata, provider integrations, ingest/admin logic, and image delivery policy
+live in `collectarr-core`.
+
 ## Extending Library Metadata
 
 When you add a new library kind or want richer metadata for an existing one,
@@ -72,6 +116,18 @@ renderers.
 That keeps new library support additive: most kinds can ride the shared UI,
 while exceptions only need a focused presenter registration instead of a new UI
 stack.
+
+## Add/Search Behavior
+
+Provider search keeps the result list neutral until the user explicitly selects a
+candidate. The dialog still loads direct provider previews up front, but does
+so in bounded batches so large result sets do not fan out into an unbounded
+burst of preview requests.
+
+Provider candidate lists can also be mixed when Core enriches or falls back to a
+secondary source. The app surfaces that mix with provider badges and neutral
+messaging instead of claiming the requested provider fully failed when both
+providers contributed results.
 
 ## Release Policy
 

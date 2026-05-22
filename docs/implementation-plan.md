@@ -19,6 +19,8 @@
 - Comics-first add/search: series/issue/barcode/pull-list modes, multi-select, keyboard shortcuts
 - Structured provider search context (`series`, `issue_number`, `year`) sent to Core
 - Provider candidates consume Core's typed comic identity fields (`candidate_type`, `series_title`, `variant_name`)
+- Provider results require explicit user selection; the dialog no longer auto-focuses the first candidate
+- Provider previews are prefetched from direct provider data in bounded batches, with neutral messaging for mixed-provider result sets
 - Generic add dialog and workspaces for manga, anime, books, games, board games, movies, TV, music
 - Queue Ingest button hidden for non-admin users
 

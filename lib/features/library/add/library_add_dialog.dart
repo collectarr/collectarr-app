@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/season.dart';
@@ -115,6 +116,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   double _resultsPaneWidth = 390;
   static const _providerSearchDebounce = Duration(milliseconds: 450);
   static const _coreSearchTimeout = Duration(seconds: 35);
+  static const _providerPreviewPrefetchBatchSize = 4;
   static const _minResultsPaneWidth = 280.0;
   static const _maxResultsPaneWidth = 520.0;
   static const _minPreviewPaneWidth = 420.0;
@@ -656,32 +658,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             ? int.tryParse(_searchYearController.text.trim())
             : null,
       );
-      final previewEntries = await Future.wait(
-        [
-          for (final candidate in results)
-            () async {
-              if (candidate.isStub) {
-                return null;
-              }
-              try {
-                final preview = await api.providerPreview(
-                  provider: candidate.provider,
-                  providerItemId: candidate.providerItemId,
-                );
-                return MapEntry(candidate.localCatalogId, preview);
-              } catch (_) {
-                return null;
-              }
-            }(),
-        ],
+      final previewsByCandidateId = await _prefetchProviderPreviews(
+        api,
+        results,
       );
       if (!mounted) {
         return;
       }
-      final previewsByCandidateId = <String, AdminProviderPreview>{
-        for (final entry in previewEntries.whereType<MapEntry<String, AdminProviderPreview>>())
-          entry.key: entry.value,
-      };
       setState(() {
         _providerResults = results;
         _providerPreviews
@@ -705,6 +688,43 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         setState(() => _isSearchingProvider = false);
       }
     }
+  }
+
+  Future<Map<String, AdminProviderPreview>> _prefetchProviderPreviews(
+    ApiClient api,
+    List<ProviderCandidate> candidates,
+  ) async {
+    final previewsByCandidateId = <String, AdminProviderPreview>{};
+    for (
+      var index = 0;
+      index < candidates.length;
+      index += _providerPreviewPrefetchBatchSize
+    ) {
+      final batch = candidates.skip(index).take(_providerPreviewPrefetchBatchSize);
+      final previewEntries = await Future.wait(
+        [
+          for (final candidate in batch)
+            () async {
+              if (candidate.isStub) {
+                return null;
+              }
+              try {
+                final preview = await api.providerPreview(
+                  provider: candidate.provider,
+                  providerItemId: candidate.providerItemId,
+                );
+                return MapEntry(candidate.localCatalogId, preview);
+              } catch (_) {
+                return null;
+              }
+            }(),
+        ],
+      );
+      for (final entry in previewEntries.whereType<MapEntry<String, AdminProviderPreview>>()) {
+        previewsByCandidateId[entry.key] = entry.value;
+      }
+    }
+    return previewsByCandidateId;
   }
 
   bool _shouldDebounceProviderSearch(String provider, String query) {
@@ -935,7 +955,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           itemNumber: corrections['item_number'] as String?,
           synopsis: corrections['synopsis'] as String?,
           publisher: corrections['publisher'] as String?,
-          releaseDate: edited.releaseDate,
+        releaseDate: corrections.containsKey('release_date')
+          ? edited.releaseDate
+          : null,
           barcode: corrections['barcode'] as String?,
           variantName: corrections['variant_name'] as String?,
           physicalFormat: corrections['physical_format'] as String?,

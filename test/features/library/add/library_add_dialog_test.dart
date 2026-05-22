@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/config/comics_library_config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/config/planned_library_configs.dart';
@@ -167,6 +168,49 @@ void main() {
     expect(api.lastProposalProvider, 'anilist');
     expect(api.lastProposalProviderItemId, 'anilist-1');
     expect(api.lastProposalTitle, 'Naruto Vol. 1');
+  });
+
+  testWidgets('provider search does not claim fallback when results are mixed',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Over the Garden Wall',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
+    expect(find.text('Provider candidates'), findsOneWidget);
+    expect(
+      find.text('Showing matches from GCD and Comic Vine.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('movie add dialog exposes physical format edition data',
@@ -481,6 +525,28 @@ class _FakeLibraryAddApiClient extends ApiClient {
           'summary': 'Different result.',
           'image_url': 'https://example.test/fallback.jpg',
           'publisher': 'Studio Canal',
+        },
+      ];
+    }
+    if (kind == 'comic' && query == 'Over the Garden Wall') {
+      return const [
+        {
+          'provider': 'gcd',
+          'provider_item_id': 'gcd-1',
+          'title': 'Over the Garden Wall',
+          'kind': 'comic',
+          'summary': 'GCD series result.',
+          'image_url': 'https://example.test/gcd.jpg',
+          'publisher': 'Boom!',
+        },
+        {
+          'provider': 'comicvine',
+          'provider_item_id': 'comicvine-1',
+          'title': 'Over the Garden Wall #1',
+          'kind': 'comic',
+          'summary': 'Comic Vine enriched result.',
+          'image_url': 'https://example.test/comicvine.jpg',
+          'publisher': 'Boom!',
         },
       ];
     }

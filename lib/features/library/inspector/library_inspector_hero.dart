@@ -30,24 +30,12 @@ class InspectorHero extends StatelessWidget {
           width: wide ? 146 : 174,
           child: AspectRatio(
             aspectRatio: 2 / 3,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xAAFFFFFF)),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0xCC000000),
-                    blurRadius: 16,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: LibraryInteractiveCover(
-                title: entry.title,
-                itemNumber: entry.itemNumber,
-                imageUrl: entry.displayCoverUrl,
-                ownedItemId: entry.ownedItemId,
-                accentColor: accent,
-              ),
+            child: LibraryInteractiveCover(
+              title: entry.title,
+              itemNumber: entry.itemNumber,
+              imageUrl: entry.displayCoverUrl,
+              ownedItemId: entry.ownedItemId,
+              accentColor: accent,
             ),
           ),
         );

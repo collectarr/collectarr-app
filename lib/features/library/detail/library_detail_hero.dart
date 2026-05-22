@@ -50,23 +50,12 @@ class LibraryDetailHero extends StatelessWidget {
               width: wide ? 180 : 150,
               child: AspectRatio(
                 aspectRatio: 2 / 3,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xAAFFFFFF)),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0xCC000000),
-                        blurRadius: 18,
-                        offset: Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: LibraryCoverImage(
-                    title: entry.title,
-                    itemNumber: entry.itemNumber,
-                    imageUrl: entry.displayCoverUrl,
-                    ownedItemId: entry.ownedItemId,
-                  ),
+                child: LibraryInteractiveCover(
+                  title: entry.title,
+                  itemNumber: entry.itemNumber,
+                  imageUrl: entry.displayCoverUrl,
+                  ownedItemId: entry.ownedItemId,
+                  accentColor: accent,
                 ),
               ),
             );

@@ -572,7 +572,6 @@ class _AdvancedSearchFields extends StatelessWidget {
           child: _AdvancedField(
             controller: numberController,
             hint: searchLabels.numberHint,
-            keyboardType: TextInputType.number,
             onSubmitted: onSubmitted,
           ),
         ),

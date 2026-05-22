@@ -257,15 +257,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: const Color(0x12000000),
-                        border: Border.all(color: const Color(0x52FFFFFF)),
                         borderRadius: BorderRadius.circular(10),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0xCC000000),
-                            blurRadius: 18,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
