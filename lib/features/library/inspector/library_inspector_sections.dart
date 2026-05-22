@@ -58,6 +58,7 @@ class InspectorPersonalSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final paid = formatMoney(entry.pricePaidCents, entry.currency);
+    final profitLoss = _profitLossLabel(ownedItem);
     return LibraryInspectorSection(
       title: 'Personal',
       accentColor: accent,
@@ -124,6 +125,8 @@ class InspectorPersonalSection extends StatelessWidget {
                         ownedItem!.sellPriceCents, ownedItem!.currency)
                     : '-',
               ),
+              if (profitLoss != null)
+                LibraryInspectorFactData('Profit / Loss', profitLoss),
               LibraryInspectorFactData(
                 'Sold to',
                 genericLibraryDash(ownedItem?.soldTo),
@@ -174,6 +177,15 @@ class InspectorPersonalSection extends StatelessWidget {
       ],
     );
   }
+}
+
+String? _profitLossLabel(OwnedItem? ownedItem) {
+  final paid = ownedItem?.pricePaidCents;
+  final sold = ownedItem?.sellPriceCents;
+  if (paid == null || sold == null) {
+    return null;
+  }
+  return formatMoney(sold - paid, ownedItem?.currency);
 }
 
 class EmptyInspector extends StatelessWidget {

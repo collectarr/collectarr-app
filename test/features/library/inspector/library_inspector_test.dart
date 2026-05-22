@@ -64,7 +64,10 @@ void main() {
               id: 'owned-1',
               itemId: 'movie-1',
               purchaseDate: DateTime.utc(2026, 5, 11),
+              pricePaidCents: 1299,
               coverPriceCents: 1599,
+              soldAt: DateTime.utc(2026, 5, 20),
+              sellPriceCents: 1899,
               currency: 'USD',
               updatedAt: DateTime.utc(2026, 5, 22),
             ),
@@ -77,5 +80,7 @@ void main() {
 
     expect(find.text('Cover price'), findsOneWidget);
     expect(find.text('USD 15.99'), findsOneWidget);
+    expect(find.text('Profit / Loss'), findsOneWidget);
+    expect(find.text('USD 6.00'), findsOneWidget);
   });
 }

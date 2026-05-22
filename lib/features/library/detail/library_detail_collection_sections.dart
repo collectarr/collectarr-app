@@ -21,6 +21,9 @@ class LibraryDetailPersonalSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final paid = formatMoney(entry.pricePaidCents, entry.currency);
+    final coverPrice = formatMoney(ownedItem?.coverPriceCents, ownedItem?.currency);
+    final sellPrice = formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
+    final profitLoss = _detailProfitLossLabel(ownedItem);
     return LibraryInspectorSection(
       title: 'Local collection',
       accentColor: accent,
@@ -50,10 +53,26 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
             LibraryInspectorFactData(
+              'Cover price',
+              coverPrice.isEmpty ? '-' : coverPrice,
+            ),
+            LibraryInspectorFactData(
               'Purchased',
               genericLibraryDash(
                 formatNullableDate(ownedItem?.purchaseDate),
               ),
+            ),
+            LibraryInspectorFactData(
+              'Sell price',
+              sellPrice.isEmpty ? '-' : sellPrice,
+            ),
+            LibraryInspectorFactData(
+              'Profit / Loss',
+              profitLoss ?? '-',
+            ),
+            LibraryInspectorFactData(
+              'Sold to',
+              genericLibraryDash(ownedItem?.soldTo),
             ),
             LibraryInspectorFactData(
               'Updated',
@@ -86,6 +105,15 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       ],
     );
   }
+}
+
+String? _detailProfitLossLabel(OwnedItem? ownedItem) {
+  final paid = ownedItem?.pricePaidCents;
+  final sold = ownedItem?.sellPriceCents;
+  if (paid == null || sold == null) {
+    return null;
+  }
+  return formatMoney(sold - paid, ownedItem?.currency);
 }
 
 class LibraryDetailLocalSnapshotSection extends StatelessWidget {
