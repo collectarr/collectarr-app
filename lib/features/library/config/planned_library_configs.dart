@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -38,6 +39,7 @@ const mangaLibraryConfig = LibraryTypeConfig(
     hardcoverMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
+  presentation: mangaLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
@@ -75,6 +77,7 @@ const animeLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
+  presentation: animeLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.seasons,
@@ -112,6 +115,7 @@ const booksLibraryConfig = LibraryTypeConfig(
     hardcoverMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
+  presentation: booksLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
@@ -149,6 +153,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
     igdbMetadataProvider,
   ],
   trackingProfile: gameTrackingProfile,
+  presentation: gamesLibraryMediaPresentation,
 );
 
 const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
@@ -181,6 +186,7 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
     bggMetadataProvider,
   ],
   trackingProfile: gameTrackingProfile,
+  presentation: boardGamesLibraryMediaPresentation,
 );
 
 const moviesWorkspaceConfig = LibraryWorkspaceConfig(
@@ -213,6 +219,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
+  presentation: moviesLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
   ),
@@ -248,6 +255,7 @@ const musicLibraryConfig = LibraryTypeConfig(
     musicBrainzMetadataProvider,
   ],
   trackingProfile: listeningTrackingProfile,
+  presentation: musicLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsTrackData: true,
   ),
@@ -283,6 +291,7 @@ const tvLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
+  presentation: tvLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.seasons,

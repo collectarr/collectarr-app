@@ -4,6 +4,18 @@ enum LibraryViewMode { grid, card, cardFlow, list }
 
 enum LibraryDetailsLayout { right, bottom, hidden }
 
+enum LibraryGroupMode {
+  series,
+  storyArc,
+  character,
+  title,
+  publisher,
+  year,
+  ownership,
+  grade,
+  condition,
+}
+
 enum LibraryWorkspacePreset { cover, card, list, details }
 
 extension LibraryWorkspacePresetLabels on LibraryWorkspacePreset {

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -158,6 +159,7 @@ class LibraryTypeConfig {
     this.defaultCondition,
     this.defaultGrade,
     this.capabilities = const LibraryTypeCapabilities(),
+    this.presentation = genericLibraryMediaPresentation,
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
@@ -174,6 +176,7 @@ class LibraryTypeConfig {
   final String? defaultCondition;
   final String? defaultGrade;
   final LibraryTypeCapabilities capabilities;
+  final LibraryMediaPresentation presentation;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;

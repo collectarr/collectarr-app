@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/comics_library_config.dar
 import 'package:collectarr_app/features/library/config/comics_workspace_view_config.dart';
 import 'package:collectarr_app/features/library/config/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -44,6 +45,7 @@ void main() {
       'unknown-provider',
     );
     expect(comicsLibraryConfig.trackingProfile, comicTrackingProfile);
+    expect(comicsLibraryConfig.presentation, comicsLibraryMediaPresentation);
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
     expect(comicsLibraryConfig.countLabel(2), 'Comics');
   });
@@ -277,5 +279,12 @@ void main() {
       ),
       560,
     );
+    expect(musicLibraryConfig.presentation.groupModes, [
+      LibraryGroupMode.series,
+      LibraryGroupMode.publisher,
+      LibraryGroupMode.year,
+      LibraryGroupMode.title,
+      LibraryGroupMode.ownership,
+    ]);
   });
 }

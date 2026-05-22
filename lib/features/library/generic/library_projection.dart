@@ -5,24 +5,15 @@ import 'package:collectarr_app/features/library/generic/library_projection_item.
 import 'package:collectarr_app/features/library/generic/library_quick_view.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
+export 'package:collectarr_app/features/library/workspace/library_workspace_config.dart'
+    show LibraryGroupMode;
 export 'library_projection_item.dart';
 export 'library_quick_view.dart';
-
-enum LibraryGroupMode {
-  series,
-  storyArc,
-  character,
-  title,
-  publisher,
-  year,
-  ownership,
-  grade,
-  condition,
-}
 
 String genericGroupModeLabel(
   LibraryGroupMode mode,
@@ -77,73 +68,7 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
 List<LibraryGroupMode> libraryGroupModesForType(
   LibraryTypeConfig type,
 ) {
-  if (type.workspace.kind == 'music') {
-    return [
-      LibraryGroupMode.series,
-      LibraryGroupMode.publisher,
-      LibraryGroupMode.year,
-      LibraryGroupMode.title,
-      LibraryGroupMode.ownership,
-    ];
-  }
-  if (type.workspace.kind == 'comic') {
-    return [
-      LibraryGroupMode.series,
-      LibraryGroupMode.storyArc,
-      LibraryGroupMode.character,
-      LibraryGroupMode.publisher,
-      LibraryGroupMode.year,
-      LibraryGroupMode.grade,
-      LibraryGroupMode.condition,
-      LibraryGroupMode.title,
-      LibraryGroupMode.ownership,
-    ];
-  }
-  if (type.workspace.kind == 'anime' || type.workspace.kind == 'tv') {
-    return [
-      LibraryGroupMode.series,
-      LibraryGroupMode.year,
-      LibraryGroupMode.publisher,
-      LibraryGroupMode.title,
-      LibraryGroupMode.ownership,
-    ];
-  }
-  if (type.workspace.kind == 'manga') {
-    return [
-      LibraryGroupMode.series,
-      LibraryGroupMode.publisher,
-      LibraryGroupMode.year,
-      LibraryGroupMode.title,
-      LibraryGroupMode.ownership,
-    ];
-  }
-  if (type.workspace.kind == 'movie') {
-    return [
-      LibraryGroupMode.year,
-      LibraryGroupMode.series,
-      LibraryGroupMode.publisher,
-      LibraryGroupMode.title,
-      LibraryGroupMode.ownership,
-    ];
-  }
-  if (type.workspace.kind == 'book' ||
-      type.workspace.kind == 'game' ||
-      type.workspace.kind == 'boardgame') {
-    return [
-      LibraryGroupMode.publisher,
-      LibraryGroupMode.series,
-      LibraryGroupMode.year,
-      LibraryGroupMode.title,
-      LibraryGroupMode.ownership,
-    ];
-  }
-  return [
-    LibraryGroupMode.series,
-    LibraryGroupMode.title,
-    LibraryGroupMode.publisher,
-    LibraryGroupMode.year,
-    LibraryGroupMode.ownership,
-  ];
+  return type.presentation.groupModes;
 }
 
 LibraryGroupMode libraryDefaultGroupMode(LibraryTypeConfig type) {
