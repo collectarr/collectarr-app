@@ -68,4 +68,40 @@ void main() {
     expect(config.supportedMetadataProviders.single.supportsKind('podcast'),
         isTrue);
   });
+
+  test('library nav labels use catalog kind defaults', () {
+    expect(
+      libraryNavLabel(
+        const CatalogMediaType(
+          kind: 'tv',
+          singularLabel: 'Show',
+          pluralLabel: 'Shows',
+          routeSegments: ['tv'],
+        ),
+      ),
+      'TV Shows',
+    );
+    expect(
+      libraryNavLabel(
+        const CatalogMediaType(
+          kind: 'boardgame',
+          singularLabel: 'Boardgame',
+          pluralLabel: 'Boardgame',
+          routeSegments: ['boardgames'],
+        ),
+      ),
+      'Board Games',
+    );
+    expect(
+      libraryNavLabel(
+        const CatalogMediaType(
+          kind: 'podcast',
+          singularLabel: 'Podcast',
+          pluralLabel: 'Podcasts',
+          routeSegments: ['podcasts'],
+        ),
+      ),
+      'Podcasts',
+    );
+  });
 }

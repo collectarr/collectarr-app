@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 
 class NavTypeSplit {
   const NavTypeSplit({
@@ -35,12 +36,7 @@ NavTypeSplit splitLibraryNavTypes(
 }
 
 String libraryNavLabel(CatalogMediaType type) {
-  return switch (type.kind) {
-    'boardgame' => 'Board Games',
-    'music' => 'Music',
-    'tv' => 'TV Shows',
-    _ => type.pluralLabel,
-  };
+  return catalogDisplayPluralLabel(type);
 }
 
 T? _firstWhereOrNull<T>(Iterable<T> values, bool Function(T value) test) {

@@ -124,6 +124,70 @@ void main() {
     expect(formats.single.id, 'hd-dvd');
     expect(formats.single.aliases, {'hddvd'});
   });
+
+  test('media catalog provider normalizes known display labels', () async {
+    final container = ProviderContainer(
+      overrides: [
+        apiClientProvider.overrideWithValue(
+          _CatalogApiClient([
+            const CatalogMediaType(
+              kind: 'music',
+              singularLabel: 'Album',
+              pluralLabel: 'Albums',
+              routeSegments: ['music'],
+              defaultProvider: 'musicbrainz',
+              providers: ['musicbrainz'],
+            ),
+            const CatalogMediaType(
+              kind: 'tv',
+              singularLabel: 'Show',
+              pluralLabel: 'Shows',
+              routeSegments: ['tv'],
+              defaultProvider: 'tmdb',
+              providers: ['tmdb'],
+            ),
+            const CatalogMediaType(
+              kind: 'boardgame',
+              singularLabel: 'Boardgame',
+              pluralLabel: 'Boardgame',
+              routeSegments: ['boardgames'],
+              defaultProvider: 'bgg',
+              providers: ['bgg'],
+            ),
+          ]),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final catalog = await container.read(mediaCatalogProvider.future);
+
+    expect(
+      catalog.firstWhere((type) => type.kind == 'music').singularLabel,
+      'Music',
+    );
+    expect(
+      catalog.firstWhere((type) => type.kind == 'tv').pluralLabel,
+      'TV Shows',
+    );
+    expect(
+      catalog.firstWhere((type) => type.kind == 'boardgame').pluralLabel,
+      'Board Games',
+    );
+  });
+
+  test('physical format fallbacks use catalog kind defaults', () {
+    expect(
+      physicalMediaFormatsForKind(const [], 'music').map((format) => format.id),
+      containsAll(['vinyl', 'cd', 'cassette']),
+    );
+    expect(
+      physicalMediaFormatsForKind(const [], 'boardgame')
+          .map((format) => format.id),
+      contains('physical-disc'),
+    );
+    expect(physicalMediaFormatsForKind(const [], 'podcast'), isEmpty);
+  });
 }
 
 class _CatalogApiClient extends ApiClient {

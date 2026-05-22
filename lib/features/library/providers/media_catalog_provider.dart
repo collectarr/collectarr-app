@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/providers/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
@@ -69,25 +70,13 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
   String kind,
 ) {
-  final mediaFamily = switch (kind) {
-    'music' => 'audio',
-    'book' || 'manga' || 'comic' => 'print',
-    'game' || 'boardgame' => 'game',
-    _ => 'video',
-  };
+  final mediaFamily = catalogMediaFamilyForKind(kind);
   final formats = physicalMediaFormatsFromCatalog(catalog,
       kind: kind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
-  return switch (kind) {
-    'movie' || 'tv' || 'anime' => videoPhysicalMediaFormats,
-    'music' => musicPhysicalMediaFormats,
-    'book' || 'manga' => bookPhysicalMediaFormats,
-    'comic' => comicPhysicalMediaFormats,
-    'game' || 'boardgame' => gamePhysicalMediaFormats,
-    _ => const [],
-  };
+  return fallbackPhysicalMediaFormatsForKind(kind);
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(
@@ -99,25 +88,7 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
 }
 
 CatalogMediaType _normalizeCatalogMediaType(CatalogMediaType type) {
-  if (type.kind != 'music') {
-    return type;
-  }
-  const label = 'Music';
-  if (type.singularLabel == label && type.pluralLabel == label) {
-    return type;
-  }
-  return CatalogMediaType(
-    kind: type.kind,
-    singularLabel: label,
-    pluralLabel: label,
-    routeSegments: type.routeSegments,
-    defaultProvider: type.defaultProvider,
-    providers: type.providers,
-    providerSearchPolicy: type.providerSearchPolicy,
-    isTopLevel: type.isTopLevel,
-    legacyOf: type.legacyOf,
-    physicalFormats: type.physicalFormats,
-  );
+  return normalizeCatalogMediaTypeDefaults(type);
 }
 
 const fallbackMediaCatalog = <CatalogMediaType>[
