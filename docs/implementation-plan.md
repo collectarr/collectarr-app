@@ -66,33 +66,32 @@
 - Bulk edit dialog with tracking status and star rating fields
 - Selection state management with auto-enable/disable
 
-## 🔜 Next Up
+## 🎯 Current Priorities
 
-### 🎯 Comics MVP Polish
-- [x] Semantic Add Series vs Add Issue: browse-series callback navigates from series to issue mode
-- [x] Issue/variant tree density improvements + whole-series and multi-issue selection
-- [x] Real cover behavior for GCD + ComicVine variant enrichment
-- [x] Generated fallback covers only when no usable cover exists
-- [x] Music physical media formats (Vinyl, CD, Cassette, Digital)
+### ⚙️ Provider Workflow / Core API Efficiency
+- [ ] Stop automatic provider search after every successful core search; make it demand-driven or confidence-based
+- [ ] Replace add-dialog preview fan-out with selection-only preview loading or a real batch preview endpoint
+- [ ] Add short-lived Core-side preview caching keyed by `(provider, provider_item_id)`
+- [ ] Reuse hydrated preview data for ingest so preview → ingest does not repeat full upstream fetch/normalize work
+- [ ] Keep provider image mirroring off the synchronous search hot path where possible
 
-### 📚 Media-Specific Forms
-- [x] Books: physical formats (Hardcover/Paperback/Mass Market/eBook/Audiobook), reading tracking profile
-- [x] Games: physical formats (Disc/Cartridge/Digital/Collector's Ed), game tracking profile
-- [x] Movies/TV: physical format (DVD/Blu-ray/4K), season/episode UI
-- [x] Music: format (CD/vinyl/cassette), listening tracking profile
-- [x] Comics/Manga: physical formats, grading section (Raw/Slabbed, grading co., signed by, key comic, cover price)
-- [x] Inspector: kind-specific grading details for comics/manga
+### 📚 CLZ Parity Gaps That Still Matter
+- [ ] Hyperlink filtering from creators/characters/publishers/series facts into live library filters
+- [ ] Real location tracking model (room / shelf / box / bin), not just a single `storageBox` field
+- [ ] Collection value totals and per-library value summaries from owned-item purchase/current values
+- [ ] Key-issue / key-release markers, richer slab / grading-company details, and collector-facing variant notes
+- [ ] Run-completeness tools: missing issues for comics, missing volumes/seasons where the data model supports it
+- [ ] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
+- [ ] Investigate optional cover-photo recognition / scan-to-identify for comics as a later Core capability
 
-### 🖥️ Platform Smoke Tests
-- [x] Web: sqlite3 WASM load, Core connection, Add dialog, import/export, covers
-- [x] Windows: local DB, resizable panes, keyboard shortcuts, barcode fallback
-- [x] Android: camera scanner, manual fallback, connection presets, narrow layout
+### 🧭 Yamtrack-Inspired Gaps Worth Evaluating
+- [ ] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry
+- [ ] Per-item tracking history / activity timeline
+- [ ] Saved lists / shortlists beyond owned + wishlist
+- [ ] Calendar and notification surfaces only if they clearly improve release / pull-list workflows
 
-### 🧩 Post-MVP
-- [x] QR scanning for pairing (not just QR rendering)
-- [x] ComicInfo.xml export (CBZ dropped — not useful for a collection tracker)
-- [x] Local image bytes for fully offline cover storage
-- [x] Rich per-media dashboards and collection analytics
+### 🚫 Lower Priority Unless Product Direction Changes
+- [ ] Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity work for now
+
+### 🧩 Release / Ops
 - [ ] Packaged release installers + app store preparation
-- [ ] Location tracking (which shelf/box)
-- [ ] Collection value totals

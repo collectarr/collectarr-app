@@ -1,6 +1,6 @@
-# 🔍 CLZ Feature Gap Analysis
+# 🔍 CLZ + Yamtrack Feature Gap Analysis
 
-> Comparison of CLZ (clz.com) features vs Collectarr's current state, broken down per library type.
+> Comparison of CLZ and Yamtrack features vs Collectarr's current state.
 > 
 > ✅ = Collectarr has it &nbsp;|&nbsp; 🟡 = Partial &nbsp;|&nbsp; ❌ = Missing
 
@@ -114,7 +114,7 @@
 | **Custom user-defined fields** | ✅ Done | 📱 App + 🔄 Sync | Per-media-type text fields, searchable, CSV support |
 | **Purchase price/date + sell price/date** | ✅ Done | 📱 App + 🔄 Sync | soldAt, sellPriceCents, soldTo on OwnedItem |
 | **Multiple images per item** | ✅ Done | 📱 App + 🔄 Sync | Local photos with captions and sort order |
-| **Series/hierarchical shelf grouping** | 🔴 High | 📱 App | Group by series in sidebar — manga volumes, TV seasons, comic issues |
+| **Series/hierarchical shelf grouping** | ✅ Done | 📱 App | Series/volume/season grouping now ships in the shared library stack |
 | **Collection value totals** | 🟠 Medium | 📱 App | Computed from local price fields, no Core involvement |
 | **Hyperlink filtering** | 🟠 Medium | 📱 App | Click any field value to filter — pure UI feature |
 | **Location tracking** | 🟡 Low-Med | 📱 App + 🔄 Sync | Shelf/box/room — personal data, Drift + sync |
@@ -122,6 +122,66 @@
 | **Cover art scanning (visual recognition)** | 🟡 Low | 🎯 Core | Only comics; would need ML model or external API |
 | **Sold items tracking** | ✅ Done | 📱 App + 🔄 Sync | soldAt, sellPriceCents, soldTo fields |
 | **Pricing integrations** | 🟡 Low | 🎯 Core | CovrPrice (comics), PriceCharting (games) — paid external APIs |
+
+---
+
+## 🧭 Yamtrack Gaps (And Which Ones Matter)
+
+> Yamtrack is tracker-first and self-hosted. Some gaps are worth copying; others are product-direction choices, not regressions.
+
+| Area | Yamtrack | Collectarr | Notes |
+|------|----------|------------|-------|
+| Tracking history / activity timeline | ✅ | ❌ | Yamtrack records add/start/restart/progress history per media item |
+| Custom manual entries for unsupported media | ✅ | 🟡 | Collectarr has manual add for supported kinds, not true arbitrary unsupported media |
+| Personal + collaborative lists | ✅ | ❌ | Useful for curated shortlists beyond owned/wishlist |
+| Calendar / ICS feed for upcoming releases | ✅ | ❌ | Relevant if wishlist / pull-list / release workflows expand |
+| Notifications via Apprise | ✅ | ❌ | Lower priority unless release tracking becomes a first-class workflow |
+| Direct imports from Trakt / Simkl / MAL / AniList / Kitsu | ✅ | ❌ | This is one of Yamtrack's strongest onboarding advantages |
+| Jellyfin / Plex / Emby integrations | ✅ | ❌ | Important only if Collectarr pivots toward tracker automation |
+| Multi-user self-hosted accounts | ✅ | 🟡 | Core has auth/admin, but app UX is still very single-user/local-first |
+| OIDC / social auth | ✅ | ❌ | Lower priority than collector parity unless hosting/distribution goals change |
+| CSV round-trip import / export | ✅ | ✅ | Collectarr already has strong CSV / CLZ import-export coverage |
+
+### What Is Actually Worth Pulling From Yamtrack
+
+- Direct tracker/import integrations are the most valuable Yamtrack-inspired gap because they reduce manual re-entry.
+- Tracking history is worth considering because it adds auditability without changing Collectarr's collector-first positioning.
+- Lists are a good fit if they stay local-first and collection-oriented.
+- Calendar, notifications, media-server webhooks, and social/OIDC should stay behind CLZ-parity work unless the product direction shifts.
+
+---
+
+## ⚙️ Provider API Usage Audit
+
+### What Yamtrack Seems To Do Better
+
+- It keeps media-type-to-provider selection simple and explicit: TMDB for movies/TV, MAL for anime, MAL or MangaUpdates for manga, IGDB for games, Hardcover/OpenLibrary for books, ComicVine for comics, BGG for board games.
+- It centralizes outbound API traffic behind one shared services layer with per-provider rate limiting.
+- It caches provider metadata in Redis for hours for at least some sources and exposes source-specific env tuning.
+- It appears to fetch heavier provider metadata when needed for details/imports, rather than preloading full normalized previews for every visible search result.
+
+### What Collectarr Already Does Well
+
+- Core has structured provider search, retry/backoff, cacheable provider search results, and comic-specific fallback/enrichment logic.
+- The app now handles mixed-provider result sets more honestly instead of pretending the requested provider alone produced everything.
+- Provider image mirroring and typed normalized previews give Collectarr better long-term control over canonical metadata than a pure passthrough model.
+
+### Current Collectarr Problems / Inefficiencies
+
+1. **Every app search fans out more than it needs to.** The add dialog runs Core catalog search and then automatically runs provider search for supported kinds, even when local/catalog hits may already be enough.
+2. **Provider preview prefetch is too expensive.** After provider search, the app prefetches full previews in batches for almost every result. Each preview hits Core's preview endpoint, which calls `provider.get_item()` and `normalize()` again.
+3. **Previews are not backed by a dedicated server-side preview cache.** Search results are cached in Core, but preview requests are effectively fresh fetch-and-normalize work keyed only by the dialog's in-memory cache.
+4. **Preview and ingest duplicate upstream work.** A candidate can go through `search` -> `preview` -> `ingest`, with preview and ingest both doing heavy provider fetch/normalize steps instead of reusing a hydrated result or short-lived token.
+5. **Non-admin users still pay preview cost.** The app can prefetch provider previews even for users who cannot ingest and may only ever add a local placeholder entry.
+6. **Image mirroring can still sit on the interactive hot path.** If provider image mirroring is enabled, search results may synchronously stabilize image URLs before returning, which is safer but can add latency to already expensive provider operations.
+
+### Recommended Direction
+
+1. Stop automatic provider search after every successful core search; make it demand-driven or only trigger it when local/core confidence is low.
+2. Replace N preview requests with either selection-only preview loading or a dedicated batch preview endpoint.
+3. Add a short-lived Core preview cache keyed by `(provider, provider_item_id)`.
+4. Reuse preview hydration for ingest so the same candidate is not fetched and normalized twice.
+5. Keep image mirroring off the synchronous search path when possible; prefer background fill or cache-warm behavior.
 
 ---
 
