@@ -8,6 +8,7 @@ class LibraryCoverBadges extends StatelessWidget {
     this.hasMissingMetadata = false,
     this.keyLabel,
     this.slabLabel,
+    this.notesLabel,
     super.key,
   });
 
@@ -17,6 +18,7 @@ class LibraryCoverBadges extends StatelessWidget {
   final bool hasMissingMetadata;
   final String? keyLabel;
   final String? slabLabel;
+  final String? notesLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,8 @@ class LibraryCoverBadges extends StatelessWidget {
         !hasMissingCover &&
         !hasMissingMetadata &&
         keyLabel == null &&
-        slabLabel == null) {
+        slabLabel == null &&
+        notesLabel == null) {
       return const SizedBox.shrink();
     }
     final colorScheme = Theme.of(context).colorScheme;
@@ -73,6 +76,13 @@ class LibraryCoverBadges extends StatelessWidget {
             label: slabLabel!,
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainer,
+          ),
+        if (notesLabel != null)
+          LibraryCoverBadge(
+            icon: Icons.sticky_note_2_outlined,
+            label: notesLabel!,
+            backgroundColor: colorScheme.secondaryContainer,
+            foregroundColor: colorScheme.onSecondaryContainer,
           ),
       ],
     );
@@ -131,6 +141,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
     this.hasMissingMetadata = false,
     this.hasKeyMarker = false,
     this.hasSlabMarker = false,
+    this.hasNotesMarker = false,
     super.key,
   });
 
@@ -140,6 +151,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
   final bool hasMissingMetadata;
   final bool hasKeyMarker;
   final bool hasSlabMarker;
+  final bool hasNotesMarker;
 
   @override
   Widget build(BuildContext context) {
@@ -188,6 +200,14 @@ class LibraryItemStatusIcons extends StatelessWidget {
             color: colorScheme.primary,
           ),
         ],
+        if (hasNotesMarker) ...[
+          const SizedBox(width: 4),
+          Icon(
+            Icons.sticky_note_2_outlined,
+            size: 16,
+            color: colorScheme.secondary,
+          ),
+        ],
       ],
     );
   }
@@ -211,4 +231,12 @@ String? librarySlabMarkerLabel(String? rawOrSlabbed, String? gradingCompany) {
     return '$slab - $company';
   }
   return slab?.isNotEmpty == true ? slab : company;
+}
+
+String? libraryNotesMarkerLabel(String? notes) {
+  final trimmed = notes?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  return 'Notes: $trimmed';
 }

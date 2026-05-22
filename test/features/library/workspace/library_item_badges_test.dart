@@ -53,12 +53,14 @@ void main() {
           isWishlisted: false,
           keyLabel: 'Key item: First appearance',
           slabLabel: 'Slabbed - CGC',
+          notesLabel: 'Notes: Newsstand copy',
         ),
       ),
     );
 
     expect(find.byIcon(Icons.label_important), findsOneWidget);
     expect(find.byIcon(Icons.workspace_premium), findsOneWidget);
+    expect(find.byIcon(Icons.sticky_note_2_outlined), findsOneWidget);
   });
 
   testWidgets('status icons shows wishlist marker only when present',
@@ -97,11 +99,13 @@ void main() {
           isWishlisted: false,
           hasKeyMarker: true,
           hasSlabMarker: true,
+          hasNotesMarker: true,
         ),
       ),
     );
 
     expect(find.byIcon(Icons.label_important), findsOneWidget);
     expect(find.byIcon(Icons.workspace_premium), findsOneWidget);
+    expect(find.byIcon(Icons.sticky_note_2_outlined), findsOneWidget);
   });
 }

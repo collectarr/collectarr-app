@@ -70,6 +70,7 @@ void main() {
               title: 'Discovery',
               publisher: 'Virgin',
               isOwned: true,
+              notes: 'Japanese pressing',
               music: const MusicCatalogDetails(
                 trackCount: 14,
                 releaseStatus: 'Official',
@@ -87,6 +88,7 @@ void main() {
 
     expect(find.text('14 tracks'), findsOneWidget);
     expect(find.text('Official'), findsOneWidget);
+    expect(find.text('Japanese pressing'), findsOneWidget);
   });
 
   testWidgets('workspace card renders video runtime and game platforms',

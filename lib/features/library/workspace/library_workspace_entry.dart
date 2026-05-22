@@ -28,6 +28,7 @@ sealed class LibraryWorkspaceEntry {
     this.gradingCompany,
     this.keyComic = false,
     this.keyReason,
+    this.notes,
     this.pricePaidCents,
     this.currency,
     this.storageBox,
@@ -66,6 +67,7 @@ sealed class LibraryWorkspaceEntry {
     String? gradingCompany,
     bool keyComic = false,
     String? keyReason,
+    String? notes,
     int? pricePaidCents,
     String? currency,
     String? storageBox,
@@ -108,6 +110,7 @@ sealed class LibraryWorkspaceEntry {
       gradingCompany: gradingCompany,
       keyComic: keyComic,
       keyReason: keyReason,
+      notes: notes,
       pricePaidCents: pricePaidCents,
       currency: currency,
       storageBox: storageBox,
@@ -223,6 +226,7 @@ sealed class LibraryWorkspaceEntry {
   final String? gradingCompany;
   final bool keyComic;
   final String? keyReason;
+  final String? notes;
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;
@@ -278,6 +282,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           gradingCompany: common.gradingCompany,
           keyComic: common.keyComic,
           keyReason: common.keyReason,
+          notes: common.notes,
           pricePaidCents: common.pricePaidCents,
           currency: common.currency,
           storageBox: common.storageBox,
@@ -477,6 +482,7 @@ class _LibraryWorkspaceCommon {
     required this.gradingCompany,
     required this.keyComic,
     required this.keyReason,
+    required this.notes,
     required this.pricePaidCents,
     required this.currency,
     required this.storageBox,
@@ -514,6 +520,7 @@ class _LibraryWorkspaceCommon {
   final String? gradingCompany;
   final bool keyComic;
   final String? keyReason;
+  final String? notes;
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;

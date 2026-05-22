@@ -91,6 +91,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             entry.rawOrSlabbed,
                             entry.gradingCompany,
                           ),
+                          notesLabel: libraryNotesMarkerLabel(entry.notes),
                         ),
                       ),
                     ],
@@ -241,6 +242,12 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: platformLabel,
                               accentColor: accentColor,
                             ),
+                          if (_noteLabel(entry.notes) case final noteLabel?)
+                            _MetaPill(
+                              icon: Icons.sticky_note_2_outlined,
+                              label: noteLabel,
+                              accentColor: accentColor,
+                            ),
                           if (entry.publishing?.pageCount != null)
                             _MetaPill(
                               icon: Icons.menu_book,
@@ -291,6 +298,17 @@ String? _platformLabel(List<String>? platforms) {
     return values.single;
   }
   return '${values.first} +${values.length - 1}';
+}
+
+String? _noteLabel(String? notes) {
+  final trimmed = notes?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  if (trimmed.length <= 28) {
+    return trimmed;
+  }
+  return '${trimmed.substring(0, 27)}...';
 }
 
 // ─── Private helpers ────────────────────────────────────────────────────────

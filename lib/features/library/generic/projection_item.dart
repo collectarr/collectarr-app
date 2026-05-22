@@ -42,6 +42,7 @@ class LibraryProjectionItem {
         gradingCompany: source.ownedItem?.gradingCompany,
         keyComic: source.ownedItem?.keyComic ?? false,
         keyReason: source.ownedItem?.keyReason,
+        notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
         pricePaidCents: source.ownedItem?.pricePaidCents,
         currency: source.ownedItem?.currency,
         storageBox: source.locationPath ?? source.ownedItem?.storageBox,

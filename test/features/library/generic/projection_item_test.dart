@@ -19,6 +19,7 @@ void main() {
           itemId: 'comic-1',
           storageBox: 'Short Box 1',
           locationId: 'loc-1',
+          personalNotes: 'Newsstand copy',
           rawOrSlabbed: 'Slabbed',
           gradingCompany: 'CGC',
           keyComic: true,
@@ -34,5 +35,6 @@ void main() {
     expect(projection.entry.gradingCompany, 'CGC');
     expect(projection.entry.keyComic, isTrue);
     expect(projection.entry.keyReason, 'First appearance');
+    expect(projection.entry.notes, 'Newsstand copy');
   });
 }

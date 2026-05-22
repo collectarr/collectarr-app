@@ -161,6 +161,12 @@ class LibraryDetailHero extends StatelessWidget {
                         label: platformLabel,
                         accent: accent,
                       ),
+                    if (_detailNotesLabel(entry.notes) case final notesLabel?)
+                      _DetailHeaderChip(
+                        icon: Icons.sticky_note_2_outlined,
+                        label: notesLabel,
+                        accent: accent,
+                      ),
                     if (ownedItem?.keyComic == true)
                       _DetailHeaderChip(
                         icon: Icons.label_important,
@@ -231,6 +237,17 @@ String? _detailPlatformLabel(List<String>? platforms) {
     return null;
   }
   return values.join(', ');
+}
+
+String? _detailNotesLabel(String? notes) {
+  final trimmed = notes?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  if (trimmed.length <= 48) {
+    return trimmed;
+  }
+  return '${trimmed.substring(0, 47)}...';
 }
 
 class _DetailHeaderChip extends StatelessWidget {

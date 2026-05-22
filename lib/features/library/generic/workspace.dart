@@ -336,6 +336,7 @@ class LibraryWorkspace extends StatelessWidget {
           hasKeyMarker: entry.keyComic,
           hasSlabMarker:
               entry.rawOrSlabbed != null || entry.gradingCompany != null,
+            hasNotesMarker: entry.notes != null && entry.notes!.trim().isNotEmpty,
         ),
       LibraryTableColumn.cover => SizedBox(
           width: 28,

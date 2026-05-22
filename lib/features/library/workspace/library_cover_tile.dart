@@ -79,6 +79,7 @@ class LibraryCoverTile extends StatelessWidget {
                           entry.rawOrSlabbed,
                           entry.gradingCompany,
                         ),
+                        notesLabel: libraryNotesMarkerLabel(entry.notes),
                       ),
                     ),
                     if (selected)

@@ -73,6 +73,7 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     gradingCompany: ownedItem?.gradingCompany,
     keyComic: ownedItem?.keyComic ?? false,
     keyReason: ownedItem?.keyReason,
+    notes: ownedItem?.personalNotes ?? wishlistItem?.notes,
     pricePaidCents: ownedItem?.pricePaidCents,
     currency: ownedItem?.currency,
     storageBox: ownedItem?.storageBox,

@@ -80,6 +80,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             entry.rawOrSlabbed,
                             entry.gradingCompany,
                           ),
+                          notesLabel: libraryNotesMarkerLabel(entry.notes),
                         ),
                       ),
                     ],
@@ -171,6 +172,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               label: platformLabel,
                               accentColor: accentColor,
                             ),
+                          if (_compactNotesLabel(entry.notes) case final noteLabel?)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.sticky_note_2_outlined,
+                              label: noteLabel,
+                              accentColor: accentColor,
+                            ),
                           if (entry.keyComic)
                             _LibraryCompactMetaPill(
                               icon: Icons.label_important,
@@ -244,6 +251,17 @@ String? _compactPlatformLabel(List<String>? platforms) {
   }
   final extra = platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
   return extra == 0 ? first : '$first +$extra';
+}
+
+String? _compactNotesLabel(String? notes) {
+  final trimmed = notes?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  if (trimmed.length <= 28) {
+    return trimmed;
+  }
+  return '${trimmed.substring(0, 27)}...';
 }
 
 class _LibraryIssuePill extends StatelessWidget {
