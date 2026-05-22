@@ -1,4 +1,11 @@
+import 'package:collectarr_app/features/library/generic/library_display.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
+import 'package:collectarr_app/features/library/seasons_section.dart';
+import 'package:collectarr_app/features/library/volumes_section.dart';
+import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:flutter/material.dart';
 
 class LibraryMediaFieldLabels {
   const LibraryMediaFieldLabels({
@@ -66,12 +73,55 @@ class LibraryMediaGroupLabels {
   final String unknownPublisher;
 }
 
+class LibraryMetadataPresentation {
+  const LibraryMetadataPresentation({
+    required this.identityFacts,
+    required this.contextFacts,
+    required this.creators,
+    required this.characters,
+    required this.storyArcs,
+    required this.genres,
+  });
+
+  final List<LibraryInspectorFactData> identityFacts;
+  final List<LibraryInspectorFactData> contextFacts;
+  final List<Map<String, dynamic>> creators;
+  final List<String> characters;
+  final List<String> storyArcs;
+  final List<String> genres;
+
+  List<LibraryInspectorFactData> get allFacts => [
+        ...identityFacts,
+        ...contextFacts,
+      ];
+
+  bool get hasCredits =>
+      creators.isNotEmpty || characters.isNotEmpty || storyArcs.isNotEmpty;
+}
+
+typedef LibraryMetadataFactTapResolver = VoidCallback? Function(String? value);
+typedef LibraryMetadataPresentationBuilder = LibraryMetadataPresentation
+    Function({
+      required String singularLabel,
+      required LibraryMediaFieldLabels labels,
+      required LibraryWorkspaceEntry entry,
+      required bool includeIdentityFacts,
+      required LibraryMetadataFactTapResolver tapFor,
+    });
+typedef LibraryInspectorSupplementalSectionsBuilder = List<Widget> Function({
+  required BuildContext context,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+});
+
 class LibraryMediaPresentation {
   const LibraryMediaPresentation({
     required this.fieldLabels,
     required this.searchFieldLabels,
     required this.filterLabels,
     required this.groupLabels,
+    this.metadataBuilder = buildDefaultMetadataPresentation,
+    this.inspectorSectionsBuilder = buildNoSupplementalInspectorSections,
     this.groupModes = const [
       LibraryGroupMode.series,
       LibraryGroupMode.title,
@@ -85,6 +135,8 @@ class LibraryMediaPresentation {
   final LibraryMediaSearchFieldLabels searchFieldLabels;
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;
+  final LibraryMetadataPresentationBuilder metadataBuilder;
+  final LibraryInspectorSupplementalSectionsBuilder inspectorSectionsBuilder;
   final List<LibraryGroupMode> groupModes;
 }
 
@@ -146,6 +198,7 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Publishers',
     unknownPublisher: 'Unknown publisher',
   ),
+  inspectorSectionsBuilder: buildSummaryInspectorSections,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.storyArc,
@@ -187,6 +240,7 @@ const mangaLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Publishers',
     unknownPublisher: 'Unknown publisher',
   ),
+  inspectorSectionsBuilder: buildVolumeSummaryInspectorSections,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
@@ -224,6 +278,8 @@ const animeLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Studios / Publishers',
     unknownPublisher: 'Unknown studio / publisher',
   ),
+  metadataBuilder: buildVideoMetadataPresentation,
+  inspectorSectionsBuilder: buildSeasonSummaryInspectorSections,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.year,
@@ -261,6 +317,7 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Publishers',
     unknownPublisher: 'Unknown publisher',
   ),
+  inspectorSectionsBuilder: buildVolumeSummaryInspectorSections,
   groupModes: [
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
@@ -298,6 +355,7 @@ const gamesLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Publishers / Studios',
     unknownPublisher: 'Unknown publisher / studio',
   ),
+  metadataBuilder: buildGameMetadataPresentation,
   groupModes: [
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
@@ -372,6 +430,8 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Studios',
     unknownPublisher: 'Unknown studio',
   ),
+  metadataBuilder: buildVideoMetadataPresentation,
+  inspectorSectionsBuilder: buildSummaryInspectorSections,
   groupModes: [
     LibraryGroupMode.year,
     LibraryGroupMode.series,
@@ -409,6 +469,8 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Labels',
     unknownPublisher: 'Unknown label',
   ),
+  metadataBuilder: buildMusicMetadataPresentation,
+  inspectorSectionsBuilder: buildMusicInspectorSections,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
@@ -446,6 +508,8 @@ const tvLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Networks / Studios',
     unknownPublisher: 'Unknown network / studio',
   ),
+  metadataBuilder: buildVideoMetadataPresentation,
+  inspectorSectionsBuilder: buildSeasonSummaryInspectorSections,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.year,
@@ -454,3 +518,430 @@ const tvLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.ownership,
   ],
 );
+
+LibraryMetadataPresentation buildDefaultMetadataPresentation({
+  required String singularLabel,
+  required LibraryMediaFieldLabels labels,
+  required LibraryWorkspaceEntry entry,
+  required bool includeIdentityFacts,
+  required LibraryMetadataFactTapResolver tapFor,
+}) {
+  final hasVolume = entry.volumeName != null || entry.volumeNumber != null;
+  final hasSeason = entry.seasonNumber != null;
+  final hasEpisode = entry.episodeNumber != null;
+  return LibraryMetadataPresentation(
+    identityFacts: [
+      if (includeIdentityFacts) ...[
+        LibraryInspectorFactData('Kind', singularLabel),
+        LibraryInspectorFactData('ID', entry.id),
+        LibraryInspectorFactData('Title', entry.title),
+      ],
+      if (entry.seriesTitle != null)
+        LibraryInspectorFactData(
+          'Series',
+          entry.seriesTitle!,
+          onTap: tapFor(entry.seriesTitle),
+        ),
+      if (hasVolume && !hasSeason)
+        LibraryInspectorFactData(
+          'Volume',
+          entry.volumeName ?? 'Vol. ${entry.volumeNumber}',
+        ),
+      if (hasSeason && hasEpisode)
+        LibraryInspectorFactData(
+          'Season / Episode',
+          'Season ${entry.seasonNumber}, Ep. ${entry.episodeNumber}',
+        ),
+      if (hasSeason && !hasEpisode)
+        LibraryInspectorFactData('Season', 'Season ${entry.seasonNumber}'),
+      if (hasEpisode && !hasSeason)
+        LibraryInspectorFactData('Episode', 'Ep. ${entry.episodeNumber}'),
+      LibraryInspectorFactData(
+        labels.number,
+        genericLibraryDash(entry.itemNumber),
+        onTap: tapFor(entry.itemNumber),
+      ),
+      LibraryInspectorFactData(
+        labels.variant,
+        genericLibraryDash(entry.variant),
+        onTap: tapFor(entry.variant),
+      ),
+      LibraryInspectorFactData(
+        labels.barcode,
+        genericLibraryDash(entry.barcode),
+      ),
+    ],
+    contextFacts: [
+      LibraryInspectorFactData(
+        labels.publisher,
+        genericLibraryDash(entry.publisher),
+        onTap: tapFor(entry.publisher),
+      ),
+      LibraryInspectorFactData(
+        'Released',
+        genericLibraryDash(
+          _formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
+        ),
+      ),
+      if (entry.pageCount != null)
+        LibraryInspectorFactData('Pages', entry.pageCount.toString()),
+      if (entry.catalogNumber != null)
+        LibraryInspectorFactData('Catalog No.', entry.catalogNumber!),
+      if (entry.coverPriceCents != null)
+        LibraryInspectorFactData(
+          'Cover Price',
+          _formatMoney(entry.coverPriceCents, entry.catalogCurrency),
+        ),
+      if (entry.imprint != null)
+        LibraryInspectorFactData(
+          'Imprint',
+          entry.imprint!,
+          onTap: tapFor(entry.imprint),
+        ),
+      if (entry.seriesGroup != null)
+        LibraryInspectorFactData(
+          'Series Group',
+          entry.seriesGroup!,
+          onTap: tapFor(entry.seriesGroup),
+        ),
+      if (entry.subtitle != null)
+        LibraryInspectorFactData('Subtitle', entry.subtitle!),
+      if (entry.country != null)
+        LibraryInspectorFactData('Country', entry.country!),
+      if (entry.releaseStatus != null)
+        LibraryInspectorFactData('Release Status', entry.releaseStatus!),
+      if (entry.language != null)
+        LibraryInspectorFactData('Language', entry.language!),
+      if (entry.ageRating != null)
+        LibraryInspectorFactData('Age Rating', entry.ageRating!),
+      if (entry.platforms != null && entry.platforms!.isNotEmpty)
+        LibraryInspectorFactData('Platforms', entry.platforms!.join(', ')),
+      LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
+      LibraryInspectorFactData(
+        'Metadata',
+        entry.hasMissingMetadata ? 'Missing' : 'Ready',
+      ),
+    ],
+    creators: entry.creators ?? const <Map<String, dynamic>>[],
+    characters: entry.characters ?? const <String>[],
+    storyArcs: entry.storyArcs ?? const <String>[],
+    genres: entry.genres ?? const <String>[],
+  );
+}
+
+LibraryMetadataPresentation buildVideoMetadataPresentation({
+  required String singularLabel,
+  required LibraryMediaFieldLabels labels,
+  required LibraryWorkspaceEntry entry,
+  required bool includeIdentityFacts,
+  required LibraryMetadataFactTapResolver tapFor,
+}) {
+  final hasVolume = entry.volumeName != null || entry.volumeNumber != null;
+  final hasSeason = entry.seasonNumber != null;
+  final hasEpisode = entry.episodeNumber != null;
+  return LibraryMetadataPresentation(
+    identityFacts: [
+      if (includeIdentityFacts) ...[
+        LibraryInspectorFactData('Kind', singularLabel),
+        LibraryInspectorFactData('ID', entry.id),
+        LibraryInspectorFactData('Title', entry.title),
+      ],
+      if (entry.seriesTitle != null)
+        LibraryInspectorFactData(
+          'Series',
+          entry.seriesTitle!,
+          onTap: tapFor(entry.seriesTitle),
+        ),
+      if (hasSeason && hasEpisode)
+        LibraryInspectorFactData(
+          'Season / Episode',
+          'Season ${entry.seasonNumber}, Ep. ${entry.episodeNumber}',
+        ),
+      if (hasSeason && !hasEpisode)
+        LibraryInspectorFactData('Season', 'Season ${entry.seasonNumber}'),
+      if (!hasSeason && hasEpisode)
+        LibraryInspectorFactData('Episode', 'Ep. ${entry.episodeNumber}'),
+      if (hasVolume && !hasSeason)
+        LibraryInspectorFactData(
+          'Volume',
+          entry.volumeName ?? 'Vol. ${entry.volumeNumber}',
+        ),
+      if (entry.variant != null)
+        LibraryInspectorFactData(
+          labels.variant,
+          entry.variant!,
+          onTap: tapFor(entry.variant),
+        ),
+      if (entry.barcode != null)
+        LibraryInspectorFactData(labels.barcode, entry.barcode!),
+    ],
+    contextFacts: [
+      if (entry.publisher != null)
+        LibraryInspectorFactData(
+          labels.publisher,
+          entry.publisher!,
+          onTap: tapFor(entry.publisher),
+        ),
+      LibraryInspectorFactData(
+        'Released',
+        genericLibraryDash(
+          _formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
+        ),
+      ),
+      if (entry.runtimeMinutes != null)
+        LibraryInspectorFactData('Runtime', '${entry.runtimeMinutes} min'),
+      if (entry.country != null)
+        LibraryInspectorFactData('Country', entry.country!),
+      if (entry.language != null)
+        LibraryInspectorFactData('Language', entry.language!),
+      if (entry.ageRating != null)
+        LibraryInspectorFactData('Age Rating', entry.ageRating!),
+      if (entry.subtitle != null)
+        LibraryInspectorFactData('Subtitle', entry.subtitle!),
+      LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
+      LibraryInspectorFactData(
+        'Metadata',
+        entry.hasMissingMetadata ? 'Missing' : 'Ready',
+      ),
+    ],
+    creators: entry.creators ?? const <Map<String, dynamic>>[],
+    characters: entry.characters ?? const <String>[],
+    storyArcs: entry.storyArcs ?? const <String>[],
+    genres: entry.genres ?? const <String>[],
+  );
+}
+
+LibraryMetadataPresentation buildGameMetadataPresentation({
+  required String singularLabel,
+  required LibraryMediaFieldLabels labels,
+  required LibraryWorkspaceEntry entry,
+  required bool includeIdentityFacts,
+  required LibraryMetadataFactTapResolver tapFor,
+}) {
+  return LibraryMetadataPresentation(
+    identityFacts: [
+      if (includeIdentityFacts) ...[
+        LibraryInspectorFactData('Kind', singularLabel),
+        LibraryInspectorFactData('ID', entry.id),
+        LibraryInspectorFactData('Title', entry.title),
+      ],
+      if (entry.variant != null)
+        LibraryInspectorFactData(
+          labels.variant,
+          entry.variant!,
+          onTap: tapFor(entry.variant),
+        ),
+      if (entry.barcode != null)
+        LibraryInspectorFactData(labels.barcode, entry.barcode!),
+      if (entry.ageRating != null)
+        LibraryInspectorFactData('Age Rating', entry.ageRating!),
+    ],
+    contextFacts: [
+      if (entry.platforms != null && entry.platforms!.isNotEmpty)
+        LibraryInspectorFactData('Platforms', entry.platforms!.join(', ')),
+      if (entry.publisher != null)
+        LibraryInspectorFactData(
+          labels.publisher,
+          entry.publisher!,
+          onTap: tapFor(entry.publisher),
+        ),
+      LibraryInspectorFactData(
+        'Released',
+        genericLibraryDash(
+          _formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
+        ),
+      ),
+      if (entry.country != null)
+        LibraryInspectorFactData('Country', entry.country!),
+      if (entry.language != null)
+        LibraryInspectorFactData('Language', entry.language!),
+      LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
+      LibraryInspectorFactData(
+        'Metadata',
+        entry.hasMissingMetadata ? 'Missing' : 'Ready',
+      ),
+    ],
+    creators: entry.creators ?? const <Map<String, dynamic>>[],
+    characters: entry.characters ?? const <String>[],
+    storyArcs: entry.storyArcs ?? const <String>[],
+    genres: entry.genres ?? const <String>[],
+  );
+}
+
+LibraryMetadataPresentation buildMusicMetadataPresentation({
+  required String singularLabel,
+  required LibraryMediaFieldLabels labels,
+  required LibraryWorkspaceEntry entry,
+  required bool includeIdentityFacts,
+  required LibraryMetadataFactTapResolver tapFor,
+}) {
+  return LibraryMetadataPresentation(
+    identityFacts: [
+      if (includeIdentityFacts) ...[
+        LibraryInspectorFactData('Kind', singularLabel),
+        LibraryInspectorFactData('ID', entry.id),
+        LibraryInspectorFactData('Title', entry.title),
+      ],
+      if (entry.seriesTitle != null)
+        LibraryInspectorFactData(
+          'Artist',
+          entry.seriesTitle!,
+          onTap: tapFor(entry.seriesTitle),
+        ),
+      if (entry.volumeName != null || entry.volumeNumber != null)
+        LibraryInspectorFactData(
+          'Disc',
+          entry.volumeName ?? 'Disc ${entry.volumeNumber}',
+        ),
+      if (entry.variant != null)
+        LibraryInspectorFactData(
+          labels.variant,
+          entry.variant!,
+          onTap: tapFor(entry.variant),
+        ),
+      if (entry.barcode != null)
+        LibraryInspectorFactData(labels.barcode, entry.barcode!),
+    ],
+    contextFacts: [
+      if (entry.publisher != null)
+        LibraryInspectorFactData(
+          labels.publisher,
+          entry.publisher!,
+          onTap: tapFor(entry.publisher),
+        ),
+      LibraryInspectorFactData(
+        'Released',
+        genericLibraryDash(
+          _formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
+        ),
+      ),
+      if (entry.trackCount != null)
+        LibraryInspectorFactData('Tracks', entry.trackCount.toString()),
+      if (entry.catalogNumber != null)
+        LibraryInspectorFactData('Catalog No.', entry.catalogNumber!),
+      if (entry.releaseStatus != null)
+        LibraryInspectorFactData('Release Status', entry.releaseStatus!),
+      if (entry.country != null)
+        LibraryInspectorFactData('Country', entry.country!),
+      if (entry.language != null)
+        LibraryInspectorFactData('Language', entry.language!),
+      LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
+      LibraryInspectorFactData(
+        'Metadata',
+        entry.hasMissingMetadata ? 'Missing' : 'Ready',
+      ),
+    ],
+    creators: entry.creators ?? const <Map<String, dynamic>>[],
+    characters: entry.characters ?? const <String>[],
+    storyArcs: entry.storyArcs ?? const <String>[],
+    genres: entry.genres ?? const <String>[],
+  );
+}
+
+List<Widget> buildNoSupplementalInspectorSections({
+  required BuildContext context,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+}) {
+  return const [];
+}
+
+List<Widget> buildSummaryInspectorSections({
+  required BuildContext context,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+}) {
+  if (entry.synopsis == null || entry.synopsis!.trim().isEmpty) {
+    return const [];
+  }
+  return [
+    LibraryInspectorSection(
+      title: 'Summary',
+      accentColor: accent,
+      children: [
+        Text(
+          entry.synopsis!,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
+    ),
+  ];
+}
+
+List<Widget> buildSeasonSummaryInspectorSections({
+  required BuildContext context,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+}) {
+  return [
+    SeasonsSection(itemId: entry.id),
+    ...buildSummaryInspectorSections(
+      context: context,
+      entry: entry,
+      accent: accent,
+    ),
+  ];
+}
+
+List<Widget> buildVolumeSummaryInspectorSections({
+  required BuildContext context,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+}) {
+  return [
+    VolumesSection(itemId: entry.id),
+    ...buildSummaryInspectorSections(
+      context: context,
+      entry: entry,
+      accent: accent,
+    ),
+  ];
+}
+
+List<Widget> buildMusicInspectorSections({
+  required BuildContext context,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+}) {
+  final sections = <Widget>[];
+  if (entry.tracks != null && entry.tracks!.isNotEmpty) {
+    sections.add(
+      InspectorTrackList(
+        tracks: entry.tracks!,
+        trackCount: entry.trackCount,
+        accent: accent,
+        coverUrl: entry.displayCoverUrl,
+        title: entry.title,
+      ),
+    );
+  } else if (entry.trackCount != null) {
+    sections.add(
+      InspectorTrackListUnavailable(
+        trackCount: entry.trackCount!,
+        accent: accent,
+      ),
+    );
+  }
+  return sections;
+}
+
+String _formatMoney(int? cents, String? currency) {
+  if (cents == null) {
+    return '';
+  }
+  final sign = cents < 0 ? '-' : '';
+  final absolute = cents.abs();
+  final whole = absolute ~/ 100;
+  final fraction = (absolute % 100).toString().padLeft(2, '0');
+  final prefix = currency == null || currency.isEmpty ? '' : '$currency ';
+  return '$prefix$sign$whole.$fraction';
+}
+
+String _formatDate(DateTime value) {
+  final local = value.toLocal();
+  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+}
+
+String? _formatNullableDate(DateTime? value) {
+  return value == null ? null : _formatDate(value);
+}

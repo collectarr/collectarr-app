@@ -13,12 +13,8 @@ import 'package:collectarr_app/features/library/inspector/inspector_location_sec
 import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
-import 'package:collectarr_app/features/library/seasons_section.dart';
-import 'package:collectarr_app/features/library/volumes_section.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,7 +49,6 @@ class LibraryInspector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final capabilities = type.capabilities;
     final selected = entry;
     if (selected == null) {
       return EmptyInspector(type: type, accent: accent);
@@ -202,40 +197,11 @@ class LibraryInspector extends ConsumerWidget {
                     accent: accent,
                   ),
               ],
-              if (capabilities.showsTrackData &&
-                  selected.tracks != null &&
-                  selected.tracks!.isNotEmpty)
-                _InspectorTrackList(
-                  tracks: selected.tracks!,
-                  trackCount: selected.trackCount,
-                  accent: accent,
-                  coverUrl: selected.displayCoverUrl,
-                  title: selected.title,
-                ),
-              if (capabilities.showsTrackData &&
-                  selected.trackCount != null &&
-                  (selected.tracks == null || selected.tracks!.isEmpty))
-                _InspectorTrackListUnavailable(
-                  trackCount: selected.trackCount!,
-                  accent: accent,
-                ),
-              if (capabilities.usesSeasonHierarchy)
-                SeasonsSection(itemId: selected.id)
-              else if (capabilities.usesVolumeHierarchy)
-                VolumesSection(itemId: selected.id),
-              if (capabilities.showsSynopsis &&
-                  selected.synopsis != null &&
-                  selected.synopsis!.trim().isNotEmpty)
-                LibraryInspectorSection(
-                  title: 'Summary',
-                  accentColor: accent,
-                  children: [
-                    Text(
-                      selected.synopsis!,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
+              ...type.presentation.inspectorSectionsBuilder(
+                context: context,
+                entry: selected,
+                accent: accent,
+              ),
             ],
           ),
         ),
@@ -277,160 +243,5 @@ class LibraryInspector extends ConsumerWidget {
         const SnackBar(content: Text('Collection details updated')),
       );
     }
-  }
-}
-
-class _InspectorTrackList extends StatelessWidget {
-  const _InspectorTrackList({
-    required this.tracks,
-    required this.accent,
-    this.trackCount,
-    this.coverUrl,
-    this.title,
-  });
-
-  final List<Map<String, dynamic>> tracks;
-  final int? trackCount;
-  final Color accent;
-  final String? coverUrl;
-  final String? title;
-
-  static String _formatDuration(int totalSeconds) {
-    final minutes = totalSeconds ~/ 60;
-    final seconds = totalSeconds % 60;
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  String? get _totalDuration {
-    var total = 0;
-    for (final track in tracks) {
-      final dur = track['duration_seconds'];
-      if (dur is int) total += dur;
-    }
-    if (total == 0) return null;
-    final hours = total ~/ 3600;
-    final minutes = (total % 3600) ~/ 60;
-    final seconds = total % 60;
-    if (hours > 0) {
-      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-    }
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final count = trackCount ?? tracks.length;
-    final duration = _totalDuration;
-    final headerLabel = duration != null
-        ? '$count tracks ($duration)'
-        : '$count tracks';
-
-    final trackColumn = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final track in tracks)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 22,
-                  child: Text(
-                    '${track['position'] ?? '-'}',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: Colors.white54,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    textAlign: TextAlign.right,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    track['title'] as String? ?? 'Untitled',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: accent,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (track['duration_seconds'] != null &&
-                    track['duration_seconds'] is int)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Text(
-                      _formatDuration(track['duration_seconds'] as int),
-                      style: textTheme.bodySmall?.copyWith(
-                        color: Colors.white54,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-
-    return LibraryInspectorSection(
-      title: headerLabel,
-      accentColor: accent,
-      children: [
-        if (coverUrl != null)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: trackColumn),
-              const SizedBox(width: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: SizedBox(
-                  width: 140,
-                  height: 140,
-                  child: LibraryCoverImage(
-                    title: title ?? '',
-                    imageUrl: coverUrl,
-                  ),
-                ),
-              ),
-            ],
-          )
-        else
-          trackColumn,
-      ],
-    );
-  }
-}
-
-class _InspectorTrackListUnavailable extends StatelessWidget {
-  const _InspectorTrackListUnavailable({
-    required this.trackCount,
-    required this.accent,
-  });
-
-  final int trackCount;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return LibraryInspectorSection(
-      title: 'Track List',
-      accentColor: accent,
-      children: [
-        Text(
-          '$trackCount tracks found, but the cached metadata does not include the full track list yet.',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Refresh metadata after re-matching the album to load individual tracks.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white70,
-              ),
-        ),
-      ],
-    );
   }
 }
