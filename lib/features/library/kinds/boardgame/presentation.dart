@@ -37,6 +37,7 @@ const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
     LibraryGroupMode.year,
+    LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,
   ],

@@ -37,6 +37,7 @@ const animeLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.series,
     LibraryGroupMode.year,
     LibraryGroupMode.publisher,
+    LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,
   ],

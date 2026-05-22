@@ -52,6 +52,47 @@ void main() {
       ),
       'Unknown label',
     );
+    expect(
+      genericBucketForItemMode(
+        item,
+        musicLibraryConfig,
+        LibraryGroupMode.location,
+      ),
+      'No location',
+    );
+  });
+
+  test('location grouping uses structured location path when available', () {
+    final item = LibraryProjectionItem(
+      source: const ShelfEntry(itemId: 'comic-1'),
+      entry: LibraryWorkspaceEntry(
+        id: 'comic-1',
+        mediaType: 'comic',
+        title: 'Saga #1',
+        storageBox: 'Office › Shelf A › Short Box 1',
+        updatedAt: DateTime(2026, 1, 1),
+      ),
+    );
+
+    expect(
+      genericGroupModeLabel(LibraryGroupMode.location, comicsLibraryConfig),
+      'Location',
+    );
+    expect(
+      genericGroupModeSidebarTitle(
+        LibraryGroupMode.location,
+        comicsLibraryConfig,
+      ),
+      'Locations',
+    );
+    expect(
+      genericBucketForItemMode(
+        item,
+        comicsLibraryConfig,
+        LibraryGroupMode.location,
+      ),
+      'Office › Shelf A › Short Box 1',
+    );
   });
 
   test('linked metadata filter matches exact metadata values', () {

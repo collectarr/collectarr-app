@@ -42,6 +42,7 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.year,
     LibraryGroupMode.grade,
     LibraryGroupMode.condition,
+    LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,
   ],

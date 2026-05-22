@@ -93,7 +93,7 @@
 - [x] Workspace filtering can target resolved location paths
 - [x] Add a dedicated location management surface for rename / delete / reparent / description editing
 - [x] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to legacy `storageBox` text entry
-- [ ] Introduce a first-class location group mode / sidebar bucket instead of reusing the `storageBox` column path
+- [x] Introduce a first-class location group mode / sidebar bucket instead of reusing the `storageBox` column path
 - [ ] Decide whether location definitions themselves sync or remain local-only metadata
 
 ### 🧭 Yamtrack-Inspired Gaps Worth Evaluating

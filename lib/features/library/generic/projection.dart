@@ -35,6 +35,7 @@ String genericGroupModeLabel(
     LibraryGroupMode.title => 'Title',
     LibraryGroupMode.publisher => labels.publisher,
     LibraryGroupMode.year => 'Year',
+    LibraryGroupMode.location => 'Location',
     LibraryGroupMode.ownership => 'Ownership',
     LibraryGroupMode.grade => 'Grade',
     LibraryGroupMode.condition => 'Condition',
@@ -53,6 +54,7 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.title => 'Titles',
     LibraryGroupMode.publisher => labels.publisherPlural,
     LibraryGroupMode.year => 'Years',
+    LibraryGroupMode.location => 'Locations',
     LibraryGroupMode.ownership => 'Ownership',
     LibraryGroupMode.grade => 'Grades',
     LibraryGroupMode.condition => 'Conditions',
@@ -67,6 +69,7 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.title => Icons.sort_by_alpha,
     LibraryGroupMode.publisher => Icons.business_outlined,
     LibraryGroupMode.year => Icons.calendar_today_outlined,
+    LibraryGroupMode.location => Icons.place_outlined,
     LibraryGroupMode.ownership => Icons.inventory_2_outlined,
     LibraryGroupMode.grade => Icons.workspace_premium_outlined,
     LibraryGroupMode.condition => Icons.fact_check_outlined,
@@ -232,6 +235,7 @@ String genericBucketForItemMode(
     LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
+    LibraryGroupMode.location => _locationBucket(entry.storageBox),
     LibraryGroupMode.ownership => entry.isOwned
         ? 'Owned'
         : entry.isWishlisted
@@ -245,6 +249,14 @@ String genericBucketForItemMode(
           ? entry.condition!
           : 'No condition',
   };
+}
+
+String _locationBucket(String? location) {
+  final normalized = location?.trim();
+  if (normalized == null || normalized.isEmpty) {
+    return 'No location';
+  }
+  return normalized;
 }
 
 String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {

@@ -37,6 +37,7 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
     LibraryGroupMode.year,
+    LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,
   ],

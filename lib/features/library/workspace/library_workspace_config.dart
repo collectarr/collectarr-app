@@ -11,6 +11,7 @@ enum LibraryGroupMode {
   title,
   publisher,
   year,
+  location,
   ownership,
   grade,
   condition,

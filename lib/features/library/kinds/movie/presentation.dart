@@ -37,6 +37,7 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.year,
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
+    LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,
   ],

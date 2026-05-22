@@ -324,6 +324,7 @@ class LibraryMediaPresentation {
       LibraryGroupMode.title,
       LibraryGroupMode.publisher,
       LibraryGroupMode.year,
+      LibraryGroupMode.location,
       LibraryGroupMode.ownership,
     ],
   });

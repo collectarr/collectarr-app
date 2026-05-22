@@ -286,6 +286,7 @@ void main() {
       LibraryGroupMode.series,
       LibraryGroupMode.publisher,
       LibraryGroupMode.year,
+      LibraryGroupMode.location,
       LibraryGroupMode.title,
       LibraryGroupMode.ownership,
     ]);
