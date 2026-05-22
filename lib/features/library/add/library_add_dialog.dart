@@ -1316,10 +1316,6 @@ const double _kLibraryAddControlHeight = 34;
 const double _kLibraryAddModeControlHeight = 36;
 const BorderSide _kLibraryAddBorder = BorderSide(color: kClzDivider);
 
-ButtonStyle _libraryAddFilledButtonStyle([Color accent = kClzAccent]) {
-  return libraryAddFilledButtonStyle(accent);
-}
-
 ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kClzAccent]) {
   return OutlinedButton.styleFrom(
     foregroundColor: accent,

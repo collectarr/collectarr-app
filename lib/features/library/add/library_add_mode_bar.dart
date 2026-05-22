@@ -479,7 +479,7 @@ class _LibraryAddModeButton extends StatelessWidget {
           );
     final style = outlined
         ? _libraryAddOutlinedButtonStyle(accent)
-        : _libraryAddFilledButtonStyle(accent);
+      : libraryAddFilledButtonStyle(accent);
     return SizedBox(
       height: _kLibraryAddModeControlHeight,
       child: outlined

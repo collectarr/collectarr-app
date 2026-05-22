@@ -136,7 +136,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
                 Expanded(
                   child: FilledButton(
                     onPressed: isAdding ? null : onAdd,
-                    style: _libraryAddFilledButtonStyle(accent),
+                    style: libraryAddFilledButtonStyle(accent),
                     child: isAdding
                         ? const SizedBox.square(
                             dimension: 16,

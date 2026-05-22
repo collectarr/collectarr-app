@@ -205,7 +205,7 @@ class _ManualPane extends StatelessWidget {
                         Expanded(
                           child: FilledButton.icon(
                             onPressed: isAdding ? null : onAddOwned,
-                            style: _libraryAddFilledButtonStyle(),
+                            style: libraryAddFilledButtonStyle(),
                             icon: isAdding
                                 ? const SizedBox.square(
                                     dimension: 16,

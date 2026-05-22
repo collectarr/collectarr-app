@@ -14,6 +14,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+const _kAdminDropdownColor = Color(0xFF2A2A2A);
+
 class AdminPage extends ConsumerStatefulWidget {
   const AdminPage({super.key});
 
@@ -1933,7 +1935,7 @@ class _ProviderSelector extends StatelessWidget {
       key: ValueKey(selected),
       initialValue: selected,
       isExpanded: true,
-      dropdownColor: const Color(0xFF2A2A2A),
+      dropdownColor: _kAdminDropdownColor,
       hint: Text(isLoading ? 'Loading providers...' : 'Select provider'),
       decoration: const InputDecoration(
         labelText: 'Provider',
@@ -1985,7 +1987,7 @@ class _ProviderKindSelector extends StatelessWidget {
       key: ValueKey('provider-kind-$selected'),
       initialValue: selected,
       isExpanded: true,
-      dropdownColor: const Color(0xFF2A2A2A),
+      dropdownColor: _kAdminDropdownColor,
       decoration: const InputDecoration(
         labelText: 'Media kind',
         prefixIcon: Icon(Icons.category_outlined),
@@ -2262,7 +2264,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 initialValue: filterValue,
                 isExpanded: true,
-                dropdownColor: const Color(0xFF2A2A2A),
+                dropdownColor: _kAdminDropdownColor,
                 decoration: const InputDecoration(
                   labelText: 'Status filter',
                   border: OutlineInputBorder(),
@@ -2282,7 +2284,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 initialValue: providerFilterValue,
                 isExpanded: true,
-                dropdownColor: const Color(0xFF2A2A2A),
+                dropdownColor: _kAdminDropdownColor,
                 decoration: const InputDecoration(
                   labelText: 'Provider filter',
                   border: OutlineInputBorder(),
@@ -4316,7 +4318,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       padding: const EdgeInsets.only(bottom: 12),
       child: DropdownButtonFormField<String>(
         initialValue: _physicalFormatId,
-        dropdownColor: const Color(0xFF2A2A2A),
+        dropdownColor: _kAdminDropdownColor,
         decoration: const InputDecoration(
           labelText: 'Physical format',
           border: OutlineInputBorder(),
