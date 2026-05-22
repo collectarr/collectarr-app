@@ -121,7 +121,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   double _resultsPaneWidth = 480;
   static const _providerSearchDebounce = Duration(milliseconds: 450);
   static const _coreSearchTimeout = Duration(seconds: 35);
-  static const _providerPreviewPrefetchBatchSize = 4;
   static const _minResultsPaneWidth = 280.0;
   static const _maxResultsPaneWidth = 860.0;
   static const _minPreviewPaneWidth = 360.0;
@@ -277,6 +276,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _selectedProviderCandidateId = id;
                             _selectedResultId = null;
                           });
+                          unawaited(_ensureProviderPreviewLoaded(id));
                         },
                         onToggleResultCheck: (id) => setState(() {
                           if (!_checkedResultIds.remove(id)) {
@@ -476,12 +476,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           limit: 20,
         ),
       ).timeout(_coreSearchTimeout);
+      final mappedItems = [
+        for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
+      ];
       final shouldSearchProvider =
+          mappedItems.isEmpty &&
           widget.type.supportedMetadataProviders.isNotEmpty;
       if (mounted && searchGeneration == _coreSearchGeneration) {
-        final mappedItems = [
-          for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
-        ];
         setState(() {
           _results = mappedItems;
           _selectedResultId = null;
@@ -542,6 +543,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           if (result.item != null)
             LibraryMetadataItem.fromCatalogItem(result.item!),
       ];
+      final shouldSearchProvider =
+          found.isEmpty && widget.type.supportedMetadataProviders.isNotEmpty;
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
           _results = found;
@@ -557,7 +560,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
-          widget.type.supportedMetadataProviders.isNotEmpty) {
+          shouldSearchProvider) {
         await _searchProvider(queryOverride: barcode);
       }
     } catch (error) {
@@ -644,7 +647,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       return;
     }
     final provider = _activeProvider;
-    final searchGeneration = ++_providerSearchGeneration;
+    ++_providerSearchGeneration;
     if (_isSearchingProvider ||
         (!bypassDebounce && _shouldDebounceProviderSearch(provider, query))) {
       return;
@@ -681,21 +684,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       setState(() {
         _providerResults = results;
         _selectedProviderCandidateId = null;
-        _pendingProviderPreviewIds
-          ..clear()
-          ..addAll([
-            for (final candidate in results)
-              if (!candidate.isStub) candidate.localCatalogId,
-          ]);
+        _pendingProviderPreviewIds.clear();
       });
       _precacheProviderCandidateCovers(results);
-      unawaited(
-        _prefetchProviderPreviewsInBackground(
-          api,
-          results,
-          searchGeneration: searchGeneration,
-        ),
-      );
     } catch (error) {
       if (mounted) {
         if (await _clearRejectedMetadataSession(error, 'Provider search')) {
@@ -714,57 +705,47 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
   }
 
-  Future<void> _prefetchProviderPreviewsInBackground(
-    ApiClient api,
-    List<ProviderCandidate> candidates, {
-    required int searchGeneration,
-  }) async {
-    final previewsByCandidateId = await _prefetchProviderPreviews(api, candidates);
-    if (!mounted || searchGeneration != _providerSearchGeneration) {
+  Future<void> _ensureProviderPreviewLoaded(String candidateId) async {
+    if (_providerPreviews.containsKey(candidateId) ||
+        _pendingProviderPreviewIds.contains(candidateId)) {
       return;
     }
-    setState(() {
-      _providerPreviews.addAll(previewsByCandidateId);
-      _pendingProviderPreviewIds.removeAll(previewsByCandidateId.keys);
-    });
-    _precacheProviderPreviewCovers(previewsByCandidateId.values);
-  }
-
-  Future<Map<String, AdminProviderPreview>> _prefetchProviderPreviews(
-    ApiClient api,
-    List<ProviderCandidate> candidates,
-  ) async {
-    final previewsByCandidateId = <String, AdminProviderPreview>{};
-    for (
-      var index = 0;
-      index < candidates.length;
-      index += _providerPreviewPrefetchBatchSize
-    ) {
-      final batch = candidates.skip(index).take(_providerPreviewPrefetchBatchSize);
-      final previewEntries = await Future.wait(
-        [
-          for (final candidate in batch)
-            () async {
-              if (candidate.isStub) {
-                return null;
-              }
-              try {
-                final preview = await api.providerPreview(
-                  provider: candidate.provider,
-                  providerItemId: candidate.providerItemId,
-                );
-                return MapEntry(candidate.localCatalogId, preview);
-              } catch (_) {
-                return null;
-              }
-            }(),
-        ],
-      );
-      for (final entry in previewEntries.whereType<MapEntry<String, AdminProviderPreview>>()) {
-        previewsByCandidateId[entry.key] = entry.value;
+    ProviderCandidate? candidate;
+    for (final value in _providerResults) {
+      if (value.localCatalogId == candidateId) {
+        candidate = value;
+        break;
       }
     }
-    return previewsByCandidateId;
+    if (candidate == null || candidate.isStub) {
+      return;
+    }
+    final searchGeneration = _providerSearchGeneration;
+    setState(() {
+      _pendingProviderPreviewIds.add(candidateId);
+    });
+    try {
+      final api = ref.read(apiClientProvider);
+      final preview = await api.providerPreview(
+        provider: candidate.provider,
+        providerItemId: candidate.providerItemId,
+      );
+      if (!mounted || searchGeneration != _providerSearchGeneration) {
+        return;
+      }
+      setState(() {
+        _providerPreviews[candidateId] = preview;
+        _pendingProviderPreviewIds.remove(candidateId);
+      });
+      _precacheProviderPreviewCovers([preview]);
+    } catch (_) {
+      if (!mounted || searchGeneration != _providerSearchGeneration) {
+        return;
+      }
+      setState(() {
+        _pendingProviderPreviewIds.remove(candidateId);
+      });
+    }
   }
 
   void _precacheMetadataCovers(List<LibraryMetadataItem> items) {

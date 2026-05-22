@@ -139,6 +139,7 @@ void main() {
     expect(api.lastProvider, 'anilist');
     expect(api.lastProviderKind, 'manga');
     expect(api.lastProviderQuery, 'Naruto');
+    expect(api.providerPreviewCallCount, 0);
     expect(find.textContaining('A ninja candidate.'), findsWidgets);
     expect(find.text('Select a manga to add'), findsOneWidget);
     expect(find.byTooltip('Queue Core ingest'), findsNothing);
@@ -151,6 +152,7 @@ void main() {
     await tester.tap(providerCandidate);
     await tester.pumpAndSettle();
 
+    expect(api.providerPreviewCallCount, 1);
     expect(find.text('Add as owned'), findsOneWidget);
     expect(find.byTooltip('Queue Core ingest'), findsOneWidget);
     expect(find.byTooltip('Propose metadata to Core'), findsOneWidget);
@@ -298,6 +300,7 @@ void main() {
 
     expect(api.lastSearchKind, 'movie');
     expect(api.lastSearchQuery, 'Blade Runner');
+    expect(api.lastProvider, isNull);
     expect(find.text('Blade Runner 2049'), findsWidgets);
     expect(find.text('Matched on: Title'), findsOneWidget);
   });
@@ -473,6 +476,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
   String? lastProposalTitle;
   String? lastIngestProvider;
   String? lastIngestProviderItemId;
+  int providerPreviewCallCount = 0;
 
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
@@ -600,6 +604,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required String provider,
     required String providerItemId,
   }) async {
+    providerPreviewCallCount += 1;
     return AdminProviderPreview.fromJson({
       'provider': provider,
       'provider_item_id': providerItemId,
