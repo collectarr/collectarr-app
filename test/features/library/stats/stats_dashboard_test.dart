@@ -51,6 +51,10 @@ void main() {
     await tester.tap(find.text('Open stats'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Top Artists'), findsOneWidget);
+    expect(find.text('Top Labels'), findsOneWidget);
+    expect(find.text('Top Series'), findsNothing);
+    expect(find.text('Top Publishers'), findsNothing);
     expect(find.text('Metadata Alerts'), findsOneWidget);
     expect(find.text('Missing artist'), findsOneWidget);
     expect(find.text('Missing label'), findsOneWidget);

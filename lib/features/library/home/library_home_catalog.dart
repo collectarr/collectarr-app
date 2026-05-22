@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -70,6 +71,7 @@ LibraryTypeConfig libraryConfigForCatalogType(
     return known;
   }
   final providers = _providerOptionsForCatalogType(type);
+  const presentation = genericLibraryMediaPresentation;
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
       kind: type.kind,
@@ -77,7 +79,7 @@ LibraryTypeConfig libraryConfigForCatalogType(
       icon: libraryIconForKind(type.kind),
       preferencePrefix: 'catalog_${type.kind}',
       defaultSortColumn: LibrarySortColumn.title,
-      defaultVisibleColumns: _fallbackVisibleColumnsForKind(type.kind),
+      defaultVisibleColumns: presentation.defaultVisibleColumns,
     ),
     singularLabel: _displayLabel(type.singularLabel, type.kind),
     pluralLabel: _displayLabel(type.pluralLabel, type.kind, plural: true),
@@ -85,6 +87,7 @@ LibraryTypeConfig libraryConfigForCatalogType(
         (type.providers.isEmpty ? '' : type.providers.first),
     metadataProviders: providers,
     trackingProfile: _trackingProfileForKind(type.kind),
+    presentation: presentation,
   );
 }
 
@@ -121,23 +124,6 @@ LibraryMetadataProviderOption _providerOptionForCatalogKind(
     requiresApiKey: option.requiresApiKey,
     usagePolicy: option.usagePolicy,
   );
-}
-
-Set<LibraryTableColumn> _fallbackVisibleColumnsForKind(String kind) {
-  return {
-    LibraryTableColumn.status,
-    LibraryTableColumn.cover,
-    LibraryTableColumn.title,
-    if (kind == 'comic' || kind == 'manga') LibraryTableColumn.issue,
-    LibraryTableColumn.publisher,
-    LibraryTableColumn.releaseDate,
-    LibraryTableColumn.barcode,
-    LibraryTableColumn.condition,
-    LibraryTableColumn.price,
-    LibraryTableColumn.storageBox,
-    LibraryTableColumn.wishlist,
-    LibraryTableColumn.updated,
-  };
 }
 
 MediaTrackingProfile _trackingProfileForKind(String kind) {

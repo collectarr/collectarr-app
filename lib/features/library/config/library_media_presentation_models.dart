@@ -84,6 +84,16 @@ class LibraryMediaPreviewLabels {
   final String itemCount;
 }
 
+class LibraryMediaStatsLabels {
+  const LibraryMediaStatsLabels({
+    this.topSeries = 'Top Series',
+    this.topPublisher = 'Top Publishers',
+  });
+
+  final String topSeries;
+  final String topPublisher;
+}
+
 class LibraryMetadataPresentation {
   const LibraryMetadataPresentation({
     required this.identityFacts,
@@ -289,10 +299,25 @@ class LibraryMediaPresentation {
     required this.filterLabels,
     required this.groupLabels,
     required this.builder,
+    this.defaultVisibleColumns = const {
+      LibraryTableColumn.status,
+      LibraryTableColumn.cover,
+      LibraryTableColumn.title,
+      LibraryTableColumn.publisher,
+      LibraryTableColumn.releaseDate,
+      LibraryTableColumn.barcode,
+      LibraryTableColumn.condition,
+      LibraryTableColumn.price,
+      LibraryTableColumn.storageBox,
+      LibraryTableColumn.wishlist,
+      LibraryTableColumn.updated,
+    },
     this.previewLabels = const LibraryMediaPreviewLabels(
       series: 'Series',
       itemCount: 'Items',
     ),
+    this.statsLabels = const LibraryMediaStatsLabels(),
+    this.usesTreeProviderCandidates = false,
     this.groupModes = const [
       LibraryGroupMode.series,
       LibraryGroupMode.title,
@@ -307,6 +332,9 @@ class LibraryMediaPresentation {
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
+  final Set<LibraryTableColumn> defaultVisibleColumns;
   final LibraryMediaPreviewLabels previewLabels;
+  final LibraryMediaStatsLabels statsLabels;
+  final bool usesTreeProviderCandidates;
   final List<LibraryGroupMode> groupModes;
 }

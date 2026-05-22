@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -23,6 +24,8 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final ShelfState state;
+
+  LibraryMediaStatsLabels get _statsLabels => type.presentation.statsLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -243,22 +246,11 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   String get _seriesLabel {
-    final kind = type.workspace.kind;
-    return switch (kind) {
-      'movie' || 'tv' || 'anime' => 'Top Franchises',
-      'music' => 'Top Artists',
-      _ => 'Top Series',
-    };
+    return _statsLabels.topSeries;
   }
 
   String get _publisherLabel {
-    final kind = type.workspace.kind;
-    return switch (kind) {
-      'movie' || 'tv' || 'anime' => 'Top Studios',
-      'music' => 'Top Labels',
-      'game' || 'boardgame' => 'Top Publishers / Studios',
-      _ => 'Top Publishers',
-    };
+    return _statsLabels.topPublisher;
   }
 
   static Map<String, int> _topSeriesCounts(List<ShelfEntry> entries) {

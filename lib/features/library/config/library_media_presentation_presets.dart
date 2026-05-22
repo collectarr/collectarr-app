@@ -51,6 +51,32 @@ const releasesPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Artist',
   itemCount: 'Releases',
 );
+const franchiseStatsLabels = LibraryMediaStatsLabels(
+  topSeries: 'Top Franchises',
+  topPublisher: 'Top Studios',
+);
+const musicStatsLabels = LibraryMediaStatsLabels(
+  topSeries: 'Top Artists',
+  topPublisher: 'Top Labels',
+);
+const gameStatsLabels = LibraryMediaStatsLabels(
+  topSeries: 'Top Series',
+  topPublisher: 'Top Publishers / Studios',
+);
+const issueVisibleColumns = {
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.issue,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.barcode,
+  LibraryTableColumn.condition,
+  LibraryTableColumn.price,
+  LibraryTableColumn.storageBox,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+};
 
 const genericLibraryMediaPresentation = LibraryMediaPresentation(
   fieldLabels: LibraryMediaFieldLabels(
@@ -113,6 +139,7 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown publisher',
   ),
   builder: comicsLibraryMediaBuilder,
+  defaultVisibleColumns: issueVisibleColumns,
   previewLabels: issuesPreviewLabels,
   groupModes: [
     LibraryGroupMode.series,
@@ -156,7 +183,9 @@ const mangaLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown publisher',
   ),
   builder: mangaLibraryMediaBuilder,
+  defaultVisibleColumns: issueVisibleColumns,
   previewLabels: volumesPreviewLabels,
+  usesTreeProviderCandidates: true,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
@@ -196,6 +225,7 @@ const animeLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   builder: animeLibraryMediaBuilder,
   previewLabels: seasonsPreviewLabels,
+  statsLabels: franchiseStatsLabels,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.year,
@@ -274,6 +304,7 @@ const gamesLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   builder: gamesLibraryMediaBuilder,
   previewLabels: defaultPreviewLabels,
+  statsLabels: gameStatsLabels,
   groupModes: [
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
@@ -313,6 +344,7 @@ const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   builder: boardGamesLibraryMediaBuilder,
   previewLabels: defaultPreviewLabels,
+  statsLabels: gameStatsLabels,
   groupModes: [
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
@@ -352,6 +384,7 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   builder: moviesLibraryMediaBuilder,
   previewLabels: defaultPreviewLabels,
+  statsLabels: franchiseStatsLabels,
   groupModes: [
     LibraryGroupMode.year,
     LibraryGroupMode.series,
@@ -391,6 +424,7 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   builder: musicLibraryMediaBuilder,
   previewLabels: releasesPreviewLabels,
+  statsLabels: musicStatsLabels,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
@@ -430,6 +464,7 @@ const tvLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   builder: tvLibraryMediaBuilder,
   previewLabels: seasonsPreviewLabels,
+  statsLabels: franchiseStatsLabels,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.year,

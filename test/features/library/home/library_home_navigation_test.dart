@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/home/library_home_catalog.dart';
 import 'package:collectarr_app/features/library/home/library_home_nav_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
@@ -60,6 +61,9 @@ void main() {
     expect(config.singularLabel, 'Podcast');
     expect(config.pluralLabel, 'Podcasts');
     expect(config.defaultMetadataProvider, 'podindex');
+    expect(config.presentation, genericLibraryMediaPresentation);
+    expect(config.workspace.defaultVisibleColumns,
+      genericLibraryMediaPresentation.defaultVisibleColumns);
     expect(config.supportedMetadataProviders.single.id, 'podindex');
     expect(config.supportedMetadataProviders.single.supportsKind('podcast'),
         isTrue);

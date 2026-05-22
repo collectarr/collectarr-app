@@ -335,7 +335,7 @@ class _SearchResultsList extends StatelessWidget {
           _ResultSectionHeader(
             label: '${type.metadataProviderLabel(selectedProvider)} candidates',
           ),
-          if (type.workspace.kind == 'manga')
+          if (type.presentation.usesTreeProviderCandidates)
             _MangaCandidateTreeList(
               results: providerResults,
               accent: accent,

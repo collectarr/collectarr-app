@@ -75,4 +75,14 @@ void main() {
     expect(tvLabels.itemCount, 'Seasons');
     expect(bookLabels.itemCount, 'Volumes');
   });
+
+  test('stats labels and candidate layout vary by media type', () {
+    expect(musicLibraryConfig.presentation.statsLabels.topSeries, 'Top Artists');
+    expect(musicLibraryConfig.presentation.statsLabels.topPublisher, 'Top Labels');
+    expect(moviesLibraryConfig.presentation.statsLabels.topSeries, 'Top Franchises');
+    expect(gamesLibraryConfig.presentation.statsLabels.topPublisher,
+        'Top Publishers / Studios');
+    expect(mangaLibraryConfig.presentation.usesTreeProviderCandidates, isTrue);
+    expect(booksLibraryConfig.presentation.usesTreeProviderCandidates, isFalse);
+  });
 }
