@@ -35,6 +35,7 @@ void main() {
           currency: 'USD',
           personalNotes: 'Signed copy',
           quantity: 2,
+          locationId: 'loc-short-box-6',
           storageBox: 'Box 6',
           indexNumber: 1310,
           coverPriceCents: 399,
@@ -53,6 +54,7 @@ void main() {
     ]);
 
     expect(exported, contains('"Spider-Man, ""Vol. 1"""'));
+  expect(exported, contains('location_id'));
 
     final rows = csv.parse(exported);
     expect(rows.single.itemId, 'comic-1');
@@ -72,6 +74,7 @@ void main() {
     expect(rows.single.pricePaidCents, 1299);
     expect(rows.single.notes, 'Signed copy');
     expect(rows.single.quantity, 2);
+    expect(rows.single.locationId, 'loc-short-box-6');
     expect(rows.single.storageBox, 'Box 6');
     expect(rows.single.indexNumber, 1310);
     expect(rows.single.coverPriceCents, 399);
@@ -219,6 +222,25 @@ void main() {
     expect(rows.single.readStatus, 'Read');
     expect(rows.single.keyComic, isTrue);
     expect(rows.single.notes, 'CLZ import');
+  });
+
+  test('collection csv parses structured location ids directly', () {
+    final rows = CollectionCsv().parse(
+      const CsvEncoder(lineDelimiter: '\n').convert([
+        [
+          'item_id',
+          'status',
+          'title',
+          'location_id',
+          'storage_box',
+        ],
+        ['comic-1', 'owned', 'Test', 'loc-short-box-6', 'Box 6'],
+      ]),
+    );
+
+    expect(rows.single.itemId, 'comic-1');
+    expect(rows.single.locationId, 'loc-short-box-6');
+    expect(rows.single.storageBox, 'Box 6');
   });
 
   test('collection csv parses decimal and thousands money separators', () {

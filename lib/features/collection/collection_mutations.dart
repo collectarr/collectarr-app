@@ -473,6 +473,8 @@ class CollectionMutations {
     DateTime now, {
     OwnedItem? existing,
   }) {
+    final hasLocationId = row.locationId?.trim().isNotEmpty ?? false;
+    final hasStorageBox = row.storageBox?.trim().isNotEmpty ?? false;
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
       itemId: row.itemId,
@@ -485,7 +487,16 @@ class CollectionMutations {
       currency: row.currency ?? existing?.currency,
       personalNotes: row.notes ?? existing?.personalNotes,
       quantity: row.quantity ?? existing?.quantity ?? 1,
-      storageBox: row.storageBox ?? existing?.storageBox,
+        storageBox: hasLocationId
+          ? null
+          : hasStorageBox
+            ? row.storageBox
+            : existing?.storageBox,
+        locationId: hasLocationId
+          ? row.locationId
+          : hasStorageBox
+            ? null
+            : existing?.locationId,
       indexNumber: row.indexNumber ?? existing?.indexNumber,
       coverPriceCents: row.coverPriceCents ?? existing?.coverPriceCents,
       rawOrSlabbed: row.rawOrSlabbed ?? existing?.rawOrSlabbed,

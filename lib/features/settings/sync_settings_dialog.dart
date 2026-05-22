@@ -12,10 +12,16 @@ enum SyncFieldPolicy {
 }
 
 class SyncFieldSetting {
-  const SyncFieldSetting(this.key, this.label, {this.group});
+  const SyncFieldSetting(
+    this.key,
+    this.label, {
+    this.group,
+    this.legacyKey,
+  });
   final String key;
   final String label;
   final String? group;
+  final String? legacyKey;
 }
 
 const _syncFields = [
@@ -32,7 +38,12 @@ const _syncFields = [
   SyncFieldSetting('barcode', 'Barcode', group: 'Catalog'),
   SyncFieldSetting('condition', 'Condition', group: 'Personal'),
   SyncFieldSetting('grade', 'Grade', group: 'Personal'),
-  SyncFieldSetting('storage_box', 'Storage Box', group: 'Personal'),
+  SyncFieldSetting(
+    'location_id',
+    'Location',
+    group: 'Personal',
+    legacyKey: 'storage_box',
+  ),
   SyncFieldSetting('tags', 'Tags', group: 'Personal'),
   SyncFieldSetting('rating', 'Rating', group: 'Personal'),
   SyncFieldSetting('read_status', 'Read Status', group: 'Personal'),
@@ -66,7 +77,10 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
     final prefs = await SharedPreferences.getInstance();
     final loaded = <String, SyncFieldPolicy>{};
     for (final field in _syncFields) {
-      final stored = prefs.getString('$_prefsPrefix${field.key}');
+      final stored = prefs.getString('$_prefsPrefix${field.key}') ??
+          (field.legacyKey == null
+              ? null
+              : prefs.getString('$_prefsPrefix${field.legacyKey}'));
       loaded[field.key] = SyncFieldPolicy.values.firstWhere(
         (p) => p.name == stored,
         orElse: () => SyncFieldPolicy.updateEmpty,
@@ -84,6 +98,11 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
     final prefs = await SharedPreferences.getInstance();
     for (final entry in _policies.entries) {
       await prefs.setString('$_prefsPrefix${entry.key}', entry.value.name);
+    }
+    for (final field in _syncFields) {
+      if (field.legacyKey != null) {
+        await prefs.remove('$_prefsPrefix${field.legacyKey}');
+      }
     }
   }
 

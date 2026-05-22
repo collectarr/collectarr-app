@@ -25,6 +25,7 @@ class CollectionCsvRow {
     this.currency,
     this.notes,
     this.quantity,
+    this.locationId,
     this.storageBox,
     this.indexNumber,
     this.coverPriceCents,
@@ -64,6 +65,7 @@ class CollectionCsvRow {
   final String? currency;
   final String? notes;
   final int? quantity;
+  final String? locationId;
   final String? storageBox;
   final int? indexNumber;
   final int? coverPriceCents;
@@ -106,6 +108,7 @@ class CollectionCsvRow {
     String? currency,
     String? notes,
     int? quantity,
+    String? locationId,
     String? storageBox,
     int? indexNumber,
     int? coverPriceCents,
@@ -145,6 +148,7 @@ class CollectionCsvRow {
       currency: currency ?? this.currency,
       notes: notes ?? this.notes,
       quantity: quantity ?? this.quantity,
+      locationId: locationId ?? this.locationId,
       storageBox: storageBox ?? this.storageBox,
       indexNumber: indexNumber ?? this.indexNumber,
       coverPriceCents: coverPriceCents ?? this.coverPriceCents,
@@ -188,6 +192,7 @@ class CollectionCsv {
     'currency',
     'notes',
     'quantity',
+    'location_id',
     'storage_box',
     'index_number',
     'cover_price_cents',
@@ -323,6 +328,7 @@ class CollectionCsv {
       o?.currency ?? entry.wishlistItem?.currency ?? '',
       o?.personalNotes ?? entry.wishlistItem?.notes ?? '',
       o?.quantity.toString() ?? '',
+      o?.locationId ?? '',
       o?.storageBox ?? '',
       o?.indexNumber?.toString() ?? '',
       o?.coverPriceCents?.toString() ?? '',
@@ -566,6 +572,7 @@ class CollectionCsv {
       currency: _optionalValue(index, values, 'currency'),
       notes: _optionalValue(index, values, 'notes'),
       quantity: int.tryParse(_value(index, values, 'quantity')),
+      locationId: _optionalValue(index, values, 'location_id'),
       storageBox: _optionalValue(index, values, 'storage_box'),
       indexNumber: int.tryParse(_value(index, values, 'index_number')),
       coverPriceCents: _moneyCents(_value(index, values, 'cover_price_cents')),
@@ -608,6 +615,7 @@ class CollectionCsv {
         (row.itemNumber?.trim().isNotEmpty ?? false) ||
         (row.editionTitle?.trim().isNotEmpty ?? false) ||
         (row.physicalFormat?.trim().isNotEmpty ?? false) ||
+        (row.locationId?.trim().isNotEmpty ?? false) ||
         (row.publisher?.trim().isNotEmpty ?? false) ||
         (row.barcode?.trim().isNotEmpty ?? false);
   }
@@ -888,6 +896,7 @@ class CollectionCsv {
     'currency': ['Currency'],
     'notes': ['Notes', 'Personal Notes'],
     'quantity': ['Quantity', 'Qty'],
+    'location_id': ['Location ID', 'Location Id'],
     'storage_box': ['Storage Box', 'Storage'],
     'index_number': ['Index', 'Index Number'],
     'cover_price_cents': ['Cover Price'],

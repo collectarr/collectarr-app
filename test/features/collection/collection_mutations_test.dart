@@ -440,4 +440,30 @@ void main() {
     expect(owned.single.grade, '7.5');
     expect(owned.single.storageBox, 'Box 6');
   });
+
+  test('collection import prefers structured location ids over storage box',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final imported = await container.read(collectionMutationsProvider).importRows(
+      const [
+        CollectionCsvRow(
+          itemId: 'comic-1',
+          status: 'owned',
+          locationId: 'loc-short-box-6',
+          storageBox: 'Box 6',
+        ),
+      ],
+    );
+
+    final owned = await db.select(db.ownedItemsCache).get();
+    expect(imported, 1);
+    expect(owned.single.locationId, 'loc-short-box-6');
+    expect(owned.single.storageBox, isNull);
+  });
 }
