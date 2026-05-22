@@ -1,5 +1,12 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -95,9 +102,11 @@ class _InspectorPersonalDetailsEditorState
   late final TextEditingController _priceController;
   late final TextEditingController _currencyController;
   late final TextEditingController _notesController;
-  late final TextEditingController _storageBoxController;
   DateTime? _purchaseDate;
   String? _priceError;
+  List<StorageLocation> _availableLocations = const [];
+  String? _selectedLocationId;
+  bool _locationChanged = false;
 
   @override
   void initState() {
@@ -105,8 +114,8 @@ class _InspectorPersonalDetailsEditorState
     _priceController = TextEditingController();
     _currencyController = TextEditingController();
     _notesController = TextEditingController();
-    _storageBoxController = TextEditingController();
     _syncFromItem(widget.ownedItem);
+    unawaited(_loadAvailableLocations());
   }
 
   @override
@@ -123,7 +132,6 @@ class _InspectorPersonalDetailsEditorState
     _priceController.dispose();
     _currencyController.dispose();
     _notesController.dispose();
-    _storageBoxController.dispose();
     super.dispose();
   }
 
@@ -209,11 +217,22 @@ class _InspectorPersonalDetailsEditorState
               ],
             ),
             const SizedBox(height: 9),
-            TextField(
-              controller: _storageBoxController,
-              decoration: const InputDecoration(
-                labelText: 'Storage box',
-                border: OutlineInputBorder(),
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: _pickLocation,
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Location',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.place),
+                ),
+                child: Text(
+                  _selectedLocationLabel ?? 'No location selected',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color:
+                            _selectedLocationLabel == null ? kClzTextMuted : null,
+                      ),
+                ),
               ),
             ),
             const SizedBox(height: 9),
@@ -255,7 +274,54 @@ class _InspectorPersonalDetailsEditorState
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     _currencyController.text = item.currency ?? 'USD';
     _notesController.text = item.personalNotes ?? '';
-    _storageBoxController.text = item.storageBox ?? '';
+    _selectedLocationId = item.locationId;
+    _locationChanged = false;
+  }
+
+  String? get _selectedLocationLabel {
+    final locationLabel =
+        locationPathForId(_availableLocations, _selectedLocationId);
+    if (locationLabel != null) {
+      return locationLabel;
+    }
+    if (_locationChanged) {
+      return null;
+    }
+    final legacyLabel = widget.ownedItem.storageBox?.trim();
+    if (legacyLabel == null || legacyLabel.isEmpty) {
+      return null;
+    }
+    return legacyLabel;
+  }
+
+  Future<void> _loadAvailableLocations() async {
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _availableLocations = locations);
+  }
+
+  Future<void> _pickLocation() async {
+    final result = await showLocationPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      currentLocationId: _selectedLocationId,
+    );
+    if (result == null) {
+      return;
+    }
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _locationChanged = true;
+      _selectedLocationId = result.isEmpty ? null : result;
+      _availableLocations = locations;
+    });
   }
 
   Future<void> _pickPurchaseDate() async {
@@ -280,7 +346,6 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    final storageBox = _storageBoxController.text.trim();
     await ref.read(collectionMutationsProvider).updateItem(
           widget.ownedItem,
           condition: widget.ownedItem.condition,
@@ -290,7 +355,9 @@ class _InspectorPersonalDetailsEditorState
           currency: currency.isEmpty ? null : currency,
           personalNotes: _emptyToNull(_notesController.text),
           quantity: widget.ownedItem.quantity,
-          storageBox: storageBox.isEmpty ? null : storageBox,
+            storageBox: _locationChanged ? null : widget.ownedItem.storageBox,
+            locationId:
+              _locationChanged ? _selectedLocationId : widget.ownedItem.locationId,
           indexNumber: widget.ownedItem.indexNumber,
           coverPriceCents: widget.ownedItem.coverPriceCents,
           rawOrSlabbed: widget.ownedItem.rawOrSlabbed,
