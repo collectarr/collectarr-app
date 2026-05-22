@@ -31,6 +31,27 @@ const tvLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
   showSeasonHierarchy: true,
 );
 
+const defaultPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Items',
+);
+const issuesPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Issues',
+);
+const volumesPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Volumes',
+);
+const seasonsPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Series',
+  itemCount: 'Seasons',
+);
+const releasesPreviewLabels = LibraryMediaPreviewLabels(
+  series: 'Artist',
+  itemCount: 'Releases',
+);
+
 const genericLibraryMediaPresentation = LibraryMediaPresentation(
   fieldLabels: LibraryMediaFieldLabels(
     number: 'No. / Vol.',
@@ -60,6 +81,7 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown publisher',
   ),
   builder: genericLibraryMediaBuilder,
+  previewLabels: defaultPreviewLabels,
 );
 
 const comicsLibraryMediaPresentation = LibraryMediaPresentation(
@@ -91,6 +113,7 @@ const comicsLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown publisher',
   ),
   builder: comicsLibraryMediaBuilder,
+  previewLabels: issuesPreviewLabels,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.storyArc,
@@ -133,6 +156,7 @@ const mangaLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown publisher',
   ),
   builder: mangaLibraryMediaBuilder,
+  previewLabels: volumesPreviewLabels,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
@@ -171,6 +195,7 @@ const animeLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown studio / publisher',
   ),
   builder: animeLibraryMediaBuilder,
+  previewLabels: seasonsPreviewLabels,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.year,
@@ -209,6 +234,7 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown publisher',
   ),
   builder: booksLibraryMediaBuilder,
+  previewLabels: volumesPreviewLabels,
   groupModes: [
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
@@ -247,6 +273,7 @@ const gamesLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown publisher / studio',
   ),
   builder: gamesLibraryMediaBuilder,
+  previewLabels: defaultPreviewLabels,
   groupModes: [
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
@@ -285,6 +312,7 @@ const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown publisher / designer',
   ),
   builder: boardGamesLibraryMediaBuilder,
+  previewLabels: defaultPreviewLabels,
   groupModes: [
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
@@ -323,6 +351,7 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown studio',
   ),
   builder: moviesLibraryMediaBuilder,
+  previewLabels: defaultPreviewLabels,
   groupModes: [
     LibraryGroupMode.year,
     LibraryGroupMode.series,
@@ -361,6 +390,7 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown label',
   ),
   builder: musicLibraryMediaBuilder,
+  previewLabels: releasesPreviewLabels,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
@@ -399,6 +429,7 @@ const tvLibraryMediaPresentation = LibraryMediaPresentation(
     unknownPublisher: 'Unknown network / studio',
   ),
   builder: tvLibraryMediaBuilder,
+  previewLabels: seasonsPreviewLabels,
   groupModes: [
     LibraryGroupMode.series,
     LibraryGroupMode.year,

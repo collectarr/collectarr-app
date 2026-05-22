@@ -74,6 +74,16 @@ class LibraryMediaGroupLabels {
   final String unknownPublisher;
 }
 
+class LibraryMediaPreviewLabels {
+  const LibraryMediaPreviewLabels({
+    required this.series,
+    required this.itemCount,
+  });
+
+  final String series;
+  final String itemCount;
+}
+
 class LibraryMetadataPresentation {
   const LibraryMetadataPresentation({
     required this.identityFacts,
@@ -279,6 +289,10 @@ class LibraryMediaPresentation {
     required this.filterLabels,
     required this.groupLabels,
     required this.builder,
+    this.previewLabels = const LibraryMediaPreviewLabels(
+      series: 'Series',
+      itemCount: 'Items',
+    ),
     this.groupModes = const [
       LibraryGroupMode.series,
       LibraryGroupMode.title,
@@ -293,5 +307,6 @@ class LibraryMediaPresentation {
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
+  final LibraryMediaPreviewLabels previewLabels;
   final List<LibraryGroupMode> groupModes;
 }

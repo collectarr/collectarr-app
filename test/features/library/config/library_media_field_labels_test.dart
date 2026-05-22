@@ -63,4 +63,16 @@ void main() {
     expect(movieLabels.publisherPlural, 'Studios');
     expect(movieLabels.unknownPublisher, 'Unknown studio');
   });
+
+  test('preview labels vary by media type', () {
+    final musicLabels = libraryMediaPreviewLabels(musicLibraryConfig);
+    final tvLabels = libraryMediaPreviewLabels(tvLibraryConfig);
+    final bookLabels = libraryMediaPreviewLabels(booksLibraryConfig);
+
+    expect(musicLabels.series, 'Artist');
+    expect(musicLabels.itemCount, 'Releases');
+    expect(tvLabels.series, 'Series');
+    expect(tvLabels.itemCount, 'Seasons');
+    expect(bookLabels.itemCount, 'Volumes');
+  });
 }

@@ -313,7 +313,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Artist...'), findsOneWidget);
-    expect(find.text('Disc / Volume...'), findsOneWidget);
+    expect(find.text('Album / Release...'), findsOneWidget);
     expect(find.text('Label...'), findsOneWidget);
     expect(find.text('Series...'), findsNothing);
 

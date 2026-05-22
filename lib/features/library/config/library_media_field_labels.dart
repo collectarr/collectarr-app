@@ -7,6 +7,7 @@ export 'package:collectarr_app/features/library/config/library_media_presentatio
         LibraryMediaFilterLabels,
         LibraryMediaGroupLabels,
         LibraryMediaPresentation,
+    LibraryMediaPreviewLabels,
         LibraryMediaSearchFieldLabels;
 
 LibraryMediaFieldLabels libraryMediaFieldLabels(LibraryTypeConfig type) {
@@ -25,4 +26,8 @@ LibraryMediaFilterLabels libraryMediaFilterLabels(LibraryTypeConfig type) {
 
 LibraryMediaGroupLabels libraryMediaGroupLabels(LibraryTypeConfig type) {
   return type.presentation.groupLabels;
+}
+
+LibraryMediaPreviewLabels libraryMediaPreviewLabels(LibraryTypeConfig type) {
+  return type.presentation.previewLabels;
 }
