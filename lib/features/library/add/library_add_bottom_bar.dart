@@ -15,11 +15,12 @@ class _LibraryAddBottomBar extends StatelessWidget {
     required this.isAdmin,
     required this.defaultCondition,
     required this.defaultGrade,
-    required this.defaultStorageBoxController,
+    required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
     required this.onAddTargetChanged,
     required this.onDefaultConditionChanged,
     required this.onDefaultGradeChanged,
+    required this.onDefaultLocationPressed,
     required this.onDefaultPurchaseDateChanged,
     required this.onAdd,
     required this.onQueueIngest,
@@ -39,11 +40,12 @@ class _LibraryAddBottomBar extends StatelessWidget {
   final bool isAdmin;
   final String defaultCondition;
   final String defaultGrade;
-  final TextEditingController defaultStorageBoxController;
+  final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
   final ValueChanged<LibraryAddTarget> onAddTargetChanged;
   final ValueChanged<String> onDefaultConditionChanged;
   final ValueChanged<String> onDefaultGradeChanged;
+  final VoidCallback onDefaultLocationPressed;
   final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
   final VoidCallback? onAdd;
   final VoidCallback? onQueueIngest;
@@ -120,10 +122,11 @@ class _LibraryAddBottomBar extends StatelessWidget {
                 grades: type.grades,
                 condition: defaultCondition,
                 grade: defaultGrade,
-                storageBoxController: defaultStorageBoxController,
+                locationLabel: defaultLocationLabel,
                 purchaseDate: defaultPurchaseDate,
                 onConditionChanged: onDefaultConditionChanged,
                 onGradeChanged: onDefaultGradeChanged,
+                onLocationPressed: onDefaultLocationPressed,
                 onPurchaseDateChanged: onDefaultPurchaseDateChanged,
               ),
             ],
@@ -187,10 +190,11 @@ class _AddTargetDefaultsBar extends StatelessWidget {
     required this.grades,
     required this.condition,
     required this.grade,
-    required this.storageBoxController,
+    required this.locationLabel,
     required this.purchaseDate,
     required this.onConditionChanged,
     required this.onGradeChanged,
+    required this.onLocationPressed,
     required this.onPurchaseDateChanged,
   });
 
@@ -199,10 +203,11 @@ class _AddTargetDefaultsBar extends StatelessWidget {
   final List<String> grades;
   final String condition;
   final String grade;
-  final TextEditingController storageBoxController;
+  final String? locationLabel;
   final DateTime? purchaseDate;
   final ValueChanged<String> onConditionChanged;
   final ValueChanged<String> onGradeChanged;
+  final VoidCallback onLocationPressed;
   final ValueChanged<DateTime?> onPurchaseDateChanged;
 
   @override
@@ -237,50 +242,15 @@ class _AddTargetDefaultsBar extends StatelessWidget {
               if (v != null) onGradeChanged(v);
             },
           ),
-        SizedBox(
-          width: 132,
-          height: kCompactControlHeight,
-          child: CompactInputShell(
+        InkWell(
+          onTap: onLocationPressed,
+          borderRadius: BorderRadius.circular(3),
+          child: CompactMenuFrame(
+            width: 184,
+            label: locationLabel ?? 'Location',
             accent: accent,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: TextField(
-                controller: storageBoxController,
-                keyboardType: TextInputType.text,
-                inputFormatters: [noNewlineFormatter],
-                minLines: null,
-                maxLines: null,
-                expands: true,
-                textAlign: TextAlign.center,
-                textInputAction: TextInputAction.done,
-                textAlignVertical: TextAlignVertical.center,
-                strutStyle: const StrutStyle(
-                  fontSize: 13,
-                  height: 1,
-                  forceStrutHeight: true,
-                ),
-                style: TextStyle(
-                  color: compactMenuTextFor(accent),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
-                decoration: const InputDecoration(
-                  isDense: true,
-                  isCollapsed: true,
-                  filled: false,
-                  fillColor: Colors.transparent,
-                  border: InputBorder.none,
-                  hintText: 'Storage box',
-                  hintStyle: TextStyle(
-                    color: Color(0xFF7B8790),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ),
+            leading: Icons.place,
+            trailing: Icons.arrow_drop_down,
           ),
         ),
         CompactDateButton(

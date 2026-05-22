@@ -8,21 +8,13 @@ class LibraryAddDefaults {
     this.condition,
     this.grade,
     this.purchaseDate,
-    this.storageBox,
+    this.locationId,
   });
 
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
-  final String? storageBox;
-
-  String? get normalizedStorageBox {
-    final value = storageBox?.trim();
-    if (value == null || value.isEmpty) {
-      return null;
-    }
-    return value;
-  }
+  final String? locationId;
 }
 
 Future<void> addLibraryItemsToTarget({
@@ -48,7 +40,7 @@ Future<void> addLibraryItemsToTarget({
           condition: defaults.condition,
           grade: defaults.grade,
           purchaseDate: defaults.purchaseDate,
-          storageBox: defaults.normalizedStorageBox,
+          locationId: defaults.locationId,
         );
         break;
       case LibraryAddTarget.wishlist:

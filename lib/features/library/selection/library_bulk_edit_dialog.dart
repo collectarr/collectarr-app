@@ -1,12 +1,18 @@
+import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryBulkEditSelection {
   const LibraryBulkEditSelection({
     this.condition,
     this.grade,
-    this.storageBox,
+    this.applyLocation = false,
+    this.locationId,
     this.tags,
     this.readStatus,
     this.rating,
@@ -14,13 +20,14 @@ class LibraryBulkEditSelection {
 
   final String? condition;
   final String? grade;
-  final String? storageBox;
+  final bool applyLocation;
+  final String? locationId;
   final String? tags;
   final String? readStatus;
   final int? rating;
 }
 
-class LibraryBulkEditDialog extends StatefulWidget {
+class LibraryBulkEditDialog extends ConsumerStatefulWidget {
   const LibraryBulkEditDialog({
     super.key,
     required this.type,
@@ -31,20 +38,28 @@ class LibraryBulkEditDialog extends StatefulWidget {
   final int selectedCount;
 
   @override
-  State<LibraryBulkEditDialog> createState() => _LibraryBulkEditDialogState();
+  ConsumerState<LibraryBulkEditDialog> createState() =>
+      _LibraryBulkEditDialogState();
 }
 
-class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
+class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   String? _condition;
   String? _grade;
   String? _readStatus;
   int? _rating;
-  final _storageBoxController = TextEditingController();
   final _tagsController = TextEditingController();
+  List<StorageLocation> _availableLocations = const [];
+  bool _applyLocation = false;
+  String? _locationId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvailableLocations();
+  }
 
   @override
   void dispose() {
-    _storageBoxController.dispose();
     _tagsController.dispose();
     super.dispose();
   }
@@ -108,14 +123,7 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
               ),
               const SizedBox(height: 12),
             ],
-            TextField(
-              controller: _storageBoxController,
-              decoration: const InputDecoration(
-                labelText: 'Storage box',
-                hintText: 'Leave blank to keep current',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _locationField(),
             const SizedBox(height: 12),
             TextField(
               controller: _tagsController,
@@ -182,7 +190,8 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
             LibraryBulkEditSelection(
               condition: _condition,
               grade: _grade,
-              storageBox: _emptyToNull(_storageBoxController.text),
+              applyLocation: _applyLocation,
+              locationId: _locationId,
               tags: _emptyToNull(_tagsController.text),
               readStatus: _readStatus,
               rating: _rating,
@@ -197,5 +206,86 @@ class _LibraryBulkEditDialogState extends State<LibraryBulkEditDialog> {
   static String? _emptyToNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
+  }
+
+  Future<void> _loadAvailableLocations() async {
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _availableLocations = locations);
+  }
+
+  Widget _locationField() {
+    final summary = !_applyLocation
+        ? 'Keep current location'
+        : locationPathForId(_availableLocations, _locationId) ?? 'Clear location';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: _pickLocation,
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Location',
+              border: OutlineInputBorder(),
+              suffixIcon: Icon(Icons.place),
+            ),
+            child: Text(
+              summary,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: !_applyLocation ? kClzTextMuted : null,
+                  ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _applyLocation = false;
+                  _locationId = null;
+                });
+              },
+              child: const Text('Keep current'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _applyLocation = true;
+                  _locationId = null;
+                });
+              },
+              child: const Text('Clear'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickLocation() async {
+    final result = await showLocationPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      currentLocationId: _locationId,
+    );
+    if (result == null) {
+      return;
+    }
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _applyLocation = true;
+      _locationId = result.isEmpty ? null : result;
+      _availableLocations = locations;
+    });
   }
 }

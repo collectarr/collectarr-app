@@ -5,9 +5,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/season.dart';
+import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
@@ -18,6 +20,7 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -82,7 +85,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _yearController = TextEditingController();
   final _variantController = TextEditingController();
   final _coverController = TextEditingController();
-  final _storageBoxController = TextEditingController();
   final _uuid = const Uuid();
 
   // Advanced search fields
@@ -118,6 +120,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   int _coreSearchGeneration = 0;
   int _providerSearchGeneration = 0;
   final _pendingProviderPreviewIds = <String>{};
+  List<StorageLocation> _availableLocations = const [];
+  String? _defaultLocationId;
   double _resultsPaneWidth = 480;
   static const _providerSearchDebounce = Duration(milliseconds: 450);
   static const _coreSearchTimeout = Duration(seconds: 35);
@@ -137,6 +141,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   void initState() {
     super.initState();
     _selectedProvider = widget.type.defaultSupportedMetadataProvider;
+    _loadAvailableLocations();
     _queryController.text = widget.initialQuery?.trim() ?? '';
     _barcodeController.text = widget.initialBarcode?.trim() ?? '';
     _titleController.text = _queryController.text;
@@ -158,7 +163,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _yearController.dispose();
     _variantController.dispose();
     _coverController.dispose();
-    _storageBoxController.dispose();
     _searchSeriesController.dispose();
     _searchNumberController.dispose();
     _searchPublisherController.dispose();
@@ -378,7 +382,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         isAdmin: ref.watch(authControllerProvider).isAdmin,
                         defaultCondition: _defaultCondition,
                         defaultGrade: _defaultGrade,
-                        defaultStorageBoxController: _storageBoxController,
+                        defaultLocationLabel: _defaultLocationLabel,
                         defaultPurchaseDate: _defaultPurchaseDate,
                         onAddTargetChanged: (value) =>
                             setState(() => _addTarget = value),
@@ -386,6 +390,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             setState(() => _defaultCondition = value),
                         onDefaultGradeChanged: (value) =>
                             setState(() => _defaultGrade = value),
+                        onDefaultLocationPressed: _pickDefaultLocation,
                         onDefaultPurchaseDateChanged: (value) =>
                             setState(() => _defaultPurchaseDate = value),
                         onAdd: addItems.isEmpty && selectedCandidate == null
@@ -1229,7 +1234,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           condition: _defaultCondition,
           grade: _defaultGrade,
           purchaseDate: _defaultPurchaseDate,
-          storageBox: _storageBoxController.text,
+          locationId: _defaultLocationId,
         ),
       );
       if (mounted) {
@@ -1244,6 +1249,38 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         setState(() => _isAdding = false);
       }
     }
+  }
+
+  Future<void> _loadAvailableLocations() async {
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _availableLocations = locations);
+  }
+
+  String? get _defaultLocationLabel =>
+      locationPathForId(_availableLocations, _defaultLocationId);
+
+  Future<void> _pickDefaultLocation() async {
+    final result = await showLocationPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      currentLocationId: _defaultLocationId,
+    );
+    if (result == null) {
+      return;
+    }
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _defaultLocationId = result.isEmpty ? null : result;
+      _availableLocations = locations;
+    });
   }
 }
 

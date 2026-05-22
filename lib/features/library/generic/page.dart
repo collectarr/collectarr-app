@@ -781,7 +781,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         currency: personal.currency,
         personalNotes: personal.personalNotes,
         quantity: personal.quantity,
-        storageBox: personal.storageBox,
+        storageBox: personal.locationChanged ? null : owned.storageBox,
+        locationId:
+            personal.locationChanged ? personal.locationId : owned.locationId,
         indexNumber: owned.indexNumber,
         coverPriceCents: personal.coverPriceCents,
         rawOrSlabbed: personal.rawOrSlabbed,

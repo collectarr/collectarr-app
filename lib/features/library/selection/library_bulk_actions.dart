@@ -27,7 +27,9 @@ class LibraryBulkActions {
         currency: ownedItem.currency,
         personalNotes: ownedItem.personalNotes,
         quantity: ownedItem.quantity,
-        storageBox: selection.storageBox ?? ownedItem.storageBox,
+        storageBox: selection.applyLocation ? null : ownedItem.storageBox,
+        locationId:
+            selection.applyLocation ? selection.locationId : ownedItem.locationId,
         indexNumber: ownedItem.indexNumber,
         coverPriceCents: ownedItem.coverPriceCents,
         rawOrSlabbed: ownedItem.rawOrSlabbed,

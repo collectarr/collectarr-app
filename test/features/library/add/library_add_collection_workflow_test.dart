@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/add/library_add_collection_workf
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +17,14 @@ void main() {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
 
+    await fixture.db.into(fixture.db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'loc-1',
+            name: 'Short Box 1',
+            sortOrder: const Value(1),
+          ),
+        );
+
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
       mutations: fixture.mutations,
@@ -25,7 +34,7 @@ void main() {
         condition: 'Very Fine',
         grade: '9.2',
         purchaseDate: DateTime.utc(2024, 5, 1),
-        storageBox: '  Short Box 1  ',
+        locationId: 'loc-1',
       ),
     );
 
@@ -38,7 +47,8 @@ void main() {
     expect(ownedRows.single.condition, 'Very Fine');
     expect(ownedRows.single.grade, '9.2');
     expect(ownedRows.single.purchaseDate?.toUtc(), DateTime.utc(2024, 5, 1));
-    expect(ownedRows.single.storageBox, 'Short Box 1');
+    expect(ownedRows.single.locationId, 'loc-1');
+    expect(ownedRows.single.storageBox, isNull);
     expect(syncRows.map((row) => row.entityType), contains('owned_item'));
     expect(
       syncRows.map((row) => row.entityType),
@@ -58,7 +68,7 @@ void main() {
       defaults: const LibraryAddDefaults(
         condition: 'Near Mint',
         grade: 'Ungraded',
-        storageBox: 'Ignored for wishlist',
+        locationId: 'loc-ignored',
       ),
     );
 

@@ -1,19 +1,26 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LibraryEditDialog extends StatefulWidget {
+class LibraryEditDialog extends ConsumerStatefulWidget {
   const LibraryEditDialog({
     super.key,
     required this.type,
@@ -36,11 +43,11 @@ class LibraryEditDialog extends StatefulWidget {
   final List<ItemImage> itemImages;
 
   @override
-  State<LibraryEditDialog> createState() =>
+  ConsumerState<LibraryEditDialog> createState() =>
       _LibraryEditDialogState();
 }
 
-class _LibraryEditDialogState extends State<LibraryEditDialog>
+class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
 
@@ -70,11 +77,13 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
   late final TextEditingController _priceController;
   late final TextEditingController _currencyController;
   late final TextEditingController _quantityController;
-  late final TextEditingController _storageBoxController;
   late final TextEditingController _notesController;
   late final TextEditingController _ratingController;
   late final TextEditingController _trackingController;
   late final TextEditingController _tagsController;
+  List<StorageLocation> _availableLocations = const [];
+  String? _selectedLocationId;
+  bool _locationChanged = false;
 
   // Sold fields
   late final TextEditingController _sellPriceController;
@@ -158,13 +167,12 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
     _quantityController = TextEditingController(
       text: (owned?.quantity ?? 1).toString(),
     );
-    _storageBoxController =
-        TextEditingController(text: owned?.storageBox ?? '');
     _notesController = TextEditingController(text: owned?.personalNotes ?? '');
     _ratingController =
         TextEditingController(text: owned?.rating?.toString() ?? '');
     _trackingController = TextEditingController(text: owned?.readStatus ?? '');
     _tagsController = TextEditingController(text: owned?.tags ?? '');
+    _selectedLocationId = owned?.locationId;
 
     _sellPriceController = TextEditingController(
       text: owned?.sellPriceCents == null
@@ -196,6 +204,10 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
     _customFieldEdits = {
       for (final v in widget.customFieldValues) v.fieldDefinitionId: v.value,
     };
+
+    if (_isOwned) {
+      unawaited(_loadAvailableLocations());
+    }
   }
 
   @override
@@ -220,7 +232,6 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
     _priceController.dispose();
     _currencyController.dispose();
     _quantityController.dispose();
-    _storageBoxController.dispose();
     _notesController.dispose();
     _ratingController.dispose();
     _trackingController.dispose();
@@ -337,8 +348,8 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
                     if (_soldAt != null) const EditMiniBadge('Sold'),
                     if (_conditionController.text.trim().isNotEmpty)
                       EditMiniBadge(_conditionController.text.trim()),
-                    if (_storageBoxController.text.trim().isNotEmpty)
-                      EditMiniBadge(_storageBoxController.text.trim()),
+                    if (_selectedLocationLabel != null)
+                      EditMiniBadge(_selectedLocationLabel!),
                   ],
                 ),
               ],
@@ -702,7 +713,7 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
           child: Column(
             children: [
               _responsiveFields([
-                _field(controller: _storageBoxController, label: 'Storage'),
+                _locationField(),
                 SizedBox(
                   width: 120,
                   child: MediaRatingField(controller: _ratingController),
@@ -938,6 +949,71 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
     );
   }
 
+  Widget _locationField() {
+    final label = _selectedLocationLabel;
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: _pickLocation,
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Location',
+          suffixIcon: Icon(Icons.place),
+        ),
+        child: Text(
+          label ?? 'No location selected',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: label == null ? kEditTextMuted : null,
+              ),
+        ),
+      ),
+    );
+  }
+
+  String? get _selectedLocationLabel {
+    final locationLabel = locationPathForId(_availableLocations, _selectedLocationId);
+    if (locationLabel != null) {
+      return locationLabel;
+    }
+    if (_locationChanged) {
+      return null;
+    }
+    final legacyLabel = widget.ownedItem?.storageBox?.trim();
+    if (legacyLabel == null || legacyLabel.isEmpty) {
+      return null;
+    }
+    return legacyLabel;
+  }
+
+  Future<void> _loadAvailableLocations() async {
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _availableLocations = locations);
+  }
+
+  Future<void> _pickLocation() async {
+    final result = await showLocationPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      currentLocationId: _selectedLocationId,
+    );
+    if (result == null) {
+      return;
+    }
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _locationChanged = true;
+      _selectedLocationId = result.isEmpty ? null : result;
+      _availableLocations = locations;
+    });
+  }
+
   void _previousTab() {
     if (_tabController.index > 0) {
       _tabController.animateTo(_tabController.index - 1);
@@ -1053,7 +1129,8 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
               currency: emptyToNull(_currencyController.text),
               personalNotes: emptyToNull(_notesController.text),
               quantity: parseInt(_quantityController.text) ?? 1,
-              storageBox: emptyToNull(_storageBoxController.text),
+              locationId: _selectedLocationId,
+              locationChanged: _locationChanged,
               rating: parseInt(_ratingController.text),
               readStatus: emptyToNull(_trackingController.text),
               startedAt: _startedAt,
@@ -1124,7 +1201,8 @@ class LibraryPersonalEditSelection {
     required this.currency,
     required this.personalNotes,
     required this.quantity,
-    required this.storageBox,
+    required this.locationId,
+    required this.locationChanged,
     required this.rating,
     required this.readStatus,
     this.startedAt,
@@ -1149,7 +1227,8 @@ class LibraryPersonalEditSelection {
   final String? currency;
   final String? personalNotes;
   final int quantity;
-  final String? storageBox;
+  final String? locationId;
+  final bool locationChanged;
   final int? rating;
   final String? readStatus;
   final DateTime? startedAt;

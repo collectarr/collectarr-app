@@ -1,10 +1,15 @@
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/drift.dart' show Value;
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -15,6 +20,23 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'loc-a',
+            name: 'Shelf A',
+            sortOrder: const Value(1),
+          ),
+        );
+    await db.into(db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'loc-b',
+            name: 'Shelf B',
+            sortOrder: const Value(2),
+          ),
+        );
 
     final type = collectarrLibraryTypes.byKind('movie')!;
     final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
@@ -34,29 +56,32 @@ void main() {
       pricePaidCents: 999,
       currency: 'USD',
       quantity: 1,
-      storageBox: 'Shelf A',
+      locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 15),
     );
     LibraryEditSelection? selection;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: FilledButton(
-              onPressed: () async {
-                selection = await showDialog<LibraryEditSelection>(
-                  context: context,
-                  builder: (context) => LibraryEditDialog(
-                    type: type,
-                    item: item,
-                    ownedItem: ownedItem,
-                    accent: Colors.red,
-                    physicalFormats: videoPhysicalMediaFormats,
-                  ),
-                );
-              },
-              child: const Text('Open'),
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.red,
+                      physicalFormats: videoPhysicalMediaFormats,
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              ),
             ),
           ),
         ),
@@ -85,11 +110,16 @@ void main() {
     await tester.enterText(
         find.widgetWithText(TextField, 'Price paid'), '12.50');
 
-    // Navigate to Personal tab to set storage
+    // Navigate to Personal tab to set location
     await tester.tap(find.text('Personal'));
     await tester.pumpAndSettle();
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Storage'), 'Shelf B');
+    await tester.tap(find.byIcon(Icons.place).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Assign Location'), findsOneWidget);
+    await tester.tap(find.text('Shelf B').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
+    await tester.pumpAndSettle();
 
     // The dialog footer can trigger a transient RenderFlex overflow during
     // the dismiss animation in compact test viewports. Suppress it.
@@ -108,7 +138,8 @@ void main() {
     expect(selection?.item.physicalFormat, '4k-uhd');
     expect(selection?.item.physicalFormatLabel, '4K UHD');
     expect(selection?.item.barcode, '883929087129');
-    expect(selection?.personal?.storageBox, 'Shelf B');
+    expect(selection?.personal?.locationId, 'loc-b');
+    expect(selection?.personal?.locationChanged, isTrue);
     expect(selection?.personal?.pricePaidCents, 1250);
     expect(selection?.personal?.quantity, 1);
   });
