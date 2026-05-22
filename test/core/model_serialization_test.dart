@@ -390,12 +390,17 @@ void main() {
       grade: '9.8',
       purchaseDate: DateTime.utc(2026, 5, 11),
       pricePaidCents: 1299,
+      coverPriceCents: 1599,
       currency: 'USD',
       quantity: 2,
       storageBox: 'Box 6',
       keyComic: true,
       keyReason: 'First appearance',
       tags: 'signed,key',
+      soldAt: DateTime.utc(2026, 5, 20),
+      sellPriceCents: 1899,
+      soldTo: 'Local shop',
+      locationId: 'loc-short-box-6',
       updatedAt: DateTime.utc(2026, 5, 12),
     );
 
@@ -404,11 +409,17 @@ void main() {
     expect(payload['item_id'], 'comic-1');
     expect(payload['grade'], '9.8');
     expect(payload['purchase_date'], '2026-05-11T00:00:00.000Z');
+    expect(payload['price_paid_cents'], 1299);
+    expect(payload['cover_price_cents'], 1599);
     expect(payload['quantity'], 2);
     expect(payload['storage_box'], 'Box 6');
     expect(payload['key_comic'], isTrue);
     expect(payload['key_reason'], 'First appearance');
     expect(payload['tags'], 'signed,key');
+    expect(payload['sold_at'], '2026-05-20T00:00:00.000Z');
+    expect(payload['sell_price_cents'], 1899);
+    expect(payload['sold_to'], 'Local shop');
+    expect(payload['location_id'], 'loc-short-box-6');
   });
 
   test('wishlist item builds sync payload', () {

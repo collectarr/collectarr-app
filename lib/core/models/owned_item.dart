@@ -97,6 +97,7 @@ class OwnedItem {
       'sold_at': soldAt?.toUtc().toIso8601String(),
       'sell_price_cents': sellPriceCents,
       'sold_to': soldTo,
+      'location_id': locationId,
     };
   }
 
