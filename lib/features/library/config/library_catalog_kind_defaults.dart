@@ -1,61 +1,73 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
 class LibraryCatalogKindDefaults {
   const LibraryCatalogKindDefaults({
     this.singularLabel,
     this.pluralLabel,
     this.mediaFamily = 'video',
+    this.trackingProfile = readingTrackingProfile,
     this.fallbackPhysicalFormats = const [],
   });
 
   final String? singularLabel;
   final String? pluralLabel;
   final String mediaFamily;
+  final MediaTrackingProfile trackingProfile;
   final List<PhysicalMediaFormat> fallbackPhysicalFormats;
 }
 
 const _catalogKindDefaults = <String, LibraryCatalogKindDefaults>{
   'anime': LibraryCatalogKindDefaults(
     mediaFamily: 'video',
+    trackingProfile: videoTrackingProfile,
     fallbackPhysicalFormats: videoPhysicalMediaFormats,
   ),
   'boardgame': LibraryCatalogKindDefaults(
     singularLabel: 'Board Game',
     pluralLabel: 'Board Games',
     mediaFamily: 'game',
+    trackingProfile: gameTrackingProfile,
     fallbackPhysicalFormats: gamePhysicalMediaFormats,
   ),
   'book': LibraryCatalogKindDefaults(
     mediaFamily: 'print',
+    trackingProfile: readingTrackingProfile,
     fallbackPhysicalFormats: bookPhysicalMediaFormats,
   ),
   'comic': LibraryCatalogKindDefaults(
     mediaFamily: 'print',
+    trackingProfile: readingTrackingProfile,
     fallbackPhysicalFormats: comicPhysicalMediaFormats,
   ),
   'game': LibraryCatalogKindDefaults(
     mediaFamily: 'game',
+    trackingProfile: gameTrackingProfile,
     fallbackPhysicalFormats: gamePhysicalMediaFormats,
   ),
   'manga': LibraryCatalogKindDefaults(
     mediaFamily: 'print',
+    trackingProfile: readingTrackingProfile,
     fallbackPhysicalFormats: bookPhysicalMediaFormats,
   ),
   'movie': LibraryCatalogKindDefaults(
     mediaFamily: 'video',
+    trackingProfile: videoTrackingProfile,
     fallbackPhysicalFormats: videoPhysicalMediaFormats,
   ),
   'music': LibraryCatalogKindDefaults(
     singularLabel: 'Music',
     pluralLabel: 'Music',
     mediaFamily: 'audio',
+    trackingProfile: listeningTrackingProfile,
     fallbackPhysicalFormats: musicPhysicalMediaFormats,
   ),
   'tv': LibraryCatalogKindDefaults(
     singularLabel: 'TV Show',
     pluralLabel: 'TV Shows',
     mediaFamily: 'video',
+    trackingProfile: videoTrackingProfile,
     fallbackPhysicalFormats: videoPhysicalMediaFormats,
   ),
 };
@@ -66,6 +78,11 @@ LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(String kind) {
 
 String catalogMediaFamilyForKind(String kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.mediaFamily ?? 'video';
+}
+
+MediaTrackingProfile catalogTrackingProfileForKind(String kind) {
+  return libraryCatalogKindDefaultsForKind(kind)?.trackingProfile ??
+      readingTrackingProfile;
 }
 
 List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(String kind) {

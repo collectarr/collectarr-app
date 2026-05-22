@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/library_catalog_resolution.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 List<CatalogMediaType> orderedLibraryHomeTypes(
@@ -98,19 +97,9 @@ LibraryTypeConfig libraryConfigForCatalogType(
     defaultMetadataProvider: normalizedType.defaultProvider ??
         (normalizedType.providers.isEmpty ? '' : normalizedType.providers.first),
     metadataProviders: const [],
-    trackingProfile: _trackingProfileForKind(normalizedType.kind),
+    trackingProfile: catalogTrackingProfileForKind(normalizedType.kind),
     presentation: presentation,
   ).resolveWithCatalog([normalizedType]);
-}
-
-MediaTrackingProfile _trackingProfileForKind(String kind) {
-  return switch (kind) {
-    'anime' || 'movie' || 'tv' => videoTrackingProfile,
-    'boardgame' || 'game' => gameTrackingProfile,
-    'comic' => comicTrackingProfile,
-    'music' => listeningTrackingProfile,
-    _ => readingTrackingProfile,
-  };
 }
 
 String _displayLabel(String value, String fallback, {bool plural = false}) {
