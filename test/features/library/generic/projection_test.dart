@@ -53,4 +53,38 @@ void main() {
       'Unknown label',
     );
   });
+
+  test('linked metadata filter matches exact metadata values', () {
+    final entry = LibraryWorkspaceEntry(
+      id: 'comic-1',
+      mediaType: 'comic',
+      title: 'Saga #1',
+      publisher: 'Image',
+      creators: const [
+        {'name': 'Brian K. Vaughan', 'role': 'Writer'},
+      ],
+      genres: const ['Sci-Fi'],
+      updatedAt: DateTime(2026, 1, 1),
+    );
+
+    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Image'), isTrue);
+    expect(
+      libraryEntryMatchesLinkedMetadataFilter(entry, 'Brian K. Vaughan'),
+      isTrue,
+    );
+    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Sci-Fi'), isTrue);
+  });
+
+  test('linked metadata filter does not fall back to fuzzy matches', () {
+    final entry = LibraryWorkspaceEntry(
+      id: 'movie-1',
+      mediaType: 'movie',
+      title: 'Blade Runner 2049',
+      publisher: 'Warner Bros.',
+      updatedAt: DateTime(2026, 1, 1),
+    );
+
+    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Blade'), isFalse);
+    expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Warner'), isFalse);
+  });
 }

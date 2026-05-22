@@ -15,6 +15,14 @@ export 'package:collectarr_app/features/library/workspace/library_workspace_conf
 export 'projection_item.dart';
 export 'quick_view.dart';
 
+class LibraryLinkedMetadataFilter {
+  const LibraryLinkedMetadataFilter({required this.value});
+
+  final String value;
+
+  String get chipLabel => 'Metadata: $value';
+}
+
 String genericGroupModeLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
@@ -89,6 +97,7 @@ class LibraryProjection {
     required LibraryTypeConfig type,
     required LibraryWorkspaceViewState viewState,
     required String query,
+    LibraryLinkedMetadataFilter? linkedMetadataFilter,
     required String? selectedBucket,
     required String? selectedItemId,
     required LibraryQuickView? quickView,
@@ -106,6 +115,7 @@ class LibraryProjection {
             _matchesConstrainedItemIds(item, constrainedItemIds) &&
             _matchesQuickView(item, quickView) &&
             _matchesFilter(item, filterSelection) &&
+            _matchesLinkedMetadataFilter(item, linkedMetadataFilter) &&
             _matchesQuery(
               item,
               normalizedQuery,
@@ -291,6 +301,78 @@ bool _matchesFilter(
 ) {
   if (!filters.hasActiveFilters) return true;
   return libraryFilterMatches(item.entry, filters);
+}
+
+bool _matchesLinkedMetadataFilter(
+  LibraryProjectionItem item,
+  LibraryLinkedMetadataFilter? linkedMetadataFilter,
+) {
+  if (linkedMetadataFilter == null) {
+    return true;
+  }
+  return libraryEntryMatchesLinkedMetadataFilter(
+    item.entry,
+    linkedMetadataFilter.value,
+  );
+}
+
+bool libraryEntryMatchesLinkedMetadataFilter(
+  LibraryWorkspaceEntry entry,
+  String value,
+) {
+  final normalized = value.trim().toLowerCase();
+  if (normalized.isEmpty) {
+    return true;
+  }
+  for (final candidate in _linkedMetadataCandidates(entry)) {
+    if (candidate.trim().toLowerCase() == normalized) {
+      return true;
+    }
+  }
+  return false;
+}
+
+Iterable<String> _linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
+  final series = entry.series;
+  final publishing = entry.publishing;
+  final game = entry.game;
+  yield* _nonEmptyValues([
+    entry.title,
+    series?.seriesTitle,
+    entry.itemNumber,
+    entry.publisher,
+    entry.variant,
+    publishing?.imprint,
+    publishing?.seriesGroup,
+    entry.country,
+    entry.language,
+    entry.ageRating,
+  ]);
+  if (entry.creators case final creators?) {
+    for (final credit in creators) {
+      final name = credit['name']?.toString();
+      if (name != null && name.trim().isNotEmpty) {
+        yield name.trim();
+      }
+    }
+  }
+  yield* _nonEmptyValues(entry.characters);
+  yield* _nonEmptyValues(entry.storyArcs);
+  yield* _nonEmptyValues(entry.genres);
+  if (game?.platforms case final platforms?) {
+    yield* _nonEmptyValues(platforms);
+  }
+}
+
+Iterable<String> _nonEmptyValues(Iterable<String?>? values) sync* {
+  if (values == null) {
+    return;
+  }
+  for (final value in values) {
+    if (value != null && value.trim().isNotEmpty) {
+      yield value.trim();
+    }
+  }
 }
 
 bool _matchesQuery(

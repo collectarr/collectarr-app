@@ -80,12 +80,10 @@ class LibraryMetadataContent extends StatelessWidget {
         ],
         if (presentation.genres.isNotEmpty) ...[
           const SizedBox(height: 8),
-          Text(
-            presentation.genres.join(', '),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w600,
-                ),
+          LibraryInspectorChipWrap(
+            label: 'Genres',
+            values: presentation.genres,
+            onValueTap: onFilterByValue,
           ),
         ],
       ],

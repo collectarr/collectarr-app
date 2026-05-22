@@ -68,6 +68,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   String? _selectedId;
   String? _selectedBucket;
   String? _selectedLetter;
+  LibraryLinkedMetadataFilter? _linkedMetadataFilter;
   LibraryQuickView? _quickView;
   LibraryGroupMode? _groupMode;
   var _selection = LibrarySelectionState.empty();
@@ -109,6 +110,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedId = null;
       _selectedBucket = null;
       _selectedLetter = null;
+      _linkedMetadataFilter = null;
       _quickView = null;
       _groupMode = null;
       _facetBucketsByMode.clear();
@@ -180,8 +182,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 onCoverSizeChanged: (size) => _updateViewState(
                   (state) => state.copyWith(coverSize: size),
                 ),
-                selectedBucket: _selectedBucket,
-                onClearBucket: () => setState(() => _selectedBucket = null),
+                selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
+                onClearBucket: _clearToolbarSearchChip,
                 onRefreshMetadata: () => _showMetadataRefreshDialog(
                   projection,
                 ),
@@ -322,7 +324,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onEditItem: (item) => unawaited(_showEditDialog(item)),
       onItemContextMenu: _handleItemContextMenu,
       onFilterByValue: (value) => setState(() {
-        _searchController.text = value;
+        _linkedMetadataFilter =
+            _linkedMetadataFilter?.value == value
+                ? null
+                : LibraryLinkedMetadataFilter(value: value);
+        _selectedBucket = null;
+        _selectedLetter = null;
       }),
       selectedLetter: _selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
@@ -348,6 +355,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       type: widget.type,
       viewState: viewState,
       query: _searchController.text,
+      linkedMetadataFilter: _linkedMetadataFilter,
       selectedBucket: _usesExternalFacetBuckets(mode) ? null : _selectedBucket,
       selectedItemId: _selectedId,
       quickView: _quickView,
@@ -364,6 +372,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   bool get _hasActiveFilter =>
       _searchController.text.trim().isNotEmpty ||
+      _linkedMetadataFilter != null ||
       _selectedBucket != null ||
       _quickView != null ||
       _filterSelection.hasActiveFilters;
@@ -473,9 +482,20 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   void _clearFilters() {
     setState(() {
       _selectedBucket = null;
+      _linkedMetadataFilter = null;
       _quickView = null;
       _filterSelection = LibraryFilterSelection.none;
       _searchController.clear();
+    });
+  }
+
+  void _clearToolbarSearchChip() {
+    setState(() {
+      if (_linkedMetadataFilter != null) {
+        _linkedMetadataFilter = null;
+      } else {
+        _selectedBucket = null;
+      }
     });
   }
 
