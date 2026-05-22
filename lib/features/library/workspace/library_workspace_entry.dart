@@ -24,6 +24,10 @@ sealed class LibraryWorkspaceEntry {
     this.hasMissingMetadata = false,
     this.condition,
     this.grade,
+    this.rawOrSlabbed,
+    this.gradingCompany,
+    this.keyComic = false,
+    this.keyReason,
     this.pricePaidCents,
     this.currency,
     this.storageBox,
@@ -58,6 +62,10 @@ sealed class LibraryWorkspaceEntry {
     bool hasMissingMetadata = false,
     String? condition,
     String? grade,
+    String? rawOrSlabbed,
+    String? gradingCompany,
+    bool keyComic = false,
+    String? keyReason,
     int? pricePaidCents,
     String? currency,
     String? storageBox,
@@ -96,6 +104,10 @@ sealed class LibraryWorkspaceEntry {
       hasMissingMetadata: hasMissingMetadata,
       condition: condition,
       grade: grade,
+      rawOrSlabbed: rawOrSlabbed,
+      gradingCompany: gradingCompany,
+      keyComic: keyComic,
+      keyReason: keyReason,
       pricePaidCents: pricePaidCents,
       currency: currency,
       storageBox: storageBox,
@@ -207,6 +219,10 @@ sealed class LibraryWorkspaceEntry {
   final bool hasMissingMetadata;
   final String? condition;
   final String? grade;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final bool keyComic;
+  final String? keyReason;
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;
@@ -258,6 +274,10 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           hasMissingMetadata: common.hasMissingMetadata,
           condition: common.condition,
           grade: common.grade,
+          rawOrSlabbed: common.rawOrSlabbed,
+          gradingCompany: common.gradingCompany,
+          keyComic: common.keyComic,
+          keyReason: common.keyReason,
           pricePaidCents: common.pricePaidCents,
           currency: common.currency,
           storageBox: common.storageBox,
@@ -453,6 +473,10 @@ class _LibraryWorkspaceCommon {
     required this.hasMissingMetadata,
     required this.condition,
     required this.grade,
+    required this.rawOrSlabbed,
+    required this.gradingCompany,
+    required this.keyComic,
+    required this.keyReason,
     required this.pricePaidCents,
     required this.currency,
     required this.storageBox,
@@ -486,6 +510,10 @@ class _LibraryWorkspaceCommon {
   final bool hasMissingMetadata;
   final String? condition;
   final String? grade;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final bool keyComic;
+  final String? keyReason;
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;

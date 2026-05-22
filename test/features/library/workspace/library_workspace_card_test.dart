@@ -23,6 +23,10 @@ void main() {
               barcode: '759606083060141',
               grade: '9.4',
               condition: 'Near Mint',
+              rawOrSlabbed: 'Slabbed',
+              gradingCompany: 'CGC',
+              keyComic: true,
+              keyReason: 'First appearance',
               pricePaidCents: 399,
               currency: 'USD',
               storageBox: 'Box 6',
@@ -46,6 +50,8 @@ void main() {
     expect(find.textContaining('Marvel Comics'), findsOneWidget);
     expect(find.text('9.4'), findsOneWidget);
     expect(find.text('Near Mint'), findsOneWidget);
+    expect(find.text('First appearance'), findsOneWidget);
+    expect(find.text('Slabbed - CGC'), findsOneWidget);
     expect(find.text('Box 6'), findsOneWidget);
     expect(find.text('Wishlist'), findsOneWidget);
   });

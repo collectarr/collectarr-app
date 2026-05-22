@@ -73,6 +73,12 @@ class LibraryCoverTile extends StatelessWidget {
                         isWishlisted: entry.isWishlisted,
                         hasMissingCover: entry.hasMissingCover,
                         hasMissingMetadata: entry.hasMissingMetadata,
+                        keyLabel:
+                            libraryKeyMarkerLabel(entry.keyComic, entry.keyReason),
+                        slabLabel: librarySlabMarkerLabel(
+                          entry.rawOrSlabbed,
+                          entry.gradingCompany,
+                        ),
                       ),
                     ),
                     if (selected)

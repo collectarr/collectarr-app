@@ -6,6 +6,8 @@ class LibraryCoverBadges extends StatelessWidget {
     required this.isWishlisted,
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
+    this.keyLabel,
+    this.slabLabel,
     super.key,
   });
 
@@ -13,10 +15,17 @@ class LibraryCoverBadges extends StatelessWidget {
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
+  final String? keyLabel;
+  final String? slabLabel;
 
   @override
   Widget build(BuildContext context) {
-    if (!isOwned && !isWishlisted && !hasMissingCover && !hasMissingMetadata) {
+    if (!isOwned &&
+        !isWishlisted &&
+        !hasMissingCover &&
+        !hasMissingMetadata &&
+        keyLabel == null &&
+        slabLabel == null) {
       return const SizedBox.shrink();
     }
     final colorScheme = Theme.of(context).colorScheme;
@@ -50,6 +59,20 @@ class LibraryCoverBadges extends StatelessWidget {
             label: 'Missing metadata',
             backgroundColor: colorScheme.secondaryContainer,
             foregroundColor: colorScheme.onSecondaryContainer,
+          ),
+        if (keyLabel != null)
+          LibraryCoverBadge(
+            icon: Icons.label_important,
+            label: keyLabel!,
+            backgroundColor: colorScheme.tertiaryContainer,
+            foregroundColor: colorScheme.onTertiaryContainer,
+          ),
+        if (slabLabel != null)
+          LibraryCoverBadge(
+            icon: Icons.workspace_premium,
+            label: slabLabel!,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainer,
           ),
       ],
     );
@@ -106,6 +129,8 @@ class LibraryItemStatusIcons extends StatelessWidget {
     required this.isWishlisted,
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
+    this.hasKeyMarker = false,
+    this.hasSlabMarker = false,
     super.key,
   });
 
@@ -113,6 +138,8 @@ class LibraryItemStatusIcons extends StatelessWidget {
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
+  final bool hasKeyMarker;
+  final bool hasSlabMarker;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +172,43 @@ class LibraryItemStatusIcons extends StatelessWidget {
             color: colorScheme.secondary,
           ),
         ],
+        if (hasKeyMarker) ...[
+          const SizedBox(width: 4),
+          Icon(
+            Icons.label_important,
+            size: 16,
+            color: colorScheme.tertiary,
+          ),
+        ],
+        if (hasSlabMarker) ...[
+          const SizedBox(width: 4),
+          Icon(
+            Icons.workspace_premium,
+            size: 16,
+            color: colorScheme.primary,
+          ),
+        ],
       ],
     );
   }
+}
+
+String? libraryKeyMarkerLabel(bool keyComic, String? keyReason) {
+  if (!keyComic) {
+    return null;
+  }
+  final trimmed = keyReason?.trim();
+  return trimmed == null || trimmed.isEmpty ? 'Key item' : 'Key item: $trimmed';
+}
+
+String? librarySlabMarkerLabel(String? rawOrSlabbed, String? gradingCompany) {
+  final slab = rawOrSlabbed?.trim();
+  final company = gradingCompany?.trim();
+  if ((slab == null || slab.isEmpty) && (company == null || company.isEmpty)) {
+    return null;
+  }
+  if (slab != null && slab.isNotEmpty && company != null && company.isNotEmpty) {
+    return '$slab - $company';
+  }
+  return slab?.isNotEmpty == true ? slab : company;
 }

@@ -83,6 +83,14 @@ class LibraryCardFlowTile extends StatelessWidget {
                           isWishlisted: entry.isWishlisted,
                           hasMissingCover: entry.hasMissingCover,
                           hasMissingMetadata: entry.hasMissingMetadata,
+                          keyLabel: libraryKeyMarkerLabel(
+                            entry.keyComic,
+                            entry.keyReason,
+                          ),
+                          slabLabel: librarySlabMarkerLabel(
+                            entry.rawOrSlabbed,
+                            entry.gradingCompany,
+                          ),
                         ),
                       ),
                     ],
@@ -168,6 +176,23 @@ class LibraryCardFlowTile extends StatelessWidget {
                             _MetaPill(
                               icon: Icons.fact_check_outlined,
                               label: entry.condition!,
+                              accentColor: accentColor,
+                            ),
+                          if (entry.keyComic)
+                            _MetaPill(
+                              icon: Icons.label_important,
+                              label: entry.keyReason ?? 'Key item',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.rawOrSlabbed != null ||
+                              entry.gradingCompany != null)
+                            _MetaPill(
+                              icon: Icons.workspace_premium,
+                              label: librarySlabMarkerLabel(
+                                    entry.rawOrSlabbed,
+                                    entry.gradingCompany,
+                                  ) ??
+                                  'Collector copy',
                               accentColor: accentColor,
                             ),
                           if (entry.storageBox != null)

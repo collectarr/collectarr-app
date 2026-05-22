@@ -53,6 +53,7 @@ class _GenericStatsDashboard extends StatelessWidget {
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
     final metadataQualityBands = _metadataQualityBands(state.entries);
     final metadataAlertCounts = _metadataAlertCounts(state.entries, type);
+    final seriesGapSummary = _seriesGapSummary(state.entries, type.workspace.kind);
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -108,6 +109,11 @@ class _GenericStatsDashboard extends StatelessWidget {
                             icon: Icons.check_box,
                             label: 'Owned',
                             value: state.ownedCount.toString(),
+                          ),
+                          LibraryStatsTile(
+                            icon: Icons.label_important,
+                            label: 'Key items',
+                            value: state.keyComicCount.toString(),
                           ),
                           LibraryStatsTile(
                             icon: Icons.star,
@@ -244,6 +250,11 @@ class _GenericStatsDashboard extends StatelessWidget {
                               title: 'Top Story Arcs',
                               values: _topStoryArcCounts(state.entries),
                             ),
+                            if (seriesGapSummary != null)
+                              LibraryMissingIssuesCard(
+                                selectedSeries: seriesGapSummary.seriesTitle,
+                                missingIssues: seriesGapSummary.missingIssues,
+                              ),
                           ];
                           return Wrap(
                             spacing: 10,
@@ -497,6 +508,56 @@ class _GenericStatsDashboard extends StatelessWidget {
     }
     return totals;
   }
+
+  static _SeriesGapSummary? _seriesGapSummary(
+    List<ShelfEntry> entries,
+    String mediaKind,
+  ) {
+    if (mediaKind != 'comic') {
+      return null;
+    }
+    _SeriesGapSummary? best;
+    final seriesNumbers = <String, Set<int>>{};
+    for (final entry in entries) {
+      if (!entry.isOwned) {
+        continue;
+      }
+      final seriesTitle = entry.catalogItem?.series?.seriesTitle?.trim();
+      final issueNumber = _wholeIssueNumber(entry.catalogItem?.itemNumber);
+      if (seriesTitle == null || seriesTitle.isEmpty || issueNumber == null) {
+        continue;
+      }
+      seriesNumbers.putIfAbsent(seriesTitle, () => <int>{}).add(issueNumber);
+    }
+    for (final series in seriesNumbers.entries) {
+      final sorted = series.value.toList(growable: false)..sort();
+      if (sorted.length < 2) {
+        continue;
+      }
+      final missing = <int>[];
+      for (var number = sorted.first; number <= sorted.last; number++) {
+        if (!series.value.contains(number)) {
+          missing.add(number);
+        }
+      }
+      if (missing.isEmpty) {
+        continue;
+      }
+      final summary = _SeriesGapSummary(series.key, missing);
+      if (best == null || summary.missingIssues.length > best.missingIssues.length) {
+        best = summary;
+      }
+    }
+    return best;
+  }
+
+  static int? _wholeIssueNumber(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    final match = RegExp(r'^\s*(\d+)').firstMatch(value);
+    return match == null ? null : int.tryParse(match.group(1)!);
+  }
 }
 
 /// Card showing tracking status distribution.
@@ -516,4 +577,11 @@ class _TrackingStatusCard extends StatelessWidget {
     }
     return LibraryStatsDistributionCard(title: 'Tracking', values: counts);
   }
+}
+
+class _SeriesGapSummary {
+  const _SeriesGapSummary(this.seriesTitle, this.missingIssues);
+
+  final String seriesTitle;
+  final List<int> missingIssues;
 }

@@ -19,6 +19,10 @@ void main() {
           itemId: 'comic-1',
           storageBox: 'Short Box 1',
           locationId: 'loc-1',
+          rawOrSlabbed: 'Slabbed',
+          gradingCompany: 'CGC',
+          keyComic: true,
+          keyReason: 'First appearance',
           updatedAt: DateTime.utc(2026, 5, 22),
         ),
         locationPath: 'Office › Shelf 2 › Short Box 1',
@@ -26,5 +30,9 @@ void main() {
     );
 
     expect(projection.entry.storageBox, 'Office › Shelf 2 › Short Box 1');
+    expect(projection.entry.rawOrSlabbed, 'Slabbed');
+    expect(projection.entry.gradingCompany, 'CGC');
+    expect(projection.entry.keyComic, isTrue);
+    expect(projection.entry.keyReason, 'First appearance');
   });
 }

@@ -137,6 +137,23 @@ class LibraryDetailHero extends StatelessWidget {
                         label: ownedItem!.grade!,
                         accent: accent,
                       ),
+                    if (ownedItem?.keyComic == true)
+                      _DetailHeaderChip(
+                        icon: Icons.label_important,
+                        label: ownedItem!.keyReason ?? 'Key item',
+                        accent: accent,
+                      ),
+                    if (ownedItem?.rawOrSlabbed != null ||
+                        ownedItem?.gradingCompany != null)
+                      _DetailHeaderChip(
+                        icon: Icons.verified_outlined,
+                        label: librarySlabMarkerLabel(
+                              ownedItem?.rawOrSlabbed,
+                              ownedItem?.gradingCompany,
+                            ) ??
+                            'Collector copy',
+                        accent: accent,
+                      ),
                   ],
                 ),
                 if (entry.synopsis != null &&

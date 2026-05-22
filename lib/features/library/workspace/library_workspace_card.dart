@@ -72,6 +72,14 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           isWishlisted: entry.isWishlisted,
                           hasMissingCover: entry.hasMissingCover,
                           hasMissingMetadata: entry.hasMissingMetadata,
+                          keyLabel: libraryKeyMarkerLabel(
+                            entry.keyComic,
+                            entry.keyReason,
+                          ),
+                          slabLabel: librarySlabMarkerLabel(
+                            entry.rawOrSlabbed,
+                            entry.gradingCompany,
+                          ),
                         ),
                       ),
                     ],
@@ -137,6 +145,23 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             _LibraryCompactMetaPill(
                               icon: Icons.fact_check_outlined,
                               label: entry.condition!,
+                              accentColor: accentColor,
+                            ),
+                          if (entry.keyComic)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.label_important,
+                              label: entry.keyReason ?? 'Key item',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.rawOrSlabbed != null ||
+                              entry.gradingCompany != null)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.workspace_premium,
+                              label: librarySlabMarkerLabel(
+                                    entry.rawOrSlabbed,
+                                    entry.gradingCompany,
+                                  ) ??
+                                  'Collector copy',
                               accentColor: accentColor,
                             ),
                           if (entry.storageBox != null)

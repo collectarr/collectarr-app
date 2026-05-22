@@ -333,6 +333,9 @@ class LibraryWorkspace extends StatelessWidget {
           isWishlisted: entry.isWishlisted,
           hasMissingCover: entry.hasMissingCover,
           hasMissingMetadata: entry.hasMissingMetadata,
+          hasKeyMarker: entry.keyComic,
+          hasSlabMarker:
+              entry.rawOrSlabbed != null || entry.gradingCompany != null,
         ),
       LibraryTableColumn.cover => SizedBox(
           width: 28,

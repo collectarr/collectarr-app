@@ -45,6 +45,22 @@ void main() {
     expect(find.byIcon(Icons.manage_search), findsOneWidget);
   });
 
+  testWidgets('cover badges renders key and slab markers', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: LibraryCoverBadges(
+          isOwned: true,
+          isWishlisted: false,
+          keyLabel: 'Key item: First appearance',
+          slabLabel: 'Slabbed - CGC',
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.label_important), findsOneWidget);
+    expect(find.byIcon(Icons.workspace_premium), findsOneWidget);
+  });
+
   testWidgets('status icons shows wishlist marker only when present',
       (tester) async {
     await tester.pumpWidget(
@@ -71,5 +87,21 @@ void main() {
 
     expect(find.byIcon(Icons.image_not_supported_outlined), findsOneWidget);
     expect(find.byIcon(Icons.manage_search), findsOneWidget);
+  });
+
+  testWidgets('status icons include collector markers', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: LibraryItemStatusIcons(
+          isOwned: true,
+          isWishlisted: false,
+          hasKeyMarker: true,
+          hasSlabMarker: true,
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.label_important), findsOneWidget);
+    expect(find.byIcon(Icons.workspace_premium), findsOneWidget);
   });
 }

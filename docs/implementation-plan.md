@@ -82,8 +82,8 @@
 - [x] Hyperlink filtering from creators/characters/publishers/series facts into live library filters
 - [x] Finish real location hierarchy productization: structured location assignment/filtering, dedicated management, first-class grouping, and synced location definitions now exist
 - [ ] Extend personal value tracking beyond inspector/detail visibility into stronger summaries and collection-level drill-downs
-- [ ] Key-issue / key-release markers, richer slab / grading-company details, and collector-facing variant notes
-- [ ] Run-completeness tools: missing issues for comics, missing volumes/seasons where the data model supports it
+- [ ] Key-issue / key-release markers and richer slab / grading-company details are now surfaced in workspace badges/cards/detail views; collector-facing variant notes still need a fuller pass
+- [ ] Run-completeness tools: first-pass comic issue gap detection now exists in stats, while missing volumes/seasons tooling still needs dedicated views
 - [ ] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
 - [ ] Investigate optional cover-photo recognition / scan-to-identify for comics as a later Core capability
 
