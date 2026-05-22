@@ -1,12 +1,14 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -14,14 +16,15 @@ import 'package:uuid/uuid.dart';
 const _uuid = Uuid();
 
 class SyncService {
-  const SyncService({
+  SyncService({
     required this.client,
     required this.db,
     required this.queue,
     required this.catalog,
     required this.ownedItems,
     required this.wishlistItems,
-  });
+    LocationRepository? locations,
+  }) : locations = locations ?? LocationRepository(db);
 
   final CollectarrSyncClient client;
   final LocalDatabase db;
@@ -29,6 +32,7 @@ class SyncService {
   final CatalogCacheRepository catalog;
   final OwnedItemsCacheRepository ownedItems;
   final WishlistItemsCacheRepository wishlistItems;
+  final LocationRepository locations;
 
   Future<SyncResult> syncNow(String deviceId, {DateTime? since}) async {
     var rejectedChanges = const <SyncRejectedChange>[];
@@ -58,12 +62,21 @@ class SyncService {
 
   Future<void> _applyEntities(List<Map<String, dynamic>> entities) async {
     final catalogSnapshots = <CatalogItem>[];
+    final locationUpserts = <StorageLocation>[];
+    final locationDeletes = <String>[];
     final owned = <OwnedItem>[];
     final wishlist = <WishlistItem>[];
     // Collect image data from snapshots keyed by item ID.
     final imageDataByItemId = <String, String>{};
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
+      if (type == 'location') {
+        if (entity['action'] == 'delete') {
+          locationDeletes.add(entity['entity_id'] as String);
+        } else {
+          locationUpserts.add(_locationFromEntity(entity));
+        }
+      }
       if (type == 'library_item_snapshot' && entity['action'] == 'upsert') {
         final item = _catalogItemFromEntity(entity);
         catalogSnapshots.add(item);
@@ -80,8 +93,14 @@ class SyncService {
     }
     await db.transaction(() async {
       await catalog.upsertAll(catalogSnapshots);
+      for (final location in locationUpserts) {
+        await locations.applySyncedUpsert(location);
+      }
       await ownedItems.upsertAll(owned);
       await wishlistItems.upsertAll(wishlist);
+      for (final locationId in locationDeletes) {
+        await locations.applySyncedDelete(locationId);
+      }
       // Store image bytes locally for any snapshots that carried them.
       if (imageDataByItemId.isNotEmpty && owned.isNotEmpty) {
         final imagesRepo = ItemImagesCacheRepository(db);
@@ -149,6 +168,17 @@ class SyncService {
       'updated_at': entity['client_changed_at'],
       'deleted_at': deletedAt,
     });
+  }
+
+  StorageLocation _locationFromEntity(Map<String, dynamic> entity) {
+    final type = entity['entity_type'] as String;
+    if (type != 'location') {
+      throw FormatException('Expected location entity, got $type');
+    }
+    return StorageLocation.fromSyncPayload(
+      entity['entity_id'] as String,
+      _payload(entity),
+    );
   }
 
   Set<String> _acceptedKeys(Map<String, dynamic> response) {

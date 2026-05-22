@@ -80,7 +80,7 @@
 
 ### 📚 CLZ Parity Gaps That Still Matter
 - [x] Hyperlink filtering from creators/characters/publishers/series facts into live library filters
-- [ ] Finish real location hierarchy productization: structured location assignment/filtering and dedicated management now exist, but first-class location grouping and sync semantics are still unresolved
+- [x] Finish real location hierarchy productization: structured location assignment/filtering, dedicated management, first-class grouping, and synced location definitions now exist
 - [ ] Extend personal value tracking beyond inspector/detail visibility into stronger summaries and collection-level drill-downs
 - [ ] Key-issue / key-release markers, richer slab / grading-company details, and collector-facing variant notes
 - [ ] Run-completeness tools: missing issues for comics, missing volumes/seasons where the data model supports it
@@ -94,7 +94,7 @@
 - [x] Add a dedicated location management surface for rename / delete / reparent / description editing
 - [x] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to legacy `storageBox` text entry
 - [x] Introduce a first-class location group mode / sidebar bucket instead of reusing the `storageBox` column path
-- [ ] Decide whether location definitions themselves sync or remain local-only metadata
+- [x] Location definitions sync as first-class personal metadata alongside `location_id` assignments
 
 ### 🧭 Yamtrack-Inspired Gaps Worth Evaluating
 - [ ] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry

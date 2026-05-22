@@ -13,6 +13,28 @@ class StorageLocation {
   final String? description;
   final int sortOrder;
 
+  Map<String, dynamic> toSyncPayload() {
+    return {
+      'name': name,
+      'parent_id': parentId,
+      'description': description,
+      'sort_order': sortOrder,
+    };
+  }
+
+  factory StorageLocation.fromSyncPayload(
+    String id,
+    Map<String, dynamic> payload,
+  ) {
+    return StorageLocation(
+      id: id,
+      name: payload['name'] as String? ?? '',
+      parentId: payload['parent_id'] as String?,
+      description: payload['description'] as String?,
+      sortOrder: payload['sort_order'] as int? ?? 0,
+    );
+  }
+
   /// Build the full path label e.g. "Room > Shelf > Box 3"
   String fullPath(List<StorageLocation> allLocations) {
     final byId = {for (final location in allLocations) location.id: location};

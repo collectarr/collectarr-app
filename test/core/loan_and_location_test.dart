@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,6 +65,20 @@ void main() {
 
       expect(first.sortOrder, 1);
       expect(second.sortOrder, 2);
+    });
+
+    test('create update and delete enqueue location sync changes', () async {
+      final created = await repo.create(name: 'Room');
+      await repo.update(created.copyWith(name: 'Office'));
+      await repo.delete(created.id);
+
+      final pending = await SyncQueueRepository(db).listPending();
+
+      expect(pending, hasLength(1));
+      expect(pending.single.entityType, 'location');
+      expect(pending.single.entityId, created.id);
+      expect(pending.single.action, 'delete');
+      expect(pending.single.payload['name'], 'Office');
     });
   });
 }

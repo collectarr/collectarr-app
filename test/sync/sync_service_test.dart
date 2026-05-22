@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/native.dart';
@@ -28,6 +29,7 @@ void main() {
     final row = await db.select(db.ownedItemsCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final catalogRow = await db.select(db.catalogCache).getSingle();
+    final locations = await LocationRepository(db).getAll();
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
@@ -37,6 +39,8 @@ void main() {
     expect(catalogRow.coverImageUrl, 'https://cdn.example/absolute.jpg');
     expect(
         catalogRow.thumbnailImageUrl, 'https://cdn.example/absolute-thumb.jpg');
+    expect(locations.map((location) => location.id), ['room']);
+    expect(locations.single.name, 'Office');
   });
 
   test('sync removes rejected stale changes and applies server state',
@@ -103,6 +107,19 @@ class _FakeSyncClient extends CollectarrSyncClient {
       'server_time': '2026-05-12T09:00:00.000Z',
       'entities': [
         {
+          'entity_type': 'location',
+          'entity_id': 'room',
+          'action': 'upsert',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T07:15:00.000Z',
+          'changed_at': '2026-05-12T09:00:00.000Z',
+          'payload': {
+            'name': 'Office',
+            'description': 'Main room',
+            'sort_order': 1,
+          },
+        },
+        {
           'entity_type': 'library_item_snapshot',
           'entity_id': 'comic-1',
           'action': 'upsert',
@@ -127,6 +144,18 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'client_changed_at': '2026-05-12T08:00:00.000Z',
           'changed_at': '2026-05-12T09:00:00.000Z',
           'payload': {'item_id': 'comic-1'},
+        },
+        {
+          'entity_type': 'location',
+          'entity_id': 'closet',
+          'action': 'delete',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T08:45:00.000Z',
+          'changed_at': '2026-05-12T09:00:00.000Z',
+          'payload': {
+            'name': 'Closet',
+            'sort_order': 2,
+          },
         },
         {
           'entity_type': 'wishlist_item',

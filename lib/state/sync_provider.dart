@@ -10,6 +10,7 @@ import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -311,6 +312,30 @@ extension on SyncQueueRepository {
           payload: item.toSyncPayload(),
           clientChangedAt: changedAt,
         );
+      case 'location':
+        final repo = LocationRepository(db);
+        final location = await repo.getById(change.entityId);
+        if (location != null) {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: location.id,
+            action: 'upsert',
+            payload: location.toSyncPayload(),
+            clientChangedAt: changedAt,
+          );
+        }
+        if (change.localAction == 'delete') {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: change.entityId,
+            action: 'delete',
+            payload: change.localPayload ?? const {},
+            clientChangedAt: changedAt,
+          );
+        }
+        return null;
       default:
         return null;
     }
