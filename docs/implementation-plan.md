@@ -86,6 +86,12 @@
 - [x] Run-completeness tools: stats now surface missing comic issues, missing volumes, and missing seasons in dedicated gap cards
 - [x] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
 - [ ] Investigate optional cover-photo recognition / scan-to-identify for comics as a later Core capability
+	- Define the intended capture flow first: camera/photo import, crop guidance, confidence display, and one-tap fallback into manual search.
+	- Validate whether the first cut should live entirely in Core as a candidate-ranking service fed by cover photos, or whether App also needs local pre-processing/cropping helpers.
+	- Require a safe failure mode: low-confidence results must never auto-ingest and should degrade to a normal provider search seeded with any extracted hints.
+	- Treat this as research/prototype work until accuracy, latency, and hosting cost are understood.
+
+Current app-side parity work is largely complete; the main remaining gap here is the optional scan-to-identify / cover-photo recognition investigation.
 
 ### 🧭 Location Hierarchy Follow-up
 - [x] Owned-item sync payload now includes `location_id`
@@ -98,12 +104,22 @@
 
 ### 🧭 Yamtrack-Inspired Gaps Worth Evaluating
 - [ ] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry
+	- Prioritize import-only flows before any bidirectional sync; App mostly needs credential entry, import previews, and duplicate-resolution UX.
+	- Keep provider/source adapters modular so TV/anime imports can land before the full matrix of tracker ecosystems is supported.
 - [ ] Per-item tracking history / activity timeline
+	- Anchor this on locally meaningful events first: added, moved, loaned, sold, wishlist changes, notes/value edits, and sync conflict actions.
+	- Prefer a compact detail-page/activity drawer before building any global feed surface.
 - [ ] Saved lists / shortlists beyond owned + wishlist
+	- Treat saved lists as named filtered collections first; avoid introducing collaborative/shared semantics until list ownership and export behavior are clear.
+	- Reuse existing projection/filter infrastructure so smart lists and manual shortlists can share one model.
 - [ ] Calendar and notification surfaces only if they clearly improve release / pull-list workflows
+	- Scope this to collector-relevant reminders such as release dates, pull-list due items, loans, and preorders rather than generic media calendars.
+	- Only add notification plumbing after the calendar surface proves useful as a passive view.
 
 ### 🚫 Lower Priority Unless Product Direction Changes
 - [ ] Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity work for now
 
 ### 🧩 Release / Ops
 - [ ] Packaged release installers + app store preparation
+	- Produce signed desktop installers first (Windows at minimum), then document update/distribution strategy before spending time on store-specific packaging.
+	- Keep release work aligned with settings/bootstrap polish so first-run connection, sync pairing, and local DB migration behavior are installer-safe.
