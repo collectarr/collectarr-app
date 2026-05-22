@@ -56,12 +56,16 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
         db: widget.db,
       ),
     );
-    if (result != null || result != _currentLocationId) {
-      // result may be empty string to clear
-      final newId = (result != null && result.isEmpty) ? null : result;
-      await repo.assignItemToLocation(widget.ownedItemId, newId);
-      _load();
+    if (result == null) {
+      return;
     }
+    // result may be empty string to clear
+    final newId = result.isEmpty ? null : result;
+    if (newId == _currentLocationId) {
+      return;
+    }
+    await repo.assignItemToLocation(widget.ownedItemId, newId);
+    _load();
   }
 
   @override

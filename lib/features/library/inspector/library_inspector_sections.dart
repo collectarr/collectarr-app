@@ -107,6 +107,11 @@ class InspectorPersonalSection extends StatelessWidget {
                 formatNullableDate(ownedItem?.purchaseDate),
               ),
             ),
+            if (ownedItem?.coverPriceCents != null)
+              LibraryInspectorFactData(
+                'Cover price',
+                formatMoney(ownedItem!.coverPriceCents, ownedItem!.currency),
+              ),
             if (ownedItem?.isSold ?? false) ...[
               LibraryInspectorFactData(
                 'Sold',
@@ -148,11 +153,6 @@ class InspectorPersonalSection extends StatelessWidget {
                 LibraryInspectorFactData(
                   'Key',
                   ownedItem!.keyReason ?? 'Yes',
-                ),
-              if (ownedItem!.coverPriceCents != null)
-                LibraryInspectorFactData(
-                  'Cover price',
-                  formatMoney(ownedItem!.coverPriceCents, null),
                 ),
             ],
           ],
