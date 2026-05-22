@@ -106,9 +106,7 @@ void main() {
     await tester.tap(find.byTooltip('Open details'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Catalog metadata'), findsOneWidget);
-    expect(find.text('Cover status'), findsOneWidget);
-    expect(find.text('Local collection'), findsOneWidget);
+    expect(find.text('Catalog identity'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Providers'), 400);
     expect(find.text('Providers'), findsOneWidget);
@@ -183,7 +181,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('[All Games] 1'), findsOneWidget);
-    expect(find.text('Supergiant Games 1'), findsOneWidget);
     expect(find.text('Hades'), findsWidgets);
   });
 

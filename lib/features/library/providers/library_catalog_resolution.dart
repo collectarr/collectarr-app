@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -9,10 +10,11 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
     LibraryMetadataProviderRegistry providerRegistry =
         collectarrMetadataProviderRegistry,
   }) {
-    final mediaType = _mediaTypeForKind(catalog, workspace.kind);
-    if (mediaType == null) {
+    final rawMediaType = _mediaTypeForKind(catalog, workspace.kind);
+    if (rawMediaType == null) {
       return this;
     }
+    final mediaType = normalizeCatalogMediaTypeDefaults(rawMediaType);
     final resolvedProviders = _resolveProviderOptions(
       mediaType.providers,
       kind: mediaType.kind,
