@@ -1,5 +1,10 @@
+import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _prefsPrefix = 'collectarr.prefill.';
@@ -8,14 +13,16 @@ class PrefillDefaults {
   const PrefillDefaults({
     this.condition,
     this.grade,
-    this.storageBox,
+    this.locationId,
+    this.legacyStorageBox,
     this.readStatus,
     this.tags,
   });
 
   final String? condition;
   final String? grade;
-  final String? storageBox;
+  final String? locationId;
+  final String? legacyStorageBox;
   final String? readStatus;
   final String? tags;
 
@@ -24,7 +31,8 @@ class PrefillDefaults {
     return PrefillDefaults(
       condition: prefs.getString('${_prefsPrefix}condition'),
       grade: prefs.getString('${_prefsPrefix}grade'),
-      storageBox: prefs.getString('${_prefsPrefix}storage_box'),
+      locationId: prefs.getString('${_prefsPrefix}location_id'),
+      legacyStorageBox: prefs.getString('${_prefsPrefix}storage_box'),
       readStatus: prefs.getString('${_prefsPrefix}read_status'),
       tags: prefs.getString('${_prefsPrefix}tags'),
     );
@@ -42,28 +50,32 @@ class PrefillDefaults {
 
     await set('condition', condition);
     await set('grade', grade);
-    await set('storage_box', storageBox);
+    await set('location_id', locationId);
+    await set('storage_box', locationId == null ? legacyStorageBox : null);
     await set('read_status', readStatus);
     await set('tags', tags);
   }
 }
 
-class PrefillSettingsDialog extends StatefulWidget {
+class PrefillSettingsDialog extends ConsumerStatefulWidget {
   const PrefillSettingsDialog({super.key, required this.accent});
 
   final Color accent;
 
   @override
-  State<PrefillSettingsDialog> createState() => _PrefillSettingsDialogState();
+  ConsumerState<PrefillSettingsDialog> createState() =>
+      _PrefillSettingsDialogState();
 }
 
-class _PrefillSettingsDialogState extends State<PrefillSettingsDialog> {
+class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   final _conditionController = TextEditingController();
   final _gradeController = TextEditingController();
-  final _storageBoxController = TextEditingController();
   final _tagsController = TextEditingController();
   String? _readStatus;
   bool _loaded = false;
+  List<StorageLocation> _availableLocations = const [];
+  String? _selectedLocationId;
+  String? _legacyLocationLabel;
 
   static const _readStatusOptions = [
     null,
@@ -82,20 +94,25 @@ class _PrefillSettingsDialogState extends State<PrefillSettingsDialog> {
   void dispose() {
     _conditionController.dispose();
     _gradeController.dispose();
-    _storageBoxController.dispose();
     _tagsController.dispose();
     super.dispose();
   }
 
   Future<void> _load() async {
     final defaults = await PrefillDefaults.load();
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    final locationId = defaults.locationId ??
+        _matchLegacyLocationId(defaults.legacyStorageBox, locations);
     if (!mounted) return;
     setState(() {
       _conditionController.text = defaults.condition ?? '';
       _gradeController.text = defaults.grade ?? '';
-      _storageBoxController.text = defaults.storageBox ?? '';
       _tagsController.text = defaults.tags ?? '';
       _readStatus = defaults.readStatus;
+      _availableLocations = locations;
+      _selectedLocationId = locationId;
+      _legacyLocationLabel = locationId == null ? defaults.legacyStorageBox : null;
       _loaded = true;
     });
   }
@@ -143,8 +160,7 @@ class _PrefillSettingsDialogState extends State<PrefillSettingsDialog> {
                     _textField('Grade', _gradeController,
                         hint: 'e.g. 9.6, A+'),
                     const SizedBox(height: 10),
-                    _textField('Storage Box', _storageBoxController,
-                        hint: 'e.g. Box A, Shelf 3'),
+                    _locationField(),
                     const SizedBox(height: 10),
                     _readStatusField(),
                     const SizedBox(height: 10),
@@ -170,23 +186,33 @@ class _PrefillSettingsDialogState extends State<PrefillSettingsDialog> {
       ),
       child: Row(
         children: [
-          Icon(Icons.auto_fix_high, color: widget.accent, size: 20),
-          const SizedBox(width: 8),
-          const Text(
-            'Pre-fill Settings',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.auto_fix_high, color: widget.accent, size: 20),
+                const SizedBox(width: 8),
+                const Flexible(
+                  child: Text(
+                    'Pre-fill Settings',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const Spacer(),
           TextButton(
             onPressed: () {
               setState(() {
                 _conditionController.clear();
                 _gradeController.clear();
-                _storageBoxController.clear();
+                _selectedLocationId = null;
+                _legacyLocationLabel = null;
                 _tagsController.clear();
                 _readStatus = null;
               });
@@ -196,6 +222,109 @@ class _PrefillSettingsDialogState extends State<PrefillSettingsDialog> {
         ],
       ),
     );
+  }
+
+  Widget _locationField() {
+    final label = locationPathForId(_availableLocations, _selectedLocationId) ??
+        _legacyLocationLabel;
+    return Row(
+      children: [
+        const SizedBox(
+          width: 100,
+          child: Text(
+            'Location',
+            style: TextStyle(fontSize: 13, color: Colors.white70),
+          ),
+        ),
+        Expanded(
+          child: InkWell(
+            onTap: _pickLocation,
+            borderRadius: BorderRadius.circular(4),
+            child: Container(
+              height: 34,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2A2A2A),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: const Color(0xFF404040)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.place, size: 16, color: Colors.white70),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      label ?? 'No location selected',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: label == null ? Colors.white38 : Colors.white,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    label == null ? Icons.expand_more : Icons.chevron_right,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (label != null) ...[
+          const SizedBox(width: 6),
+          IconButton(
+            tooltip: 'Clear location',
+            onPressed: () {
+              setState(() {
+                _selectedLocationId = null;
+                _legacyLocationLabel = null;
+              });
+            },
+            icon: const Icon(Icons.clear, size: 16),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _pickLocation() async {
+    final result = await showLocationPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      currentLocationId: _selectedLocationId,
+    );
+    if (result == null) {
+      return;
+    }
+    final locations =
+        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _selectedLocationId = result.isEmpty ? null : result;
+      _legacyLocationLabel = null;
+      _availableLocations = locations;
+    });
+  }
+
+  String? _matchLegacyLocationId(
+    String? legacyLabel,
+    List<StorageLocation> locations,
+  ) {
+    final normalized = legacyLabel?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+    final match = locations.cast<StorageLocation?>().firstWhere(
+          (location) =>
+              location != null &&
+              (location.fullPath(locations) == normalized ||
+                  location.name == normalized),
+          orElse: () => null,
+        );
+    return match?.id;
   }
 
   Widget _textField(
@@ -313,9 +442,8 @@ class _PrefillSettingsDialogState extends State<PrefillSettingsDialog> {
                 grade: _gradeController.text.isEmpty
                     ? null
                     : _gradeController.text,
-                storageBox: _storageBoxController.text.isEmpty
-                    ? null
-                    : _storageBoxController.text,
+                locationId: _selectedLocationId,
+                legacyStorageBox: _legacyLocationLabel,
                 readStatus: _readStatus,
                 tags: _tagsController.text.isEmpty
                     ? null

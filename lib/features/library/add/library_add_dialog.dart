@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/providers/volumes_provider.dart';
+import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -115,6 +116,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   String _defaultCondition = 'Near Mint';
   String _defaultGrade = 'Ungraded';
   DateTime? _defaultPurchaseDate;
+  String? _defaultReadStatus;
+  String? _defaultTags;
+  String? _pendingLegacyLocationPrefill;
   DateTime? _lastProviderSearchAt;
   String? _lastProviderSearchSignature;
   int _coreSearchGeneration = 0;
@@ -142,6 +146,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     super.initState();
     _selectedProvider = widget.type.defaultSupportedMetadataProvider;
     _loadAvailableLocations();
+    _loadPrefillDefaults();
     _queryController.text = widget.initialQuery?.trim() ?? '';
     _barcodeController.text = widget.initialBarcode?.trim() ?? '';
     _titleController.text = _queryController.text;
@@ -1235,6 +1240,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           grade: _defaultGrade,
           purchaseDate: _defaultPurchaseDate,
           locationId: _defaultLocationId,
+          readStatus: _defaultReadStatus,
+          tags: _defaultTags,
         ),
       );
       if (mounted) {
@@ -1257,7 +1264,50 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (!mounted) {
       return;
     }
-    setState(() => _availableLocations = locations);
+    setState(() {
+      _availableLocations = locations;
+      _tryResolvePendingLegacyPrefill(locations);
+    });
+  }
+
+  Future<void> _loadPrefillDefaults() async {
+    final defaults = await PrefillDefaults.load();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      if (defaults.condition?.trim().isNotEmpty == true) {
+        _defaultCondition = defaults.condition!.trim();
+      }
+      if (defaults.grade?.trim().isNotEmpty == true) {
+        _defaultGrade = defaults.grade!.trim();
+      }
+      _defaultReadStatus = defaults.readStatus;
+      _defaultTags = defaults.tags;
+      _defaultLocationId = defaults.locationId;
+      _pendingLegacyLocationPrefill = defaults.legacyStorageBox;
+      _tryResolvePendingLegacyPrefill(_availableLocations);
+    });
+  }
+
+  void _tryResolvePendingLegacyPrefill(List<StorageLocation> locations) {
+    if (_defaultLocationId != null || locations.isEmpty) {
+      return;
+    }
+    final legacy = _pendingLegacyLocationPrefill?.trim();
+    if (legacy == null || legacy.isEmpty) {
+      return;
+    }
+    final match = locations.cast<StorageLocation?>().firstWhere(
+          (location) =>
+              location != null &&
+              (location.fullPath(locations) == legacy || location.name == legacy),
+          orElse: () => null,
+        );
+    if (match != null) {
+      _defaultLocationId = match.id;
+      _pendingLegacyLocationPrefill = null;
+    }
   }
 
   String? get _defaultLocationLabel =>

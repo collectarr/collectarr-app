@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,6 +85,58 @@ void main() {
       find.byKey(const ValueKey('library-add-barcode-field')),
       findsWidgets,
     );
+  });
+
+  testWidgets('generic add dialog applies persisted prefill defaults',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.prefill.condition': 'Very Fine',
+      'collectarr.prefill.grade': '9.6',
+      'collectarr.prefill.location_id': 'loc-1',
+      'collectarr.prefill.read_status': 'read',
+      'collectarr.prefill.tags': 'favorite,dc',
+    });
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'loc-1',
+            name: 'Short Box 1',
+            sortOrder: const Value(1),
+          ),
+        );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+          localDatabaseProvider.overrideWithValue(db),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Very Fine'), findsOneWidget);
+    expect(find.text('9.6'), findsOneWidget);
+    expect(find.text('Short Box 1'), findsOneWidget);
   });
 
   testWidgets('generic add dialog searches provider candidates',

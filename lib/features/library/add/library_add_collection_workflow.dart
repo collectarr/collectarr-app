@@ -9,12 +9,16 @@ class LibraryAddDefaults {
     this.grade,
     this.purchaseDate,
     this.locationId,
+    this.readStatus,
+    this.tags,
   });
 
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
   final String? locationId;
+  final String? readStatus;
+  final String? tags;
 }
 
 Future<void> addLibraryItemsToTarget({
@@ -41,6 +45,8 @@ Future<void> addLibraryItemsToTarget({
           grade: defaults.grade,
           purchaseDate: defaults.purchaseDate,
           locationId: defaults.locationId,
+          readStatus: defaults.readStatus,
+          tags: defaults.tags,
         );
         break;
       case LibraryAddTarget.wishlist:

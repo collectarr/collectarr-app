@@ -35,6 +35,8 @@ void main() {
         grade: '9.2',
         purchaseDate: DateTime.utc(2024, 5, 1),
         locationId: 'loc-1',
+        readStatus: 'read',
+        tags: 'favorite,dc',
       ),
     );
 
@@ -48,6 +50,8 @@ void main() {
     expect(ownedRows.single.grade, '9.2');
     expect(ownedRows.single.purchaseDate?.toUtc(), DateTime.utc(2024, 5, 1));
     expect(ownedRows.single.locationId, 'loc-1');
+    expect(ownedRows.single.readStatus, 'read');
+    expect(ownedRows.single.tags, 'favorite,dc');
     expect(ownedRows.single.storageBox, isNull);
     expect(syncRows.map((row) => row.entityType), contains('owned_item'));
     expect(
