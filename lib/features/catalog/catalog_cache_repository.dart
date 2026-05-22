@@ -44,6 +44,7 @@ class CatalogCacheRepository {
               volumeStartYear: Value(item.volumeStartYear),
               seasonNumber: Value(item.seasonNumber),
               episodeNumber: Value(item.episodeNumber),
+              runtimeMinutes: Value(item.runtimeMinutes),
               trackCount: Value(item.trackCount),
               tracksJson: Value(
                 item.tracks != null && item.tracks!.isNotEmpty
@@ -135,6 +136,7 @@ class CatalogCacheRepository {
           volumeStartYear: row.volumeStartYear,
           seasonNumber: row.seasonNumber,
           episodeNumber: row.episodeNumber,
+          runtimeMinutes: row.runtimeMinutes,
           trackCount: row.trackCount,
           tracks: _decodeTracks(row.tracksJson),
           creators: _decodeListOfMaps(row.creatorsJson),
@@ -239,6 +241,7 @@ class CatalogCacheRepository {
       volumeStartYear: row.volumeStartYear,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
+      runtimeMinutes: row.runtimeMinutes,
       trackCount: row.trackCount,
       tracks: _decodeTracks(row.tracksJson),
       creators: _decodeListOfMaps(row.creatorsJson),

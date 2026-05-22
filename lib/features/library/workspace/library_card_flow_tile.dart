@@ -1,8 +1,8 @@
+import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:flutter/material.dart';
 
 /// A tall card showing a large cover beside rich metadata, used in "card flow"
@@ -33,6 +33,9 @@ class LibraryCardFlowTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final capabilities = collectarrLibraryTypes.capabilitiesForKind(
+      entry.mediaType,
+    );
     final theme = Theme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
@@ -187,7 +190,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: 'Wishlist',
                               accentColor: accentColor,
                             ),
-                          if (libraryShowsTrackData(entry.mediaType) &&
+                          if (capabilities.showsTrackData &&
                               entry.trackCount != null)
                             _MetaPill(
                               icon: Icons.music_note,
@@ -204,7 +207,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       // Synopsis snippet
-                      if (libraryShowsSynopsis(entry.mediaType) &&
+                      if (capabilities.showsSynopsis &&
                           entry.synopsis != null &&
                           entry.synopsis!.isNotEmpty)
                         Text(

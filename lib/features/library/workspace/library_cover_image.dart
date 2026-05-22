@@ -45,7 +45,7 @@ class LibraryCoverImage extends ConsumerWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           child: Image.memory(
             bytes,
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
             filterQuality: FilterQuality.medium,
             errorBuilder: (_, __, ___) => placeholder,
           ),
@@ -64,7 +64,7 @@ class LibraryCoverImage extends ConsumerWidget {
         child: Image.network(
           url,
           key: ValueKey(url),
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           filterQuality: FilterQuality.medium,
           webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
           loadingBuilder: (context, child, loadingProgress) {
@@ -79,7 +79,7 @@ class LibraryCoverImage extends ConsumerWidget {
       child: CachedNetworkImage(
         key: ValueKey(url),
         imageUrl: url,
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
         filterQuality: FilterQuality.medium,
         placeholder: (_, __) => placeholder,
         errorWidget: (_, __, ___) => placeholder,

@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,21 +19,24 @@ bool itemHasMissingDetails(CatalogItem item) {
 }
 
 bool libraryShowsTrackData(String mediaType) {
-  return mediaType.trim().toLowerCase() == 'music';
+  return collectarrLibraryTypes
+          .byKind(mediaType)
+          ?.capabilities
+          .showsTrackData ??
+      false;
 }
 
 bool libraryShowsSynopsis(String mediaType) {
-  switch (mediaType.trim().toLowerCase()) {
-    case 'comic':
-    case 'manga':
-    case 'anime':
-    case 'book':
-    case 'movie':
-    case 'tv':
-      return true;
-    default:
-      return false;
+  return collectarrLibraryTypes.byKind(mediaType)?.capabilities.showsSynopsis ??
+      false;
+}
+
+bool libraryShowsReadingQueue(String mediaType) {
+  final type = collectarrLibraryTypes.byKind(mediaType);
+  if (type == null) {
+    return false;
   }
+  return type.trackingProfile.name == readingTrackingProfile.name;
 }
 
 LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
@@ -68,6 +73,7 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     volumeNumber: item.volumeNumber,
     seasonNumber: item.seasonNumber,
     episodeNumber: item.episodeNumber,
+    runtimeMinutes: item.runtimeMinutes,
     trackCount: item.trackCount,
     tracks: item.tracks,
     catalogNumber: item.catalogNumber,

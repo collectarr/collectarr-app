@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/season.dart';
@@ -113,6 +114,20 @@ class ApiClient {
         .cast<Map<String, dynamic>>()
         .map(_resolveImageUrls)
         .toList(growable: false);
+  }
+
+  Future<CatalogItem> getMetadataItem({
+    required String kind,
+    required String id,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/metadata/$kind/$id',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/metadata/$kind/$id returned an empty response body');
+    }
+    return CatalogItem.fromJson(_resolveImageUrls(data));
   }
 
   Future<List<CatalogMediaType>> metadataMediaTypes() async {

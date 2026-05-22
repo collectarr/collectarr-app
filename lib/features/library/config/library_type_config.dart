@@ -1,6 +1,90 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:flutter/material.dart';
+
+class LibraryAddDialogRequest {
+  const LibraryAddDialogRequest({
+    required this.type,
+    this.accent,
+    this.initialQuery,
+    this.initialBarcode,
+  });
+
+  final LibraryTypeConfig type;
+  final Color? accent;
+  final String? initialQuery;
+  final String? initialBarcode;
+}
+
+typedef LibraryAddDialogLauncher = Future<bool?> Function(
+  BuildContext context,
+  LibraryAddDialogRequest request,
+);
+
+class LibraryEditDialogRequest {
+  const LibraryEditDialogRequest({
+    required this.type,
+    required this.item,
+    required this.ownedItem,
+    required this.accent,
+    this.physicalFormats = const [],
+    this.customFieldDefinitions = const [],
+    this.customFieldValues = const [],
+    this.itemImages = const [],
+  });
+
+  final LibraryTypeConfig type;
+  final CatalogItem item;
+  final OwnedItem? ownedItem;
+  final Color accent;
+  final List<PhysicalMediaFormat> physicalFormats;
+  final List<CustomFieldDefinition> customFieldDefinitions;
+  final List<CustomFieldValue> customFieldValues;
+  final List<ItemImage> itemImages;
+}
+
+typedef LibraryEditDialogBuilder = Widget Function(
+  BuildContext context,
+  LibraryEditDialogRequest request,
+);
+
+class LibraryDetailPageRequest {
+  const LibraryDetailPageRequest({
+    required this.type,
+    required this.entry,
+    required this.ownedItem,
+    required this.accent,
+    required this.onAddOwned,
+    required this.onRemoveOwned,
+    required this.onAddWishlist,
+    required this.onRemoveWishlist,
+    required this.onEdit,
+    this.onFilterByValue,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceEntry entry;
+  final OwnedItem? ownedItem;
+  final Color accent;
+  final VoidCallback? onAddOwned;
+  final VoidCallback? onRemoveOwned;
+  final VoidCallback? onAddWishlist;
+  final VoidCallback? onRemoveWishlist;
+  final VoidCallback? onEdit;
+  final ValueChanged<String>? onFilterByValue;
+}
+
+typedef LibraryDetailPageBuilder = Widget Function(
+  BuildContext context,
+  LibraryDetailPageRequest request,
+);
 
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
@@ -37,6 +121,30 @@ class LibraryMetadataProviderUsagePolicy {
   final bool nonCommercialOnly;
 }
 
+enum LibraryContentHierarchy {
+  flat,
+  volumes,
+  seasons,
+}
+
+class LibraryTypeCapabilities {
+  const LibraryTypeCapabilities({
+    this.showsSynopsis = false,
+    this.showsTrackData = false,
+    this.contentHierarchy = LibraryContentHierarchy.flat,
+  });
+
+  final bool showsSynopsis;
+  final bool showsTrackData;
+  final LibraryContentHierarchy contentHierarchy;
+
+  bool get usesSeasonHierarchy =>
+      contentHierarchy == LibraryContentHierarchy.seasons;
+
+  bool get usesVolumeHierarchy =>
+      contentHierarchy == LibraryContentHierarchy.volumes;
+}
+
 class LibraryTypeConfig {
   const LibraryTypeConfig({
     required this.workspace,
@@ -49,6 +157,10 @@ class LibraryTypeConfig {
     this.grades = const [],
     this.defaultCondition,
     this.defaultGrade,
+    this.capabilities = const LibraryTypeCapabilities(),
+    this.addDialogLauncher,
+    this.editDialogBuilder,
+    this.detailPageBuilder,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -61,6 +173,10 @@ class LibraryTypeConfig {
   final List<String> grades;
   final String? defaultCondition;
   final String? defaultGrade;
+  final LibraryTypeCapabilities capabilities;
+  final LibraryAddDialogLauncher? addDialogLauncher;
+  final LibraryEditDialogBuilder? editDialogBuilder;
+  final LibraryDetailPageBuilder? detailPageBuilder;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     return [

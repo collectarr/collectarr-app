@@ -7,18 +7,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SeasonsSection extends ConsumerWidget {
   const SeasonsSection({
     super.key,
-    required this.provider,
-    required this.providerItemId,
-  });
+    this.provider,
+    this.providerItemId,
+    this.itemId,
+  })  : assert(
+          itemId != null || (provider != null && providerItemId != null),
+          'Provide itemId or provider + providerItemId.',
+        ),
+        assert(
+          itemId == null || (provider == null && providerItemId == null),
+          'Use either itemId or provider + providerItemId.',
+        );
 
-  final String provider;
-  final String providerItemId;
+  final String? provider;
+  final String? providerItemId;
+  final String? itemId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(
-      seasonsProvider((provider: provider, providerItemId: providerItemId)),
-    );
+    final seasonsAsync = itemId != null
+        ? ref.watch(itemSeasonsProvider(itemId!))
+        : ref.watch(
+            seasonsProvider(
+              (provider: provider!, providerItemId: providerItemId!),
+            ),
+          );
 
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),

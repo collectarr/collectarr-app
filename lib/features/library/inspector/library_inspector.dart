@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_header.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/inspector/metadata_correction_dialog.dart';
@@ -13,6 +13,8 @@ import 'package:collectarr_app/features/library/inspector/inspector_location_sec
 import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/seasons_section.dart';
+import 'package:collectarr_app/features/library/volumes_section.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -51,6 +53,7 @@ class LibraryInspector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final capabilities = type.capabilities;
     final selected = entry;
     if (selected == null) {
       return EmptyInspector(type: type, accent: accent);
@@ -89,20 +92,19 @@ class LibraryInspector extends ConsumerWidget {
                           type: type,
                         )
                     : null,
-                onOpenDetails: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => LibraryDetailPage(
-                      type: type,
-                      entry: selected,
-                      ownedItem: ownedItem,
-                      accent: accent,
-                      onAddOwned: onAddOwned,
-                      onRemoveOwned: onRemoveOwned,
-                      onAddWishlist: onAddWishlist,
-                      onRemoveWishlist: onRemoveWishlist,
-                      onEdit: onEdit,
-                      onFilterByValue: onFilterByValue,
-                    ),
+                onOpenDetails: () => showLibraryDetailPage(
+                  context: context,
+                  request: LibraryDetailPageRequest(
+                    type: type,
+                    entry: selected,
+                    ownedItem: ownedItem,
+                    accent: accent,
+                    onAddOwned: onAddOwned,
+                    onRemoveOwned: onRemoveOwned,
+                    onAddWishlist: onAddWishlist,
+                    onRemoveWishlist: onRemoveWishlist,
+                    onEdit: onEdit,
+                    onFilterByValue: onFilterByValue,
                   ),
                 ),
               ),
@@ -193,13 +195,14 @@ class LibraryInspector extends ConsumerWidget {
                   db: db!,
                   accent: accent,
                 ),
-                InspectorReadingQueueSection(
-                  ownedItemId: ownedItem!.id,
-                  db: db!,
-                  accent: accent,
-                ),
+                if (libraryShowsReadingQueue(type.workspace.kind))
+                  InspectorReadingQueueSection(
+                    ownedItemId: ownedItem!.id,
+                    db: db!,
+                    accent: accent,
+                  ),
               ],
-              if (libraryShowsTrackData(selected.mediaType) &&
+              if (capabilities.showsTrackData &&
                   selected.tracks != null &&
                   selected.tracks!.isNotEmpty)
                 _InspectorTrackList(
@@ -209,7 +212,18 @@ class LibraryInspector extends ConsumerWidget {
                   coverUrl: selected.displayCoverUrl,
                   title: selected.title,
                 ),
-              if (libraryShowsSynopsis(selected.mediaType) &&
+              if (capabilities.showsTrackData &&
+                  selected.trackCount != null &&
+                  (selected.tracks == null || selected.tracks!.isEmpty))
+                _InspectorTrackListUnavailable(
+                  trackCount: selected.trackCount!,
+                  accent: accent,
+                ),
+              if (capabilities.usesSeasonHierarchy)
+                SeasonsSection(itemId: selected.id)
+              else if (capabilities.usesVolumeHierarchy)
+                VolumesSection(itemId: selected.id),
+              if (capabilities.showsSynopsis &&
                   selected.synopsis != null &&
                   selected.synopsis!.trim().isNotEmpty)
                 LibraryInspectorSection(
@@ -385,6 +399,37 @@ class _InspectorTrackList extends StatelessWidget {
           )
         else
           trackColumn,
+      ],
+    );
+  }
+}
+
+class _InspectorTrackListUnavailable extends StatelessWidget {
+  const _InspectorTrackListUnavailable({
+    required this.trackCount,
+    required this.accent,
+  });
+
+  final int trackCount;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return LibraryInspectorSection(
+      title: 'Track List',
+      accentColor: accent,
+      children: [
+        Text(
+          '$trackCount tracks found, but the cached metadata does not include the full track list yet.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Refresh metadata after re-matching the album to load individual tracks.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.white70,
+              ),
+        ),
       ],
     );
   }

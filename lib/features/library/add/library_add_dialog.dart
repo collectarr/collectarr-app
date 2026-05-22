@@ -12,10 +12,10 @@ import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dar
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -240,6 +240,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _selectedProviderCandidateId,
                         checkedResultIds: _checkedResultIds,
                         checkedProviderIds: _checkedProviderIds,
+                        providerQueryText: _queryController.text,
+                        providerSeriesText: _searchSeriesController.text,
+                        providerNumberText: _searchNumberController.text,
+                        providerPublisherText: _searchPublisherController.text,
+                        providerYearText: _searchYearController.text,
                         onSelectResult: (id) => setState(() {
                           _selectedResultId = id;
                           _selectedProviderCandidateId = null;
@@ -414,13 +419,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   Future<void> _search() async {
+    final searchLabels = libraryMediaSearchFieldLabels(widget.type);
     final query = _queryController.text.trim();
     if (query.isEmpty &&
         _searchSeriesController.text.trim().isEmpty &&
         _searchNumberController.text.trim().isEmpty &&
         _searchPublisherController.text.trim().isEmpty &&
         _searchYearController.text.trim().isEmpty) {
-      setState(() => _error = 'Enter a title, creator, series, or keyword.');
+      setState(() => _error = searchLabels.emptySearchMessage);
       return;
     }
     final searchGeneration = ++_coreSearchGeneration;
@@ -753,12 +759,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       );
 
       // Open edit dialog so the user can review / modify all fields.
-      final result = await showDialog<LibraryEditSelection>(
+      final result = await showLibraryEditDialog(
         context: context,
-        builder: (context) => LibraryEditDialog(
+        request: LibraryEditDialogRequest(
           type: widget.type,
           item: previewItem,
-          ownedItem: null, // catalog-only tabs
+          ownedItem: null,
           accent: LibraryAccentScope.accentOf(context),
           physicalFormats: physicalMediaFormatsForKind(
             catalog,
@@ -1078,10 +1084,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final seen = <String>{};
     return [
       _queryController.text,
-      _titleController.text,
-      _numberController.text,
-      _publisherController.text,
-      _yearController.text,
+      _searchSeriesController.text,
+      _searchNumberController.text,
+      _searchPublisherController.text,
+      _searchYearController.text,
       _barcodeController.text,
     ].map((part) => part.trim()).where((part) {
       if (part.isEmpty) {

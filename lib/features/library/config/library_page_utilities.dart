@@ -181,6 +181,33 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     return confirmed == true;
   }
 
+  Future<bool> confirmSingleRemove(
+    BuildContext context, {
+    required String title,
+    required String itemLabel,
+  }) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Remove $itemLabel?'),
+        content: Text(
+          'Remove "$title" from the local shelf and queue the change for sync?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    return confirmed == true;
+  }
+
   /// Show the bulk edit dialog and return the selection (null = cancelled).
   Future<LibraryBulkEditSelection?> showBulkEditDialog(
     BuildContext context, {

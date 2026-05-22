@@ -3,7 +3,18 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/comics/add/comics_add_dialog.dart';
 import 'package:flutter/material.dart';
+
+Future<bool?> showComicsLibraryAddDialog(
+  BuildContext context,
+  LibraryAddDialogRequest request,
+) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) => const ComicsAddDialog(),
+  );
+}
 
 const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   kind: 'comic',
@@ -39,11 +50,9 @@ const comicsLibraryConfig = LibraryTypeConfig(
     comicVineMetadataProvider,
   ],
   trackingProfile: comicTrackingProfile,
-  capabilities: LibraryTypeCapabilities(
-    showsSynopsis: true,
-  ),
   conditions: kComicConditions,
   grades: kComicGrades,
   defaultCondition: 'Near Mint',
   defaultGrade: 'Ungraded',
+  addDialogLauncher: showComicsLibraryAddDialog,
 );

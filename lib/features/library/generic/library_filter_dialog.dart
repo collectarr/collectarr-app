@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
@@ -285,6 +286,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   Widget build(BuildContext context) {
     final hasGrades = widget.type.grades.isNotEmpty;
     final hasConditions = widget.type.conditions.isNotEmpty;
+    final labels = libraryMediaFilterLabels(widget.type);
     final ownershipValues = [
       LibraryOwnershipFilter.all,
       LibraryOwnershipFilter.owned,
@@ -321,8 +323,8 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
               if (widget.options.series.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _FilterDropdown(
-                  label: 'Series',
-                  empty: 'Any series',
+                  label: labels.series,
+                  empty: labels.anySeries,
                   value: _series,
                   options: widget.options.series,
                   onChanged: (v) => setState(() => _series = v),
@@ -331,8 +333,8 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
               if (widget.options.publishers.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _FilterDropdown(
-                  label: 'Publisher',
-                  empty: 'Any publisher',
+                  label: labels.publisher,
+                  empty: labels.anyPublisher,
                   value: _publisher,
                   options: widget.options.publishers,
                   onChanged: (v) => setState(() => _publisher = v),
@@ -341,8 +343,8 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
               if (widget.options.releaseYears.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _FilterDropdown(
-                  label: 'Year',
-                  empty: 'Any year',
+                  label: labels.year,
+                  empty: labels.anyYear,
                   value: _releaseYear,
                   options: widget.options.releaseYears,
                   onChanged: (v) => setState(() => _releaseYear = v),

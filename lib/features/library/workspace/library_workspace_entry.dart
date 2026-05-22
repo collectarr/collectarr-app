@@ -30,6 +30,7 @@ class LibraryWorkspaceEntry {
     this.volumeNumber,
     this.seasonNumber,
     this.episodeNumber,
+    this.runtimeMinutes,
     this.trackCount,
     this.tracks,
     this.catalogNumber,
@@ -79,6 +80,7 @@ class LibraryWorkspaceEntry {
   final int? volumeNumber;
   final int? seasonNumber;
   final int? episodeNumber;
+  final int? runtimeMinutes;
   final int? trackCount;
   final List<Map<String, dynamic>>? tracks;
   final String? catalogNumber;

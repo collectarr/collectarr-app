@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -28,6 +29,11 @@ class _GenericStatsDashboard extends StatelessWidget {
     final totalValue = state.totalPaidCents == null
         ? '-'
         : formatMoney(state.totalPaidCents, state.primaryCurrency);
+    final collectionValue = state.hasMixedCoverPriceCurrencies
+      ? '${state.coverPricedCount} valued'
+      : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
+        ? null
+        : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
     final sellValue = state.totalSellCents == null || state.totalSellCents == 0
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);
@@ -37,7 +43,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     final valueCoverage =
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
     final metadataQualityBands = _metadataQualityBands(state.entries);
-    final metadataAlertCounts = _metadataAlertCounts(state.entries);
+    final metadataAlertCounts = _metadataAlertCounts(state.entries, type);
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -106,6 +112,12 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 ? '$totalValue +'
                                 : totalValue,
                           ),
+                          if (collectionValue != null)
+                            LibraryStatsTile(
+                              icon: Icons.inventory_2_outlined,
+                              label: 'Collection value',
+                              value: collectionValue,
+                            ),
                           if (sellValue != null)
                             LibraryStatsTile(
                               icon: Icons.sell_outlined,
@@ -315,7 +327,13 @@ class _GenericStatsDashboard extends StatelessWidget {
     return counts;
   }
 
-  static Map<String, int> _metadataAlertCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _metadataAlertCounts(
+    List<ShelfEntry> entries,
+    LibraryTypeConfig type,
+  ) {
+    final labels = libraryMediaGroupLabels(type);
+    final missingPublisherLabel = 'Missing ${labels.publisher.toLowerCase()}';
+    final missingSeriesLabel = 'Missing ${labels.series.toLowerCase()}';
     final counts = <String, int>{};
     for (final entry in entries) {
       final item = entry.catalogItem;
@@ -330,13 +348,14 @@ class _GenericStatsDashboard extends StatelessWidget {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
       if (item.publisher == null || item.publisher!.trim().isEmpty) {
-        counts['Missing publisher'] = (counts['Missing publisher'] ?? 0) + 1;
+        counts[missingPublisherLabel] =
+            (counts[missingPublisherLabel] ?? 0) + 1;
       }
       if ((item.creators ?? const <Map<String, dynamic>>[]).isEmpty) {
         counts['Missing creators'] = (counts['Missing creators'] ?? 0) + 1;
       }
       if (item.seriesTitle == null || item.seriesTitle!.trim().isEmpty) {
-        counts['Missing series'] = (counts['Missing series'] ?? 0) + 1;
+        counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
       if (item.id.startsWith('provider:')) {
         counts['Provider placeholder'] = (counts['Provider placeholder'] ?? 0) + 1;

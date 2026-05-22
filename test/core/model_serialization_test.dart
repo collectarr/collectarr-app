@@ -1,7 +1,9 @@
+import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -79,6 +81,59 @@ void main() {
     expect(payload['cover_image_url'], 'https://cdn.example/full.jpg');
     expect(payload['thumbnail_image_url'], 'https://cdn.example/thumb.jpg');
     expect(payload['release_date'], '2024-10-09T00:00:00.000Z');
+  });
+
+  test('catalog item preserves canonical metadata contract fields', () {
+    final item = CatalogItem.fromJson({
+      'id': 'music-1',
+      'kind': 'music',
+      'title': 'Discovery',
+      'publisher': 'Daft Life',
+      'catalog_number': 'DISC-2001',
+      'platforms': ['CD', 'Digital'],
+      'release_status': 'Official',
+      'release_date': '2001-03-12T00:00:00.000Z',
+    });
+
+    expect(item.catalogNumber, 'DISC-2001');
+    expect(item.platforms, ['CD', 'Digital']);
+    expect(item.releaseStatus, 'Official');
+
+    final payload = item.toSyncPayload();
+
+    expect(payload['catalog_number'], 'DISC-2001');
+    expect(payload['platforms'], ['CD', 'Digital']);
+    expect(payload['release_status'], 'Official');
+    expect(payload['release_date'], '2001-03-12T00:00:00.000Z');
+  });
+
+  test('admin duplicate candidate parses score and recommended target', () {
+    final candidate = AdminDuplicateCandidate.fromJson({
+      'kind': 'comic',
+      'title': 'Absolute Batman',
+      'item_number': '1',
+      'count': 2,
+      'item_ids': ['a', 'b'],
+      'duplicate_score': 86,
+      'recommended_target_item_id': 'b',
+    });
+
+    expect(candidate.duplicateScore, 86);
+    expect(candidate.recommendedTargetItemId, 'b');
+    expect(candidate.preferredTargetItemId, 'b');
+    expect(candidate.displayTitle, 'Absolute Batman #1');
+  });
+
+  test('season episode parses page count separately from runtime', () {
+    final episode = Episode.fromJson({
+      'episode_number': 1,
+      'title': 'Romance Dawn',
+      'runtime_minutes': null,
+      'page_count': 53,
+    });
+
+    expect(episode.pageCount, 53);
+    expect(episode.runtimeMinutes, isNull);
   });
 
   test('comic detail parses editions and variants', () {

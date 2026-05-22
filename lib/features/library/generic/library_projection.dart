@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/generic/library_filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_projection_item.dart';
 import 'package:collectarr_app/features/library/generic/library_quick_view.dart';
@@ -27,13 +28,13 @@ String genericGroupModeLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
+  final labels = libraryMediaGroupLabels(type);
   return switch (mode) {
-    LibraryGroupMode.series => 'Series',
+    LibraryGroupMode.series => labels.series,
     LibraryGroupMode.storyArc => 'Story Arc',
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.title => 'Title',
-    LibraryGroupMode.publisher =>
-      type.workspace.kind == 'music' ? 'Artist' : 'Publisher',
+    LibraryGroupMode.publisher => labels.publisher,
     LibraryGroupMode.year => 'Year',
     LibraryGroupMode.ownership => 'Ownership',
     LibraryGroupMode.grade => 'Grade',
@@ -45,13 +46,13 @@ String genericGroupModeSidebarTitle(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
+  final labels = libraryMediaGroupLabels(type);
   return switch (mode) {
-    LibraryGroupMode.series => 'Series',
+    LibraryGroupMode.series => labels.seriesPlural,
     LibraryGroupMode.storyArc => 'Story Arcs',
     LibraryGroupMode.character => 'Characters',
     LibraryGroupMode.title => 'Titles',
-    LibraryGroupMode.publisher =>
-      type.workspace.kind == 'music' ? 'Artists' : 'Publishers',
+    LibraryGroupMode.publisher => labels.publisherPlural,
     LibraryGroupMode.year => 'Years',
     LibraryGroupMode.ownership => 'Ownership',
     LibraryGroupMode.grade => 'Grades',
@@ -283,16 +284,15 @@ String genericBucketForItemMode(
 ) {
   final entry = item.entry;
   final publisher = entry.publisher?.trim();
+  final labels = libraryMediaGroupLabels(type);
   return switch (groupMode) {
-    LibraryGroupMode.series => _seriesBucket(entry),
+    LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
     LibraryGroupMode.storyArc => 'Story arc',
     LibraryGroupMode.character => 'Character',
     LibraryGroupMode.year => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
     LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
-        ? (type.workspace.kind == 'music'
-            ? 'Unknown artist'
-            : 'Unknown publisher')
+        ? labels.unknownPublisher
         : publisher,
     LibraryGroupMode.ownership => entry.isOwned
         ? 'Owned'
@@ -309,13 +309,13 @@ String genericBucketForItemMode(
   };
 }
 
-String _seriesBucket(LibraryWorkspaceEntry entry) {
+String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
   final series = entry.seriesTitle?.trim();
   if (series != null && series.isNotEmpty) {
     return series;
   }
   final title = entry.title.trim();
-  return title.isEmpty ? 'Unknown series' : title;
+  return title.isEmpty ? unknownLabel : title;
 }
 
 String _titleBucket(String title) {

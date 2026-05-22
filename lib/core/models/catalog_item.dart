@@ -23,6 +23,7 @@ class CatalogItem {
     this.volumeStartYear,
     this.seasonNumber,
     this.episodeNumber,
+    this.runtimeMinutes,
     this.trackCount,
     this.tracks,
     this.catalogNumber,
@@ -66,6 +67,7 @@ class CatalogItem {
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
+  final int? runtimeMinutes;
   final int? trackCount;
   final List<Map<String, dynamic>>? tracks;
   final String? catalogNumber;
@@ -114,6 +116,7 @@ class CatalogItem {
       'volume_start_year': volumeStartYear,
       'season_number': seasonNumber,
       'episode_number': episodeNumber,
+      'runtime_minutes': runtimeMinutes,
       'catalog_number': catalogNumber,
       'platforms': platforms,
       'release_status': releaseStatus,
@@ -145,6 +148,7 @@ class CatalogItem {
       volumeStartYear: json['volume_start_year'] as int?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
+      runtimeMinutes: json['runtime_minutes'] as int?,
       trackCount: json['track_count'] as int?,
       tracks: (json['tracks'] as List?)
           ?.cast<Map<String, dynamic>>()

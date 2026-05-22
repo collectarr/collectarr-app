@@ -88,10 +88,7 @@ LibraryMetadataPresentation _buildDefaultMetadataPresentation({
   required _MetadataFactTapResolver tapFor,
 }) {
   final labels = libraryMediaFieldLabels(type);
-  final usesSeasonHierarchy = switch (type.workspace.kind) {
-    'tv' || 'anime' => true,
-    _ => false,
-  };
+  final capabilities = type.capabilities;
   final hasVolume = entry.volumeName != null || entry.volumeNumber != null;
   final hasSeason = entry.seasonNumber != null;
   final hasEpisode = entry.episodeNumber != null;
@@ -108,22 +105,22 @@ LibraryMetadataPresentation _buildDefaultMetadataPresentation({
           entry.seriesTitle!,
           onTap: tapFor(entry.seriesTitle),
         ),
-      if (hasVolume && (!usesSeasonHierarchy || !hasSeason))
+      if (hasVolume && (!capabilities.usesSeasonHierarchy || !hasSeason))
         LibraryInspectorFactData(
           'Volume',
           entry.volumeName ?? 'Vol. ${entry.volumeNumber}',
         ),
-      if (usesSeasonHierarchy && hasSeason && hasEpisode)
+      if (capabilities.usesSeasonHierarchy && hasSeason && hasEpisode)
         LibraryInspectorFactData(
           'Season / Episode',
           'Season ${entry.seasonNumber}, Ep. ${entry.episodeNumber}',
         ),
-      if (hasSeason && (!usesSeasonHierarchy || !hasEpisode))
+      if (hasSeason && (!capabilities.usesSeasonHierarchy || !hasEpisode))
         LibraryInspectorFactData(
           'Season',
           'Season ${entry.seasonNumber}',
         ),
-      if (hasEpisode && (!usesSeasonHierarchy || !hasSeason))
+      if (hasEpisode && (!capabilities.usesSeasonHierarchy || !hasSeason))
         LibraryInspectorFactData(
           'Episode',
           'Ep. ${entry.episodeNumber}',
@@ -266,6 +263,8 @@ LibraryMetadataPresentation _buildVideoMetadataPresentation({
           formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
         ),
       ),
+      if (entry.runtimeMinutes != null)
+        LibraryInspectorFactData('Runtime', '${entry.runtimeMinutes} min'),
       if (entry.country != null)
         LibraryInspectorFactData('Country', entry.country!),
       if (entry.language != null)
@@ -400,6 +399,8 @@ LibraryMetadataPresentation _buildMusicMetadataPresentation({
           formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString(),
         ),
       ),
+      if (entry.trackCount != null)
+        LibraryInspectorFactData('Tracks', entry.trackCount.toString()),
       if (entry.catalogNumber != null)
         LibraryInspectorFactData('Catalog No.', entry.catalogNumber!),
       if (entry.releaseStatus != null)

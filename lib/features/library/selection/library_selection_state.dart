@@ -35,4 +35,12 @@ class LibrarySelectionState {
   }
 
   LibrarySelectionState clear() => LibrarySelectionState.empty();
+
+  LibrarySelectionState replace(Iterable<String> nextItemIds) {
+    final ids = Set<String>.from(nextItemIds);
+    return LibrarySelectionState(
+      enabled: ids.isNotEmpty,
+      itemIds: ids,
+    );
+  }
 }

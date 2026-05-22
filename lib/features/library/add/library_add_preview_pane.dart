@@ -102,9 +102,12 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       candidate: selectedCandidate,
       preview: preview,
     );
-    final tracks = libraryShowsTrackData(type.workspace.kind)
-      ? (preview?.tracks ?? const [])
-      : const <ProviderPreviewTrack>[];
+    final tracks = type.capabilities.showsTrackData
+        ? _previewTracksForSelection(
+            item: selectedItem,
+            preview: preview,
+          )
+        : const <_PreviewTrackData>[];
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -168,7 +171,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                   Expanded(
                     child: ListView(
                       children: [
-                        if (libraryShowsSynopsis(type.workspace.kind) &&
+                        if (type.capabilities.showsSynopsis &&
                           synopsis != null &&
                             synopsis.trim().isNotEmpty) ...[
                           Text('Plot', style: TextStyle(color: accent)),
@@ -253,7 +256,12 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                     width: 200,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
+                        color: Color.alphaBlend(
+                          accent.withValues(alpha: 0.08),
+                          const Color(0xFFF1ECE2),
+                        ),
                         border: Border.all(color: const Color(0x99FFFFFF)),
+                        borderRadius: BorderRadius.circular(8),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0xCC000000),
@@ -262,12 +270,16 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      child: AspectRatio(
-                        aspectRatio: 2 / 3,
-                        child: LibraryCoverImage(
-                          title: title,
-                          itemNumber: itemNumber,
-                          imageUrl: coverUrl,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: AspectRatio(
+                          aspectRatio: 2 / 3,
+                          child: LibraryCoverImage(
+                            title: title,
+                            itemNumber: itemNumber,
+                            imageUrl: coverUrl,
+                            borderRadius: 6,
+                          ),
                         ),
                       ),
                     ),
@@ -311,11 +323,12 @@ List<(String, String?)> _metadataRowsForItem(
     ('Released', item.releaseDate != null
         ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
         : item.releaseYear?.toString()),
+    if (item.runtimeMinutes != null) ('Runtime', '${item.runtimeMinutes} min'),
     if (item.itemNumber != null) (labels.number, item.itemNumber),
     if (item.displayEditionLabel != null)
       (labels.variant, item.displayEditionLabel),
     (labels.barcode, item.barcode),
-    if (libraryShowsTrackData(type.workspace.kind) &&
+    if (type.capabilities.showsTrackData &&
       item.trackCount != null)
       ('Tracks', item.trackCount.toString()),
     if (item.catalogNumber != null) ('Catalog No.', item.catalogNumber),
@@ -508,7 +521,8 @@ List<(String, String?)> _metadataRowsForFullPreview(
     if (preview.physicalFormatLabel != null)
       ('Format', preview.physicalFormatLabel),
     if (preview.variantName != null) (labels.variant, preview.variantName),
-    if (libraryShowsTrackData(preview.kind) && preview.trackCount != null)
+    if (collectarrLibraryTypes.capabilitiesForKind(preview.kind).showsTrackData &&
+      preview.trackCount != null)
       ('Tracks', preview.trackCount.toString()),
     if (preview.catalogNumber != null)
       ('Catalog No.', preview.catalogNumber),
@@ -786,7 +800,7 @@ class _PreviewTrackRow extends StatelessWidget {
   });
 
   final int index;
-  final ProviderPreviewTrack track;
+  final _PreviewTrackData track;
   final Color accent;
 
   @override
@@ -836,6 +850,45 @@ class _PreviewTrackRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PreviewTrackData {
+  const _PreviewTrackData({
+    required this.title,
+    this.position,
+    this.durationSeconds,
+  });
+
+  final String title;
+  final int? position;
+  final int? durationSeconds;
+}
+
+List<_PreviewTrackData> _previewTracksForSelection({
+  required CatalogItem? item,
+  required AdminProviderPreview? preview,
+}) {
+  if (item?.tracks != null && item!.tracks!.isNotEmpty) {
+    return [
+      for (final track in item.tracks!)
+        _PreviewTrackData(
+          title: (track['title'] as String?)?.trim() ?? 'Untitled track',
+          position: track['position'] as int?,
+          durationSeconds: track['duration_seconds'] as int?,
+        ),
+    ];
+  }
+  if (preview == null || preview.tracks.isEmpty) {
+    return const [];
+  }
+  return [
+    for (final track in preview.tracks)
+      _PreviewTrackData(
+        title: track.title,
+        position: track.position,
+        durationSeconds: track.durationSeconds,
+      ),
+  ];
 }
 
 /// A decorated dialog shell with resize handles on the right and bottom edges.

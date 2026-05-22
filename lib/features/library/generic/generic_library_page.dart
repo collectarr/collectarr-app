@@ -8,24 +8,20 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/config/collectarr_media_adapters.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/generic/library_body.dart';
-import 'package:collectarr_app/features/library/generic/library_column_chooser.dart';
-import 'package:collectarr_app/features/library/generic/library_collection_actions.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_body.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_column_chooser.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_collection_actions.dart';
+import 'package:collectarr_app/features/library/edit/generic_library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_filter_dialog.dart';
-import 'package:collectarr_app/features/library/generic/library_metadata_refresh.dart';
-import 'package:collectarr_app/features/library/generic/library_projection.dart';
-import 'package:collectarr_app/features/library/generic/library_toolbar.dart';
-import 'package:collectarr_app/features/library/generic/library_view_preference_store.dart';
-import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
-import 'package:collectarr_app/features/library/reports/collection_report.dart';
-import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_metadata_refresh.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_projection.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_toolbar.dart';
+import 'package:collectarr_app/features/library/generic/generic_library_view_preference_store.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -37,15 +33,14 @@ import 'package:collectarr_app/features/library/workspace/library_item_context_m
 import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
-import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-class LibraryPage extends ConsumerStatefulWidget {
-  const LibraryPage({
+class GenericLibraryPage extends ConsumerStatefulWidget {
+  const GenericLibraryPage({
     super.key,
     required this.type,
     required this.topBar,
@@ -57,30 +52,29 @@ class LibraryPage extends ConsumerStatefulWidget {
   final Color accent;
 
   @override
-  ConsumerState<LibraryPage> createState() => _LibraryPageState();
+  ConsumerState<GenericLibraryPage> createState() => _GenericLibraryPageState();
 }
 
-class _LibraryPageState extends ConsumerState<LibraryPage>
+class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     with LibraryPageUtilities {
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
   String? _selectedId;
   String? _selectedBucket;
   String? _selectedLetter;
-  LibraryQuickView? _quickView;
-  LibraryGroupMode? _groupMode;
+  GenericQuickView? _quickView;
+  GenericLibraryGroupMode? _groupMode;
   var _selection = LibrarySelectionState.empty();
   var _filterSelection = LibraryFilterSelection.none;
-  final _detailHydrationInFlight = <String>{};
-  final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
-  final _facetLoadsInFlight = <LibraryGroupMode>{};
+  final _facetBucketsByMode = <GenericLibraryGroupMode, FacetBuckets>{};
+  final _facetLoadsInFlight = <GenericLibraryGroupMode>{};
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
       plannedMediaAdapter(widget.type);
 
-  LibraryViewPreferenceStore get _viewPrefs =>
-      LibraryViewPreferenceStore(widget.type.workspace.kind);
+  GenericLibraryViewPreferenceStore get _viewPrefs =>
+      GenericLibraryViewPreferenceStore(widget.type.workspace.kind);
 
   @override
   void initState() {
@@ -102,7 +96,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   @override
-  void didUpdateWidget(covariant LibraryPage oldWidget) {
+  void didUpdateWidget(covariant GenericLibraryPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.type.workspace.kind != widget.type.workspace.kind) {
       _selectedId = null;
@@ -110,6 +104,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedLetter = null;
       _quickView = null;
       _groupMode = null;
+      _filterSelection = LibraryFilterSelection.none;
       _facetBucketsByMode.clear();
       _facetLoadsInFlight.clear();
       _searchController.clear();
@@ -158,7 +153,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           child: Column(
             children: [
               widget.topBar,
-              LibraryToolbar(
+              GenericLibraryToolbar(
                 type: widget.type,
                 searchController: _searchController,
                 viewState: viewState,
@@ -175,6 +170,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 ),
                 onDetailsLayoutChanged: (layout) => _updateViewState(
                   (state) => state.copyWith(detailsLayout: layout),
+                ),
+                onViewPresetSelected: (preset) => _updateViewState(
+                  (state) => state.withPreset(preset, _adapter.viewProfile),
                 ),
                 onCoverSizeChanged: (size) => _updateViewState(
                   (state) => state.copyWith(coverSize: size),
@@ -201,17 +199,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 onDownloadAllCovers: shelfState != null
                     ? () => _downloadAllCovers(shelfState)
                     : null,
-                counts: projection?.counts ?? const LibraryToolbarCounts(),
+                counts: projection?.counts ?? const GenericToolbarCounts(),
                 shelfState: shelfState,
-                onSmartLists: () => _showSmartLists(shelfState),
-                onPrintReport: projection != null &&
-                        projection.filteredItems.isNotEmpty
-                    ? () => _printReport(projection)
-                    : null,
-                onShareCollection: projection != null &&
-                        projection.filteredItems.isNotEmpty
-                    ? () => _shareCollection(projection)
-                    : null,
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
                 selectionCallbacks: (
@@ -243,10 +232,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Widget _buildBody(
-    LibraryProjection projection,
+    GenericLibraryProjection projection,
     LibraryWorkspaceViewState viewState,
   ) {
-    return LibraryBody(
+    return GenericLibraryBody(
       type: widget.type,
       adapter: _adapter,
       projection: projection,
@@ -259,18 +248,13 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => _showAddDialog(),
       onClearFilters: _clearFilters,
-      selectionEnabled: _selection.enabled,
-      selectedItemIds: _selection.itemIds,
       onSelectItem: (id) {
         if (_selection.enabled) {
           setState(() => _selection = _selection.toggle(id));
         } else {
-          _selectItem(id);
+          setState(() => _selectedId = id);
         }
       },
-      onBoxSelectionChanged: (ids) => setState(
-        () => _selection = _selection.replace(ids),
-      ),
       onBucketChanged: (bucket) => setState(() => _selectedBucket = bucket),
       onGroupModeChanged: (mode) {
         setState(() {
@@ -332,7 +316,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
   }
 
-  LibraryProjection _projectionForShelf(
+  GenericLibraryProjection _projectionForShelf(
     ShelfState shelf,
     LibraryWorkspaceViewState viewState,
   ) {
@@ -342,7 +326,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         (_usesExternalFacetBuckets(mode) && _selectedBucket != null)
             ? facetBuckets?.itemIdsByBucket[_selectedBucket!]
             : null;
-    return LibraryProjection.fromShelf(
+    return GenericLibraryProjection.fromShelf(
       shelf: shelf,
       type: widget.type,
       viewState: viewState,
@@ -358,8 +342,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
   }
 
-  LibraryGroupMode get _activeGroupMode =>
-      _groupMode ?? libraryDefaultGroupMode(widget.type);
+  GenericLibraryGroupMode get _activeGroupMode =>
+      _groupMode ?? genericDefaultGroupMode(widget.type);
 
   bool get _hasActiveFilter =>
       _searchController.text.trim().isNotEmpty ||
@@ -367,16 +351,16 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _quickView != null ||
       _filterSelection.hasActiveFilters;
 
-  bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
+  bool _usesExternalFacetBuckets(GenericLibraryGroupMode mode) {
     if (widget.type.workspace.kind != 'comic') {
       return false;
     }
-    return mode == LibraryGroupMode.storyArc ||
-        mode == LibraryGroupMode.character;
+    return mode == GenericLibraryGroupMode.storyArc ||
+        mode == GenericLibraryGroupMode.character;
   }
 
   FacetBuckets? _facetBucketsForMode(
-    LibraryGroupMode mode,
+    GenericLibraryGroupMode mode,
     ShelfState shelf,
   ) {
     if (!_usesExternalFacetBuckets(mode)) {
@@ -392,7 +376,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       buckets: [
         LibrarySeriesBucket(
           title: genericAllBucketLabel(widget.type),
-          count: libraryItemsForShelf(shelf, widget.type).length,
+          count: genericItemsForShelf(shelf, widget.type).length,
         ),
       ],
       itemIdsByBucket: const {},
@@ -401,7 +385,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   void _ensureFacetBucketsLoaded(
     ShelfState shelf,
-    LibraryGroupMode mode,
+    GenericLibraryGroupMode mode,
   ) {
     if (!_usesExternalFacetBuckets(mode)) {
       return;
@@ -424,19 +408,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Future<void> _loadFacetBuckets(
-    LibraryGroupMode mode,
+    GenericLibraryGroupMode mode,
     ShelfState shelf,
     String signature,
   ) async {
     final shelfItemIds = {
-      for (final item in libraryItemsForShelf(shelf, widget.type))
+      for (final item in genericItemsForShelf(shelf, widget.type))
         item.entry.id,
     };
     try {
       final buckets = await fetchFacetBuckets(
         itemIds: shelfItemIds,
         signature: signature,
-        isStoryArc: mode == LibraryGroupMode.storyArc,
+        isStoryArc: mode == GenericLibraryGroupMode.storyArc,
         allBucketLabel: genericAllBucketLabel(widget.type),
       );
       if (!mounted) return;
@@ -464,7 +448,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
 
   String _genericShelfSignature(ShelfState shelf) {
     return LibraryPageUtilities.shelfSignature([
-      for (final item in libraryItemsForShelf(shelf, widget.type))
+      for (final item in genericItemsForShelf(shelf, widget.type))
         item.entry.id,
     ]);
   }
@@ -479,7 +463,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Future<void> _showFilterDialog(
-    LibraryProjection? projection,
+    GenericLibraryProjection? projection,
   ) async {
     final allEntries = projection?.allItems
             .map((i) => i.entry)
@@ -497,61 +481,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     }
   }
 
-  Future<void> _showSmartLists(ShelfState? shelfState) async {
-    final db = ref.read(localDatabaseProvider);
-    final result = await showSmartListsDialog(
-      context: context,
-      db: db,
-      mediaKind: widget.type.workspace.kind,
-      currentFilter: _filterSelection,
-      currentQuickView: _quickView,
-      currentSortColumn: _viewState?.sortColumn,
-      currentSortAscending: _viewState?.sortAscending,
-      currentSearchQuery: _searchController.text.isNotEmpty
-          ? _searchController.text
-          : null,
-    );
-    if (result != null && mounted) {
-      setState(() {
-        _filterSelection = result.filterSelection;
-        _quickView = result.quickView;
-        if (result.searchQuery != null) {
-          _searchController.text = result.searchQuery!;
-        } else {
-          _searchController.clear();
-        }
-        if (result.sortColumn != null && _viewState != null) {
-          _viewState = _viewState!.copyWith(
-            sortColumn: result.sortColumn,
-            sortAscending: result.sortAscending ?? true,
-          );
-        }
-      });
-    }
-  }
-
-  void _printReport(LibraryProjection projection) {
-    final items = projection.filteredItems.map((i) => i.entry).toList();
-    printCollectionReport(
-      title: widget.type.workspace.title,
-      items: items,
-    );
-  }
-
-  void _shareCollection(LibraryProjection projection) {
-    final items = projection.filteredItems.map((i) => i.entry).toList();
-    showCollectionShareDialog(
-      context: context,
-      title: widget.type.workspace.title,
-      items: items,
-    );
-  }
-
-  void _pickRandomItem(LibraryProjection projection) {
+  void _pickRandomItem(GenericLibraryProjection projection) {
     final items = projection.filteredItems;
     if (items.isEmpty) return;
     final random = items[_random.nextInt(items.length)];
-    _selectItem(random.entry.id);
+    setState(() => _selectedId = random.entry.id);
   }
 
   Future<void> _downloadAllCovers(ShelfState shelfState) async {
@@ -635,10 +569,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Future<void> _handleItemContextMenu(
-    LibraryProjectionItem item,
+    GenericLibraryItem item,
     Offset position,
   ) async {
-    _selectItem(item.entry.id);
+    setState(() => _selectedId = item.entry.id);
     final result = await showLibraryItemContextMenu(
       context: context,
       position: position,
@@ -677,33 +611,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     }
   }
 
-  void _selectItem(String id) {
-    setState(() => _selectedId = id);
-    if (widget.type.capabilities.showsTrackData) {
-      unawaited(_hydrateSelectedItem(id));
-    }
-  }
-
-  Future<void> _hydrateSelectedItem(String itemId) async {
-    if (!_detailHydrationInFlight.add(itemId)) {
-      return;
-    }
-    try {
-      final item = await ref.read(apiClientProvider).getMetadataItem(
-            kind: widget.type.workspace.kind,
-            id: itemId,
-          );
-      await CatalogCacheRepository(ref.read(localDatabaseProvider)).upsertAll([
-        item,
-      ]);
-    } catch (_) {
-      // Keep the local snapshot when detail hydration is unavailable.
-    } finally {
-      _detailHydrationInFlight.remove(itemId);
-    }
-  }
-
-  Future<void> _showEditDialog(LibraryProjectionItem item) async {
+  Future<void> _showEditDialog(GenericLibraryItem item) async {
     final catalogItem = item.source.catalogItem;
     if (catalogItem == null) {
       return;
@@ -725,9 +633,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final images =
         owned != null ? await itemImageRepo.listForItem(owned.id) : <dynamic>[];
     if (!mounted) return;
-    final result = await showLibraryEditDialog(
+    final result = await showDialog<GenericLibraryEditSelection>(
       context: context,
-      request: LibraryEditDialogRequest(
+      builder: (context) => GenericLibraryEditDialog(
         type: widget.type,
         item: catalogItem,
         ownedItem: owned,
@@ -838,7 +746,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Future<void> _showMetadataRefreshDialog(
-    LibraryProjection? projection,
+    GenericLibraryProjection? projection,
   ) async {
     if (projection == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -866,7 +774,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Future<void> _runCollectionAction(
-    Future<void> Function(LibraryCollectionActions actions) action,
+    Future<void> Function(GenericLibraryCollectionActions actions) action,
   ) async {
     await action(ref.read(genericLibraryCollectionActionsProvider));
     if (mounted) {
@@ -874,7 +782,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     }
   }
 
-  Future<void> _confirmRemoveOwned(LibraryProjectionItem item) async {
+  Future<void> _confirmRemoveOwned(GenericLibraryItem item) async {
     final confirmed = await confirmSingleRemove(
       context,
       title: item.entry.title,
@@ -886,7 +794,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     await _runCollectionAction((actions) => actions.removeOwned(item));
   }
 
-  Future<void> _bulkEdit(LibraryProjection? projection) async {
+  Future<void> _bulkEdit(GenericLibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final selection = await showBulkEditDialog(
       context,
@@ -903,7 +811,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _bulkMoveToOwned(LibraryProjection? projection) async {
+  Future<void> _bulkMoveToOwned(GenericLibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
@@ -918,7 +826,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _bulkMoveToWishlist(LibraryProjection? projection) async {
+  Future<void> _bulkMoveToWishlist(GenericLibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
@@ -929,7 +837,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _bulkRemove(LibraryProjection? projection) async {
+  Future<void> _bulkRemove(GenericLibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,

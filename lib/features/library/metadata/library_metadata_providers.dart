@@ -71,6 +71,18 @@ const openLibraryMetadataProvider = LibraryMetadataProviderOption(
   ),
 );
 
+const hardcoverMetadataProvider = LibraryMetadataProviderOption(
+  id: 'hardcover',
+  label: 'Hardcover',
+  description: 'Live book and manga metadata provider',
+  supportedKinds: {'book', 'manga'},
+  requiresApiKey: true,
+  usagePolicy: LibraryMetadataProviderUsagePolicy(
+    summary: 'Book and manga metadata with attribution and API key requirements',
+    requiresAttribution: true,
+  ),
+);
+
 const anilistMetadataProvider = LibraryMetadataProviderOption(
   id: 'anilist',
   label: 'AniList',
@@ -114,6 +126,7 @@ const collectarrKnownMetadataProviders = [
   igdbMetadataProvider,
   bggMetadataProvider,
   openLibraryMetadataProvider,
+  hardcoverMetadataProvider,
   tmdbMetadataProvider,
   musicBrainzMetadataProvider,
 ];

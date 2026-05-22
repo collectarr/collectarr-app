@@ -35,8 +35,13 @@ const mangaLibraryConfig = LibraryTypeConfig(
     anilistMetadataProvider,
     mangadexMetadataProvider,
     comicVineMetadataProvider,
+    hardcoverMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
+  capabilities: LibraryTypeCapabilities(
+    showsSynopsis: true,
+    contentHierarchy: LibraryContentHierarchy.volumes,
+  ),
   conditions: kComicConditions,
 );
 
@@ -70,6 +75,10 @@ const animeLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
+  capabilities: LibraryTypeCapabilities(
+    showsSynopsis: true,
+    contentHierarchy: LibraryContentHierarchy.seasons,
+  ),
 );
 
 const booksWorkspaceConfig = LibraryWorkspaceConfig(
@@ -100,8 +109,13 @@ const booksLibraryConfig = LibraryTypeConfig(
   defaultMetadataProvider: 'openlibrary',
   metadataProviders: [
     openLibraryMetadataProvider,
+    hardcoverMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
+  capabilities: LibraryTypeCapabilities(
+    showsSynopsis: true,
+    contentHierarchy: LibraryContentHierarchy.volumes,
+  ),
   conditions: kBookConditions,
 );
 
@@ -199,6 +213,9 @@ const moviesLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
+  capabilities: LibraryTypeCapabilities(
+    showsSynopsis: true,
+  ),
 );
 
 const musicWorkspaceConfig = LibraryWorkspaceConfig(
@@ -230,7 +247,10 @@ const musicLibraryConfig = LibraryTypeConfig(
   metadataProviders: [
     musicBrainzMetadataProvider,
   ],
-  trackingProfile: readingTrackingProfile,
+  trackingProfile: listeningTrackingProfile,
+  capabilities: LibraryTypeCapabilities(
+    showsTrackData: true,
+  ),
 );
 
 const tvWorkspaceConfig = LibraryWorkspaceConfig(
@@ -263,4 +283,8 @@ const tvLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
+  capabilities: LibraryTypeCapabilities(
+    showsSynopsis: true,
+    contentHierarchy: LibraryContentHierarchy.seasons,
+  ),
 );

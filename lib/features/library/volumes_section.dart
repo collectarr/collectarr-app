@@ -156,9 +156,9 @@ class _ChapterRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (chapter.runtimeMinutes != null)
+                if (chapter.pageCount != null || chapter.runtimeMinutes != null)
                   Text(
-                    '${chapter.runtimeMinutes} pages',
+                    '${chapter.pageCount ?? chapter.runtimeMinutes} pages',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
               ],

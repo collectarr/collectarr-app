@@ -30,7 +30,10 @@ class LibraryBody extends StatelessWidget {
     required this.hasActiveFilter,
     required this.onAdd,
     required this.onClearFilters,
+    required this.selectionEnabled,
+    required this.selectedItemIds,
     required this.onSelectItem,
+    this.onBoxSelectionChanged,
     required this.onBucketChanged,
     required this.onGroupModeChanged,
     required this.onSortChanged,
@@ -64,7 +67,10 @@ class LibraryBody extends StatelessWidget {
   final bool hasActiveFilter;
   final VoidCallback onAdd;
   final VoidCallback onClearFilters;
+  final bool selectionEnabled;
+  final Set<String> selectedItemIds;
   final ValueChanged<String> onSelectItem;
+  final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String?> onBucketChanged;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
@@ -133,6 +139,8 @@ class LibraryBody extends StatelessWidget {
             items: letterFilteredItems,
             viewState: viewState,
             selectedId: selectedId,
+            selectionEnabled: selectionEnabled,
+            selectedIds: selectedItemIds,
             groupMode: groupMode,
             selectedBucket: selectedBucket,
             accent: accent,
@@ -140,6 +148,7 @@ class LibraryBody extends StatelessWidget {
             onAdd: onAdd,
             onClearFilters: onClearFilters,
             onSelectItem: onSelectItem,
+            onBoxSelectionChanged: onBoxSelectionChanged,
             onSortChanged: onSortChanged,
             onColumnWidthChanged: onColumnWidthChanged,
             onColumnReordered: onColumnReordered,

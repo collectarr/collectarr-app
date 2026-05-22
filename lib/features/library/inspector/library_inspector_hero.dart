@@ -21,6 +21,44 @@ class InspectorHero extends StatelessWidget {
   final OwnedItem? ownedItem;
   final Color accent;
 
+  Future<void> _showCoverPreview(BuildContext context) async {
+    final hasImage = (entry.displayCoverUrl?.trim().isNotEmpty ?? false) ||
+        (entry.ownedItemId?.trim().isNotEmpty ?? false);
+    if (!hasImage) {
+      return;
+    }
+    final size = MediaQuery.of(context).size;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: const Color(0xE6101010),
+        insetPadding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: size.width * 0.92,
+            maxHeight: size.height * 0.92,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 5,
+              child: Center(
+                child: LibraryCoverImage(
+                  title: entry.title,
+                  itemNumber: entry.itemNumber,
+                  imageUrl: entry.coverImageUrl ?? entry.displayCoverUrl,
+                  ownedItemId: entry.ownedItemId,
+                  borderRadius: 8,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -30,22 +68,28 @@ class InspectorHero extends StatelessWidget {
           width: wide ? 146 : 174,
           child: AspectRatio(
             aspectRatio: 2 / 3,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xAAFFFFFF)),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0xCC000000),
-                    blurRadius: 16,
-                    offset: Offset(0, 5),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => _showCoverPreview(context),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xAAFFFFFF)),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0xCC000000),
+                        blurRadius: 16,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: LibraryCoverImage(
-                title: entry.title,
-                itemNumber: entry.itemNumber,
-                imageUrl: entry.displayCoverUrl,
-                ownedItemId: entry.ownedItemId,
+                  child: LibraryCoverImage(
+                    title: entry.title,
+                    itemNumber: entry.itemNumber,
+                    imageUrl: entry.displayCoverUrl,
+                    ownedItemId: entry.ownedItemId,
+                  ),
+                ),
               ),
             ),
           ),

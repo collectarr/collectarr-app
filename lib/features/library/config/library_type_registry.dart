@@ -25,4 +25,8 @@ class LibraryTypeRegistry {
     final type = byKind(kind);
     return type?.supportedMetadataProviders ?? const [];
   }
+
+  LibraryTypeCapabilities capabilitiesForKind(String kind) {
+    return byKind(kind)?.capabilities ?? const LibraryTypeCapabilities();
+  }
 }

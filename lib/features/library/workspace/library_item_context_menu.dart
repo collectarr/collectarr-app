@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:flutter/material.dart';
 
 class LibraryItemContextMenuResult {
@@ -42,14 +41,14 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
       side: BorderSide(color: accent.withValues(alpha: 0.3)),
     ),
     items: [
-      _header('Editing'),
+      _header('Editing', accent),
       _item(
         LibraryItemContextAction.edit,
         Icons.edit_outlined,
         'Edit item...',
       ),
       const PopupMenuDivider(),
-      _header('Collection'),
+      _header('Collection', accent),
       if (!entry.isOwned)
         _item(
           LibraryItemContextAction.addToOwned,
@@ -76,7 +75,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
           'Remove from wishlist',
         ),
       const PopupMenuDivider(),
-      _header('Copy'),
+      _header('Copy', accent),
       _item(
         LibraryItemContextAction.copyTitle,
         Icons.content_copy,
@@ -92,7 +91,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
   );
 }
 
-PopupMenuEntry<LibraryItemContextMenuResult> _header(String label) {
+PopupMenuEntry<LibraryItemContextMenuResult> _header(String label, Color accent) {
   return PopupMenuItem<LibraryItemContextMenuResult>(
     enabled: false,
     height: 28,
@@ -101,7 +100,7 @@ PopupMenuEntry<LibraryItemContextMenuResult> _header(String label) {
       style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w800,
-        color: kClzYellow,
+        color: accent,
         letterSpacing: 0.5,
       ),
     ),

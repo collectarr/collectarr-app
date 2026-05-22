@@ -128,6 +128,7 @@ class _LibraryAddModeBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isBusy = isSearching || isSearchingProvider;
+    final searchLabels = libraryMediaSearchFieldLabels(type);
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: kClzToolbar,
@@ -158,7 +159,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                                 const ValueKey('library-add-query-field'),
                             controller: queryController,
                             label: 'Search Collectarr Core',
-                            hintText: _searchHint,
+                            hintText: searchLabels.queryHint,
                             onSubmitted: onSearch,
                           ),
                         ),
@@ -181,6 +182,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                     if (showAdvanced) ...[
                       const SizedBox(height: 6),
                       _AdvancedSearchFields(
+                        searchLabels: searchLabels,
                         seriesController: seriesController,
                         numberController: numberController,
                         publisherController: publisherController,
@@ -243,10 +245,6 @@ class _LibraryAddModeBar extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String get _searchHint {
-    return 'Enter title, creator, or keyword...';
   }
 
   String get _searchButtonLabel {
@@ -541,6 +539,7 @@ class _AdvancedToggleButton extends StatelessWidget {
 
 class _AdvancedSearchFields extends StatelessWidget {
   const _AdvancedSearchFields({
+    required this.searchLabels,
     required this.seriesController,
     required this.numberController,
     required this.publisherController,
@@ -548,6 +547,7 @@ class _AdvancedSearchFields extends StatelessWidget {
     required this.onSubmitted,
   });
 
+  final LibraryMediaSearchFieldLabels searchLabels;
   final TextEditingController seriesController;
   final TextEditingController numberController;
   final TextEditingController publisherController;
@@ -562,7 +562,7 @@ class _AdvancedSearchFields extends StatelessWidget {
           flex: 3,
           child: _AdvancedField(
             controller: seriesController,
-            hint: 'Series...',
+            hint: searchLabels.seriesHint,
             onSubmitted: onSubmitted,
           ),
         ),
@@ -571,7 +571,7 @@ class _AdvancedSearchFields extends StatelessWidget {
           flex: 1,
           child: _AdvancedField(
             controller: numberController,
-            hint: '#',
+            hint: searchLabels.numberHint,
             keyboardType: TextInputType.number,
             onSubmitted: onSubmitted,
           ),
@@ -581,7 +581,7 @@ class _AdvancedSearchFields extends StatelessWidget {
           flex: 2,
           child: _AdvancedField(
             controller: publisherController,
-            hint: 'Publisher...',
+            hint: searchLabels.publisherHint,
             onSubmitted: onSubmitted,
           ),
         ),

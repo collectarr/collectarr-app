@@ -4,6 +4,7 @@ class Episode {
   final String? overview;
   final String? airDate;
   final int? runtimeMinutes;
+  final int? pageCount;
   final String? stillUrl;
 
   Episode({
@@ -12,6 +13,7 @@ class Episode {
     this.overview,
     this.airDate,
     this.runtimeMinutes,
+    this.pageCount,
     this.stillUrl,
   });
 
@@ -22,6 +24,7 @@ class Episode {
       overview: json['overview'] as String?,
       airDate: json['air_date'] as String?,
       runtimeMinutes: json['runtime_minutes'] as int?,
+      pageCount: json['page_count'] as int?,
       stillUrl: json['still_url'] as String?,
     );
   }

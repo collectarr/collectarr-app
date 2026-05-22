@@ -14,6 +14,7 @@ void main() {
           condition: 'Near Mint',
           grade: '9.8',
           pricePaidCents: 1200,
+          coverPriceCents: 1500,
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 11),
         ),
@@ -22,6 +23,7 @@ void main() {
           itemId: 'comic-2',
           condition: 'Fine',
           pricePaidCents: 800,
+          coverPriceCents: 1000,
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 10),
         ),
@@ -48,6 +50,9 @@ void main() {
     expect(state.wishlistCount, 1);
     expect(state.missingGradeCount, 1);
     expect(state.totalPaidCents, 2000);
+    expect(state.coverPricedCount, 2);
+    expect(state.totalCoverPriceCents, 2500);
+    expect(state.coverPriceCurrency, 'USD');
     expect(state.primaryCurrency, 'USD');
     expect(state.missingMetadataCount, 2);
     expect(state.gradeCounts, {'9.8': 1, 'Ungraded': 1});

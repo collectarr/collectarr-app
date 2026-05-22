@@ -244,7 +244,7 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.grade => 'Grade',
     LibraryTableColumn.condition => 'Condition',
     LibraryTableColumn.price => 'Price',
-    LibraryTableColumn.storageBox => 'Storage Box',
+    LibraryTableColumn.storageBox => 'Location',
     LibraryTableColumn.wishlist => 'Wishlist',
     LibraryTableColumn.updated => 'Updated',
     LibraryTableColumn.country => 'Country',

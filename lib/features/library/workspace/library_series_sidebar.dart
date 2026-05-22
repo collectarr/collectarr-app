@@ -128,13 +128,16 @@ class _LibrarySeriesRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasCover = bucket.coverUrl != null && bucket.coverUrl!.isNotEmpty;
+    final hasSubtitle = bucket.startYear != null;
     return Material(
       color: selected ? selectionColor : Colors.transparent,
       child: InkWell(
         onTap: onTap,
         hoverColor: selectionColor.withValues(alpha: 0.35),
         child: SizedBox(
-          height: hasCover ? 36 : 32,
+          height: hasSubtitle
+              ? (hasCover ? 44 : 40)
+              : (hasCover ? 40 : 36),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(

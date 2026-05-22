@@ -32,6 +32,8 @@ class LibraryWorkspace extends StatelessWidget {
     required this.items,
     required this.viewState,
     required this.selectedId,
+    required this.selectionEnabled,
+    required this.selectedIds,
     required this.groupMode,
     required this.selectedBucket,
     required this.accent,
@@ -39,6 +41,7 @@ class LibraryWorkspace extends StatelessWidget {
     required this.onAdd,
     required this.onClearFilters,
     required this.onSelectItem,
+    this.onBoxSelectionChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
@@ -50,6 +53,8 @@ class LibraryWorkspace extends StatelessWidget {
   final List<LibraryProjectionItem> items;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
+  final bool selectionEnabled;
+  final Set<String> selectedIds;
   final LibraryGroupMode groupMode;
   final String? selectedBucket;
   final Color accent;
@@ -57,6 +62,7 @@ class LibraryWorkspace extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onClearFilters;
   final ValueChanged<String> onSelectItem;
+  final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
@@ -70,6 +76,13 @@ class LibraryWorkspace extends StatelessWidget {
       groupMode != LibraryGroupMode.title &&
       groupMode != LibraryGroupMode.ownership;
 
+  bool _isSelected(LibraryProjectionItem item) {
+    if (selectionEnabled) {
+      return selectedIds.contains(item.entry.id);
+    }
+    return item.entry.id == selectedId;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_showGrouped && items.isNotEmpty) {
@@ -79,12 +92,15 @@ class LibraryWorkspace extends StatelessWidget {
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
+          selectionEnabled: selectionEnabled,
+          selectedIds: selectedIds,
             accent: accent,
             maxCrossAxisExtent: viewState.coverSize,
             mainAxisExtent: viewState.coverSize * 1.53,
+          onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCoverTile(
               entry: item.entry,
-              selected: item.entry.id == selectedId,
+              selected: _isSelected(item),
               onTap: () => onSelectItem(item.entry.id),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
@@ -100,13 +116,16 @@ class LibraryWorkspace extends StatelessWidget {
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
+          selectionEnabled: selectionEnabled,
+          selectedIds: selectedIds,
             accent: accent,
             maxCrossAxisExtent: 430,
             mainAxisExtent:
                 (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+          onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
               entry: item.entry,
-              selected: item.entry.id == selectedId,
+              selected: _isSelected(item),
               onTap: () => onSelectItem(item.entry.id),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
@@ -123,12 +142,15 @@ class LibraryWorkspace extends StatelessWidget {
             type: type,
             groupMode: groupMode,
             selectedId: selectedId,
+          selectionEnabled: selectionEnabled,
+          selectedIds: selectedIds,
             accent: accent,
             maxCrossAxisExtent: 560,
             mainAxisExtent: 204,
+          onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCardFlowTile(
               entry: item.entry,
-              selected: item.entry.id == selectedId,
+              selected: _isSelected(item),
               onTap: () => onSelectItem(item.entry.id),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
@@ -149,10 +171,14 @@ class LibraryWorkspace extends StatelessWidget {
           emptyBuilder: _emptyBuilder,
           maxCrossAxisExtent: viewState.coverSize,
           mainAxisExtent: viewState.coverSize * 1.53,
+          selectionEnabled: selectionEnabled,
+          selectedIds: selectedIds,
+          itemIdOf: (item) => item.entry.id,
+          onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kClzGridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
             entry: item.entry,
-            selected: item.entry.id == selectedId,
+            selected: _isSelected(item),
             onTap: () => onSelectItem(item.entry.id),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
@@ -169,10 +195,14 @@ class LibraryWorkspace extends StatelessWidget {
           maxCrossAxisExtent: 430,
           mainAxisExtent:
               (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+          selectionEnabled: selectionEnabled,
+          selectedIds: selectedIds,
+          itemIdOf: (item) => item.entry.id,
+          onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kClzGridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             entry: item.entry,
-            selected: item.entry.id == selectedId,
+            selected: _isSelected(item),
             onTap: () => onSelectItem(item.entry.id),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
@@ -189,10 +219,14 @@ class LibraryWorkspace extends StatelessWidget {
           emptyBuilder: _emptyBuilder,
           maxCrossAxisExtent: 560,
           mainAxisExtent: 204,
+          selectionEnabled: selectionEnabled,
+          selectedIds: selectedIds,
+          itemIdOf: (item) => item.entry.id,
+          onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kClzGridCanvas,
           itemBuilder: (context, item) => LibraryCardFlowTile(
             entry: item.entry,
-            selected: item.entry.id == selectedId,
+            selected: _isSelected(item),
             onTap: () => onSelectItem(item.entry.id),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
@@ -254,7 +288,7 @@ class LibraryWorkspace extends StatelessWidget {
                     columnLabelFor: adapter.columnLabel,
                     columnIsNumeric: adapter.columnIsNumeric,
                     cellBuilder: _tableCell,
-                    isSelected: (item) => item.entry.id == selectedId,
+                    isSelected: _isSelected,
                     onEntryTap: (item) => onSelectItem(item.entry.id),
                     onEntrySecondaryTapUp: onItemContextMenu == null
                         ? null
@@ -340,20 +374,26 @@ class _GroupedGrid extends StatefulWidget {
     required this.type,
     required this.groupMode,
     required this.selectedId,
+    required this.selectionEnabled,
+    required this.selectedIds,
     required this.accent,
     required this.maxCrossAxisExtent,
     required this.mainAxisExtent,
     required this.itemBuilder,
+    this.onSelectionChanged,
   });
 
   final List<LibraryProjectionItem> items;
   final LibraryTypeConfig type;
   final LibraryGroupMode groupMode;
   final String? selectedId;
+  final bool selectionEnabled;
+  final Set<String> selectedIds;
   final Color accent;
   final double maxCrossAxisExtent;
   final double mainAxisExtent;
   final LibraryGridItemBuilder<LibraryProjectionItem> itemBuilder;
+  final ValueChanged<Set<String>>? onSelectionChanged;
 
   @override
   State<_GroupedGrid> createState() => _GroupedGridState();
@@ -456,6 +496,28 @@ class _GroupedGridState extends State<_GroupedGrid> {
   }
 
   Widget _buildGrid(List<LibraryProjectionItem> items) {
+    if (widget.selectionEnabled && widget.onSelectionChanged != null) {
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: LibraryWorkspaceGrid<LibraryProjectionItem>(
+            items: items,
+            itemBuilder: widget.itemBuilder,
+            emptyBuilder: (_) => const SizedBox.shrink(),
+            maxCrossAxisExtent: widget.maxCrossAxisExtent,
+            mainAxisExtent: widget.mainAxisExtent,
+            selectionEnabled: true,
+            selectedIds: widget.selectedIds,
+            itemIdOf: (item) => item.entry.id,
+            onSelectionChanged: widget.onSelectionChanged,
+            shrinkWrap: true,
+            scrollable: false,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+      );
+    }
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       sliver: SliverGrid(

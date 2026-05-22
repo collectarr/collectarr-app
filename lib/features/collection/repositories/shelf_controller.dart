@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/library_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,17 +12,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final owned = await ref.watch(collectionProvider.future);
   final wishlist = await ref.watch(wishlistProvider.future);
+  final db = ref.watch(localDatabaseProvider);
   final ids = {
     for (final item in owned) item.itemId,
     for (final item in wishlist) item.itemId,
   };
-  final catalogItems =
-      await CatalogCacheRepository(ref.watch(localDatabaseProvider))
-          .findByIds(ids);
+  final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
+  final locations = await LocationRepository(db).getAll();
   return ShelfState.from(
     ownedItems: owned,
     wishlistItems: wishlist,
     catalogItems: catalogItems,
+    locations: locations,
   );
 });
 
@@ -42,6 +45,10 @@ class ShelfState {
     this.readStatusCounts = const {},
     this.storageBoxCounts = const {},
     this.seriesCounts = const {},
+    this.coverPricedCount = 0,
+    this.totalCoverPriceCents,
+    this.coverPriceCurrency,
+    this.hasMixedCoverPriceCurrencies = false,
     this.soldCount = 0,
     this.totalSellCents,
   });
@@ -50,7 +57,11 @@ class ShelfState {
     required List<OwnedItem> ownedItems,
     required List<WishlistItem> wishlistItems,
     required Map<String, CatalogItem> catalogItems,
+    List<StorageLocation> locations = const [],
   }) {
+    final locationPathsById = {
+      for (final location in locations) location.id: location.fullPath(locations),
+    };
     final ownedByItemId = {
       for (final item in ownedItems)
         if (!item.isDeleted) item.itemId: item,
@@ -70,6 +81,7 @@ class ShelfState {
           catalogItem: catalogItems[id],
           ownedItem: ownedByItemId[id],
           wishlistItem: wishlistByItemId[id],
+          locationPath: locationPathsById[ownedByItemId[id]?.locationId],
         ),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
@@ -81,6 +93,13 @@ class ShelfState {
     };
     final hasMixedCurrencies = currencies.length > 1;
     final activeOwned = ownedByItemId.values.toList(growable: false);
+    final coverPricedOwned = activeOwned
+        .where((item) => item.coverPriceCents != null && item.currency != null)
+        .toList(growable: false);
+    final coverCurrencies = {
+      for (final item in coverPricedOwned) item.currency!,
+    };
+    final hasMixedCoverPriceCurrencies = coverCurrencies.length > 1;
     return ShelfState(
       entries: entries,
       ownedCount: ownedByItemId.length,
@@ -111,7 +130,9 @@ class ShelfState {
         activeOwned.map((item) => item.readStatus ?? 'Unknown'),
       ),
       storageBoxCounts: _counts(
-        activeOwned.map((item) => item.storageBox ?? 'No box'),
+        entries
+            .where((entry) => entry.isOwned)
+            .map((entry) => entry.locationPath ?? entry.ownedItem?.storageBox ?? 'No location'),
       ),
       seriesCounts: _counts(
         entries
@@ -120,6 +141,16 @@ class ShelfState {
             .where((title) => title.trim().isNotEmpty),
       ),
       soldCount: activeOwned.where((item) => item.isSold).length,
+        coverPricedCount: coverPricedOwned.length,
+        totalCoverPriceCents: hasMixedCoverPriceCurrencies
+          ? null
+          : coverPricedOwned.fold<int>(
+            0,
+            (total, item) => total + (item.coverPriceCents ?? 0),
+          ),
+        coverPriceCurrency:
+          coverCurrencies.length == 1 ? coverCurrencies.single : null,
+        hasMixedCoverPriceCurrencies: hasMixedCoverPriceCurrencies,
       totalSellCents: hasMixedCurrencies
           ? null
           : activeOwned
@@ -144,6 +175,10 @@ class ShelfState {
   final Map<String, int> readStatusCounts;
   final Map<String, int> storageBoxCounts;
   final Map<String, int> seriesCounts;
+  final int coverPricedCount;
+  final int? totalCoverPriceCents;
+  final String? coverPriceCurrency;
+  final bool hasMixedCoverPriceCurrencies;
   final int soldCount;
   final int? totalSellCents;
 
@@ -162,5 +197,8 @@ class ShelfEntry extends LibraryEntry {
     super.catalogItem,
     super.ownedItem,
     super.wishlistItem,
+    this.locationPath,
   });
+
+  final String? locationPath;
 }
