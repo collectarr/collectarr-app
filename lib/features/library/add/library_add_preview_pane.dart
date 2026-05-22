@@ -79,23 +79,17 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         ? _metadataRowsForFullPreview(preview, type)
         : _metadataRowsForCandidate(selectedCandidate!, type))
         : _metadataRowsForItem(selectedItem, type);
-    final provenanceRows = _provenanceRows(
+    final seriesTree = _seriesTreeDataForSelection(
       type: type,
       item: selectedItem,
       candidate: selectedCandidate,
       preview: preview,
-      providerLabel: providerLabel,
     );
     final statusSummary = _previewStatusSummary(
       item: selectedItem,
       candidate: selectedCandidate,
       preview: preview,
       isFetchingPreview: isFetchingPreview,
-    );
-    final previewDiff = _previewDiffRows(
-      type: type,
-      candidate: selectedCandidate,
-      preview: preview,
     );
     final discoverySections = _discoverySections(
       item: selectedItem,
@@ -179,23 +173,13 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                           Text(synopsis),
                           const SizedBox(height: 22),
                         ],
-                        Text('Source', style: TextStyle(color: accent)),
-                        const SizedBox(height: 8),
-                        for (final row in provenanceRows)
-                          if (row.$2 != null && row.$2!.trim().isNotEmpty)
-                            _LibraryAddPreviewMetadataRow(
-                              label: row.$1,
-                              value: row.$2!,
-                            ),
-                        if (previewDiff.isNotEmpty) ...[
-                          const SizedBox(height: 22),
-                          Text(
-                            'Preview changes',
-                            style: TextStyle(color: accent),
-                          ),
+                        if (seriesTree != null) ...[
+                          Text('Series', style: TextStyle(color: accent)),
                           const SizedBox(height: 8),
-                          for (final row in previewDiff)
-                            _LibraryAddPreviewDiffRow(row: row),
+                          _LibraryAddPreviewSeriesTree(
+                            data: seriesTree,
+                            accent: accent,
+                          ),
                         ],
                         if (discoverySections.isNotEmpty) ...[
                           const SizedBox(height: 22),
@@ -339,61 +323,61 @@ List<(String, String?)> _metadataRowsForItem(
   ];
 }
 
-List<(String, String?)> _provenanceRows({
+_PreviewSeriesTreeData? _seriesTreeDataForSelection({
   required LibraryTypeConfig type,
   required LibraryMetadataItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
-  required String providerLabel,
 }) {
-  if (item != null) {
-    return [
-      ('Source', 'Collectarr Core catalog snapshot'),
-      (
-        'Image delivery',
-        item.coverImageData != null
-            ? 'Local offline image bytes'
-            : item.displayCoverUrl != null
-                ? 'External provider URL'
-                : 'Generated fallback',
-      ),
-      ('Snapshot type', 'Cached metadata ready for local browsing'),
-    ];
+  final labels = libraryMediaFieldLabels(type);
+  final seriesTitle =
+      item?.series?.seriesTitle ??
+      preview?.series?.seriesTitle ??
+      candidate?.series?.seriesTitle;
+  if (seriesTitle == null || seriesTitle.trim().isEmpty) {
+    return null;
   }
-  final resolvedProvider = preview?.provider ?? candidate?.provider ?? providerLabel;
-  final resolvedProviderId = preview?.providerItemId ?? candidate?.providerItemId;
-  final isStub = candidate?.isStub ?? false;
-  final hasFullPreview = preview != null;
-  return [
-    (
-      'Source',
-      hasFullPreview
-          ? 'Live provider preview'
-          : isStub
-              ? 'Search-only provider stub'
-              : 'Provider search candidate',
-    ),
-    ('Provider', resolvedProvider),
-    ('Provider ID', resolvedProviderId),
-    (
-      'Status',
-      hasFullPreview
-          ? 'Full preview loaded'
-          : isStub
-              ? 'Catalog ingest not available yet'
-              : 'Preview pending',
-    ),
-    (
-      'Default flow',
-      type.metadataProviderLabel(type.defaultSupportedMetadataProvider),
-    ),
-    (
-      'Image availability',
-      (preview?.coverImageUrl ?? candidate?.imageUrl) != null
-          ? 'Provider image available'
-          : 'No provider image',
-    ),
+  final issueNumber = item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
+  final selectedTitle = item?.title ?? preview?.title ?? candidate?.title;
+  final year =
+      preview?.series?.volumeStartYear ??
+      candidate?.series?.volumeStartYear ??
+      item?.releaseYear;
+  final issueCount = candidate?.issueCount;
+  final variantLabel =
+      item?.displayEditionLabel ?? preview?.variantName ?? candidate?.variantName;
+  final children = <_PreviewSeriesTreeChildData>[];
+
+  if (issueNumber != null && issueNumber.trim().isNotEmpty) {
+    final childTitle = '${labels.number}: $issueNumber';
+    final childSubtitle = selectedTitle != null &&
+            selectedTitle.trim().isNotEmpty &&
+            selectedTitle.trim() != seriesTitle.trim()
+        ? selectedTitle
+        : variantLabel;
+    children.add(
+      _PreviewSeriesTreeChildData(
+        title: childTitle,
+        subtitle: childSubtitle,
+      ),
+    );
+  } else if (selectedTitle != null &&
+      selectedTitle.trim().isNotEmpty &&
+      selectedTitle.trim() != seriesTitle.trim()) {
+    children.add(_PreviewSeriesTreeChildData(title: selectedTitle));
+  }
+
+  final badges = <String>[
+    if (year != null) '$year',
+    if (issueCount != null)
+      '$issueCount ${issueCount == 1 ? labels.number.toLowerCase() : '${labels.number.toLowerCase()}s'}',
   ];
+
+  return _PreviewSeriesTreeData(
+    title: seriesTitle,
+    badges: badges,
+    children: children,
+  );
 }
 
 class _LibraryAddPreviewMetadataRow extends StatelessWidget {
@@ -434,66 +418,165 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
   }
 }
 
-class _LibraryAddPreviewDiffRow extends StatelessWidget {
-  const _LibraryAddPreviewDiffRow({required this.row});
+class _PreviewSeriesTreeData {
+  const _PreviewSeriesTreeData({
+    required this.title,
+    required this.badges,
+    required this.children,
+  });
 
-  final _PreviewDiffRow row;
+  final String title;
+  final List<String> badges;
+  final List<_PreviewSeriesTreeChildData> children;
+}
+
+class _PreviewSeriesTreeChildData {
+  const _PreviewSeriesTreeChildData({
+    required this.title,
+    this.subtitle,
+  });
+
+  final String title;
+  final String? subtitle;
+}
+
+class _LibraryAddPreviewSeriesTree extends StatelessWidget {
+  const _LibraryAddPreviewSeriesTree({
+    required this.data,
+    required this.accent,
+  });
+
+  final _PreviewSeriesTreeData data;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 96,
-            child: Text(
-              row.label,
-              style: const TextStyle(
-                color: kClzTextMuted,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Column(
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x14000000),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: accent.withValues(alpha: 0.22)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (row.before != null && row.before!.trim().isNotEmpty)
-                  Text(
-                    'Search: ${row.before}',
-                    style: const TextStyle(color: kClzTextMuted),
-                  )
-                else
-                  const Text(
-                    'Search: missing',
-                    style: TextStyle(color: kClzTextMuted),
+                Icon(
+                  Icons.account_tree_outlined,
+                  size: 16,
+                  color: accent.withValues(alpha: 0.95),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      if (data.badges.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            for (final badge in data.badges)
+                              _LibraryAddPreviewSeriesBadge(
+                                label: badge,
+                                accent: accent,
+                              ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ),
-                const SizedBox(height: 2),
-                Text(
-                  'Preview: ${row.after}',
-                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
-          ),
-        ],
+            if (data.children.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              for (final child in data.children)
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.subdirectory_arrow_right,
+                        size: 16,
+                        color: accent.withValues(alpha: 0.72),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              child.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            if (child.subtitle != null &&
+                                child.subtitle!.trim().isNotEmpty)
+                              Text(
+                                child.subtitle!,
+                                style: const TextStyle(
+                                  color: kClzTextMuted,
+                                  fontSize: 12,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _PreviewDiffRow {
-  const _PreviewDiffRow({
+class _LibraryAddPreviewSeriesBadge extends StatelessWidget {
+  const _LibraryAddPreviewSeriesBadge({
     required this.label,
-    required this.after,
-    this.before,
+    required this.accent,
   });
 
   final String label;
-  final String? before;
-  final String after;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: accent.withValues(alpha: 0.3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: accent.withValues(alpha: 0.95),
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 List<(String, String?)> _metadataRowsForFullPreview(
@@ -590,95 +673,6 @@ List<_PreviewDiscoverySectionData> _discoverySections({
       _PreviewDiscoverySectionData('Story Arcs', storyArcs),
     if (genres.isNotEmpty) _PreviewDiscoverySectionData('Genres', genres),
   ];
-}
-
-List<_PreviewDiffRow> _previewDiffRows({
-  required LibraryTypeConfig type,
-  required ProviderCandidate? candidate,
-  required AdminProviderPreview? preview,
-}) {
-  if (candidate == null || preview == null) {
-    return const <_PreviewDiffRow>[];
-  }
-  final labels = libraryMediaFieldLabels(type);
-  final previewLabels = type.presentation.previewLabels;
-  final rows = <_PreviewDiffRow>[];
-
-  void addScalar(String label, String? before, String? after) {
-    final normalizedBefore = _normalizePreviewDiffValue(before);
-    final normalizedAfter = _normalizePreviewDiffValue(after);
-    if (normalizedAfter == null || normalizedBefore == normalizedAfter) {
-      return;
-    }
-    rows.add(_PreviewDiffRow(
-      label: label,
-      before: normalizedBefore,
-      after: normalizedAfter,
-    ));
-  }
-
-  void addList(String label, List<String> before, List<String> after) {
-    final normalizedBefore = before
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList(growable: false);
-    final normalizedAfter = after
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList(growable: false);
-    if (normalizedAfter.isEmpty) {
-      return;
-    }
-    final beforeValue = normalizedBefore.join(', ');
-    final afterValue = normalizedAfter.join(', ');
-    if (beforeValue == afterValue) {
-      return;
-    }
-    rows.add(_PreviewDiffRow(
-      label: label,
-      before: beforeValue.isEmpty ? null : beforeValue,
-      after: afterValue,
-    ));
-  }
-
-  addScalar('Summary', candidate.summary, preview.synopsis);
-  addScalar(
-    previewLabels.series,
-    candidate.series?.seriesTitle,
-    preview.series?.seriesTitle,
-  );
-  addScalar(labels.number, candidate.issueNumber, preview.itemNumber);
-  addScalar(labels.publisher, candidate.publisher, preview.publisher);
-  addScalar(
-    'Year',
-    candidate.series?.volumeStartYear?.toString(),
-    preview.releaseDate != null
-        ? preview.releaseDate!.year.toString()
-        : preview.series?.volumeStartYear?.toString(),
-  );
-  addScalar(labels.variant, candidate.variantName, preview.variantName);
-  addScalar(
-    'Format',
-    null,
-    preview.physicalFormatLabel ?? preview.editionFormat ?? preview.physicalFormat,
-  );
-  addScalar(
-    'Image',
-    candidate.imageUrl == null ? null : 'Available',
-    preview.coverImageUrl == null ? null : 'Available',
-  );
-  addList('Characters', candidate.characterPreview, preview.characters);
-  addList('Story Arcs', candidate.storyArcPreview, preview.storyArcs);
-
-  return rows;
-}
-
-String? _normalizePreviewDiffValue(String? value) {
-  final normalized = value?.trim();
-  if (normalized == null || normalized.isEmpty) {
-    return null;
-  }
-  return normalized;
 }
 
 class _LibraryAddPreviewStatusBanner extends StatelessWidget {

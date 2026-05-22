@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/season.dart';
@@ -13,7 +16,7 @@ import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dar
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
-import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
@@ -113,19 +116,23 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   DateTime? _lastProviderSearchAt;
   String? _lastProviderSearchSignature;
   int _coreSearchGeneration = 0;
-  double _resultsPaneWidth = 390;
+  int _providerSearchGeneration = 0;
+  final _pendingProviderPreviewIds = <String>{};
+  double _resultsPaneWidth = 480;
   static const _providerSearchDebounce = Duration(milliseconds: 450);
   static const _coreSearchTimeout = Duration(seconds: 35);
   static const _providerPreviewPrefetchBatchSize = 4;
   static const _minResultsPaneWidth = 280.0;
-  static const _maxResultsPaneWidth = 520.0;
-  static const _minPreviewPaneWidth = 420.0;
+  static const _maxResultsPaneWidth = 860.0;
+  static const _minPreviewPaneWidth = 360.0;
   double? _dialogWidth;
   double? _dialogHeight;
-  static const _minDialogWidth = 640.0;
-  static const _maxDialogWidth = 1400.0;
-  static const _minDialogHeight = 480.0;
-  static const _maxDialogHeight = 1000.0;
+  static const _defaultDialogWidth = 1320.0;
+  static const _defaultDialogHeight = 860.0;
+  static const _minDialogWidth = 760.0;
+  static const _maxDialogWidth = 1800.0;
+  static const _minDialogHeight = 560.0;
+  static const _maxDialogHeight = 1200.0;
 
   @override
   void initState() {
@@ -181,6 +188,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedQueuedIngest = selectedCandidate == null
         ? null
         : _queuedProviderIngests[selectedCandidate.localCatalogId];
+    final isFetchingSelectedCandidatePreview =
+      selectedCandidate != null &&
+      _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
+      !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
     return Theme(
       data: _libraryAddDialogTheme(accent),
       child: Dialog(
@@ -190,17 +201,19 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: (_dialogWidth ?? 1040).clamp(_minDialogWidth, _maxDialogWidth),
-            maxHeight: (_dialogHeight ?? 780).clamp(_minDialogHeight, _maxDialogHeight),
+            maxWidth: (_dialogWidth ?? _defaultDialogWidth)
+                .clamp(_minDialogWidth, _maxDialogWidth),
+            maxHeight: (_dialogHeight ?? _defaultDialogHeight)
+                .clamp(_minDialogHeight, _maxDialogHeight),
           ),
           child: _ResizableDialogShell(
             accent: accent,
             onResizeWidth: (delta) => setState(() {
-              _dialogWidth = ((_dialogWidth ?? 1040) + delta)
+              _dialogWidth = ((_dialogWidth ?? _defaultDialogWidth) + delta)
                   .clamp(_minDialogWidth, _maxDialogWidth);
             }),
             onResizeHeight: (delta) => setState(() {
-              _dialogHeight = ((_dialogHeight ?? 780) + delta)
+              _dialogHeight = ((_dialogHeight ?? _defaultDialogHeight) + delta)
                   .clamp(_minDialogHeight, _maxDialogHeight);
             }),
             child: Column(
@@ -285,7 +298,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         candidatePreview: selectedCandidate == null
                             ? null
                             : _providerPreviews[selectedCandidate.localCatalogId],
-                        isFetchingPreview: false,
+                        isFetchingPreview: isFetchingSelectedCandidatePreview,
                         providerLabel: selectedProviderLabel,
                         searched: _results.isNotEmpty || _searchedProvider,
                       );
@@ -474,6 +487,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
         });
+        _precacheMetadataCovers(mappedItems);
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
@@ -539,6 +553,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   ? 'No item found for barcode $barcode.'
                   : null;
         });
+        _precacheMetadataCovers(found);
       }
       if (mounted &&
           searchGeneration == _coreSearchGeneration &&
@@ -629,6 +644,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       return;
     }
     final provider = _activeProvider;
+    final searchGeneration = ++_providerSearchGeneration;
     if (_isSearchingProvider ||
         (!bypassDebounce && _shouldDebounceProviderSearch(provider, query))) {
       return;
@@ -638,6 +654,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _searchedProvider = true;
       _providerResults = const [];
       _providerPreviews.clear();
+      _pendingProviderPreviewIds.clear();
       _selectedProviderCandidateId = null;
       _error = null;
     });
@@ -658,20 +675,27 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             ? int.tryParse(_searchYearController.text.trim())
             : null,
       );
-      final previewsByCandidateId = await _prefetchProviderPreviews(
-        api,
-        results,
-      );
       if (!mounted) {
         return;
       }
       setState(() {
         _providerResults = results;
-        _providerPreviews
-          ..clear()
-          ..addAll(previewsByCandidateId);
         _selectedProviderCandidateId = null;
+        _pendingProviderPreviewIds
+          ..clear()
+          ..addAll([
+            for (final candidate in results)
+              if (!candidate.isStub) candidate.localCatalogId,
+          ]);
       });
+      _precacheProviderCandidateCovers(results);
+      unawaited(
+        _prefetchProviderPreviewsInBackground(
+          api,
+          results,
+          searchGeneration: searchGeneration,
+        ),
+      );
     } catch (error) {
       if (mounted) {
         if (await _clearRejectedMetadataSession(error, 'Provider search')) {
@@ -688,6 +712,22 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         setState(() => _isSearchingProvider = false);
       }
     }
+  }
+
+  Future<void> _prefetchProviderPreviewsInBackground(
+    ApiClient api,
+    List<ProviderCandidate> candidates, {
+    required int searchGeneration,
+  }) async {
+    final previewsByCandidateId = await _prefetchProviderPreviews(api, candidates);
+    if (!mounted || searchGeneration != _providerSearchGeneration) {
+      return;
+    }
+    setState(() {
+      _providerPreviews.addAll(previewsByCandidateId);
+      _pendingProviderPreviewIds.removeAll(previewsByCandidateId.keys);
+    });
+    _precacheProviderPreviewCovers(previewsByCandidateId.values);
   }
 
   Future<Map<String, AdminProviderPreview>> _prefetchProviderPreviews(
@@ -725,6 +765,49 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
     }
     return previewsByCandidateId;
+  }
+
+  void _precacheMetadataCovers(List<LibraryMetadataItem> items) {
+    unawaited(
+      _precacheCoverUrls([
+        for (final item in items) item.coverImageUrl,
+        for (final item in items) item.thumbnailImageUrl,
+      ]),
+    );
+  }
+
+  void _precacheProviderCandidateCovers(List<ProviderCandidate> candidates) {
+    unawaited(
+      _precacheCoverUrls([
+        for (final candidate in candidates) candidate.imageUrl,
+      ]),
+    );
+  }
+
+  void _precacheProviderPreviewCovers(Iterable<AdminProviderPreview> previews) {
+    unawaited(
+      _precacheCoverUrls([
+        for (final preview in previews) preview.coverImageUrl,
+      ]),
+    );
+  }
+
+  Future<void> _precacheCoverUrls(Iterable<String?> urls) async {
+    if (!mounted) {
+      return;
+    }
+    final uniqueUrls = <String>{
+      for (final value in urls)
+        if (value != null && value.trim().isNotEmpty) value.trim(),
+    };
+    await Future.wait([
+      for (final url in uniqueUrls)
+        precacheImage(
+          CachedNetworkImageProvider(url),
+          context,
+          onError: (_, __) {},
+        ).catchError((_) {}),
+    ]);
   }
 
   bool _shouldDebounceProviderSearch(String provider, String query) {

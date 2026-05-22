@@ -83,6 +83,15 @@ class LibraryWorkspace extends StatelessWidget {
     return item.entry.id == selectedId;
   }
 
+  VoidCallback _selectionTap(LibraryProjectionItem item) {
+    return () {
+      if (_isSelected(item)) {
+        return;
+      }
+      onSelectItem(item.entry.id);
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_showGrouped && items.isNotEmpty) {
@@ -101,7 +110,7 @@ class LibraryWorkspace extends StatelessWidget {
             itemBuilder: (context, item) => LibraryCoverTile(
               entry: item.entry,
               selected: _isSelected(item),
-              onTap: () => onSelectItem(item.entry.id),
+              onTap: _selectionTap(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -126,7 +135,7 @@ class LibraryWorkspace extends StatelessWidget {
             itemBuilder: (context, item) => LibraryWorkspaceCard(
               entry: item.entry,
               selected: _isSelected(item),
-              onTap: () => onSelectItem(item.entry.id),
+              onTap: _selectionTap(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -151,7 +160,7 @@ class LibraryWorkspace extends StatelessWidget {
             itemBuilder: (context, item) => LibraryCardFlowTile(
               entry: item.entry,
               selected: _isSelected(item),
-              onTap: () => onSelectItem(item.entry.id),
+              onTap: _selectionTap(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -179,7 +188,7 @@ class LibraryWorkspace extends StatelessWidget {
           itemBuilder: (context, item) => LibraryCoverTile(
             entry: item.entry,
             selected: _isSelected(item),
-            onTap: () => onSelectItem(item.entry.id),
+            onTap: _selectionTap(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -203,7 +212,7 @@ class LibraryWorkspace extends StatelessWidget {
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             entry: item.entry,
             selected: _isSelected(item),
-            onTap: () => onSelectItem(item.entry.id),
+            onTap: _selectionTap(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -227,7 +236,7 @@ class LibraryWorkspace extends StatelessWidget {
           itemBuilder: (context, item) => LibraryCardFlowTile(
             entry: item.entry,
             selected: _isSelected(item),
-            onTap: () => onSelectItem(item.entry.id),
+            onTap: _selectionTap(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -289,7 +298,7 @@ class LibraryWorkspace extends StatelessWidget {
                     columnIsNumeric: adapter.columnIsNumeric,
                     cellBuilder: _tableCell,
                     isSelected: _isSelected,
-                    onEntryTap: (item) => onSelectItem(item.entry.id),
+                    onEntryTap: (item) => _selectionTap(item)(),
                     onEntrySecondaryTapUp: onItemContextMenu == null
                         ? null
                         : (item, details) =>

@@ -184,6 +184,9 @@ class AdminProviderPreview {
   final List<String> storyArcs;
   final List<String> genres;
 
+  int? get trackCount => music?.trackCount;
+  List<CatalogTrack> get tracks => music?.tracks ?? const <CatalogTrack>[];
+
   factory AdminProviderPreview.fromJson(Map<String, dynamic> json) {
     final tracks = (json['tracks'] as List<dynamic>?)
             ?.map((e) => CatalogTrack.fromJson(e as Map<String, dynamic>))

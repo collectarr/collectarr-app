@@ -1,5 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
-import 'package:collectarr_app/features/library/config/planned_library_configs.dart';
+import 'package:collectarr_app/features/library/kinds/game/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

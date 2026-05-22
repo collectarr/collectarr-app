@@ -38,7 +38,7 @@ class InspectorCollectionFields extends StatelessWidget {
             child: DropdownButtonFormField<String>(
               isExpanded: true,
               dropdownColor: const Color(0xFF2A2A2A),
-              value: conditions.contains(condition) ? condition : null,
+              initialValue: conditions.contains(condition) ? condition : null,
               decoration: const InputDecoration(
                 labelText: 'Condition',
                 border: OutlineInputBorder(),
@@ -56,7 +56,7 @@ class InspectorCollectionFields extends StatelessWidget {
             child: DropdownButtonFormField<String>(
               isExpanded: true,
               dropdownColor: const Color(0xFF2A2A2A),
-              value: grades.contains(grade) ? grade : null,
+              initialValue: grades.contains(grade) ? grade : null,
               decoration: const InputDecoration(
                 labelText: 'Grade',
                 border: OutlineInputBorder(),

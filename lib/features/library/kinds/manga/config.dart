@@ -1,37 +1,24 @@
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/features/comics/add/comics_add_dialog.dart';
 import 'package:flutter/material.dart';
 
-Future<bool?> showComicsLibraryAddDialog(
-  BuildContext context,
-  LibraryAddDialogRequest request,
-) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) => const ComicsAddDialog(),
-  );
-}
-
-const comicsWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'comic',
-  title: 'Comics',
-  icon: Icons.library_books,
-  preferencePrefix: 'comics',
+const mangaWorkspaceConfig = LibraryWorkspaceConfig(
+  kind: 'manga',
+  title: 'Manga',
+  icon: Icons.auto_stories,
+  preferencePrefix: 'manga',
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,
     LibraryTableColumn.title,
     LibraryTableColumn.issue,
-    LibraryTableColumn.variant,
     LibraryTableColumn.publisher,
     LibraryTableColumn.releaseDate,
-    LibraryTableColumn.barcode,
-    LibraryTableColumn.grade,
     LibraryTableColumn.condition,
     LibraryTableColumn.price,
     LibraryTableColumn.storageBox,
@@ -40,19 +27,22 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const comicsLibraryConfig = LibraryTypeConfig(
-  workspace: comicsWorkspaceConfig,
-  singularLabel: 'Comic',
-  pluralLabel: 'Comics',
-  defaultMetadataProvider: 'gcd',
+const mangaLibraryConfig = LibraryTypeConfig(
+  workspace: mangaWorkspaceConfig,
+  singularLabel: 'Manga',
+  pluralLabel: 'Manga',
+  defaultMetadataProvider: 'anilist',
   metadataProviders: [
-    gcdMetadataProvider,
+    anilistMetadataProvider,
+    mangadexMetadataProvider,
     comicVineMetadataProvider,
+    hardcoverMetadataProvider,
   ],
-  trackingProfile: comicTrackingProfile,
+  trackingProfile: readingTrackingProfile,
+  presentation: mangaLibraryMediaPresentation,
+  capabilities: LibraryTypeCapabilities(
+    showsSynopsis: true,
+    contentHierarchy: LibraryContentHierarchy.volumes,
+  ),
   conditions: kComicConditions,
-  grades: kComicGrades,
-  defaultCondition: 'Near Mint',
-  defaultGrade: 'Ungraded',
-  addDialogLauncher: showComicsLibraryAddDialog,
 );

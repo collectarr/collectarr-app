@@ -168,23 +168,24 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                   ),
                 ),
                 Center(
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: size.width * 0.92,
-                        maxHeight: size.height * 0.92,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: InteractiveViewer(
-                          minScale: 0.5,
-                          maxScale: 5,
-                          child: Center(
-                            child: SizedBox(
-                              width: previewWidth,
-                              child: AspectRatio(
-                                aspectRatio: 2 / 3,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: size.width * 0.92,
+                      maxHeight: size.height * 0.92,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Center(
+                        child: SizedBox(
+                          width: previewWidth,
+                          child: AspectRatio(
+                            aspectRatio: 2 / 3,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {},
+                              child: InteractiveViewer(
+                                minScale: 0.5,
+                                maxScale: 5,
                                 child: _CoverFrame(
                                   borderRadius: 10,
                                   child: LibraryCoverImage(

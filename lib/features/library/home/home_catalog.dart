@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/config/runtime_catalog_library_type_builder.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/runtime/runtime_catalog_library_type_builder.dart';
 
 List<CatalogMediaType> orderedLibraryHomeTypes(
   List<CatalogMediaType> catalog,

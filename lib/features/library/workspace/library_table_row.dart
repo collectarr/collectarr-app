@@ -36,19 +36,29 @@ class LibraryTableInkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseColor = odd ? oddColor : evenColor;
+    final resolvedSelectedColor = Color.alphaBlend(
+      selectedColor.withValues(alpha: 0.72),
+      baseColor,
+    );
     return Ink(
       decoration: BoxDecoration(
-        color: selected
-            ? selectedColor
-            : odd
-                ? oddColor
-                : evenColor,
+        color: selected ? resolvedSelectedColor : baseColor,
         border: Border(
           left: BorderSide(
             color: selected ? selectionRailColor : Colors.transparent,
             width: selectionRailWidth,
           ),
-          bottom: BorderSide(color: bottomBorderColor),
+          top: BorderSide(
+            color: selected
+                ? selectionRailColor.withValues(alpha: 0.35)
+                : Colors.transparent,
+          ),
+          bottom: BorderSide(
+            color: selected
+                ? selectionRailColor.withValues(alpha: 0.45)
+                : bottomBorderColor,
+          ),
         ),
       ),
       child: InkWell(

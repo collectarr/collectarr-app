@@ -94,8 +94,8 @@ class SyncService {
           if (ownedItemId == null) continue;
           // Deterministic ID so re-syncing the same image is an update, not a
           // duplicate insert.
-          final deterministicId =
-              _uuid.v5(Uuid.NAMESPACE_URL, '$ownedItemId:front_cover');
+            final deterministicId =
+              _uuid.v5(Namespace.url.value, '$ownedItemId:front_cover');
           await imagesRepo.upsert(
             id: deterministicId,
             ownedItemId: ownedItemId,

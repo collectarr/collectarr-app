@@ -36,7 +36,7 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 9),
         ),
       ],
-      catalogItems: const {
+      catalogItems: {
         'comic-1': CatalogItem(
           id: 'comic-1',
           kind: 'comic',

@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('library item state resolves owned and wishlist status', () {
-    const item = CatalogItem(id: 'comic-1', kind: 'comic', title: 'Comic');
+    final item = CatalogItem(id: 'comic-1', kind: 'comic', title: 'Comic');
     final owned = OwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',

@@ -35,6 +35,13 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
       trackingProfile: trackingProfile,
       conditions: conditions,
       grades: grades,
+      defaultCondition: defaultCondition,
+      defaultGrade: defaultGrade,
+      capabilities: capabilities,
+      presentation: presentation,
+      addDialogLauncher: addDialogLauncher,
+      editDialogBuilder: editDialogBuilder,
+      detailPageBuilder: detailPageBuilder,
     );
   }
 }

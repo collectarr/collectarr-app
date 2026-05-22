@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,14 +100,16 @@ class _WorkflowFixture {
   }
 }
 
-CatalogItem _comic(String id) {
-  return CatalogItem(
-    id: id,
-    kind: 'comic',
-    title: 'Superman, Vol. 4',
-    itemNumber: '8A',
-    publisher: 'DC',
-    releaseYear: 2016,
-    barcode: '76194134192700811',
+LibraryMetadataItem _comic(String id) {
+  return LibraryMetadataItem.fromCatalogItem(
+    CatalogItem(
+      id: id,
+      kind: 'comic',
+      title: 'Superman, Vol. 4',
+      itemNumber: '8A',
+      publisher: 'DC',
+      releaseYear: 2016,
+      barcode: '76194134192700811',
+    ),
   );
 }

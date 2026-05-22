@@ -242,38 +242,43 @@ class _AddTargetDefaultsBar extends StatelessWidget {
           height: kCompactControlHeight,
           child: CompactInputShell(
             accent: accent,
-            child: TextField(
-              controller: storageBoxController,
-              keyboardType: TextInputType.text,
-              inputFormatters: [noNewlineFormatter],
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              textInputAction: TextInputAction.done,
-              textAlignVertical: TextAlignVertical.center,
-              strutStyle: const StrutStyle(
-                fontSize: 13,
-                height: 1,
-                forceStrutHeight: true,
-              ),
-              style: TextStyle(
-                color: compactMenuTextFor(accent),
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                height: 1,
-              ),
-              decoration: const InputDecoration(
-                isDense: true,
-                isCollapsed: true,
-                filled: false,
-                fillColor: Colors.transparent,
-                border: InputBorder.none,
-                hintText: 'Storage box',
-                hintStyle: TextStyle(
-                  color: Color(0xFF7B8790),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: TextField(
+                controller: storageBoxController,
+                keyboardType: TextInputType.text,
+                inputFormatters: [noNewlineFormatter],
+                minLines: null,
+                maxLines: null,
+                expands: true,
+                textAlign: TextAlign.center,
+                textInputAction: TextInputAction.done,
+                textAlignVertical: TextAlignVertical.center,
+                strutStyle: const StrutStyle(
+                  fontSize: 13,
+                  height: 1,
+                  forceStrutHeight: true,
+                ),
+                style: TextStyle(
+                  color: compactMenuTextFor(accent),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
+                  height: 1,
                 ),
-                contentPadding: EdgeInsets.zero,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  isCollapsed: true,
+                  filled: false,
+                  fillColor: Colors.transparent,
+                  border: InputBorder.none,
+                  hintText: 'Storage box',
+                  hintStyle: TextStyle(
+                    color: Color(0xFF7B8790),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
             ),
           ),
@@ -357,54 +362,3 @@ class _LibraryAddTargetMenu extends StatelessWidget {
   }
 }
 
-class _LibraryAddCompactMenuFrame extends StatelessWidget {
-  const _LibraryAddCompactMenuFrame({
-    required this.width,
-    required this.label,
-    required this.accent,
-    this.enabled = true,
-  });
-
-  final double width;
-  final String label;
-  final Color accent;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = enabled ? accent : const Color(0xFF7B8790);
-    return Opacity(
-      opacity: enabled ? 1 : 0.62,
-      child: Container(
-        width: width,
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 9),
-        decoration: BoxDecoration(
-          color: Color.alphaBlend(
-            Colors.black.withValues(alpha: 0.56),
-            accent,
-          ),
-          border: Border.all(color: accent.withValues(alpha: 0.82)),
-          borderRadius: BorderRadius.circular(3),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            Icon(Icons.arrow_drop_down, color: color, size: 18),
-          ],
-        ),
-      ),
-    );
-  }
-}

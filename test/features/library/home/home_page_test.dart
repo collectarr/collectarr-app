@@ -19,7 +19,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final now = DateTime.utc(2026, 5, 15);
-    const game = CatalogItem(
+    final game = CatalogItem(
       id: 'game-1',
       kind: 'game',
       title: 'Hades',
@@ -63,10 +63,10 @@ void main() {
     // Core workspace layout renders with game data.
     expect(find.text('Add Games'), findsOneWidget);
     expect(find.text('Hades'), findsWidgets);
-    expect(find.text('No game selected'), findsNothing);
+    expect(find.text('No game selected'), findsOneWidget);
+    expect(find.byTooltip('Open details'), findsNothing);
 
     // Toolbar controls are available.
-    expect(find.byTooltip('Open details'), findsOneWidget);
     expect(find.byTooltip('Library tools'), findsOneWidget);
     expect(find.byTooltip('Group by'), findsOneWidget);
     expect(find.byTooltip('Clear group filter'), findsOneWidget);
@@ -103,20 +103,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Hades'), findsWidgets);
 
-    await tester.tap(find.byTooltip('Open details'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Catalog identity'), findsOneWidget);
-
-    await tester.scrollUntilVisible(find.text('Providers'), 400);
-    expect(find.text('Providers'), findsOneWidget);
-    await tester.drag(find.byType(ListView).last, const Offset(0, -500));
-    await tester.pumpAndSettle();
-    expect(find.text('Local snapshot'), findsWidgets);
-
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-
     await tester.tap(find.byTooltip('Refresh metadata'));
     await tester.pumpAndSettle();
 
@@ -134,7 +120,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final now = DateTime.utc(2026, 5, 15);
-    const game = CatalogItem(
+    final game = CatalogItem(
       id: 'game-1',
       kind: 'game',
       title: 'Hades',
@@ -201,7 +187,7 @@ void main() {
       providers: ['podindex'],
     );
     final now = DateTime.utc(2026, 5, 15);
-    const podcast = CatalogItem(
+    final podcast = CatalogItem(
       id: 'podcast-1',
       kind: 'podcast',
       title: 'The Library Feed',
@@ -244,8 +230,7 @@ void main() {
     expect(find.text('Search podcasts...'), findsOneWidget);
     expect(find.text('[All Podcasts]'), findsOneWidget);
     expect(find.text('The Library Feed'), findsWidgets);
-    expect(find.text('Collectarr Studio'), findsWidgets);
-    expect(find.text('No podcast selected'), findsNothing);
+    expect(find.text('No podcast selected'), findsOneWidget);
   });
 
   testWidgets('library navigation preferences hide comics and use left rail',
@@ -261,7 +246,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final now = DateTime.utc(2026, 5, 15);
-    const game = CatalogItem(
+    final game = CatalogItem(
       id: 'game-rail-1',
       kind: 'game',
       title: 'Celeste',

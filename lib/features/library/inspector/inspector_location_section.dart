@@ -210,18 +210,20 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
                   style: TextStyle(color: kClzTextMuted),
                 ),
               )
-            : ListView(
-                children: [
-                  // "None" option to clear
-                  RadioListTile<String?>(
-                    title: const Text('None'),
-                    value: null,
-                    groupValue: _selectedId,
-                    onChanged: (v) => setState(() => _selectedId = v),
-                    dense: true,
-                  ),
-                  ...roots.map((loc) => _buildLocationTile(loc, 0)),
-                ],
+            : RadioGroup<String?>(
+                groupValue: _selectedId,
+                onChanged: (value) => setState(() => _selectedId = value),
+                child: ListView(
+                  children: [
+                    // "None" option to clear
+                    RadioListTile<String?>(
+                      title: const Text('None'),
+                      value: null,
+                      dense: true,
+                    ),
+                    ...roots.map((loc) => _buildLocationTile(loc, 0)),
+                  ],
+                ),
               ),
       ),
       actions: [
@@ -251,8 +253,6 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
             subtitle:
                 loc.description != null ? Text(loc.description!) : null,
             value: loc.id,
-            groupValue: _selectedId,
-            onChanged: (v) => setState(() => _selectedId = v),
             dense: true,
           ),
         ),

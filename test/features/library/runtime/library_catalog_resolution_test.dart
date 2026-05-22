@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/config/planned_library_configs.dart';
-import 'package:collectarr_app/features/library/providers/library_catalog_resolution.dart';
+import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config.dart';
+import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

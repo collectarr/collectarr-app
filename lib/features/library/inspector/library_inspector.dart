@@ -110,16 +110,6 @@ class LibraryInspector extends ConsumerWidget {
                 ownedItem: ownedItem,
                 accent: accent,
               ),
-              const SizedBox(height: 10),
-              InspectorPrimaryActions(
-                entry: selected,
-                type: type,
-                onAddOwned: onAddOwned,
-                onRemoveOwned: onRemoveOwned,
-                onAddWishlist: onAddWishlist,
-                onRemoveWishlist: onRemoveWishlist,
-                onEdit: onEdit,
-              ),
               if (ownedItem != null &&
                   (type.conditions.isNotEmpty || type.grades.isNotEmpty)) ...[
                 const SizedBox(height: 10),

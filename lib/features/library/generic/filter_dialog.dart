@@ -304,7 +304,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<LibraryOwnershipFilter>(
-                value: _ownership,
+                initialValue: _ownership,
                 dropdownColor: kClzPanelRaised,
                 decoration: const InputDecoration(
                   labelText: 'Shelf',
@@ -458,7 +458,7 @@ class _FilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: options.contains(value) ? value : null,
+      initialValue: options.contains(value) ? value : null,
       isExpanded: true,
       dropdownColor: kClzPanelRaised,
       decoration: InputDecoration(

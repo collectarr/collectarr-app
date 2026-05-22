@@ -19,7 +19,7 @@ void main() {
       collectarrMetadataProviderRegistry
           .forKind('manga')
           .map((provider) => provider.id),
-      ['mangadex', 'anilist', 'comicvine'],
+      ['mangadex', 'anilist', 'comicvine', 'hardcover'],
     );
     expect(
       collectarrMetadataProviderRegistry
