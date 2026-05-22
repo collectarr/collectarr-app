@@ -161,16 +161,19 @@ class LibraryCoverReviewedImage {
     required this.sourceFile,
     required this.displayName,
     this.imageBytes,
+    this.rotationQuarterTurns = 0,
   });
 
   final XFile sourceFile;
   final String displayName;
   final Uint8List? imageBytes;
+  final int rotationQuarterTurns;
 
   factory LibraryCoverReviewedImage.fromFile(
     XFile file, {
     Uint8List? imageBytes,
     String? displayName,
+    int rotationQuarterTurns = 0,
   }) {
     final resolvedName = displayName?.trim();
     return LibraryCoverReviewedImage(
@@ -179,6 +182,7 @@ class LibraryCoverReviewedImage {
           ? (file.name.trim().isEmpty ? path.basename(file.path) : file.name)
           : resolvedName,
       imageBytes: imageBytes,
+      rotationQuarterTurns: rotationQuarterTurns % 4,
     );
   }
 }
@@ -213,6 +217,7 @@ class _LibraryCoverScanReviewDialogState
     extends State<_LibraryCoverScanReviewDialog> {
   late final TextEditingController _displayNameController;
   late final Future<Uint8List?> _previewBytesFuture;
+  int _rotationQuarterTurns = 0;
 
   @override
   void initState() {
@@ -261,6 +266,46 @@ class _LibraryCoverScanReviewDialogState
                   file: widget.file,
                   previewBytes: snapshot.data,
                   isLoading: snapshot.connectionState != ConnectionState.done,
+                  rotationQuarterTurns: _rotationQuarterTurns,
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                      key: const ValueKey('library-cover-review-rotate-left'),
+                      onPressed: () => setState(
+                        () => _rotationQuarterTurns =
+                            (_rotationQuarterTurns + 3) % 4,
+                      ),
+                      icon: const Icon(Icons.rotate_left),
+                      label: const Text('Rotate left'),
+                    ),
+                    OutlinedButton.icon(
+                      key: const ValueKey('library-cover-review-rotate-right'),
+                      onPressed: () => setState(
+                        () => _rotationQuarterTurns =
+                            (_rotationQuarterTurns + 1) % 4,
+                      ),
+                      icon: const Icon(Icons.rotate_right),
+                      label: const Text('Rotate right'),
+                    ),
+                    Padding(
+                      key: const ValueKey('library-cover-review-rotation-label'),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        'Rotation: ${_rotationQuarterTurns * 90}°',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -286,6 +331,7 @@ class _LibraryCoverScanReviewDialogState
                           widget.file,
                           imageBytes: snapshot.data,
                           displayName: _displayNameController.text,
+                          rotationQuarterTurns: _rotationQuarterTurns,
                         ),
                       ),
                       icon: const Icon(Icons.check_circle_outline),
@@ -316,11 +362,13 @@ class _LibraryCoverScanReviewPreview extends StatelessWidget {
     required this.file,
     required this.previewBytes,
     required this.isLoading,
+    required this.rotationQuarterTurns,
   });
 
   final XFile file;
   final Uint8List? previewBytes;
   final bool isLoading;
+  final int rotationQuarterTurns;
 
   @override
   Widget build(BuildContext context) {
@@ -335,26 +383,29 @@ class _LibraryCoverScanReviewPreview extends StatelessWidget {
         ),
         child: AspectRatio(
           aspectRatio: 0.72,
-          child: isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : previewBytes == null
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.photo_outlined, size: 42),
-                            SizedBox(height: 8),
-                            Text(
-                              'Preview unavailable, but the image can still be used for local scan hints.',
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+          child: RotatedBox(
+            quarterTurns: rotationQuarterTurns,
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : previewBytes == null
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.photo_outlined, size: 42),
+                              SizedBox(height: 8),
+                              Text(
+                                'Preview unavailable, but the image can still be used for local scan hints.',
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    )
-                  : Image.memory(previewBytes!, fit: BoxFit.contain),
+                      )
+                    : Image.memory(previewBytes!, fit: BoxFit.contain),
+          ),
         ),
       ),
     );

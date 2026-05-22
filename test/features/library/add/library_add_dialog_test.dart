@@ -512,6 +512,72 @@ void main() {
     expect(numberField.controller!.text, '423');
   });
 
+  testWidgets('real cover review dialog returns selected rotation state',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    LibraryCoverReviewedImage? reviewedImage;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => FilledButton(
+              onPressed: () async {
+                reviewedImage = await const DialogLibraryCoverImageReview()
+                    .reviewImage(
+                  context: context,
+                  type: comicsLibraryConfig,
+                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                );
+              },
+              child: const Text('Open review'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open review'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('library-cover-review-rotation-label')),
+        matching: find.text('Rotation: 0°'),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('library-cover-review-rotate-right')),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('library-cover-review-rotate-right')),
+    );
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('library-cover-review-rotation-label')),
+        matching: find.text('Rotation: 90°'),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Use image'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Use image'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(reviewedImage, isNotNull);
+    expect(reviewedImage!.rotationQuarterTurns, 1);
+  });
+
   testWidgets('provider search does not claim fallback when results are mixed',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
