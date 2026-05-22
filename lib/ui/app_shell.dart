@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
-import 'package:collectarr_app/features/library/home/library_home_catalog.dart';
-import 'package:collectarr_app/features/library/home/library_home_page.dart';
+import 'package:collectarr_app/features/library/home/home_catalog.dart';
+import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';

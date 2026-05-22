@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
-import 'package:collectarr_app/features/library/generic/library_filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_projection_item.dart';
 import 'package:collectarr_app/features/library/generic/library_quick_view.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';

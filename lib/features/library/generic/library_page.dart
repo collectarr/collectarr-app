@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart'
 import 'package:collectarr_app/features/library/generic/library_body.dart';
 import 'package:collectarr_app/features/library/generic/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/library_collection_actions.dart';
-import 'package:collectarr_app/features/library/generic/library_filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic/library_projection.dart';
 import 'package:collectarr_app/features/library/generic/library_toolbar.dart';
