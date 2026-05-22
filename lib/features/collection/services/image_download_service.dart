@@ -1,11 +1,20 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
-import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
+final Dio _imageDownloadClient = Dio(
+  BaseOptions(
+    connectTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
+    sendTimeout: const Duration(seconds: 20),
+    responseType: ResponseType.bytes,
+  ),
+);
 
 /// Downloads processed cover images from URLs and stores them locally.
 class ImageDownloadService {
@@ -40,15 +49,14 @@ class ImageDownloadService {
       if (uri == null || !uri.hasScheme) {
         return null;
       }
-      final response = await http.get(uri).timeout(
-            const Duration(seconds: 20),
-          );
-      if (response.statusCode != 200 || response.bodyBytes.isEmpty) {
+      final response = await _imageDownloadClient.getUri<List<int>>(uri);
+      final bytes = response.data == null ? Uint8List(0) : Uint8List.fromList(response.data!);
+      if (response.statusCode != 200 || bytes.isEmpty) {
         return null;
       }
-      final base64Data = base64Encode(response.bodyBytes);
+      final base64Data = base64Encode(bytes);
       await imagesRepo.upsert(
-        id: _uuid.v5(Uuid.NAMESPACE_URL, '$ownedItemId:$imageType'),
+        id: _uuid.v5(Namespace.url.value, '$ownedItemId:$imageType'),
         ownedItemId: ownedItemId,
         imageType: imageType,
         imageData: base64Data,

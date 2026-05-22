@@ -1,10 +1,13 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/comic_detail.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -134,6 +137,42 @@ void main() {
 
     expect(episode.pageCount, 53);
     expect(episode.runtimeMinutes, isNull);
+  });
+
+  test('loan parses optional invalid dates as null and guards required fields', () {
+    final loan = Loan.fromJson({
+      'id': 'loan-1',
+      'owned_item_id': 'owned-1',
+      'borrower_name': 'Alex',
+      'lent_date': '2026-05-01',
+      'due_date': 'not-a-date',
+      'returned_date': '',
+    });
+
+    expect(loan.lentDate, DateTime.parse('2026-05-01'));
+    expect(loan.dueDate, isNull);
+    expect(loan.returnedDate, isNull);
+    expect(
+      () => Loan.fromJson({
+        'id': 'loan-2',
+        'owned_item_id': 'owned-2',
+        'borrower_name': 'Jamie',
+        'lent_date': 'invalid-date',
+      }),
+      throwsA(isA<StateError>()),
+    );
+  });
+
+  test('smart list ignores unknown persisted enum values', () {
+    final smartList = SmartList.fromRow(
+      'smart-1',
+      'Movies',
+      '{"quick_view":"legacy_view","sort_column":"legacy_sort","filter":{"ownership":"legacy"}}',
+    );
+
+    expect(smartList.quickView, isNull);
+    expect(smartList.sortColumn, isNull);
+    expect(smartList.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
   });
 
   test('comic detail parses editions and variants', () {

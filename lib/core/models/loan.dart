@@ -25,18 +25,38 @@ class Loan {
 
   factory Loan.fromJson(Map<String, dynamic> json) {
     return Loan(
-      id: json['id'] as String,
-      ownedItemId: json['owned_item_id'] as String,
-      borrowerName: json['borrower_name'] as String,
-      lentDate: DateTime.parse(json['lent_date'] as String),
-      dueDate: json['due_date'] != null
-          ? DateTime.parse(json['due_date'] as String)
-          : null,
-      returnedDate: json['returned_date'] != null
-          ? DateTime.parse(json['returned_date'] as String)
-          : null,
+      id: _requiredString(json, 'id'),
+      ownedItemId: _requiredString(json, 'owned_item_id'),
+      borrowerName: _requiredString(json, 'borrower_name'),
+      lentDate: _requiredDate(json, 'lent_date'),
+      dueDate: _optionalDate(json, 'due_date'),
+      returnedDate: _optionalDate(json, 'returned_date'),
       notes: json['notes'] as String?,
     );
+  }
+
+  static String _requiredString(Map<String, dynamic> json, String key) {
+    final value = json[key];
+    if (value is String && value.isNotEmpty) {
+      return value;
+    }
+    throw StateError('Loan.$key is required and must be a non-empty string');
+  }
+
+  static DateTime _requiredDate(Map<String, dynamic> json, String key) {
+    final parsed = _optionalDate(json, key);
+    if (parsed != null) {
+      return parsed;
+    }
+    throw StateError('Loan.$key is required and must be an ISO-8601 date');
+  }
+
+  static DateTime? _optionalDate(Map<String, dynamic> json, String key) {
+    final value = json[key];
+    if (value is! String || value.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(value);
   }
 
   Map<String, dynamic> toJson() {

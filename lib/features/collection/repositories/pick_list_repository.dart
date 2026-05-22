@@ -24,29 +24,30 @@ class PickListRepository {
   /// Add a value to a pick list. Returns true if added, false if duplicate.
   Future<bool> addValue(String listName, String value,
       {String? mediaKind}) async {
-    // Check for duplicate
-    final existing = await (_db.select(_db.pickListValuesCache)
-          ..where((t) =>
-              t.listName.equals(listName) & t.value.equals(value)))
-        .getSingleOrNull();
-    if (existing != null) return false;
+    return _db.transaction(() async {
+      final existing = await (_db.select(_db.pickListValuesCache)
+            ..where((t) =>
+                t.listName.equals(listName) & t.value.equals(value)))
+          .getSingleOrNull();
+      if (existing != null) return false;
 
-    final maxSort = await _db.customSelect(
-      'SELECT COALESCE(MAX(sort_order), 0) AS m FROM pick_list_values_cache WHERE list_name = ?',
-      variables: [Variable.withString(listName)],
-    ).getSingle();
-    final sortOrder = (maxSort.data['m'] as int) + 1;
+      final maxSort = await _db.customSelect(
+        'SELECT COALESCE(MAX(sort_order), 0) AS m FROM pick_list_values_cache WHERE list_name = ?',
+        variables: [Variable.withString(listName)],
+      ).getSingle();
+      final sortOrder = (maxSort.data['m'] as int) + 1;
 
-    await _db.into(_db.pickListValuesCache).insert(
-          PickListValuesCacheCompanion.insert(
-            id: const Uuid().v4(),
-            listName: listName,
-            mediaKind: Value(mediaKind),
-            value: value,
-            sortOrder: Value(sortOrder),
-          ),
-        );
-    return true;
+      await _db.into(_db.pickListValuesCache).insert(
+            PickListValuesCacheCompanion.insert(
+              id: const Uuid().v4(),
+              listName: listName,
+              mediaKind: Value(mediaKind),
+              value: value,
+              sortOrder: Value(sortOrder),
+            ),
+          );
+      return true;
+    });
   }
 
   /// Remove a value from a pick list.

@@ -431,27 +431,31 @@ class ApiClient {
     required String provider,
     required String providerItemId,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
+    return _providerPreview(
       '/admin/providers/preview',
-      data: {
-        'provider': provider,
-        'provider_item_id': providerItemId,
-      },
+      provider: provider,
+      providerItemId: providerItemId,
     );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/providers/preview returned an empty response body');
-    }
-    return AdminProviderPreview.fromJson(data);
   }
 
   Future<AdminProviderPreview> providerPreview({
     required String provider,
     required String providerItemId,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
+    return _providerPreview(
       '/metadata/providers/preview',
+      provider: provider,
+      providerItemId: providerItemId,
+    );
+  }
+
+  Future<AdminProviderPreview> _providerPreview(
+    String path, {
+    required String provider,
+    required String providerItemId,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      path,
       data: {
         'provider': provider,
         'provider_item_id': providerItemId,
@@ -459,8 +463,7 @@ class ApiClient {
     );
     final data = response.data;
     if (data == null) {
-      throw StateError(
-          '/metadata/providers/preview returned an empty response body');
+      throw StateError('$path returned an empty response body');
     }
     return AdminProviderPreview.fromJson(data);
   }

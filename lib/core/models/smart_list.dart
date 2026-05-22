@@ -47,12 +47,14 @@ class SmartList {
       name: name,
       mediaKind: json['media_kind'] as String?,
       searchQuery: json['search_query'] as String?,
-      quickView: json['quick_view'] != null
-          ? LibraryQuickView.values.byName(json['quick_view'] as String)
-          : null,
-      sortColumn: json['sort_column'] != null
-          ? LibrarySortColumn.values.byName(json['sort_column'] as String)
-          : null,
+      quickView: _enumByNameOrNull(
+        LibraryQuickView.values.asNameMap(),
+        json['quick_view'],
+      ),
+      sortColumn: _enumByNameOrNull(
+        LibrarySortColumn.values.asNameMap(),
+        json['sort_column'],
+      ),
       sortAscending: json['sort_ascending'] as bool?,
       filterSelection: _filterFromJson(
           json['filter'] as Map<String, dynamic>? ?? {}),
@@ -77,9 +79,11 @@ class SmartList {
 
   static LibraryFilterSelection _filterFromJson(Map<String, dynamic> json) {
     return LibraryFilterSelection(
-      ownershipFilter: json['ownership'] != null
-          ? LibraryOwnershipFilter.values.byName(json['ownership'] as String)
-          : LibraryOwnershipFilter.all,
+      ownershipFilter: _enumByNameOrNull(
+            LibraryOwnershipFilter.values.asNameMap(),
+            json['ownership'],
+          ) ??
+          LibraryOwnershipFilter.all,
       series: json['series'] as String?,
       grade: json['grade'] as String?,
       condition: json['condition'] as String?,
@@ -90,5 +94,12 @@ class SmartList {
       missingCover: json['missing_cover'] as bool? ?? false,
       missingMetadata: json['missing_metadata'] as bool? ?? false,
     );
+  }
+
+  static T? _enumByNameOrNull<T>(Map<String, T> values, Object? rawValue) {
+    if (rawValue is! String || rawValue.isEmpty) {
+      return null;
+    }
+    return values[rawValue];
   }
 }
