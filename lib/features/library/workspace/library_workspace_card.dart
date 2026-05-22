@@ -147,6 +147,30 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               label: entry.condition!,
                               accentColor: accentColor,
                             ),
+                          if (entry.video?.runtimeMinutes != null)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.schedule,
+                              label: '${entry.video!.runtimeMinutes} min',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.music?.trackCount != null)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.music_note,
+                              label: '${entry.music!.trackCount} tracks',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.music?.releaseStatus != null)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.album,
+                              label: entry.music!.releaseStatus!,
+                              accentColor: accentColor,
+                            ),
+                          if (_compactPlatformLabel(entry.rawPlatforms) case final platformLabel?)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.sports_esports,
+                              label: platformLabel,
+                              accentColor: accentColor,
+                            ),
                           if (entry.keyComic)
                             _LibraryCompactMetaPill(
                               icon: Icons.label_important,
@@ -208,6 +232,18 @@ class LibraryWorkspaceCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _compactPlatformLabel(List<String>? platforms) {
+  if (platforms == null || platforms.isEmpty) {
+    return null;
+  }
+  final first = platforms.first.trim();
+  if (first.isEmpty) {
+    return null;
+  }
+  final extra = platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
+  return extra == 0 ? first : '$first +$extra';
 }
 
 class _LibraryIssuePill extends StatelessWidget {

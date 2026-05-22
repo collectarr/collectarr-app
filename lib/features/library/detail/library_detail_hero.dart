@@ -137,6 +137,30 @@ class LibraryDetailHero extends StatelessWidget {
                         label: ownedItem!.grade!,
                         accent: accent,
                       ),
+                    if (entry.video?.runtimeMinutes != null)
+                      _DetailHeaderChip(
+                        icon: Icons.schedule,
+                        label: '${entry.video!.runtimeMinutes} min',
+                        accent: accent,
+                      ),
+                    if (entry.music?.trackCount != null)
+                      _DetailHeaderChip(
+                        icon: Icons.music_note,
+                        label: '${entry.music!.trackCount} tracks',
+                        accent: accent,
+                      ),
+                    if (entry.music?.releaseStatus != null)
+                      _DetailHeaderChip(
+                        icon: Icons.album,
+                        label: entry.music!.releaseStatus!,
+                        accent: accent,
+                      ),
+                    if (_detailPlatformLabel(entry.rawPlatforms) case final platformLabel?)
+                      _DetailHeaderChip(
+                        icon: Icons.sports_esports,
+                        label: platformLabel,
+                        accent: accent,
+                      ),
                     if (ownedItem?.keyComic == true)
                       _DetailHeaderChip(
                         icon: Icons.label_important,
@@ -193,6 +217,20 @@ class LibraryDetailHero extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _detailPlatformLabel(List<String>? platforms) {
+  if (platforms == null || platforms.isEmpty) {
+    return null;
+  }
+  final values = platforms
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+  if (values.isEmpty) {
+    return null;
+  }
+  return values.join(', ');
 }
 
 class _DetailHeaderChip extends StatelessWidget {

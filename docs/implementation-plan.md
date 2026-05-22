@@ -84,7 +84,7 @@
 - [ ] Extend personal value tracking beyond inspector/detail visibility into stronger summaries and collection-level drill-downs
 - [ ] Key-issue / key-release markers and richer slab / grading-company details are now surfaced in workspace badges/cards/detail views; collector-facing variant notes still need a fuller pass
 - [ ] Run-completeness tools: first-pass comic issue gap detection now exists in stats, while missing volumes/seasons tooling still needs dedicated views
-- [ ] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
+- [x] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
 - [ ] Investigate optional cover-photo recognition / scan-to-identify for comics as a later Core capability
 
 ### 🧭 Location Hierarchy Follow-up

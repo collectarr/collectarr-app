@@ -178,6 +178,12 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: entry.condition!,
                               accentColor: accentColor,
                             ),
+                          if (entry.video?.runtimeMinutes != null)
+                            _MetaPill(
+                              icon: Icons.schedule,
+                              label: '${entry.video!.runtimeMinutes} min',
+                              accentColor: accentColor,
+                            ),
                           if (entry.keyComic)
                             _MetaPill(
                               icon: Icons.label_important,
@@ -223,6 +229,18 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: '${entry.music!.trackCount} tracks',
                               accentColor: accentColor,
                             ),
+                          if (entry.music?.releaseStatus != null)
+                            _MetaPill(
+                              icon: Icons.album,
+                              label: entry.music!.releaseStatus!,
+                              accentColor: accentColor,
+                            ),
+                          if (_platformLabel(entry.rawPlatforms) case final platformLabel?)
+                            _MetaPill(
+                              icon: Icons.sports_esports,
+                              label: platformLabel,
+                              accentColor: accentColor,
+                            ),
                           if (entry.publishing?.pageCount != null)
                             _MetaPill(
                               icon: Icons.menu_book,
@@ -256,6 +274,23 @@ class LibraryCardFlowTile extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _platformLabel(List<String>? platforms) {
+  if (platforms == null || platforms.isEmpty) {
+    return null;
+  }
+  final values = platforms
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+  if (values.isEmpty) {
+    return null;
+  }
+  if (values.length == 1) {
+    return values.single;
+  }
+  return '${values.first} +${values.length - 1}';
 }
 
 // ─── Private helpers ────────────────────────────────────────────────────────
