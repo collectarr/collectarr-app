@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -6,7 +7,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
+import 'package:collectarr_app/features/library/providers/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
@@ -70,60 +71,36 @@ LibraryTypeConfig libraryConfigForCatalogType(
   if (known != null) {
     return known;
   }
-  final providers = _providerOptionsForCatalogType(type);
+  final normalizedType = normalizeCatalogMediaTypeDefaults(type);
   const presentation = genericLibraryMediaPresentation;
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
-      kind: type.kind,
-      title: _displayLabel(type.pluralLabel, type.kind, plural: true),
-      icon: libraryIconForKind(type.kind),
-      preferencePrefix: 'catalog_${type.kind}',
+      kind: normalizedType.kind,
+      title: _displayLabel(
+        normalizedType.pluralLabel,
+        normalizedType.kind,
+        plural: true,
+      ),
+      icon: libraryIconForKind(normalizedType.kind),
+      preferencePrefix: 'catalog_${normalizedType.kind}',
       defaultSortColumn: LibrarySortColumn.title,
       defaultVisibleColumns: presentation.defaultVisibleColumns,
     ),
-    singularLabel: _displayLabel(type.singularLabel, type.kind),
-    pluralLabel: _displayLabel(type.pluralLabel, type.kind, plural: true),
-    defaultMetadataProvider: type.defaultProvider ??
-        (type.providers.isEmpty ? '' : type.providers.first),
-    metadataProviders: providers,
-    trackingProfile: _trackingProfileForKind(type.kind),
+    singularLabel: _displayLabel(
+      normalizedType.singularLabel,
+      normalizedType.kind,
+    ),
+    pluralLabel: _displayLabel(
+      normalizedType.pluralLabel,
+      normalizedType.kind,
+      plural: true,
+    ),
+    defaultMetadataProvider: normalizedType.defaultProvider ??
+        (normalizedType.providers.isEmpty ? '' : normalizedType.providers.first),
+    metadataProviders: const [],
+    trackingProfile: _trackingProfileForKind(normalizedType.kind),
     presentation: presentation,
-  );
-}
-
-List<LibraryMetadataProviderOption> _providerOptionsForCatalogType(
-  CatalogMediaType type,
-) {
-  final kind = type.kind.trim().toLowerCase();
-  return [
-    for (final providerId in type.providers)
-      _providerOptionForCatalogKind(providerId, kind),
-  ];
-}
-
-LibraryMetadataProviderOption _providerOptionForCatalogKind(
-  String providerId,
-  String kind,
-) {
-  final option = collectarrMetadataProviderRegistry.byId(providerId);
-  if (option == null) {
-    return LibraryMetadataProviderOption(
-      id: providerId,
-      label: _titleFromToken(providerId),
-      supportedKinds: {kind},
-    );
-  }
-  if (option.supportsKind(kind)) {
-    return option;
-  }
-  return LibraryMetadataProviderOption(
-    id: option.id,
-    label: option.label,
-    description: option.description,
-    supportedKinds: {...option.supportedKinds, kind},
-    requiresApiKey: option.requiresApiKey,
-    usagePolicy: option.usagePolicy,
-  );
+  ).resolveWithCatalog([normalizedType]);
 }
 
 MediaTrackingProfile _trackingProfileForKind(String kind) {

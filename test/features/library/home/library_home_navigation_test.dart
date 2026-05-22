@@ -69,6 +69,28 @@ void main() {
         isTrue);
   });
 
+  test('catalog-defined config expands registered providers to new kinds', () {
+    const type = CatalogMediaType(
+      kind: 'podcast',
+      singularLabel: '',
+      pluralLabel: '',
+      routeSegments: ['podcasts'],
+      defaultProvider: 'openlibrary',
+      providers: ['openlibrary'],
+    );
+
+    final config = libraryConfigForCatalogType(
+      type,
+      const LibraryTypeRegistry([]),
+    );
+
+    expect(config.defaultMetadataProvider, 'openlibrary');
+    expect(config.supportedMetadataProviders.single.id, 'openlibrary');
+    expect(config.supportedMetadataProviders.single.label, 'Open Library');
+    expect(config.supportedMetadataProviders.single.supportsKind('podcast'),
+        isTrue);
+  });
+
   test('library nav labels use catalog kind defaults', () {
     expect(
       libraryNavLabel(
