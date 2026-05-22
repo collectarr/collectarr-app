@@ -3158,13 +3158,16 @@ class _DuplicateCandidateTile extends StatelessWidget {
             ),
             _MiniChip(label: candidate.kind),
             _MiniChip(label: '${candidate.count} items'),
+            _MiniChip(label: '${candidate.duplicateScore}% match'),
             _MiniChip(label: candidate.reason),
             if (candidate.hasProviderConflicts)
               const _MiniChip(label: 'provider conflict'),
             if (candidate.hasCoverConflicts)
               const _MiniChip(label: 'cover conflict'),
-            if (candidate.itemIds.isNotEmpty)
-              _MiniChip(label: 'ID ${_shortId(candidate.itemIds.first)}'),
+            if (candidate.preferredTargetItemId != null)
+              _MiniChip(
+                label: 'Target ${_shortId(candidate.preferredTargetItemId!)}',
+              ),
             OutlinedButton.icon(
               onPressed: isInspecting || isActing || candidate.itemIds.isEmpty
                   ? null
@@ -4519,8 +4522,11 @@ class _DuplicateMergeReviewDialogState
   @override
   void initState() {
     super.initState();
-    _targetItemId = widget.candidate.itemIds.first;
-    _sourceItemIds = widget.candidate.itemIds.skip(1).toSet();
+    _targetItemId =
+        widget.candidate.preferredTargetItemId ?? widget.candidate.itemIds.first;
+    _sourceItemIds = widget.candidate.itemIds
+        .where((itemId) => itemId != _targetItemId)
+        .toSet();
     _confirmController = TextEditingController()
       ..addListener(() {
         final matches = _confirmController.text.trim() == 'MERGE';
@@ -4555,10 +4561,16 @@ class _DuplicateMergeReviewDialogState
                 runSpacing: 6,
                 children: [
                   _MiniChip(label: candidate.reason),
+                  _MiniChip(label: '${candidate.duplicateScore}% match'),
                   if (candidate.hasProviderConflicts)
                     const _MiniChip(label: 'provider conflict'),
                   if (candidate.hasCoverConflicts)
                     const _MiniChip(label: 'cover conflict'),
+                  if (candidate.preferredTargetItemId != null)
+                    _MiniChip(
+                      label:
+                          'target ${_shortId(candidate.preferredTargetItemId!)}',
+                    ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -4574,9 +4586,15 @@ class _DuplicateMergeReviewDialogState
                   value: _sourceItemIds.contains(itemId),
                   enabled: itemId != _targetItemId,
                   title: Text('Source ${_shortId(itemId)}'),
-                  subtitle: itemId == _targetItemId
-                      ? const Text('Merge target')
-                      : null,
+                    subtitle: itemId == _targetItemId
+                      ? Text(
+                        itemId == candidate.preferredTargetItemId
+                          ? 'Recommended merge target'
+                          : 'Merge target',
+                      )
+                      : itemId == candidate.preferredTargetItemId
+                        ? const Text('Recommended target')
+                        : null,
                   secondary: IconButton(
                     tooltip: 'Set merge target',
                     onPressed: () {

@@ -3,6 +3,15 @@ import 'package:collectarr_app/core/sync/sync_service.dart';
 class SyncWarningFormatter {
   const SyncWarningFormatter._();
 
+  static String reasonLabel(String reason) {
+    return switch (reason) {
+      'server_has_newer_client_change' => 'Service has newer data',
+      'stale_client_change' => 'This device is behind the service',
+      'rejected' => 'Rejected by the sync service',
+      _ => 'Service kept newer or conflicting data',
+    };
+  }
+
   static String? rejectedChanges(List<SyncRejectedChange> changes) {
     if (changes.isEmpty) {
       return null;
@@ -20,6 +29,9 @@ class SyncWarningFormatter {
     if (reasons.length == 1 &&
         reasons.single == 'server_has_newer_client_change') {
       return 'another device had newer data';
+    }
+    if (reasons.length == 1 && reasons.single == 'stale_client_change') {
+      return 'this device was behind the service';
     }
     if (reasons.length == 1 && reasons.single == 'rejected') {
       return 'the sync service rejected them';

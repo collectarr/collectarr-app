@@ -28,6 +28,13 @@ void main() {
     );
   });
 
+  test('formats stale client reason with user-facing copy', () {
+    expect(
+      SyncWarningFormatter.reasonLabel('stale_client_change'),
+      'This device is behind the service',
+    );
+  });
+
   test('returns null when there are no rejected sync changes', () {
     expect(SyncWarningFormatter.rejectedChanges(const []), isNull);
   });

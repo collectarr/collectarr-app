@@ -10,6 +10,7 @@ import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
@@ -561,6 +562,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ),
                           ],
                         ),
+                        if (auth.isAuthenticated) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            auth.isAdmin
+                                ? 'Admin tools are available in navigation and advanced metadata workflows.'
+                                : 'Admin-only tools are hidden for this account. Refresh permissions after a role change.',
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 8,
@@ -911,15 +920,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) {
       return;
     }
+    final pendingCount = ref.read(syncControllerProvider).pendingCount;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           queued
-              ? 'Local version queued for the next sync.'
+              ? 'Local version queued for the next sync. ${_pendingSyncLabel(pendingCount)} ready to upload.'
               : 'Local version is no longer available for that conflict.',
         ),
       ),
     );
+  }
+
+  String _pendingSyncLabel(int count) {
+    if (count == 1) {
+      return '1 pending change is';
+    }
+    return '$count pending changes are';
   }
 
   String _syncResultMessage(SyncState sync) {
@@ -2244,11 +2261,12 @@ String _shortSyncId(String id) {
 }
 
 String _conflictLabel(SyncRejectedChange change) {
+  final label = SyncWarningFormatter.reasonLabel(change.reason);
   final current = change.currentClientChangedAt;
   if (current == null) {
-    return change.reason;
+    return label;
   }
-  return '${change.reason}, server kept ${_formatProposalTime(current)}';
+  return '$label, service kept ${_formatProposalTime(current)}';
 }
 
 class _DiagnosticState {

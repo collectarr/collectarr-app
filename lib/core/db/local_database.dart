@@ -26,6 +26,7 @@ class CatalogCache extends Table {
   IntColumn get volumeStartYear => integer().nullable()();
   IntColumn get seasonNumber => integer().nullable()();
   IntColumn get episodeNumber => integer().nullable()();
+  IntColumn get runtimeMinutes => integer().nullable()();
   IntColumn get trackCount => integer().nullable()();
   TextColumn get tracksJson => text().nullable()();
   TextColumn get creatorsJson => text().nullable()();
@@ -250,7 +251,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration {

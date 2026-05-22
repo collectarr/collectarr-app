@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -86,6 +88,28 @@ void main() {
     expect(owned.tags, 'signed,key');
     expect(wishlist.itemId, 'comic-2');
     expect(wishlist.targetPriceCents, 999);
+  });
+
+  test('owned items repository preserves location ids', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = OwnedItemsCacheRepository(db);
+
+    await repo.upsert(
+      OwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        storageBox: 'Short Box 1',
+        locationId: 'loc-1',
+        updatedAt: DateTime.utc(2026, 5, 22),
+      ),
+    );
+
+    final owned = await repo.findById('owned-1');
+    final raw = await db.select(db.ownedItemsCache).getSingle();
+
+    expect(owned?.locationId, 'loc-1');
+    expect(raw.locationId, 'loc-1');
   });
 
   test('stores pending personal sync changes locally', () async {

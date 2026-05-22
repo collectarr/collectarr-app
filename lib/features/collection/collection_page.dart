@@ -1968,9 +1968,9 @@ class _ShelfChapterRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (chapter.runtimeMinutes != null)
+          if (chapter.pageCount != null || chapter.runtimeMinutes != null)
             Text(
-              '${chapter.runtimeMinutes}p',
+              '${chapter.pageCount ?? chapter.runtimeMinutes}p',
               style: Theme.of(context).textTheme.labelSmall,
             ),
         ],

@@ -186,13 +186,63 @@ void main() {
 
     expect(find.text('Sync conflict review'), findsOneWidget);
     expect(find.text('owned_item:owned-it'), findsOneWidget);
-    expect(find.textContaining('stale_client_change'), findsOneWidget);
+    expect(
+      find.textContaining('This device is behind the service'),
+      findsOneWidget,
+    );
     await _scrollToTooltip(tester, 'Copy conflict id');
     await tester.tap(find.byTooltip('Copy conflict id'));
     await tester.pumpAndSettle();
     await _scrollToTooltip(tester, 'Keep service version');
     await tester.tap(find.byTooltip('Keep service version'));
     await tester.pumpAndSettle();
+    expect(find.text('Sync conflict review'), findsNothing);
+  });
+
+  testWidgets('settings page explains keep local queues the next sync',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          syncControllerProvider.overrideWith(
+            (ref) => _KeepLocalSyncController(
+              ref,
+              SyncState(
+                pendingCount: 2,
+                warningMessage: '1 sync change rejected',
+                rejectedChanges: [
+                  SyncRejectedChange(
+                    entityType: 'owned_item',
+                    entityId: 'owned-item-123456',
+                    reason: 'stale_client_change',
+                  ),
+                ],
+              ),
+              pendingCountAfterQueue: 3,
+            ),
+          ),
+        ],
+        child: const MaterialApp(home: SettingsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _scrollToTooltip(tester, 'Keep local version');
+    await tester.tap(find.byTooltip('Keep local version'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(
+        'Local version queued for the next sync. 3 pending changes are ready to upload.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Sync conflict review'), findsNothing);
   });
 
@@ -319,6 +369,12 @@ void main() {
     expect(find.text('user@example.com'), findsOneWidget);
     expect(find.textContaining('Session expires'), findsOneWidget);
     expect(find.text('Standard account'), findsOneWidget);
+    expect(
+      find.text(
+        'Admin-only tools are hidden for this account. Refresh permissions after a role change.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Refresh permissions'), findsOneWidget);
     expect(find.text('Sign out'), findsOneWidget);
   });
@@ -390,4 +446,34 @@ class _StaticSyncController extends SyncController {
 
   @override
   Future<void> syncNow() async {}
+}
+
+class _KeepLocalSyncController extends SyncController {
+  _KeepLocalSyncController(
+    super.ref,
+    SyncState initial, {
+    required this.pendingCountAfterQueue,
+  }) {
+    state = initial;
+  }
+
+  final int pendingCountAfterQueue;
+
+  @override
+  Future<void> refreshPendingCount() async {}
+
+  @override
+  Future<void> syncNow() async {}
+
+  @override
+  Future<bool> keepLocalRejectedChange(SyncRejectedChange change) async {
+    state = state.copyWith(
+      pendingCount: pendingCountAfterQueue,
+      rejectedChanges: state.rejectedChanges
+          .where((entry) => entry.key != change.key)
+          .toList(growable: false),
+      clearWarning: true,
+    );
+    return true;
+  }
 }

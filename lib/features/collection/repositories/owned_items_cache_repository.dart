@@ -117,6 +117,7 @@ class OwnedItemsCacheRepository {
       soldAt: row.soldAt,
       sellPriceCents: row.sellPriceCents,
       soldTo: row.soldTo,
+      locationId: row.locationId,
     );
   }
 
@@ -152,6 +153,7 @@ class OwnedItemsCacheRepository {
       soldAt: Value(item.soldAt),
       sellPriceCents: Value(item.sellPriceCents),
       soldTo: Value(item.soldTo),
+      locationId: Value(item.locationId),
     );
   }
 }

@@ -30,6 +30,7 @@ class OwnedItem {
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
+    this.locationId,
   });
 
   final String id;
@@ -62,6 +63,7 @@ class OwnedItem {
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
+  final String? locationId;
 
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
@@ -140,6 +142,7 @@ class OwnedItem {
           : DateTime.parse(json['sold_at'] as String),
       sellPriceCents: json['sell_price_cents'] as int?,
       soldTo: json['sold_to'] as String?,
+      locationId: json['location_id'] as String?,
     );
   }
 
@@ -174,6 +177,7 @@ class OwnedItem {
     DateTime? soldAt,
     int? sellPriceCents,
     String? soldTo,
+    String? locationId,
   }) {
     return OwnedItem(
       id: id ?? this.id,
@@ -206,6 +210,7 @@ class OwnedItem {
       soldAt: soldAt ?? this.soldAt,
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
+      locationId: locationId ?? this.locationId,
     );
   }
 }

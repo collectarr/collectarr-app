@@ -138,6 +138,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
       'episode_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _runtimeMinutesMeta =
+      const VerificationMeta('runtimeMinutes');
+  @override
+  late final GeneratedColumn<int> runtimeMinutes = GeneratedColumn<int>(
+      'runtime_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _trackCountMeta =
       const VerificationMeta('trackCount');
   @override
@@ -276,6 +282,7 @@ class $CatalogCacheTable extends CatalogCache
         volumeStartYear,
         seasonNumber,
         episodeNumber,
+        runtimeMinutes,
         trackCount,
         tracksJson,
         creatorsJson,
@@ -426,6 +433,12 @@ class $CatalogCacheTable extends CatalogCache
           _episodeNumberMeta,
           episodeNumber.isAcceptableOrUnknown(
               data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('runtime_minutes')) {
+      context.handle(
+          _runtimeMinutesMeta,
+          runtimeMinutes.isAcceptableOrUnknown(
+              data['runtime_minutes']!, _runtimeMinutesMeta));
     }
     if (data.containsKey('track_count')) {
       context.handle(
@@ -582,6 +595,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
       episodeNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      runtimeMinutes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}runtime_minutes']),
       trackCount: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}track_count']),
       tracksJson: attachedDatabase.typeMapping
@@ -653,6 +668,7 @@ class CatalogCacheData extends DataClass
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
+  final int? runtimeMinutes;
   final int? trackCount;
   final String? tracksJson;
   final String? creatorsJson;
@@ -695,6 +711,7 @@ class CatalogCacheData extends DataClass
       this.volumeStartYear,
       this.seasonNumber,
       this.episodeNumber,
+      this.runtimeMinutes,
       this.trackCount,
       this.tracksJson,
       this.creatorsJson,
@@ -776,6 +793,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || episodeNumber != null) {
       map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    if (!nullToAbsent || runtimeMinutes != null) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes);
     }
     if (!nullToAbsent || trackCount != null) {
       map['track_count'] = Variable<int>(trackCount);
@@ -897,6 +917,9 @@ class CatalogCacheData extends DataClass
       episodeNumber: episodeNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(episodeNumber),
+      runtimeMinutes: runtimeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(runtimeMinutes),
       trackCount: trackCount == null && nullToAbsent
           ? const Value.absent()
           : Value(trackCount),
@@ -983,6 +1006,7 @@ class CatalogCacheData extends DataClass
       volumeStartYear: serializer.fromJson<int?>(json['volumeStartYear']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
       trackCount: serializer.fromJson<int?>(json['trackCount']),
       tracksJson: serializer.fromJson<String?>(json['tracksJson']),
       creatorsJson: serializer.fromJson<String?>(json['creatorsJson']),
@@ -1030,6 +1054,7 @@ class CatalogCacheData extends DataClass
       'volumeStartYear': serializer.toJson<int?>(volumeStartYear),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
       'trackCount': serializer.toJson<int?>(trackCount),
       'tracksJson': serializer.toJson<String?>(tracksJson),
       'creatorsJson': serializer.toJson<String?>(creatorsJson),
@@ -1075,6 +1100,7 @@ class CatalogCacheData extends DataClass
           Value<int?> volumeStartYear = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent(),
+          Value<int?> runtimeMinutes = const Value.absent(),
           Value<int?> trackCount = const Value.absent(),
           Value<String?> tracksJson = const Value.absent(),
           Value<String?> creatorsJson = const Value.absent(),
@@ -1129,6 +1155,8 @@ class CatalogCacheData extends DataClass
             seasonNumber.present ? seasonNumber.value : this.seasonNumber,
         episodeNumber:
             episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        runtimeMinutes:
+            runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
         trackCount: trackCount.present ? trackCount.value : this.trackCount,
         tracksJson: tracksJson.present ? tracksJson.value : this.tracksJson,
         creatorsJson:
@@ -1206,6 +1234,9 @@ class CatalogCacheData extends DataClass
       episodeNumber: data.episodeNumber.present
           ? data.episodeNumber.value
           : this.episodeNumber,
+      runtimeMinutes: data.runtimeMinutes.present
+          ? data.runtimeMinutes.value
+          : this.runtimeMinutes,
       trackCount:
           data.trackCount.present ? data.trackCount.value : this.trackCount,
       tracksJson:
@@ -1273,6 +1304,7 @@ class CatalogCacheData extends DataClass
           ..write('volumeStartYear: $volumeStartYear, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
           ..write('trackCount: $trackCount, ')
           ..write('tracksJson: $tracksJson, ')
           ..write('creatorsJson: $creatorsJson, ')
@@ -1320,6 +1352,7 @@ class CatalogCacheData extends DataClass
         volumeStartYear,
         seasonNumber,
         episodeNumber,
+        runtimeMinutes,
         trackCount,
         tracksJson,
         creatorsJson,
@@ -1366,6 +1399,7 @@ class CatalogCacheData extends DataClass
           other.volumeStartYear == this.volumeStartYear &&
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber &&
+          other.runtimeMinutes == this.runtimeMinutes &&
           other.trackCount == this.trackCount &&
           other.tracksJson == this.tracksJson &&
           other.creatorsJson == this.creatorsJson &&
@@ -1410,6 +1444,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<int?> volumeStartYear;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
+  final Value<int?> runtimeMinutes;
   final Value<int?> trackCount;
   final Value<String?> tracksJson;
   final Value<String?> creatorsJson;
@@ -1453,6 +1488,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.volumeStartYear = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
     this.trackCount = const Value.absent(),
     this.tracksJson = const Value.absent(),
     this.creatorsJson = const Value.absent(),
@@ -1497,6 +1533,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.volumeStartYear = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
     this.trackCount = const Value.absent(),
     this.tracksJson = const Value.absent(),
     this.creatorsJson = const Value.absent(),
@@ -1544,6 +1581,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<int>? volumeStartYear,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
+    Expression<int>? runtimeMinutes,
     Expression<int>? trackCount,
     Expression<String>? tracksJson,
     Expression<String>? creatorsJson,
@@ -1589,6 +1627,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (volumeStartYear != null) 'volume_start_year': volumeStartYear,
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
       if (trackCount != null) 'track_count': trackCount,
       if (tracksJson != null) 'tracks_json': tracksJson,
       if (creatorsJson != null) 'creators_json': creatorsJson,
@@ -1635,6 +1674,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<int?>? volumeStartYear,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
+      Value<int?>? runtimeMinutes,
       Value<int?>? trackCount,
       Value<String?>? tracksJson,
       Value<String?>? creatorsJson,
@@ -1678,6 +1718,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       volumeStartYear: volumeStartYear ?? this.volumeStartYear,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
       trackCount: trackCount ?? this.trackCount,
       tracksJson: tracksJson ?? this.tracksJson,
       creatorsJson: creatorsJson ?? this.creatorsJson,
@@ -1771,6 +1812,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (episodeNumber.present) {
       map['episode_number'] = Variable<int>(episodeNumber.value);
     }
+    if (runtimeMinutes.present) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes.value);
+    }
     if (trackCount.present) {
       map['track_count'] = Variable<int>(trackCount.value);
     }
@@ -1859,6 +1903,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('volumeStartYear: $volumeStartYear, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
           ..write('trackCount: $trackCount, ')
           ..write('tracksJson: $tracksJson, ')
           ..write('creatorsJson: $creatorsJson, ')
@@ -7505,6 +7550,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<int?> volumeStartYear,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
+  Value<int?> runtimeMinutes,
   Value<int?> trackCount,
   Value<String?> tracksJson,
   Value<String?> creatorsJson,
@@ -7550,6 +7596,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<int?> volumeStartYear,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
+  Value<int?> runtimeMinutes,
   Value<int?> trackCount,
   Value<String?> tracksJson,
   Value<String?> creatorsJson,
@@ -7650,6 +7697,10 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<int> get episodeNumber => $composableBuilder(
       column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get trackCount => $composableBuilder(
       column: $table.trackCount, builder: (column) => ColumnFilters(column));
@@ -7796,6 +7847,10 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.episodeNumber,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get trackCount => $composableBuilder(
       column: $table.trackCount, builder: (column) => ColumnOrderings(column));
 
@@ -7937,6 +7992,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<int> get episodeNumber => $composableBuilder(
       column: $table.episodeNumber, builder: (column) => column);
 
+  GeneratedColumn<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes, builder: (column) => column);
+
   GeneratedColumn<int> get trackCount => $composableBuilder(
       column: $table.trackCount, builder: (column) => column);
 
@@ -8043,6 +8101,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> volumeStartYear = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
             Value<int?> trackCount = const Value.absent(),
             Value<String?> tracksJson = const Value.absent(),
             Value<String?> creatorsJson = const Value.absent(),
@@ -8087,6 +8146,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             volumeStartYear: volumeStartYear,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
+            runtimeMinutes: runtimeMinutes,
             trackCount: trackCount,
             tracksJson: tracksJson,
             creatorsJson: creatorsJson,
@@ -8131,6 +8191,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> volumeStartYear = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
             Value<int?> trackCount = const Value.absent(),
             Value<String?> tracksJson = const Value.absent(),
             Value<String?> creatorsJson = const Value.absent(),
@@ -8175,6 +8236,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             volumeStartYear: volumeStartYear,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
+            runtimeMinutes: runtimeMinutes,
             trackCount: trackCount,
             tracksJson: tracksJson,
             creatorsJson: creatorsJson,

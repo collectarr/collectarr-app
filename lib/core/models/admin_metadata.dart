@@ -688,6 +688,8 @@ class AdminDuplicateCandidate {
     this.reason = 'same title and item number',
     this.hasProviderConflicts = false,
     this.hasCoverConflicts = false,
+    this.duplicateScore = 0,
+    this.recommendedTargetItemId,
   });
 
   final String kind;
@@ -698,6 +700,16 @@ class AdminDuplicateCandidate {
   final String reason;
   final bool hasProviderConflicts;
   final bool hasCoverConflicts;
+  final int duplicateScore;
+  final String? recommendedTargetItemId;
+
+  String? get preferredTargetItemId {
+    final recommended = recommendedTargetItemId;
+    if (recommended != null && itemIds.contains(recommended)) {
+      return recommended;
+    }
+    return itemIds.isEmpty ? null : itemIds.first;
+  }
 
   String get displayTitle {
     if (itemNumber == null || itemNumber!.isEmpty) {
@@ -719,6 +731,8 @@ class AdminDuplicateCandidate {
       reason: json['reason'] as String? ?? 'same title and item number',
       hasProviderConflicts: json['has_provider_conflicts'] as bool? ?? false,
       hasCoverConflicts: json['has_cover_conflicts'] as bool? ?? false,
+      duplicateScore: json['duplicate_score'] as int? ?? 0,
+      recommendedTargetItemId: json['recommended_target_item_id'] as String?,
     );
   }
 }
