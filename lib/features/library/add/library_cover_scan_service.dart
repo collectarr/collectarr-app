@@ -199,21 +199,47 @@ class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
   }
 }
 
-class _LibraryCoverScanReviewDialog extends StatelessWidget {
+class _LibraryCoverScanReviewDialog extends StatefulWidget {
   const _LibraryCoverScanReviewDialog({required this.file});
 
   final XFile file;
 
   @override
+  State<_LibraryCoverScanReviewDialog> createState() =>
+      _LibraryCoverScanReviewDialogState();
+}
+
+class _LibraryCoverScanReviewDialogState
+    extends State<_LibraryCoverScanReviewDialog> {
+  late final TextEditingController _displayNameController;
+  late final Future<Uint8List?> _previewBytesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayNameController = TextEditingController(
+      text: widget.file.name.trim().isEmpty
+          ? path.basename(widget.file.path)
+          : widget.file.name.trim(),
+    );
+    _previewBytesFuture = _readPreviewBytes(widget.file);
+  }
+
+  @override
+  void dispose() {
+    _displayNameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final displayName =
-        file.name.trim().isEmpty ? path.basename(file.path) : file.name.trim();
+    final maxDialogHeight = MediaQuery.sizeOf(context).height * 0.84;
     return FutureBuilder<Uint8List?>(
-      future: _readPreviewBytes(file),
+      future: _previewBytesFuture,
       builder: (context, snapshot) => Dialog(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: Padding(
+          constraints: BoxConstraints(maxWidth: 560, maxHeight: maxDialogHeight),
+          child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -232,18 +258,18 @@ class _LibraryCoverScanReviewDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 _LibraryCoverScanReviewPreview(
-                  file: file,
+                  file: widget.file,
                   previewBytes: snapshot.data,
                   isLoading: snapshot.connectionState != ConnectionState.done,
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  displayName,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                TextField(
+                  key: const ValueKey('library-cover-review-label-field'),
+                  controller: _displayNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Local scan label',
+                    hintText: 'Edit the title, issue, year, or publisher hints',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -257,9 +283,9 @@ class _LibraryCoverScanReviewDialog extends StatelessWidget {
                     FilledButton.icon(
                       onPressed: () => Navigator.of(context).pop(
                         LibraryCoverReviewedImage.fromFile(
-                          file,
+                          widget.file,
                           imageBytes: snapshot.data,
-                          displayName: displayName,
+                          displayName: _displayNameController.text,
                         ),
                       ),
                       icon: const Icon(Icons.check_circle_outline),

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
@@ -447,6 +448,70 @@ void main() {
     expect(publisherField.controller!.text, 'DC');
   });
 
+  testWidgets('comic add dialog applies edited review label from real review dialog',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+              coverScanService: LocalLibraryCoverScanService(
+                sourcePrompt: const _FakeCoverScanSourcePrompt(
+                  action: LibraryCoverScanAction.importImage,
+                ),
+                imagePicker: _FakeCoverImagePicker(
+                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Scan cover'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(
+      find.byKey(const ValueKey('library-cover-review-label-field')),
+      findsOneWidget,
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-cover-review-label-field')),
+      'Batman_423_1988_DC.jpg',
+    );
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Use image'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Use image'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    final queryField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-query-field')),
+    );
+    final numberField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-number-field')),
+    );
+
+    expect(queryField.controller!.text, 'Batman');
+    expect(numberField.controller!.text, '423');
+  });
+
   testWidgets('provider search does not claim fallback when results are mixed',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -714,7 +779,10 @@ void main() {
     await tester.tap(find.byTooltip('Show advanced fields'));
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextField).at(1), 'Daft Punk');
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-series-field')),
+      'Daft Punk',
+    );
     await tester.tap(find.text('Search Music'));
     await tester.pumpAndSettle();
 
