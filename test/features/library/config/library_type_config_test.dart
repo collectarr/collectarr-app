@@ -3,10 +3,13 @@ import 'package:collectarr_app/features/library/config/comics_workspace_view_con
 import 'package:collectarr_app/features/library/config/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/config/planned_library_configs.dart';
 import 'package:collectarr_app/features/library/config/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -43,6 +46,60 @@ void main() {
     expect(comicsLibraryConfig.trackingProfile, comicTrackingProfile);
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
     expect(comicsLibraryConfig.countLabel(2), 'Comics');
+  });
+
+  test('library type config can carry an add dialog launcher override', () {
+    Future<bool?> fakeLauncher(BuildContext context, LibraryAddDialogRequest request) {
+      return Future.value(true);
+    }
+
+    final config = LibraryTypeConfig(
+      workspace: comicsWorkspaceConfig,
+      singularLabel: 'Comic',
+      pluralLabel: 'Comics',
+      defaultMetadataProvider: 'gcd',
+      metadataProviders: const [gcdMetadataProvider],
+      trackingProfile: comicTrackingProfile,
+      addDialogLauncher: fakeLauncher,
+    );
+
+    expect(config.addDialogLauncher, same(fakeLauncher));
+  });
+
+  test('library type config can carry an edit dialog builder override', () {
+    Widget fakeBuilder(BuildContext context, LibraryEditDialogRequest request) {
+      return const SizedBox.shrink();
+    }
+
+    final config = LibraryTypeConfig(
+      workspace: comicsWorkspaceConfig,
+      singularLabel: 'Comic',
+      pluralLabel: 'Comics',
+      defaultMetadataProvider: 'gcd',
+      metadataProviders: const [gcdMetadataProvider],
+      trackingProfile: comicTrackingProfile,
+      editDialogBuilder: fakeBuilder,
+    );
+
+    expect(config.editDialogBuilder, same(fakeBuilder));
+  });
+
+  test('library type config can carry a detail page builder override', () {
+    Widget fakeBuilder(BuildContext context, LibraryDetailPageRequest request) {
+      return const SizedBox.shrink();
+    }
+
+    final config = LibraryTypeConfig(
+      workspace: comicsWorkspaceConfig,
+      singularLabel: 'Comic',
+      pluralLabel: 'Comics',
+      defaultMetadataProvider: 'gcd',
+      metadataProviders: const [gcdMetadataProvider],
+      trackingProfile: comicTrackingProfile,
+      detailPageBuilder: fakeBuilder,
+    );
+
+    expect(config.detailPageBuilder, same(fakeBuilder));
   });
 
   test('library type registry resolves supported media kinds and providers',
@@ -83,7 +140,7 @@ void main() {
     );
     expect(
       collectarrLibraryTypes.providersForKind('manga').map((row) => row.id),
-      ['anilist', 'mangadex', 'comicvine'],
+      ['anilist', 'mangadex', 'comicvine', 'hardcover'],
     );
     expect(
       collectarrLibraryTypes.providersForKind('anime').map((row) => row.id),
@@ -91,7 +148,7 @@ void main() {
     );
     expect(
       collectarrLibraryTypes.providersForKind('book').map((row) => row.id),
-      ['openlibrary'],
+      ['openlibrary', 'hardcover'],
     );
     expect(
       collectarrLibraryTypes.providersForKind('game').map((row) => row.id),
@@ -114,6 +171,9 @@ void main() {
       ['musicbrainz'],
     );
     expect(collectarrLibraryTypes.providersForKind('bluray'), isEmpty);
+    expect(collectarrLibraryTypes.byKind('movie')?.addDialogLauncher, isNull);
+    expect(collectarrLibraryTypes.byKind('movie')?.editDialogBuilder, isNull);
+    expect(collectarrLibraryTypes.byKind('movie')?.detailPageBuilder, isNull);
   });
 
   test('video physical formats are variants under movies and tv', () {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
@@ -9,6 +10,8 @@ import 'package:collectarr_app/features/library/providers/media_catalog_provider
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/config/planned_library_configs.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -178,6 +181,51 @@ void main() {
     expect(find.text('UPC / Barcode'), findsOneWidget);
   });
 
+  testWidgets('core search results explain why a movie matched', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: moviesLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Blade Runner',
+    );
+    await tester.tap(find.text('Search Movies'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastSearchKind, 'movie');
+    expect(api.lastSearchQuery, 'Blade Runner');
+    expect(find.text('Blade Runner 2049'), findsWidgets);
+    expect(find.text('Matched on: Title'), findsOneWidget);
+  });
+
   testWidgets('barcode lookup falls back to provider search on Core miss',
       (tester) async {
     SharedPreferences.setMockInitialValues({
@@ -230,6 +278,105 @@ void main() {
     expect(api.lastProviderQuery, '9780140328721');
     expect(find.textContaining('openlibrary-1'), findsWidgets);
   });
+
+  testWidgets('music add dialog uses artist-oriented advanced search copy',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: musicLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
+    expect(find.text('Search Music'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Show advanced fields'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Artist...'), findsOneWidget);
+    expect(find.text('Disc / Volume...'), findsOneWidget);
+    expect(find.text('Label...'), findsOneWidget);
+    expect(find.text('Series...'), findsNothing);
+
+    await tester.tap(find.text('Search Music'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Enter a title, artist, creator, or keyword.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('music provider search works with artist-only advanced search',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'admin@test.com',
+      'collectarr.auth.is_admin': true,
+    });
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: musicLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Show advanced fields'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).at(1), 'Daft Punk');
+    await tester.tap(find.text('Search Music'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastSearchKind, 'music');
+    expect(api.lastSearchSeries, 'Daft Punk');
+    expect(api.lastProvider, 'musicbrainz');
+    expect(api.lastProviderKind, 'music');
+    expect(api.lastProviderSeries, 'Daft Punk');
+    expect(api.lastProviderQuery, 'Daft Punk');
+    expect(find.textContaining('A ninja candidate.'), findsWidgets);
+    expect(find.text('Matched on: Artist'), findsOneWidget);
+  });
 }
 
 class _FakeLibraryAddApiClient extends ApiClient {
@@ -238,8 +385,10 @@ class _FakeLibraryAddApiClient extends ApiClient {
   String? lastProvider;
   String? lastProviderQuery;
   String? lastProviderKind;
+  String? lastProviderSeries;
   String? lastSearchQuery;
   String? lastSearchKind;
+  String? lastSearchSeries;
   String? lastLookupBarcode;
   String? lastLookupKind;
   String? lastProposalProvider;
@@ -259,6 +408,18 @@ class _FakeLibraryAddApiClient extends ApiClient {
   ) async {
     lastSearchQuery = query.query;
     lastSearchKind = query.kind;
+    lastSearchSeries = query.series;
+    if (query.kind == 'movie' && query.query == 'Blade Runner') {
+      return const [
+        {
+          'id': 'movie-1',
+          'kind': 'movie',
+          'title': 'Blade Runner 2049',
+          'publisher': 'Warner Bros.',
+          'release_year': 2017,
+        },
+      ];
+    }
     return const [];
   }
 
@@ -280,6 +441,20 @@ class _FakeLibraryAddApiClient extends ApiClient {
     lastProvider = provider;
     lastProviderQuery = query;
     lastProviderKind = kind;
+    lastProviderSeries = series;
+    if (kind == 'movie' && query == 'Blade Runner') {
+      return const [
+        {
+          'provider': 'tmdb',
+          'provider_item_id': 'tmdb-1',
+          'title': 'Fallback candidate',
+          'kind': 'movie',
+          'summary': 'Different result.',
+          'image_url': 'https://example.test/fallback.jpg',
+          'publisher': 'Studio Canal',
+        },
+      ];
+    }
     return [
       {
         'provider': resolvedProvider,
@@ -290,6 +465,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
         'kind': kind ?? 'manga',
         'summary': 'A ninja candidate.',
         'image_url': 'https://example.test/naruto.jpg',
+        'series_title': series,
+        'publisher': kind == 'music' ? 'Virgin' : 'Shueisha',
       },
     ];
   }

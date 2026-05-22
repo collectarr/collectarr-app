@@ -42,4 +42,36 @@ void main() {
     expect(find.text('Batman'), findsOneWidget);
     expect(find.byType(GridView), findsOneWidget);
   });
+
+  testWidgets('workspace grid supports drag box selection in selection mode',
+      (tester) async {
+    Set<String> selected = const {};
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox(
+          width: 250,
+          height: 240,
+          child: LibraryWorkspaceGrid<String>(
+            items: const ['one', 'two', 'three', 'four'],
+            maxCrossAxisExtent: 120,
+            mainAxisExtent: 100,
+            selectionEnabled: true,
+            itemIdOf: (item) => item,
+            onSelectionChanged: (value) => selected = value,
+            emptyBuilder: (_) => const Text('No items'),
+            itemBuilder: (_, item) => Text(item),
+          ),
+        ),
+      ),
+    );
+
+    final gridTopLeft = tester.getTopLeft(find.byType(GridView));
+    final gesture = await tester.startGesture(gridTopLeft + const Offset(16, 16));
+    await gesture.moveTo(gridTopLeft + const Offset(225, 95));
+    await gesture.up();
+    await tester.pump();
+
+    expect(selected, {'one', 'two'});
+  });
 }

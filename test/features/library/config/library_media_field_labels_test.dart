@@ -22,4 +22,45 @@ void main() {
     expect(gameLabels.variant, 'Platform / Edition');
     expect(gameLabels.publisher, 'Publisher / Studio');
   });
+
+  test('music search labels use artist terminology', () {
+    final musicLabels = libraryMediaSearchFieldLabels(musicLibraryConfig);
+    final movieLabels = libraryMediaSearchFieldLabels(moviesLibraryConfig);
+
+    expect(musicLabels.queryHint, 'Enter title, artist, creator, or keyword...');
+    expect(musicLabels.emptySearchMessage,
+        'Enter a title, artist, creator, or keyword.');
+    expect(musicLabels.seriesHint, 'Artist...');
+    expect(musicLabels.publisherHint, 'Label...');
+    expect(movieLabels.seriesHint, 'Series...');
+    expect(movieLabels.publisherHint, 'Studio...');
+  });
+
+  test('filter labels vary by media type', () {
+    final musicLabels = libraryMediaFilterLabels(musicLibraryConfig);
+    final movieLabels = libraryMediaFilterLabels(moviesLibraryConfig);
+    final gameLabels = libraryMediaFilterLabels(gamesLibraryConfig);
+
+    expect(musicLabels.series, 'Artist');
+    expect(musicLabels.anySeries, 'Any artist');
+    expect(musicLabels.publisher, 'Label');
+    expect(movieLabels.publisher, 'Studio');
+    expect(movieLabels.anyPublisher, 'Any studio');
+    expect(gameLabels.publisher, 'Publisher / Studio');
+  });
+
+  test('group labels vary by media type', () {
+    final musicLabels = libraryMediaGroupLabels(musicLibraryConfig);
+    final movieLabels = libraryMediaGroupLabels(moviesLibraryConfig);
+
+    expect(musicLabels.series, 'Artist');
+    expect(musicLabels.seriesPlural, 'Artists');
+    expect(musicLabels.unknownSeries, 'Unknown artist');
+    expect(musicLabels.publisher, 'Label');
+    expect(musicLabels.publisherPlural, 'Labels');
+    expect(musicLabels.unknownPublisher, 'Unknown label');
+    expect(movieLabels.publisher, 'Studio');
+    expect(movieLabels.publisherPlural, 'Studios');
+    expect(movieLabels.unknownPublisher, 'Unknown studio');
+  });
 }
