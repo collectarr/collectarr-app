@@ -43,26 +43,28 @@ class LocationRepository {
     String? description,
   }) async {
     final id = const Uuid().v4();
-    final maxSort = await _db.customSelect(
-      'SELECT COALESCE(MAX(sort_order), 0) AS m FROM locations_cache',
-    ).getSingle();
-    final sortOrder = (maxSort.data['m'] as int) + 1;
+    return _db.transaction(() async {
+      final maxSort = await _db.customSelect(
+        'SELECT COALESCE(MAX(sort_order), 0) AS m FROM locations_cache',
+      ).getSingle();
+      final sortOrder = (maxSort.data['m'] as int) + 1;
 
-    await _db.into(_db.locationsCache).insert(LocationsCacheCompanion.insert(
-          id: id,
-          name: name,
-          parentId: Value(parentId),
-          description: Value(description),
-          sortOrder: Value(sortOrder),
-        ));
+      await _db.into(_db.locationsCache).insert(LocationsCacheCompanion.insert(
+            id: id,
+            name: name,
+            parentId: Value(parentId),
+            description: Value(description),
+            sortOrder: Value(sortOrder),
+          ));
 
-    return StorageLocation(
-      id: id,
-      name: name,
-      parentId: parentId,
-      description: description,
-      sortOrder: sortOrder,
-    );
+      return StorageLocation(
+        id: id,
+        name: name,
+        parentId: parentId,
+        description: description,
+        sortOrder: sortOrder,
+      );
+    });
   }
 
   Future<void> update(StorageLocation location) async {

@@ -163,7 +163,7 @@ class _LoanTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isOverdue = loan.isOverdue;
+    final isOverdue = loan.isOverdueAt(DateTime.now());
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(

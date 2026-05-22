@@ -18,8 +18,10 @@ class Loan {
   final String? notes;
 
   bool get isActive => returnedDate == null;
-  bool get isOverdue =>
-      isActive && dueDate != null && DateTime.now().isAfter(dueDate!);
+
+  bool isOverdueAt(DateTime now) {
+    return isActive && dueDate != null && now.isAfter(dueDate!);
+  }
 
   factory Loan.fromJson(Map<String, dynamic> json) {
     return Loan(

@@ -15,15 +15,13 @@ class StorageLocation {
 
   /// Build the full path label e.g. "Room > Shelf > Box 3"
   String fullPath(List<StorageLocation> allLocations) {
+    final byId = {for (final location in allLocations) location.id: location};
+    final visited = <String>{};
     final parts = <String>[];
     StorageLocation? current = this;
-    while (current != null) {
+    while (current != null && visited.add(current.id)) {
       parts.insert(0, current.name);
-      current = current.parentId != null
-          ? allLocations
-              .cast<StorageLocation?>()
-              .firstWhere((l) => l!.id == current!.parentId, orElse: () => null)
-          : null;
+      current = current.parentId == null ? null : byId[current.parentId!];
     }
     return parts.join(' › ');
   }
