@@ -22,6 +22,7 @@ class LibraryFilterSelection {
   const LibraryFilterSelection({
     this.ownershipFilter = LibraryOwnershipFilter.all,
     this.series,
+    this.location,
     this.grade,
     this.condition,
     this.publisher,
@@ -36,6 +37,7 @@ class LibraryFilterSelection {
 
   final LibraryOwnershipFilter ownershipFilter;
   final String? series;
+  final String? location;
   final String? grade;
   final String? condition;
   final String? publisher;
@@ -48,6 +50,7 @@ class LibraryFilterSelection {
   bool get hasActiveFilters {
     return ownershipFilter != LibraryOwnershipFilter.all ||
         series != null ||
+      location != null ||
         grade != null ||
         condition != null ||
         publisher != null ||
@@ -62,6 +65,7 @@ class LibraryFilterSelection {
     var count = 0;
     if (ownershipFilter != LibraryOwnershipFilter.all) count++;
     if (series != null) count++;
+    if (location != null) count++;
     if (grade != null) count++;
     if (condition != null) count++;
     if (publisher != null) count++;
@@ -79,6 +83,7 @@ class LibraryFilterSelection {
         other is LibraryFilterSelection &&
             other.ownershipFilter == ownershipFilter &&
             other.series == series &&
+          other.location == location &&
             other.grade == grade &&
             other.condition == condition &&
             other.publisher == publisher &&
@@ -93,6 +98,7 @@ class LibraryFilterSelection {
   int get hashCode => Object.hash(
         ownershipFilter,
         series,
+        location,
         grade,
         condition,
         publisher,
@@ -108,6 +114,7 @@ class LibraryFilterSelection {
 class LibraryFilterOptions {
   const LibraryFilterOptions({
     this.series = const [],
+    this.locations = const [],
     this.grades = const [],
     this.conditions = const [],
     this.publishers = const [],
@@ -117,6 +124,7 @@ class LibraryFilterOptions {
   });
 
   final List<String> series;
+  final List<String> locations;
   final List<String> grades;
   final List<String> conditions;
   final List<String> publishers;
@@ -128,6 +136,7 @@ class LibraryFilterOptions {
     List<LibraryWorkspaceEntry> entries,
   ) {
     final series = <String>{};
+    final locations = <String>{};
     final grades = <String>{};
     final conditions = <String>{};
     final publishers = <String>{};
@@ -139,6 +148,9 @@ class LibraryFilterOptions {
       final seriesTitle = entry.series?.seriesTitle?.trim();
       if (seriesTitle != null && seriesTitle.isNotEmpty) {
         series.add(seriesTitle);
+      }
+      if (entry.storageBox?.trim().isNotEmpty == true) {
+        locations.add(entry.storageBox!.trim());
       }
       if (entry.grade?.trim().isNotEmpty == true) {
         grades.add(entry.grade!.trim());
@@ -162,6 +174,7 @@ class LibraryFilterOptions {
 
     return LibraryFilterOptions(
       series: series.toList()..sort(),
+      locations: locations.toList()..sort(),
       grades: grades.toList()..sort(),
       conditions: conditions.toList()..sort(),
       publishers: publishers.toList()..sort(),
@@ -192,6 +205,9 @@ bool libraryFilterMatches(
   }
   if (filters.series != null &&
       entry.series?.seriesTitle?.trim() != filters.series) {
+    return false;
+  }
+  if (filters.location != null && entry.storageBox?.trim() != filters.location) {
     return false;
   }
   if (filters.grade != null && entry.grade?.trim() != filters.grade) {
@@ -258,6 +274,7 @@ class _LibraryFilterDialog extends StatefulWidget {
 class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   late LibraryOwnershipFilter _ownership;
   String? _series;
+  String? _location;
   String? _grade;
   String? _condition;
   String? _publisher;
@@ -273,6 +290,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     final i = widget.initial;
     _ownership = i.ownershipFilter;
     _series = i.series;
+    _location = i.location;
     _grade = i.grade;
     _condition = i.condition;
     _publisher = i.publisher;
@@ -329,6 +347,16 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
                   value: _series,
                   options: widget.options.series,
                   onChanged: (v) => setState(() => _series = v),
+                ),
+              ],
+              if (widget.options.locations.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _FilterDropdown(
+                  label: 'Location',
+                  empty: 'Any location',
+                  value: _location,
+                  options: widget.options.locations,
+                  onChanged: (v) => setState(() => _location = v),
                 ),
               ],
               if (widget.options.publishers.isNotEmpty) ...[
@@ -423,6 +451,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
             LibraryFilterSelection(
               ownershipFilter: _ownership,
               series: _series,
+              location: _location,
               grade: _grade,
               condition: _condition,
               publisher: _publisher,
