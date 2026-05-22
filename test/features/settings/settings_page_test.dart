@@ -63,6 +63,8 @@ void main() {
 
     await _openSettingsTab(tester, 'Libraries');
     expect(find.text('Library navigation'), findsOneWidget);
+    expect(find.text('Locations'), findsOneWidget);
+    expect(find.text('Manage locations'), findsOneWidget);
     expect(find.text('Overflow uses More'), findsOneWidget);
     expect(find.text('Position'), findsOneWidget);
     expect(find.text('Top bar'), findsWidgets);

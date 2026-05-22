@@ -74,13 +74,13 @@
 ### ⚙️ Provider Workflow / Core API Efficiency
 - [x] Stop automatic provider search after every successful core search; only fall back to provider search on Core misses
 - [x] Replace add-dialog preview fan-out with selection-only preview loading
-- [ ] Add short-lived Core-side preview caching keyed by `(provider, provider_item_id)`
-- [ ] Reuse hydrated preview data for ingest so preview → ingest does not repeat full upstream fetch/normalize work
-- [ ] Keep provider image mirroring off the synchronous search hot path where possible
+- [x] Add short-lived Core-side preview caching keyed by `(provider, provider_item_id)`
+- [x] Reuse hydrated preview data for ingest so preview → ingest does not repeat full upstream fetch/normalize work
+- [x] Keep provider image mirroring off the synchronous search hot path where possible
 
 ### 📚 CLZ Parity Gaps That Still Matter
 - [x] Hyperlink filtering from creators/characters/publishers/series facts into live library filters
-- [ ] Finish real location hierarchy productization: location assignment/filtering exists, but add/bulk/edit flows still lean on legacy `storageBox` entry and there is no dedicated location manager UX
+- [ ] Finish real location hierarchy productization: structured location assignment/filtering and dedicated management now exist, but first-class location grouping and sync semantics are still unresolved
 - [ ] Extend personal value tracking beyond inspector/detail visibility into stronger summaries and collection-level drill-downs
 - [ ] Key-issue / key-release markers, richer slab / grading-company details, and collector-facing variant notes
 - [ ] Run-completeness tools: missing issues for comics, missing volumes/seasons where the data model supports it
@@ -91,8 +91,8 @@
 - [x] Owned-item sync payload now includes `location_id`
 - [x] Inspector assignment flow supports picking and clearing a hierarchical location without accidental clears on cancel
 - [x] Workspace filtering can target resolved location paths
-- [ ] Add a dedicated location management surface for rename / delete / reparent / description editing
-- [ ] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to legacy `storageBox` text entry
+- [x] Add a dedicated location management surface for rename / delete / reparent / description editing
+- [x] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to legacy `storageBox` text entry
 - [ ] Introduce a first-class location group mode / sidebar bucket instead of reusing the `storageBox` column path
 - [ ] Decide whether location definitions themselves sync or remain local-only metadata
 
