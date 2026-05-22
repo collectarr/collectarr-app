@@ -39,6 +39,15 @@ part 'library_add_preview_pane.dart';
 part 'library_add_bottom_bar.dart';
 part 'library_add_manual_pane.dart';
 
+String buildPreviewCatalogItemId({
+  required String kind,
+  required String provider,
+  required String providerItemId,
+}) {
+  final previewKey = '$kind:$provider:$providerItemId';
+  return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
+}
+
 class LibraryAddDialog extends ConsumerStatefulWidget {
   const LibraryAddDialog({
     super.key,
@@ -834,7 +843,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   CatalogItem _catalogItemFromPreview(AdminProviderPreview preview) {
     return CatalogItem(
-      id: 'preview:${preview.provider}:${preview.providerItemId}',
+      id: buildPreviewCatalogItemId(
+        kind: preview.kind,
+        provider: preview.provider,
+        providerItemId: preview.providerItemId,
+      ),
       kind: preview.kind,
       title: preview.title,
       itemNumber: preview.itemNumber,

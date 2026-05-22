@@ -65,15 +65,6 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
           _scannedBarcodes.add(value);
           _lastScanned = value;
         });
-        // Brief haptic-like visual feedback
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Scanned: $value'),
-            duration: const Duration(seconds: 1),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
       }
     }
   }
@@ -127,6 +118,28 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
               'Point camera at barcodes. Each unique barcode is added automatically.',
               style: TextStyle(fontSize: 12, color: kClzTextMuted),
             ),
+            if (_lastScanned != null) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.check_circle_outline,
+                    size: 14,
+                    color: Colors.greenAccent,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Last scanned: $_lastScanned',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.greenAccent,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             if (_cameraSupported)
               ClipRRect(

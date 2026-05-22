@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -23,6 +25,7 @@ class CollectionMutations {
 
   final Ref ref;
   final Uuid _uuid = const Uuid();
+  final Set<String> _pendingCoverDownloads = <String>{};
 
   Future<void> addItem(
     String itemId, {
@@ -90,7 +93,7 @@ class CollectionMutations {
     await _enqueueOwnedItem(ownedItem, 'upsert', now);
     await _enqueueCatalogSnapshotForItemId(itemId, now);
     // Download cover image bytes in the background.
-    _downloadCoverForOwnedItem(ownedItem.id, itemId);
+    unawaited(_downloadCoverForOwnedItem(ownedItem.id, itemId));
     final wishlistItem = await _wishlistCache().findActiveByItemId(itemId);
     if (wishlistItem != null) {
       await _wishlistCache().markDeleted(wishlistItem, now);
@@ -672,26 +675,35 @@ class CollectionMutations {
   }
 
   /// Fire-and-forget download of the cover image for a newly added item.
-  void _downloadCoverForOwnedItem(String ownedItemId, String itemId) {
-    Future(() async {
-      try {
-        // Skip if image already cached locally.
-        final cached = await _imagesCache().frontCoverBase64(ownedItemId);
-        if (cached != null) return;
+  Future<void> _downloadCoverForOwnedItem(String ownedItemId, String itemId) async {
+    if (!_pendingCoverDownloads.add(ownedItemId)) {
+      return;
+    }
+    try {
+      final imagesCache = _imagesCache();
+      // Skip if image already cached locally.
+      final cached = await imagesCache.frontCoverBase64(ownedItemId);
+      if (cached != null) return;
 
-        final item = await _catalogCache().findById(itemId);
-        if (item == null) return;
-        final service = ImageDownloadService(
-          imagesRepo: _imagesCache(),
-        );
-        await service.downloadAndStoreCover(
+      final item = await _catalogCache().findById(itemId);
+      final coverImageUrl = item?.displayCoverUrl;
+      if (coverImageUrl == null || coverImageUrl.isEmpty) return;
+
+      final service = ImageDownloadService(imagesRepo: imagesCache);
+      for (var attempt = 0; attempt < 3; attempt++) {
+        final downloaded = await service.downloadAndStoreCover(
           ownedItemId: ownedItemId,
-          coverImageUrl: item.displayCoverUrl,
+          coverImageUrl: coverImageUrl,
         );
-      } catch (_) {
-        // Best-effort — never propagate errors from background image download.
+        if (downloaded != null) {
+          return;
+        }
       }
-    });
+    } catch (_) {
+      // Best-effort — never propagate errors from background image download.
+    } finally {
+      _pendingCoverDownloads.remove(ownedItemId);
+    }
   }
 
   ItemImagesCacheRepository _imagesCache() =>

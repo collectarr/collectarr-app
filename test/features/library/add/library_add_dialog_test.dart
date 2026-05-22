@@ -23,6 +23,23 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  test('preview catalog ids stay deterministic and reserved', () {
+    final first = buildPreviewCatalogItemId(
+      kind: 'manga',
+      provider: 'anilist',
+      providerItemId: 'item:1/2',
+    );
+    final second = buildPreviewCatalogItemId(
+      kind: 'manga',
+      provider: 'anilist',
+      providerItemId: 'item:1/2',
+    );
+
+    expect(first, second);
+    expect(first, startsWith('preview-manga-'));
+    expect(first, isNot(contains('item:1/2')));
+  });
+
   testWidgets('generic add dialog exposes scanned barcode in manual flow',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
