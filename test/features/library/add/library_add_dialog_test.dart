@@ -259,6 +259,7 @@ void main() {
                 imagePicker: _FakeCoverImagePicker(
                   file: XFile('/tmp/Batman_423_1988_DC.jpg'),
                 ),
+                imageReview: const _FakeCoverImageReview(acceptImport: true),
               ),
             ),
           ),
@@ -318,6 +319,59 @@ void main() {
               coverScanService: const LocalLibraryCoverScanService(
                 sourcePrompt: _FakeCoverScanSourcePrompt(action: null),
                 imagePicker: _FakeCoverImagePicker(file: null),
+                imageReview: _FakeCoverImageReview(acceptImport: true),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Existing query',
+    );
+
+    await tester.tap(find.text('Scan cover'));
+    await tester.pumpAndSettle();
+
+    final queryField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-query-field')),
+    );
+    expect(queryField.controller!.text, 'Existing query');
+    expect(find.textContaining('Cover scan filled search hints'), findsNothing);
+  });
+
+  testWidgets(
+      'comic add dialog leaves search untouched when imported cover review is cancelled',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+              coverScanService: LocalLibraryCoverScanService(
+                sourcePrompt: const _FakeCoverScanSourcePrompt(
+                  action: LibraryCoverScanAction.importImage,
+                ),
+                imagePicker: _FakeCoverImagePicker(
+                  file: XFile('/tmp/Batman_423_1988_DC.jpg'),
+                ),
+                imageReview: const _FakeCoverImageReview(acceptImport: false),
               ),
             ),
           ),
@@ -835,6 +889,21 @@ class _FakeCoverImagePicker implements LibraryCoverImagePicker {
   @override
   Future<XFile?> pickImage() async {
     return file;
+  }
+}
+
+class _FakeCoverImageReview implements LibraryCoverImageReview {
+  const _FakeCoverImageReview({required this.acceptImport});
+
+  final bool acceptImport;
+
+  @override
+  Future<XFile?> reviewImage({
+    required BuildContext context,
+    required type,
+    required XFile file,
+  }) async {
+    return acceptImport ? file : null;
   }
 }
 

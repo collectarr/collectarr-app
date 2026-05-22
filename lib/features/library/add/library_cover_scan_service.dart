@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,10 +18,12 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
   const LocalLibraryCoverScanService({
     this.sourcePrompt = const BottomSheetLibraryCoverScanSourcePrompt(),
     this.imagePicker = const DeviceLibraryCoverImagePicker(),
+    this.imageReview = const DialogLibraryCoverImageReview(),
   });
 
   final LibraryCoverScanSourcePrompt sourcePrompt;
   final LibraryCoverImagePicker imagePicker;
+  final LibraryCoverImageReview imageReview;
 
   @override
   Future<LibraryCoverScanResult?> scanCover({
@@ -37,7 +41,15 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
     if (picked == null) {
       return null;
     }
-    return _filenameDerivedResult(picked);
+    final reviewed = await imageReview.reviewImage(
+      context: context,
+      type: type,
+      file: picked,
+    );
+    if (reviewed == null) {
+      return null;
+    }
+    return _filenameDerivedResult(reviewed);
   }
 }
 
@@ -130,6 +142,145 @@ class DeviceLibraryCoverImagePicker implements LibraryCoverImagePicker {
       maxWidth: 1600,
       maxHeight: 1600,
       imageQuality: 90,
+    );
+  }
+}
+
+abstract class LibraryCoverImageReview {
+  const LibraryCoverImageReview();
+
+  Future<XFile?> reviewImage({
+    required BuildContext context,
+    required LibraryTypeConfig type,
+    required XFile file,
+  });
+}
+
+class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
+  const DialogLibraryCoverImageReview();
+
+  @override
+  Future<XFile?> reviewImage({
+    required BuildContext context,
+    required LibraryTypeConfig type,
+    required XFile file,
+  }) {
+    return showDialog<XFile>(
+      context: context,
+      builder: (context) => _LibraryCoverScanReviewDialog(file: file),
+    );
+  }
+}
+
+class _LibraryCoverScanReviewDialog extends StatelessWidget {
+  const _LibraryCoverScanReviewDialog({required this.file});
+
+  final XFile file;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Review imported cover',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Keep this image local and confirm it before search hints are derived. Crop and OCR hooks can plug into this step later.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              _LibraryCoverScanReviewPreview(file: file),
+              const SizedBox(height: 12),
+              Text(
+                file.name.trim().isEmpty ? path.basename(file.path) : file.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(context).pop(file),
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text('Use image'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryCoverScanReviewPreview extends StatelessWidget {
+  const _LibraryCoverScanReviewPreview({required this.file});
+
+  final XFile file;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+          color: Colors.black12,
+        ),
+        child: AspectRatio(
+          aspectRatio: 0.72,
+          child: FutureBuilder<Uint8List>(
+            future: file.readAsBytes(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.photo_outlined, size: 42),
+                        SizedBox(height: 8),
+                        Text(
+                          'Preview unavailable, but the image can still be used for local scan hints.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              return Image.memory(snapshot.data!, fit: BoxFit.contain);
+            },
+          ),
+        ),
+      ),
     );
   }
 }
