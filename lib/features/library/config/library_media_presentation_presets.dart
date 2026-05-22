@@ -1,0 +1,409 @@
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/presentation/default_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/game_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/music_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/video_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+
+const genericLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder();
+const comicsLibraryMediaBuilder =
+    DefaultLibraryMediaPresentationBuilder(showSummary: true);
+const mangaLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder(
+  showSummary: true,
+  showVolumeHierarchy: true,
+);
+const animeLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
+  showSummary: true,
+  showSeasonHierarchy: true,
+);
+const booksLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder(
+  showSummary: true,
+  showVolumeHierarchy: true,
+);
+const gamesLibraryMediaBuilder = GameLibraryMediaPresentationBuilder();
+const boardGamesLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder();
+const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
+  showSummary: true,
+);
+const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder();
+const tvLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
+  showSummary: true,
+  showSeasonHierarchy: true,
+);
+
+const genericLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'No. / Vol.',
+    publisher: 'Publisher / Studio / Creator',
+    variant: 'Edition / Variant / Format',
+    barcode: 'Barcode / UPC / ISBN',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'No. / Vol....',
+    publisherHint: 'Publisher / Studio / Creator...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Publisher',
+    anyPublisher: 'Any publisher',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Publisher',
+    publisherPlural: 'Publishers',
+    unknownPublisher: 'Unknown publisher',
+  ),
+  builder: genericLibraryMediaBuilder,
+);
+
+const comicsLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'No. / Vol.',
+    publisher: 'Publisher / Studio / Creator',
+    variant: 'Edition / Variant / Format',
+    barcode: 'Barcode / UPC / ISBN',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'No. / Vol....',
+    publisherHint: 'Publisher / Studio / Creator...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Publisher',
+    anyPublisher: 'Any publisher',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Publisher',
+    publisherPlural: 'Publishers',
+    unknownPublisher: 'Unknown publisher',
+  ),
+  builder: comicsLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.series,
+    LibraryGroupMode.storyArc,
+    LibraryGroupMode.character,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.year,
+    LibraryGroupMode.grade,
+    LibraryGroupMode.condition,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);
+
+const mangaLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'Volume / Chapter',
+    publisher: 'Publisher',
+    variant: 'Edition / Variant',
+    barcode: 'ISBN / Barcode',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'Volume / Chapter...',
+    publisherHint: 'Publisher...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Publisher',
+    anyPublisher: 'Any publisher',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Publisher',
+    publisherPlural: 'Publishers',
+    unknownPublisher: 'Unknown publisher',
+  ),
+  builder: mangaLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.series,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.year,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);
+
+const animeLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'Season / Volume',
+    publisher: 'Studio / Publisher',
+    variant: 'Format / Edition',
+    barcode: 'UPC / Barcode',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'Season / Volume...',
+    publisherHint: 'Studio / Publisher...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Studio / Publisher',
+    anyPublisher: 'Any studio / publisher',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Studio / Publisher',
+    publisherPlural: 'Studios / Publishers',
+    unknownPublisher: 'Unknown studio / publisher',
+  ),
+  builder: animeLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.series,
+    LibraryGroupMode.year,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);
+
+const booksLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'Volume',
+    publisher: 'Publisher',
+    variant: 'Edition / Binding',
+    barcode: 'ISBN / Barcode',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'Volume...',
+    publisherHint: 'Publisher...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Publisher',
+    anyPublisher: 'Any publisher',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Publisher',
+    publisherPlural: 'Publishers',
+    unknownPublisher: 'Unknown publisher',
+  ),
+  builder: booksLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.series,
+    LibraryGroupMode.year,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);
+
+const gamesLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'Version',
+    publisher: 'Publisher / Studio',
+    variant: 'Platform / Edition',
+    barcode: 'UPC / Barcode',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'Version...',
+    publisherHint: 'Publisher / Studio...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Publisher / Studio',
+    anyPublisher: 'Any publisher / studio',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Publisher / Studio',
+    publisherPlural: 'Publishers / Studios',
+    unknownPublisher: 'Unknown publisher / studio',
+  ),
+  builder: gamesLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.series,
+    LibraryGroupMode.year,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);
+
+const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'Edition',
+    publisher: 'Publisher / Designer',
+    variant: 'Expansion / Edition',
+    barcode: 'Barcode',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'Edition...',
+    publisherHint: 'Publisher / Designer...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Publisher / Designer',
+    anyPublisher: 'Any publisher / designer',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Publisher / Designer',
+    publisherPlural: 'Publishers / Designers',
+    unknownPublisher: 'Unknown publisher / designer',
+  ),
+  builder: boardGamesLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.series,
+    LibraryGroupMode.year,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);
+
+const moviesLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'Edition no.',
+    publisher: 'Studio',
+    variant: 'Format / Edition',
+    barcode: 'UPC / Barcode',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'Edition no....',
+    publisherHint: 'Studio...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Studio',
+    anyPublisher: 'Any studio',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Studio',
+    publisherPlural: 'Studios',
+    unknownPublisher: 'Unknown studio',
+  ),
+  builder: moviesLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.year,
+    LibraryGroupMode.series,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);
+
+const musicLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'Disc / Volume',
+    publisher: 'Label / Artist',
+    variant: 'Format / Edition',
+    barcode: 'Barcode / Catalog no.',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, artist, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, artist, creator, or keyword.',
+    seriesHint: 'Artist...',
+    numberHint: 'Album / Release...',
+    publisherHint: 'Label...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Artist',
+    anySeries: 'Any artist',
+    publisher: 'Label',
+    anyPublisher: 'Any label',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Artist',
+    seriesPlural: 'Artists',
+    unknownSeries: 'Unknown artist',
+    publisher: 'Label',
+    publisherPlural: 'Labels',
+    unknownPublisher: 'Unknown label',
+  ),
+  builder: musicLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.series,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.year,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);
+
+const tvLibraryMediaPresentation = LibraryMediaPresentation(
+  fieldLabels: LibraryMediaFieldLabels(
+    number: 'Season / Volume',
+    publisher: 'Network / Studio',
+    variant: 'Format / Edition',
+    barcode: 'UPC / Barcode',
+  ),
+  searchFieldLabels: LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'Season / Volume...',
+    publisherHint: 'Network / Studio...',
+  ),
+  filterLabels: LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Network / Studio',
+    anyPublisher: 'Any network / studio',
+  ),
+  groupLabels: LibraryMediaGroupLabels(
+    series: 'Series',
+    seriesPlural: 'Series',
+    unknownSeries: 'Unknown series',
+    publisher: 'Network / Studio',
+    publisherPlural: 'Networks / Studios',
+    unknownPublisher: 'Unknown network / studio',
+  ),
+  builder: tvLibraryMediaBuilder,
+  groupModes: [
+    LibraryGroupMode.series,
+    LibraryGroupMode.year,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.title,
+    LibraryGroupMode.ownership,
+  ],
+);

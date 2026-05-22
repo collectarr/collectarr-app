@@ -1,11 +1,6 @@
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/series_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -26,39 +21,13 @@ class LibraryDetailMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final presentation = buildLibraryMetadataPresentation(
-      type: type,
+    return type.presentation.builder.buildDetailIdentitySection(
+      context: context,
+      singularLabel: type.singularLabel,
+      labels: type.presentation.fieldLabels,
       entry: entry,
+      accent: accent,
       onFilterByValue: onFilterByValue,
-      includeIdentityFacts: true,
-    );
-    final identityFacts = presentation.identityFacts.map((fact) {
-      if (fact.label == 'Series' &&
-          entry.seriesId != null &&
-          entry.seriesId!.trim().isNotEmpty &&
-          entry.seriesTitle != null &&
-          entry.seriesTitle!.trim().isNotEmpty) {
-        return LibraryInspectorFactData(
-          fact.label,
-          fact.value,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => SeriesDetailPage(
-                seriesId: entry.seriesId!,
-                seriesTitle: entry.seriesTitle!,
-              ),
-            ),
-          ),
-        );
-      }
-      return fact;
-    }).toList(growable: false);
-    return LibraryInspectorSection(
-      title: 'Catalog identity',
-      accentColor: accent,
-      children: [
-        LibraryInspectorFactGrid(facts: identityFacts),
-      ],
     );
   }
 }
@@ -79,25 +48,13 @@ class LibraryDetailContextSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final presentation = buildLibraryMetadataPresentation(
-      type: type,
+    return type.presentation.builder.buildDetailContextSection(
+      context: context,
+      singularLabel: type.singularLabel,
+      labels: type.presentation.fieldLabels,
       entry: entry,
+      accent: accent,
       onFilterByValue: onFilterByValue,
-    );
-    return LibraryInspectorSection(
-      title: 'Catalog context',
-      accentColor: accent,
-      children: [
-        LibraryInspectorFactGrid(facts: presentation.contextFacts),
-        if (presentation.genres.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
-            label: 'Genres',
-            values: presentation.genres,
-            onValueTap: onFilterByValue,
-          ),
-        ],
-      ],
     );
   }
 }
@@ -118,55 +75,13 @@ class LibraryDetailCreditsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final presentation = buildLibraryMetadataPresentation(
-      type: type,
+    return type.presentation.builder.buildDetailCreditsSection(
+      context: context,
+      singularLabel: type.singularLabel,
+      labels: type.presentation.fieldLabels,
       entry: entry,
+      accent: accent,
       onFilterByValue: onFilterByValue,
-    );
-    if (!presentation.hasCredits) {
-      return const SizedBox.shrink();
-    }
-    return LibraryInspectorSection(
-      title: 'Credits & Discovery',
-      accentColor: accent,
-      children: [
-        if (presentation.creators.isNotEmpty)
-          LibraryMetadataCreditsList(
-            title: 'Creators',
-            credits: presentation.creators,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => CreatorDetailPage(creatorName: value),
-              ),
-            ),
-          ),
-        if (presentation.characters.isNotEmpty) ...[
-          if (presentation.creators.isNotEmpty) const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
-            label: 'Characters',
-            values: presentation.characters,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => CharacterDetailPage(characterName: value),
-              ),
-            ),
-          ),
-        ],
-        if (presentation.storyArcs.isNotEmpty) ...[
-          if (presentation.creators.isNotEmpty ||
-              presentation.characters.isNotEmpty)
-            const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
-            label: 'Story Arcs',
-            values: presentation.storyArcs,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => StoryArcDetailPage(storyArcName: value),
-              ),
-            ),
-          ),
-        ],
-      ],
     );
   }
 }

@@ -1,0 +1,297 @@
+import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/series_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
+import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:flutter/material.dart';
+
+class LibraryMediaFieldLabels {
+  const LibraryMediaFieldLabels({
+    required this.number,
+    required this.publisher,
+    required this.variant,
+    required this.barcode,
+  });
+
+  final String number;
+  final String publisher;
+  final String variant;
+  final String barcode;
+}
+
+class LibraryMediaSearchFieldLabels {
+  const LibraryMediaSearchFieldLabels({
+    required this.queryHint,
+    required this.emptySearchMessage,
+    required this.seriesHint,
+    required this.numberHint,
+    required this.publisherHint,
+  });
+
+  final String queryHint;
+  final String emptySearchMessage;
+  final String seriesHint;
+  final String numberHint;
+  final String publisherHint;
+}
+
+class LibraryMediaFilterLabels {
+  const LibraryMediaFilterLabels({
+    required this.series,
+    required this.anySeries,
+    required this.publisher,
+    required this.anyPublisher,
+    this.year = 'Year',
+    this.anyYear = 'Any year',
+  });
+
+  final String series;
+  final String anySeries;
+  final String publisher;
+  final String anyPublisher;
+  final String year;
+  final String anyYear;
+}
+
+class LibraryMediaGroupLabels {
+  const LibraryMediaGroupLabels({
+    required this.series,
+    required this.seriesPlural,
+    required this.unknownSeries,
+    required this.publisher,
+    required this.publisherPlural,
+    required this.unknownPublisher,
+  });
+
+  final String series;
+  final String seriesPlural;
+  final String unknownSeries;
+  final String publisher;
+  final String publisherPlural;
+  final String unknownPublisher;
+}
+
+class LibraryMetadataPresentation {
+  const LibraryMetadataPresentation({
+    required this.identityFacts,
+    required this.contextFacts,
+    required this.creators,
+    required this.characters,
+    required this.storyArcs,
+    required this.genres,
+  });
+
+  final List<LibraryInspectorFactData> identityFacts;
+  final List<LibraryInspectorFactData> contextFacts;
+  final List<Map<String, dynamic>> creators;
+  final List<String> characters;
+  final List<String> storyArcs;
+  final List<String> genres;
+
+  List<LibraryInspectorFactData> get allFacts => [
+        ...identityFacts,
+        ...contextFacts,
+      ];
+
+  bool get hasCredits =>
+      creators.isNotEmpty || characters.isNotEmpty || storyArcs.isNotEmpty;
+}
+
+typedef LibraryMetadataFactTapResolver = VoidCallback? Function(String? value);
+
+abstract class LibraryMediaPresentationBuilder {
+  const LibraryMediaPresentationBuilder();
+
+  LibraryMetadataPresentation buildMetadataPresentation({
+    required String singularLabel,
+    required LibraryMediaFieldLabels labels,
+    required LibraryWorkspaceEntry entry,
+    required bool includeIdentityFacts,
+    required LibraryMetadataFactTapResolver tapFor,
+  });
+
+  List<Widget> buildInspectorSections({
+    required BuildContext context,
+    required LibraryWorkspaceEntry entry,
+    required Color accent,
+  }) {
+    return const [];
+  }
+
+  Widget buildDetailIdentitySection({
+    required BuildContext context,
+    required String singularLabel,
+    required LibraryMediaFieldLabels labels,
+    required LibraryWorkspaceEntry entry,
+    required Color accent,
+    ValueChanged<String>? onFilterByValue,
+  }) {
+    final presentation = buildMetadataPresentation(
+      singularLabel: singularLabel,
+      labels: labels,
+      entry: entry,
+      includeIdentityFacts: true,
+      tapFor: _tapResolver(onFilterByValue),
+    );
+    final identityFacts = presentation.identityFacts.map((fact) {
+      if (fact.label == 'Series' &&
+          entry.seriesId != null &&
+          entry.seriesId!.trim().isNotEmpty &&
+          entry.seriesTitle != null &&
+          entry.seriesTitle!.trim().isNotEmpty) {
+        return LibraryInspectorFactData(
+          fact.label,
+          fact.value,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => SeriesDetailPage(
+                seriesId: entry.seriesId!,
+                seriesTitle: entry.seriesTitle!,
+              ),
+            ),
+          ),
+        );
+      }
+      return fact;
+    }).toList(growable: false);
+    return LibraryInspectorSection(
+      title: 'Catalog identity',
+      accentColor: accent,
+      children: [
+        LibraryInspectorFactGrid(facts: identityFacts),
+      ],
+    );
+  }
+
+  Widget buildDetailContextSection({
+    required BuildContext context,
+    required String singularLabel,
+    required LibraryMediaFieldLabels labels,
+    required LibraryWorkspaceEntry entry,
+    required Color accent,
+    ValueChanged<String>? onFilterByValue,
+  }) {
+    final presentation = buildMetadataPresentation(
+      singularLabel: singularLabel,
+      labels: labels,
+      entry: entry,
+      includeIdentityFacts: false,
+      tapFor: _tapResolver(onFilterByValue),
+    );
+    return LibraryInspectorSection(
+      title: 'Catalog context',
+      accentColor: accent,
+      children: [
+        LibraryInspectorFactGrid(facts: presentation.contextFacts),
+        if (presentation.genres.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Genres',
+            values: presentation.genres,
+            onValueTap: onFilterByValue,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget buildDetailCreditsSection({
+    required BuildContext context,
+    required String singularLabel,
+    required LibraryMediaFieldLabels labels,
+    required LibraryWorkspaceEntry entry,
+    required Color accent,
+    ValueChanged<String>? onFilterByValue,
+  }) {
+    final presentation = buildMetadataPresentation(
+      singularLabel: singularLabel,
+      labels: labels,
+      entry: entry,
+      includeIdentityFacts: false,
+      tapFor: _tapResolver(onFilterByValue),
+    );
+    if (!presentation.hasCredits) {
+      return const SizedBox.shrink();
+    }
+    return LibraryInspectorSection(
+      title: 'Credits & Discovery',
+      accentColor: accent,
+      children: [
+        if (presentation.creators.isNotEmpty)
+          LibraryMetadataCreditsList(
+            title: 'Creators',
+            credits: presentation.creators,
+            onValueTap: (value) => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => CreatorDetailPage(creatorName: value),
+              ),
+            ),
+          ),
+        if (presentation.characters.isNotEmpty) ...[
+          if (presentation.creators.isNotEmpty) const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Characters',
+            values: presentation.characters,
+            onValueTap: (value) => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => CharacterDetailPage(characterName: value),
+              ),
+            ),
+          ),
+        ],
+        if (presentation.storyArcs.isNotEmpty) ...[
+          if (presentation.creators.isNotEmpty ||
+              presentation.characters.isNotEmpty)
+            const SizedBox(height: 8),
+          LibraryInspectorChipWrap(
+            label: 'Story Arcs',
+            values: presentation.storyArcs,
+            onValueTap: (value) => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => StoryArcDetailPage(storyArcName: value),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  static LibraryMetadataFactTapResolver _tapResolver(
+    ValueChanged<String>? onFilterByValue,
+  ) {
+    return (String? value) {
+      if (onFilterByValue == null || value == null || value.trim().isEmpty) {
+        return null;
+      }
+      return () => onFilterByValue(value.trim());
+    };
+  }
+}
+
+class LibraryMediaPresentation {
+  const LibraryMediaPresentation({
+    required this.fieldLabels,
+    required this.searchFieldLabels,
+    required this.filterLabels,
+    required this.groupLabels,
+    required this.builder,
+    this.groupModes = const [
+      LibraryGroupMode.series,
+      LibraryGroupMode.title,
+      LibraryGroupMode.publisher,
+      LibraryGroupMode.year,
+      LibraryGroupMode.ownership,
+    ],
+  });
+
+  final LibraryMediaFieldLabels fieldLabels;
+  final LibraryMediaSearchFieldLabels searchFieldLabels;
+  final LibraryMediaFilterLabels filterLabels;
+  final LibraryMediaGroupLabels groupLabels;
+  final LibraryMediaPresentationBuilder builder;
+  final List<LibraryGroupMode> groupModes;
+}

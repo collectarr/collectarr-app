@@ -197,7 +197,7 @@ class LibraryInspector extends ConsumerWidget {
                     accent: accent,
                   ),
               ],
-              ...type.presentation.inspectorSectionsBuilder(
+              ...type.presentation.builder.buildInspectorSections(
                 context: context,
                 entry: selected,
                 accent: accent,

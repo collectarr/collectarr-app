@@ -45,7 +45,7 @@ void main() {
       ),
     );
 
-    final musicSections = musicLibraryConfig.presentation.inspectorSectionsBuilder(
+    final musicSections = musicLibraryConfig.presentation.builder.buildInspectorSections(
       context: context,
       entry: LibraryWorkspaceEntry(
         id: 'music-1',
@@ -56,7 +56,7 @@ void main() {
       ),
       accent: Colors.cyan,
     );
-    final tvSections = tvLibraryConfig.presentation.inspectorSectionsBuilder(
+    final tvSections = tvLibraryConfig.presentation.builder.buildInspectorSections(
       context: context,
       entry: LibraryWorkspaceEntry(
         id: 'tv-1',
