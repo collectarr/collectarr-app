@@ -66,7 +66,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.initialQuery,
     this.initialBarcode,
     this.autoLookupInitialBarcode = true,
-    this.coverScanService = const NoopLibraryCoverScanService(),
+    this.coverScanService = const LocalLibraryCoverScanService(),
   });
 
   final LibraryTypeConfig type;
@@ -549,7 +549,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         context: context,
         type: widget.type,
       );
-      if (!mounted || result == null || !result.hasAnyHint) {
+      if (!mounted || result == null) {
+        return;
+      }
+      if (!result.hasAnyHint) {
+        setState(() {
+          _error = result.warnings.isEmpty
+              ? 'Cover scan did not extract usable search hints yet.'
+              : result.warnings.first;
+          _coverScanPrefill = null;
+        });
         return;
       }
       final query = (result.query ?? result.series ?? '').trim();

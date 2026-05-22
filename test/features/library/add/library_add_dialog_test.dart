@@ -22,6 +22,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -251,7 +252,14 @@ void main() {
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
               autoLookupInitialBarcode: false,
-              coverScanService: _FakeLibraryCoverScanService(),
+              coverScanService: LocalLibraryCoverScanService(
+                sourcePrompt: const _FakeCoverScanSourcePrompt(
+                  action: LibraryCoverScanAction.importImage,
+                ),
+                imagePicker: _FakeCoverImagePicker(
+                  file: XFile('/tmp/Batman_423_1988_DC.jpg'),
+                ),
+              ),
             ),
           ),
         ),
@@ -284,6 +292,52 @@ void main() {
     expect(numberField.controller!.text, '423');
     expect(publisherField.controller!.text, 'DC');
     expect(yearField.controller!.text, '1988');
+  });
+
+  testWidgets('comic add dialog leaves search untouched when cover scan is cancelled',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+              coverScanService: const LocalLibraryCoverScanService(
+                sourcePrompt: _FakeCoverScanSourcePrompt(action: null),
+                imagePicker: _FakeCoverImagePicker(file: null),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Existing query',
+    );
+
+    await tester.tap(find.text('Scan cover'));
+    await tester.pumpAndSettle();
+
+    final queryField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-query-field')),
+    );
+    expect(queryField.controller!.text, 'Existing query');
+    expect(find.textContaining('Cover scan filled search hints'), findsNothing);
   });
 
   testWidgets('provider search does not claim fallback when results are mixed',
@@ -759,20 +813,28 @@ class _FakeLibraryAddApiClient extends ApiClient {
   }
 }
 
-class _FakeLibraryCoverScanService implements LibraryCoverScanService {
+class _FakeCoverScanSourcePrompt implements LibraryCoverScanSourcePrompt {
+  const _FakeCoverScanSourcePrompt({required this.action});
+
+  final LibraryCoverScanAction? action;
+
   @override
-  Future<LibraryCoverScanResult?> scanCover({
+  Future<LibraryCoverScanAction?> selectAction({
     required BuildContext context,
     required type,
   }) async {
-    return const LibraryCoverScanResult(
-      query: 'Batman',
-      series: 'Batman',
-      issueNumber: '423',
-      publisher: 'DC',
-      year: 1988,
-      confidenceLabel: 'medium',
-    );
+    return action;
+  }
+}
+
+class _FakeCoverImagePicker implements LibraryCoverImagePicker {
+  const _FakeCoverImagePicker({required this.file});
+
+  final XFile? file;
+
+  @override
+  Future<XFile?> pickImage() async {
+    return file;
   }
 }
 
