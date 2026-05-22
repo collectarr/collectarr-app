@@ -20,7 +20,7 @@
 - Structured provider search context (`series`, `issue_number`, `year`) sent to Core
 - Provider candidates consume Core's typed comic identity fields (`candidate_type`, `series_title`, `variant_name`)
 - Provider results require explicit user selection; the dialog no longer auto-focuses the first candidate
-- Provider previews are prefetched from direct provider data in bounded batches, with neutral messaging for mixed-provider result sets
+- Provider previews load only for the selected candidate, with neutral messaging for mixed-provider result sets
 - Generic add dialog and workspaces for manga, anime, books, games, board games, movies, TV, music
 - Queue Ingest button hidden for non-admin users
 
@@ -51,6 +51,9 @@
 ### 🎨 UI Polish
 - Distinctive library icons: comics (`style`), anime (`smart_display`), to avoid confusion with books (`menu_book_outlined`)
 - Animated accent theming across all UI elements (not just top/bottom bars) using `AnimatedTheme`
+- Hyperlink-driven metadata filters feed exact library filters instead of mutating the free-text search box
+- Inspector/detail views surface richer personal value tracking (`cover price`, `sell price`, `profit / loss`)
+- Workspace filter dialog can filter by resolved location path
 
 ### 🌳 Hierarchical Shelf Display
 - Hierarchy fields added to data model: `seriesId`, `seriesTitle`, `volumeName`, `volumeNumber`, `volumeStartYear`, `seasonNumber`, `episodeNumber`
@@ -69,20 +72,29 @@
 ## 🎯 Current Priorities
 
 ### ⚙️ Provider Workflow / Core API Efficiency
-- [ ] Stop automatic provider search after every successful core search; make it demand-driven or confidence-based
-- [ ] Replace add-dialog preview fan-out with selection-only preview loading or a real batch preview endpoint
+- [x] Stop automatic provider search after every successful core search; only fall back to provider search on Core misses
+- [x] Replace add-dialog preview fan-out with selection-only preview loading
 - [ ] Add short-lived Core-side preview caching keyed by `(provider, provider_item_id)`
 - [ ] Reuse hydrated preview data for ingest so preview → ingest does not repeat full upstream fetch/normalize work
 - [ ] Keep provider image mirroring off the synchronous search hot path where possible
 
 ### 📚 CLZ Parity Gaps That Still Matter
-- [ ] Hyperlink filtering from creators/characters/publishers/series facts into live library filters
-- [ ] Real location tracking model (room / shelf / box / bin), not just a single `storageBox` field
-- [ ] Collection value totals and per-library value summaries from owned-item purchase/current values
+- [x] Hyperlink filtering from creators/characters/publishers/series facts into live library filters
+- [ ] Finish real location hierarchy productization: location assignment/filtering exists, but add/bulk/edit flows still lean on legacy `storageBox` entry and there is no dedicated location manager UX
+- [ ] Extend personal value tracking beyond inspector/detail visibility into stronger summaries and collection-level drill-downs
 - [ ] Key-issue / key-release markers, richer slab / grading-company details, and collector-facing variant notes
 - [ ] Run-completeness tools: missing issues for comics, missing volumes/seasons where the data model supports it
 - [ ] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
 - [ ] Investigate optional cover-photo recognition / scan-to-identify for comics as a later Core capability
+
+### 🧭 Location Hierarchy Follow-up
+- [x] Owned-item sync payload now includes `location_id`
+- [x] Inspector assignment flow supports picking and clearing a hierarchical location without accidental clears on cancel
+- [x] Workspace filtering can target resolved location paths
+- [ ] Add a dedicated location management surface for rename / delete / reparent / description editing
+- [ ] Let users assign locations in add flow, edit dialog, and bulk edit without falling back to legacy `storageBox` text entry
+- [ ] Introduce a first-class location group mode / sidebar bucket instead of reusing the `storageBox` column path
+- [ ] Decide whether location definitions themselves sync or remain local-only metadata
 
 ### 🧭 Yamtrack-Inspired Gaps Worth Evaluating
 - [ ] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry
