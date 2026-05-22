@@ -394,6 +394,59 @@ void main() {
     expect(find.textContaining('Cover scan filled search hints'), findsNothing);
   });
 
+  testWidgets('comic add dialog uses reviewed image label for local scan hints',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+              coverScanService: LocalLibraryCoverScanService(
+                sourcePrompt: const _FakeCoverScanSourcePrompt(
+                  action: LibraryCoverScanAction.importImage,
+                ),
+                imagePicker: _FakeCoverImagePicker(
+                  file: XFile('/tmp/IMG_1234.jpg'),
+                ),
+                imageReview: const _FakeCoverImageReview(
+                  acceptImport: true,
+                  reviewedDisplayName: 'Batman_423_1988_DC.jpg',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Scan cover'));
+    await tester.pumpAndSettle();
+
+    final queryField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-query-field')),
+    );
+    final publisherField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-publisher-field')),
+    );
+
+    expect(queryField.controller!.text, 'Batman');
+    expect(publisherField.controller!.text, 'DC');
+  });
+
   testWidgets('provider search does not claim fallback when results are mixed',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -893,17 +946,27 @@ class _FakeCoverImagePicker implements LibraryCoverImagePicker {
 }
 
 class _FakeCoverImageReview implements LibraryCoverImageReview {
-  const _FakeCoverImageReview({required this.acceptImport});
+  const _FakeCoverImageReview({
+    required this.acceptImport,
+    this.reviewedDisplayName,
+  });
 
   final bool acceptImport;
+  final String? reviewedDisplayName;
 
   @override
-  Future<XFile?> reviewImage({
+  Future<LibraryCoverReviewedImage?> reviewImage({
     required BuildContext context,
     required type,
     required XFile file,
   }) async {
-    return acceptImport ? file : null;
+    if (!acceptImport) {
+      return null;
+    }
+    return LibraryCoverReviewedImage.fromFile(
+      file,
+      displayName: reviewedDisplayName,
+    );
   }
 }
 

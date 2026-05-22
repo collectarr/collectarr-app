@@ -149,23 +149,50 @@ class DeviceLibraryCoverImagePicker implements LibraryCoverImagePicker {
 abstract class LibraryCoverImageReview {
   const LibraryCoverImageReview();
 
-  Future<XFile?> reviewImage({
+  Future<LibraryCoverReviewedImage?> reviewImage({
     required BuildContext context,
     required LibraryTypeConfig type,
     required XFile file,
   });
 }
 
+class LibraryCoverReviewedImage {
+  const LibraryCoverReviewedImage({
+    required this.sourceFile,
+    required this.displayName,
+    this.imageBytes,
+  });
+
+  final XFile sourceFile;
+  final String displayName;
+  final Uint8List? imageBytes;
+
+  factory LibraryCoverReviewedImage.fromFile(
+    XFile file, {
+    Uint8List? imageBytes,
+    String? displayName,
+  }) {
+    final resolvedName = displayName?.trim();
+    return LibraryCoverReviewedImage(
+      sourceFile: file,
+      displayName: resolvedName == null || resolvedName.isEmpty
+          ? (file.name.trim().isEmpty ? path.basename(file.path) : file.name)
+          : resolvedName,
+      imageBytes: imageBytes,
+    );
+  }
+}
+
 class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
   const DialogLibraryCoverImageReview();
 
   @override
-  Future<XFile?> reviewImage({
+  Future<LibraryCoverReviewedImage?> reviewImage({
     required BuildContext context,
     required LibraryTypeConfig type,
     required XFile file,
   }) {
-    return showDialog<XFile>(
+    return showDialog<LibraryCoverReviewedImage>(
       context: context,
       builder: (context) => _LibraryCoverScanReviewDialog(file: file),
     );
@@ -179,54 +206,69 @@ class _LibraryCoverScanReviewDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Review imported cover',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Keep this image local and confirm it before search hints are derived. Crop and OCR hooks can plug into this step later.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    final displayName =
+        file.name.trim().isEmpty ? path.basename(file.path) : file.name.trim();
+    return FutureBuilder<Uint8List?>(
+      future: _readPreviewBytes(file),
+      builder: (context, snapshot) => Dialog(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Review imported cover',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Keep this image local and confirm it before search hints are derived. Crop and OCR hooks can plug into this step later.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                _LibraryCoverScanReviewPreview(
+                  file: file,
+                  previewBytes: snapshot.data,
+                  isLoading: snapshot.connectionState != ConnectionState.done,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  displayName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancel'),
                     ),
-              ),
-              const SizedBox(height: 16),
-              _LibraryCoverScanReviewPreview(file: file),
-              const SizedBox(height: 12),
-              Text(
-                file.name.trim().isEmpty ? path.basename(file.path) : file.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                    const SizedBox(width: 8),
+                    FilledButton.icon(
+                      onPressed: () => Navigator.of(context).pop(
+                        LibraryCoverReviewedImage.fromFile(
+                          file,
+                          imageBytes: snapshot.data,
+                          displayName: displayName,
+                        ),
+                      ),
+                      icon: const Icon(Icons.check_circle_outline),
+                      label: const Text('Use image'),
                     ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton.icon(
-                    onPressed: () => Navigator.of(context).pop(file),
-                    icon: const Icon(Icons.check_circle_outline),
-                    label: const Text('Use image'),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -234,10 +276,25 @@ class _LibraryCoverScanReviewDialog extends StatelessWidget {
   }
 }
 
+Future<Uint8List?> _readPreviewBytes(XFile file) async {
+  try {
+    final bytes = await file.readAsBytes();
+    return bytes.isEmpty ? null : bytes;
+  } catch (_) {
+    return null;
+  }
+}
+
 class _LibraryCoverScanReviewPreview extends StatelessWidget {
-  const _LibraryCoverScanReviewPreview({required this.file});
+  const _LibraryCoverScanReviewPreview({
+    required this.file,
+    required this.previewBytes,
+    required this.isLoading,
+  });
 
   final XFile file;
+  final Uint8List? previewBytes;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -252,33 +309,26 @@ class _LibraryCoverScanReviewPreview extends StatelessWidget {
         ),
         child: AspectRatio(
           aspectRatio: 0.72,
-          child: FutureBuilder<Uint8List>(
-            future: file.readAsBytes(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.photo_outlined, size: 42),
-                        SizedBox(height: 8),
-                        Text(
-                          'Preview unavailable, but the image can still be used for local scan hints.',
-                          textAlign: TextAlign.center,
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : previewBytes == null
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.photo_outlined, size: 42),
+                            SizedBox(height: 8),
+                            Text(
+                              'Preview unavailable, but the image can still be used for local scan hints.',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              return Image.memory(snapshot.data!, fit: BoxFit.contain);
-            },
-          ),
+                      ),
+                    )
+                  : Image.memory(previewBytes!, fit: BoxFit.contain),
         ),
       ),
     );
@@ -320,10 +370,8 @@ class LibraryCoverScanResult {
   }
 }
 
-LibraryCoverScanResult _filenameDerivedResult(XFile file) {
-  final filename = file.name.trim().isNotEmpty
-      ? file.name.trim()
-      : path.basename(file.path);
+LibraryCoverScanResult _filenameDerivedResult(LibraryCoverReviewedImage image) {
+  final filename = image.displayName.trim();
   final stem = path.basenameWithoutExtension(filename).trim();
   final cleaned = stem
       .replaceAll(RegExp(r'[_\-.]+'), ' ')
