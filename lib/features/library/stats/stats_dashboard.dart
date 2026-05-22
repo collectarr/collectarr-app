@@ -147,6 +147,12 @@ class _GenericStatsDashboard extends StatelessWidget {
                               label: 'Sold total',
                               value: sellValue,
                             ),
+                          if (state.soldCount > 0)
+                            LibraryStatsTile(
+                              icon: Icons.local_offer_outlined,
+                              label: 'Sold copies',
+                              value: state.soldCount.toString(),
+                            ),
                           if (netValue != null)
                             LibraryStatsTile(
                               icon: Icons.trending_up,
@@ -202,6 +208,20 @@ class _GenericStatsDashboard extends StatelessWidget {
                               LibraryStatsMoneyRankedCard(
                                 title: 'Most Invested Series',
                                 values: _topInvestedSeries(state.entries),
+                                currency: state.primaryCurrency,
+                              ),
+                            if (!state.hasMixedCurrencies &&
+                                state.primaryCurrency != null)
+                              LibraryStatsMoneyRankedCard(
+                                title: 'Top Buyers',
+                                values: _topBuyerSales(state.entries),
+                                currency: state.primaryCurrency,
+                              ),
+                            if (!state.hasMixedCurrencies &&
+                                state.primaryCurrency != null)
+                              LibraryStatsMoneyRankedCard(
+                                title: 'Top Sales Series',
+                                values: _topSalesSeries(state.entries),
                                 currency: state.primaryCurrency,
                               ),
                             _TrackingStatusCard(entries: state.entries),
@@ -383,6 +403,25 @@ class _GenericStatsDashboard extends StatelessWidget {
           entry.catalogItem?.title ??
           'Unknown',
       (entry) => entry.ownedItem?.pricePaidCents,
+    );
+  }
+
+  static Map<String, int> _topBuyerSales(List<ShelfEntry> entries) {
+    return _sumBy(
+      entries,
+      (entry) => entry.ownedItem?.soldTo ?? 'Unknown buyer',
+      (entry) => entry.ownedItem?.sellPriceCents,
+    );
+  }
+
+  static Map<String, int> _topSalesSeries(List<ShelfEntry> entries) {
+    return _sumBy(
+      entries,
+      (entry) =>
+          entry.catalogItem?.series?.seriesTitle ??
+          entry.catalogItem?.title ??
+          'Unknown',
+      (entry) => entry.ownedItem?.sellPriceCents,
     );
   }
 

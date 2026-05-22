@@ -106,6 +106,7 @@ void main() {
             pricePaidCents: 2500,
             sellPriceCents: 3500,
             soldAt: DateTime.utc(2026, 5, 2),
+            soldTo: 'Retro Shop',
             currency: 'USD',
             updatedAt: DateTime.utc(2026, 5, 2),
           ),
@@ -119,6 +120,7 @@ void main() {
       totalPaidCents: 6500,
       primaryCurrency: 'USD',
       hasMixedCurrencies: false,
+      soldCount: 1,
       totalSellCents: 3500,
     );
 
@@ -148,10 +150,15 @@ void main() {
     expect(find.text('1'), findsWidgets);
     expect(find.text('Net'), findsOneWidget);
     expect(find.text('USD -30.00'), findsOneWidget);
+    expect(find.text('Sold copies'), findsOneWidget);
     expect(find.text('Most Invested Locations'), findsOneWidget);
     expect(find.text('Most Invested Series'), findsOneWidget);
+    expect(find.text('Top Buyers'), findsOneWidget);
+    expect(find.text('Top Sales Series'), findsOneWidget);
+    expect(find.text('Retro Shop'), findsOneWidget);
     expect(find.text('USD 40.00'), findsOneWidget);
     expect(find.text('USD 65.00'), findsWidgets);
+    expect(find.text('USD 35.00'), findsWidgets);
   });
 
   testWidgets('comic stats dashboard surfaces missing issue gaps', (tester) async {
