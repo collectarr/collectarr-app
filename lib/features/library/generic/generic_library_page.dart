@@ -13,15 +13,15 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/config/collectarr_media_adapters.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_body.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_column_chooser.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_collection_actions.dart';
-import 'package:collectarr_app/features/library/edit/generic_library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/generic/body.dart';
+import 'package:collectarr_app/features/library/generic/column_chooser.dart';
+import 'package:collectarr_app/features/library/generic/collection_actions.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_metadata_refresh.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_projection.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_toolbar.dart';
-import 'package:collectarr_app/features/library/generic/generic_library_view_preference_store.dart';
+import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar.dart';
+import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -62,19 +62,19 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   String? _selectedId;
   String? _selectedBucket;
   String? _selectedLetter;
-  GenericQuickView? _quickView;
-  GenericLibraryGroupMode? _groupMode;
+  LibraryQuickView? _quickView;
+  LibraryGroupMode? _groupMode;
   var _selection = LibrarySelectionState.empty();
   var _filterSelection = LibraryFilterSelection.none;
-  final _facetBucketsByMode = <GenericLibraryGroupMode, FacetBuckets>{};
-  final _facetLoadsInFlight = <GenericLibraryGroupMode>{};
+  final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
+  final _facetLoadsInFlight = <LibraryGroupMode>{};
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
       plannedMediaAdapter(widget.type);
 
-  GenericLibraryViewPreferenceStore get _viewPrefs =>
-      GenericLibraryViewPreferenceStore(widget.type.workspace.kind);
+    LibraryViewPreferenceStore get _viewPrefs =>
+      LibraryViewPreferenceStore(widget.type.workspace.kind);
 
   @override
   void initState() {
@@ -153,7 +153,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           child: Column(
             children: [
               widget.topBar,
-              GenericLibraryToolbar(
+              LibraryToolbar(
                 type: widget.type,
                 searchController: _searchController,
                 viewState: viewState,
@@ -170,9 +170,6 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                 ),
                 onDetailsLayoutChanged: (layout) => _updateViewState(
                   (state) => state.copyWith(detailsLayout: layout),
-                ),
-                onViewPresetSelected: (preset) => _updateViewState(
-                  (state) => state.withPreset(preset, _adapter.viewProfile),
                 ),
                 onCoverSizeChanged: (size) => _updateViewState(
                   (state) => state.copyWith(coverSize: size),
@@ -199,7 +196,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                 onDownloadAllCovers: shelfState != null
                     ? () => _downloadAllCovers(shelfState)
                     : null,
-                counts: projection?.counts ?? const GenericToolbarCounts(),
+                counts: projection?.counts ?? const LibraryToolbarCounts(),
                 shelfState: shelfState,
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
@@ -232,10 +229,10 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Widget _buildBody(
-    GenericLibraryProjection projection,
+    LibraryProjection projection,
     LibraryWorkspaceViewState viewState,
   ) {
-    return GenericLibraryBody(
+    return LibraryBody(
       type: widget.type,
       adapter: _adapter,
       projection: projection,
@@ -248,6 +245,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => _showAddDialog(),
       onClearFilters: _clearFilters,
+      selectionEnabled: _selection.enabled,
+      selectedItemIds: _selection.itemIds,
       onSelectItem: (id) {
         if (_selection.enabled) {
           setState(() => _selection = _selection.toggle(id));
@@ -316,7 +315,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  GenericLibraryProjection _projectionForShelf(
+  LibraryProjection _projectionForShelf(
     ShelfState shelf,
     LibraryWorkspaceViewState viewState,
   ) {
@@ -326,7 +325,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         (_usesExternalFacetBuckets(mode) && _selectedBucket != null)
             ? facetBuckets?.itemIdsByBucket[_selectedBucket!]
             : null;
-    return GenericLibraryProjection.fromShelf(
+    return LibraryProjection.fromShelf(
       shelf: shelf,
       type: widget.type,
       viewState: viewState,
@@ -342,8 +341,8 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  GenericLibraryGroupMode get _activeGroupMode =>
-      _groupMode ?? genericDefaultGroupMode(widget.type);
+    LibraryGroupMode get _activeGroupMode =>
+      _groupMode ?? libraryDefaultGroupMode(widget.type);
 
   bool get _hasActiveFilter =>
       _searchController.text.trim().isNotEmpty ||
@@ -351,16 +350,16 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _quickView != null ||
       _filterSelection.hasActiveFilters;
 
-  bool _usesExternalFacetBuckets(GenericLibraryGroupMode mode) {
+  bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
     if (widget.type.workspace.kind != 'comic') {
       return false;
     }
-    return mode == GenericLibraryGroupMode.storyArc ||
-        mode == GenericLibraryGroupMode.character;
+    return mode == LibraryGroupMode.storyArc ||
+      mode == LibraryGroupMode.character;
   }
 
   FacetBuckets? _facetBucketsForMode(
-    GenericLibraryGroupMode mode,
+    LibraryGroupMode mode,
     ShelfState shelf,
   ) {
     if (!_usesExternalFacetBuckets(mode)) {
@@ -376,7 +375,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       buckets: [
         LibrarySeriesBucket(
           title: genericAllBucketLabel(widget.type),
-          count: genericItemsForShelf(shelf, widget.type).length,
+          count: libraryItemsForShelf(shelf, widget.type).length,
         ),
       ],
       itemIdsByBucket: const {},
@@ -385,7 +384,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _ensureFacetBucketsLoaded(
     ShelfState shelf,
-    GenericLibraryGroupMode mode,
+    LibraryGroupMode mode,
   ) {
     if (!_usesExternalFacetBuckets(mode)) {
       return;
@@ -408,19 +407,19 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Future<void> _loadFacetBuckets(
-    GenericLibraryGroupMode mode,
+    LibraryGroupMode mode,
     ShelfState shelf,
     String signature,
   ) async {
     final shelfItemIds = {
-      for (final item in genericItemsForShelf(shelf, widget.type))
+      for (final item in libraryItemsForShelf(shelf, widget.type))
         item.entry.id,
     };
     try {
       final buckets = await fetchFacetBuckets(
         itemIds: shelfItemIds,
         signature: signature,
-        isStoryArc: mode == GenericLibraryGroupMode.storyArc,
+        isStoryArc: mode == LibraryGroupMode.storyArc,
         allBucketLabel: genericAllBucketLabel(widget.type),
       );
       if (!mounted) return;
@@ -448,7 +447,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   String _genericShelfSignature(ShelfState shelf) {
     return LibraryPageUtilities.shelfSignature([
-      for (final item in genericItemsForShelf(shelf, widget.type))
+      for (final item in libraryItemsForShelf(shelf, widget.type))
         item.entry.id,
     ]);
   }
@@ -463,7 +462,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Future<void> _showFilterDialog(
-    GenericLibraryProjection? projection,
+    LibraryProjection? projection,
   ) async {
     final allEntries = projection?.allItems
             .map((i) => i.entry)
@@ -481,7 +480,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
   }
 
-  void _pickRandomItem(GenericLibraryProjection projection) {
+  void _pickRandomItem(LibraryProjection projection) {
     final items = projection.filteredItems;
     if (items.isEmpty) return;
     final random = items[_random.nextInt(items.length)];
@@ -569,7 +568,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Future<void> _handleItemContextMenu(
-    GenericLibraryItem item,
+    LibraryProjectionItem item,
     Offset position,
   ) async {
     setState(() => _selectedId = item.entry.id);
@@ -611,7 +610,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
   }
 
-  Future<void> _showEditDialog(GenericLibraryItem item) async {
+  Future<void> _showEditDialog(LibraryProjectionItem item) async {
     final catalogItem = item.source.catalogItem;
     if (catalogItem == null) {
       return;
@@ -633,9 +632,9 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final images =
         owned != null ? await itemImageRepo.listForItem(owned.id) : <dynamic>[];
     if (!mounted) return;
-    final result = await showDialog<GenericLibraryEditSelection>(
+    final result = await showLibraryEditDialog(
       context: context,
-      builder: (context) => GenericLibraryEditDialog(
+      request: LibraryEditDialogRequest(
         type: widget.type,
         item: catalogItem,
         ownedItem: owned,
@@ -746,7 +745,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Future<void> _showMetadataRefreshDialog(
-    GenericLibraryProjection? projection,
+    LibraryProjection? projection,
   ) async {
     if (projection == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -774,7 +773,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Future<void> _runCollectionAction(
-    Future<void> Function(GenericLibraryCollectionActions actions) action,
+    Future<void> Function(LibraryCollectionActions actions) action,
   ) async {
     await action(ref.read(genericLibraryCollectionActionsProvider));
     if (mounted) {
@@ -782,7 +781,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
   }
 
-  Future<void> _confirmRemoveOwned(GenericLibraryItem item) async {
+  Future<void> _confirmRemoveOwned(LibraryProjectionItem item) async {
     final confirmed = await confirmSingleRemove(
       context,
       title: item.entry.title,
@@ -794,7 +793,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     await _runCollectionAction((actions) => actions.removeOwned(item));
   }
 
-  Future<void> _bulkEdit(GenericLibraryProjection? projection) async {
+  Future<void> _bulkEdit(LibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final selection = await showBulkEditDialog(
       context,
@@ -811,7 +810,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _bulkMoveToOwned(GenericLibraryProjection? projection) async {
+  Future<void> _bulkMoveToOwned(LibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
@@ -826,7 +825,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _bulkMoveToWishlist(GenericLibraryProjection? projection) async {
+  Future<void> _bulkMoveToWishlist(LibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
@@ -837,7 +836,7 @@ class _GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _bulkRemove(GenericLibraryProjection? projection) async {
+  Future<void> _bulkRemove(LibraryProjection? projection) async {
     if (projection == null || _selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,

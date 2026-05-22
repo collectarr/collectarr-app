@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
-import 'package:collectarr_app/features/library/generic/library_page.dart';
+import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_navigation.dart';

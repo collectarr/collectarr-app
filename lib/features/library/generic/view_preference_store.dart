@@ -1,5 +1,4 @@
-import 'package:collectarr_app/features/library/generic/library_projection.dart';
-import 'package:collectarr_app/features/library/generic/library_quick_view.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists the quick-view filter and group mode for each generic library type.

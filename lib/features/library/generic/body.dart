@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
-import 'package:collectarr_app/features/library/generic/library_projection.dart';
-import 'package:collectarr_app/features/library/generic/library_sidebar.dart';
-import 'package:collectarr_app/features/library/generic/library_workspace.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/sidebar.dart';
+import 'package:collectarr_app/features/library/generic/workspace.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';

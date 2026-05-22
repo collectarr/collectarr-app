@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/generic/library_projection_item.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

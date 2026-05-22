@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/generic/library_projection.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryCollectionActions {

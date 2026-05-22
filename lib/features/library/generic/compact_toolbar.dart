@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/generic/library_projection.dart';
-import 'package:collectarr_app/features/library/generic/library_tools_menu.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';

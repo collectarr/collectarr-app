@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
-import 'package:collectarr_app/features/library/generic/library_quick_view.dart';
+import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 /// A saved filter/sort preset that acts as a "smart list".
