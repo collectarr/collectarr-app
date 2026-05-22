@@ -85,6 +85,41 @@ MediaTrackingProfile catalogTrackingProfileForKind(String kind) {
       readingTrackingProfile;
 }
 
+String catalogDisplayLabel(
+  String value,
+  String fallback, {
+  bool plural = false,
+  String emptyFallbackLabel = 'Library',
+}) {
+  final trimmed = value.trim();
+  if (trimmed.isNotEmpty) {
+    return trimmed;
+  }
+  final label = catalogTitleFromToken(
+    fallback,
+    emptyLabel: emptyFallbackLabel,
+  );
+  return plural ? '${label}s' : label;
+}
+
+String catalogTitleFromToken(String value, {String emptyLabel = ''}) {
+  final parts = value
+      .trim()
+      .split(RegExp(r'[_-]+'))
+      .where((part) => part.isNotEmpty)
+      .toList(growable: false);
+  if (parts.isEmpty) {
+    return emptyLabel;
+  }
+  return [
+    for (final part in parts)
+      if (part.length == 1)
+        part.toUpperCase()
+      else
+        '${part[0].toUpperCase()}${part.substring(1)}',
+  ].join(' ');
+}
+
 List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(String kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.fallbackPhysicalFormats ??
       const [];

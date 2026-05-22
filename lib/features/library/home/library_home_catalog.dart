@@ -75,7 +75,7 @@ LibraryTypeConfig libraryConfigForCatalogType(
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
       kind: normalizedType.kind,
-      title: _displayLabel(
+      title: catalogDisplayLabel(
         normalizedType.pluralLabel,
         normalizedType.kind,
         plural: true,
@@ -85,11 +85,11 @@ LibraryTypeConfig libraryConfigForCatalogType(
       defaultSortColumn: LibrarySortColumn.title,
       defaultVisibleColumns: presentation.defaultVisibleColumns,
     ),
-    singularLabel: _displayLabel(
+    singularLabel: catalogDisplayLabel(
       normalizedType.singularLabel,
       normalizedType.kind,
     ),
-    pluralLabel: _displayLabel(
+    pluralLabel: catalogDisplayLabel(
       normalizedType.pluralLabel,
       normalizedType.kind,
       plural: true,
@@ -100,31 +100,4 @@ LibraryTypeConfig libraryConfigForCatalogType(
     trackingProfile: catalogTrackingProfileForKind(normalizedType.kind),
     presentation: presentation,
   ).resolveWithCatalog([normalizedType]);
-}
-
-String _displayLabel(String value, String fallback, {bool plural = false}) {
-  final trimmed = value.trim();
-  if (trimmed.isNotEmpty) {
-    return trimmed;
-  }
-  final label = _titleFromToken(fallback);
-  return plural ? '${label}s' : label;
-}
-
-String _titleFromToken(String value) {
-  final parts = value
-      .trim()
-      .split(RegExp(r'[_-]+'))
-      .where((part) => part.isNotEmpty)
-      .toList(growable: false);
-  if (parts.isEmpty) {
-    return 'Library';
-  }
-  return [
-    for (final part in parts)
-      if (part.length == 1)
-        part.toUpperCase()
-      else
-        '${part[0].toUpperCase()}${part.substring(1)}',
-  ].join(' ');
 }

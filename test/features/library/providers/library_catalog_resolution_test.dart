@@ -31,4 +31,22 @@ void main() {
     expect(resolvedTv.singularLabel, 'TV Show');
     expect(resolvedTv.pluralLabel, 'TV Shows');
   });
+
+  test('catalog resolution titleizes unknown provider ids', () {
+    final resolvedBooks = booksLibraryConfig.resolveWithCatalog(const [
+      CatalogMediaType(
+        kind: 'book',
+        singularLabel: 'Book',
+        pluralLabel: 'Books',
+        routeSegments: ['books'],
+        defaultProvider: 'custom-provider',
+        providers: ['custom-provider'],
+      ),
+    ]);
+
+    expect(resolvedBooks.supportedMetadataProviders.single.id,
+        'custom-provider');
+    expect(resolvedBooks.supportedMetadataProviders.single.label,
+        'Custom Provider');
+  });
 }

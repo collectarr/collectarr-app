@@ -96,7 +96,7 @@ LibraryMetadataProviderOption _providerOptionForId(
   if (option == null) {
     return LibraryMetadataProviderOption(
       id: providerId,
-      label: _providerLabelFromId(providerId),
+      label: catalogTitleFromToken(providerId),
       supportedKinds: {kind},
     );
   }
@@ -111,12 +111,4 @@ LibraryMetadataProviderOption _providerOptionForId(
     requiresApiKey: option.requiresApiKey,
     usagePolicy: option.usagePolicy,
   );
-}
-
-String _providerLabelFromId(String providerId) {
-  return providerId
-      .split(RegExp(r'[_-]+'))
-      .where((part) => part.isNotEmpty)
-      .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
-      .join(' ');
 }
