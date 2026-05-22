@@ -3,7 +3,9 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -205,5 +207,119 @@ void main() {
 
     expect(find.text('Gaps: Saga'), findsOneWidget);
     expect(find.text('#3'), findsOneWidget);
+  });
+
+  testWidgets('manga stats dashboard surfaces missing volume gaps', (tester) async {
+    final state = ShelfState(
+      entries: [
+        for (final volume in [1, 3])
+          ShelfEntry(
+            itemId: 'manga-$volume',
+            catalogItem: CatalogItem(
+              id: 'manga-$volume',
+              kind: 'manga',
+              title: 'Vinland Saga',
+              series: CatalogSeriesDetails(
+                seriesTitle: 'Vinland Saga',
+                volumeNumber: volume,
+              ),
+            ),
+            ownedItem: OwnedItem(
+              id: 'owned-manga-$volume',
+              itemId: 'manga-$volume',
+              updatedAt: DateTime.utc(2026, 5, 1),
+            ),
+          ),
+      ],
+      ownedCount: 2,
+      wishlistCount: 0,
+      missingGradeCount: 2,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => showStatsDashboardDialog(
+                  context,
+                  type: mangaLibraryConfig,
+                  state: state,
+                ),
+                child: const Text('Open stats'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open stats'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Missing volumes: Vinland Saga'), findsOneWidget);
+    expect(find.text('Vol. 2'), findsOneWidget);
+  });
+
+  testWidgets('tv stats dashboard surfaces missing season gaps', (tester) async {
+    final state = ShelfState(
+      entries: [
+        for (final season in [1, 3])
+          ShelfEntry(
+            itemId: 'tv-$season',
+            catalogItem: CatalogItem(
+              id: 'tv-$season',
+              kind: 'tv',
+              title: 'The Mandalorian',
+              series: CatalogSeriesDetails(
+                seriesTitle: 'The Mandalorian',
+                seasonNumber: season,
+              ),
+            ),
+            ownedItem: OwnedItem(
+              id: 'owned-tv-$season',
+              itemId: 'tv-$season',
+              updatedAt: DateTime.utc(2026, 5, 1),
+            ),
+          ),
+      ],
+      ownedCount: 2,
+      wishlistCount: 0,
+      missingGradeCount: 2,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => showStatsDashboardDialog(
+                  context,
+                  type: tvLibraryConfig,
+                  state: state,
+                ),
+                child: const Text('Open stats'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open stats'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Missing seasons: The Mandalorian'), findsOneWidget);
+    expect(find.text('Season 2'), findsOneWidget);
   });
 }

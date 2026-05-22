@@ -83,7 +83,7 @@
 - [x] Finish real location hierarchy productization: structured location assignment/filtering, dedicated management, first-class grouping, and synced location definitions now exist
 - [ ] Extend personal value tracking beyond inspector/detail visibility into stronger summaries and collection-level drill-downs
 - [x] Key-issue / key-release markers, richer slab / grading-company details, and collector-facing notes are now surfaced in workspace badges/cards/detail views
-- [ ] Run-completeness tools: first-pass comic issue gap detection now exists in stats, while missing volumes/seasons tooling still needs dedicated views
+- [x] Run-completeness tools: stats now surface missing comic issues, missing volumes, and missing seasons in dedicated gap cards
 - [x] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
 - [ ] Investigate optional cover-photo recognition / scan-to-identify for comics as a later Core capability
 

@@ -239,6 +239,54 @@ class LibraryMissingIssuesCard extends StatelessWidget {
   }
 }
 
+class LibraryMissingSequenceCard extends StatelessWidget {
+  const LibraryMissingSequenceCard({
+    super.key,
+    required this.title,
+    required this.selectedSeries,
+    required this.missingValues,
+    required this.valueLabelBuilder,
+  });
+
+  final String title;
+  final String? selectedSeries;
+  final List<int> missingValues;
+  final String Function(int value) valueLabelBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: kLibraryStatsCardWidth,
+      child: _StatsPanel(
+        title: selectedSeries == null ? title : '$title: $selectedSeries',
+        child: selectedSeries == null
+            ? const Text(
+                'Select a series',
+                style: TextStyle(color: kLibraryStatsTextMuted, fontSize: 12),
+              )
+            : missingValues.isEmpty
+                ? const Text(
+                    'No gaps',
+                    style:
+                        TextStyle(color: kLibraryStatsTextMuted, fontSize: 12),
+                  )
+                : Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
+                    children: [
+                      for (final value in missingValues.take(10))
+                        _MissingSequencePill(label: valueLabelBuilder(value)),
+                      if (missingValues.length > 10)
+                        _MissingSequencePill(
+                          label: '+${missingValues.length - 10} more',
+                        ),
+                    ],
+                  ),
+      ),
+    );
+  }
+}
+
 class _StatsPanel extends StatelessWidget {
   const _StatsPanel({required this.title, required this.child});
 
@@ -268,6 +316,32 @@ class _StatsPanel extends StatelessWidget {
           const SizedBox(height: 8),
           child,
         ],
+      ),
+    );
+  }
+}
+
+class _MissingSequencePill extends StatelessWidget {
+  const _MissingSequencePill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0x1A4FC3F7),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0x664FC3F7)),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }

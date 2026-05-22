@@ -54,6 +54,14 @@ class _GenericStatsDashboard extends StatelessWidget {
     final metadataQualityBands = _metadataQualityBands(state.entries);
     final metadataAlertCounts = _metadataAlertCounts(state.entries, type);
     final seriesGapSummary = _seriesGapSummary(state.entries, type.workspace.kind);
+    final volumeGapSummary = _numberedGapSummary(
+      state.entries,
+      (entry) => entry.catalogItem?.series?.volumeNumber,
+    );
+    final seasonGapSummary = _numberedGapSummary(
+      state.entries,
+      (entry) => entry.catalogItem?.series?.seasonNumber,
+    );
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -254,6 +262,20 @@ class _GenericStatsDashboard extends StatelessWidget {
                               LibraryMissingIssuesCard(
                                 selectedSeries: seriesGapSummary.seriesTitle,
                                 missingIssues: seriesGapSummary.missingIssues,
+                              ),
+                            if (volumeGapSummary != null)
+                              LibraryMissingSequenceCard(
+                                title: 'Missing volumes',
+                                selectedSeries: volumeGapSummary.seriesTitle,
+                                missingValues: volumeGapSummary.missingNumbers,
+                                valueLabelBuilder: (value) => 'Vol. $value',
+                              ),
+                            if (seasonGapSummary != null)
+                              LibraryMissingSequenceCard(
+                                title: 'Missing seasons',
+                                selectedSeries: seasonGapSummary.seriesTitle,
+                                missingValues: seasonGapSummary.missingNumbers,
+                                valueLabelBuilder: (value) => 'Season $value',
                               ),
                           ];
                           return Wrap(
@@ -551,6 +573,45 @@ class _GenericStatsDashboard extends StatelessWidget {
     return best;
   }
 
+  static _MissingNumberSummary? _numberedGapSummary(
+    List<ShelfEntry> entries,
+    int? Function(ShelfEntry entry) numberFor,
+  ) {
+    _MissingNumberSummary? best;
+    final seriesNumbers = <String, Set<int>>{};
+    for (final entry in entries) {
+      if (!entry.isOwned) {
+        continue;
+      }
+      final seriesTitle = entry.catalogItem?.series?.seriesTitle?.trim();
+      final number = numberFor(entry);
+      if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
+        continue;
+      }
+      seriesNumbers.putIfAbsent(seriesTitle, () => <int>{}).add(number);
+    }
+    for (final series in seriesNumbers.entries) {
+      final sorted = series.value.toList(growable: false)..sort();
+      if (sorted.length < 2) {
+        continue;
+      }
+      final missing = <int>[];
+      for (var number = sorted.first; number <= sorted.last; number++) {
+        if (!series.value.contains(number)) {
+          missing.add(number);
+        }
+      }
+      if (missing.isEmpty) {
+        continue;
+      }
+      final summary = _MissingNumberSummary(series.key, missing);
+      if (best == null || summary.missingNumbers.length > best.missingNumbers.length) {
+        best = summary;
+      }
+    }
+    return best;
+  }
+
   static int? _wholeIssueNumber(String? value) {
     if (value == null || value.trim().isEmpty) {
       return null;
@@ -584,4 +645,11 @@ class _SeriesGapSummary {
 
   final String seriesTitle;
   final List<int> missingIssues;
+}
+
+class _MissingNumberSummary {
+  const _MissingNumberSummary(this.seriesTitle, this.missingNumbers);
+
+  final String seriesTitle;
+  final List<int> missingNumbers;
 }
