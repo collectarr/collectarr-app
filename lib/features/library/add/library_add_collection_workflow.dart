@@ -1,7 +1,7 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class LibraryAddDefaults {
   const LibraryAddDefaults({
@@ -28,7 +28,7 @@ class LibraryAddDefaults {
 Future<void> addLibraryItemsToTarget({
   required CatalogCacheRepository catalog,
   required CollectionMutations mutations,
-  required Iterable<CatalogItem> items,
+  required Iterable<LibraryMetadataItem> items,
   required LibraryAddTarget target,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
 }) async {
@@ -37,7 +37,9 @@ Future<void> addLibraryItemsToTarget({
     return;
   }
 
-  await catalog.upsertAll(values);
+  final catalogItems = [for (final item in values) item.toCatalogItem()];
+
+  await catalog.upsertAll(catalogItems);
   for (final item in values) {
     switch (target) {
       case LibraryAddTarget.owned:

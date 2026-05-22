@@ -44,7 +44,7 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'comic-1',
-            catalogItem: const CatalogItem(
+            catalogItem: CatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -58,7 +58,7 @@ void main() {
           ),
           ShelfEntry(
             itemId: 'comic-2',
-            catalogItem: const CatalogItem(
+            catalogItem: CatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
@@ -96,7 +96,7 @@ void main() {
     test('matches standard fields', () {
       final shelf = ShelfState(
         entries: [
-          const ShelfEntry(
+          ShelfEntry(
             itemId: 'comic-1',
             catalogItem: CatalogItem(
               id: 'comic-1',
@@ -122,7 +122,7 @@ void main() {
 
     test('empty query returns all', () {
       final shelf = ShelfState(
-        entries: const [
+        entries: [
           ShelfEntry(
             itemId: 'comic-1',
             catalogItem: CatalogItem(
@@ -159,7 +159,7 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'comic-1',
-            catalogItem: const CatalogItem(
+            catalogItem: CatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -171,7 +171,7 @@ void main() {
               updatedAt: DateTime.utc(2026, 1, 1),
             ),
           ),
-          const ShelfEntry(
+          ShelfEntry(
             itemId: 'comic-2',
             catalogItem: CatalogItem(
               id: 'comic-2',

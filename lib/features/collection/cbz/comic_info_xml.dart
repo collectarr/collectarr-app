@@ -21,10 +21,18 @@ class ComicInfoXml {
       );
 
       _optionalElement(builder, 'Title', catalog.title);
-      _optionalElement(builder, 'Series', catalog.seriesTitle ?? catalog.title);
+      _optionalElement(
+        builder,
+        'Series',
+        catalog.series?.seriesTitle ?? catalog.title,
+      );
       _optionalElement(builder, 'Number', catalog.itemNumber);
-      if (catalog.volumeNumber != null) {
-        _optionalElement(builder, 'Volume', catalog.volumeNumber.toString());
+      if (catalog.series?.volumeNumber != null) {
+        _optionalElement(
+          builder,
+          'Volume',
+          catalog.series!.volumeNumber.toString(),
+        );
       }
       _optionalElement(builder, 'Summary', catalog.synopsis);
       if (catalog.releaseDate != null) {

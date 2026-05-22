@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +17,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final type = collectarrLibraryTypes.byKind('movie')!;
-    final item = CatalogItem(
+    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
       id: 'movie-1',
       kind: 'movie',
       title: 'Blade Runner',
@@ -25,7 +26,7 @@ void main() {
       releaseYear: 1982,
       variant: 'DVD',
       barcode: '883929087129',
-    );
+    ));
     final ownedItem = OwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
@@ -102,11 +103,11 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 
-    expect(selection?.catalogItem.title, 'Blade Runner: Final Cut');
-    expect(selection?.catalogItem.variant, '4K UHD');
-    expect(selection?.catalogItem.physicalFormat, '4k-uhd');
-    expect(selection?.catalogItem.physicalFormatLabel, '4K UHD');
-    expect(selection?.catalogItem.barcode, '883929087129');
+    expect(selection?.item.title, 'Blade Runner: Final Cut');
+    expect(selection?.item.variant, '4K UHD');
+    expect(selection?.item.physicalFormat, '4k-uhd');
+    expect(selection?.item.physicalFormatLabel, '4K UHD');
+    expect(selection?.item.barcode, '883929087129');
     expect(selection?.personal?.storageBox, 'Shelf B');
     expect(selection?.personal?.pricePaidCents, 1250);
     expect(selection?.personal?.quantity, 1);

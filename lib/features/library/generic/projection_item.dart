@@ -11,6 +11,11 @@ class LibraryProjectionItem {
 
   factory LibraryProjectionItem.fromShelf(ShelfEntry source) {
     final item = source.catalogItem!;
+    final series = item.series;
+    final video = item.video;
+    final music = item.music;
+    final game = item.game;
+    final publishing = item.publishing;
     return LibraryProjectionItem(
       source: source,
       entry: LibraryWorkspaceEntry(
@@ -18,7 +23,6 @@ class LibraryProjectionItem {
         ownedItemId: source.ownedItem?.id,
         mediaType: item.kind,
         title: item.title,
-        seriesId: item.seriesId,
         itemNumber: item.itemNumber,
         synopsis: item.synopsis,
         coverImageUrl: item.coverImageUrl,
@@ -37,30 +41,18 @@ class LibraryProjectionItem {
         pricePaidCents: source.ownedItem?.pricePaidCents,
         currency: source.ownedItem?.currency,
         storageBox: source.locationPath ?? source.ownedItem?.storageBox,
-        seriesTitle: item.seriesTitle,
-        volumeName: item.volumeName,
-        volumeNumber: item.volumeNumber,
-        seasonNumber: item.seasonNumber,
-        episodeNumber: item.episodeNumber,
-        runtimeMinutes: item.runtimeMinutes,
-        trackCount: item.trackCount,
-        tracks: item.tracks,
-        catalogNumber: item.catalogNumber,
+        series: series,
+        video: video,
+        music: music,
+        game: game,
+        publishing: publishing,
         creators: item.creators,
         characters: item.characters,
         storyArcs: item.storyArcs,
-        platforms: item.platforms,
         genres: item.genres,
-        pageCount: item.pageCount,
-        coverPriceCents: item.coverPriceCents,
-        catalogCurrency: item.currency,
         country: item.country,
-        releaseStatus: item.releaseStatus,
         language: item.language,
         ageRating: item.ageRating,
-        imprint: item.imprint,
-        subtitle: item.subtitle,
-        seriesGroup: item.seriesGroup,
         updatedAt: source.updatedAt,
       ),
     );

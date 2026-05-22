@@ -17,6 +17,7 @@ class GameLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
+    final game = entry.game;
     return LibraryMetadataPresentation(
       identityFacts: [
         if (includeIdentityFacts) ...[
@@ -36,8 +37,8 @@ class GameLibraryMediaPresentationBuilder
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
       ],
       contextFacts: [
-        if (entry.platforms != null && entry.platforms!.isNotEmpty)
-          LibraryInspectorFactData('Platforms', entry.platforms!.join(', ')),
+        if (game?.platforms case final platforms? when platforms.isNotEmpty)
+          LibraryInspectorFactData('Platforms', platforms.join(', ')),
         if (entry.publisher != null)
           LibraryInspectorFactData(
             labels.publisher,

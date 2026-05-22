@@ -21,74 +21,87 @@ class CatalogCacheRepository {
         _db.catalogCache,
         [
           for (final item in items)
-            CatalogCacheCompanion.insert(
-              id: item.id,
-              kind: item.kind,
-              title: item.title,
-              itemNumber: Value(item.itemNumber),
-              synopsis: Value(item.synopsis),
-              coverImageUrl: Value(item.coverImageUrl),
-              thumbnailImageUrl: Value(item.thumbnailImageUrl),
-              editionTitle: Value(item.editionTitle),
-              physicalFormat: Value(item.physicalFormat),
-              physicalFormatLabel: Value(item.physicalFormatLabel),
-              publisher: Value(item.publisher),
-              releaseDate: Value(item.releaseDate),
-              releaseYear: Value(item.releaseYear),
-              barcode: Value(item.barcode),
-              variant: Value(item.variant),
-              seriesId: Value(item.seriesId),
-              seriesTitle: Value(item.seriesTitle),
-              volumeName: Value(item.volumeName),
-              volumeNumber: Value(item.volumeNumber),
-              volumeStartYear: Value(item.volumeStartYear),
-              seasonNumber: Value(item.seasonNumber),
-              episodeNumber: Value(item.episodeNumber),
-              runtimeMinutes: Value(item.runtimeMinutes),
-              trackCount: Value(item.trackCount),
-              tracksJson: Value(
-                item.tracks != null && item.tracks!.isNotEmpty
-                    ? jsonEncode(item.tracks)
-                    : null,
-              ),
-              creatorsJson: Value(
-                item.creators != null && item.creators!.isNotEmpty
-                    ? jsonEncode(item.creators)
-                    : null,
-              ),
-              charactersJson: Value(
-                item.characters != null && item.characters!.isNotEmpty
-                    ? jsonEncode(item.characters)
-                    : null,
-              ),
-              storyArcsJson: Value(
-                item.storyArcs != null && item.storyArcs!.isNotEmpty
-                    ? jsonEncode(item.storyArcs)
-                    : null,
-              ),
-              platformsJson: Value(
-                item.platforms != null && item.platforms!.isNotEmpty
-                    ? jsonEncode(item.platforms)
-                    : null,
-              ),
-              genresJson: Value(
-                item.genres != null && item.genres!.isNotEmpty
-                    ? jsonEncode(item.genres)
-                    : null,
-              ),
-              pageCount: Value(item.pageCount),
-              coverPriceCents: Value(item.coverPriceCents),
-              catalogCurrency: Value(item.currency),
-              catalogNumber: Value(item.catalogNumber),
-              country: Value(item.country),
-              releaseStatus: Value(item.releaseStatus),
-              language: Value(item.language),
-              ageRating: Value(item.ageRating),
-              imprint: Value(item.imprint),
-              subtitle: Value(item.subtitle),
-              seriesGroup: Value(item.seriesGroup),
-              cachedAt: now,
-            ),
+            () {
+              final series = item.series;
+              final publishing = item.publishing;
+              final video = item.video;
+              final music = item.music;
+              final game = item.game;
+              final tracks = music?.tracks;
+              final platforms = game?.platforms ?? item.rawPlatforms;
+              return CatalogCacheCompanion.insert(
+                id: item.id,
+                kind: item.kind,
+                title: item.title,
+                itemNumber: Value(item.itemNumber),
+                synopsis: Value(item.synopsis),
+                coverImageUrl: Value(item.coverImageUrl),
+                thumbnailImageUrl: Value(item.thumbnailImageUrl),
+                editionTitle: Value(item.editionTitle),
+                physicalFormat: Value(item.physicalFormat),
+                physicalFormatLabel: Value(item.physicalFormatLabel),
+                publisher: Value(item.publisher),
+                releaseDate: Value(item.releaseDate),
+                releaseYear: Value(item.releaseYear),
+                barcode: Value(item.barcode),
+                variant: Value(item.variant),
+                seriesId: Value(series?.seriesId),
+                seriesTitle: Value(series?.seriesTitle),
+                volumeName: Value(series?.volumeName),
+                volumeNumber: Value(series?.volumeNumber),
+                volumeStartYear: Value(series?.volumeStartYear),
+                seasonNumber: Value(series?.seasonNumber),
+                episodeNumber: Value(series?.episodeNumber),
+                runtimeMinutes: Value(video?.runtimeMinutes),
+                trackCount: Value(music?.trackCount),
+                tracksJson: Value(
+                  tracks != null && tracks.isNotEmpty
+                      ? jsonEncode(
+                          tracks
+                              .map((track) => track.toJson())
+                              .toList(growable: false),
+                        )
+                      : null,
+                ),
+                creatorsJson: Value(
+                  item.creators != null && item.creators!.isNotEmpty
+                      ? jsonEncode(item.creators)
+                      : null,
+                ),
+                charactersJson: Value(
+                  item.characters != null && item.characters!.isNotEmpty
+                      ? jsonEncode(item.characters)
+                      : null,
+                ),
+                storyArcsJson: Value(
+                  item.storyArcs != null && item.storyArcs!.isNotEmpty
+                      ? jsonEncode(item.storyArcs)
+                      : null,
+                ),
+                platformsJson: Value(
+                  platforms != null && platforms.isNotEmpty
+                      ? jsonEncode(platforms)
+                      : null,
+                ),
+                genresJson: Value(
+                  item.genres != null && item.genres!.isNotEmpty
+                      ? jsonEncode(item.genres)
+                      : null,
+                ),
+                pageCount: Value(publishing?.pageCount),
+                coverPriceCents: Value(publishing?.coverPriceCents),
+                catalogCurrency: Value(publishing?.currency),
+                catalogNumber: Value(music?.catalogNumber),
+                country: Value(item.country),
+                releaseStatus: Value(music?.releaseStatus),
+                language: Value(item.language),
+                ageRating: Value(item.ageRating),
+                imprint: Value(publishing?.imprint),
+                subtitle: Value(publishing?.subtitle),
+                seriesGroup: Value(publishing?.seriesGroup),
+                cachedAt: now,
+              );
+            }()
         ],
         mode: InsertMode.insertOrReplace,
       );
@@ -113,49 +126,7 @@ class CatalogCacheRepository {
 
     return {
       for (final row in rows)
-        row.id: CatalogItem(
-          id: row.id,
-          kind: row.kind,
-          title: row.title,
-          itemNumber: row.itemNumber,
-          synopsis: row.synopsis,
-          coverImageUrl: row.coverImageUrl,
-          thumbnailImageUrl: row.thumbnailImageUrl,
-          editionTitle: row.editionTitle,
-          physicalFormat: row.physicalFormat,
-          physicalFormatLabel: row.physicalFormatLabel,
-          publisher: row.publisher,
-          releaseDate: row.releaseDate,
-          releaseYear: row.releaseYear,
-          barcode: row.barcode,
-          variant: row.variant,
-          seriesId: row.seriesId,
-          seriesTitle: row.seriesTitle,
-          volumeName: row.volumeName,
-          volumeNumber: row.volumeNumber,
-          volumeStartYear: row.volumeStartYear,
-          seasonNumber: row.seasonNumber,
-          episodeNumber: row.episodeNumber,
-          runtimeMinutes: row.runtimeMinutes,
-          trackCount: row.trackCount,
-          tracks: _decodeTracks(row.tracksJson),
-          creators: _decodeListOfMaps(row.creatorsJson),
-          characters: _decodeStringList(row.charactersJson),
-          storyArcs: _decodeStringList(row.storyArcsJson),
-          platforms: _decodeStringList(row.platformsJson),
-          genres: _decodeStringList(row.genresJson),
-          pageCount: row.pageCount,
-          coverPriceCents: row.coverPriceCents,
-          currency: row.catalogCurrency,
-          catalogNumber: row.catalogNumber,
-          country: row.country,
-          releaseStatus: row.releaseStatus,
-          language: row.language,
-          ageRating: row.ageRating,
-          imprint: row.imprint,
-          subtitle: row.subtitle,
-          seriesGroup: row.seriesGroup,
-        ),
+        row.id: _itemFromRow(row),
     };
   }
 
@@ -218,6 +189,33 @@ class CatalogCacheRepository {
   }
 
   CatalogItem _itemFromRow(CatalogCacheData row) {
+    final series = CatalogSeriesDetails(
+      seriesId: row.seriesId,
+      seriesTitle: row.seriesTitle,
+      volumeName: row.volumeName,
+      volumeNumber: row.volumeNumber,
+      volumeStartYear: row.volumeStartYear,
+      seasonNumber: row.seasonNumber,
+      episodeNumber: row.episodeNumber,
+    );
+    final video = VideoCatalogDetails(runtimeMinutes: row.runtimeMinutes);
+    final tracks = _decodeTracks(row.tracksJson);
+    final rawPlatforms = _decodeStringList(row.platformsJson);
+    final music = MusicCatalogDetails(
+      trackCount: row.trackCount,
+      tracks: tracks ?? const <CatalogTrack>[],
+      catalogNumber: row.catalogNumber,
+      releaseStatus: row.releaseStatus,
+    );
+    final game = GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
+    final publishing = CatalogPublishingDetails(
+      pageCount: row.pageCount,
+      coverPriceCents: row.coverPriceCents,
+      currency: row.catalogCurrency,
+      imprint: row.imprint,
+      subtitle: row.subtitle,
+      seriesGroup: row.seriesGroup,
+    );
     return CatalogItem(
       id: row.id,
       kind: row.kind,
@@ -234,37 +232,30 @@ class CatalogCacheRepository {
       releaseYear: row.releaseYear,
       barcode: row.barcode,
       variant: row.variant,
-      seriesId: row.seriesId,
-      seriesTitle: row.seriesTitle,
-      volumeName: row.volumeName,
-      volumeNumber: row.volumeNumber,
-      volumeStartYear: row.volumeStartYear,
-      seasonNumber: row.seasonNumber,
-      episodeNumber: row.episodeNumber,
-      runtimeMinutes: row.runtimeMinutes,
-      trackCount: row.trackCount,
-      tracks: _decodeTracks(row.tracksJson),
+      series: series.hasData ? series : null,
+      video: video.hasData ? video : null,
+      music: music.hasData ? music : null,
+      game: game.hasData ? game : null,
+      publishing: publishing.hasData ? publishing : null,
       creators: _decodeListOfMaps(row.creatorsJson),
       characters: _decodeStringList(row.charactersJson),
       storyArcs: _decodeStringList(row.storyArcsJson),
-      platforms: _decodeStringList(row.platformsJson),
+      rawPlatforms: rawPlatforms,
       genres: _decodeStringList(row.genresJson),
-      pageCount: row.pageCount,
-      coverPriceCents: row.coverPriceCents,
-      currency: row.catalogCurrency,
-      catalogNumber: row.catalogNumber,
       country: row.country,
-      releaseStatus: row.releaseStatus,
       language: row.language,
       ageRating: row.ageRating,
-      imprint: row.imprint,
-      subtitle: row.subtitle,
-      seriesGroup: row.seriesGroup,
     );
   }
 
-  static List<Map<String, dynamic>>? _decodeTracks(String? json) {
-    return _decodeListOfMaps(json);
+  static List<CatalogTrack>? _decodeTracks(String? json) {
+    final decoded = _decodeListOfMaps(json);
+    if (decoded == null) {
+      return null;
+    }
+    return decoded
+        .map((track) => CatalogTrack.fromJson(track))
+        .toList(growable: false);
   }
 
   static List<Map<String, dynamic>>? _decodeListOfMaps(String? json) {

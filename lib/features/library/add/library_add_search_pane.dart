@@ -31,7 +31,7 @@ class _SearchPane extends StatelessWidget {
   final bool isBusy;
   final String? error;
   final Color accent;
-  final List<CatalogItem> results;
+  final List<LibraryMetadataItem> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, _QueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
@@ -251,7 +251,7 @@ class _SearchResultsList extends StatelessWidget {
   final bool isBusy;
   final String? error;
   final bool searchedProvider;
-  final List<CatalogItem> results;
+  final List<LibraryMetadataItem> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, _QueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
@@ -918,7 +918,7 @@ class _SearchResultTile extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final CatalogItem item;
+  final LibraryMetadataItem item;
   final Color accent;
   final String queryText;
   final String seriesText;
@@ -932,7 +932,7 @@ class _SearchResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final matchSummary = _catalogItemMatchSummary(
+    final matchSummary = _metadataItemMatchSummary(
       type: type,
       item: item,
       queryText: queryText,
@@ -1046,9 +1046,9 @@ class _SearchResultTile extends StatelessWidget {
   }
 }
 
-String? _catalogItemMatchSummary({
+String? _metadataItemMatchSummary({
   required LibraryTypeConfig type,
-  required CatalogItem item,
+  required LibraryMetadataItem item,
   required String queryText,
   required String seriesText,
   required String numberText,
@@ -1057,6 +1057,7 @@ String? _catalogItemMatchSummary({
 }) {
   final groupLabels = libraryMediaGroupLabels(type);
   final fieldLabels = libraryMediaFieldLabels(type);
+  final series = item.series;
   final reasons = <String>[];
   final seen = <String>{};
 
@@ -1078,14 +1079,14 @@ String? _catalogItemMatchSummary({
   }
 
   addIfMatch('Title', queryText, [item.title]);
-  addIfMatch(groupLabels.series, seriesText, [item.seriesTitle]);
+  addIfMatch(groupLabels.series, seriesText, [series?.seriesTitle]);
   addIfMatch(groupLabels.publisher, publisherText, [item.publisher]);
   addIfMatch(fieldLabels.number, numberText, [
     item.itemNumber,
-    item.volumeName,
-    item.volumeNumber?.toString(),
-    item.seasonNumber?.toString(),
-    item.episodeNumber?.toString(),
+    series?.volumeName,
+    series?.volumeNumber?.toString(),
+    series?.seasonNumber?.toString(),
+    series?.episodeNumber?.toString(),
     item.displayEditionLabel,
   ]);
   addIfMatch('Year', yearText, [
@@ -1095,14 +1096,14 @@ String? _catalogItemMatchSummary({
 
   final generalQuery = queryText.trim();
   if (generalQuery.isNotEmpty) {
-    addIfMatch(groupLabels.series, generalQuery, [item.seriesTitle]);
+    addIfMatch(groupLabels.series, generalQuery, [series?.seriesTitle]);
     addIfMatch(groupLabels.publisher, generalQuery, [item.publisher]);
     addIfMatch(fieldLabels.number, generalQuery, [
       item.itemNumber,
-      item.volumeName,
-      item.volumeNumber?.toString(),
-      item.seasonNumber?.toString(),
-      item.episodeNumber?.toString(),
+      series?.volumeName,
+      series?.volumeNumber?.toString(),
+      series?.seasonNumber?.toString(),
+      series?.episodeNumber?.toString(),
       item.displayEditionLabel,
       item.barcode,
     ]);
@@ -1286,22 +1287,22 @@ String? _providerCandidateMatchSummary({
   }
 
   addIfMatch('Title', queryText, [candidate.title]);
-  addIfMatch(groupLabels.series, seriesText, [candidate.seriesTitle]);
+  addIfMatch(groupLabels.series, seriesText, [candidate.series?.seriesTitle]);
   addIfMatch(groupLabels.publisher, publisherText, [candidate.publisher]);
   addIfMatch(fieldLabels.number, numberText, [
     candidate.issueNumber,
     candidate.variantName,
   ]);
-  addIfMatch('Year', yearText, [candidate.volumeStartYear?.toString()]);
+  addIfMatch('Year', yearText, [candidate.series?.volumeStartYear?.toString()]);
 
   final generalQuery = queryText.trim();
   if (generalQuery.isNotEmpty) {
-    addIfMatch(groupLabels.series, generalQuery, [candidate.seriesTitle]);
+    addIfMatch(groupLabels.series, generalQuery, [candidate.series?.seriesTitle]);
     addIfMatch(groupLabels.publisher, generalQuery, [candidate.publisher]);
     addIfMatch(fieldLabels.number, generalQuery, [
       candidate.issueNumber,
       candidate.variantName,
-      candidate.volumeStartYear?.toString(),
+      candidate.series?.volumeStartYear?.toString(),
     ]);
     addIfMatch('Keyword', generalQuery, [
       candidate.summary,

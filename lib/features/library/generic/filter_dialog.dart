@@ -136,8 +136,9 @@ class LibraryFilterOptions {
     final languages = <String>{};
 
     for (final entry in entries) {
-      if (entry.seriesTitle?.trim().isNotEmpty == true) {
-        series.add(entry.seriesTitle!.trim());
+      final seriesTitle = entry.series?.seriesTitle?.trim();
+      if (seriesTitle != null && seriesTitle.isNotEmpty) {
+        series.add(seriesTitle);
       }
       if (entry.grade?.trim().isNotEmpty == true) {
         grades.add(entry.grade!.trim());
@@ -190,7 +191,7 @@ bool libraryFilterMatches(
     return false;
   }
   if (filters.series != null &&
-      entry.seriesTitle?.trim() != filters.series) {
+      entry.series?.seriesTitle?.trim() != filters.series) {
     return false;
   }
   if (filters.grade != null && entry.grade?.trim() != filters.grade) {

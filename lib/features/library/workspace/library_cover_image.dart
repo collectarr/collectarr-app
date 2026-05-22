@@ -103,6 +103,200 @@ class LibraryCoverImage extends ConsumerWidget {
   }
 }
 
+class LibraryInteractiveCover extends StatefulWidget {
+  const LibraryInteractiveCover({
+    required this.title,
+    this.itemNumber,
+    this.imageUrl,
+    this.localBase64,
+    this.ownedItemId,
+    this.borderRadius = 4,
+    this.accentColor = const Color(0xFF10A8D8),
+    this.enableFullscreen = true,
+    this.enableHoverCue = true,
+    super.key,
+  });
+
+  final String title;
+  final String? itemNumber;
+  final String? imageUrl;
+  final String? localBase64;
+  final String? ownedItemId;
+  final double borderRadius;
+  final Color accentColor;
+  final bool enableFullscreen;
+  final bool enableHoverCue;
+
+  @override
+  State<LibraryInteractiveCover> createState() =>
+      _LibraryInteractiveCoverState();
+}
+
+class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
+  bool _hovered = false;
+
+  bool get _canPreview {
+    return widget.enableFullscreen &&
+        ((widget.imageUrl?.trim().isNotEmpty ?? false) ||
+            (widget.localBase64?.trim().isNotEmpty ?? false) ||
+            (widget.ownedItemId?.trim().isNotEmpty ?? false));
+  }
+
+  Future<void> _openPreview() async {
+    if (!_canPreview) {
+      return;
+    }
+    final size = MediaQuery.sizeOf(context);
+    final previewWidth = (size.width * 0.55).clamp(280.0, 720.0);
+    await showDialog<void>(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: const Color(0xE6101010),
+        insetPadding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: size.width * 0.92,
+            maxHeight: size.height * 0.92,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 5,
+              child: Center(
+                child: SizedBox(
+                  width: previewWidth,
+                  child: AspectRatio(
+                    aspectRatio: 2 / 3,
+                    child: LibraryCoverImage(
+                      title: widget.title,
+                      itemNumber: widget.itemNumber,
+                      imageUrl: widget.imageUrl,
+                      localBase64: widget.localBase64,
+                      ownedItemId: widget.ownedItemId,
+                      borderRadius: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final interactive = _canPreview;
+    final hoverCue = interactive && widget.enableHoverCue;
+    return MouseRegion(
+      cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
+      onEnter: hoverCue ? (_) => setState(() => _hovered = true) : null,
+      onExit: hoverCue ? (_) => setState(() => _hovered = false) : null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: interactive ? _openPreview : null,
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 170),
+          curve: Curves.easeOutCubic,
+          scale: _hovered ? 1.02 : 1,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 170),
+                curve: Curves.easeOutCubic,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                  boxShadow: [
+                    if (_hovered)
+                      BoxShadow(
+                        color: widget.accentColor.withValues(alpha: 0.28),
+                        blurRadius: 18,
+                        spreadRadius: 1.5,
+                        offset: const Offset(0, 6),
+                      ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: LibraryCoverImage(
+                  title: widget.title,
+                  itemNumber: widget.itemNumber,
+                  imageUrl: widget.imageUrl,
+                  localBase64: widget.localBase64,
+                  ownedItemId: widget.ownedItemId,
+                  borderRadius: widget.borderRadius,
+                ),
+              ),
+              IgnorePointer(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 170),
+                  opacity: _hovered ? 1 : 0,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(widget.borderRadius),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0x00000000),
+                          Color(0x22000000),
+                          Color(0xCC030303),
+                        ],
+                      ),
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: const Color(0xCC050505),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: widget.accentColor.withValues(alpha: 0.7),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.open_in_full,
+                                  size: 14,
+                                  color: widget.accentColor,
+                                ),
+                                const SizedBox(width: 6),
+                                const Text(
+                                  'Open cover',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class LibraryGeneratedCover extends StatelessWidget {
   const LibraryGeneratedCover({
     required this.title,

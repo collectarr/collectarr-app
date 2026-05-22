@@ -361,9 +361,10 @@ class LibraryWorkspace extends StatelessWidget {
       LibraryTableColumn.country => LibraryTableCellText(entry.country),
       LibraryTableColumn.language => LibraryTableCellText(entry.language),
       LibraryTableColumn.pageCount =>
-        LibraryTableCellText(entry.pageCount?.toString()),
+        LibraryTableCellText(entry.publishing?.pageCount?.toString()),
       LibraryTableColumn.ageRating => LibraryTableCellText(entry.ageRating),
-      LibraryTableColumn.imprint => LibraryTableCellText(entry.imprint),
+      LibraryTableColumn.imprint =>
+        LibraryTableCellText(entry.publishing?.imprint),
     };
   }
 }
@@ -456,10 +457,12 @@ class _GroupedGridState extends State<_GroupedGrid> {
 
     // Check if any item has volume/season data worth sub-grouping.
     final hasSubGroups = items.any(
-      (item) =>
-          item.entry.volumeName != null ||
-          item.entry.volumeNumber != null ||
-          item.entry.seasonNumber != null,
+      (item) {
+        final series = item.entry.series;
+        return series?.volumeName != null ||
+            series?.volumeNumber != null ||
+            series?.seasonNumber != null;
+      },
     );
     if (!hasSubGroups) {
       return [_buildGrid(items)];
@@ -536,14 +539,15 @@ class _GroupedGridState extends State<_GroupedGrid> {
   }
 
   static String _subGroupKey(LibraryWorkspaceEntry entry) {
-    if (entry.seasonNumber != null) {
-      return 'Season ${entry.seasonNumber}';
+    final series = entry.series;
+    if (series?.seasonNumber != null) {
+      return 'Season ${series!.seasonNumber}';
     }
-    if (entry.volumeName != null && entry.volumeName!.trim().isNotEmpty) {
-      return entry.volumeName!.trim();
+    if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
+      return series.volumeName!.trim();
     }
-    if (entry.volumeNumber != null) {
-      return 'Vol. ${entry.volumeNumber}';
+    if (series?.volumeNumber != null) {
+      return 'Vol. ${series!.volumeNumber}';
     }
     return '—';
   }

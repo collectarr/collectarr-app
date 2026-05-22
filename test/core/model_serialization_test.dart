@@ -58,6 +58,7 @@ void main() {
     expect(item.coverImageUrl, 'https://cdn.example/full.jpg');
     expect(item.thumbnailImageUrl, 'https://cdn.example/thumb.jpg');
     expect(item.displayCoverUrl, 'https://cdn.example/thumb.jpg');
+    expect(item, isA<ComicCatalogItem>());
   });
 
   test('catalog item builds sync snapshot payload', () {
@@ -93,21 +94,104 @@ void main() {
       'title': 'Discovery',
       'publisher': 'Daft Life',
       'catalog_number': 'DISC-2001',
+      'track_count': 2,
+      'tracks': [
+        {
+          'position': 1,
+          'title': 'One More Time',
+          'duration_seconds': 320,
+        },
+        {
+          'position': 2,
+          'title': 'Aerodynamic',
+          'duration_seconds': 212,
+        },
+      ],
       'platforms': ['CD', 'Digital'],
       'release_status': 'Official',
       'release_date': '2001-03-12T00:00:00.000Z',
     });
 
-    expect(item.catalogNumber, 'DISC-2001');
-    expect(item.platforms, ['CD', 'Digital']);
-    expect(item.releaseStatus, 'Official');
+    expect(item.music, isNotNull);
+    expect(item, isA<MusicCatalogItem>());
+    expect(item.music!.catalogNumber, 'DISC-2001');
+    expect(item.music!.trackCount, 2);
+    expect(item.music!.tracks, hasLength(2));
+    expect(item.music!.tracks.first.title, 'One More Time');
+    expect(item.rawPlatforms, ['CD', 'Digital']);
+    expect(item.music!.releaseStatus, 'Official');
 
     final payload = item.toSyncPayload();
 
     expect(payload['catalog_number'], 'DISC-2001');
+    expect(payload['track_count'], 2);
+    expect((payload['tracks'] as List).first['title'], 'One More Time');
     expect(payload['platforms'], ['CD', 'Digital']);
     expect(payload['release_status'], 'Official');
     expect(payload['release_date'], '2001-03-12T00:00:00.000Z');
+  });
+
+  test('catalog item exposes typed detail views for non-music media', () {
+    final item = CatalogItem.fromJson({
+      'id': 'movie-1',
+      'kind': 'movie',
+      'title': 'Blade Runner 2049',
+      'series_id': 'franchise-1',
+      'series_title': 'Blade Runner',
+      'season_number': 1,
+      'episode_number': 2,
+      'runtime_minutes': 164,
+      'platforms': ['Blu-ray'],
+      'page_count': 220,
+      'cover_price_cents': 2599,
+      'currency': 'USD',
+      'imprint': 'Warner Archive',
+      'subtitle': 'Collector Edition',
+      'series_group': 'Sci-Fi Classics',
+    });
+
+    expect(item.series, isNotNull);
+    expect(item.series!.seriesTitle, 'Blade Runner');
+    expect(item.series!.hasSeason, isTrue);
+    expect(item, isA<MovieCatalogItem>());
+    expect(item.video, isNotNull);
+    expect(item.video!.runtimeMinutes, 164);
+    expect(item.publishing, isNotNull);
+    expect(item.publishing!.pageCount, 220);
+    expect(item.publishing!.imprint, 'Warner Archive');
+    expect(item.game, isNull);
+  });
+
+  test('provider preview parses music tracks', () {
+    final preview = AdminProviderPreview.fromJson({
+      'provider': 'musicbrainz',
+      'provider_item_id': 'release-1',
+      'kind': 'music',
+      'title': 'Discovery',
+      'track_count': 2,
+      'tracks': [
+        {
+          'position': 1,
+          'title': 'One More Time',
+          'duration_seconds': 320,
+          'artist': 'Daft Punk',
+          'disc_number': 1,
+        },
+        {
+          'position': 2,
+          'title': 'Aerodynamic',
+          'duration_seconds': 212,
+          'artist': 'Daft Punk',
+          'disc_number': 1,
+        },
+      ],
+    });
+
+    expect(preview.trackCount, 2);
+    expect(preview.tracks, hasLength(2));
+    expect(preview.tracks.first.title, 'One More Time');
+    expect(preview.tracks.first.durationSeconds, 320);
+    expect(preview.tracks.first.artist, 'Daft Punk');
   });
 
   test('admin duplicate candidate parses score and recommended target', () {

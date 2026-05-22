@@ -27,9 +27,9 @@ void main() {
     expect(candidate.summary, 'A provider candidate.');
     expect(candidate.imageUrl, 'https://example.test/cover.jpg');
     expect(candidate.candidateType, 'issue');
-    expect(candidate.seriesTitle, 'The Amazing Spider-Man');
+    expect(candidate.series?.seriesTitle, 'The Amazing Spider-Man');
     expect(candidate.issueNumber, '1');
-    expect(candidate.volumeStartYear, 1963);
+    expect(candidate.series?.volumeStartYear, 1963);
     expect(candidate.variantName, 'Regular Cover');
     expect(candidate.isVariant, isFalse);
     expect(candidate.characterPreview, ['Spider-Man', 'Aunt May']);

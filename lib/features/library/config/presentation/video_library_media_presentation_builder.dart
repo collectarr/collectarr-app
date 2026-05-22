@@ -21,9 +21,12 @@ class VideoLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final hasVolume = entry.volumeName != null || entry.volumeNumber != null;
-    final hasSeason = entry.seasonNumber != null;
-    final hasEpisode = entry.episodeNumber != null;
+    final series = entry.series;
+    final publishing = entry.publishing;
+    final video = entry.video;
+    final hasVolume = series?.hasVolume ?? false;
+    final hasSeason = series?.hasSeason ?? false;
+    final hasEpisode = series?.hasEpisode ?? false;
     return LibraryMetadataPresentation(
       identityFacts: [
         if (includeIdentityFacts) ...[
@@ -31,25 +34,25 @@ class VideoLibraryMediaPresentationBuilder
           LibraryInspectorFactData('ID', entry.id),
           LibraryInspectorFactData('Title', entry.title),
         ],
-        if (entry.seriesTitle != null)
+        if (series?.seriesTitle != null)
           LibraryInspectorFactData(
             'Series',
-            entry.seriesTitle!,
-            onTap: tapFor(entry.seriesTitle),
+            series!.seriesTitle!,
+            onTap: tapFor(series.seriesTitle),
           ),
         if (hasSeason && hasEpisode)
           LibraryInspectorFactData(
             'Season / Episode',
-            'Season ${entry.seasonNumber}, Ep. ${entry.episodeNumber}',
+            'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}',
           ),
         if (hasSeason && !hasEpisode)
-          LibraryInspectorFactData('Season', 'Season ${entry.seasonNumber}'),
+          LibraryInspectorFactData('Season', 'Season ${series!.seasonNumber}'),
         if (!hasSeason && hasEpisode)
-          LibraryInspectorFactData('Episode', 'Ep. ${entry.episodeNumber}'),
+          LibraryInspectorFactData('Episode', 'Ep. ${series!.episodeNumber}'),
         if (hasVolume && !hasSeason)
           LibraryInspectorFactData(
             'Volume',
-            entry.volumeName ?? 'Vol. ${entry.volumeNumber}',
+            series!.volumeName ?? 'Vol. ${series.volumeNumber}',
           ),
         if (entry.variant != null)
           LibraryInspectorFactData(
@@ -74,16 +77,16 @@ class VideoLibraryMediaPresentationBuilder
                 entry.releaseYear?.toString(),
           ),
         ),
-        if (entry.runtimeMinutes != null)
-          LibraryInspectorFactData('Runtime', '${entry.runtimeMinutes} min'),
+        if (video?.runtimeMinutes != null)
+          LibraryInspectorFactData('Runtime', '${video!.runtimeMinutes} min'),
         if (entry.country != null)
           LibraryInspectorFactData('Country', entry.country!),
         if (entry.language != null)
           LibraryInspectorFactData('Language', entry.language!),
         if (entry.ageRating != null)
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
-        if (entry.subtitle != null)
-          LibraryInspectorFactData('Subtitle', entry.subtitle!),
+        if (publishing?.subtitle != null)
+          LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
         LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
         LibraryInspectorFactData(
           'Metadata',

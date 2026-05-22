@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
+
 class AdminProviderStatus {
   const AdminProviderStatus({
     required this.name,
@@ -121,31 +123,6 @@ class ProviderPreviewCredit {
   }
 }
 
-class ProviderPreviewTrack {
-  const ProviderPreviewTrack({
-    this.position,
-    required this.title,
-    this.durationSeconds,
-    this.artist,
-    this.discNumber,
-  });
-  final int? position;
-  final String title;
-  final int? durationSeconds;
-  final String? artist;
-  final int? discNumber;
-
-  factory ProviderPreviewTrack.fromJson(Map<String, dynamic> json) {
-    return ProviderPreviewTrack(
-      position: json['position'] as int?,
-      title: json['title'] as String,
-      durationSeconds: json['duration_seconds'] as int?,
-      artist: json['artist'] as String?,
-      discNumber: json['disc_number'] as int?,
-    );
-  }
-}
-
 class AdminProviderPreview {
   const AdminProviderPreview({
     required this.provider,
@@ -154,12 +131,7 @@ class AdminProviderPreview {
     required this.title,
     this.itemNumber,
     this.synopsis,
-    this.seriesTitle,
-    this.volumeName,
-    this.volumeNumber,
-    this.volumeStartYear,
     this.publisher,
-    this.imprint,
     this.editionTitle,
     this.editionFormat,
     this.physicalFormat,
@@ -169,24 +141,18 @@ class AdminProviderPreview {
     this.isbn,
     this.variantName,
     this.coverImageUrl,
-    this.coverPriceCents,
-    this.currency,
+    this.series,
+    this.publishing,
+    this.video,
+    this.music,
+    this.game,
     this.country,
     this.language,
     this.ageRating,
-    this.subtitle,
-    this.seriesGroup,
-    this.pageCount,
-    this.runtimeMinutes,
-    this.trackCount,
-    this.catalogNumber,
     this.creators = const [],
     this.characters = const [],
     this.storyArcs = const [],
-    this.platforms = const [],
     this.genres = const [],
-    this.releaseStatus,
-    this.tracks = const [],
   });
 
   final String provider;
@@ -195,12 +161,7 @@ class AdminProviderPreview {
   final String title;
   final String? itemNumber;
   final String? synopsis;
-  final String? seriesTitle;
-  final String? volumeName;
-  final int? volumeNumber;
-  final int? volumeStartYear;
   final String? publisher;
-  final String? imprint;
   final String? editionTitle;
   final String? editionFormat;
   final String? physicalFormat;
@@ -210,26 +171,53 @@ class AdminProviderPreview {
   final String? isbn;
   final String? variantName;
   final String? coverImageUrl;
-  final int? coverPriceCents;
-  final String? currency;
+  final CatalogSeriesDetails? series;
+  final CatalogPublishingDetails? publishing;
+  final VideoCatalogDetails? video;
+  final MusicCatalogDetails? music;
+  final GameCatalogDetails? game;
   final String? country;
   final String? language;
   final String? ageRating;
-  final String? subtitle;
-  final String? seriesGroup;
-  final int? pageCount;
-  final int? runtimeMinutes;
-  final int? trackCount;
-  final String? catalogNumber;
   final List<ProviderPreviewCredit> creators;
   final List<String> characters;
   final List<String> storyArcs;
-  final List<String> platforms;
   final List<String> genres;
-  final String? releaseStatus;
-  final List<ProviderPreviewTrack> tracks;
 
   factory AdminProviderPreview.fromJson(Map<String, dynamic> json) {
+    final tracks = (json['tracks'] as List<dynamic>?)
+            ?.map((e) => CatalogTrack.fromJson(e as Map<String, dynamic>))
+            .toList(growable: false) ??
+        const <CatalogTrack>[];
+    final series = CatalogSeriesDetails(
+      seriesTitle: json['series_title'] as String?,
+      volumeName: json['volume_name'] as String?,
+      volumeNumber: json['volume_number'] as int?,
+      volumeStartYear: json['volume_start_year'] as int?,
+    );
+    final publishing = CatalogPublishingDetails(
+      pageCount: json['page_count'] as int?,
+      coverPriceCents: json['cover_price_cents'] as int?,
+      currency: json['currency'] as String?,
+      imprint: json['imprint'] as String?,
+      subtitle: json['subtitle'] as String?,
+      seriesGroup: json['series_group'] as String?,
+    );
+    final video = VideoCatalogDetails(
+      runtimeMinutes: json['runtime_minutes'] as int?,
+    );
+    final music = MusicCatalogDetails(
+      trackCount: json['track_count'] as int?,
+      tracks: tracks,
+      catalogNumber: json['catalog_number'] as String?,
+      releaseStatus: json['release_status'] as String?,
+    );
+    final game = GameCatalogDetails(
+      platforms: (json['platforms'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList(growable: false) ??
+          const [],
+    );
     return AdminProviderPreview(
       provider: json['provider'] as String,
       providerItemId: json['provider_item_id'] as String,
@@ -237,12 +225,7 @@ class AdminProviderPreview {
       title: json['title'] as String,
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
-      seriesTitle: json['series_title'] as String?,
-      volumeName: json['volume_name'] as String?,
-      volumeNumber: json['volume_number'] as int?,
-      volumeStartYear: json['volume_start_year'] as int?,
       publisher: json['publisher'] as String?,
-      imprint: json['imprint'] as String?,
       editionTitle: json['edition_title'] as String?,
       editionFormat: json['edition_format'] as String?,
       physicalFormat: json['physical_format'] as String?,
@@ -254,17 +237,14 @@ class AdminProviderPreview {
       isbn: json['isbn'] as String?,
       variantName: json['variant_name'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
-      coverPriceCents: json['cover_price_cents'] as int?,
-      currency: json['currency'] as String?,
+      series: series.hasData ? series : null,
+      publishing: publishing.hasData ? publishing : null,
+      video: video.hasData ? video : null,
+      music: music.hasData ? music : null,
+      game: game.hasData ? game : null,
       country: json['country'] as String?,
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,
-      subtitle: json['subtitle'] as String?,
-      seriesGroup: json['series_group'] as String?,
-      pageCount: json['page_count'] as int?,
-      runtimeMinutes: json['runtime_minutes'] as int?,
-      trackCount: json['track_count'] as int?,
-        catalogNumber: json['catalog_number'] as String?,
       creators: (json['creators'] as List<dynamic>?)
               ?.map((e) =>
                   ProviderPreviewCredit.fromJson(e as Map<String, dynamic>))
@@ -278,18 +258,8 @@ class AdminProviderPreview {
               ?.map((e) => e as String)
               .toList(growable: false) ??
           const [],
-        platforms: (json['platforms'] as List<dynamic>?)
-            ?.map((e) => e as String)
-            .toList(growable: false) ??
-          const [],
       genres: (json['genres'] as List<dynamic>?)
               ?.map((e) => e as String)
-              .toList(growable: false) ??
-          const [],
-        releaseStatus: json['release_status'] as String?,
-      tracks: (json['tracks'] as List<dynamic>?)
-              ?.map((e) =>
-                  ProviderPreviewTrack.fromJson(e as Map<String, dynamic>))
               .toList(growable: false) ??
           const [],
     );
@@ -744,14 +714,10 @@ class AdminMetadataItem {
     required this.title,
     this.itemNumber,
     this.synopsis,
-    this.seriesTitle,
-    this.volumeName,
-    this.volumeStartYear,
     this.publisher,
     this.barcode,
-    this.pageCount,
-    this.coverPriceCents,
-    this.currency,
+    this.series,
+    this.publishing,
     this.coverDate,
     this.storeDate,
     this.providerLinks = const [],
@@ -763,14 +729,10 @@ class AdminMetadataItem {
   final String title;
   final String? itemNumber;
   final String? synopsis;
-  final String? seriesTitle;
-  final String? volumeName;
-  final int? volumeStartYear;
   final String? publisher;
   final String? barcode;
-  final int? pageCount;
-  final int? coverPriceCents;
-  final String? currency;
+  final CatalogSeriesDetails? series;
+  final CatalogPublishingDetails? publishing;
   final DateTime? coverDate;
   final DateTime? storeDate;
   final List<AdminProviderLink> providerLinks;
@@ -803,20 +765,26 @@ class AdminMetadataItem {
       primaryVariant?.thumbnailImageUrl ?? primaryVariant?.coverImageUrl;
 
   factory AdminMetadataItem.fromJson(Map<String, dynamic> json) {
+    final series = CatalogSeriesDetails(
+      seriesTitle: json['series_title'] as String?,
+      volumeName: json['volume_name'] as String?,
+      volumeStartYear: json['volume_start_year'] as int?,
+    );
+    final publishing = CatalogPublishingDetails(
+      pageCount: json['page_count'] as int?,
+      coverPriceCents: json['cover_price_cents'] as int?,
+      currency: json['currency'] as String?,
+    );
     return AdminMetadataItem(
       id: json['id']?.toString() ?? '',
       kind: json['kind'] as String? ?? '',
       title: json['title'] as String? ?? '',
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
-      seriesTitle: json['series_title'] as String?,
-      volumeName: json['volume_name'] as String?,
-      volumeStartYear: json['volume_start_year'] as int?,
       publisher: json['publisher'] as String?,
       barcode: json['barcode'] as String?,
-      pageCount: json['page_count'] as int?,
-      coverPriceCents: json['cover_price_cents'] as int?,
-      currency: json['currency'] as String?,
+      series: series.hasData ? series : null,
+      publishing: publishing.hasData ? publishing : null,
       coverDate: _parseDate(json['cover_date'] as String?),
       storeDate: _parseDate(json['store_date'] as String?),
       providerLinks: [

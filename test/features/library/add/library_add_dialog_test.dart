@@ -135,6 +135,17 @@ void main() {
     expect(api.lastProviderKind, 'manga');
     expect(api.lastProviderQuery, 'Naruto');
     expect(find.textContaining('A ninja candidate.'), findsWidgets);
+    expect(find.text('Select a manga to add'), findsOneWidget);
+    expect(find.byTooltip('Queue Core ingest'), findsNothing);
+    expect(find.byTooltip('Propose metadata to Core'), findsNothing);
+
+    final providerCandidate = find.byKey(
+      const ValueKey('provider:anilist:manga:anilist-1'),
+    );
+    await tester.ensureVisible(providerCandidate);
+    await tester.tap(providerCandidate);
+    await tester.pumpAndSettle();
+
     expect(find.text('Add as owned'), findsOneWidget);
     expect(find.byTooltip('Queue Core ingest'), findsOneWidget);
     expect(find.byTooltip('Propose metadata to Core'), findsOneWidget);
@@ -338,7 +349,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text('Enter a title, artist, creator, or keyword.'),
+      find.text('Enter an album, artist, release, or label.'),
       findsOneWidget,
     );
   });
@@ -394,6 +405,7 @@ void main() {
     expect(find.textContaining('A ninja candidate.'), findsWidgets);
     expect(find.text('Matched on: Artist'), findsOneWidget);
   });
+
 }
 
 class _FakeLibraryAddApiClient extends ApiClient {
@@ -511,6 +523,34 @@ class _FakeLibraryAddApiClient extends ApiClient {
       'id': 'proposal-1',
       'status': 'pending',
     };
+  }
+
+  @override
+  Future<AdminProviderPreview> providerPreview({
+    required String provider,
+    required String providerItemId,
+  }) async {
+    return AdminProviderPreview.fromJson({
+      'provider': provider,
+      'provider_item_id': providerItemId,
+      'kind': 'music',
+      'title': 'Provider result Discovery',
+      'series_title': 'Daft Punk',
+      'publisher': 'Virgin',
+      'track_count': 2,
+      'tracks': [
+        {
+          'position': 1,
+          'title': 'One More Time',
+          'duration_seconds': 320,
+        },
+        {
+          'position': 2,
+          'title': 'Aerodynamic',
+          'duration_seconds': 212,
+        },
+      ],
+    });
   }
 
   @override

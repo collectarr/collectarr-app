@@ -407,7 +407,7 @@ _MetadataHealth _buildMetadataHealth(LibraryWorkspaceEntry entry) {
     missingLabel: 'Release date',
   );
   addSignal(
-    present: entry.seriesTitle?.trim().isNotEmpty ?? false,
+    present: entry.series?.seriesTitle?.trim().isNotEmpty ?? false,
     weight: 10,
     missingLabel: 'Series',
   );

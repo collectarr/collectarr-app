@@ -186,12 +186,15 @@ LibraryProjectionItem? librarySelectedItem(
   List<LibraryProjectionItem> items,
   String? selectedItemId,
 ) {
+  if (selectedItemId == null) {
+    return null;
+  }
   for (final item in items) {
     if (item.entry.id == selectedItemId) {
       return item;
     }
   }
-  return items.isEmpty ? null : items.first;
+  return null;
 }
 
 String genericBucketForItem(LibraryProjectionItem item, LibraryTypeConfig type) {
@@ -235,9 +238,9 @@ String genericBucketForItemMode(
 }
 
 String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
-  final series = entry.seriesTitle?.trim();
-  if (series != null && series.isNotEmpty) {
-    return series;
+  final seriesTitle = entry.series?.seriesTitle?.trim();
+  if (seriesTitle != null && seriesTitle.isNotEmpty) {
+    return seriesTitle;
   }
   final title = entry.title.trim();
   return title.isEmpty ? unknownLabel : title;

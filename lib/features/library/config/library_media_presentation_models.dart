@@ -156,20 +156,21 @@ abstract class LibraryMediaPresentationBuilder {
       includeIdentityFacts: true,
       tapFor: _tapResolver(onFilterByValue),
     );
+    final series = entry.series;
     final identityFacts = presentation.identityFacts.map((fact) {
       if (fact.label == 'Series' &&
-          entry.seriesId != null &&
-          entry.seriesId!.trim().isNotEmpty &&
-          entry.seriesTitle != null &&
-          entry.seriesTitle!.trim().isNotEmpty) {
+          series?.seriesId != null &&
+          series!.seriesId!.trim().isNotEmpty &&
+          series.seriesTitle != null &&
+          series.seriesTitle!.trim().isNotEmpty) {
         return LibraryInspectorFactData(
           fact.label,
           fact.value,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => SeriesDetailPage(
-                seriesId: entry.seriesId!,
-                seriesTitle: entry.seriesTitle!,
+                seriesId: series.seriesId!,
+                seriesTitle: series.seriesTitle!,
               ),
             ),
           ),

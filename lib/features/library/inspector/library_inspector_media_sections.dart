@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ class InspectorTrackList extends StatelessWidget {
     this.title,
   });
 
-  final List<Map<String, dynamic>> tracks;
+  final List<CatalogTrack> tracks;
   final int? trackCount;
   final Color accent;
   final String? coverUrl;
@@ -27,8 +28,8 @@ class InspectorTrackList extends StatelessWidget {
   String? get _totalDuration {
     var total = 0;
     for (final track in tracks) {
-      final dur = track['duration_seconds'];
-      if (dur is int) {
+      final dur = track.durationSeconds;
+      if (dur != null) {
         total += dur;
       }
     }
@@ -64,7 +65,7 @@ class InspectorTrackList extends StatelessWidget {
                 SizedBox(
                   width: 22,
                   child: Text(
-                    '${track['position'] ?? '-'}',
+                    '${track.position ?? '-'}',
                     style: textTheme.bodySmall?.copyWith(
                       color: Colors.white54,
                       fontWeight: FontWeight.w700,
@@ -75,7 +76,7 @@ class InspectorTrackList extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    track['title'] as String? ?? 'Untitled',
+                    track.title,
                     style: textTheme.bodySmall?.copyWith(
                       color: accent,
                       fontWeight: FontWeight.w600,
@@ -84,12 +85,11 @@ class InspectorTrackList extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (track['duration_seconds'] != null &&
-                    track['duration_seconds'] is int)
+                if (track.durationSeconds != null)
                   Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: Text(
-                      _formatDuration(track['duration_seconds'] as int),
+                      _formatDuration(track.durationSeconds!),
                       style: textTheme.bodySmall?.copyWith(
                         color: Colors.white54,
                       ),
@@ -116,9 +116,10 @@ class InspectorTrackList extends StatelessWidget {
                 child: SizedBox(
                   width: 140,
                   height: 140,
-                  child: LibraryCoverImage(
+                  child: LibraryInteractiveCover(
                     title: title ?? '',
                     imageUrl: coverUrl,
+                    accentColor: accent,
                   ),
                 ),
               ),

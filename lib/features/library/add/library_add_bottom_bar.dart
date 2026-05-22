@@ -28,7 +28,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final CatalogItem? selectedItem;
+  final LibraryMetadataItem? selectedItem;
   final ProviderCandidate? selectedCandidate;
   final _QueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;

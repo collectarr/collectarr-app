@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class ProviderCandidate {
   const ProviderCandidate({
@@ -9,9 +10,8 @@ class ProviderCandidate {
     this.summary,
     this.imageUrl,
     this.candidateType,
-    this.seriesTitle,
     this.issueNumber,
-    this.volumeStartYear,
+    this.series,
     this.variantName,
     this.isVariantOverride,
     this.publisher,
@@ -27,9 +27,8 @@ class ProviderCandidate {
   final String? summary;
   final String? imageUrl;
   final String? candidateType;
-  final String? seriesTitle;
   final String? issueNumber;
-  final int? volumeStartYear;
+  final CatalogSeriesDetails? series;
   final String? variantName;
   final bool? isVariantOverride;
   final String? publisher;
@@ -47,6 +46,10 @@ class ProviderCandidate {
         'Provider candidate response did not include kind',
       );
     }
+    final series = CatalogSeriesDetails(
+      seriesTitle: json['series_title'] as String?,
+      volumeStartYear: json['volume_start_year'] as int?,
+    );
     return ProviderCandidate(
       provider: json['provider'] as String,
       providerItemId: json['provider_item_id'] as String,
@@ -55,9 +58,8 @@ class ProviderCandidate {
       summary: json['summary'] as String?,
       imageUrl: json['image_url'] as String?,
       candidateType: json['candidate_type'] as String?,
-      seriesTitle: json['series_title'] as String?,
       issueNumber: json['issue_number'] as String?,
-      volumeStartYear: json['volume_start_year'] as int?,
+      series: series.hasData ? series : null,
       variantName: json['variant_name'] as String?,
       isVariantOverride: json['is_variant'] as bool?,
       publisher: json['publisher'] as String?,
@@ -67,8 +69,8 @@ class ProviderCandidate {
     );
   }
 
-  CatalogItem placeholderCatalogItem() {
-    return CatalogItem(
+  LibraryMetadataItem placeholderItem() {
+    return LibraryMetadataItem(
       id: localCatalogId,
       kind: kind,
       title: title,
@@ -76,10 +78,14 @@ class ProviderCandidate {
       synopsis: summary,
       coverImageUrl: imageUrl,
       thumbnailImageUrl: imageUrl,
-      releaseYear: volumeStartYear,
+      releaseYear: series?.volumeStartYear,
       variant: variantName,
+      publisher: publisher,
+      series: series,
     );
   }
+
+  CatalogItem placeholderCatalogItem() => placeholderItem().toCatalogItem();
 
   bool get isStub {
     return providerItemId.startsWith('stub-') ||

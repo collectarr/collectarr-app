@@ -8,7 +8,7 @@ void main() {
   test('library entry exposes shared ownership and tracking state', () {
     final entry = LibraryEntry(
       itemId: 'comic-1',
-      catalogItem: const CatalogItem(
+      catalogItem: CatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga',

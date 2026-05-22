@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -26,7 +27,7 @@ class LibraryEditDialog extends StatefulWidget {
   });
 
   final LibraryTypeConfig type;
-  final CatalogItem item;
+  final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final Color accent;
   final List<PhysicalMediaFormat> physicalFormats;
@@ -137,9 +138,11 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
         TextEditingController(text: item.thumbnailImageUrl ?? '');
     _synopsisController = TextEditingController(text: item.synopsis ?? '');
 
-    _imprintController = TextEditingController(text: item.imprint ?? '');
+    _imprintController = TextEditingController(
+      text: item.publishing?.imprint ?? '',
+    );
     _seriesGroupController =
-        TextEditingController(text: item.seriesGroup ?? '');
+      TextEditingController(text: item.publishing?.seriesGroup ?? '');
 
     _conditionController = TextEditingController(text: owned?.condition ?? '');
     _gradeController = TextEditingController(text: owned?.grade ?? '');
@@ -1015,10 +1018,16 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final updatedPublishing = CatalogPublishingDetails(
+      pageCount: widget.item.publishing?.pageCount,
+      coverPriceCents: widget.item.publishing?.coverPriceCents,
+      currency: widget.item.publishing?.currency,
+      imprint: emptyToNull(_imprintController.text),
+      subtitle: widget.item.publishing?.subtitle,
+      seriesGroup: emptyToNull(_seriesGroupController.text),
+    );
     final selection = LibraryEditSelection(
-      catalogItem: CatalogItem(
-        id: widget.item.id,
-        kind: widget.item.kind,
+      item: widget.item.copyWith(
         title: _titleController.text.trim(),
         itemNumber: emptyToNull(_numberController.text),
         synopsis: emptyToNull(_synopsisController.text),
@@ -1032,8 +1041,7 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
         releaseYear: parseInt(_releaseYearController.text),
         barcode: emptyToNull(_barcodeController.text),
         variant: emptyToNull(_variantController.text),
-        imprint: emptyToNull(_imprintController.text),
-        seriesGroup: emptyToNull(_seriesGroupController.text),
+        publishing: updatedPublishing.hasData ? updatedPublishing : null,
       ),
       personal: widget.ownedItem == null
           ? null
@@ -1068,7 +1076,7 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
     Navigator.of(context).pop(selection);
   }
 
-  String? _initialPhysicalFormatId(CatalogItem item) {
+  String? _initialPhysicalFormatId(LibraryMetadataItem item) {
     final configured = _physicalFormatForId(item.physicalFormat);
     if (configured != null) return configured.id;
     final byLabel = physicalMediaFormatByLabelOrId(
@@ -1095,13 +1103,13 @@ class _LibraryEditDialogState extends State<LibraryEditDialog>
 
 class LibraryEditSelection {
   const LibraryEditSelection({
-    required this.catalogItem,
+    required this.item,
     required this.personal,
     this.customFieldEdits = const {},
     this.itemImageEdits = const [],
   });
 
-  final CatalogItem catalogItem;
+  final LibraryMetadataItem item;
   final LibraryPersonalEditSelection? personal;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;

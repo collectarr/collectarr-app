@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
@@ -401,7 +402,7 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: catalogUpdated ? 'Absolute Batman Deluxe' : 'Absolute Batman',
         itemNumber: '1A',
-        seriesTitle: 'Absolute Batman',
+        series: const CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
         publisher: 'DC Comics',
         barcode: '76194138584600111',
         editions: const [
@@ -644,7 +645,7 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: 'Absolute Batman',
         itemNumber: '1A',
-        seriesTitle: 'Absolute Batman',
+        series: CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
         publisher: 'DC Comics',
         editions: [
           AdminEdition(
@@ -686,10 +687,10 @@ class _FakeAdminApiClient extends ApiClient {
       kind: 'comic',
       title: 'Absolute Batman',
       itemNumber: '1B',
-      seriesTitle: 'Absolute Batman',
+      series: CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
       publisher: 'DC Comics',
       barcode: '76194138584600121',
-      pageCount: 48,
+      publishing: CatalogPublishingDetails(pageCount: 48),
       providerLinks: [
         AdminProviderLink(
           provider: 'gcd',
@@ -755,10 +756,10 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: 'Absolute Batman',
         itemNumber: '1A',
-        seriesTitle: 'Absolute Batman',
+        series: const CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
         publisher: 'DC Comics',
         barcode: '76194138584600111',
-        pageCount: 48,
+        publishing: const CatalogPublishingDetails(pageCount: 48),
         coverDate: null,
         storeDate: null,
         providerLinks: [

@@ -402,8 +402,8 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
     barcode: 'Barcode / Catalog no.',
   ),
   searchFieldLabels: LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter title, artist, creator, or keyword...',
-    emptySearchMessage: 'Enter a title, artist, creator, or keyword.',
+    queryHint: 'Enter album, artist, release, or label...',
+    emptySearchMessage: 'Enter an album, artist, release, or label.',
     seriesHint: 'Artist...',
     numberHint: 'Album / Release...',
     publisherHint: 'Label...',

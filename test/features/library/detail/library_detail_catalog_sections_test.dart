@@ -20,7 +20,7 @@ void main() {
               title: 'Discovery',
               publisher: 'Virgin',
               releaseYear: 2001,
-              trackCount: 14,
+              music: const MusicCatalogDetails(trackCount: 14),
               genres: const ['House', 'Electronic'],
               updatedAt: DateTime(2026, 1, 1),
             ),

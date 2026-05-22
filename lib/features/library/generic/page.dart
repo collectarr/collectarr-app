@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
@@ -729,7 +730,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       context: context,
       request: LibraryEditDialogRequest(
         type: widget.type,
-        item: catalogItem,
+        item: LibraryMetadataItem.fromCatalogItem(catalogItem),
         ownedItem: owned,
         accent: widget.accent,
         physicalFormats: physicalMediaFormatsForKind(
@@ -746,7 +747,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     }
     final mutations = ref.read(collectionMutationsProvider);
     await mutations.updateCatalogSnapshot(
-      result.catalogItem,
+      result.item.toCatalogItem(),
       notify: owned == null,
     );
     final personal = result.personal;

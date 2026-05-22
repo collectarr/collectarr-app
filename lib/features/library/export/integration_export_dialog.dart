@@ -104,10 +104,11 @@ class _IntegrationExportDialog extends StatelessWidget {
     for (final entry in shelfState.entries) {
       final cat = entry.catalogItem;
       final own = entry.ownedItem;
+      final series = cat?.series;
       buffer.writeln([
         _escapeCsv(entry.title),
         _escapeCsv(cat?.itemNumber ?? ''),
-        _escapeCsv(cat?.seriesTitle ?? ''),
+        _escapeCsv(series?.seriesTitle ?? ''),
         _escapeCsv(cat?.publisher ?? ''),
         _escapeCsv(cat?.barcode ?? ''),
         _escapeCsv(own?.condition ?? ''),
@@ -122,10 +123,11 @@ class _IntegrationExportDialog extends StatelessWidget {
         .map((e) {
           final cat = e.catalogItem;
           final own = e.ownedItem;
+          final series = cat?.series;
           return {
             'title': e.title,
             if (cat?.itemNumber != null) 'issue': cat!.itemNumber,
-            if (cat?.seriesTitle != null) 'series': cat!.seriesTitle,
+            if (series?.seriesTitle != null) 'series': series!.seriesTitle,
             if (cat?.publisher != null) 'publisher': cat!.publisher,
             if (cat?.barcode != null) 'barcode': cat!.barcode,
             if (own?.condition != null) 'condition': own!.condition,
@@ -149,13 +151,14 @@ class _IntegrationExportDialog extends StatelessWidget {
     for (final entry in shelfState.entries) {
       final cat = entry.catalogItem;
       final own = entry.ownedItem;
+      final series = cat?.series;
       buffer.writeln('  <item>');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
       if (cat?.itemNumber != null) {
         buffer.writeln('    <issue>${_escapeXml(cat!.itemNumber!)}</issue>');
       }
-      if (cat?.seriesTitle != null) {
-        buffer.writeln('    <series>${_escapeXml(cat!.seriesTitle!)}</series>');
+      if (series?.seriesTitle != null) {
+        buffer.writeln('    <series>${_escapeXml(series!.seriesTitle!)}</series>');
       }
       if (cat?.publisher != null) {
         buffer.writeln('    <publisher>${_escapeXml(cat!.publisher!)}</publisher>');
@@ -180,9 +183,10 @@ class _IntegrationExportDialog extends StatelessWidget {
     buffer.writeln('');
     for (final entry in shelfState.entries) {
       final cat = entry.catalogItem;
+      final series = cat?.series;
       final parts = <String>[entry.title];
       if (cat?.itemNumber != null) parts.add('#${cat!.itemNumber!}');
-      if (cat?.seriesTitle != null) parts.add('(${cat!.seriesTitle!})');
+      if (series?.seriesTitle != null) parts.add('(${series!.seriesTitle!})');
       buffer.writeln('- [ ] ${parts.join(' ')}');
     }
     return buffer.toString();

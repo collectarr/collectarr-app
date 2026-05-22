@@ -42,7 +42,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final CatalogItem? item;
+  final LibraryMetadataItem? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
@@ -256,12 +256,9 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                     width: 200,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: Color.alphaBlend(
-                          accent.withValues(alpha: 0.08),
-                          const Color(0xFFF1ECE2),
-                        ),
-                        border: Border.all(color: const Color(0x99FFFFFF)),
-                        borderRadius: BorderRadius.circular(8),
+                        color: const Color(0x12000000),
+                        border: Border.all(color: const Color(0x52FFFFFF)),
+                        borderRadius: BorderRadius.circular(10),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0xCC000000),
@@ -274,10 +271,11 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         child: AspectRatio(
                           aspectRatio: 2 / 3,
-                          child: LibraryCoverImage(
+                          child: LibraryInteractiveCover(
                             title: title,
                             itemNumber: itemNumber,
                             imageUrl: coverUrl,
+                            accentColor: accent,
                             borderRadius: 6,
                           ),
                         ),
@@ -301,12 +299,12 @@ List<(String, String?)> _metadataRowsForCandidate(
   final labels = libraryMediaFieldLabels(type);
   final previewLabels = type.presentation.previewLabels;
   return [
-    if (candidate.seriesTitle != null)
-      (previewLabels.series, candidate.seriesTitle),
+    if (candidate.series?.seriesTitle != null)
+      (previewLabels.series, candidate.series!.seriesTitle),
     if (candidate.issueNumber != null) (labels.number, candidate.issueNumber),
     if (candidate.publisher != null) (labels.publisher, candidate.publisher),
-    if (candidate.volumeStartYear != null)
-      ('Year', candidate.volumeStartYear.toString()),
+    if (candidate.series?.volumeStartYear != null)
+      ('Year', candidate.series!.volumeStartYear.toString()),
     if (candidate.variantName != null) (labels.variant, candidate.variantName),
     if (candidate.issueCount != null)
       (previewLabels.itemCount, candidate.issueCount.toString()),
@@ -314,38 +312,44 @@ List<(String, String?)> _metadataRowsForCandidate(
 }
 
 List<(String, String?)> _metadataRowsForItem(
-  CatalogItem item,
+  LibraryMetadataItem item,
   LibraryTypeConfig type,
 ) {
   final labels = libraryMediaFieldLabels(type);
   final previewLabels = type.presentation.previewLabels;
+  final series = item.series;
+  final video = item.video;
+  final music = item.music;
+  final game = item.game;
+  final publishing = item.publishing;
   return [
-    if (item.seriesTitle != null) (previewLabels.series, item.seriesTitle),
+    if (series?.seriesTitle != null) (previewLabels.series, series!.seriesTitle),
     (labels.publisher, item.publisher),
     ('Released', item.releaseDate != null
         ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
         : item.releaseYear?.toString()),
-    if (item.runtimeMinutes != null) ('Runtime', '${item.runtimeMinutes} min'),
+    if (video?.runtimeMinutes != null) ('Runtime', '${video!.runtimeMinutes} min'),
     if (item.itemNumber != null) (labels.number, item.itemNumber),
     if (item.displayEditionLabel != null)
       (labels.variant, item.displayEditionLabel),
     (labels.barcode, item.barcode),
     if (type.capabilities.showsTrackData &&
-      item.trackCount != null)
-      ('Tracks', item.trackCount.toString()),
-    if (item.catalogNumber != null) ('Catalog No.', item.catalogNumber),
-    if (item.platforms != null && item.platforms!.isNotEmpty)
-      ('Platforms', item.platforms!.join(', ')),
-    if (item.pageCount != null) ('Pages', item.pageCount.toString()),
+      music?.trackCount != null)
+      ('Tracks', music!.trackCount.toString()),
+    if (music?.catalogNumber != null) ('Catalog No.', music!.catalogNumber),
+    if (game?.platforms case final platforms? when platforms.isNotEmpty)
+      ('Platforms', platforms.join(', ')),
+    if (publishing?.pageCount != null) ('Pages', publishing!.pageCount.toString()),
     if (item.country != null) ('Country', item.country),
-    if (item.releaseStatus != null) ('Release Status', item.releaseStatus),
+    if (music?.releaseStatus != null)
+      ('Release Status', music!.releaseStatus),
     if (item.language != null) ('Language', item.language),
   ];
 }
 
 List<(String, String?)> _provenanceRows({
   required LibraryTypeConfig type,
-  required CatalogItem? item,
+  required LibraryMetadataItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
   required String providerLabel,
@@ -506,16 +510,21 @@ List<(String, String?)> _metadataRowsForFullPreview(
 ) {
   final labels = libraryMediaFieldLabels(type);
   final previewLabels = type.presentation.previewLabels;
+  final series = preview.series;
+  final publishing = preview.publishing;
+  final music = preview.music;
+  final video = preview.video;
+  final game = preview.game;
   final releaseDateStr = preview.releaseDate != null
       ? '${preview.releaseDate!.year}-${preview.releaseDate!.month.toString().padLeft(2, '0')}-${preview.releaseDate!.day.toString().padLeft(2, '0')}'
       : null;
   return [
-    if (preview.seriesTitle != null) (previewLabels.series, preview.seriesTitle),
+    if (series?.seriesTitle != null) (previewLabels.series, series!.seriesTitle),
     if (preview.publisher != null) (labels.publisher, preview.publisher),
-    if (preview.imprint != null) ('Imprint', preview.imprint),
+    if (publishing?.imprint != null) ('Imprint', publishing!.imprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
-    if (preview.volumeStartYear != null)
-      ('Year', preview.volumeStartYear.toString()),
+    if (series?.volumeStartYear != null)
+      ('Year', series!.volumeStartYear.toString()),
     if (preview.itemNumber != null) (labels.number, preview.itemNumber),
     if (preview.barcode != null) (labels.barcode, preview.barcode),
     if (preview.isbn != null) ('ISBN', preview.isbn),
@@ -525,23 +534,23 @@ List<(String, String?)> _metadataRowsForFullPreview(
       ('Format', preview.physicalFormatLabel),
     if (preview.variantName != null) (labels.variant, preview.variantName),
     if (collectarrLibraryTypes.capabilitiesForKind(preview.kind).showsTrackData &&
-      preview.trackCount != null)
-      ('Tracks', preview.trackCount.toString()),
-    if (preview.catalogNumber != null)
-      ('Catalog No.', preview.catalogNumber),
-    if (preview.platforms.isNotEmpty)
-      ('Platforms', preview.platforms.join(', ')),
-    if (preview.runtimeMinutes != null)
-      ('Runtime', '${preview.runtimeMinutes} min'),
-    if (preview.pageCount != null) ('Pages', preview.pageCount.toString()),
-    if (preview.releaseStatus != null)
-      ('Release Status', preview.releaseStatus),
-    if (preview.seriesGroup != null) ('Series Group', preview.seriesGroup),
+      music?.trackCount != null)
+      ('Tracks', music!.trackCount.toString()),
+    if (music?.catalogNumber != null)
+      ('Catalog No.', music!.catalogNumber),
+    if (game?.platforms case final platforms? when platforms.isNotEmpty)
+      ('Platforms', platforms.join(', ')),
+    if (video?.runtimeMinutes != null)
+      ('Runtime', '${video!.runtimeMinutes} min'),
+    if (publishing?.pageCount != null) ('Pages', publishing!.pageCount.toString()),
+    if (music?.releaseStatus != null)
+      ('Release Status', music!.releaseStatus),
+    if (publishing?.seriesGroup != null) ('Series Group', publishing!.seriesGroup),
   ];
 }
 
 String _previewStatusSummary({
-  required CatalogItem? item,
+  required LibraryMetadataItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
   required bool isFetchingPreview,
@@ -550,19 +559,19 @@ String _previewStatusSummary({
     return 'Using cached Collectarr Core metadata already stored in the app.';
   }
   if (preview != null) {
-    return 'Live provider preview loaded. This is the best available metadata before ingest.';
+    return 'Provider metadata loaded directly from search results.';
   }
   if (candidate?.isStub ?? false) {
-    return 'This result is a search-only stub. It can be added, but full catalog ingest is not available yet.';
+    return 'Provider metadata is unavailable for this result.';
   }
   if (isFetchingPreview) {
-    return 'Fetching fuller provider metadata for the selected candidate.';
+    return 'Loading provider metadata.';
   }
-  return 'This is a lightweight search candidate. Select it to inspect more provider metadata.';
+  return 'Provider metadata is unavailable for this result.';
 }
 
 List<_PreviewDiscoverySectionData> _discoverySections({
-  required CatalogItem? item,
+  required LibraryMetadataItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -641,15 +650,19 @@ List<_PreviewDiffRow> _previewDiffRows({
   }
 
   addScalar('Summary', candidate.summary, preview.synopsis);
-  addScalar(previewLabels.series, candidate.seriesTitle, preview.seriesTitle);
+  addScalar(
+    previewLabels.series,
+    candidate.series?.seriesTitle,
+    preview.series?.seriesTitle,
+  );
   addScalar(labels.number, candidate.issueNumber, preview.itemNumber);
   addScalar(labels.publisher, candidate.publisher, preview.publisher);
   addScalar(
     'Year',
-    candidate.volumeStartYear?.toString(),
+    candidate.series?.volumeStartYear?.toString(),
     preview.releaseDate != null
         ? preview.releaseDate!.year.toString()
-        : preview.volumeStartYear?.toString(),
+        : preview.series?.volumeStartYear?.toString(),
   );
   addScalar(labels.variant, candidate.variantName, preview.variantName);
   addScalar(
@@ -855,24 +868,26 @@ class _PreviewTrackData {
 }
 
 List<_PreviewTrackData> _previewTracksForSelection({
-  required CatalogItem? item,
+  required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
-  if (item?.tracks != null && item!.tracks!.isNotEmpty) {
+  final tracks = item?.music?.tracks;
+  if (tracks != null && tracks.isNotEmpty) {
     return [
-      for (final track in item.tracks!)
+      for (final track in tracks)
         _PreviewTrackData(
-          title: (track['title'] as String?)?.trim() ?? 'Untitled track',
-          position: track['position'] as int?,
-          durationSeconds: track['duration_seconds'] as int?,
+          title: track.title.trim().isEmpty ? 'Untitled track' : track.title,
+          position: track.position,
+          durationSeconds: track.durationSeconds,
         ),
     ];
   }
-  if (preview == null || preview.tracks.isEmpty) {
+  final previewTracks = preview?.music?.tracks;
+  if (previewTracks == null || previewTracks.isEmpty) {
     return const [];
   }
   return [
-    for (final track in preview.tracks)
+    for (final track in previewTracks)
       _PreviewTrackData(
         title: track.title,
         position: track.position,

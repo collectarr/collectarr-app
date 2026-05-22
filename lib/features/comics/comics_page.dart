@@ -437,14 +437,14 @@ class _ComicsPageState extends ConsumerState<ComicsPage>
   ShelfEntry? _selectedShelfEntry(List<ShelfEntry> entries) {
     final selectedId = pageState.selectedItemId;
     if (selectedId == null) {
-      return entries.isEmpty ? null : entries.first;
+      return null;
     }
     for (final entry in entries) {
       if (entry.itemId == selectedId) {
         return entry;
       }
     }
-    return entries.isEmpty ? null : entries.first;
+    return null;
   }
 
   LibraryWorkspaceEntry _workspaceEntryForShelf(ShelfEntry entry) {

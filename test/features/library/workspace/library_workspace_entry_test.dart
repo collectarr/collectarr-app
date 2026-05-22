@@ -41,6 +41,25 @@ void main() {
     expect(item.displayCoverUrl, 'https://example.test/thumb.jpg');
   });
 
+  test('builds media-specific workspace entry subtypes', () {
+    final item = LibraryWorkspaceEntry(
+      id: 'music-1',
+      mediaType: 'music',
+      title: 'Discovery',
+      music: const MusicCatalogDetails(
+        trackCount: 14,
+        catalogNumber: 'DISC-2001',
+        releaseStatus: 'Official',
+      ),
+      updatedAt: DateTime.utc(2026),
+    );
+
+    expect(item, isA<MusicWorkspaceEntry>());
+    expect(item.music, isNotNull);
+    expect(item.music!.trackCount, 14);
+    expect(item.music!.catalogNumber, 'DISC-2001');
+  });
+
   test('sorts issue-like item numbers numerically', () {
     final items = [
       entry(id: '2', title: 'Series', itemNumber: '10'),

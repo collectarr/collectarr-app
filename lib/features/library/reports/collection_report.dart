@@ -84,7 +84,7 @@ pw.Document _buildDocument(
                       children: [
                         _cell(idx.toString()),
                         _cell(item.title),
-                        _cell(item.seriesTitle ?? ''),
+                        _cell(item.series?.seriesTitle ?? ''),
                         _cell(item.itemNumber ?? ''),
                         _cell(item.condition ?? ''),
                       ],

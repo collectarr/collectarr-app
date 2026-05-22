@@ -3597,8 +3597,8 @@ class _CanonicalItemSummary extends StatelessWidget {
                   children: [
                     _MiniChip(label: item.kind),
                     _MiniChip(label: 'ID ${_shortId(item.id)}'),
-                    if (item.seriesTitle != null)
-                      _MiniChip(label: item.seriesTitle!),
+                    if (item.series?.seriesTitle != null)
+                      _MiniChip(label: item.series!.seriesTitle!),
                     if (edition?.physicalFormatLabel != null)
                       _MiniChip(label: edition!.physicalFormatLabel!),
                     if (item.publisher != null)
@@ -3632,8 +3632,11 @@ class _CanonicalItemSummary extends StatelessWidget {
                           )
                           .toString(),
                     ),
-                    if (item.pageCount != null)
-                      _Fact(label: 'Pages', value: item.pageCount.toString()),
+                    if (item.publishing?.pageCount != null)
+                      _Fact(
+                        label: 'Pages',
+                        value: item.publishing!.pageCount.toString(),
+                      ),
                     if (item.coverDate != null)
                       _Fact(
                           label: 'Cover', value: _formatDate(item.coverDate!)),
@@ -3645,7 +3648,7 @@ class _CanonicalItemSummary extends StatelessWidget {
                         label: 'Cover price',
                         value: _formatMoney(
                           variant!.coverPriceCents!,
-                          variant.currency ?? item.currency,
+                          variant.currency ?? item.publishing?.currency,
                         ),
                       ),
                   ],
@@ -4201,7 +4204,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     );
     _variantController = TextEditingController(text: variant?.name ?? '');
     _pageCountController = TextEditingController(
-      text: widget.item.pageCount?.toString() ?? '',
+      text: widget.item.publishing?.pageCount?.toString() ?? '',
     );
     _releaseDateController = TextEditingController(
       text: widget.item.coverDate == null
@@ -4464,7 +4467,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     add('Publisher', item.publisher, correction.publisher);
     add('Barcode', item.barcode ?? variant?.barcode, correction.barcode);
     add('Primary variant', variant?.name, correction.variantName);
-    add('Page count', item.pageCount, correction.pageCount);
+    add('Page count', item.publishing?.pageCount, correction.pageCount);
     add('Release date', item.coverDate, correction.releaseDate);
     if (widget.physicalFormats.isNotEmpty) {
       add('Physical format', edition?.physicalFormat,

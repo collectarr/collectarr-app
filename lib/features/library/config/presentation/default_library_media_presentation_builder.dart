@@ -27,9 +27,12 @@ class DefaultLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final hasVolume = entry.volumeName != null || entry.volumeNumber != null;
-    final hasSeason = entry.seasonNumber != null;
-    final hasEpisode = entry.episodeNumber != null;
+    final series = entry.series;
+    final publishing = entry.publishing;
+    final music = entry.music;
+    final hasVolume = series?.hasVolume ?? false;
+    final hasSeason = series?.hasSeason ?? false;
+    final hasEpisode = series?.hasEpisode ?? false;
     return LibraryMetadataPresentation(
       identityFacts: [
         if (includeIdentityFacts) ...[
@@ -37,26 +40,26 @@ class DefaultLibraryMediaPresentationBuilder
           LibraryInspectorFactData('ID', entry.id),
           LibraryInspectorFactData('Title', entry.title),
         ],
-        if (entry.seriesTitle != null)
+        if (series?.seriesTitle != null)
           LibraryInspectorFactData(
             'Series',
-            entry.seriesTitle!,
-            onTap: tapFor(entry.seriesTitle),
+            series!.seriesTitle!,
+            onTap: tapFor(series.seriesTitle),
           ),
         if (hasVolume && !hasSeason)
           LibraryInspectorFactData(
             'Volume',
-            entry.volumeName ?? 'Vol. ${entry.volumeNumber}',
+            series!.volumeName ?? 'Vol. ${series.volumeNumber}',
           ),
         if (hasSeason && hasEpisode)
           LibraryInspectorFactData(
             'Season / Episode',
-            'Season ${entry.seasonNumber}, Ep. ${entry.episodeNumber}',
+            'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}',
           ),
         if (hasSeason && !hasEpisode)
-          LibraryInspectorFactData('Season', 'Season ${entry.seasonNumber}'),
+          LibraryInspectorFactData('Season', 'Season ${series!.seasonNumber}'),
         if (hasEpisode && !hasSeason)
-          LibraryInspectorFactData('Episode', 'Ep. ${entry.episodeNumber}'),
+          LibraryInspectorFactData('Episode', 'Ep. ${series!.episodeNumber}'),
         LibraryInspectorFactData(
           labels.number,
           genericLibraryDash(entry.itemNumber),
@@ -85,39 +88,42 @@ class DefaultLibraryMediaPresentationBuilder
                 entry.releaseYear?.toString(),
           ),
         ),
-        if (entry.pageCount != null)
-          LibraryInspectorFactData('Pages', entry.pageCount.toString()),
-        if (entry.catalogNumber != null)
-          LibraryInspectorFactData('Catalog No.', entry.catalogNumber!),
-        if (entry.coverPriceCents != null)
+        if (publishing?.pageCount != null)
+          LibraryInspectorFactData('Pages', publishing!.pageCount.toString()),
+        if (music?.catalogNumber != null)
+          LibraryInspectorFactData('Catalog No.', music!.catalogNumber!),
+        if (publishing?.coverPriceCents != null)
           LibraryInspectorFactData(
             'Cover Price',
-            formatPresentationMoney(entry.coverPriceCents, entry.catalogCurrency),
+            formatPresentationMoney(
+              publishing!.coverPriceCents,
+              publishing.currency,
+            ),
           ),
-        if (entry.imprint != null)
+        if (publishing?.imprint != null)
           LibraryInspectorFactData(
             'Imprint',
-            entry.imprint!,
-            onTap: tapFor(entry.imprint),
+            publishing!.imprint!,
+            onTap: tapFor(publishing.imprint),
           ),
-        if (entry.seriesGroup != null)
+        if (publishing?.seriesGroup != null)
           LibraryInspectorFactData(
             'Series Group',
-            entry.seriesGroup!,
-            onTap: tapFor(entry.seriesGroup),
+            publishing!.seriesGroup!,
+            onTap: tapFor(publishing.seriesGroup),
           ),
-        if (entry.subtitle != null)
-          LibraryInspectorFactData('Subtitle', entry.subtitle!),
+        if (publishing?.subtitle != null)
+          LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
         if (entry.country != null)
           LibraryInspectorFactData('Country', entry.country!),
-        if (entry.releaseStatus != null)
-          LibraryInspectorFactData('Release Status', entry.releaseStatus!),
+        if (music?.releaseStatus != null)
+          LibraryInspectorFactData('Release Status', music!.releaseStatus!),
         if (entry.language != null)
           LibraryInspectorFactData('Language', entry.language!),
         if (entry.ageRating != null)
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
-        if (entry.platforms != null && entry.platforms!.isNotEmpty)
-          LibraryInspectorFactData('Platforms', entry.platforms!.join(', ')),
+        if (entry.game?.platforms case final platforms? when platforms.isNotEmpty)
+          LibraryInspectorFactData('Platforms', platforms.join(', ')),
         LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
         LibraryInspectorFactData(
           'Metadata',

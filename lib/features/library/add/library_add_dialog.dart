@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/providers/volumes_provider.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -87,7 +88,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _searchYearController = TextEditingController();
   bool _showAdvancedSearch = false;
 
-  List<CatalogItem> _results = const [];
+  List<LibraryMetadataItem> _results = const [];
   List<ProviderCandidate> _providerResults = const [];
   final _queuedProviderIngests = <String, _QueuedProviderIngest>{};
   final _checkedResultIds = <String>{};
@@ -103,9 +104,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
   String? _selectedResultId;
   String? _selectedProviderCandidateId;
-  AdminProviderPreview? _candidatePreview;
-  bool _isFetchingPreview = false;
-  String? _lastPreviewCandidateId;
+  final _providerPreviews = <String, AdminProviderPreview>{};
   String? _physicalFormatId;
   String _defaultCondition = 'Near Mint';
   String _defaultGrade = 'Ungraded';
@@ -263,12 +262,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _selectedProviderCandidateId = id;
                             _selectedResultId = null;
                           });
-                          final candidate = _providerResults
-                              .where((c) => c.localCatalogId == id)
-                              .firstOrNull;
-                          if (candidate != null) {
-                            _fetchCandidatePreview(candidate);
-                          }
                         },
                         onToggleResultCheck: (id) => setState(() {
                           if (!_checkedResultIds.remove(id)) {
@@ -287,8 +280,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         accent: accent,
                         item: selectedResult,
                         candidate: selectedCandidate,
-                        candidatePreview: _candidatePreview,
-                        isFetchingPreview: _isFetchingPreview,
+                        candidatePreview: selectedCandidate == null
+                            ? null
+                            : _providerPreviews[selectedCandidate.localCatalogId],
+                        isFetchingPreview: false,
                         providerLabel: selectedProviderLabel,
                         searched: _results.isNotEmpty || _searchedProvider,
                       );
@@ -443,6 +438,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _isSearching = true;
       _error = null;
       _providerResults = const [];
+      _providerPreviews.clear();
       _searchedProvider = false;
     });
     final series = _searchSeriesController.text.trim();
@@ -468,9 +464,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final shouldSearchProvider =
           widget.type.supportedMetadataProviders.isNotEmpty;
       if (mounted && searchGeneration == _coreSearchGeneration) {
+        final mappedItems = [
+          for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
+        ];
         setState(() {
-          _results = items;
-          _selectedResultId = items.isEmpty ? null : items.first.id;
+          _results = mappedItems;
+          _selectedResultId = null;
           _selectedProviderCandidateId = null;
         });
       }
@@ -511,6 +510,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _isSearching = true;
       _error = null;
       _providerResults = const [];
+      _providerPreviews.clear();
       _searchedProvider = false;
     });
     try {
@@ -523,12 +523,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       ).timeout(_coreSearchTimeout);
       final found = [
         for (final result in results)
-          if (result.item != null) result.item!,
+          if (result.item != null)
+            LibraryMetadataItem.fromCatalogItem(result.item!),
       ];
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
           _results = found;
-          _selectedResultId = found.isEmpty ? null : found.first.id;
+          _selectedResultId = null;
           _selectedProviderCandidateId = null;
           _error =
               found.isEmpty &&
@@ -567,7 +568,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       return;
     }
     final year = int.tryParse(_yearController.text.trim());
-    final item = CatalogItem(
+    final item = LibraryMetadataItem(
       id: 'local-${widget.type.workspace.kind}-${_uuid.v4()}',
       kind: widget.type.workspace.kind,
       title: title,
@@ -634,12 +635,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _isSearchingProvider = true;
       _searchedProvider = true;
       _providerResults = const [];
+      _providerPreviews.clear();
       _selectedProviderCandidateId = null;
       _error = null;
     });
     try {
+      final api = ref.read(apiClientProvider);
       final results = await searchLibraryProviderCandidates(
-        ref.read(apiClientProvider),
+        api,
         widget.type,
         provider: provider,
         query: query,
@@ -653,15 +656,38 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             ? int.tryParse(_searchYearController.text.trim())
             : null,
       );
+      final previewEntries = await Future.wait(
+        [
+          for (final candidate in results)
+            () async {
+              if (candidate.isStub) {
+                return null;
+              }
+              try {
+                final preview = await api.providerPreview(
+                  provider: candidate.provider,
+                  providerItemId: candidate.providerItemId,
+                );
+                return MapEntry(candidate.localCatalogId, preview);
+              } catch (_) {
+                return null;
+              }
+            }(),
+        ],
+      );
       if (!mounted) {
         return;
       }
+      final previewsByCandidateId = <String, AdminProviderPreview>{
+        for (final entry in previewEntries.whereType<MapEntry<String, AdminProviderPreview>>())
+          entry.key: entry.value,
+      };
       setState(() {
         _providerResults = results;
-        if (_selectedResultId == null && _selectedProviderCandidateId == null) {
-          _selectedProviderCandidateId =
-              results.isEmpty ? null : results.first.localCatalogId;
-        }
+        _providerPreviews
+          ..clear()
+          ..addAll(previewsByCandidateId);
+        _selectedProviderCandidateId = null;
       });
     } catch (error) {
       if (mounted) {
@@ -691,32 +717,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _lastProviderSearchSignature = signature;
     _lastProviderSearchAt = now;
     return shouldSkip;
-  }
-
-  Future<void> _fetchCandidatePreview(ProviderCandidate candidate) async {
-    final candidateId = candidate.localCatalogId;
-    if (_lastPreviewCandidateId == candidateId) return;
-    _lastPreviewCandidateId = candidateId;
-    setState(() {
-      _isFetchingPreview = true;
-      _candidatePreview = null;
-    });
-    try {
-      final api = ref.read(apiClientProvider);
-      final preview = await api.providerPreview(
-        provider: candidate.provider,
-        providerItemId: candidate.providerItemId,
-      );
-      if (mounted && _lastPreviewCandidateId == candidateId) {
-        setState(() => _candidatePreview = preview);
-      }
-    } catch (_) {
-      // Silently fail — candidate basic fields still shown.
-    } finally {
-      if (mounted && _lastPreviewCandidateId == candidateId) {
-        setState(() => _isFetchingPreview = false);
-      }
-    }
   }
 
   Future<bool> _clearRejectedMetadataSession(
@@ -750,7 +750,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   ) async {
     final isAdmin = ref.read(authControllerProvider).isAdmin;
     if (!isAdmin || candidate.isStub) {
-      await _addItems([candidate.placeholderCatalogItem()], target);
+      await _addItems([candidate.placeholderItem()], target);
       return;
     }
     try {
@@ -761,7 +761,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           );
       if (!mounted) return;
 
-      final previewItem = _catalogItemFromPreview(preview);
+      final previewItem = _metadataItemFromPreview(preview);
       final catalog = ref.read(mediaCatalogProvider).maybeWhen(
         data: (value) => value,
         orElse: () => fallbackMediaCatalog,
@@ -790,8 +790,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           );
 
       // Apply user corrections if any fields differ from the ingested item.
-      final edited = result.catalogItem;
-      final ingested = _catalogItemFromIngestResult(ingest.item);
+      final edited = result.item;
+      final ingested = _metadataItemFromIngestResult(ingest.item);
       if (mounted) {
         await _applyIngestCorrections(
           kind: ingested.kind,
@@ -802,9 +802,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
 
       // Use the ingested item as base but overlay the user's edits.
-      final finalItem = CatalogItem(
-        id: ingested.id,
-        kind: ingested.kind,
+      final mergedPublishing = CatalogPublishingDetails(
+        pageCount: ingested.publishing?.pageCount,
+        coverPriceCents: ingested.publishing?.coverPriceCents,
+        currency: ingested.publishing?.currency,
+        imprint: edited.publishing?.imprint,
+        subtitle: ingested.publishing?.subtitle,
+        seriesGroup: edited.publishing?.seriesGroup,
+      );
+      final finalItem = ingested.copyWith(
         title: edited.title,
         itemNumber: edited.itemNumber,
         synopsis: edited.synopsis,
@@ -819,11 +825,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         releaseYear: edited.releaseYear,
         barcode: edited.barcode,
         variant: edited.variant,
-        seriesTitle: ingested.seriesTitle,
-        volumeName: ingested.volumeName,
-        volumeStartYear: ingested.volumeStartYear,
-        imprint: edited.imprint,
-        seriesGroup: edited.seriesGroup,
+        publishing: mergedPublishing.hasData ? mergedPublishing : null,
       );
       await _addItems([finalItem], target);
     } catch (error) {
@@ -841,8 +843,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
   }
 
-  CatalogItem _catalogItemFromPreview(AdminProviderPreview preview) {
-    return CatalogItem(
+  LibraryMetadataItem _metadataItemFromPreview(AdminProviderPreview preview) {
+    final series = preview.series;
+    final publishing = preview.publishing;
+    final previewMusic = preview.music;
+    final music = previewMusic;
+    final video = preview.video;
+    final game = preview.game;
+    return LibraryMetadataItem(
       id: buildPreviewCatalogItemId(
         kind: preview.kind,
         provider: preview.provider,
@@ -859,22 +867,27 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       physicalFormatLabel: preview.physicalFormatLabel,
       publisher: preview.publisher,
       releaseDate: preview.releaseDate,
-      releaseYear: preview.releaseDate?.year ?? preview.volumeStartYear,
+      releaseYear: preview.releaseDate?.year ?? preview.series?.volumeStartYear,
       barcode: preview.barcode,
       variant: preview.variantName,
-      seriesTitle: preview.seriesTitle,
-      volumeName: preview.volumeName,
-      volumeStartYear: preview.volumeStartYear,
-      imprint: preview.imprint,
-      seriesGroup: preview.seriesGroup,
-      pageCount: preview.pageCount,
+      series: series,
+      publishing: publishing,
+      music: music,
+      video: video,
+      game: game,
       country: preview.country,
       language: preview.language,
       ageRating: preview.ageRating,
-      subtitle: preview.subtitle,
-      coverPriceCents: preview.coverPriceCents,
-      currency: preview.currency,
-      trackCount: preview.trackCount,
+      creators: [
+        for (final creator in preview.creators)
+          {
+            'name': creator.name,
+            if (creator.role != null) 'role': creator.role,
+          },
+      ],
+      characters: preview.characters,
+      storyArcs: preview.storyArcs,
+      genres: preview.genres,
     );
   }
 
@@ -882,8 +895,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _applyIngestCorrections({
     required String kind,
     required String itemId,
-    required CatalogItem preview,
-    required CatalogItem edited,
+    required LibraryMetadataItem preview,
+    required LibraryMetadataItem edited,
   }) async {
     final corrections = <String, dynamic>{};
     if (edited.title != preview.title) corrections['title'] = edited.title;
@@ -931,11 +944,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
   }
 
-  CatalogItem _catalogItemFromIngestResult(AdminMetadataItem item) {
+  LibraryMetadataItem _metadataItemFromIngestResult(AdminMetadataItem item) {
     final primaryEdition = item.primaryEdition;
     final primaryVariant = item.primaryVariant;
     final releaseDate = primaryEdition?.releaseDate;
-    return CatalogItem(
+    return LibraryMetadataItem(
       id: item.id,
       kind: item.kind,
       title: item.title,
@@ -949,12 +962,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       physicalFormatLabel: primaryEdition?.physicalFormatLabel,
       publisher: primaryEdition?.publisher ?? item.publisher,
       releaseDate: releaseDate,
-      releaseYear: releaseDate?.year ?? item.volumeStartYear,
+      releaseYear: releaseDate?.year ?? item.series?.volumeStartYear,
       barcode: primaryVariant?.barcode ?? item.barcode,
       variant: primaryVariant?.name,
-      seriesTitle: item.seriesTitle,
-      volumeName: item.volumeName,
-      volumeStartYear: item.volumeStartYear,
+      series: item.series,
+      publishing: item.publishing,
     );
   }
 
@@ -1067,7 +1079,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     return widget.type.defaultSupportedMetadataProvider;
   }
 
-  CatalogItem? get _selectedResult {
+  LibraryMetadataItem? get _selectedResult {
     final id = _selectedResultId;
     if (id == null) {
       return null;
@@ -1111,7 +1123,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   Future<void> _addItems(
-    List<CatalogItem> items,
+    List<LibraryMetadataItem> items,
     LibraryAddTarget target,
   ) async {
     if (items.isEmpty || _isAdding) {

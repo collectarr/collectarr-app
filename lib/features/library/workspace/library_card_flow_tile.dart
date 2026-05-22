@@ -67,11 +67,12 @@ class LibraryCardFlowTile extends StatelessWidget {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
-                        child: LibraryCoverImage(
+                        child: LibraryInteractiveCover(
                           title: entry.title,
                           itemNumber: entry.itemNumber,
                           imageUrl: entry.displayCoverUrl,
                           ownedItemId: entry.ownedItemId,
+                          accentColor: accentColor,
                         ),
                       ),
                       Positioned(
@@ -117,11 +118,11 @@ class LibraryCardFlowTile extends StatelessWidget {
                         ],
                       ),
                       // Series / subtitle
-                      if (entry.seriesTitle != null &&
-                          entry.seriesTitle != entry.title) ...[
+                      if (entry.series?.seriesTitle != null &&
+                          entry.series!.seriesTitle != entry.title) ...[
                         const SizedBox(height: 4),
                         Text(
-                          entry.seriesTitle!,
+                          entry.series!.seriesTitle!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(
@@ -191,16 +192,16 @@ class LibraryCardFlowTile extends StatelessWidget {
                               accentColor: accentColor,
                             ),
                           if (capabilities.showsTrackData &&
-                              entry.trackCount != null)
+                              entry.music?.trackCount != null)
                             _MetaPill(
                               icon: Icons.music_note,
-                              label: '${entry.trackCount} tracks',
+                              label: '${entry.music!.trackCount} tracks',
                               accentColor: accentColor,
                             ),
-                          if (entry.pageCount != null)
+                          if (entry.publishing?.pageCount != null)
                             _MetaPill(
                               icon: Icons.menu_book,
-                              label: '${entry.pageCount} pg',
+                              label: '${entry.publishing!.pageCount} pg',
                               accentColor: accentColor,
                             ),
                         ],

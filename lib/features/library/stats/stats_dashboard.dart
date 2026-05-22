@@ -256,7 +256,10 @@ class _GenericStatsDashboard extends StatelessWidget {
   static Map<String, int> _topSeriesCounts(List<ShelfEntry> entries) {
     return _countBy(
       entries,
-      (e) => e.catalogItem?.seriesTitle ?? e.catalogItem?.title ?? 'Unknown',
+      (e) =>
+          e.catalogItem?.series?.seriesTitle ??
+          e.catalogItem?.title ??
+          'Unknown',
     );
   }
 
@@ -346,7 +349,8 @@ class _GenericStatsDashboard extends StatelessWidget {
       if ((item.creators ?? const <Map<String, dynamic>>[]).isEmpty) {
         counts['Missing creators'] = (counts['Missing creators'] ?? 0) + 1;
       }
-      if (item.seriesTitle == null || item.seriesTitle!.trim().isEmpty) {
+      final seriesTitle = item.series?.seriesTitle;
+      if (seriesTitle == null || seriesTitle.trim().isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
       if (item.id.startsWith('provider:')) {
@@ -372,7 +376,11 @@ class _GenericStatsDashboard extends StatelessWidget {
     add(item.synopsis != null && item.synopsis!.trim().isNotEmpty, 16);
     add(item.publisher != null && item.publisher!.trim().isNotEmpty, 10);
     add(item.releaseDate != null || item.releaseYear != null, 10);
-    add(item.seriesTitle != null && item.seriesTitle!.trim().isNotEmpty, 10);
+    add(
+      item.series?.seriesTitle != null &&
+          item.series!.seriesTitle!.trim().isNotEmpty,
+      10,
+    );
     add(item.itemNumber != null && item.itemNumber!.trim().isNotEmpty, 6);
     add((item.creators ?? const <Map<String, dynamic>>[]).isNotEmpty, 12);
     add((item.characters ?? const <String>[]).isNotEmpty, 6);

@@ -1,9 +1,9 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -42,7 +42,7 @@ class LibraryEditDialogRequest {
   });
 
   final LibraryTypeConfig type;
-  final CatalogItem item;
+  final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final Color accent;
   final List<PhysicalMediaFormat> physicalFormats;

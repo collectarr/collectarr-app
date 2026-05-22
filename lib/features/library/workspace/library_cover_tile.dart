@@ -58,11 +58,12 @@ class LibraryCoverTile extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    LibraryCoverImage(
+                    LibraryInteractiveCover(
                       title: entry.title,
                       itemNumber: entry.itemNumber,
                       imageUrl: entry.displayCoverUrl,
                       ownedItemId: entry.ownedItemId,
+                      accentColor: accentColor,
                     ),
                     Positioned(
                       left: 4,

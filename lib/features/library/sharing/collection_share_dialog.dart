@@ -84,11 +84,12 @@ class _CollectionShareDialog extends StatelessWidget {
   void _copyAsText(BuildContext context) {
     final buffer = StringBuffer();
     buffer.writeln(title);
-    buffer.writeln('${'─' * title.length}');
+    buffer.writeln('─' * title.length);
     for (final item in items) {
+      final series = item.series;
       final parts = <String>[item.title];
       if (item.itemNumber != null) parts.add('#${item.itemNumber}');
-      if (item.seriesTitle != null) parts.add('(${item.seriesTitle})');
+      if (series?.seriesTitle != null) parts.add('(${series!.seriesTitle})');
       buffer.writeln(parts.join(' '));
     }
     Clipboard.setData(ClipboardData(text: buffer.toString()));
@@ -104,7 +105,7 @@ class _CollectionShareDialog extends StatelessWidget {
       ...items.map((item) => [
             item.title,
             item.itemNumber ?? '',
-            item.seriesTitle ?? '',
+        item.series?.seriesTitle ?? '',
             item.publisher ?? '',
             item.condition ?? '',
             item.barcode ?? '',
@@ -123,7 +124,8 @@ class _CollectionShareDialog extends StatelessWidget {
         .map((item) => {
               'title': item.title,
               if (item.itemNumber != null) 'issue': item.itemNumber,
-              if (item.seriesTitle != null) 'series': item.seriesTitle,
+              if (item.series?.seriesTitle != null)
+                'series': item.series!.seriesTitle,
               if (item.publisher != null) 'publisher': item.publisher,
               if (item.condition != null) 'condition': item.condition,
               if (item.barcode != null) 'barcode': item.barcode,

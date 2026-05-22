@@ -27,9 +27,9 @@ void main() {
     final musicLabels = libraryMediaSearchFieldLabels(musicLibraryConfig);
     final movieLabels = libraryMediaSearchFieldLabels(moviesLibraryConfig);
 
-    expect(musicLabels.queryHint, 'Enter title, artist, creator, or keyword...');
+    expect(musicLabels.queryHint, 'Enter album, artist, release, or label...');
     expect(musicLabels.emptySearchMessage,
-        'Enter a title, artist, creator, or keyword.');
+      'Enter an album, artist, release, or label.');
     expect(musicLabels.seriesHint, 'Artist...');
     expect(musicLabels.publisherHint, 'Label...');
     expect(movieLabels.seriesHint, 'Series...');

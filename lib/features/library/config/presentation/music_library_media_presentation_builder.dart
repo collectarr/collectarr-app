@@ -19,6 +19,8 @@ class MusicLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
+    final music = entry.music;
+    final series = entry.series;
     return LibraryMetadataPresentation(
       identityFacts: [
         if (includeIdentityFacts) ...[
@@ -26,16 +28,16 @@ class MusicLibraryMediaPresentationBuilder
           LibraryInspectorFactData('ID', entry.id),
           LibraryInspectorFactData('Title', entry.title),
         ],
-        if (entry.seriesTitle != null)
+        if (series?.seriesTitle != null)
           LibraryInspectorFactData(
             'Artist',
-            entry.seriesTitle!,
-            onTap: tapFor(entry.seriesTitle),
+            series!.seriesTitle!,
+            onTap: tapFor(series.seriesTitle),
           ),
-        if (entry.volumeName != null || entry.volumeNumber != null)
+        if (series?.volumeName != null || series?.volumeNumber != null)
           LibraryInspectorFactData(
             'Disc',
-            entry.volumeName ?? 'Disc ${entry.volumeNumber}',
+            series?.volumeName ?? 'Disc ${series?.volumeNumber}',
           ),
         if (entry.variant != null)
           LibraryInspectorFactData(
@@ -60,12 +62,12 @@ class MusicLibraryMediaPresentationBuilder
                 entry.releaseYear?.toString(),
           ),
         ),
-        if (entry.trackCount != null)
-          LibraryInspectorFactData('Tracks', entry.trackCount.toString()),
-        if (entry.catalogNumber != null)
-          LibraryInspectorFactData('Catalog No.', entry.catalogNumber!),
-        if (entry.releaseStatus != null)
-          LibraryInspectorFactData('Release Status', entry.releaseStatus!),
+        if (music?.trackCount != null)
+          LibraryInspectorFactData('Tracks', music!.trackCount.toString()),
+        if (music?.catalogNumber != null)
+          LibraryInspectorFactData('Catalog No.', music!.catalogNumber!),
+        if (music?.releaseStatus != null)
+          LibraryInspectorFactData('Release Status', music!.releaseStatus!),
         if (entry.country != null)
           LibraryInspectorFactData('Country', entry.country!),
         if (entry.language != null)
@@ -90,20 +92,21 @@ class MusicLibraryMediaPresentationBuilder
     required Color accent,
   }) {
     final sections = <Widget>[];
-    if (entry.tracks != null && entry.tracks!.isNotEmpty) {
+    final music = entry.music;
+    if (music?.tracks case final tracks? when tracks.isNotEmpty) {
       sections.add(
         InspectorTrackList(
-          tracks: entry.tracks!,
-          trackCount: entry.trackCount,
+          tracks: tracks,
+          trackCount: music?.trackCount,
           accent: accent,
           coverUrl: entry.displayCoverUrl,
           title: entry.title,
         ),
       );
-    } else if (entry.trackCount != null) {
+    } else if (music?.trackCount != null) {
       sections.add(
         InspectorTrackListUnavailable(
-          trackCount: entry.trackCount!,
+          trackCount: music!.trackCount!,
           accent: accent,
         ),
       );
