@@ -97,6 +97,9 @@ class _LibraryAddModeBar extends StatelessWidget {
     required this.isSearchingProvider,
     required this.onModeChanged,
     required this.onSearch,
+    required this.canScanCover,
+    required this.isScanningCover,
+    required this.onScanCover,
     required this.onLookupBarcode,
     required this.onManual,
     required this.showAdvanced,
@@ -116,6 +119,9 @@ class _LibraryAddModeBar extends StatelessWidget {
   final bool isSearchingProvider;
   final ValueChanged<_LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
+  final bool canScanCover;
+  final bool isScanningCover;
+  final VoidCallback onScanCover;
   final VoidCallback onLookupBarcode;
   final VoidCallback onManual;
   final bool showAdvanced;
@@ -169,6 +175,19 @@ class _LibraryAddModeBar extends StatelessWidget {
                           accent: accent,
                           onPressed: onToggleAdvanced,
                         ),
+                        if (canScanCover) ...[
+                          const SizedBox(width: 6),
+                          _LibraryAddModeButton(
+                            label: 'Scan cover',
+                            icon: Icons.photo_camera_outlined,
+                            accent: accent,
+                            isBusy: isScanningCover,
+                            outlined: true,
+                            onPressed: isBusy || isScanningCover
+                                ? null
+                                : onScanCover,
+                          ),
+                        ],
                         const SizedBox(width: 6),
                         _LibraryAddModeButton(
                           label: _searchButtonLabel,
@@ -561,6 +580,7 @@ class _AdvancedSearchFields extends StatelessWidget {
         Expanded(
           flex: 3,
           child: _AdvancedField(
+            fieldKey: const ValueKey('library-add-series-field'),
             controller: seriesController,
             hint: searchLabels.seriesHint,
             onSubmitted: onSubmitted,
@@ -570,6 +590,7 @@ class _AdvancedSearchFields extends StatelessWidget {
         Expanded(
           flex: 1,
           child: _AdvancedField(
+            fieldKey: const ValueKey('library-add-number-field'),
             controller: numberController,
             hint: searchLabels.numberHint,
             onSubmitted: onSubmitted,
@@ -579,6 +600,7 @@ class _AdvancedSearchFields extends StatelessWidget {
         Expanded(
           flex: 2,
           child: _AdvancedField(
+            fieldKey: const ValueKey('library-add-publisher-field'),
             controller: publisherController,
             hint: searchLabels.publisherHint,
             onSubmitted: onSubmitted,
@@ -588,6 +610,7 @@ class _AdvancedSearchFields extends StatelessWidget {
         SizedBox(
           width: 60,
           child: _AdvancedField(
+            fieldKey: const ValueKey('library-add-year-field'),
             controller: yearController,
             hint: 'Year',
             keyboardType: TextInputType.number,
@@ -601,12 +624,14 @@ class _AdvancedSearchFields extends StatelessWidget {
 
 class _AdvancedField extends StatelessWidget {
   const _AdvancedField({
+    required this.fieldKey,
     required this.controller,
     required this.hint,
     required this.onSubmitted,
     this.keyboardType,
   });
 
+  final Key fieldKey;
   final TextEditingController controller;
   final String hint;
   final VoidCallback onSubmitted;
@@ -618,6 +643,7 @@ class _AdvancedField extends StatelessWidget {
       height: 30,
       child: _LibraryAddModeFieldFrame(
         child: TextField(
+          key: fieldKey,
           controller: controller,
           keyboardType: keyboardType ?? TextInputType.text,
           inputFormatters: [noNewlineFormatter],

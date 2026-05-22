@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
@@ -227,6 +228,62 @@ void main() {
     expect(api.lastProposalProvider, 'anilist');
     expect(api.lastProposalProviderItemId, 'anilist-1');
     expect(api.lastProposalTitle, 'Naruto Vol. 1');
+  });
+
+  testWidgets('comic add dialog applies local cover scan hints to search fields',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+              coverScanService: _FakeLibraryCoverScanService(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Scan cover'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Cover scan filled search hints'), findsOneWidget);
+
+    final queryField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-query-field')),
+    );
+    final seriesField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-series-field')),
+    );
+    final numberField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-number-field')),
+    );
+    final publisherField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-publisher-field')),
+    );
+    final yearField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-year-field')),
+    );
+
+    expect(queryField.controller!.text, 'Batman');
+    expect(seriesField.controller!.text, 'Batman');
+    expect(numberField.controller!.text, '423');
+    expect(publisherField.controller!.text, 'DC');
+    expect(yearField.controller!.text, '1988');
   });
 
   testWidgets('provider search does not claim fallback when results are mixed',
@@ -698,6 +755,23 @@ class _FakeLibraryAddApiClient extends ApiClient {
       maxAttempts: maxAttempts,
       createdAt: DateTime.utc(2026),
       updatedAt: DateTime.utc(2026),
+    );
+  }
+}
+
+class _FakeLibraryCoverScanService implements LibraryCoverScanService {
+  @override
+  Future<LibraryCoverScanResult?> scanCover({
+    required BuildContext context,
+    required type,
+  }) async {
+    return const LibraryCoverScanResult(
+      query: 'Batman',
+      series: 'Batman',
+      issueNumber: '423',
+      publisher: 'DC',
+      year: 1988,
+      confidenceLabel: 'medium',
     );
   }
 }

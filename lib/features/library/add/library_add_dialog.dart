@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/ui/clz_style.dart';
 import 'package:collectarr_app/features/library/add/compact_controls.dart';
+import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
@@ -65,6 +66,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.initialQuery,
     this.initialBarcode,
     this.autoLookupInitialBarcode = true,
+    this.coverScanService = const NoopLibraryCoverScanService(),
   });
 
   final LibraryTypeConfig type;
@@ -72,6 +74,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final String? initialQuery;
   final String? initialBarcode;
   final bool autoLookupInitialBarcode;
+  final LibraryCoverScanService coverScanService;
 
   @override
   ConsumerState<LibraryAddDialog> createState() => _LibraryAddDialogState();
@@ -126,6 +129,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _pendingProviderPreviewIds = <String>{};
   List<StorageLocation> _availableLocations = const [];
   String? _defaultLocationId;
+  LibraryCoverScanResult? _coverScanPrefill;
+  bool _isScanningCover = false;
   double _resultsPaneWidth = 480;
   static const _providerSearchDebounce = Duration(milliseconds: 450);
   static const _coreSearchTimeout = Duration(seconds: 35);
@@ -237,6 +242,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   isSearchingProvider: _isSearchingProvider,
                   onModeChanged: (mode) => setState(() => _mode = mode),
                   onSearch: _search,
+                  canScanCover: widget.type.workspace.kind == 'comic',
+                  isScanningCover: _isScanningCover,
+                  onScanCover: _scanCover,
                   onLookupBarcode: _lookupBarcode,
                   onManual: () =>
                       setState(() => _mode = _LibraryAddDialogMode.manual),
@@ -253,6 +261,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     type: widget.type,
                     barcode: _barcodeController.text.trim(),
                   ),
+                if (_coverScanPrefill != null)
+                  _CoverScanPrefillBanner(result: _coverScanPrefill!),
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
@@ -522,6 +532,46 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     } finally {
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() => _isSearching = false);
+      }
+    }
+  }
+
+  Future<void> _scanCover() async {
+    if (_isScanningCover) {
+      return;
+    }
+    setState(() {
+      _isScanningCover = true;
+      _error = null;
+    });
+    try {
+      final result = await widget.coverScanService.scanCover(
+        context: context,
+        type: widget.type,
+      );
+      if (!mounted || result == null || !result.hasAnyHint) {
+        return;
+      }
+      final query = (result.query ?? result.series ?? '').trim();
+      setState(() {
+        _mode = _LibraryAddDialogMode.search;
+        _queryController.text = query;
+        _searchSeriesController.text = result.series?.trim() ?? '';
+        _searchNumberController.text = result.issueNumber?.trim() ?? '';
+        _searchPublisherController.text = result.publisher?.trim() ?? '';
+        _searchYearController.text = result.year?.toString() ?? '';
+        _showAdvancedSearch = result.showAdvancedFields;
+        _coverScanPrefill = result;
+        _results = const [];
+        _providerResults = const [];
+        _selectedResultId = null;
+        _selectedProviderCandidateId = null;
+        _providerPreviews.clear();
+        _searchedProvider = false;
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isScanningCover = false);
       }
     }
   }
@@ -1361,6 +1411,54 @@ class _QueuedProviderIngest {
 }
 
 enum _LibraryAddDialogMode { search, barcode, manual }
+
+class _CoverScanPrefillBanner extends StatelessWidget {
+  const _CoverScanPrefillBanner({required this.result});
+
+  final LibraryCoverScanResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    final details = <String>[
+      if (result.query != null && result.query!.trim().isNotEmpty) result.query!,
+      if (result.issueNumber != null && result.issueNumber!.trim().isNotEmpty)
+        '#${result.issueNumber}',
+      if (result.year != null) result.year!.toString(),
+      if (result.publisher != null && result.publisher!.trim().isNotEmpty)
+        result.publisher!,
+    ];
+    final confidence = result.confidenceLabel?.trim();
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0xFF243926),
+        border: Border(bottom: _kLibraryAddBorder),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Row(
+          children: [
+            const Icon(Icons.photo_camera_outlined, size: 18, color: kClzAccent),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                details.isEmpty
+                    ? 'Cover scan filled search hints. Review them before searching Core.'
+                    : 'Cover scan filled search hints: ${details.join(' | ')}${confidence == null || confidence.isEmpty ? '' : ' ($confidence confidence)'}',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 const double _kLibraryAddControlHeight = 34;
 const double _kLibraryAddModeControlHeight = 36;
