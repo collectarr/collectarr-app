@@ -1,7 +1,10 @@
+import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/series_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -124,6 +127,21 @@ typedef LibraryMetadataFactTapResolver = VoidCallback? Function(String? value);
 
 abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
+
+  Widget? buildAddPreviewPane({
+    required BuildContext context,
+    required Color accent,
+    required String singularLabel,
+    required LibraryMediaFieldLabels labels,
+    required LibraryMediaPreviewLabels previewLabels,
+    required LibraryMetadataItem? item,
+    required ProviderCandidate? candidate,
+    required AdminProviderPreview? preview,
+    required bool isFetchingPreview,
+    required String providerLabel,
+  }) {
+    return null;
+  }
 
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,

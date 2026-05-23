@@ -16,10 +16,6 @@ const animeLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
   showSummary: true,
   showSeasonHierarchy: true,
 );
-const booksLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder(
-  showSummary: true,
-  showVolumeHierarchy: true,
-);
 const gamesLibraryMediaBuilder = GameLibraryMediaPresentationBuilder();
 const boardGamesLibraryMediaBuilder = DefaultLibraryMediaPresentationBuilder();
 const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(

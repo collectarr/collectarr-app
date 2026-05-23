@@ -19,7 +19,7 @@ class _LibraryAddPaneResizeDivider extends StatelessWidget {
           child: SizedBox(
             width: 10,
             child: Center(
-              child: Container(width: 2, color: kClzDivider),
+              child: Container(width: 2, color: kAppDivider),
             ),
           ),
         ),
@@ -102,6 +102,21 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
             preview: preview,
           )
         : const <_PreviewTrackData>[];
+    final customPreview = type.presentation.builder.buildAddPreviewPane(
+      context: context,
+      accent: accent,
+      singularLabel: type.singularLabel,
+      labels: type.presentation.fieldLabels,
+      previewLabels: type.presentation.previewLabels,
+      item: selectedItem,
+      candidate: selectedCandidate,
+      preview: preview,
+      isFetchingPreview: isFetchingPreview,
+      providerLabel: providerLabel,
+    );
+    if (customPreview != null) {
+      return customPreview;
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -109,7 +124,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
           end: Alignment.bottomRight,
           colors: [
             const Color(0xFF020202),
-            Color.alphaBlend(accent.withValues(alpha: 0.22), kClzCanvas),
+            Color.alphaBlend(accent.withValues(alpha: 0.22), kAppCanvas),
             const Color(0xFF050505),
           ],
         ),
@@ -213,7 +228,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                               SizedBox(width: 8),
                               Text(
                                 'Fetching full metadata...',
-                                style: TextStyle(color: kClzTextMuted),
+                                style: TextStyle(color: kAppTextMuted),
                               ),
                             ],
                           ),
@@ -401,7 +416,7 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                color: kClzTextMuted,
+                color: kAppTextMuted,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -529,7 +544,7 @@ class _LibraryAddPreviewSeriesTree extends StatelessWidget {
                               Text(
                                 child.subtitle!,
                                 style: const TextStyle(
-                                  color: kClzTextMuted,
+                                  color: kAppTextMuted,
                                   fontSize: 12,
                                 ),
                               ),
@@ -830,7 +845,7 @@ class _PreviewTrackRow extends StatelessWidget {
               child: Text(
                 durationStr,
                 style: const TextStyle(
-                  color: kClzTextMuted,
+                  color: kAppTextMuted,
                   fontSize: 13,
                 ),
               ),
@@ -902,8 +917,8 @@ class _ResizableDialogShell extends StatelessWidget {
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: kClzPanel,
-            border: Border.all(color: kClzDivider),
+            color: kAppPanel,
+            border: Border.all(color: kAppDivider),
             boxShadow: const [
               BoxShadow(
                 color: Color(0xCC000000),

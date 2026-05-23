@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
@@ -30,7 +31,10 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
     publisherPlural: 'Publishers',
     unknownPublisher: 'Unknown publisher',
   ),
-  builder: booksLibraryMediaBuilder,
+  builder: BookLibraryMediaPresentationBuilder(
+    showSummary: true,
+    showVolumeHierarchy: true,
+  ),
   previewLabels: volumesPreviewLabels,
   groupModes: [
     LibraryGroupMode.publisher,
