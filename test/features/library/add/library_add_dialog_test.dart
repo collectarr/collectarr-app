@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
@@ -47,6 +48,29 @@ void main() {
     expect(first, second);
     expect(first, startsWith('preview-manga-'));
     expect(first, isNot(contains('item:1/2')));
+  });
+
+  test('local cover image preprocessor applies crop and rotation transforms',
+      () async {
+    final pngBytes = await _generateSolidPngBytes(width: 2, height: 3);
+    final reviewed = LibraryCoverReviewedImage.fromFile(
+      XFile.fromData(pngBytes, name: 'cover.png'),
+      imageBytes: pngBytes,
+      rotationQuarterTurns: 1,
+      cropBounds: const LibraryCoverCropBounds(
+        left: 0,
+        top: 0,
+        right: 1,
+        bottom: 0.5,
+      ),
+    );
+
+    final prepared = await const LocalLibraryCoverImagePreprocessor()
+        .prepareImage(type: comicsLibraryConfig, image: reviewed);
+
+    expect(prepared.transformsApplied, isTrue);
+    expect(prepared.preparedBytes, isNotNull);
+    expect(prepared.preparedBytes, isNot(equals(pngBytes)));
   });
 
   testWidgets('generic add dialog exposes scanned barcode in manual flow',
@@ -1253,6 +1277,7 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
     this.reviewedCropBounds = const LibraryCoverCropBounds.fullFrame(),
     this.reviewedRotationQuarterTurns = 0,
     this.reviewedExtractedText,
+    this.reviewedImageBytes,
   });
 
   final bool acceptImport;
@@ -1260,6 +1285,7 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
   final LibraryCoverCropBounds reviewedCropBounds;
   final int reviewedRotationQuarterTurns;
   final String? reviewedExtractedText;
+  final Uint8List? reviewedImageBytes;
 
   @override
   Future<LibraryCoverReviewedImage?> reviewImage({
@@ -1272,6 +1298,7 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
     }
     return LibraryCoverReviewedImage.fromFile(
       file,
+      imageBytes: reviewedImageBytes ?? Uint8List(0),
       displayName: reviewedDisplayName,
       cropBounds: reviewedCropBounds,
       rotationQuarterTurns: reviewedRotationQuarterTurns,
@@ -1291,4 +1318,19 @@ String _jwtExpiringAt(DateTime expiresAt) {
 
 String _base64UrlJson(Map<String, Object> value) {
   return base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+}
+
+Future<Uint8List> _generateSolidPngBytes({
+  required int width,
+  required int height,
+}) async {
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  canvas.drawRect(
+    Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+    Paint()..color = const Color(0xFF39A7FF),
+  );
+  final image = await recorder.endRecording().toImage(width, height);
+  final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+  return byteData!.buffer.asUint8List();
 }

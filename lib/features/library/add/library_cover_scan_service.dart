@@ -1,4 +1,6 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +21,7 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
     this.sourcePrompt = const BottomSheetLibraryCoverScanSourcePrompt(),
     this.imagePicker = const DeviceLibraryCoverImagePicker(),
     this.imageReview = const DialogLibraryCoverImageReview(),
-    this.imagePreprocessor = const PassthroughLibraryCoverImagePreprocessor(),
+    this.imagePreprocessor = const LocalLibraryCoverImagePreprocessor(),
     this.textRecognizer = const ReviewSeedLibraryCoverTextRecognizer(),
   });
 
@@ -175,10 +177,12 @@ class LibraryCoverPreparedImage {
   const LibraryCoverPreparedImage({
     required this.reviewedImage,
     this.preparedBytes,
+    this.transformsApplied = false,
   });
 
   final LibraryCoverReviewedImage reviewedImage;
   final Uint8List? preparedBytes;
+  final bool transformsApplied;
 }
 
 abstract class LibraryCoverImagePreprocessor {
@@ -190,20 +194,138 @@ abstract class LibraryCoverImagePreprocessor {
   });
 }
 
-class PassthroughLibraryCoverImagePreprocessor
+class LocalLibraryCoverImagePreprocessor
     implements LibraryCoverImagePreprocessor {
-  const PassthroughLibraryCoverImagePreprocessor();
+  const LocalLibraryCoverImagePreprocessor();
 
   @override
   Future<LibraryCoverPreparedImage> prepareImage({
     required LibraryTypeConfig type,
     required LibraryCoverReviewedImage image,
   }) async {
+    if (!_needsImageTransform(image)) {
+      return LibraryCoverPreparedImage(
+        reviewedImage: image,
+        preparedBytes: image.imageBytes,
+      );
+    }
+    final sourceBytes = image.imageBytes ?? await _readPreviewBytes(image.sourceFile);
+    if (sourceBytes == null) {
+      return LibraryCoverPreparedImage(
+        reviewedImage: image,
+        preparedBytes: null,
+      );
+    }
+    final transformedBytes = await _transformPreparedBytes(sourceBytes, image);
     return LibraryCoverPreparedImage(
       reviewedImage: image,
-      preparedBytes: image.imageBytes,
+      preparedBytes: transformedBytes ?? sourceBytes,
+      transformsApplied: transformedBytes != null,
     );
   }
+}
+
+bool _needsImageTransform(LibraryCoverReviewedImage image) {
+  return image.rotationQuarterTurns != 0 || !image.cropBounds.isFullFrame;
+}
+
+Future<Uint8List?> _transformPreparedBytes(
+  Uint8List sourceBytes,
+  LibraryCoverReviewedImage image,
+) async {
+  ui.Codec? codec;
+  ui.Image? frameImage;
+  ui.Image? rotatedImage;
+  ui.Image? croppedImage;
+  try {
+    codec = await ui.instantiateImageCodec(sourceBytes);
+    final frame = await codec.getNextFrame();
+    frameImage = frame.image;
+
+    final rotatedSize = _rotatedImageSize(
+      frameImage.width,
+      frameImage.height,
+      image.rotationQuarterTurns,
+    );
+    rotatedImage = await _renderRotatedImage(
+      frameImage,
+      image.rotationQuarterTurns,
+      rotatedSize,
+    );
+
+    final cropRect = _cropRectForBounds(rotatedSize, image.cropBounds);
+    croppedImage = await _renderCroppedImage(rotatedImage, cropRect);
+    final byteData = await croppedImage.toByteData(format: ui.ImageByteFormat.png);
+    return byteData?.buffer.asUint8List();
+  } catch (_) {
+    return null;
+  } finally {
+    codec?.dispose();
+    frameImage?.dispose();
+    rotatedImage?.dispose();
+    croppedImage?.dispose();
+  }
+}
+
+Size _rotatedImageSize(int width, int height, int quarterTurns) {
+  return quarterTurns.isOdd
+      ? Size(height.toDouble(), width.toDouble())
+      : Size(width.toDouble(), height.toDouble());
+}
+
+Future<ui.Image> _renderRotatedImage(
+  ui.Image source,
+  int quarterTurns,
+  Size outputSize,
+) async {
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  final normalizedTurns = quarterTurns % 4;
+  if (normalizedTurns == 1) {
+    canvas.translate(outputSize.width, 0);
+    canvas.rotate(math.pi / 2);
+  } else if (normalizedTurns == 2) {
+    canvas.translate(outputSize.width, outputSize.height);
+    canvas.rotate(math.pi);
+  } else if (normalizedTurns == 3) {
+    canvas.translate(0, outputSize.height);
+    canvas.rotate(-math.pi / 2);
+  }
+  canvas.drawImage(source, Offset.zero, Paint());
+  return recorder
+      .endRecording()
+      .toImage(outputSize.width.round(), outputSize.height.round());
+}
+
+Rect _cropRectForBounds(Size size, LibraryCoverCropBounds bounds) {
+  final left = size.width * bounds.left;
+  final top = size.height * bounds.top;
+  final width = math.max(1, (size.width * bounds.width).round()).toDouble();
+  final height = math.max(1, (size.height * bounds.height).round()).toDouble();
+    final clampedLeft =
+      left.clamp(0.0, math.max(0.0, size.width - width)).toDouble();
+    final clampedTop =
+      top.clamp(0.0, math.max(0.0, size.height - height)).toDouble();
+  return Rect.fromLTWH(
+    clampedLeft,
+    clampedTop,
+    math.min(width, size.width),
+    math.min(height, size.height),
+  );
+}
+
+Future<ui.Image> _renderCroppedImage(ui.Image source, Rect cropRect) async {
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  final outputWidth = cropRect.width.round();
+  final outputHeight = cropRect.height.round();
+  canvas.drawImageRect(
+    source,
+    cropRect,
+    Rect.fromLTWH(0, 0, outputWidth.toDouble(), outputHeight.toDouble()),
+    Paint(),
+  );
+  return recorder.endRecording().toImage(outputWidth, outputHeight);
 }
 
 abstract class LibraryCoverTextRecognizer {
