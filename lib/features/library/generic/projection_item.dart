@@ -33,6 +33,7 @@ class LibraryProjectionItem {
         barcode: item.barcode,
         variant: item.displayEditionLabel,
         isOwned: source.isOwned,
+        isTracked: source.isTracked,
         isWishlisted: source.isWishlisted,
         hasMissingCover: item.displayCoverUrl == null,
         hasMissingMetadata: genericHasMissingCoreMetadata(item),
@@ -58,6 +59,7 @@ class LibraryProjectionItem {
         country: item.country,
         language: item.language,
         ageRating: item.ageRating,
+        editions: item.editions,
         updatedAt: source.updatedAt,
       ),
     );

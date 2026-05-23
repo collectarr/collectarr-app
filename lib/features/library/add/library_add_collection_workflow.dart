@@ -23,6 +23,8 @@ class LibraryAddDefaults {
 
 class LibraryAddOwnedDetails {
   const LibraryAddOwnedDetails({
+    this.editionId,
+    this.variantId,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -48,6 +50,8 @@ class LibraryAddOwnedDetails {
     this.soldTo,
   });
 
+  final String? editionId;
+  final String? variantId;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -93,8 +97,10 @@ Future<void> addLibraryItemsToTarget({
     final ownedDetails = ownedDetailsByItemId[item.id];
     switch (target) {
       case LibraryAddTarget.owned:
-        await mutations.addItem(
+        final ownedItem = await mutations.addItem(
           item.id,
+          editionId: ownedDetails?.editionId,
+          variantId: ownedDetails?.variantId,
           condition: ownedDetails?.condition ?? defaults.condition,
           grade: ownedDetails?.grade ?? defaults.grade,
           purchaseDate: ownedDetails?.purchaseDate ?? defaults.purchaseDate,
@@ -118,6 +124,17 @@ Future<void> addLibraryItemsToTarget({
           soldAt: ownedDetails?.soldAt,
           sellPriceCents: ownedDetails?.sellPriceCents,
           soldTo: ownedDetails?.soldTo,
+          syncTracking: false,
+          notify: false,
+        );
+        await mutations.syncOwnedTrackingEntry(
+          ownedItem,
+          editionId: ownedDetails?.editionId,
+          variantId: ownedDetails?.variantId,
+          status: ownedDetails?.readStatus ?? defaults.readStatus,
+          rating: ownedDetails?.rating,
+          startedAt: ownedDetails?.startedAt,
+          finishedAt: ownedDetails?.finishedAt,
         );
         break;
       case LibraryAddTarget.wishlist:

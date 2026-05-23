@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,10 +24,12 @@ void main() {
       queue: SyncQueueRepository(db),
       catalog: CatalogCacheRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
 
     final row = await db.select(db.ownedItemsCache).getSingle();
+    final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final catalogRow = await db.select(db.catalogCache).getSingle();
     final locations = await LocationRepository(db).getAll();
@@ -34,6 +37,8 @@ void main() {
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
     expect(row.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
+    expect(trackingRow.status, 'Completed');
+    expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
     expect(catalogRow.title, 'Absolute Batman');
     expect(catalogRow.coverImageUrl, 'https://cdn.example/absolute.jpg');
@@ -65,6 +70,7 @@ void main() {
       queue: queue,
       catalog: CatalogCacheRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
@@ -144,6 +150,21 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'client_changed_at': '2026-05-12T08:00:00.000Z',
           'changed_at': '2026-05-12T09:00:00.000Z',
           'payload': {'item_id': 'comic-1'},
+        },
+        {
+          'entity_type': 'tracking_entry',
+          'entity_id': 'tracking-1',
+          'action': 'upsert',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T08:10:00.000Z',
+          'changed_at': '2026-05-12T09:00:00.000Z',
+          'payload': {
+            'item_id': 'comic-1',
+            'owned_item_id': 'owned-1',
+            'source_type': 'physical',
+            'status': 'Completed',
+            'rating': 9,
+          },
         },
         {
           'entity_type': 'location',

@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
@@ -741,6 +743,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
     final owned = ownedItemOverride ?? item.source.ownedItem;
+    final activeTrackingEntry = _resolveTrackingEntry(
+      ref.read(trackingEntriesByCatalogItemProvider)[catalogItem.id] ??
+          const <TrackingEntry>[],
+      owned,
+    );
     final definitions = await customFieldRepo.listDefinitions(
       mediaKind: widget.type.workspace.kind,
     );
@@ -756,6 +763,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         type: widget.type,
         item: LibraryMetadataItem.fromCatalogItem(catalogItem),
         ownedItem: owned,
+        trackingEntry: activeTrackingEntry,
         accent: widget.accent,
         physicalFormats: physicalMediaFormatsForKind(
           catalog,
@@ -776,8 +784,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
     final personal = result.personal;
     if (owned != null && personal != null) {
-      await mutations.updateItem(
+      final updatedOwned = await mutations.updateItem(
         owned,
+        editionId: personal.editionId,
+        variantId: personal.variantId,
         condition: personal.condition,
         grade: personal.grade,
         purchaseDate: personal.purchaseDate,
@@ -796,14 +806,25 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         signedBy: personal.signedBy,
         keyComic: personal.keyComic,
         keyReason: personal.keyReason,
-        rating: personal.rating,
-        readStatus: personal.readStatus,
-        startedAt: personal.startedAt,
-        finishedAt: personal.finishedAt,
+        rating: result.tracking?.rating,
+        readStatus: result.tracking?.readStatus,
+        startedAt: result.tracking?.startedAt,
+        finishedAt: result.tracking?.finishedAt,
         tags: personal.tags,
         soldAt: personal.soldAt,
         sellPriceCents: personal.sellPriceCents,
         soldTo: personal.soldTo,
+        syncTracking: false,
+        notify: false,
+      );
+      await mutations.syncOwnedTrackingEntry(
+        updatedOwned,
+        editionId: personal.editionId,
+        variantId: personal.variantId,
+        status: result.tracking?.readStatus,
+        rating: result.tracking?.rating,
+        startedAt: result.tracking?.startedAt,
+        finishedAt: result.tracking?.finishedAt,
       );
       // Save custom field values
       final now = DateTime.now();
@@ -834,6 +855,46 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           await itemImageRepo.updateCaption(edit.id, edit.caption);
         }
       }
+    } else if (owned == null && activeTrackingEntry != null && result.tracking != null) {
+      await mutations.upsertTrackingEntry(
+        catalogItem.id,
+        editionId: result.tracking!.editionId,
+        variantId: result.tracking!.variantId,
+        sourceType: activeTrackingEntry.sourceType,
+        status: result.tracking!.readStatus,
+        rating: result.tracking!.rating,
+        startedAt: result.tracking!.startedAt,
+        finishedAt: result.tracking!.finishedAt,
+        progressCurrent: activeTrackingEntry.progressCurrent,
+        progressTotal: activeTrackingEntry.progressTotal,
+        timesCompleted: activeTrackingEntry.timesCompleted,
+        notes: activeTrackingEntry.notes,
+        seasonNumber: activeTrackingEntry.seasonNumber,
+        episodeNumber: activeTrackingEntry.episodeNumber,
+        notify: false,
+      );
+    }
+
+    TrackingEntry? _resolveTrackingEntry(
+      List<TrackingEntry> entries,
+      OwnedItem? activeOwnedItem,
+    ) {
+      if (entries.isEmpty) {
+        return null;
+      }
+      if (activeOwnedItem != null) {
+        for (final entry in entries) {
+          if (entry.ownedItemId == activeOwnedItem.id) {
+            return entry;
+          }
+        }
+      }
+      for (final entry in entries) {
+        if (entry.ownedItemId == null) {
+          return entry;
+        }
+      }
+      return entries.first;
     }
     if (!mounted) {
       return;

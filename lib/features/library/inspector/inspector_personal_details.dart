@@ -1,10 +1,17 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/release_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -385,6 +392,310 @@ class _InspectorPersonalDetailsEditorState
     final parsed = double.tryParse(normalized);
     if (parsed == null) return null;
     return (parsed * 100).round();
+  }
+
+  String? _emptyToNull(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  String _formatDate(DateTime value) {
+    final local = value.toLocal();
+    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+  }
+}
+
+class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
+  const InspectorTrackingDetailsEditor({
+    super.key,
+    required this.itemId,
+    required this.trackingEntry,
+    required this.profile,
+    required this.accent,
+    this.editions = const <CatalogEdition>[],
+  });
+
+  final String itemId;
+  final TrackingEntry trackingEntry;
+  final MediaTrackingProfile profile;
+  final Color accent;
+  final List<CatalogEdition> editions;
+
+  @override
+  ConsumerState<InspectorTrackingDetailsEditor> createState() =>
+      _InspectorTrackingDetailsEditorState();
+}
+
+class _InspectorTrackingDetailsEditorState
+    extends ConsumerState<InspectorTrackingDetailsEditor> {
+  late final TextEditingController _ratingController;
+  late final TextEditingController _statusController;
+  DateTime? _startedAt;
+  DateTime? _finishedAt;
+  String? _selectedEditionId;
+  String? _selectedVariantId;
+
+  @override
+  void initState() {
+    super.initState();
+    _ratingController = TextEditingController();
+    _statusController = TextEditingController();
+    _syncFromEntry(widget.trackingEntry);
+  }
+
+  @override
+  void didUpdateWidget(covariant InspectorTrackingDetailsEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.trackingEntry.id != widget.trackingEntry.id ||
+        oldWidget.trackingEntry.updatedAt != widget.trackingEntry.updatedAt) {
+      _syncFromEntry(widget.trackingEntry);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ratingController.dispose();
+    _statusController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = widget.accent;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xD51C1F21),
+        border: Border.all(color: accent.withValues(alpha: 0.33)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.equalizer, size: 17, color: accent),
+                const SizedBox(width: 7),
+                Text(
+                  'Tracking details',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: accent,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                      ),
+                ),
+              ],
+            ),
+            if (widget.editions.isNotEmpty) ...[
+              const SizedBox(height: 9),
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kEditMenuBorderRadius,
+                initialValue: _selectedEditionId,
+                decoration: const InputDecoration(
+                  labelText: 'Tracked edition',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  const DropdownMenuItem<String>(
+                    value: '',
+                    child: Text('Primary / unspecified edition'),
+                  ),
+                  for (final edition in widget.editions)
+                    DropdownMenuItem<String>(
+                      value: edition.id,
+                      child: Text(edition.title),
+                    ),
+                ],
+                onChanged: (value) {
+                  final edition = resolveLibraryReleaseSelection(
+                    widget.editions,
+                    editionId: _emptyToNull(value ?? ''),
+                  ).edition;
+                  setState(() {
+                    _selectedEditionId = edition?.id;
+                    _selectedVariantId = resolveVariantForEdition(edition)?.id;
+                  });
+                },
+              ),
+              const SizedBox(height: 9),
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kEditMenuBorderRadius,
+                initialValue: _selectedVariantId,
+                decoration: const InputDecoration(
+                  labelText: 'Tracked variant',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  const DropdownMenuItem<String>(
+                    value: '',
+                    child: Text('Primary / unspecified variant'),
+                  ),
+                  for (final variant in (_selectedEdition()?.variants ?? const <CatalogVariant>[]))
+                    DropdownMenuItem<String>(
+                      value: variant.id,
+                      child: Text(variant.name),
+                    ),
+                ],
+                onChanged: (_selectedEdition()?.variants.isEmpty ?? true)
+                    ? null
+                    : (value) =>
+                        setState(() => _selectedVariantId = _emptyToNull(value ?? '')),
+              ),
+            ],
+            const SizedBox(height: 9),
+            Row(
+              children: [
+                Expanded(
+                  child: MediaRatingField(controller: _ratingController),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: MediaTrackingStatusField(
+                    profile: widget.profile,
+                    value: _statusController.text,
+                    label: 'Tracking status',
+                    onChanged: (value) {
+                      _statusController.text = value ?? '';
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 9),
+            Row(
+              children: [
+                Expanded(
+                  child: _dateField(
+                    context,
+                    label: 'Started',
+                    value: _startedAt,
+                    onChanged: (value) => setState(() => _startedAt = value),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _dateField(
+                    context,
+                    label: 'Finished',
+                    value: _finishedAt,
+                    onChanged: (value) => setState(() => _finishedAt = value),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 9),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.icon(
+                onPressed: _save,
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Save tracking details'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _syncFromEntry(TrackingEntry entry) {
+    _ratingController.text = entry.rating?.toString() ?? '';
+    _statusController.text = entry.status ?? '';
+    _startedAt = entry.startedAt;
+    _finishedAt = entry.finishedAt;
+    final selection = resolveLibraryReleaseSelection(
+      widget.editions,
+      editionId: entry.editionId,
+      variantId: entry.variantId,
+    );
+    _selectedEditionId = selection.edition?.id;
+    _selectedVariantId = selection.variant?.id;
+  }
+
+  CatalogEdition? _selectedEdition() {
+    final selectedId = _selectedEditionId;
+    if (selectedId == null) {
+      return null;
+    }
+    for (final edition in widget.editions) {
+      if (edition.id == selectedId) {
+        return edition;
+      }
+    }
+    return null;
+  }
+
+  Widget _dateField(
+    BuildContext context, {
+    required String label,
+    required DateTime? value,
+    required ValueChanged<DateTime?> onChanged,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () async {
+        final now = DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: value ?? now,
+          firstDate: DateTime(1900),
+          lastDate: DateTime(now.year + 10),
+        );
+        if (picked != null && mounted) {
+          onChanged(picked);
+        }
+      },
+      onLongPress: value != null ? () => onChanged(null) : null,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          suffixIcon: value != null
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => onChanged(null),
+                )
+              : const Icon(Icons.calendar_today, size: 18),
+        ),
+        child: Text(
+          value != null ? _formatDate(value) : '',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    await ref.read(collectionMutationsProvider).upsertTrackingEntry(
+          widget.itemId,
+          ownedItemId: widget.trackingEntry.ownedItemId,
+          editionId: _selectedEditionId,
+          variantId: _selectedVariantId,
+          sourceType: widget.trackingEntry.sourceType,
+          status: _emptyToNull(_statusController.text),
+          rating: _parseInt(_ratingController.text),
+          startedAt: _startedAt,
+          finishedAt: _finishedAt,
+          progressCurrent: widget.trackingEntry.progressCurrent,
+          progressTotal: widget.trackingEntry.progressTotal,
+          timesCompleted: widget.trackingEntry.timesCompleted,
+          notes: widget.trackingEntry.notes,
+          seasonNumber: widget.trackingEntry.seasonNumber,
+          episodeNumber: widget.trackingEntry.episodeNumber,
+        );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tracking details saved')),
+      );
+    }
+  }
+
+  int? _parseInt(String value) {
+    return int.tryParse(value.trim());
   }
 
   String? _emptyToNull(String value) {

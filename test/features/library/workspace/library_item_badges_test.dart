@@ -7,7 +7,11 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: LibraryCoverBadges(isOwned: false, isWishlisted: false),
+        home: LibraryCoverBadges(
+          isOwned: false,
+          isTracked: false,
+          isWishlisted: false,
+        ),
       ),
     );
 
@@ -18,7 +22,11 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: LibraryCoverBadges(isOwned: true, isWishlisted: true),
+        home: LibraryCoverBadges(
+          isOwned: true,
+          isTracked: false,
+          isWishlisted: true,
+        ),
       ),
     );
 
@@ -33,6 +41,7 @@ void main() {
       const MaterialApp(
         home: LibraryCoverBadges(
           isOwned: false,
+          isTracked: false,
           isWishlisted: false,
           hasMissingCover: true,
           hasMissingMetadata: true,
@@ -50,6 +59,7 @@ void main() {
       const MaterialApp(
         home: LibraryCoverBadges(
           isOwned: true,
+          isTracked: false,
           isWishlisted: false,
           keyLabel: 'Key item: First appearance',
           slabLabel: 'Slabbed - CGC',
@@ -67,7 +77,11 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: LibraryItemStatusIcons(isOwned: true, isWishlisted: false),
+        home: LibraryItemStatusIcons(
+          isOwned: true,
+          isTracked: false,
+          isWishlisted: false,
+        ),
       ),
     );
 
@@ -80,6 +94,7 @@ void main() {
       const MaterialApp(
         home: LibraryItemStatusIcons(
           isOwned: true,
+          isTracked: false,
           isWishlisted: false,
           hasMissingCover: true,
           hasMissingMetadata: true,
@@ -96,6 +111,7 @@ void main() {
       const MaterialApp(
         home: LibraryItemStatusIcons(
           isOwned: true,
+          isTracked: false,
           isWishlisted: false,
           hasKeyMarker: true,
           hasSlabMarker: true,
@@ -107,5 +123,20 @@ void main() {
     expect(find.byIcon(Icons.label_important), findsOneWidget);
     expect(find.byIcon(Icons.workspace_premium), findsOneWidget);
     expect(find.byIcon(Icons.sticky_note_2_outlined), findsOneWidget);
+  });
+
+  testWidgets('cover badges renders tracked marker for tracking-only items',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: LibraryCoverBadges(
+          isOwned: false,
+          isTracked: true,
+          isWishlisted: false,
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.equalizer), findsOneWidget);
   });
 }

@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/release_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -78,6 +79,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
+  String? _selectedEditionId;
+  String? _selectedVariantId;
   bool _locationChanged = false;
   DateTime? _startedAt;
   DateTime? _finishedAt;
@@ -87,6 +90,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   List<ItemImageEdit> _itemImageEdits = [];
 
   bool get _isOwned => widget.request.ownedItem != null;
+
+  bool get _hasTrackingContext => _isOwned || widget.request.trackingEntry != null;
+
+  bool get _isTrackingOnly => !_isOwned && widget.request.trackingEntry != null;
 
   LibraryMetadataItem get _item => widget.request.item;
   OwnedItem? get _owned => widget.request.ownedItem;
@@ -102,6 +109,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     super.initState();
     final item = _item;
     final owned = _owned;
+    final tracking = widget.request.trackingEntry;
     _tabController = TabController(length: 8, vsync: this)
       ..addListener(() {
         if (mounted) {
@@ -154,9 +162,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _quantityController =
         TextEditingController(text: (owned?.quantity ?? 1).toString());
     _ratingController =
-        TextEditingController(text: owned?.rating?.toString() ?? '');
+      TextEditingController(text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
     _trackingController =
-        TextEditingController(text: owned?.readStatus ?? '');
+      TextEditingController(text: tracking?.status ?? owned?.readStatus ?? '');
     _tagsController = TextEditingController(text: owned?.tags ?? '');
     _sellPriceController = TextEditingController(
       text: owned?.sellPriceCents == null
@@ -166,10 +174,19 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
 
     _selectedLocationId = owned?.locationId;
-    _startedAt = owned?.startedAt;
-    _finishedAt = owned?.finishedAt;
+    _startedAt = tracking?.startedAt ?? owned?.startedAt;
+    _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
     _soldAt = owned?.soldAt;
     _physicalFormatId = _initialPhysicalFormatId(item);
+    final releaseSelection = resolveLibraryReleaseSelection(
+      item.editions,
+      editionId: owned?.editionId ?? tracking?.editionId,
+      editionTitle: item.editionTitle,
+      variantId: owned?.variantId ?? tracking?.variantId,
+      variantName: item.variant,
+    );
+    _selectedEditionId = releaseSelection.edition?.id;
+    _selectedVariantId = releaseSelection.variant?.id;
     _customFieldEdits = {
       for (final value in widget.request.customFieldValues)
         value.fieldDefinitionId: value.value,
@@ -227,6 +244,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             'Edit ${widget.request.type.singularLabel.toLowerCase()} — ${_item.title}',
         badges: [
           if (_isOwned) const EditMiniBadge('Owned'),
+          if (_isTrackingOnly) const EditMiniBadge('Tracked'),
           if (_soldAt != null) const EditMiniBadge('Sold'),
           if (_conditionController.text.trim().isNotEmpty)
             EditMiniBadge(_conditionController.text.trim()),
@@ -236,7 +254,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         tabs: _tabHeaders(),
         views: _tabViews(),
         footerLabel:
-            _isOwned ? 'Music catalog + collection' : 'Music catalog snapshot',
+          _isOwned
+            ? 'Music catalog + collection'
+            : _isTrackingOnly
+              ? 'Music catalog + tracking'
+              : 'Music catalog snapshot',
         footerFields: [
           FooterTextField(
             label: 'Title sort',
@@ -567,6 +589,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             accent: _accent,
             child: Column(
               children: [
+                if (widget.request.item.editions.isNotEmpty) ...[
+                  _denseFields([
+                    _editionSelectionField(),
+                    _variantSelectionField(),
+                  ]),
+                  const SizedBox(height: 10),
+                ],
                 _denseFields([
                   _locationField(),
                   SizedBox(
@@ -593,6 +622,52 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     controller: _quantityController,
                     label: 'Quantity',
                     validator: positiveIntValidator,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                _denseFields([
+                  _datePickerField(
+                    label: 'Started',
+                    value: _startedAt,
+                    onChanged: (value) => setState(() => _startedAt = value),
+                  ),
+                  _datePickerField(
+                    label: 'Finished',
+                    value: _finishedAt,
+                    onChanged: (value) => setState(() => _finishedAt = value),
+                  ),
+                ]),
+              ],
+            ),
+          )
+        else if (_hasTrackingContext)
+          EditSection(
+            title: 'Tracking',
+            accent: _accent,
+            child: Column(
+              children: [
+                if (widget.request.item.editions.isNotEmpty) ...[
+                  _denseFields([
+                    _editionSelectionField(),
+                    _variantSelectionField(),
+                  ]),
+                  const SizedBox(height: 10),
+                ],
+                _denseFields([
+                  SizedBox(
+                    width: 140,
+                    child: MediaRatingField(controller: _ratingController),
+                  ),
+                  SizedBox(
+                    width: 180,
+                    child: MediaTrackingStatusField(
+                      profile: widget.request.type.trackingProfile,
+                      value: _trackingController.text,
+                      label: 'Tracking status',
+                      onChanged: (value) {
+                        _trackingController.text = value ?? '';
+                      },
+                    ),
                   ),
                 ]),
                 const SizedBox(height: 10),
@@ -1187,6 +1262,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(
+            editionId: _selectedEditionId,
+            variantId: _selectedVariantId,
                 condition: emptyToNull(_conditionController.text),
                 grade: emptyToNull(_gradeController.text),
                 purchaseDate: parseDate(_purchaseDateController.text),
@@ -1196,10 +1273,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 quantity: parseInt(_quantityController.text) ?? 1,
                 locationId: _selectedLocationId,
                 locationChanged: _locationChanged,
-                rating: parseInt(_ratingController.text),
-                readStatus: emptyToNull(_trackingController.text),
-                startedAt: _startedAt,
-                finishedAt: _finishedAt,
                 tags: emptyToNull(_tagsController.text),
                 soldAt: _soldAt,
                 sellPriceCents: parseMoneyCents(_sellPriceController.text),
@@ -1212,9 +1285,93 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 keyReason: null,
                 coverPriceCents: null,
               ),
+        tracking: !_hasTrackingContext
+            ? null
+            : LibraryTrackingEditSelection(
+          editionId: _selectedEditionId,
+          variantId: _selectedVariantId,
+                rating: parseInt(_ratingController.text),
+                readStatus: emptyToNull(_trackingController.text),
+                startedAt: _startedAt,
+                finishedAt: _finishedAt,
+              ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
       ),
+    );
+  }
+
+  CatalogEdition? _selectedEdition() {
+    final selectedId = _selectedEditionId;
+    if (selectedId == null) {
+      return null;
+    }
+    for (final edition in widget.request.item.editions) {
+      if (edition.id == selectedId) {
+        return edition;
+      }
+    }
+    return null;
+  }
+
+  Widget _editionSelectionField() {
+    return DropdownButtonFormField<String>(
+      initialValue: _selectedEditionId,
+      isExpanded: true,
+      dropdownColor: kEditPanelRaised,
+      borderRadius: kEditMenuBorderRadius,
+      decoration: const InputDecoration(labelText: 'Owned edition'),
+      items: [
+        const DropdownMenuItem<String>(
+          value: '',
+          child: Text('Primary / unspecified edition'),
+        ),
+        for (final edition in widget.request.item.editions)
+          DropdownMenuItem<String>(
+            value: edition.id,
+            child: Text(edition.title),
+          ),
+      ],
+      onChanged: (value) {
+        final edition = resolveLibraryReleaseSelection(
+          widget.request.item.editions,
+          editionId: emptyToNull(value ?? ''),
+        ).edition;
+        setState(() {
+          _selectedEditionId = edition?.id;
+          _selectedVariantId = resolveVariantForEdition(edition)?.id;
+        });
+      },
+    );
+  }
+
+  Widget _variantSelectionField() {
+    final edition = _selectedEdition();
+    final variants = edition?.variants ?? const <CatalogVariant>[];
+    return DropdownButtonFormField<String>(
+      initialValue: _selectedVariantId,
+      isExpanded: true,
+      dropdownColor: kEditPanelRaised,
+      borderRadius: kEditMenuBorderRadius,
+      decoration: const InputDecoration(labelText: 'Owned variant'),
+      items: [
+        const DropdownMenuItem<String>(
+          value: '',
+          child: Text('Primary / unspecified variant'),
+        ),
+        for (final variant in variants)
+          DropdownMenuItem<String>(
+            value: variant.id,
+            child: Text(variant.name),
+          ),
+      ],
+      onChanged: variants.isEmpty
+          ? null
+          : (value) {
+              setState(() {
+                _selectedVariantId = emptyToNull(value ?? '');
+              });
+            },
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -99,6 +100,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               : <OwnedItem>[widget.ownedItem!],
         );
     final activeOwnedItem = _resolveOwnedItem(ownedCopies, widget.ownedItem);
+    final trackingEntries =
+        ref.watch(trackingEntriesByCatalogItemProvider)[selected.id] ??
+            const <TrackingEntry>[];
+    final activeTrackingEntry = _resolveTrackingEntry(
+      trackingEntries,
+      activeOwnedItem,
+    );
     final extraActions = <Widget>[
       if (selected.isOwned)
         _InspectorDialogActionButton(
@@ -229,6 +237,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 const SizedBox(height: 10),
                 _InspectorOwnedCopiesSection(
                   copies: ownedCopies,
+                  editions: selected.editions,
                   selectedOwnedItemId: activeOwnedItem?.id,
                   accent: widget.accent,
                     onAddCopy: () => _addOwnedCopy(selected.id),
@@ -271,12 +280,21 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               InspectorPersonalSection(
                 entry: selected,
                 ownedItem: activeOwnedItem,
+                trackingEntry: activeTrackingEntry,
                 accent: widget.accent,
                 kind: widget.type.workspace.kind,
               ),
               if (activeOwnedItem != null)
                 InspectorPersonalDetailsEditor(
                   ownedItem: activeOwnedItem,
+                  accent: widget.accent,
+                )
+              else if (activeTrackingEntry != null)
+                InspectorTrackingDetailsEditor(
+                  itemId: selected.id,
+                  trackingEntry: activeTrackingEntry,
+                  profile: widget.type.trackingProfile,
+                  editions: selected.editions,
                   accent: widget.accent,
                 ),
               if (activeOwnedItem != null && widget.db != null) ...[
@@ -303,6 +321,28 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       ],
     );
+  }
+
+  TrackingEntry? _resolveTrackingEntry(
+    List<TrackingEntry> entries,
+    OwnedItem? activeOwnedItem,
+  ) {
+    if (entries.isEmpty) {
+      return null;
+    }
+    if (activeOwnedItem != null) {
+      for (final entry in entries) {
+        if (entry.ownedItemId == activeOwnedItem.id) {
+          return entry;
+        }
+      }
+    }
+    for (final entry in entries) {
+      if (entry.ownedItemId == null) {
+        return entry;
+      }
+    }
+    return entries.first;
   }
 
   Future<void> _updateConditionGrade(
@@ -455,6 +495,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
 class _InspectorOwnedCopiesSection extends StatelessWidget {
   const _InspectorOwnedCopiesSection({
     required this.copies,
+    required this.editions,
     required this.selectedOwnedItemId,
     required this.accent,
     required this.onAddCopy,
@@ -462,6 +503,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   });
 
   final List<OwnedItem> copies;
+  final List<CatalogEdition> editions;
   final String? selectedOwnedItemId;
   final Color accent;
   final VoidCallback onAddCopy;
@@ -495,7 +537,11 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                           DropdownMenuItem<String>(
                             value: copies[index].id,
                             child: Text(
-                              _ownedCopyLabel(copies[index], index),
+                              buildOwnedCopyLabel(
+                                copies[index],
+                                editions,
+                                index,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -525,24 +571,6 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
       ],
     );
   }
-}
-
-String _ownedCopyLabel(OwnedItem item, int index) {
-  final parts = <String>['Copy ${index + 1}'];
-  if (item.condition != null && item.condition!.trim().isNotEmpty) {
-    parts.add(item.condition!.trim());
-  }
-  if (item.grade != null && item.grade!.trim().isNotEmpty) {
-    parts.add(item.grade!.trim());
-  }
-  if (item.storageBox != null && item.storageBox!.trim().isNotEmpty) {
-    parts.add(item.storageBox!.trim());
-  }
-  final purchaseLabel = formatNullableDate(item.purchaseDate);
-  if (purchaseLabel != null) {
-    parts.add(purchaseLabel);
-  }
-  return parts.join('  ·  ');
 }
 
 class _InspectorDialogActionButton extends StatelessWidget {

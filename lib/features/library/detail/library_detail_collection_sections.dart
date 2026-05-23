@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -11,11 +12,13 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     super.key,
     required this.entry,
     required this.ownedItem,
+    this.trackingEntry,
     required this.accent,
   });
 
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
   final Color accent;
 
   @override
@@ -27,6 +30,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final coverPrice = formatMoney(ownedItem?.coverPriceCents, ownedItem?.currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
     final profitLoss = _detailProfitLossLabel(ownedItem);
+    final trackingStatus = trackingEntry?.status ?? ownedItem?.readStatus;
+    final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     return LibraryInspectorSection(
       title: 'Local collection',
       accentColor: accent,
@@ -86,11 +91,11 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ),
             LibraryInspectorFactData(
               'Read status',
-              genericLibraryDash(ownedItem?.readStatus),
+              genericLibraryDash(trackingStatus),
             ),
             LibraryInspectorFactData(
               'Rating',
-              ownedItem?.rating?.toString() ?? '-',
+              trackingRating?.toString() ?? '-',
             ),
           ],
         ),

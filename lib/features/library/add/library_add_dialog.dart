@@ -699,7 +699,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       ownedDetailsByItemId: result.personal == null
           ? const <String, LibraryAddOwnedDetails>{}
           : {
-              result.item.id: _ownedDetailsFromSelection(result.personal!),
+              result.item.id: _ownedDetailsFromSelection(result),
             },
     );
   }
@@ -745,32 +745,38 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   LibraryAddOwnedDetails _ownedDetailsFromSelection(
-    LibraryPersonalEditSelection selection,
+    LibraryEditSelection selection,
   ) {
+    final personal = selection.personal;
+    if (personal == null) {
+      return const LibraryAddOwnedDetails();
+    }
     return LibraryAddOwnedDetails(
-      condition: selection.condition,
-      grade: selection.grade,
-      purchaseDate: selection.purchaseDate,
-      pricePaidCents: selection.pricePaidCents,
-      currency: selection.currency,
-      personalNotes: selection.personalNotes,
-      quantity: selection.quantity,
-      locationId: selection.locationId,
-      coverPriceCents: selection.coverPriceCents,
-      rawOrSlabbed: selection.rawOrSlabbed,
-      gradingCompany: selection.gradingCompany,
-      graderNotes: selection.graderNotes,
-      signedBy: selection.signedBy,
-      keyComic: selection.keyComic ?? false,
-      keyReason: selection.keyReason,
-      rating: selection.rating,
-      readStatus: selection.readStatus,
-      startedAt: selection.startedAt,
-      finishedAt: selection.finishedAt,
-      tags: selection.tags,
-      soldAt: selection.soldAt,
-      sellPriceCents: selection.sellPriceCents,
-      soldTo: selection.soldTo,
+      editionId: personal.editionId,
+      variantId: personal.variantId,
+      condition: personal.condition,
+      grade: personal.grade,
+      purchaseDate: personal.purchaseDate,
+      pricePaidCents: personal.pricePaidCents,
+      currency: personal.currency,
+      personalNotes: personal.personalNotes,
+      quantity: personal.quantity,
+      locationId: personal.locationId,
+      coverPriceCents: personal.coverPriceCents,
+      rawOrSlabbed: personal.rawOrSlabbed,
+      gradingCompany: personal.gradingCompany,
+      graderNotes: personal.graderNotes,
+      signedBy: personal.signedBy,
+      keyComic: personal.keyComic ?? false,
+      keyReason: personal.keyReason,
+      rating: selection.tracking?.rating,
+      readStatus: selection.tracking?.readStatus,
+      startedAt: selection.tracking?.startedAt,
+      finishedAt: selection.tracking?.finishedAt,
+      tags: personal.tags,
+      soldAt: personal.soldAt,
+      sellPriceCents: personal.sellPriceCents,
+      soldTo: personal.soldTo,
     );
   }
 

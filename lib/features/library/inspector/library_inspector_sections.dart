@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -44,12 +45,14 @@ class InspectorPersonalSection extends StatelessWidget {
     super.key,
     required this.entry,
     required this.ownedItem,
+    this.trackingEntry,
     required this.accent,
     this.kind,
   });
 
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
   final Color accent;
   final String? kind;
 
@@ -59,14 +62,19 @@ class InspectorPersonalSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final paid = formatMoney(entry.pricePaidCents, entry.currency);
     final profitLoss = _profitLossLabel(ownedItem);
+    final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
+    final trackingStatus = trackingEntry?.status ?? ownedItem?.readStatus;
+    final trackingStartedAt = trackingEntry?.startedAt ?? ownedItem?.startedAt;
+    final trackingFinishedAt =
+        trackingEntry?.finishedAt ?? ownedItem?.finishedAt;
     return LibraryInspectorSection(
       title: 'Personal',
       accentColor: accent,
       children: [
-        if (ownedItem?.rating != null && ownedItem!.rating! > 0) ...[
+        if (trackingRating != null && trackingRating > 0) ...[
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: MediaRatingDisplay(rating: ownedItem!.rating!),
+            child: MediaRatingDisplay(rating: trackingRating),
           ),
         ],
         LibraryInspectorFactGrid(
@@ -75,18 +83,17 @@ class InspectorPersonalSection extends StatelessWidget {
               'Status',
               genericLibraryStatusLabel(entry),
             ),
-            if (ownedItem?.readStatus != null &&
-                ownedItem!.readStatus!.trim().isNotEmpty)
-              LibraryInspectorFactData('Tracking', ownedItem!.readStatus!),
-            if (ownedItem?.startedAt != null)
+            if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
+              LibraryInspectorFactData('Tracking', trackingStatus),
+            if (trackingStartedAt != null)
               LibraryInspectorFactData(
                 'Started',
-                formatNullableDate(ownedItem?.startedAt) ?? '-',
+                formatNullableDate(trackingStartedAt) ?? '-',
               ),
-            if (ownedItem?.finishedAt != null)
+            if (trackingFinishedAt != null)
               LibraryInspectorFactData(
                 'Finished',
-                formatNullableDate(ownedItem?.finishedAt) ?? '-',
+                formatNullableDate(trackingFinishedAt) ?? '-',
               ),
             LibraryInspectorFactData(
               'Condition',

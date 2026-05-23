@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 
 enum MediaTrackingStatus {
   none,
@@ -59,9 +60,25 @@ extension OwnedItemTracking on OwnedItem {
     return MediaTracking(
       status: mediaTrackingStatusFromString(readStatus),
       rating: rating,
-      completedAt: purchaseDate,
+      startedAt: startedAt,
+      completedAt: finishedAt,
       lastActivityAt: updatedAt,
-      notes: personalNotes,
+    );
+  }
+}
+
+extension TrackingEntryMediaTracking on TrackingEntry {
+  MediaTracking get mediaTracking {
+    return MediaTracking(
+      status: mediaTrackingStatusFromString(status),
+      rating: rating,
+      startedAt: startedAt,
+      completedAt: finishedAt,
+      lastActivityAt: updatedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: notes,
     );
   }
 }

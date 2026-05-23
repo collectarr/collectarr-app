@@ -64,6 +64,15 @@ class CatalogCacheRepository {
                         )
                       : null,
                 ),
+                editionsJson: Value(
+                  item.editions.isNotEmpty
+                      ? jsonEncode(
+                          item.editions
+                              .map((edition) => edition.toJson())
+                              .toList(growable: false),
+                        )
+                      : null,
+                ),
                 creatorsJson: Value(
                   item.creators != null && item.creators!.isNotEmpty
                       ? jsonEncode(item.creators)
@@ -207,6 +216,7 @@ class CatalogCacheRepository {
     );
     final video = VideoCatalogDetails(runtimeMinutes: row.runtimeMinutes);
     final tracks = _decodeTracks(row.tracksJson);
+    final editions = _decodeEditions(row.editionsJson);
     final rawPlatforms = _decodeStringList(row.platformsJson);
     final music = MusicCatalogDetails(
       trackCount: row.trackCount,
@@ -245,6 +255,7 @@ class CatalogCacheRepository {
       music: music.hasData ? music : null,
       game: game.hasData ? game : null,
       publishing: publishing.hasData ? publishing : null,
+      editions: editions ?? const <CatalogEdition>[],
       creators: _decodeListOfMaps(row.creatorsJson),
       characters: _decodeStringList(row.charactersJson),
       storyArcs: _decodeStringList(row.storyArcsJson),
@@ -263,6 +274,16 @@ class CatalogCacheRepository {
     }
     return decoded
         .map((track) => CatalogTrack.fromJson(track))
+        .toList(growable: false);
+  }
+
+  static List<CatalogEdition>? _decodeEditions(String? json) {
+    final decoded = _decodeListOfMaps(json);
+    if (decoded == null) {
+      return null;
+    }
+    return decoded
+        .map((edition) => CatalogEdition.fromJson(edition))
         .toList(growable: false);
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class LibraryCoverBadges extends StatelessWidget {
   const LibraryCoverBadges({
     required this.isOwned,
+    required this.isTracked,
     required this.isWishlisted,
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
@@ -13,6 +14,7 @@ class LibraryCoverBadges extends StatelessWidget {
   });
 
   final bool isOwned;
+  final bool isTracked;
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
@@ -23,6 +25,7 @@ class LibraryCoverBadges extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!isOwned &&
+      !isTracked &&
         !isWishlisted &&
         !hasMissingCover &&
         !hasMissingMetadata &&
@@ -41,6 +44,13 @@ class LibraryCoverBadges extends StatelessWidget {
             label: 'Owned',
             backgroundColor: colorScheme.primary,
             foregroundColor: colorScheme.onPrimary,
+          ),
+        if (isTracked && !isOwned)
+          LibraryCoverBadge(
+            icon: Icons.equalizer,
+            label: 'Tracked',
+            backgroundColor: colorScheme.secondary,
+            foregroundColor: colorScheme.onSecondary,
           ),
         if (isWishlisted)
           LibraryCoverBadge(
@@ -136,6 +146,7 @@ class LibraryCoverBadge extends StatelessWidget {
 class LibraryItemStatusIcons extends StatelessWidget {
   const LibraryItemStatusIcons({
     required this.isOwned,
+    required this.isTracked,
     required this.isWishlisted,
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
@@ -146,6 +157,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
   });
 
   final bool isOwned;
+  final bool isTracked;
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
@@ -164,6 +176,10 @@ class LibraryItemStatusIcons extends StatelessWidget {
           size: 17,
           color: isOwned ? colorScheme.primary : colorScheme.outline,
         ),
+        if (isTracked && !isOwned) ...[
+          const SizedBox(width: 4),
+          Icon(Icons.equalizer, size: 16, color: colorScheme.secondary),
+        ],
         if (isWishlisted) ...[
           const SizedBox(width: 4),
           Icon(Icons.star, size: 16, color: colorScheme.tertiary),

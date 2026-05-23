@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,6 +36,147 @@ void main() {
     expect(queued.single.entityType, 'owned_item');
     expect(queued.single.action, 'upsert');
     expect(container.read(syncControllerProvider).pendingCount, 1);
+  });
+
+  test('collection mutations mirror tracking into tracking entries', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(collectionMutationsProvider).addItem(
+          'movie-1',
+          rating: 8,
+          readStatus: 'Completed',
+          startedAt: DateTime.utc(2026, 5, 10),
+          finishedAt: DateTime.utc(2026, 5, 12),
+        );
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(tracking.itemId, 'movie-1');
+    expect(tracking.ownedItemId, owned.id);
+    expect(tracking.sourceType, 'physical');
+    expect(tracking.status, 'Completed');
+    expect(tracking.rating, 8);
+    expect(
+      queued.where((row) => row.entityType == 'tracking_entry'),
+      hasLength(1),
+    );
+  });
+
+  test('collection mutations can sync owned tracking entries directly',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final owned = await container.read(collectionMutationsProvider).addItem(
+          'movie-2',
+          editionId: 'edition-legacy',
+          variantId: 'variant-legacy',
+          syncTracking: false,
+        );
+    await container.read(collectionMutationsProvider).syncOwnedTrackingEntry(
+          owned,
+          editionId: 'edition-steelbook',
+          variantId: 'variant-4k',
+          status: 'Completed',
+          rating: 10,
+          startedAt: DateTime.utc(2026, 5, 20),
+          finishedAt: DateTime.utc(2026, 5, 21),
+        );
+
+    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(tracking.ownedItemId, owned.id);
+    expect(tracking.editionId, 'edition-steelbook');
+    expect(tracking.variantId, 'variant-4k');
+    expect(tracking.status, 'Completed');
+    expect(tracking.rating, 10);
+    expect(
+      queued.where((row) => row.entityType == 'tracking_entry'),
+      hasLength(1),
+    );
+  });
+
+  test('collection mutations can create tracking-only entries', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(id: 'music-1', kind: 'music', title: 'Blessed & Possessed'),
+    ]);
+
+    await container.read(collectionMutationsProvider).upsertTrackingEntry(
+          'music-1',
+          sourceType: 'digital',
+          status: 'In progress',
+          rating: 7,
+          progressCurrent: 6,
+          progressTotal: 12,
+          notes: 'Streaming copy',
+        );
+
+    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(tracking.itemId, 'music-1');
+    expect(tracking.ownedItemId, isNull);
+    expect(tracking.sourceType, 'digital');
+    expect(tracking.progressCurrent, 6);
+    expect(
+      queued.where((row) => row.entityType == 'tracking_entry'),
+      hasLength(1),
+    );
+  });
+
+  test('collection mutations reuse existing tracked-only entries', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(id: 'movie-1', kind: 'movie', title: 'Dune'),
+    ]);
+
+    await db.into(db.trackingEntriesCache).insert(
+          TrackingEntriesCacheCompanion.insert(
+            id: 'tracking-existing',
+            itemId: 'movie-1',
+            sourceType: const Value('digital'),
+            status: const Value('Plan to watch'),
+            updatedAt: DateTime.utc(2026, 5, 23),
+          ),
+        );
+
+    await container.read(collectionMutationsProvider).upsertTrackingEntry(
+          'movie-1',
+          sourceType: 'digital',
+          status: 'Watching',
+          rating: 9,
+        );
+
+    final tracking = await db.select(db.trackingEntriesCache).get();
+    expect(tracking, hasLength(1));
+    expect(tracking.single.id, 'tracking-existing');
+    expect(tracking.single.status, 'Watching');
+    expect(tracking.single.rating, 9);
   });
 
   test('collection mutations enqueue catalog snapshots from cache', () async {

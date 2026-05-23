@@ -65,7 +65,11 @@ class LibraryDetailActionStrip extends StatelessWidget {
                             DropdownMenuItem<String>(
                               value: ownedCopies[index].id,
                               child: Text(
-                                _detailOwnedCopyLabel(ownedCopies[index], index),
+                                buildOwnedCopyLabel(
+                                  ownedCopies[index],
+                                  entry.editions,
+                                  index,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -187,22 +191,4 @@ class LibraryDetailStatsBar extends StatelessWidget {
       ],
     );
   }
-}
-
-String _detailOwnedCopyLabel(OwnedItem item, int index) {
-  final parts = <String>['Copy ${index + 1}'];
-  if (item.condition != null && item.condition!.trim().isNotEmpty) {
-    parts.add(item.condition!.trim());
-  }
-  if (item.grade != null && item.grade!.trim().isNotEmpty) {
-    parts.add(item.grade!.trim());
-  }
-  if (item.storageBox != null && item.storageBox!.trim().isNotEmpty) {
-    parts.add(item.storageBox!.trim());
-  }
-  final purchaseLabel = formatNullableDate(item.purchaseDate);
-  if (purchaseLabel != null) {
-    parts.add(purchaseLabel);
-  }
-  return parts.join('  ·  ');
 }

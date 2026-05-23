@@ -42,6 +42,8 @@ void main() {
 
     final catalogRows = await fixture.db.select(fixture.db.catalogCache).get();
     final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final trackingRows =
+      await fixture.db.select(fixture.db.trackingEntriesCache).get();
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(catalogRows.single.id, 'comic-1');
@@ -53,7 +55,10 @@ void main() {
     expect(ownedRows.single.readStatus, 'read');
     expect(ownedRows.single.tags, 'favorite,dc');
     expect(ownedRows.single.storageBox, isNull);
+    expect(trackingRows.single.itemId, 'comic-1');
+    expect(trackingRows.single.status, 'read');
     expect(syncRows.map((row) => row.entityType), contains('owned_item'));
+    expect(syncRows.map((row) => row.entityType), contains('tracking_entry'));
     expect(
       syncRows.map((row) => row.entityType),
       contains('library_item_snapshot'),

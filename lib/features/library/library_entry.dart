@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
@@ -8,15 +9,18 @@ class LibraryEntry {
     required this.itemId,
     this.catalogItem,
     this.ownedItem,
+    this.trackingEntry,
     this.wishlistItem,
   });
 
   final String itemId;
   final CatalogItem? catalogItem;
   final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
   final WishlistItem? wishlistItem;
 
   bool get isOwned => ownedItem != null;
+  bool get isTracked => trackingEntry != null;
   bool get isWishlisted => wishlistItem != null;
   bool get isMissingGrade => isOwned && ownedItem?.grade == null;
   bool get hasNotes =>
@@ -24,19 +28,23 @@ class LibraryEntry {
       (wishlistItem?.notes?.trim().isNotEmpty ?? false);
 
   MediaTracking get tracking =>
+      trackingEntry?.mediaTracking ??
       ownedItem?.mediaTracking ??
       const MediaTracking(status: MediaTrackingStatus.none);
 
   DateTime get updatedAt {
     final ownedUpdated = ownedItem?.updatedAt;
+    final trackingUpdated = trackingEntry?.updatedAt;
     final wishUpdated = wishlistItem?.updatedAt;
-    if (ownedUpdated == null) {
-      return wishUpdated ?? DateTime.fromMillisecondsSinceEpoch(0);
+    DateTime? latest = ownedUpdated;
+    if (trackingUpdated != null &&
+        (latest == null || trackingUpdated.isAfter(latest))) {
+      latest = trackingUpdated;
     }
-    if (wishUpdated == null) {
-      return ownedUpdated;
+    if (wishUpdated != null && (latest == null || wishUpdated.isAfter(latest))) {
+      latest = wishUpdated;
     }
-    return ownedUpdated.isAfter(wishUpdated) ? ownedUpdated : wishUpdated;
+    return latest ?? DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   String get title {
@@ -57,6 +65,9 @@ class LibraryEntry {
     }
     if (isOwned) {
       return 'Owned';
+    }
+    if (isTracked) {
+      return 'Tracked';
     }
     return 'Wishlist';
   }

@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/release_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -82,6 +83,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
+  String? _selectedEditionId;
+  String? _selectedVariantId;
   bool _locationChanged = false;
   DateTime? _startedAt;
   DateTime? _finishedAt;
@@ -91,7 +94,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   bool get _isOwned => widget.request.ownedItem != null;
 
-  int get _tabCount => _isOwned ? 8 : 6;
+  bool get _hasTrackingContext => _isOwned || widget.request.trackingEntry != null;
+
+  int get _tabCount => _isOwned ? 8 : _hasTrackingContext ? 7 : 6;
 
   LibraryTypeConfig get _type => widget.request.type;
 
@@ -106,6 +111,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     super.initState();
     final item = widget.request.item;
     final owned = widget.request.ownedItem;
+    final tracking = widget.request.trackingEntry;
     _tabController = TabController(length: _tabCount, vsync: this)
       ..addListener(() {
         if (mounted) {
@@ -173,9 +179,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         TextEditingController(text: (owned?.quantity ?? 1).toString());
     _notesController = TextEditingController(text: owned?.personalNotes ?? '');
     _ratingController =
-        TextEditingController(text: owned?.rating?.toString() ?? '');
+      TextEditingController(text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
     _trackingController =
-        TextEditingController(text: owned?.readStatus ?? '');
+      TextEditingController(text: tracking?.status ?? owned?.readStatus ?? '');
     _tagsController = TextEditingController(text: owned?.tags ?? '');
     _sellPriceController = TextEditingController(
       text: owned?.sellPriceCents == null
@@ -184,9 +190,18 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
     _selectedLocationId = owned?.locationId;
-    _startedAt = owned?.startedAt;
-    _finishedAt = owned?.finishedAt;
+    _startedAt = tracking?.startedAt ?? owned?.startedAt;
+    _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
     _soldAt = owned?.soldAt;
+    final releaseSelection = resolveLibraryReleaseSelection(
+      item.editions,
+      editionId: owned?.editionId ?? tracking?.editionId,
+      editionTitle: item.editionTitle,
+      variantId: owned?.variantId ?? tracking?.variantId,
+      variantName: item.variant,
+    );
+    _selectedEditionId = releaseSelection.edition?.id;
+    _selectedVariantId = releaseSelection.variant?.id;
     _customFieldEdits = {
       for (final value in widget.request.customFieldValues)
         value.fieldDefinitionId: value.value,
@@ -268,6 +283,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       badges: [
         const EditMiniBadge('Books'),
         if (_isOwned) const EditMiniBadge('Owned'),
+        if (!_isOwned && widget.request.trackingEntry != null)
+          const EditMiniBadge('Tracked'),
         if (_seriesTitleController.text.trim().isNotEmpty)
           EditMiniBadge(_seriesTitleController.text.trim()),
         if (_selectedLocationLabel != null) EditMiniBadge(_selectedLocationLabel!),
@@ -281,7 +298,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         _plotNotesTab(),
         _coversTab(),
         _linksTab(),
-        if (_isOwned) _personalTab(),
+        if (_hasTrackingContext) _personalTab(),
         if (_isOwned) _photosTab(),
       ],
       footerLabel: null,
@@ -328,7 +345,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       const EditTab(icon: Icons.notes, label: 'Plot & Notes'),
       const EditTab(icon: Icons.image, label: 'Covers'),
       const EditTab(icon: Icons.link, label: 'Links'),
-      if (_isOwned) const EditTab(icon: Icons.person, label: 'Personal'),
+      if (_hasTrackingContext)
+        const EditTab(icon: Icons.person, label: 'Personal'),
       if (_isOwned) const EditTab(icon: Icons.photo_library, label: 'Photos'),
     ];
   }
@@ -603,12 +621,19 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Storage & Tracking',
+          title: _isOwned ? 'Storage & Tracking' : 'Tracking',
           accent: _accent,
           child: Column(
             children: [
+              if (widget.request.item.editions.isNotEmpty) ...[
+                _responsiveFields([
+                  _editionSelectionField(),
+                  _variantSelectionField(),
+                ]),
+                const SizedBox(height: 10),
+              ],
               _responsiveFields([
-                _locationField(),
+                  if (_isOwned) _locationField(),
                 SizedBox(width: 120, child: MediaRatingField(controller: _ratingController)),
                 SizedBox(
                   width: 180,
@@ -622,26 +647,28 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                   ),
                 ),
               ]),
-              const SizedBox(height: 10),
-              _field(controller: _tagsController, label: 'Tags'),
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _field(
-                  controller: _priceController,
-                  label: 'Price paid',
-                  validator: optionalMoneyValidator,
-                ),
-                _field(controller: _currencyController, label: 'Currency'),
-              ]),
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _field(
-                  controller: _sellPriceController,
-                  label: 'Sell price',
-                  validator: optionalMoneyValidator,
-                ),
-                _field(controller: _soldToController, label: 'Sold to'),
-              ]),
+              if (_isOwned) ...[
+                const SizedBox(height: 10),
+                _field(controller: _tagsController, label: 'Tags'),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _priceController,
+                    label: 'Price paid',
+                    validator: optionalMoneyValidator,
+                  ),
+                  _field(controller: _currencyController, label: 'Currency'),
+                ]),
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _sellPriceController,
+                    label: 'Sell price',
+                    validator: optionalMoneyValidator,
+                  ),
+                  _field(controller: _soldToController, label: 'Sold to'),
+                ]),
+              ],
               const SizedBox(height: 10),
               _responsiveFields([
                 _datePickerField(
@@ -658,60 +685,70 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
             ],
           ),
         ),
-        EditSection(
-          title: 'Collection notes',
-          accent: _accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _responsiveFields([
-                _field(controller: _conditionController, label: 'Condition'),
-                _field(controller: _gradeController, label: 'Grade'),
-                _field(
-                  controller: _quantityController,
-                  label: 'Quantity',
-                  validator: positiveIntValidator,
-                ),
-              ]),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: _pickPurchaseDate,
-                icon: const Icon(Icons.event),
-                label: Text(
-                  _purchaseDateController.text.isEmpty
-                      ? 'Set purchase date'
-                      : 'Purchase date: ${_purchaseDateController.text}',
-                ),
-              ),
-              const SizedBox(height: 10),
-              SwitchListTile(
-                value: _soldAt != null,
-                onChanged: (value) {
-                  setState(() {
-                    _soldAt = value ? DateTime.now() : null;
-                  });
-                },
-                title: const Text('Mark as sold'),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-              ),
-              if (_soldAt != null) ...[
-                const SizedBox(height: 10),
-                OutlinedButton.icon(
-                  onPressed: _pickSoldDate,
-                  icon: const Icon(Icons.event),
-                  label: Text('Sold date: ${formatDate(_soldAt!)}'),
-                ),
+        if (_isOwned)
+          EditSection(
+            title: 'Collection notes',
+            accent: _accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _responsiveFields([
+                  _field(controller: _conditionController, label: 'Condition'),
+                  _field(controller: _gradeController, label: 'Grade'),
+                  _field(
+                    controller: _quantityController,
+                    label: 'Quantity',
+                    validator: positiveIntValidator,
+                  ),
+                ]),
                 const SizedBox(height: 12),
-                SoldSummaryPanel(
-                  pricePaidCents: parseMoneyCents(_priceController.text),
-                  sellPriceCents: parseMoneyCents(_sellPriceController.text),
-                  currency: _currencyController.text,
+                OutlinedButton.icon(
+                  onPressed: _pickPurchaseDate,
+                  icon: const Icon(Icons.event),
+                  label: Text(
+                    _purchaseDateController.text.isEmpty
+                        ? 'Set purchase date'
+                        : 'Purchase date: ${_purchaseDateController.text}',
+                  ),
                 ),
+                const SizedBox(height: 10),
+                SwitchListTile(
+                  value: _soldAt != null,
+                  onChanged: (value) {
+                    setState(() {
+                      _soldAt = value ? DateTime.now() : null;
+                    });
+                  },
+                  title: const Text('Mark as sold'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                if (_soldAt != null) ...[
+                  const SizedBox(height: 10),
+                  OutlinedButton.icon(
+                    onPressed: _pickSoldDate,
+                    icon: const Icon(Icons.event),
+                    label: Text('Sold date: ${formatDate(_soldAt!)}'),
+                  ),
+                  const SizedBox(height: 12),
+                  SoldSummaryPanel(
+                    pricePaidCents: parseMoneyCents(_priceController.text),
+                    sellPriceCents: parseMoneyCents(_sellPriceController.text),
+                    currency: _currencyController.text,
+                  ),
+                ],
               ],
-            ],
+            ),
+          )
+        else
+          EditSection(
+            title: 'Collection fields',
+            accent: _accent,
+            child: const Text(
+              'Storage, quantity, value and personal ownership notes stay unavailable until you add a physical copy. Tracking progress is editable here.',
+              style: TextStyle(color: kEditTextMuted),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -1052,6 +1089,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(
+            editionId: _selectedEditionId,
+            variantId: _selectedVariantId,
                 condition: emptyToNull(_conditionController.text),
                 grade: emptyToNull(_gradeController.text),
                 purchaseDate: parseDate(_purchaseDateController.text),
@@ -1061,10 +1100,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 quantity: parseInt(_quantityController.text) ?? 1,
                 locationId: _selectedLocationId,
                 locationChanged: _locationChanged,
-                rating: parseInt(_ratingController.text),
-                readStatus: emptyToNull(_trackingController.text),
-                startedAt: _startedAt,
-                finishedAt: _finishedAt,
                 tags: emptyToNull(_tagsController.text),
                 soldAt: _soldAt,
                 sellPriceCents: parseMoneyCents(_sellPriceController.text),
@@ -1077,9 +1112,93 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 keyReason: null,
                 coverPriceCents: null,
               ),
+        tracking: !_hasTrackingContext
+            ? null
+            : LibraryTrackingEditSelection(
+          editionId: _selectedEditionId,
+          variantId: _selectedVariantId,
+                rating: parseInt(_ratingController.text),
+                readStatus: emptyToNull(_trackingController.text),
+                startedAt: _startedAt,
+                finishedAt: _finishedAt,
+              ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
       ),
+    );
+  }
+
+  CatalogEdition? _selectedEdition() {
+    final selectedId = _selectedEditionId;
+    if (selectedId == null) {
+      return null;
+    }
+    for (final edition in widget.request.item.editions) {
+      if (edition.id == selectedId) {
+        return edition;
+      }
+    }
+    return null;
+  }
+
+  Widget _editionSelectionField() {
+    return DropdownButtonFormField<String>(
+      initialValue: _selectedEditionId,
+      isExpanded: true,
+      dropdownColor: kEditPanelRaised,
+      borderRadius: kEditMenuBorderRadius,
+      decoration: const InputDecoration(labelText: 'Owned edition'),
+      items: [
+        const DropdownMenuItem<String>(
+          value: '',
+          child: Text('Primary / unspecified edition'),
+        ),
+        for (final edition in widget.request.item.editions)
+          DropdownMenuItem<String>(
+            value: edition.id,
+            child: Text(edition.title),
+          ),
+      ],
+      onChanged: (value) {
+        final edition = resolveLibraryReleaseSelection(
+          widget.request.item.editions,
+          editionId: emptyToNull(value ?? ''),
+        ).edition;
+        setState(() {
+          _selectedEditionId = edition?.id;
+          _selectedVariantId = resolveVariantForEdition(edition)?.id;
+        });
+      },
+    );
+  }
+
+  Widget _variantSelectionField() {
+    final edition = _selectedEdition();
+    final variants = edition?.variants ?? const <CatalogVariant>[];
+    return DropdownButtonFormField<String>(
+      initialValue: _selectedVariantId,
+      isExpanded: true,
+      dropdownColor: kEditPanelRaised,
+      borderRadius: kEditMenuBorderRadius,
+      decoration: const InputDecoration(labelText: 'Owned variant'),
+      items: [
+        const DropdownMenuItem<String>(
+          value: '',
+          child: Text('Primary / unspecified variant'),
+        ),
+        for (final variant in variants)
+          DropdownMenuItem<String>(
+            value: variant.id,
+            child: Text(variant.name),
+          ),
+      ],
+      onChanged: variants.isEmpty
+          ? null
+          : (value) {
+              setState(() {
+                _selectedVariantId = emptyToNull(value ?? '');
+              });
+            },
     );
   }
 }

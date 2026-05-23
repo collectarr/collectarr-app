@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -50,15 +51,45 @@ void main() {
       releaseYear: 1982,
       variant: 'DVD',
       barcode: '883929087129',
+      editions: const [
+        CatalogEdition(
+          id: 'edition-standard',
+          title: 'Standard',
+          variants: [
+            CatalogVariant(id: 'variant-dvd', name: 'DVD', isPrimary: true),
+          ],
+        ),
+        CatalogEdition(
+          id: 'edition-steelbook',
+          title: 'Steelbook',
+          variants: [
+            CatalogVariant(id: 'variant-4k', name: '4K Variant', isPrimary: true),
+          ],
+        ),
+      ],
     ));
     final ownedItem = OwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
+      editionId: 'edition-standard',
+      variantId: 'variant-dvd',
       condition: 'Good',
       pricePaidCents: 999,
       currency: 'USD',
       quantity: 1,
       locationId: 'loc-a',
+      updatedAt: DateTime.utc(2026, 5, 15),
+    );
+    final trackingEntry = TrackingEntry(
+      id: 'tracking-1',
+      itemId: 'movie-1',
+      ownedItemId: 'owned-1',
+      editionId: 'edition-steelbook',
+      variantId: 'variant-4k',
+      sourceType: 'physical',
+      status: 'In progress',
+      rating: 9,
+      startedAt: DateTime.utc(2026, 5, 10),
       updatedAt: DateTime.utc(2026, 5, 15),
     );
     LibraryEditSelection? selection;
@@ -77,6 +108,7 @@ void main() {
                       type: type,
                       item: item,
                       ownedItem: ownedItem,
+                      trackingEntry: trackingEntry,
                       accent: Colors.red,
                       physicalFormats: videoPhysicalMediaFormats,
                     ),
@@ -103,9 +135,17 @@ void main() {
       find.widgetWithText(TextField, 'Title'),
       'Blade Runner: Final Cut',
     );
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('4K UHD'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<String>).at(1));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Steelbook').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<String>).at(2));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('4K Variant').last);
     await tester.pumpAndSettle();
 
     // Navigate to Value tab to set price
@@ -144,8 +184,13 @@ void main() {
     expect(selection?.item.barcode, '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
+    expect(selection?.personal?.editionId, 'edition-steelbook');
+    expect(selection?.personal?.variantId, 'variant-4k');
     expect(selection?.personal?.pricePaidCents, 1250);
     expect(selection?.personal?.quantity, 1);
+    expect(selection?.tracking?.readStatus, 'In progress');
+    expect(selection?.tracking?.rating, 9);
+    expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 10));
   });
 
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {
@@ -228,6 +273,96 @@ void main() {
 
     expect(selection?.item.sortKey, 'lord-of-the-rings-001');
     expect(selection?.item.series?.tags, ['Epic Fantasy', 'Middle-earth']);
+  });
+
+  testWidgets('generic edit dialog exposes tracking fields for tracked-only items',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+      id: 'movie-tracked-1',
+      kind: 'movie',
+      title: 'Dune',
+      variant: 'Blu-ray',
+      editions: const [
+        CatalogEdition(
+          id: 'edition-digital',
+          title: 'Digital',
+          variants: [
+            CatalogVariant(
+              id: 'variant-stream',
+              name: 'Streaming',
+              isPrimary: true,
+            ),
+          ],
+        ),
+      ],
+    ));
+    final trackingEntry = TrackingEntry(
+      id: 'tracking-digital-1',
+      itemId: 'movie-tracked-1',
+      editionId: 'edition-digital',
+      variantId: 'variant-stream',
+      sourceType: 'digital',
+      status: 'Planned',
+      rating: 8,
+      startedAt: DateTime.utc(2026, 5, 1),
+      updatedAt: DateTime.utc(2026, 5, 5),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      trackingEntry: trackingEntry,
+                      accent: Colors.teal,
+                      physicalFormats: videoPhysicalMediaFormats,
+                    ),
+                  );
+                },
+                child: const Text('Open tracked'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open tracked'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tracking'), findsOneWidget);
+    expect(find.text('Value'), findsNothing);
+    expect(find.text('Personal'), findsNothing);
+
+    await tester.tap(find.text('Tracking'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(selection?.personal, isNull);
+    expect(selection?.tracking?.editionId, 'edition-digital');
+    expect(selection?.tracking?.variantId, 'variant-stream');
+    expect(selection?.tracking?.readStatus, 'Planned');
+    expect(selection?.tracking?.rating, 8);
+    expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 1));
   });
 
   testWidgets('music kind uses dedicated edit dialog tabs and music fields',

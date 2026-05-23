@@ -286,4 +286,37 @@ void main() {
     expect(item.series?.tags, ['Epic Fantasy', 'Middle-earth']);
     expect(item.publishing?.subtitle, 'Being the First Part');
   });
+
+  test('catalog cache repository preserves editions and variants', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = CatalogCacheRepository(db);
+
+    await repo.upsertAll([
+      CatalogItem(
+        id: 'album-1',
+        kind: 'music',
+        title: 'The Sacrament of Sin',
+        editions: [
+          CatalogEdition(
+            id: 'edition-deluxe',
+            title: 'Deluxe Box',
+            variants: [
+              CatalogVariant(
+                id: 'variant-red',
+                name: 'Red Vinyl',
+                isPrimary: true,
+              ),
+            ],
+          ),
+        ],
+      ),
+    ]);
+
+    final item = await repo.findById('album-1');
+
+    expect(item?.editions, hasLength(1));
+    expect(item?.editions.single.id, 'edition-deluxe');
+    expect(item?.editions.single.variants.single.id, 'variant-red');
+  });
 }

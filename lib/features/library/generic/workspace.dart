@@ -330,6 +330,7 @@ class LibraryWorkspace extends StatelessWidget {
     return switch (column) {
       LibraryTableColumn.status => LibraryItemStatusIcons(
           isOwned: entry.isOwned,
+          isTracked: entry.isTracked,
           isWishlisted: entry.isWishlisted,
           hasMissingCover: entry.hasMissingCover,
           hasMissingMetadata: entry.hasMissingMetadata,

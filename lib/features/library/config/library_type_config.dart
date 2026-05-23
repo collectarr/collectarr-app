@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
@@ -36,6 +37,7 @@ class LibraryEditDialogRequest {
     required this.item,
     required this.ownedItem,
     required this.accent,
+    this.trackingEntry,
     this.physicalFormats = const [],
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
@@ -46,6 +48,7 @@ class LibraryEditDialogRequest {
   final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final Color accent;
+  final TrackingEntry? trackingEntry;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;

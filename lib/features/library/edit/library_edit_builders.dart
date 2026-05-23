@@ -10,6 +10,7 @@ Widget buildGenericLibraryEditDialog(
     type: request.type,
     item: request.item,
     ownedItem: request.ownedItem,
+    trackingEntry: request.trackingEntry,
     accent: request.accent,
     physicalFormats: request.physicalFormats,
     customFieldDefinitions: request.customFieldDefinitions,

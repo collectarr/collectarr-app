@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_actions.dart';
@@ -6,6 +7,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_catalog_se
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -81,6 +83,13 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               : <OwnedItem>[widget.ownedItem!],
         );
     final activeOwnedItem = _resolveOwnedItem(ownedCopies, widget.ownedItem);
+    final trackingEntries =
+        ref.watch(trackingEntriesByCatalogItemProvider)[widget.entry.id] ??
+            const <TrackingEntry>[];
+    final activeTrackingEntry = _resolveTrackingEntry(
+      trackingEntries,
+      activeOwnedItem,
+    );
     final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || widget.entry.isOwned;
     return Theme(
       data: kLibraryTheme,
@@ -205,8 +214,22 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             LibraryDetailPersonalSection(
               entry: widget.entry,
               ownedItem: activeOwnedItem,
+              trackingEntry: activeTrackingEntry,
               accent: widget.accent,
             ),
+            if (activeOwnedItem != null)
+              InspectorPersonalDetailsEditor(
+                ownedItem: activeOwnedItem,
+                accent: widget.accent,
+              )
+            else if (activeTrackingEntry != null)
+              InspectorTrackingDetailsEditor(
+                itemId: widget.entry.id,
+                trackingEntry: activeTrackingEntry,
+                profile: widget.type.trackingProfile,
+                editions: widget.entry.editions,
+                accent: widget.accent,
+              ),
             LibraryDetailProviderSection(type: widget.type, accent: widget.accent),
             LibraryDetailLocalSnapshotSection(
               entry: widget.entry,
@@ -216,6 +239,28 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         ),
       ),
     );
+  }
+
+  TrackingEntry? _resolveTrackingEntry(
+    List<TrackingEntry> entries,
+    OwnedItem? activeOwnedItem,
+  ) {
+    if (entries.isEmpty) {
+      return null;
+    }
+    if (activeOwnedItem != null) {
+      for (final entry in entries) {
+        if (entry.ownedItemId == activeOwnedItem.id) {
+          return entry;
+        }
+      }
+    }
+    for (final entry in entries) {
+      if (entry.ownedItemId == null) {
+        return entry;
+      }
+    }
+    return entries.first;
   }
 
   OwnedItem? _resolveOwnedItem(

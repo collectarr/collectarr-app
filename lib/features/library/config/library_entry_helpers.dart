@@ -64,6 +64,7 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     barcode: item.barcode,
     variant: item.variant,
     isOwned: ownedItem != null,
+    isTracked: false,
     isWishlisted: isWishlisted ?? wishlistItem != null,
     hasMissingCover: itemHasMissingCover(item),
     hasMissingMetadata: itemHasMissingDetails(item),
@@ -89,8 +90,79 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     country: item.country,
     language: item.language,
     ageRating: item.ageRating,
+    editions: item.editions,
     updatedAt: _latestLibraryUpdate(ownedItem, wishlistItem),
   );
+}
+
+String buildOwnedCopyLabel(
+  OwnedItem item,
+  List<CatalogEdition> editions,
+  int index,
+) {
+  final parts = <String>['Copy ${index + 1}'];
+  final editionLabel = _ownedCopyEditionLabel(item, editions);
+  if (editionLabel != null) {
+    parts.add(editionLabel);
+  }
+  if (item.condition != null && item.condition!.trim().isNotEmpty) {
+    parts.add(item.condition!.trim());
+  }
+  if (item.grade != null && item.grade!.trim().isNotEmpty) {
+    parts.add(item.grade!.trim());
+  }
+  if (item.storageBox != null && item.storageBox!.trim().isNotEmpty) {
+    parts.add(item.storageBox!.trim());
+  }
+  final purchaseLabel = formatNullableDate(item.purchaseDate);
+  if (purchaseLabel != null) {
+    parts.add(purchaseLabel);
+  }
+  return parts.join('  ·  ');
+}
+
+String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
+  CatalogEdition? matchedEdition;
+  CatalogVariant? matchedVariant;
+  if (item.editionId != null) {
+    for (final edition in editions) {
+      if (edition.id == item.editionId) {
+        matchedEdition = edition;
+        break;
+      }
+    }
+  }
+  if (item.variantId != null) {
+    final editionPool =
+        matchedEdition != null ? <CatalogEdition>[matchedEdition] : editions;
+    for (final edition in editionPool) {
+      for (final variant in edition.variants) {
+        if (variant.id == item.variantId) {
+          matchedEdition ??= edition;
+          matchedVariant = variant;
+          break;
+        }
+      }
+      if (matchedVariant != null) {
+        break;
+      }
+    }
+  }
+  final parts = <String>[];
+  final editionTitle = matchedEdition?.title.trim();
+  if (editionTitle != null && editionTitle.isNotEmpty) {
+    parts.add(editionTitle);
+  }
+  final variantName = matchedVariant?.name.trim();
+  if (variantName != null &&
+      variantName.isNotEmpty &&
+      !parts.contains(variantName)) {
+    parts.add(variantName);
+  }
+  if (parts.isEmpty) {
+    return null;
+  }
+  return parts.join(' / ');
 }
 
 Set<String> watchWishlistIds(WidgetRef ref) {

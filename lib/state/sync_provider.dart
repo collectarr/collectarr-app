@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -130,10 +131,13 @@ class SyncController extends StateNotifier<SyncState> {
         queue: SyncQueueRepository(db),
         catalog: CatalogCacheRepository(db),
         ownedItems: OwnedItemsCacheRepository(db),
+        trackingEntries: TrackingEntriesCacheRepository(db),
         wishlistItems: WishlistItemsCacheRepository(db),
       ).syncNow(deviceId, since: since);
       await cursor.write(result.serverTime);
       ref.invalidate(collectionProvider);
+      ref.invalidate(trackingEntriesProvider);
+      ref.invalidate(trackingEntriesByCatalogItemProvider);
       ref.invalidate(wishlistIdsProvider);
       ref.invalidate(wishlistProvider);
       ref.invalidate(shelfProvider);
@@ -286,6 +290,21 @@ extension on SyncQueueRepository {
         );
       case 'wishlist_item':
         final item = await WishlistItemsCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (item == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: item.id,
+          action: item.isDeleted ? 'delete' : 'upsert',
+          payload: item.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'tracking_entry':
+        final item = await TrackingEntriesCacheRepository(db).findById(
           change.entityId,
         );
         if (item == null) {

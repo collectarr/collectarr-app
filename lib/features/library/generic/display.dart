@@ -131,6 +131,9 @@ String genericLibraryStatusLabel(LibraryWorkspaceEntry entry) {
   if (entry.isOwned) {
     return 'Owned';
   }
+  if (entry.isTracked) {
+    return 'Tracked';
+  }
   if (entry.isWishlisted) {
     return 'Wishlist';
   }

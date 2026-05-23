@@ -19,6 +19,7 @@ sealed class LibraryWorkspaceEntry {
     this.barcode,
     this.variant,
     this.isOwned = false,
+    this.isTracked = false,
     this.isWishlisted = false,
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
@@ -39,6 +40,7 @@ sealed class LibraryWorkspaceEntry {
     this.country,
     this.language,
     this.ageRating,
+    this.editions = const <CatalogEdition>[],
     required this.updatedAt,
     this.rawPlatforms,
   });
@@ -58,6 +60,7 @@ sealed class LibraryWorkspaceEntry {
     String? barcode,
     String? variant,
     bool isOwned = false,
+    bool isTracked = false,
     bool isWishlisted = false,
     bool hasMissingCover = false,
     bool hasMissingMetadata = false,
@@ -83,6 +86,7 @@ sealed class LibraryWorkspaceEntry {
     String? country,
     String? language,
     String? ageRating,
+    List<CatalogEdition> editions = const <CatalogEdition>[],
     required DateTime updatedAt,
   }) {
     final normalizedMediaType = mediaType.trim().toLowerCase();
@@ -101,6 +105,7 @@ sealed class LibraryWorkspaceEntry {
       barcode: barcode,
       variant: variant,
       isOwned: isOwned,
+      isTracked: isTracked,
       isWishlisted: isWishlisted,
       hasMissingCover: hasMissingCover,
       hasMissingMetadata: hasMissingMetadata,
@@ -121,6 +126,7 @@ sealed class LibraryWorkspaceEntry {
       country: country,
       language: language,
       ageRating: ageRating,
+      editions: _copyEditionList(editions),
       updatedAt: updatedAt,
       rawPlatforms: _copyStringList(game?.platforms),
     );
@@ -217,6 +223,7 @@ sealed class LibraryWorkspaceEntry {
   final String? barcode;
   final String? variant;
   final bool isOwned;
+  final bool isTracked;
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
@@ -237,6 +244,7 @@ sealed class LibraryWorkspaceEntry {
   final String? country;
   final String? language;
   final String? ageRating;
+  final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
 
@@ -273,6 +281,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           barcode: common.barcode,
           variant: common.variant,
           isOwned: common.isOwned,
+          isTracked: common.isTracked,
           isWishlisted: common.isWishlisted,
           hasMissingCover: common.hasMissingCover,
           hasMissingMetadata: common.hasMissingMetadata,
@@ -293,6 +302,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           country: common.country,
           language: common.language,
           ageRating: common.ageRating,
+          editions: common.editions,
           updatedAt: common.updatedAt,
           rawPlatforms: common.rawPlatforms,
         );
@@ -473,6 +483,7 @@ class _LibraryWorkspaceCommon {
     required this.barcode,
     required this.variant,
     required this.isOwned,
+    required this.isTracked,
     required this.isWishlisted,
     required this.hasMissingCover,
     required this.hasMissingMetadata,
@@ -493,6 +504,7 @@ class _LibraryWorkspaceCommon {
     required this.country,
     required this.language,
     required this.ageRating,
+    required this.editions,
     required this.updatedAt,
     required this.rawPlatforms,
   });
@@ -511,6 +523,7 @@ class _LibraryWorkspaceCommon {
   final String? barcode;
   final String? variant;
   final bool isOwned;
+  final bool isTracked;
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
@@ -531,6 +544,7 @@ class _LibraryWorkspaceCommon {
   final String? country;
   final String? language;
   final String? ageRating;
+  final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
 }
@@ -565,6 +579,13 @@ List<String>? _copyStringList(List<String>? values) {
 List<Map<String, dynamic>>? _copyMapList(List<Map<String, dynamic>>? values) {
   if (values == null || values.isEmpty) {
     return null;
+  }
+  return values.toList(growable: false);
+}
+
+List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
+  if (values.isEmpty) {
+    return const <CatalogEdition>[];
   }
   return values.toList(growable: false);
 }
