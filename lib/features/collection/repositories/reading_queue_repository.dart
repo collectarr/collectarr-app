@@ -32,7 +32,7 @@ class ReadingQueueRepository {
           ReadingQueueCacheCompanion.insert(
             ownedItemId: ownedItemId,
             position: pos,
-            addedAt: DateTime.now(),
+            addedAt: DateTime.now().toUtc(),
           ),
         );
   }

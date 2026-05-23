@@ -32,7 +32,7 @@ class SmartListRepository {
             name: smartList.name,
             mediaKind: Value(smartList.mediaKind),
             criteriaJson: criteriaJson,
-            createdAt: DateTime.now(),
+            createdAt: DateTime.now().toUtc(),
           ),
         );
     return SmartList.fromRow(id, smartList.name, criteriaJson);

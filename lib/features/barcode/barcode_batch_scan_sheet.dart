@@ -54,19 +54,27 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
   }
 
   void _onDetect(BarcodeCapture capture) {
+    final newBarcodes = <String>[];
+    String? lastScanned;
     for (final barcode in capture.barcodes) {
       final rawValue = barcode.rawValue;
       final value = rawValue == null ? null : normalizeScannedBarcode(rawValue);
       if (value != null &&
           value.isNotEmpty &&
           value != _lastScanned &&
-          !_scannedBarcodes.contains(value)) {
-        setState(() {
-          _scannedBarcodes.add(value);
-          _lastScanned = value;
-        });
+          !_scannedBarcodes.contains(value) &&
+          !newBarcodes.contains(value)) {
+        newBarcodes.add(value);
+        lastScanned = value;
       }
     }
+    if (newBarcodes.isEmpty) {
+      return;
+    }
+    setState(() {
+      _scannedBarcodes.addAll(newBarcodes);
+      _lastScanned = lastScanned;
+    });
   }
 
   void _removeBarcode(int index) {
