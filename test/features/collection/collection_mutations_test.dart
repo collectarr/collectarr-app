@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -177,6 +178,28 @@ void main() {
     expect(tracking.single.id, 'tracking-existing');
     expect(tracking.single.status, 'Watching');
     expect(tracking.single.rating, 9);
+  });
+
+  test('collection mutations canonicalize tracking source aliases', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(id: 'book-1', kind: 'book', title: 'Project Hail Mary'),
+    ]);
+
+    await container.read(collectionMutationsProvider).upsertTrackingEntry(
+          'book-1',
+          sourceType: 'kindle',
+          status: 'Reading',
+        );
+
+    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    expect(tracking.sourceType, TrackingSourceType.digital.apiValue);
   });
 
   test('collection mutations enqueue catalog snapshots from cache', () async {

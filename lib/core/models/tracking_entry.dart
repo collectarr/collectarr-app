@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/tracking_source.dart';
+
 class TrackingEntry {
   const TrackingEntry({
     required this.id,
@@ -39,6 +41,9 @@ class TrackingEntry {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
+  TrackingSourceType? get trackingSource =>
+      TrackingSourceType.fromApiValue(sourceType);
+
   bool get isDeleted => deletedAt != null;
 
   Map<String, dynamic> toSyncPayload() {
@@ -47,7 +52,7 @@ class TrackingEntry {
       'owned_item_id': ownedItemId,
       'edition_id': editionId,
       'variant_id': variantId,
-      'source_type': sourceType,
+      'source_type': normalizeTrackingSourceType(sourceType),
       'status': status,
       'rating': rating,
       'started_at': startedAt?.toUtc().toIso8601String(),
@@ -68,7 +73,7 @@ class TrackingEntry {
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,
-      sourceType: json['source_type'] as String?,
+      sourceType: normalizeTrackingSourceType(json['source_type'] as String?),
       status: json['status'] as String?,
       rating: json['rating'] as int?,
       startedAt: json['started_at'] == null
@@ -116,7 +121,7 @@ class TrackingEntry {
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
-      sourceType: sourceType ?? this.sourceType,
+      sourceType: normalizeTrackingSourceType(sourceType) ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
       startedAt: startedAt ?? this.startedAt,

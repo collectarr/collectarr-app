@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
 
 class AdminProviderStatus {
   const AdminProviderStatus({
@@ -342,6 +343,160 @@ class AdminCatalogSummary {
       duplicateCandidateGroups: json['duplicate_candidate_groups'] as int? ?? 0,
       providerIngestSuccesses: json['provider_ingest_successes'] as int? ?? 0,
       providerIngestFailures: json['provider_ingest_failures'] as int? ?? 0,
+    );
+  }
+}
+
+class AdminTrackingCount {
+  const AdminTrackingCount({required this.key, required this.count});
+
+  final String key;
+  final int count;
+
+  String get label => trackingSourceTypeLabel(key);
+
+  factory AdminTrackingCount.fromJson(Map<String, dynamic> json) {
+    return AdminTrackingCount(
+      key: json['key'] as String? ?? '',
+      count: json['count'] as int? ?? 0,
+    );
+  }
+}
+
+class AdminTrackingKindCount {
+  const AdminTrackingKindCount({required this.kind, required this.count});
+
+  final String kind;
+  final int count;
+
+  factory AdminTrackingKindCount.fromJson(Map<String, dynamic> json) {
+    return AdminTrackingKindCount(
+      kind: json['kind'] as String? ?? '',
+      count: json['count'] as int? ?? 0,
+    );
+  }
+}
+
+class AdminTrackingPeriodCount {
+  const AdminTrackingPeriodCount({required this.period, required this.count});
+
+  final String period;
+  final int count;
+
+  factory AdminTrackingPeriodCount.fromJson(Map<String, dynamic> json) {
+    return AdminTrackingPeriodCount(
+      period: json['period'] as String? ?? '',
+      count: json['count'] as int? ?? 0,
+    );
+  }
+}
+
+class AdminTrackingTopItem {
+  const AdminTrackingTopItem({
+    required this.itemId,
+    required this.title,
+    required this.kind,
+    required this.count,
+  });
+
+  final String itemId;
+  final String title;
+  final String kind;
+  final int count;
+
+  factory AdminTrackingTopItem.fromJson(Map<String, dynamic> json) {
+    return AdminTrackingTopItem(
+      itemId: json['item_id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      kind: json['kind'] as String? ?? '',
+      count: json['count'] as int? ?? 0,
+    );
+  }
+}
+
+class AdminTrackingStats {
+  const AdminTrackingStats({
+    required this.totalEntries,
+    required this.uniqueUsers,
+    required this.uniqueItems,
+    required this.averageRating,
+    required this.ratingCount,
+    this.countsByStatus = const [],
+    this.countsByKind = const [],
+    this.countsBySourceType = const [],
+    this.topItems = const [],
+  });
+
+  final int totalEntries;
+  final int uniqueUsers;
+  final int uniqueItems;
+  final double? averageRating;
+  final int ratingCount;
+  final List<AdminTrackingCount> countsByStatus;
+  final List<AdminTrackingKindCount> countsByKind;
+  final List<AdminTrackingCount> countsBySourceType;
+  final List<AdminTrackingTopItem> topItems;
+
+  factory AdminTrackingStats.fromJson(Map<String, dynamic> json) {
+    return AdminTrackingStats(
+      totalEntries: json['total_entries'] as int? ?? 0,
+      uniqueUsers: json['unique_users'] as int? ?? 0,
+      uniqueItems: json['unique_items'] as int? ?? 0,
+      averageRating: (json['average_rating'] as num?)?.toDouble(),
+      ratingCount: json['rating_count'] as int? ?? 0,
+      countsByStatus: (json['counts_by_status'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AdminTrackingCount.fromJson)
+          .toList(growable: false),
+      countsByKind: (json['counts_by_kind'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AdminTrackingKindCount.fromJson)
+          .toList(growable: false),
+      countsBySourceType:
+          (json['counts_by_source_type'] as List<dynamic>? ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .map(AdminTrackingCount.fromJson)
+              .toList(growable: false),
+      topItems: (json['top_items'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AdminTrackingTopItem.fromJson)
+          .toList(growable: false),
+    );
+  }
+}
+
+class AdminTrackingFacets {
+  const AdminTrackingFacets({
+    this.countsByStatus = const [],
+    this.countsByKind = const [],
+    this.countsBySourceType = const [],
+    this.countsByPeriod = const [],
+  });
+
+  final List<AdminTrackingCount> countsByStatus;
+  final List<AdminTrackingKindCount> countsByKind;
+  final List<AdminTrackingCount> countsBySourceType;
+  final List<AdminTrackingPeriodCount> countsByPeriod;
+
+  factory AdminTrackingFacets.fromJson(Map<String, dynamic> json) {
+    return AdminTrackingFacets(
+      countsByStatus: (json['counts_by_status'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AdminTrackingCount.fromJson)
+          .toList(growable: false),
+      countsByKind: (json['counts_by_kind'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AdminTrackingKindCount.fromJson)
+          .toList(growable: false),
+      countsBySourceType:
+          (json['counts_by_source_type'] as List<dynamic>? ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .map(AdminTrackingCount.fromJson)
+              .toList(growable: false),
+      countsByPeriod: (json['counts_by_period'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AdminTrackingPeriodCount.fromJson)
+          .toList(growable: false),
     );
   }
 }

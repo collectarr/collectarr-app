@@ -208,6 +208,56 @@ class ApiClient {
     return AdminCatalogSummary.fromJson(data);
   }
 
+  Future<AdminTrackingStats> adminTrackingStats({
+    String? kind,
+    String? status,
+    String? sourceType,
+    DateTime? updatedFrom,
+    DateTime? updatedTo,
+    int limit = 10,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/admin/tracking/stats',
+      queryParameters: {
+        if (kind != null && kind.isNotEmpty) 'kind': kind,
+        if (status != null && status.trim().isNotEmpty) 'status': status.trim(),
+        if (sourceType != null && sourceType.isNotEmpty) 'source_type': sourceType,
+        if (updatedFrom != null) 'updated_from': updatedFrom.toUtc().toIso8601String(),
+        if (updatedTo != null) 'updated_to': updatedTo.toUtc().toIso8601String(),
+        'limit': limit,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/admin/tracking/stats returned an empty response body');
+    }
+    return AdminTrackingStats.fromJson(data);
+  }
+
+  Future<AdminTrackingFacets> adminTrackingFacets({
+    String? kind,
+    String? status,
+    String? sourceType,
+    DateTime? updatedFrom,
+    DateTime? updatedTo,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/admin/tracking/facets',
+      queryParameters: {
+        if (kind != null && kind.isNotEmpty) 'kind': kind,
+        if (status != null && status.trim().isNotEmpty) 'status': status.trim(),
+        if (sourceType != null && sourceType.isNotEmpty) 'source_type': sourceType,
+        if (updatedFrom != null) 'updated_from': updatedFrom.toUtc().toIso8601String(),
+        if (updatedTo != null) 'updated_to': updatedTo.toUtc().toIso8601String(),
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/admin/tracking/facets returned an empty response body');
+    }
+    return AdminTrackingFacets.fromJson(data);
+  }
+
   Future<List<AdminMetadataItem>> adminCatalogItems({
     String? query,
     String? kind,

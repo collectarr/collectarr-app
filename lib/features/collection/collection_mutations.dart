@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -211,7 +212,7 @@ class CollectionMutations {
       ownedItemId: ownedItem.id,
       editionId: editionId ?? ownedItem.editionId,
       variantId: variantId ?? ownedItem.variantId,
-      sourceType: 'physical',
+      sourceType: TrackingSourceType.physical.apiValue,
       status: _normalizeTrackingValue(status),
       rating: rating,
       startedAt: startedAt,
@@ -243,7 +244,7 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
-    final normalizedSourceType = _normalizeTrackingValue(sourceType);
+    final normalizedSourceType = normalizeTrackingSourceType(sourceType);
     String entryId;
     if (ownedItemId != null) {
       entryId = _trackingEntryIdForOwnedItem(ownedItemId);
@@ -942,7 +943,7 @@ class CollectionMutations {
       ownedItemId: ownedItem.id,
       editionId: ownedItem.editionId,
       variantId: ownedItem.variantId,
-      sourceType: 'physical',
+      sourceType: TrackingSourceType.physical.apiValue,
       status: normalizedStatus,
       rating: ownedItem.rating,
       startedAt: ownedItem.startedAt,
@@ -979,7 +980,8 @@ class CollectionMutations {
   }
 
   String _trackingEntryIdForItem(String itemId, {String? sourceType}) {
-    final normalizedSource = _normalizeTrackingValue(sourceType) ?? 'item';
+    final normalizedSource =
+      normalizeTrackingSourceType(sourceType) ?? _normalizeTrackingValue(sourceType) ?? 'item';
     return _uuid.v5(
       Namespace.url.value,
       'tracking-entry:item:$itemId:$normalizedSource',
