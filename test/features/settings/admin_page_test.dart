@@ -432,15 +432,19 @@ class _FakeAdminApiClient extends ApiClient {
     String? title,
     String? itemNumber,
     String? synopsis,
+    String? editionTitle,
     int? pageCount,
     String? publisher,
     DateTime? releaseDate,
+    String? imprint,
+    String? seriesGroup,
     String? physicalFormat,
     String? variantName,
     String? barcode,
     String? coverImageUrl,
     String? thumbnailImageUrl,
     bool includeNulls = false,
+    Set<String> explicitFields = const <String>{},
   }) async {
     lastCatalogUpdateTitle = title;
     lastCatalogUpdatePhysicalFormat = physicalFormat;
@@ -756,10 +760,10 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: 'Absolute Batman',
         itemNumber: '1A',
-        series: const CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
+        series: CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
         publisher: 'DC Comics',
         barcode: '76194138584600111',
-        publishing: const CatalogPublishingDetails(pageCount: 48),
+        publishing: CatalogPublishingDetails(pageCount: 48),
         coverDate: null,
         storeDate: null,
         providerLinks: [

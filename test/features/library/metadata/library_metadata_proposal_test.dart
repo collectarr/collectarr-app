@@ -96,6 +96,7 @@ class _FakeProposalApiClient extends ApiClient {
     String? title,
     String? summary,
     String? imageUrl,
+    Map<String, dynamic>? metadataPayload,
   }) async {
     this.provider = provider;
     this.providerItemId = providerItemId;

@@ -1445,7 +1445,6 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
     this.reviewedCropBounds = const LibraryCoverCropBounds.fullFrame(),
     this.reviewedRotationQuarterTurns = 0,
     this.reviewedExtractedText,
-    this.reviewedImageBytes,
   });
 
   final bool acceptImport;
@@ -1453,7 +1452,6 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
   final LibraryCoverCropBounds reviewedCropBounds;
   final int reviewedRotationQuarterTurns;
   final String? reviewedExtractedText;
-  final Uint8List? reviewedImageBytes;
 
   @override
   Future<LibraryCoverReviewedImage?> reviewImage({
@@ -1466,7 +1464,7 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
     }
     return LibraryCoverReviewedImage.fromFile(
       file,
-      imageBytes: reviewedImageBytes ?? Uint8List(0),
+      imageBytes: Uint8List(0),
       displayName: reviewedDisplayName,
       cropBounds: reviewedCropBounds,
       rotationQuarterTurns: reviewedRotationQuarterTurns,
