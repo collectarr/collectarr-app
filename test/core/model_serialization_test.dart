@@ -110,6 +110,25 @@ void main() {
       'platforms': ['CD', 'Digital'],
       'release_status': 'Official',
       'release_date': '2001-03-12T00:00:00.000Z',
+      'editions': [
+        {
+          'id': 'edition-1',
+          'title': 'Deluxe CD',
+          'format': 'CD',
+          'publisher': 'Daft Life',
+          'physical_format': 'cd',
+          'physical_format_label': 'CD',
+          'variants': [
+            {
+              'id': 'variant-1',
+              'name': 'Limited Slipcase',
+              'variant_type': 'physical',
+              'barcode': '123456789012',
+              'is_primary': true,
+            }
+          ],
+        }
+      ],
     });
 
     expect(item.music, isNotNull);
@@ -120,12 +139,18 @@ void main() {
     expect(item.music!.tracks.first.title, 'One More Time');
     expect(item.rawPlatforms, ['CD', 'Digital']);
     expect(item.music!.releaseStatus, 'Official');
+    expect(item.editions, hasLength(1));
+    expect(item.editions.single.title, 'Deluxe CD');
+    expect(item.editions.single.variants, hasLength(1));
+    expect(item.editions.single.variants.single.name, 'Limited Slipcase');
+    expect(item.editions.single.variants.single.isPrimary, isTrue);
 
     final payload = item.toSyncPayload();
 
     expect(payload['catalog_number'], 'DISC-2001');
     expect(payload['track_count'], 2);
     expect((payload['tracks'] as List).first['title'], 'One More Time');
+    expect((payload['editions'] as List).single['title'], 'Deluxe CD');
     expect(payload['platforms'], ['CD', 'Digital']);
     expect(payload['release_status'], 'Official');
     expect(payload['release_date'], '2001-03-12T00:00:00.000Z');

@@ -27,6 +27,7 @@ class LibraryMetadataItem {
     this.creators,
     this.characters,
     this.storyArcs,
+    this.editions = const <CatalogEdition>[],
     this.genres,
     this.country,
     this.language,
@@ -60,6 +61,7 @@ class LibraryMetadataItem {
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
+    final List<CatalogEdition> editions;
   final List<String>? genres;
   final String? country;
   final String? language;
@@ -92,6 +94,7 @@ class LibraryMetadataItem {
       creators: item.creators,
       characters: item.characters,
       storyArcs: item.storyArcs,
+    editions: item.editions,
       genres: item.genres,
       country: item.country,
       language: item.language,
@@ -125,6 +128,7 @@ class LibraryMetadataItem {
     Object? creators = _unset,
     Object? characters = _unset,
     Object? storyArcs = _unset,
+    Object? editions = _unset,
     Object? genres = _unset,
     Object? country = _unset,
     Object? language = _unset,
@@ -198,6 +202,9 @@ class LibraryMetadataItem {
       storyArcs: identical(storyArcs, _unset)
           ? this.storyArcs
           : storyArcs as List<String>?,
+      editions: identical(editions, _unset)
+          ? this.editions
+          : editions as List<CatalogEdition>,
       genres: identical(genres, _unset)
           ? this.genres
           : genres as List<String>?,
@@ -241,6 +248,7 @@ class LibraryMetadataItem {
       creators: creators,
       characters: characters,
       storyArcs: storyArcs,
+    editions: editions,
             rawPlatforms:
                     platformList != null && platformList.isNotEmpty ? platformList : null,
       genres: genres,

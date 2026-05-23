@@ -36,6 +36,166 @@ class CatalogTrack {
   }
 }
 
+class CatalogVariant {
+  const CatalogVariant({
+    required this.id,
+    required this.name,
+    this.variantType,
+    this.sku,
+    this.barcode,
+    this.isbn,
+    this.region,
+    this.platform,
+    this.coverPriceCents,
+    this.currency,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.description,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.metadata,
+    this.isPrimary = false,
+  });
+
+  final String id;
+  final String name;
+  final String? variantType;
+  final String? sku;
+  final String? barcode;
+  final String? isbn;
+  final String? region;
+  final String? platform;
+  final int? coverPriceCents;
+  final String? currency;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? description;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final Map<String, dynamic>? metadata;
+  final bool isPrimary;
+
+  factory CatalogVariant.fromJson(Map<String, dynamic> json) {
+    return CatalogVariant(
+      id: json['id'] as String,
+      name: json['name'] as String? ?? 'Variant',
+      variantType: json['variant_type'] as String?,
+      sku: json['sku'] as String?,
+      barcode: json['barcode'] as String?,
+      isbn: json['isbn'] as String?,
+      region: json['region'] as String?,
+      platform: json['platform'] as String?,
+      coverPriceCents: json['cover_price_cents'] as int?,
+      currency: json['currency'] as String?,
+      coverImageUrl: json['cover_image_url'] as String?,
+      thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      description: json['description'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      metadata: (json['metadata_json'] as Map<String, dynamic>?)
+          ?.cast<String, dynamic>(),
+      isPrimary: json['is_primary'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      if (variantType != null) 'variant_type': variantType,
+      if (sku != null) 'sku': sku,
+      if (barcode != null) 'barcode': barcode,
+      if (isbn != null) 'isbn': isbn,
+      if (region != null) 'region': region,
+      if (platform != null) 'platform': platform,
+      if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
+      if (currency != null) 'currency': currency,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (description != null) 'description': description,
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (metadata != null) 'metadata_json': metadata,
+      'is_primary': isPrimary,
+    };
+  }
+}
+
+class CatalogEdition {
+  const CatalogEdition({
+    required this.id,
+    required this.title,
+    this.format,
+    this.publisher,
+    this.isbn,
+    this.upc,
+    this.language,
+    this.region,
+    this.releaseDate,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.metadata,
+    this.variants = const <CatalogVariant>[],
+  });
+
+  final String id;
+  final String title;
+  final String? format;
+  final String? publisher;
+  final String? isbn;
+  final String? upc;
+  final String? language;
+  final String? region;
+  final DateTime? releaseDate;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final Map<String, dynamic>? metadata;
+  final List<CatalogVariant> variants;
+
+  factory CatalogEdition.fromJson(Map<String, dynamic> json) {
+    return CatalogEdition(
+      id: json['id'] as String,
+      title: json['title'] as String? ?? 'Edition',
+      format: json['format'] as String?,
+      publisher: json['publisher'] as String?,
+      isbn: json['isbn'] as String?,
+      upc: json['upc'] as String?,
+      language: json['language'] as String?,
+      region: json['region'] as String?,
+      releaseDate: CatalogItem._parseDate(json['release_date'] as String?),
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      metadata: (json['metadata_json'] as Map<String, dynamic>?)
+          ?.cast<String, dynamic>(),
+      variants: (json['variants'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CatalogVariant.fromJson)
+              .toList(growable: false) ??
+          const <CatalogVariant>[],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      if (format != null) 'format': format,
+      if (publisher != null) 'publisher': publisher,
+      if (isbn != null) 'isbn': isbn,
+      if (upc != null) 'upc': upc,
+      if (language != null) 'language': language,
+      if (region != null) 'region': region,
+      if (releaseDate != null) 'release_date': releaseDate!.toUtc().toIso8601String(),
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (metadata != null) 'metadata_json': metadata,
+      'variants': variants.map((variant) => variant.toJson()).toList(growable: false),
+    };
+  }
+}
+
 class MusicCatalogDetails {
   const MusicCatalogDetails({
     this.trackCount,
@@ -156,6 +316,7 @@ sealed class CatalogItem {
     this.creators,
     this.characters,
     this.storyArcs,
+    this.editions = const <CatalogEdition>[],
     this.genres,
     this.country,
     this.language,
@@ -191,6 +352,7 @@ sealed class CatalogItem {
     List<String>? storyArcs,
     List<String>? rawPlatforms,
     List<String>? genres,
+    List<CatalogEdition>? editions,
     String? country,
     String? language,
     String? ageRating,
@@ -217,6 +379,7 @@ sealed class CatalogItem {
       creators: _normalizeMapList(creators),
       characters: _normalizeStringList(characters),
       storyArcs: _normalizeStringList(storyArcs),
+      editions: _normalizeEditionList(editions),
       genres: _normalizeStringList(genres),
       country: country,
       language: language,
@@ -340,6 +503,10 @@ sealed class CatalogItem {
       subtitle: json['subtitle'] as String?,
       seriesGroup: json['series_group'] as String?,
     );
+    final editions = (json['editions'] as List<dynamic>?)
+        ?.whereType<Map<String, dynamic>>()
+        .map(CatalogEdition.fromJson)
+        .toList(growable: false);
     return CatalogItem(
       id: json['id'] as String,
       kind: json['kind'] as String,
@@ -372,6 +539,7 @@ sealed class CatalogItem {
       storyArcs: (json['story_arcs'] as List<dynamic>?)
           ?.whereType<String>()
           .toList(growable: false),
+      editions: editions,
         rawPlatforms: rawPlatforms,
       genres: (json['genres'] as List<dynamic>?)
           ?.whereType<String>()
@@ -402,6 +570,7 @@ sealed class CatalogItem {
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
+  final List<CatalogEdition> editions;
   final List<String>? genres;
   final String? country;
   final String? language;
@@ -456,6 +625,7 @@ sealed class CatalogItem {
       'track_count': music?.trackCount,
       'tracks': tracks?.map((track) => track.toJson()).toList(growable: false),
       'catalog_number': music?.catalogNumber,
+      'editions': editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
       'release_status': music?.releaseStatus,
       'page_count': publishing?.pageCount,
@@ -504,6 +674,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           creators: common.creators,
           characters: common.characters,
           storyArcs: common.storyArcs,
+          editions: common.editions ?? const <CatalogEdition>[],
           genres: common.genres,
           country: common.country,
           language: common.language,
@@ -693,6 +864,7 @@ class _CatalogItemCommon {
     this.creators,
     this.characters,
     this.storyArcs,
+    this.editions,
     this.genres,
     this.country,
     this.language,
@@ -720,6 +892,7 @@ class _CatalogItemCommon {
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
+  final List<CatalogEdition>? editions;
   final List<String>? genres;
   final String? country;
   final String? language;
@@ -752,6 +925,13 @@ String _normalizeKind(String kind) {
 }
 
 List<String>? _normalizeStringList(List<String>? values) {
+  if (values == null || values.isEmpty) {
+    return null;
+  }
+  return values.toList(growable: false);
+}
+
+List<CatalogEdition>? _normalizeEditionList(List<CatalogEdition>? values) {
   if (values == null || values.isEmpty) {
     return null;
   }
