@@ -82,10 +82,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(
         find.widgetWithText(TextField, 'Title'), 'Absolute Batman Deluxe');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save correction'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     expect(find.text('Preview metadata correction'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Save correction').last);
+    await tester.tap(find.text('Save correction').last);
     await tester.pumpAndSettle();
 
     expect(api.lastCatalogUpdateTitle, 'Absolute Batman Deluxe');
