@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/config/library_media_presentation.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 
-export 'package:collectarr_app/features/library/config/library_media_presentation.dart'
+export 'package:collectarr_app/features/library/config/library_media_presentation_models.dart'
     show
         LibraryMediaFieldLabels,
         LibraryMediaFilterLabels,

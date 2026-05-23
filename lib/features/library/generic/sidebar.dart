@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
@@ -38,11 +38,11 @@ class LibrarySidebar extends StatelessWidget {
       onSelectSeries: onSelected,
       accentColor: accent,
       selectionColor: accent.withValues(alpha: 0.36),
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       headerColor: const Color(0xFF303030),
-      dividerColor: kClzDivider,
-      selectedBadgeColor: kClzYellow,
-      mutedTextColor: kClzTextMuted,
+      dividerColor: kAppDivider,
+      selectedBadgeColor: kAppHighlight,
+      mutedTextColor: kAppTextMuted,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -90,8 +90,8 @@ class LibraryCompactBucketBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: kClzPanel,
-        border: Border(bottom: BorderSide(color: kClzDivider)),
+        color: kAppPanel,
+        border: Border(bottom: BorderSide(color: kAppDivider)),
       ),
       child: SizedBox(
         height: 38,
@@ -111,7 +111,7 @@ class LibraryCompactBucketBar extends StatelessWidget {
                   : null,
               label: Text('${bucket.title} ${bucket.count}'),
               selectedColor: accent.withValues(alpha: 0.42),
-              side: BorderSide(color: selected ? accent : kClzDivider),
+              side: BorderSide(color: selected ? accent : kAppDivider),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             );
           },

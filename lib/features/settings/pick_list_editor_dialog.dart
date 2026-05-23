@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Shows a dialog to manage pick list values for a given list.
@@ -95,7 +95,7 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
     final allValues = [...widget.builtInValues, ..._customValues];
 
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: Text('Edit ${widget.label} Values'),
       content: SizedBox(
         width: 320,
@@ -138,7 +138,7 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
                               ? Chip(
                                   label: const Text('built-in'),
                                   labelStyle: TextStyle(
-                                      fontSize: 10, color: kClzTextMuted),
+                                      fontSize: 10, color: kAppTextMuted),
                                   visualDensity: VisualDensity.compact,
                                 )
                               : IconButton(

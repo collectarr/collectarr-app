@@ -1,16 +1,16 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_librar
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
@@ -192,7 +193,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     final selectedProvider = _activeProvider;
     final isBusy = _isSearching || _isSearchingProvider;
-    final accent = widget.accent ?? LibraryAccentScope.accentOf(context, fallback: kClzAccent);
+    final accent = widget.accent ?? LibraryAccentScope.accentOf(context, fallback: kAppAccent);
     final selectedResult = _selectedResult;
     final selectedCandidate = _selectedProviderCandidate;
     final selectedProviderLabel = selectedCandidate == null
@@ -658,11 +659,39 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       setState(() => _error = 'Manual item needs a title.');
       return;
     }
+    final draft = _buildManualDraftItem();
+    final result = await showLibraryEditDialog(
+      context: context,
+      request: LibraryEditDialogRequest(
+        type: widget.type,
+        item: draft,
+        ownedItem: _manualDraftOwnedItem(draft, target),
+        accent: LibraryAccentScope.accentOf(context),
+        physicalFormats: _currentPhysicalFormats(),
+      ),
+    );
+    if (result == null || !mounted) {
+      return;
+    }
+    await _addItems(
+      [result.item],
+      target,
+      defaults: const LibraryAddDefaults(),
+      ownedDetailsByItemId: result.personal == null
+          ? const <String, LibraryAddOwnedDetails>{}
+          : {
+              result.item.id: _ownedDetailsFromSelection(result.personal!),
+            },
+    );
+  }
+
+  LibraryMetadataItem _buildManualDraftItem() {
     final year = int.tryParse(_yearController.text.trim());
-    final item = LibraryMetadataItem(
+    final coverUrl = _emptyToNull(_coverController.text);
+    return LibraryMetadataItem(
       id: 'local-${widget.type.workspace.kind}-${_uuid.v4()}',
       kind: widget.type.workspace.kind,
-      title: title,
+      title: _titleController.text.trim(),
       itemNumber: _emptyToNull(_numberController.text),
       editionTitle: _emptyToNull(_variantController.text),
       physicalFormat: _physicalFormatId,
@@ -671,9 +700,59 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       releaseYear: year,
       barcode: _emptyToNull(_barcodeController.text),
       variant: _emptyToNull(_variantController.text),
-      coverImageUrl: _emptyToNull(_coverController.text),
+      coverImageUrl: coverUrl,
+      thumbnailImageUrl: coverUrl,
     );
-    await _addItems([item], target);
+  }
+
+  OwnedItem? _manualDraftOwnedItem(
+    LibraryMetadataItem item,
+    LibraryAddTarget target,
+  ) {
+    if (target != LibraryAddTarget.owned) {
+      return null;
+    }
+    return OwnedItem(
+      id: 'manual-owned-${_uuid.v4()}',
+      itemId: item.id,
+      condition: _defaultCondition,
+      grade: _defaultGrade,
+      purchaseDate: _defaultPurchaseDate,
+      readStatus: _defaultReadStatus,
+      tags: _defaultTags,
+      locationId: _defaultLocationId,
+      updatedAt: DateTime.now().toUtc(),
+    );
+  }
+
+  LibraryAddOwnedDetails _ownedDetailsFromSelection(
+    LibraryPersonalEditSelection selection,
+  ) {
+    return LibraryAddOwnedDetails(
+      condition: selection.condition,
+      grade: selection.grade,
+      purchaseDate: selection.purchaseDate,
+      pricePaidCents: selection.pricePaidCents,
+      currency: selection.currency,
+      personalNotes: selection.personalNotes,
+      quantity: selection.quantity,
+      locationId: selection.locationId,
+      coverPriceCents: selection.coverPriceCents,
+      rawOrSlabbed: selection.rawOrSlabbed,
+      gradingCompany: selection.gradingCompany,
+      graderNotes: selection.graderNotes,
+      signedBy: selection.signedBy,
+      keyComic: selection.keyComic ?? false,
+      keyReason: selection.keyReason,
+      rating: selection.rating,
+      readStatus: selection.readStatus,
+      startedAt: selection.startedAt,
+      finishedAt: selection.finishedAt,
+      tags: selection.tags,
+      soldAt: selection.soldAt,
+      sellPriceCents: selection.sellPriceCents,
+      soldTo: selection.soldTo,
+    );
   }
 
   void _setPhysicalFormat(String? value) {
@@ -696,13 +775,17 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     return physicalMediaFormatById(
       normalized,
-      formats: physicalMediaFormatsForKind(
-        ref.read(mediaCatalogProvider).maybeWhen(
-              data: (value) => value,
-              orElse: () => fallbackMediaCatalog,
-            ),
-        widget.type.workspace.kind,
-      ),
+      formats: _currentPhysicalFormats(),
+    );
+  }
+
+  List<PhysicalMediaFormat> _currentPhysicalFormats() {
+    return physicalMediaFormatsForKind(
+      ref.read(mediaCatalogProvider).maybeWhen(
+            data: (value) => value,
+            orElse: () => fallbackMediaCatalog,
+          ),
+      widget.type.workspace.kind,
     );
   }
 
@@ -1077,6 +1160,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (edited.variant != preview.variant) {
       corrections['variant_name'] = edited.variant;
     }
+    if (edited.editionTitle != preview.editionTitle) {
+      corrections['edition_title'] = edited.editionTitle;
+    }
+    if (edited.publishing?.pageCount != preview.publishing?.pageCount) {
+      corrections['page_count'] = edited.publishing?.pageCount;
+    }
+    if (edited.publishing?.imprint != preview.publishing?.imprint) {
+      corrections['imprint'] = edited.publishing?.imprint;
+    }
+    if (edited.publishing?.seriesGroup != preview.publishing?.seriesGroup) {
+      corrections['series_group'] = edited.publishing?.seriesGroup;
+    }
     if (edited.physicalFormat != preview.physicalFormat) {
       corrections['physical_format'] = edited.physicalFormat;
     }
@@ -1093,15 +1188,22 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           title: corrections['title'] as String?,
           itemNumber: corrections['item_number'] as String?,
           synopsis: corrections['synopsis'] as String?,
+          editionTitle: corrections['edition_title'] as String?,
+          pageCount: corrections.containsKey('page_count')
+              ? edited.publishing?.pageCount
+              : null,
           publisher: corrections['publisher'] as String?,
-        releaseDate: corrections.containsKey('release_date')
-          ? edited.releaseDate
-          : null,
+          releaseDate: corrections.containsKey('release_date')
+              ? edited.releaseDate
+              : null,
+          imprint: corrections['imprint'] as String?,
+          seriesGroup: corrections['series_group'] as String?,
           barcode: corrections['barcode'] as String?,
           variantName: corrections['variant_name'] as String?,
           physicalFormat: corrections['physical_format'] as String?,
           coverImageUrl: corrections['cover_image_url'] as String?,
           thumbnailImageUrl: corrections['thumbnail_image_url'] as String?,
+          explicitFields: corrections.keys.toSet(),
         );
   }
 
@@ -1135,20 +1237,35 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (_isAdding) {
       return;
     }
+    final result = await showLibraryEditDialog(
+      context: context,
+      request: LibraryEditDialogRequest(
+        type: widget.type,
+        item: _proposalDraftFromCandidate(candidate),
+        ownedItem: null,
+        accent: LibraryAccentScope.accentOf(context),
+        physicalFormats: _currentPhysicalFormats(),
+      ),
+    );
+    if (result == null || !mounted) {
+      return;
+    }
     setState(() {
       _isAdding = true;
       _error = null;
     });
     try {
+      final proposalItem = result.item;
       await createAndRecordLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
         type: widget.type,
         provider: candidate.provider,
         providerItemId: candidate.providerItemId,
         query: _providerQuery,
-        title: candidate.title,
-        summary: candidate.summary,
-        imageUrl: candidate.imageUrl,
+        title: proposalItem.title,
+        summary: proposalItem.synopsis ?? candidate.summary,
+        imageUrl: proposalItem.displayCoverUrl,
+        metadataPayload: proposalItem.toCatalogItem().toSyncPayload(),
         source: 'Add ${widget.type.pluralLabel} provider result',
       );
       if (!mounted) {
@@ -1286,6 +1403,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _addItems(
     List<LibraryMetadataItem> items,
     LibraryAddTarget target,
+    {
+    LibraryAddDefaults? defaults,
+    Map<String, LibraryAddOwnedDetails> ownedDetailsByItemId =
+        const <String, LibraryAddOwnedDetails>{},
+    }
   ) async {
     if (items.isEmpty || _isAdding) {
       return;
@@ -1300,14 +1422,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         mutations: ref.read(collectionMutationsProvider),
         items: items,
         target: target,
-        defaults: LibraryAddDefaults(
-          condition: _defaultCondition,
-          grade: _defaultGrade,
-          purchaseDate: _defaultPurchaseDate,
-          locationId: _defaultLocationId,
-          readStatus: _defaultReadStatus,
-          tags: _defaultTags,
-        ),
+        defaults: defaults ??
+            LibraryAddDefaults(
+              condition: _defaultCondition,
+              grade: _defaultGrade,
+              purchaseDate: _defaultPurchaseDate,
+              locationId: _defaultLocationId,
+              readStatus: _defaultReadStatus,
+              tags: _defaultTags,
+            ),
+        ownedDetailsByItemId: ownedDetailsByItemId,
       );
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -1406,6 +1530,21 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _defaultLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
+  }
+
+  LibraryMetadataItem _proposalDraftFromCandidate(ProviderCandidate candidate) {
+    return LibraryMetadataItem(
+      id: buildPreviewCatalogItemId(
+        kind: widget.type.workspace.kind,
+        provider: candidate.provider,
+        providerItemId: candidate.providerItemId,
+      ),
+      kind: widget.type.workspace.kind,
+      title: candidate.title,
+      synopsis: candidate.summary,
+      coverImageUrl: candidate.imageUrl,
+      thumbnailImageUrl: candidate.imageUrl,
+    );
   }
 }
 
@@ -1610,7 +1749,7 @@ class _CoverScanPrefillBanner extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: Row(
           children: [
-            const Icon(Icons.photo_camera_outlined, size: 18, color: kClzAccent),
+            const Icon(Icons.photo_camera_outlined, size: 18, color: kAppAccent),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -1635,9 +1774,9 @@ class _CoverScanPrefillBanner extends StatelessWidget {
 
 const double _kLibraryAddControlHeight = 34;
 const double _kLibraryAddModeControlHeight = 36;
-const BorderSide _kLibraryAddBorder = BorderSide(color: kClzDivider);
+const BorderSide _kLibraryAddBorder = BorderSide(color: kAppDivider);
 
-ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kClzAccent]) {
+ButtonStyle _libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {
   return OutlinedButton.styleFrom(
     foregroundColor: accent,
     side: BorderSide(color: accent.withValues(alpha: 0.78)),

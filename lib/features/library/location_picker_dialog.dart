@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 Future<String?> showLocationPickerDialog({
@@ -73,7 +73,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: kClzPanel,
+        backgroundColor: kAppPanel,
         title: const Text('New Location'),
         content: TextField(
           controller: nameController,
@@ -110,7 +110,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
   Widget build(BuildContext context) {
     final roots = _locations.where((location) => location.parentId == null).toList();
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: Row(
         children: [
           const Expanded(child: Text('Assign Location')),
@@ -123,17 +123,11 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
       ),
       content: SizedBox(
         width: 320,
-        height: 300,
+        height: _locations.isEmpty ? null : 300,
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _locations.isEmpty
-                ? Center(
-                    child: Text(
-                      'No locations yet.\nTap + to create one.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: kClzTextMuted),
-                    ),
-                  )
+                ? _LocationPickerEmptyState(onCreate: _addLocation)
                 : RadioGroup<String?>(
                     groupValue: _selectedId,
                     onChanged: (value) => setState(() => _selectedId = value),
@@ -183,6 +177,61 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
           (child) => _buildLocationTile(child, depth: depth + 1),
         ),
       ],
+    );
+  }
+}
+
+class _LocationPickerEmptyState extends StatelessWidget {
+  const _LocationPickerEmptyState({required this.onCreate});
+
+  final Future<void> Function() onCreate;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: kAppCanvas,
+        border: Border.all(color: kAppDivider),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.place_outlined, color: kAppAccent),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'No locations yet',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Create a location first so this item can be assigned without leaving the dialog.',
+              style: TextStyle(color: kAppTextMuted),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.icon(
+                onPressed: onCreate,
+                icon: const Icon(Icons.add),
+                label: const Text('Create first location'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

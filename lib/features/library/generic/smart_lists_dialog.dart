@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/smart_list_repos
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Result returned when the user selects a smart list to load.
@@ -99,7 +99,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kClzPanel,
+        backgroundColor: kAppPanel,
         title: const Text('Save Smart List'),
         content: TextField(
           controller: nameCtrl,
@@ -159,7 +159,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: Row(
         children: [
           const Icon(Icons.auto_awesome_mosaic, size: 20),
@@ -184,13 +184,13 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                       'Apply filters, then tap + to save\n'
                       'the current view as a smart list.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: kClzTextMuted),
+                      style: TextStyle(color: kAppTextMuted),
                     ),
                   )
                 : ListView.separated(
                     itemCount: _lists.length,
                     separatorBuilder: (_, __) =>
-                        Divider(height: 1, color: kClzDivider),
+                        Divider(height: 1, color: kAppDivider),
                     itemBuilder: (context, i) {
                       final list = _lists[i];
                       return ListTile(
@@ -229,7 +229,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     if (parts.isEmpty) return null;
     return Text(
       parts.join(' · '),
-      style: TextStyle(color: kClzTextMuted, fontSize: 12),
+      style: TextStyle(color: kAppTextMuted, fontSize: 12),
     );
   }
 }

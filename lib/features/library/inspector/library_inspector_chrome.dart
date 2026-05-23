@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -79,7 +79,7 @@ class InspectorActionBar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: const Color(0xD51D1D1D),
-        border: Border.all(color: kClzDivider),
+        border: Border.all(color: kAppDivider),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
@@ -124,9 +124,9 @@ class InspectorActionBar extends StatelessWidget {
             const Spacer(),
             DecoratedBox(
               decoration: BoxDecoration(
-                color: entry.isOwned ? kClzYellow : const Color(0xFF2A2A2A),
+                color: entry.isOwned ? kAppHighlight : const Color(0xFF2A2A2A),
                 border: Border.all(
-                  color: entry.isOwned ? kClzYellow : kClzDivider,
+                  color: entry.isOwned ? kAppHighlight : kAppDivider,
                 ),
               ),
               child: Padding(
@@ -140,7 +140,7 @@ class InspectorActionBar extends StatelessWidget {
                       size: 15,
                       color: entry.isOwned
                           ? const Color(0xFF141414)
-                          : kClzTextMuted,
+                          : kAppTextMuted,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -148,7 +148,7 @@ class InspectorActionBar extends StatelessWidget {
                       style: TextStyle(
                         color: entry.isOwned
                             ? const Color(0xFF141414)
-                            : kClzTextMuted,
+                            : kAppTextMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                       ),

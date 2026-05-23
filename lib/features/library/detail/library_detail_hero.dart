@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -195,7 +195,7 @@ class LibraryDetailHero extends StatelessWidget {
                     maxLines: wide ? 5 : 4,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: kClzTextMuted,
+                          color: kAppTextMuted,
                           fontWeight: FontWeight.w700,
                         ),
                   ),

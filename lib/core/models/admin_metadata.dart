@@ -777,6 +777,9 @@ class AdminMetadataItem {
       pageCount: json['page_count'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
       currency: json['currency'] as String?,
+      imprint: json['imprint'] as String?,
+      subtitle: json['subtitle'] as String?,
+      seriesGroup: json['series_group'] as String?,
     );
     return AdminMetadataItem(
       id: json['id']?.toString() ?? '',

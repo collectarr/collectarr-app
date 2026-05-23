@@ -65,7 +65,7 @@ class _BarcodePrefillBanner extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: Row(
           children: [
-            const Icon(Icons.qr_code_2, size: 18, color: kClzAccent),
+            const Icon(Icons.qr_code_2, size: 18, color: kAppAccent),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -137,7 +137,7 @@ class _LibraryAddModeBar extends StatelessWidget {
     final searchLabels = libraryMediaSearchFieldLabels(type);
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: kClzToolbar,
+        color: kAppToolbar,
         border: Border(bottom: BorderSide(color: Color(0xFF111111))),
       ),
       child: Padding(
@@ -239,11 +239,11 @@ class _LibraryAddModeBar extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Fill the manual draft panel, then add it to collection or wishlist.',
+                        'Start a manual draft here, then review the full editor before saving.',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: kClzTextMuted,
+                          color: kAppTextMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                         ),

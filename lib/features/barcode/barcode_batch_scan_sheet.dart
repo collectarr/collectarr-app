@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -124,7 +124,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
             const SizedBox(height: 8),
             Text(
               'Point camera at barcodes. Each unique barcode is added automatically.',
-              style: TextStyle(fontSize: 12, color: kClzTextMuted),
+              style: TextStyle(fontSize: 12, color: kAppTextMuted),
             ),
             if (_lastScanned != null) ...[
               const SizedBox(height: 6),
@@ -181,7 +181,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                           Text(
                             '${i + 1}.',
                             style: TextStyle(
-                                fontSize: 11, color: kClzTextMuted),
+                                fontSize: 11, color: kAppTextMuted),
                           ),
                           const SizedBox(width: 6),
                           Expanded(
@@ -194,7 +194,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                           InkWell(
                             onTap: () => _removeBarcode(i),
                             child: Icon(Icons.close,
-                                size: 14, color: kClzTextMuted),
+                                size: 14, color: kAppTextMuted),
                           ),
                         ],
                       ),
@@ -223,7 +223,7 @@ Future<List<String>?> showBarcodeBatchScanSheet(BuildContext context) {
   return showModalBottomSheet<List<String>>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: kClzPanel,
+    backgroundColor: kAppPanel,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),

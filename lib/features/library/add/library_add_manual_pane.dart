@@ -38,7 +38,7 @@ class _ManualPane extends StatelessWidget {
     final labels = libraryMediaFieldLabels(type);
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: kClzPanelRaised,
+        color: kAppPanelRaised,
         border: Border(left: _kLibraryAddBorder),
       ),
       child: Padding(
@@ -49,8 +49,8 @@ class _ManualPane extends StatelessWidget {
             Expanded(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: kClzCanvas,
-                  border: Border.all(color: kClzDivider),
+                  color: kAppCanvas,
+                  border: Border.all(color: kAppDivider),
                 ),
                 child: ListView(
                   padding: const EdgeInsets.all(10),
@@ -119,7 +119,8 @@ class _ManualPane extends StatelessWidget {
                           labelText: 'Physical format',
                           prefixIcon: Icon(Icons.album_outlined),
                         ),
-                        dropdownColor: kClzPanelRaised,
+                        dropdownColor: kAppPanelRaised,
+                        borderRadius: kAppMenuBorderRadius,
                         items: [
                           const DropdownMenuItem<String>(
                             value: '',
@@ -158,8 +159,8 @@ class _ManualPane extends StatelessWidget {
             const SizedBox(height: 8),
             DecoratedBox(
               decoration: BoxDecoration(
-                color: kClzToolbar,
-                border: Border.all(color: kClzDivider),
+                color: kAppToolbar,
+                border: Border.all(color: kAppDivider),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
@@ -171,11 +172,11 @@ class _ManualPane extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Create a local ${type.singularLabel.toLowerCase()} draft',
+                            'Start a local ${type.singularLabel.toLowerCase()} draft, then review full details',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: kClzTextMuted,
+                              color: kAppTextMuted,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                             ),
@@ -253,7 +254,7 @@ class _ManualSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: kClzAccent),
+        Icon(icon, size: 18, color: kAppAccent),
         const SizedBox(width: 8),
         Text(
           label,

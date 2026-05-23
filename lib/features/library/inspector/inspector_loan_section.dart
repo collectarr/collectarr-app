@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -112,7 +112,7 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
             padding: EdgeInsets.symmetric(vertical: 4),
             child: Text(
               'Not currently lent out.',
-              style: TextStyle(color: kClzTextMuted, fontSize: 13),
+              style: TextStyle(color: kAppTextMuted, fontSize: 13),
             ),
           )
         else ...[
@@ -177,7 +177,7 @@ class _LoanTile extends StatelessWidget {
                 ? Colors.orange
                 : loan.isActive
                     ? accent
-                    : kClzTextMuted,
+                    : kAppTextMuted,
           ),
           const SizedBox(width: 6),
           Expanded(
@@ -195,7 +195,7 @@ class _LoanTile extends StatelessWidget {
                 Text(
                   _subtitle,
                   style: const TextStyle(
-                    color: kClzTextMuted,
+                    color: kAppTextMuted,
                     fontSize: 11,
                   ),
                 ),
@@ -219,7 +219,7 @@ class _LoanTile extends StatelessWidget {
             onPressed: onDelete,
             visualDensity: VisualDensity.compact,
             style: IconButton.styleFrom(
-              foregroundColor: kClzTextMuted,
+              foregroundColor: kAppTextMuted,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
@@ -273,7 +273,7 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: Text('Lend Item', style: TextStyle(color: widget.accent)),
       content: SizedBox(
         width: 320,

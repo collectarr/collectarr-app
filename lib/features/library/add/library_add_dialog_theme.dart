@@ -1,9 +1,9 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Build a themed [ThemeData] for add dialogs with the given accent color.
 ThemeData libraryAddDialogTheme(Color accent) {
-  final base = kClzAddComicDialogTheme;
+  final base = kLibraryDialogTheme;
   final scheme = base.colorScheme.copyWith(
     primary: accent,
     secondary: accent,
@@ -23,12 +23,16 @@ ThemeData libraryAddDialogTheme(Color accent) {
         borderSide: BorderSide(color: accent),
       ),
     ),
+    datePickerTheme: buildAppDatePickerTheme(
+      accent: accent,
+      surface: kAppPanel,
+    ),
     progressIndicatorTheme: ProgressIndicatorThemeData(color: accent),
   );
 }
 
 /// Filled button style used in add dialog bottom bars.
-ButtonStyle libraryAddFilledButtonStyle([Color accent = kClzAccent]) {
+ButtonStyle libraryAddFilledButtonStyle([Color accent = kAppAccent]) {
   return FilledButton.styleFrom(
     backgroundColor: accent,
     foregroundColor: Colors.white,

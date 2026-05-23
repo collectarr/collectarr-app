@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
@@ -31,7 +31,7 @@ class _CollectionShareDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: Row(
         children: [
           const Icon(Icons.share, size: 20),
@@ -46,7 +46,7 @@ class _CollectionShareDialog extends StatelessWidget {
           children: [
             Text(
               '${items.length} items in current view',
-              style: TextStyle(color: kClzTextMuted),
+              style: TextStyle(color: kAppTextMuted),
             ),
             const SizedBox(height: 16),
             _ShareOption(
@@ -156,7 +156,7 @@ class _ShareOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: kClzPanelRaised,
+      color: kAppPanelRaised,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: onTap,
@@ -165,7 +165,7 @@ class _ShareOption extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              Icon(icon, size: 20, color: kClzAccent),
+              Icon(icon, size: 20, color: kAppAccent),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -176,11 +176,11 @@ class _ShareOption extends StatelessWidget {
                             fontSize: 13, fontWeight: FontWeight.w600)),
                     Text(subtitle,
                         style:
-                            TextStyle(fontSize: 11, color: kClzTextMuted)),
+                            TextStyle(fontSize: 11, color: kAppTextMuted)),
                   ],
                 ),
               ),
-              Icon(Icons.copy, size: 16, color: kClzTextMuted),
+              Icon(Icons.copy, size: 16, color: kAppTextMuted),
             ],
           ),
         ),

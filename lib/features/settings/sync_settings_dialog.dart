@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -145,7 +145,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: kClzDivider),
+          bottom: BorderSide(color: kAppDivider),
         ),
       ),
       child: Row(
@@ -192,7 +192,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: kClzYellow,
+              color: kAppHighlight,
               letterSpacing: 0.5,
             ),
           ),
@@ -215,7 +215,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: kClzDivider),
+          top: BorderSide(color: kAppDivider),
         ),
       ),
       child: Row(
@@ -277,15 +277,16 @@ class _SyncFieldRow extends StatelessWidget {
               height: 28,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: const Color(0xFF404040)),
+                color: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
+                border: Border.all(color: kAppDivider),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<SyncFieldPolicy>(
                   value: policy,
                   isExpanded: true,
-                  dropdownColor: const Color(0xFF2A2A2A),
+                  dropdownColor: kAppPanelRaised,
+                  borderRadius: kAppMenuBorderRadius,
                   style: const TextStyle(fontSize: 12, color: Colors.white),
                   icon: const Icon(Icons.expand_more, size: 16),
                   items: SyncFieldPolicy.values

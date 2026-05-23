@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class MediaTrackingStatusField extends StatelessWidget {
@@ -19,7 +20,8 @@ class MediaTrackingStatusField extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       isExpanded: true,
-      dropdownColor: const Color(0xFF2A2A2A),
+      dropdownColor: kAppPanelRaised,
+      borderRadius: kAppMenuBorderRadius,
       initialValue: profile.normalizeStorageValue(value),
       decoration: InputDecoration(
         labelText: label ?? '${profile.name} status',

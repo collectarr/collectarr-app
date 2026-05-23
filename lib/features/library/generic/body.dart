@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
@@ -198,7 +198,7 @@ class LibraryBody extends StatelessWidget {
         );
 
         return ColoredBox(
-          color: kClzCanvas,
+          color: kAppCanvas,
           child: Row(
             children: [
               if (showSidebar) ...[

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -46,7 +46,7 @@ class _IntegrationExportDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: const Row(
         children: [
           Icon(Icons.upload_outlined, size: 22),
@@ -61,7 +61,7 @@ class _IntegrationExportDialog extends StatelessWidget {
           children: [
             Text(
               '${shelfState.entries.length} items in ${type.workspace.title}',
-              style: TextStyle(color: kClzTextMuted, fontSize: 12),
+              style: TextStyle(color: kAppTextMuted, fontSize: 12),
             ),
             const SizedBox(height: 16),
             for (final format in ExportFormat.values) ...[
@@ -218,7 +218,7 @@ class _ExportFormatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: kClzPanelRaised,
+      color: kAppPanelRaised,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: onTap,
@@ -227,7 +227,7 @@ class _ExportFormatTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              Icon(format.icon, size: 20, color: kClzAccent),
+              Icon(format.icon, size: 20, color: kAppAccent),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -238,11 +238,11 @@ class _ExportFormatTile extends StatelessWidget {
                             fontSize: 13, fontWeight: FontWeight.w600)),
                     Text(format.description,
                         style:
-                            TextStyle(fontSize: 11, color: kClzTextMuted)),
+                            TextStyle(fontSize: 11, color: kAppTextMuted)),
                   ],
                 ),
               ),
-              Icon(Icons.copy, size: 16, color: kClzTextMuted),
+              Icon(Icons.copy, size: 16, color: kAppTextMuted),
             ],
           ),
         ),

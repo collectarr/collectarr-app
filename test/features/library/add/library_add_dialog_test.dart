@@ -253,6 +253,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Propose metadata to Core'));
     await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
 
     expect(api.lastProposalProvider, 'anilist');
     expect(api.lastProposalProviderItemId, 'anilist-1');
@@ -1321,6 +1323,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
     String? title,
     String? summary,
     String? imageUrl,
+    Map<String, dynamic>? metadataPayload,
   }) async {
     lastProposalProvider = provider;
     lastProposalProviderItemId = providerItemId;

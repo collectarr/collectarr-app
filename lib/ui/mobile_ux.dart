@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// A draggable bottom sheet wrapper for the inspector on mobile.
@@ -22,7 +22,7 @@ class MobileInspectorSheet extends StatelessWidget {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -48,7 +48,7 @@ class MobileInspectorSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: kClzTextMuted.withValues(alpha: 0.5),
+              color: kAppTextMuted.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -83,7 +83,7 @@ class MobilePullToRefresh extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: accent,
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       child: child,
     );
   }

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -94,8 +94,8 @@ class LibraryStatPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kClzPanelRaised,
-        border: Border.all(color: kClzDivider),
+        color: kAppPanelRaised,
+        border: Border.all(color: kAppDivider),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
@@ -106,7 +106,7 @@ class LibraryStatPill extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(
-                color: kClzTextMuted,
+                color: kAppTextMuted,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),

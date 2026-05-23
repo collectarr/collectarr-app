@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showLocationManagementDialog({
@@ -175,7 +175,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: kClzPanel,
+        backgroundColor: kAppPanel,
         title: const Text('Delete location'),
         content: Text(
           'Delete "${selected.fullPath(_locations)}"? Children will become top-level locations and items assigned directly to this location will be cleared.',
@@ -221,7 +221,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
     ];
 
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: const Text('Manage locations'),
       content: SizedBox(
         width: 920,
@@ -259,14 +259,14 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                             decoration: BoxDecoration(
                               color: Colors.black.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: kClzDivider),
+                              border: Border.all(color: kAppDivider),
                             ),
                             child: _locations.isEmpty
                                 ? Center(
                                     child: Text(
                                       'No locations yet. Create a root location to start the hierarchy.',
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(color: kClzTextMuted),
+                                      style: TextStyle(color: kAppTextMuted),
                                     ),
                                   )
                                 : ListView(
@@ -294,7 +294,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: kClzDivider),
+                        border: Border.all(color: kAppDivider),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -326,6 +326,8 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                                               'parent-${_selectedLocationId ?? 'new'}-${_draftParentId ?? 'root'}',
                                             ),
                                             initialValue: _draftParentId,
+                                            dropdownColor: kAppPanelRaised,
+                                            borderRadius: kAppMenuBorderRadius,
                                             decoration: const InputDecoration(
                                               labelText: 'Parent location',
                                               border: OutlineInputBorder(),
@@ -364,7 +366,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodySmall
-                                                ?.copyWith(color: kClzTextMuted),
+                                                ?.copyWith(color: kAppTextMuted),
                                           ),
                                         ],
                                       ),
@@ -408,7 +410,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                                 child: Text(
                                   'Select a location to edit it, or create a new root or child location.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: kClzTextMuted),
+                                  style: TextStyle(color: kAppTextMuted),
                                 ),
                               ),
                       ),

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -260,7 +261,8 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _fieldType,
-                dropdownColor: const Color(0xFF2A2A2A),
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(labelText: 'Field type'),
                 items: [
                   for (final type in _fieldTypes)
@@ -276,7 +278,8 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _mediaKind,
-                dropdownColor: const Color(0xFF2A2A2A),
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Applies to',
                   hintText: 'All libraries',

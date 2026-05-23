@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class InspectorReadingQueueSection extends StatefulWidget {
@@ -75,7 +75,7 @@ class _InspectorReadingQueueSectionState
             Icon(
               _inQueue ? Icons.bookmark : Icons.bookmark_border,
               size: 16,
-              color: _inQueue ? widget.accent : kClzTextMuted,
+              color: _inQueue ? widget.accent : kAppTextMuted,
             ),
             const SizedBox(width: 6),
             Expanded(
@@ -84,7 +84,7 @@ class _InspectorReadingQueueSectionState
                     ? 'In queue (position #$_position)'
                     : 'Not in reading queue',
                 style: TextStyle(
-                  color: _inQueue ? Colors.white : kClzTextMuted,
+                  color: _inQueue ? Colors.white : kAppTextMuted,
                   fontSize: 13,
                 ),
               ),

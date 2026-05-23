@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
@@ -140,7 +140,7 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
         Text(
           sourceKind.helpText,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: kClzTextMuted,
+                color: kAppTextMuted,
                 fontWeight: FontWeight.w700,
               ),
         ),
@@ -180,7 +180,7 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
         Text(
           health.summary,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: kClzTextMuted,
+                color: kAppTextMuted,
                 fontWeight: FontWeight.w700,
               ),
         ),
@@ -239,7 +239,7 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
                 'thumb: ${entry.thumbnailImageUrl}',
             ].join('\n'),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kClzTextMuted,
+                  color: kAppTextMuted,
                   fontWeight: FontWeight.w700,
                 ),
           ),
@@ -305,7 +305,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
           Text(
             'Provider search depends on Collectarr Core being reachable. Local collection data remains available offline.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kClzTextMuted,
+                  color: kAppTextMuted,
                   fontWeight: FontWeight.w700,
                 ),
           ),
@@ -315,7 +315,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
               Text(
                 '${provider.label}: ${provider.usagePolicy!.summary}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: kClzTextMuted,
+                      color: kAppTextMuted,
                       fontWeight: FontWeight.w700,
                     ),
               ),

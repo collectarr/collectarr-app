@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/compact_toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -92,8 +92,8 @@ class LibraryToolbar extends StatelessWidget {
       builder: (context, color, _) {
         final accent = color ?? targetAccent;
     return LibraryToolbarFrame(
-      backgroundColor: kClzToolbar,
-      dividerColor: kClzDivider,
+      backgroundColor: kAppToolbar,
+      dividerColor: kAppDivider,
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 760) {
@@ -128,7 +128,7 @@ class LibraryToolbar extends StatelessWidget {
                   addBackgroundColor: accent,
                   addForegroundColor: _toolbarForegroundForAccent(accent),
                 ),
-                const LibraryWorkspaceSeparator(color: kClzDivider),
+                const LibraryWorkspaceSeparator(color: kAppDivider),
                 LibraryToolbarSearch(
                   controller: searchController,
                   hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
@@ -136,9 +136,9 @@ class LibraryToolbar extends StatelessWidget {
                   onSearch: onSearchChanged,
                   onClearFilter: onClearBucket,
                   onChanged: onSearchChanged,
-                  selectionColor: kClzSelection,
+                  selectionColor: kAppSelection,
                 ),
-                const LibraryWorkspaceSeparator(color: kClzDivider),
+                const LibraryWorkspaceSeparator(color: kAppDivider),
                 if (selectionCallbacks != null)
                   LibrarySelectionControls(
                     enabled: selectionEnabled,
@@ -146,7 +146,7 @@ class LibraryToolbar extends StatelessWidget {
                     callbacks: selectionCallbacks!,
                   ),
                 if (selectionCallbacks != null)
-                  const LibraryWorkspaceSeparator(color: kClzDivider),
+                  const LibraryWorkspaceSeparator(color: kAppDivider),
                 LibraryWorkspaceControlStrip(
                   children: [
                     LibraryToolsButton(

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -100,7 +100,7 @@ class _LibraryMetadataRefreshDialogState
               Text(
                 'Search Collectarr Core for fresher metadata and cache the returned snapshots locally on this device.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: kClzTextMuted,
+                      color: kAppTextMuted,
                       fontWeight: FontWeight.w700,
                     ),
               ),
@@ -426,8 +426,8 @@ class _RefreshSourcePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kClzPanelRaised,
-        border: Border.all(color: kClzDivider),
+        color: kAppPanelRaised,
+        border: Border.all(color: kAppDivider),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Padding(
@@ -451,7 +451,7 @@ class _RefreshSourcePanel extends StatelessWidget {
                   Text(
                     _providerSummary(type),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: kClzTextMuted,
+                          color: kAppTextMuted,
                           fontWeight: FontWeight.w700,
                         ),
                   ),
@@ -492,8 +492,8 @@ class _RefreshTargetList extends StatelessWidget {
     }
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kClzPanel,
-        border: Border.all(color: kClzDivider),
+        color: kAppPanel,
+        border: Border.all(color: kAppDivider),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 280),
@@ -542,8 +542,8 @@ class _RefreshStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kClzPanelRaised,
-        border: Border.all(color: kClzDivider),
+        color: kAppPanelRaised,
+        border: Border.all(color: kAppDivider),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
@@ -554,7 +554,7 @@ class _RefreshStat extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(
-                color: kClzTextMuted,
+                color: kAppTextMuted,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -586,19 +586,19 @@ class _RefreshNotice extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: const Color(0xFF202428),
-        border: Border.all(color: kClzDivider),
+        border: Border.all(color: kAppDivider),
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: kClzAccent),
+            Icon(icon, size: 18, color: kAppAccent),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 text,
                 style: const TextStyle(
-                  color: kClzTextMuted,
+                  color: kAppTextMuted,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -651,10 +651,10 @@ IconData _statusIcon(_RefreshRowStatus status) {
 
 Color _statusColor(_RefreshRowStatus status, Color accent) {
   return switch (status) {
-    _RefreshRowStatus.waiting => kClzTextMuted,
+    _RefreshRowStatus.waiting => kAppTextMuted,
     _RefreshRowStatus.running => accent,
     _RefreshRowStatus.matched => Colors.lightGreenAccent,
-    _RefreshRowStatus.missing => kClzYellow,
+    _RefreshRowStatus.missing => kAppHighlight,
     _RefreshRowStatus.failed => Colors.redAccent,
   };
 }

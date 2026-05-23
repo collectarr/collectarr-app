@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -80,7 +80,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             if (conditions.isNotEmpty) ...[
               DropdownButtonFormField<String>(
                 initialValue: _condition,
-                dropdownColor: kClzPanelRaised,
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Condition',
                   border: OutlineInputBorder(),
@@ -103,7 +104,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             if (grades.isNotEmpty) ...[
               DropdownButtonFormField<String>(
                 initialValue: _grade,
-                dropdownColor: kClzPanelRaised,
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Grade',
                   border: OutlineInputBorder(),
@@ -136,7 +138,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _readStatus,
-              dropdownColor: kClzPanelRaised,
+              dropdownColor: kAppPanelRaised,
+              borderRadius: kAppMenuBorderRadius,
               decoration: const InputDecoration(
                 labelText: 'Tracking status',
                 border: OutlineInputBorder(),
@@ -157,7 +160,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
               initialValue: _rating,
-              dropdownColor: kClzPanelRaised,
+              dropdownColor: kAppPanelRaised,
+              borderRadius: kAppMenuBorderRadius,
               decoration: const InputDecoration(
                 labelText: 'Rating',
                 border: OutlineInputBorder(),
@@ -236,7 +240,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             child: Text(
               summary,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: !_applyLocation ? kClzTextMuted : null,
+                    color: !_applyLocation ? kAppTextMuted : null,
                   ),
             ),
           ),

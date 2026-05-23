@@ -59,6 +59,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   late final TextEditingController _publisherController;
   late final TextEditingController _releaseDateController;
   late final TextEditingController _releaseYearController;
+  late final TextEditingController _pageCountController;
   late final TextEditingController _editionTitleController;
   late final TextEditingController _barcodeController;
   late final TextEditingController _variantController;
@@ -137,6 +138,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
     _releaseYearController = TextEditingController(
       text: item.releaseYear?.toString() ?? '',
+    );
+    _pageCountController = TextEditingController(
+      text: item.publishing?.pageCount?.toString() ?? '',
     );
     _editionTitleController =
         TextEditingController(text: item.editionTitle ?? '');
@@ -218,6 +222,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _publisherController.dispose();
     _releaseDateController.dispose();
     _releaseYearController.dispose();
+    _pageCountController.dispose();
     _editionTitleController.dispose();
     _barcodeController.dispose();
     _variantController.dispose();
@@ -510,6 +515,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   initialValue: _physicalFormatId,
                   isExpanded: true,
                   dropdownColor: kEditPanelRaised,
+                  borderRadius: kEditMenuBorderRadius,
                   decoration: const InputDecoration(
                     labelText: 'Physical format',
                   ),
@@ -552,6 +558,11 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 _field(
                   controller: _releaseYearController,
                   label: 'Release year',
+                  validator: optionalIntValidator,
+                ),
+                _field(
+                  controller: _pageCountController,
+                  label: 'Page count',
                   validator: optionalIntValidator,
                 ),
               ]),
@@ -1095,7 +1106,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     final updatedPublishing = CatalogPublishingDetails(
-      pageCount: widget.item.publishing?.pageCount,
+      pageCount: parseInt(_pageCountController.text),
       coverPriceCents: widget.item.publishing?.coverPriceCents,
       currency: widget.item.publishing?.currency,
       imprint: emptyToNull(_imprintController.text),

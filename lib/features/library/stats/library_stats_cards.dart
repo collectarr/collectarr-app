@@ -423,7 +423,7 @@ class _MoneyDistributionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final prefix = currency == null || currency!.isEmpty ? '' : '${currency!} ';
-    final amount = '${prefix}${(cents / 100).toStringAsFixed(2)}';
+    final amount = '$prefix${(cents / 100).toStringAsFixed(2)}';
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(

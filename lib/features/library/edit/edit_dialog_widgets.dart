@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 // ---------------------------------------------------------------------------
@@ -6,15 +6,16 @@ import 'package:flutter/material.dart';
 // the generic library edit dialogs.
 // ---------------------------------------------------------------------------
 
-const Color kEditAccent = kClzAccent;
-const Color kEditPanel = kClzPanel;
-const Color kEditPanelRaised = kClzPanelRaised;
-const Color kEditToolbar = kClzToolbar;
-const Color kEditDivider = kClzDivider;
-const Color kEditTextMuted = kClzTextMuted;
+const Color kEditAccent = kAppAccent;
+const Color kEditPanel = kAppPanel;
+const Color kEditPanelRaised = kAppPanelRaised;
+const Color kEditToolbar = kAppToolbar;
+const Color kEditDivider = kAppDivider;
+const Color kEditTextMuted = kAppTextMuted;
 const Color kEditChartBar = Color(0xFF7EDAF3);
 const Color kEditValueChip = Color(0xFF1B1B1B);
 const Color kEditValueChipBorder = Color(0xFF3A3A3A);
+const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 
 /// Dark theme preset for edit dialogs.
 ThemeData editDialogTheme({Color seedColor = kEditAccent}) {
@@ -28,6 +29,42 @@ ThemeData editDialogTheme({Color seedColor = kEditAccent}) {
     dialogTheme: const DialogThemeData(
       backgroundColor: kEditPanel,
       surfaceTintColor: Colors.transparent,
+    ),
+    popupMenuTheme: const PopupMenuThemeData(
+      color: kEditPanelRaised,
+      surfaceTintColor: Colors.transparent,
+      textStyle: TextStyle(color: Colors.white),
+      elevation: 12,
+      shape: RoundedRectangleBorder(
+        borderRadius: kAppMenuBorderRadius,
+        side: BorderSide(color: kEditDivider),
+      ),
+    ),
+    menuTheme: const MenuThemeData(
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(kEditPanelRaised),
+        surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: kAppMenuBorderRadius,
+            side: BorderSide(color: kEditDivider),
+          ),
+        ),
+      ),
+    ),
+    dropdownMenuTheme: const DropdownMenuThemeData(
+      textStyle: TextStyle(color: Colors.white),
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(kEditPanelRaised),
+        surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+        elevation: WidgetStatePropertyAll(12),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: kAppMenuBorderRadius,
+            side: BorderSide(color: kEditDivider),
+          ),
+        ),
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -44,6 +81,10 @@ ThemeData editDialogTheme({Color seedColor = kEditAccent}) {
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: seedColor),
       ),
+    ),
+    datePickerTheme: buildAppDatePickerTheme(
+      accent: seedColor,
+      surface: kEditPanel,
     ),
   );
 }

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class InspectorLocationSection extends StatefulWidget {
@@ -94,7 +94,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
                 Icon(
                   Icons.place,
                   size: 16,
-                  color: current != null ? widget.accent : kClzTextMuted,
+                  color: current != null ? widget.accent : kAppTextMuted,
                 ),
                 const SizedBox(width: 6),
                 Expanded(
@@ -103,7 +103,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
                         ? current.fullPath(_allLocations)
                         : 'No location assigned',
                     style: TextStyle(
-                      color: current != null ? Colors.white : kClzTextMuted,
+                      color: current != null ? Colors.white : kAppTextMuted,
                       fontSize: 13,
                     ),
                   ),
@@ -111,7 +111,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
                 Icon(
                   Icons.edit,
                   size: 14,
-                  color: kClzTextMuted,
+                  color: kAppTextMuted,
                 ),
               ],
             ),
@@ -153,7 +153,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kClzPanel,
+        backgroundColor: kAppPanel,
         title: const Text('New Location'),
         content: TextField(
           controller: nameCtrl,
@@ -192,7 +192,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
         _locations.where((l) => l.parentId == null).toList();
 
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: Row(
         children: [
           const Expanded(child: Text('Assign Location')),
@@ -205,13 +205,51 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
       ),
       content: SizedBox(
         width: 320,
-        height: 300,
+        height: _locations.isEmpty ? null : 300,
         child: _locations.isEmpty
-            ? Center(
-                child: Text(
-                  'No locations yet.\nTap + to create one.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: kClzTextMuted),
+            ? DecoratedBox(
+                decoration: BoxDecoration(
+                  color: kAppCanvas,
+                  border: Border.all(color: kAppDivider),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.place_outlined, color: kAppAccent),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'No locations yet',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Create a location first so this item can be assigned without leaving the dialog.',
+                        style: TextStyle(color: kAppTextMuted),
+                      ),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: FilledButton.icon(
+                          onPressed: _addLocation,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Create first location'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               )
             : RadioGroup<String?>(

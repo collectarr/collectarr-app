@@ -238,31 +238,62 @@ class ApiClient {
     String? title,
     String? itemNumber,
     String? synopsis,
+    String? editionTitle,
     int? pageCount,
     String? publisher,
     DateTime? releaseDate,
+    String? imprint,
+    String? seriesGroup,
     String? physicalFormat,
     String? variantName,
     String? barcode,
     String? coverImageUrl,
     String? thumbnailImageUrl,
     bool includeNulls = false,
+    Set<String> explicitFields = const <String>{},
   }) async {
     final data = <String, dynamic>{
-      if (includeNulls || title != null) 'title': title,
-      if (includeNulls || itemNumber != null) 'item_number': itemNumber,
-      if (includeNulls || synopsis != null) 'synopsis': synopsis,
-      if (includeNulls || pageCount != null) 'page_count': pageCount,
-      if (includeNulls || publisher != null) 'publisher': publisher,
-      if (includeNulls || releaseDate != null)
+      if (explicitFields.contains('title') || includeNulls || title != null)
+        'title': title,
+      if (explicitFields.contains('item_number') ||
+          includeNulls ||
+          itemNumber != null)
+        'item_number': itemNumber,
+      if (explicitFields.contains('synopsis') || includeNulls || synopsis != null)
+        'synopsis': synopsis,
+      if (explicitFields.contains('edition_title') ||
+          includeNulls ||
+          editionTitle != null)
+        'edition_title': editionTitle,
+      if (explicitFields.contains('page_count') || includeNulls || pageCount != null)
+        'page_count': pageCount,
+      if (explicitFields.contains('publisher') || includeNulls || publisher != null)
+        'publisher': publisher,
+      if (explicitFields.contains('release_date') ||
+          includeNulls ||
+          releaseDate != null)
         'release_date':
             releaseDate == null ? null : _dateForApi(releaseDate.toUtc()),
+      if (explicitFields.contains('imprint') || includeNulls || imprint != null)
+        'imprint': imprint,
+      if (explicitFields.contains('series_group') ||
+          includeNulls ||
+          seriesGroup != null)
+        'series_group': seriesGroup,
       if (physicalFormat != null) 'physical_format': physicalFormat,
-      if (includeNulls || variantName != null) 'variant_name': variantName,
-      if (includeNulls || barcode != null) 'barcode': barcode,
-      if (includeNulls || coverImageUrl != null)
+      if (explicitFields.contains('variant_name') ||
+          includeNulls ||
+          variantName != null)
+        'variant_name': variantName,
+      if (explicitFields.contains('barcode') || includeNulls || barcode != null)
+        'barcode': barcode,
+      if (explicitFields.contains('cover_image_url') ||
+          includeNulls ||
+          coverImageUrl != null)
         'cover_image_url': coverImageUrl,
-      if (includeNulls || thumbnailImageUrl != null)
+      if (explicitFields.contains('thumbnail_image_url') ||
+          includeNulls ||
+          thumbnailImageUrl != null)
         'thumbnail_image_url': thumbnailImageUrl,
     };
     final response = await _dio.patch<Map<String, dynamic>>(
@@ -625,6 +656,7 @@ class ApiClient {
     String? title,
     String? summary,
     String? imageUrl,
+    Map<String, dynamic>? metadataPayload,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/metadata/proposals',
@@ -635,6 +667,7 @@ class ApiClient {
         if (title != null) 'title': title,
         if (summary != null) 'summary': summary,
         if (imageUrl != null) 'image_url': imageUrl,
+        if (metadataPayload != null) 'metadata_payload': metadataPayload,
       },
     );
     final data = response.data;

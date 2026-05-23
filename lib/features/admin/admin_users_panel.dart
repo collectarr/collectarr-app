@@ -1,4 +1,5 @@
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -159,6 +160,8 @@ class _UserRow extends StatelessWidget {
           DropdownButton<String>(
             value: role,
             underline: const SizedBox.shrink(),
+            dropdownColor: kAppPanelRaised,
+            borderRadius: kAppMenuBorderRadius,
             items: const [
               DropdownMenuItem(value: 'viewer', child: Text('Viewer')),
               DropdownMenuItem(value: 'editor', child: Text('Editor')),

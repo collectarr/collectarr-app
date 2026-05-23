@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
@@ -141,7 +141,7 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
             'updated_at: ${entry.updatedAt.toUtc().toIso8601String()}',
           ].join('\n'),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: kClzTextMuted,
+                color: kAppTextMuted,
                 fontWeight: FontWeight.w700,
               ),
         ),

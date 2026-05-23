@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/collection/services/image_download_servi
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
@@ -155,7 +155,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             viewState,
           );
     return Scaffold(
-        backgroundColor: kClzCanvas,
+        backgroundColor: kAppCanvas,
         body: SafeArea(
           bottom: false,
           child: Column(

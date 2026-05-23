@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Ownership filter options used in the generic filter dialog.
@@ -323,7 +323,8 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
             children: [
               DropdownButtonFormField<LibraryOwnershipFilter>(
                 initialValue: _ownership,
-                dropdownColor: kClzPanelRaised,
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Shelf',
                   border: OutlineInputBorder(),
@@ -489,7 +490,8 @@ class _FilterDropdown extends StatelessWidget {
     return DropdownButtonFormField<String>(
       initialValue: options.contains(value) ? value : null,
       isExpanded: true,
-      dropdownColor: kClzPanelRaised,
+      dropdownColor: kAppPanelRaised,
+      borderRadius: kAppMenuBorderRadius,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),

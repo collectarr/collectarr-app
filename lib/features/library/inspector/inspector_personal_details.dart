@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,7 +44,8 @@ class InspectorCollectionFields extends StatelessWidget {
           Expanded(
             child: DropdownButtonFormField<String>(
               isExpanded: true,
-              dropdownColor: const Color(0xFF2A2A2A),
+              dropdownColor: kAppPanelRaised,
+              borderRadius: kAppMenuBorderRadius,
               initialValue: conditions.contains(condition) ? condition : null,
               decoration: const InputDecoration(
                 labelText: 'Condition',
@@ -62,7 +63,8 @@ class InspectorCollectionFields extends StatelessWidget {
           Expanded(
             child: DropdownButtonFormField<String>(
               isExpanded: true,
-              dropdownColor: const Color(0xFF2A2A2A),
+              dropdownColor: kAppPanelRaised,
+              borderRadius: kAppMenuBorderRadius,
               initialValue: grades.contains(grade) ? grade : null,
               decoration: const InputDecoration(
                 labelText: 'Grade',
@@ -230,7 +232,7 @@ class _InspectorPersonalDetailsEditorState
                   _selectedLocationLabel ?? 'No location selected',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color:
-                            _selectedLocationLabel == null ? kClzTextMuted : null,
+                            _selectedLocationLabel == null ? kAppTextMuted : null,
                       ),
                 ),
               ),

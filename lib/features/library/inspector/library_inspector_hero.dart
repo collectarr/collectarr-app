@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -126,7 +126,7 @@ class _InspectorHeroInfo extends StatelessWidget {
               const SizedBox(width: 7),
               LibraryItemPill(
                 label: entry.itemNumber!,
-                color: kClzYellow,
+                color: kAppHighlight,
               ),
             ],
           ],
@@ -225,7 +225,7 @@ class _InspectorHeroInfo extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             letterSpacing: 1.1,
-                            color: kClzTextMuted,
+                            color: kAppTextMuted,
                           ),
                     ),
                   ),

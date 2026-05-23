@@ -29,6 +29,7 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
   String? title,
   String? summary,
   String? imageUrl,
+  Map<String, dynamic>? metadataPayload,
 }) {
   return api.createMetadataProposal(
     provider: resolveLibraryMetadataProposalProvider(
@@ -40,6 +41,7 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
     title: title,
     summary: summary,
     imageUrl: imageUrl,
+    metadataPayload: metadataPayload,
   );
 }
 
@@ -53,6 +55,7 @@ Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
   String? title,
   String? summary,
   String? imageUrl,
+  Map<String, dynamic>? metadataPayload,
   required String source,
 }) async {
   final resolvedProvider = resolveLibraryMetadataProposalProvider(
@@ -66,6 +69,7 @@ Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
     title: title,
     summary: summary,
     imageUrl: imageUrl,
+    metadataPayload: metadataPayload,
   );
   await store.recordResponse(
     response: response,

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryAlphaJumpBar extends StatelessWidget {
@@ -53,7 +53,7 @@ class LibraryAlphaJumpBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
         border: Border(
-          bottom: BorderSide(color: kClzDivider),
+          bottom: BorderSide(color: kAppDivider),
         ),
       ),
       child: Row(

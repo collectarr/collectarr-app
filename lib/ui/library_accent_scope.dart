@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryAccentScope extends InheritedWidget {
@@ -118,6 +119,12 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
     ),
     progressIndicatorTheme: base.progressIndicatorTheme.copyWith(
       color: accent,
+    ),
+    datePickerTheme: buildAppDatePickerTheme(
+      accent: accent,
+      surface: base.datePickerTheme.backgroundColor ??
+          base.dialogTheme.backgroundColor ??
+          base.colorScheme.surface,
     ),
   );
 }

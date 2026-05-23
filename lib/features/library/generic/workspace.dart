@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -114,10 +114,10 @@ class LibraryWorkspace extends StatelessWidget {
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
-              selectedColor: kClzSelection,
+              selectedColor: kAppSelection,
               accentColor: accent,
-              selectionColor: kClzYellow,
-              mutedTextColor: kClzTextMuted,
+              selectionColor: kAppHighlight,
+              mutedTextColor: kAppTextMuted,
             ),
           ),
         LibraryViewMode.card => _GroupedGrid(
@@ -141,9 +141,9 @@ class LibraryWorkspace extends StatelessWidget {
                   : (d) => onItemContextMenu!(item, d.globalPosition),
               dateFormatter: formatDate,
               moneyFormatter: formatMoney,
-              selectedColor: kClzSelection,
+              selectedColor: kAppSelection,
               accentColor: accent,
-              mutedTextColor: kClzTextMuted,
+              mutedTextColor: kAppTextMuted,
             ),
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
@@ -166,9 +166,9 @@ class LibraryWorkspace extends StatelessWidget {
                   : (d) => onItemContextMenu!(item, d.globalPosition),
               dateFormatter: formatDate,
               moneyFormatter: formatMoney,
-              selectedColor: kClzSelection,
+              selectedColor: kAppSelection,
               accentColor: accent,
-              mutedTextColor: kClzTextMuted,
+              mutedTextColor: kAppTextMuted,
             ),
           ),
         LibraryViewMode.list => _buildTable(),
@@ -184,7 +184,7 @@ class LibraryWorkspace extends StatelessWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: kClzGridCanvas,
+          backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
             entry: item.entry,
             selected: _isSelected(item),
@@ -192,10 +192,10 @@ class LibraryWorkspace extends StatelessWidget {
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
-            selectedColor: kClzSelection,
+            selectedColor: kAppSelection,
             accentColor: accent,
-            selectionColor: kClzYellow,
-            mutedTextColor: kClzTextMuted,
+            selectionColor: kAppHighlight,
+            mutedTextColor: kAppTextMuted,
           ),
         ),
       LibraryViewMode.card => LibraryWorkspaceGrid<LibraryProjectionItem>(
@@ -208,7 +208,7 @@ class LibraryWorkspace extends StatelessWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: kClzGridCanvas,
+          backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             entry: item.entry,
             selected: _isSelected(item),
@@ -218,9 +218,9 @@ class LibraryWorkspace extends StatelessWidget {
                 : (d) => onItemContextMenu!(item, d.globalPosition),
             dateFormatter: formatDate,
             moneyFormatter: formatMoney,
-            selectedColor: kClzSelection,
+            selectedColor: kAppSelection,
             accentColor: accent,
-            mutedTextColor: kClzTextMuted,
+            mutedTextColor: kAppTextMuted,
           ),
         ),
       LibraryViewMode.cardFlow => LibraryWorkspaceGrid<LibraryProjectionItem>(
@@ -232,7 +232,7 @@ class LibraryWorkspace extends StatelessWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: kClzGridCanvas,
+          backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryCardFlowTile(
             entry: item.entry,
             selected: _isSelected(item),
@@ -242,9 +242,9 @@ class LibraryWorkspace extends StatelessWidget {
                 : (d) => onItemContextMenu!(item, d.globalPosition),
             dateFormatter: formatDate,
             moneyFormatter: formatMoney,
-            selectedColor: kClzSelection,
+            selectedColor: kAppSelection,
             accentColor: accent,
-            mutedTextColor: kClzTextMuted,
+            mutedTextColor: kAppTextMuted,
           ),
         ),
       LibraryViewMode.list => _buildTable(),
@@ -274,7 +274,7 @@ class LibraryWorkspace extends StatelessWidget {
         );
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
         return ColoredBox(
-          color: kClzCanvas,
+          color: kAppCanvas,
           child: Scrollbar(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -307,13 +307,13 @@ class LibraryWorkspace extends StatelessWidget {
                     onColumnWidthChanged: onColumnWidthChanged,
                     onColumnReordered: onColumnReordered,
                     headerColor: const Color(0xFF303030),
-                    dividerColor: kClzDivider,
-                    selectedColor: kClzSelection,
-                    oddColor: kClzTableOddRow,
-                    evenColor: kClzTableEvenRow,
-                    selectionRailColor: kClzYellow,
-                    bottomBorderColor: kClzTableBottomBorder,
-                    hoverColor: kClzTableHover,
+                    dividerColor: kAppDivider,
+                    selectedColor: kAppSelection,
+                    oddColor: kAppTableOddRow,
+                    evenColor: kAppTableEvenRow,
+                    selectionRailColor: kAppHighlight,
+                    bottomBorderColor: kAppTableBottomBorder,
+                    hoverColor: kAppTableHover,
                     accentColor: accent,
                   ),
                 ),
@@ -429,7 +429,7 @@ class _GroupedGridState extends State<_GroupedGrid> {
     final useSubGroups = widget.groupMode == LibraryGroupMode.series;
 
     return ColoredBox(
-      color: kClzGridCanvas,
+      color: kAppGridCanvas,
       child: CustomScrollView(
         slivers: [
           for (final key in sortedKeys) ...[

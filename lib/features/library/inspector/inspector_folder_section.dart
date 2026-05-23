@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class InspectorFolderSection extends StatefulWidget {
@@ -96,7 +96,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
             padding: const EdgeInsets.only(bottom: 4),
             child: Text(
               'Not in any folder',
-              style: TextStyle(color: kClzTextMuted, fontSize: 12),
+              style: TextStyle(color: kAppTextMuted, fontSize: 12),
             ),
           ),
         ..._folders.map((folder) => Padding(
@@ -113,7 +113,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
                   ),
                   InkWell(
                     onTap: () => _removeFromFolder(folder.id),
-                    child: Icon(Icons.close, size: 14, color: kClzTextMuted),
+                    child: Icon(Icons.close, size: 14, color: kAppTextMuted),
                   ),
                 ],
               ),
@@ -150,7 +150,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
     final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kClzPanel,
+        backgroundColor: kAppPanel,
         title: const Text('New Folder'),
         content: TextField(
           controller: ctrl,
@@ -176,7 +176,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: Row(
         children: [
           const Expanded(child: Text('Add to Folder')),
@@ -195,7 +195,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
                 child: Text(
                   'No folders available.\nTap + to create one.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: kClzTextMuted),
+                  style: TextStyle(color: kAppTextMuted),
                 ),
               )
             : ListView.builder(

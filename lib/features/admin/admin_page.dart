@@ -4,17 +4,22 @@ import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _kAdminDropdownColor = Color(0xFF2A2A2A);
+const _kAdminDropdownColor = kAppPanelRaised;
 
 class AdminPage extends ConsumerStatefulWidget {
   const AdminPage({super.key});
@@ -897,14 +902,39 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
       item.kind,
     );
-    final correction = await showDialog<_CatalogCorrection>(
+    final type = collectarrLibraryTypes.byKind(item.kind);
+    if (type == null) {
+      setState(() {
+        _catalogErrorMessage = 'No shared editor is registered for ${item.kind}.';
+      });
+      return;
+    }
+    final result = await showLibraryEditDialog(
       context: context,
-      builder: (context) => _MetadataCorrectionDialog(
-        item: item,
+      request: LibraryEditDialogRequest(
+        type: type,
+        item: _libraryMetadataItemFromAdminItem(item),
+        ownedItem: null,
+        accent: LibraryAccentScope.accentOf(context),
         physicalFormats: physicalFormats,
       ),
     );
-    if (correction == null || !mounted) {
+    if (result == null || !mounted) {
+      return;
+    }
+    final correction = _catalogCorrectionFromEditedItem(item, result.item);
+    final explicitFields = _catalogCorrectionExplicitFields(item, correction);
+    if (explicitFields.isEmpty) {
+      setState(() {
+        _catalogErrorMessage =
+            'Change at least one persisted metadata field before saving.';
+      });
+      return;
+    }
+    final confirmed = await _confirmMetadataCorrectionPreview(
+      _catalogCorrectionPreview(item, correction),
+    );
+    if (!mounted || !confirmed) {
       return;
     }
     setState(() {
@@ -920,15 +950,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             title: correction.title,
             itemNumber: correction.itemNumber,
             synopsis: correction.synopsis,
+            editionTitle: correction.editionTitle,
             pageCount: correction.pageCount,
             publisher: correction.publisher,
             releaseDate: correction.releaseDate,
+            imprint: correction.imprint,
+            seriesGroup: correction.seriesGroup,
             physicalFormat: correction.physicalFormat,
             variantName: correction.variantName,
             barcode: correction.barcode,
             coverImageUrl: correction.coverImageUrl,
             thumbnailImageUrl: correction.thumbnailImageUrl,
-            includeNulls: true,
+            explicitFields: explicitFields,
           );
       if (!mounted) {
         return;
@@ -951,6 +984,187 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _catalogErrorMessage = _adminErrorMessage(error);
       });
     }
+  }
+
+  LibraryMetadataItem _libraryMetadataItemFromAdminItem(AdminMetadataItem item) {
+    final edition = item.primaryEdition;
+    final variant = item.primaryVariant;
+    final releaseDate = edition?.releaseDate ?? item.coverDate;
+    return LibraryMetadataItem(
+      id: item.id,
+      kind: item.kind,
+      title: item.title,
+      itemNumber: item.itemNumber,
+      synopsis: item.synopsis,
+      coverImageUrl: variant?.coverImageUrl ?? item.displayCoverUrl,
+      thumbnailImageUrl: variant?.thumbnailImageUrl ?? item.displayCoverUrl,
+      editionTitle: edition?.title,
+      physicalFormat: edition?.physicalFormat,
+      physicalFormatLabel: edition?.physicalFormatLabel,
+      publisher: edition?.publisher ?? item.publisher,
+      releaseDate: releaseDate,
+      releaseYear: releaseDate?.year ?? item.series?.volumeStartYear,
+      barcode: variant?.barcode ?? item.barcode,
+      variant: variant?.name,
+      series: item.series,
+      publishing: item.publishing,
+    );
+  }
+
+  _CatalogCorrection _catalogCorrectionFromEditedItem(
+    AdminMetadataItem original,
+    LibraryMetadataItem edited,
+  ) {
+    return _CatalogCorrection(
+      title: edited.title,
+      itemNumber: edited.itemNumber,
+      synopsis: edited.synopsis,
+      editionTitle: edited.editionTitle,
+      pageCount: edited.publishing?.pageCount,
+      publisher: edited.publisher,
+      releaseDate: edited.releaseDate,
+      imprint: edited.publishing?.imprint,
+      seriesGroup: edited.publishing?.seriesGroup,
+      physicalFormat: edited.physicalFormat,
+      variantName: edited.variant,
+      barcode: edited.barcode,
+      coverImageUrl: edited.coverImageUrl,
+      thumbnailImageUrl: edited.thumbnailImageUrl,
+    );
+  }
+
+  Set<String> _catalogCorrectionExplicitFields(
+    AdminMetadataItem item,
+    _CatalogCorrection correction,
+  ) {
+    final edition = item.primaryEdition;
+    final variant = item.primaryVariant;
+    final fields = <String>{};
+    void addField(String key, Object? before, Object? after) {
+      if (before != after) {
+        fields.add(key);
+      }
+    }
+
+    addField('title', item.title, correction.title);
+    addField('item_number', item.itemNumber, correction.itemNumber);
+    addField('synopsis', item.synopsis, correction.synopsis);
+    addField('edition_title', edition?.title, correction.editionTitle);
+    addField('page_count', item.publishing?.pageCount, correction.pageCount);
+    addField(
+      'publisher',
+      edition?.publisher ?? item.publisher,
+      correction.publisher,
+    );
+    addField('release_date', edition?.releaseDate ?? item.coverDate, correction.releaseDate);
+    addField('imprint', item.publishing?.imprint, correction.imprint);
+    addField('series_group', item.publishing?.seriesGroup, correction.seriesGroup);
+    if (correction.physicalFormat != null &&
+        edition?.physicalFormat != correction.physicalFormat) {
+      fields.add('physical_format');
+    }
+    addField('variant_name', variant?.name, correction.variantName);
+    addField('barcode', variant?.barcode ?? item.barcode, correction.barcode);
+    addField('cover_image_url', variant?.coverImageUrl, correction.coverImageUrl);
+    addField(
+      'thumbnail_image_url',
+      variant?.thumbnailImageUrl,
+      correction.thumbnailImageUrl,
+    );
+    return fields;
+  }
+
+  List<_CorrectionPreviewEntry> _catalogCorrectionPreview(
+    AdminMetadataItem item,
+    _CatalogCorrection correction,
+  ) {
+    final edition = item.primaryEdition;
+    final variant = item.primaryVariant;
+    final changes = <_CorrectionPreviewEntry>[];
+
+    void add(String label, Object? before, Object? after) {
+      final beforeText = _previewCorrectionValue(before);
+      final afterText = _previewCorrectionValue(after);
+      if (beforeText == afterText) {
+        return;
+      }
+      changes.add(
+        _CorrectionPreviewEntry(
+          label: label,
+          before: beforeText,
+          after: afterText,
+        ),
+      );
+    }
+
+    add('Title', item.title, correction.title);
+    add('Item number', item.itemNumber, correction.itemNumber);
+    add('Publisher', edition?.publisher ?? item.publisher, correction.publisher);
+    add('Edition title', edition?.title, correction.editionTitle);
+    add('Barcode', variant?.barcode ?? item.barcode, correction.barcode);
+    add('Primary variant', variant?.name, correction.variantName);
+    add('Page count', item.publishing?.pageCount, correction.pageCount);
+    add('Release date', edition?.releaseDate ?? item.coverDate, correction.releaseDate);
+    add('Imprint', item.publishing?.imprint, correction.imprint);
+    add('Series group', item.publishing?.seriesGroup, correction.seriesGroup);
+    add('Physical format', edition?.physicalFormat, correction.physicalFormat);
+    add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
+    add('Thumbnail URL', variant?.thumbnailImageUrl, correction.thumbnailImageUrl);
+    add('Synopsis', item.synopsis, correction.synopsis);
+    return changes;
+  }
+
+  Future<bool> _confirmMetadataCorrectionPreview(
+    List<_CorrectionPreviewEntry> changes,
+  ) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Preview metadata correction'),
+            content: SizedBox(
+              width: 620,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const _DestructiveWarning(
+                      icon: Icons.fact_check_outlined,
+                      message:
+                          'This edits canonical catalog metadata and affects every user who sees this item. Review the diff before saving.',
+                    ),
+                    const SizedBox(height: 12),
+                    for (final change in changes)
+                      _CorrectionPreviewRow(change: change),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Back to edit'),
+              ),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).pop(true),
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Save correction'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  String _previewCorrectionValue(Object? value) {
+    if (value == null) {
+      return '(empty)';
+    }
+    if (value is DateTime) {
+      return _formatDate(value);
+    }
+    final text = value.toString().trim();
+    return text.isEmpty ? '(empty)' : text;
   }
 
   Future<void> _showCoverInspectionDialog(AdminMetadataItem item) async {
@@ -1936,6 +2150,7 @@ class _ProviderSelector extends StatelessWidget {
       initialValue: selected,
       isExpanded: true,
       dropdownColor: _kAdminDropdownColor,
+      borderRadius: kAppMenuBorderRadius,
       hint: Text(isLoading ? 'Loading providers...' : 'Select provider'),
       decoration: const InputDecoration(
         labelText: 'Provider',
@@ -1988,6 +2203,7 @@ class _ProviderKindSelector extends StatelessWidget {
       initialValue: selected,
       isExpanded: true,
       dropdownColor: _kAdminDropdownColor,
+      borderRadius: kAppMenuBorderRadius,
       decoration: const InputDecoration(
         labelText: 'Media kind',
         prefixIcon: Icon(Icons.category_outlined),
@@ -2265,6 +2481,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
                 initialValue: filterValue,
                 isExpanded: true,
                 dropdownColor: _kAdminDropdownColor,
+                borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Status filter',
                   border: OutlineInputBorder(),
@@ -2285,6 +2502,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
                 initialValue: providerFilterValue,
                 isExpanded: true,
                 dropdownColor: _kAdminDropdownColor,
+                borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Provider filter',
                   border: OutlineInputBorder(),
@@ -4129,9 +4347,12 @@ class _CatalogCorrection {
     this.title,
     this.itemNumber,
     this.synopsis,
+    this.editionTitle,
     this.pageCount,
     this.publisher,
     this.releaseDate,
+    this.imprint,
+    this.seriesGroup,
     this.physicalFormat,
     this.variantName,
     this.barcode,
@@ -4142,9 +4363,12 @@ class _CatalogCorrection {
   final String? title;
   final String? itemNumber;
   final String? synopsis;
+  final String? editionTitle;
   final int? pageCount;
   final String? publisher;
   final DateTime? releaseDate;
+  final String? imprint;
+  final String? seriesGroup;
   final String? physicalFormat;
   final String? variantName;
   final String? barcode;
@@ -4319,6 +4543,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       child: DropdownButtonFormField<String>(
         initialValue: _physicalFormatId,
         dropdownColor: _kAdminDropdownColor,
+        borderRadius: kAppMenuBorderRadius,
         decoration: const InputDecoration(
           labelText: 'Physical format',
           border: OutlineInputBorder(),

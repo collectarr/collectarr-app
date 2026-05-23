@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Data class for insurance value summary.
@@ -91,7 +91,7 @@ class _InsuranceValueDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: kClzPanel,
+      backgroundColor: kAppPanel,
       title: const Row(
         children: [
           Icon(Icons.shield_outlined, size: 22),
@@ -127,18 +127,18 @@ class _InsuranceValueDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: kClzPanelRaised,
+                color: kAppPanelRaised,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 16, color: kClzTextMuted),
+                  Icon(Icons.info_outline, size: 16, color: kAppTextMuted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'For insurance purposes, consider using cover price '
                       'or current market value as the replacement cost.',
-                      style: TextStyle(fontSize: 11, color: kClzTextMuted),
+                      style: TextStyle(fontSize: 11, color: kAppTextMuted),
                     ),
                   ),
                 ],
@@ -175,13 +175,13 @@ class _ValueRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: kClzTextMuted, fontSize: 13)),
+          Text(label, style: TextStyle(color: kAppTextMuted, fontSize: 13)),
           Text(
             value,
             style: TextStyle(
               fontSize: highlight ? 16 : 13,
               fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
-              color: highlight ? kClzAccent : Colors.white,
+              color: highlight ? kAppAccent : Colors.white,
             ),
           ),
         ],

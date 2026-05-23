@@ -1,9 +1,10 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
-import 'package:collectarr_app/features/library/home/home_navigation.dart';
+import 'package:collectarr_app/features/library/home/home_rail.dart';
+import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -66,7 +67,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
     if (navPreferences.placement == LibraryNavPlacement.left) {
       return Material(
-        color: kClzCanvas,
+        color: kAppCanvas,
         child: Row(
           children: [
             MediaLibraryRail(

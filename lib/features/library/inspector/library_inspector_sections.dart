@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -204,8 +204,8 @@ class EmptyInspector extends StatelessWidget {
       icon: type.workspace.icon,
       label: type.singularLabel.toLowerCase(),
       accent: accent,
-      mutedTextColor: kClzTextMuted,
-      backgroundColor: kClzCanvas,
+      mutedTextColor: kAppTextMuted,
+      backgroundColor: kAppCanvas,
     );
   }
 }

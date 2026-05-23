@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/updater/app_update_service.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -136,7 +136,7 @@ class _StatusSection extends StatelessWidget {
           Container(
             constraints: const BoxConstraints(maxHeight: 200),
             decoration: BoxDecoration(
-              color: kClzPanelRaised,
+              color: kAppPanelRaised,
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.all(12),

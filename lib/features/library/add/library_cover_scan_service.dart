@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -49,6 +48,9 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
     }
     final picked = await imagePicker.pickImage();
     if (picked == null) {
+      return null;
+    }
+    if (!context.mounted) {
       return null;
     }
     final reviewed = await imageReview.reviewImage(

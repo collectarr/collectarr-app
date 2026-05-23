@@ -56,7 +56,7 @@ class _SearchPane extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: Color(0xFF1D2022),
-        border: Border(right: BorderSide(color: kClzDivider)),
+        border: Border(right: BorderSide(color: kAppDivider)),
       ),
       child: _SearchResultsList(
         type: type,
@@ -124,7 +124,7 @@ class _SearchPaneNoticeStack extends StatelessWidget {
             ),
             child: _ErrorBanner(error!),
           ),
-        const Divider(height: 1, thickness: 1, color: kClzDivider),
+        const Divider(height: 1, thickness: 1, color: kAppDivider),
       ],
     );
   }
@@ -198,7 +198,7 @@ class _QueuedIngestNotice extends StatelessWidget {
               child: Text(
                 '$count Core ingest $jobLabel queued. Run or retry them in Admin, then search Core again.',
                 style: const TextStyle(
-                  color: kClzTextMuted,
+                  color: kAppTextMuted,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -432,7 +432,7 @@ class _SearchResultsList extends StatelessWidget {
   }
 
   List<Widget> _withDividers(BuildContext context, List<Widget> tiles) {
-    const divider = Divider(height: 1, thickness: 1, color: kClzDivider);
+    const divider = Divider(height: 1, thickness: 1, color: kAppDivider);
     final separated = <Widget>[];
     for (var index = 0; index < tiles.length; index++) {
       if (index > 0) {
@@ -530,7 +530,7 @@ class _ComicCandidateTreeList extends StatelessWidget {
             onSelectProviderCandidate: onSelectProviderCandidate,
           ),
           if (i < groups.length - 1)
-            const Divider(height: 1, thickness: 1, color: kClzDivider),
+            const Divider(height: 1, thickness: 1, color: kAppDivider),
         ],
       ],
     );
@@ -765,9 +765,9 @@ class _ComicCandidateSeriesNodeState extends State<_ComicCandidateSeriesNode> {
         color: highlighted
             ? Color.alphaBlend(
                 widget.accent.withValues(alpha: 0.38),
-                kClzSelection,
+                kAppSelection,
               )
-            : kClzTableEvenRow,
+            : kAppTableEvenRow,
         border: Border(
           left: BorderSide(
             color: highlighted ? widget.accent : Colors.transparent,
@@ -830,7 +830,7 @@ class _ComicCandidateSeriesNodeState extends State<_ComicCandidateSeriesNode> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: kClzTextMuted,
+                              color: kAppTextMuted,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -860,7 +860,7 @@ class _ComicCandidateSeriesNodeState extends State<_ComicCandidateSeriesNode> {
                     isSelected
                         ? Icons.check_circle
                         : (_expanded ? Icons.expand_less : Icons.expand_more),
-                    color: isSelected ? widget.accent : kClzTextMuted,
+                    color: isSelected ? widget.accent : kAppTextMuted,
                     size: 20,
                   ),
                 ],
@@ -891,7 +891,7 @@ class _ComicCandidateSeriesNodeState extends State<_ComicCandidateSeriesNode> {
                       const Divider(
                         height: 1,
                         thickness: 1,
-                        color: kClzDivider,
+                        color: kAppDivider,
                       ),
                   ],
                 ],
@@ -942,7 +942,7 @@ class _ComicCandidateIssueNode extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.28), kClzSelection)
+              ? Color.alphaBlend(accent.withValues(alpha: 0.28), kAppSelection)
               : Colors.transparent,
           border: Border(
             left: BorderSide(
@@ -958,7 +958,7 @@ class _ComicCandidateIssueNode extends StatelessWidget {
               const Icon(
                 Icons.subdirectory_arrow_right,
                 size: 16,
-                color: kClzTextMuted,
+                color: kAppTextMuted,
               ),
               const SizedBox(width: 8),
               SizedBox(
@@ -990,7 +990,7 @@ class _ComicCandidateIssueNode extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: kClzTextMuted,
+                          color: kAppTextMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1018,7 +1018,7 @@ class _ComicCandidateIssueNode extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 selected ? Icons.check_circle : Icons.chevron_right,
-                color: selected ? accent : kClzTextMuted,
+                color: selected ? accent : kAppTextMuted,
                 size: 18,
               ),
             ],
@@ -1062,7 +1062,7 @@ class _MangaCandidateTreeList extends StatelessWidget {
                 onSelectProviderCandidate(results[i].localCatalogId),
           ),
           if (i < results.length - 1)
-            const Divider(height: 1, thickness: 1, color: kClzDivider),
+            const Divider(height: 1, thickness: 1, color: kAppDivider),
         ],
       ],
     );
@@ -1107,8 +1107,8 @@ class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
       decoration: BoxDecoration(
         color: widget.selected
             ? Color.alphaBlend(
-                widget.accent.withValues(alpha: 0.46), kClzSelection)
-            : kClzTableEvenRow,
+                widget.accent.withValues(alpha: 0.46), kAppSelection)
+            : kAppTableEvenRow,
         border: Border(
           left: BorderSide(
             color: widget.selected ? widget.accent : Colors.transparent,
@@ -1163,7 +1163,7 @@ class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: kClzTextMuted,
+                              color: kAppTextMuted,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -1187,7 +1187,7 @@ class _MangaCandidateNodeState extends ConsumerState<_MangaCandidateNode> {
                   const SizedBox(width: 8),
                   Icon(
                     widget.selected ? Icons.check_circle : Icons.chevron_right,
-                    color: widget.selected ? widget.accent : kClzTextMuted,
+                    color: widget.selected ? widget.accent : kAppTextMuted,
                     size: 20,
                   ),
                 ],
@@ -1242,20 +1242,20 @@ class _MangaCandidateVolumes extends ConsumerWidget {
           const Expanded(
             child: Text(
               'Loading volumes and chapters...',
-              style: TextStyle(color: kClzTextMuted),
+              style: TextStyle(color: kAppTextMuted),
             ),
           ),
         ],
       ),
       error: (_, __) => const Text(
         'Volumes/chapters are not available for this candidate right now.',
-        style: TextStyle(color: kClzTextMuted),
+        style: TextStyle(color: kAppTextMuted),
       ),
       data: (volumes) {
         if (volumes.isEmpty) {
           return const Text(
             'No volume/chapter data returned for this candidate.',
-            style: TextStyle(color: kClzTextMuted),
+            style: TextStyle(color: kAppTextMuted),
           );
         }
         return Column(
@@ -1297,7 +1297,7 @@ class _MangaVolumeNodeState extends State<_MangaVolumeNode> {
       padding: const EdgeInsets.only(bottom: 6),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border.all(color: kClzDivider),
+          border: Border.all(color: kAppDivider),
           color: const Color(0x1AFFFFFF),
         ),
         child: Column(
@@ -1344,7 +1344,7 @@ class _MangaVolumeNodeState extends State<_MangaVolumeNode> {
                           Text(
                             '$count chapter${count == 1 ? '' : 's'}',
                             style: const TextStyle(
-                              color: kClzTextMuted,
+                              color: kAppTextMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -1375,7 +1375,7 @@ class _MangaVolumeNodeState extends State<_MangaVolumeNode> {
                               child: Text(
                                 'Ch. ${chapter.episodeNumber}',
                                 style: const TextStyle(
-                                  color: kClzTextMuted,
+                                  color: kAppTextMuted,
                                   fontSize: 12,
                                 ),
                               ),
@@ -1422,8 +1422,8 @@ class _SearchSkeletonList extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: index.isEven ? kClzTableEvenRow : kClzTableOddRow,
-                border: Border.all(color: kClzTableBottomBorder),
+                color: index.isEven ? kAppTableEvenRow : kAppTableOddRow,
+                border: Border.all(color: kAppTableBottomBorder),
               ),
               child: const Padding(
                 padding: EdgeInsets.all(8),
@@ -1491,7 +1491,7 @@ class _ProviderFallbackNotice extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.swap_horiz, size: 18, color: kClzYellow),
+          const Icon(Icons.swap_horiz, size: 18, color: kAppHighlight),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -1524,7 +1524,7 @@ class _ProviderMixedNotice extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.layers_outlined, size: 18, color: kClzTextMuted),
+          const Icon(Icons.layers_outlined, size: 18, color: kAppTextMuted),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -1552,13 +1552,13 @@ class _ResultSectionHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: const BoxDecoration(
-        color: kClzPanelRaised,
+        color: kAppPanelRaised,
         border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          color: kClzTextMuted,
+          color: kAppTextMuted,
           fontSize: 12,
           fontWeight: FontWeight.w900,
         ),
@@ -1619,8 +1619,8 @@ class _SearchResultTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kClzSelection)
-              : kClzTableEvenRow,
+              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kAppSelection)
+              : kAppTableEvenRow,
           border: Border(
             left: BorderSide(
               color: selected ? accent : Colors.transparent,
@@ -1674,7 +1674,7 @@ class _SearchResultTile extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: kClzTextMuted,
+                          color: kAppTextMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1829,8 +1829,8 @@ class _ProviderCandidateTile extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: selected
-              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kClzSelection)
-              : kClzTableEvenRow,
+              ? Color.alphaBlend(accent.withValues(alpha: 0.46), kAppSelection)
+              : kAppTableEvenRow,
           border: Border(
             left: BorderSide(
               color: selected ? accent : Colors.transparent,
@@ -1871,7 +1871,7 @@ class _ProviderCandidateTile extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: kClzTextMuted,
+                          color: kAppTextMuted,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1910,7 +1910,7 @@ class _ProviderCandidateTile extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 selected ? Icons.check_circle : Icons.chevron_right,
-                color: selected ? accent : kClzTextMuted,
+                color: selected ? accent : kAppTextMuted,
                 size: 20,
               ),
             ],
@@ -2008,7 +2008,7 @@ class _NoSearchResults extends StatelessWidget {
                 _message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: kClzTextMuted,
+                  color: kAppTextMuted,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),

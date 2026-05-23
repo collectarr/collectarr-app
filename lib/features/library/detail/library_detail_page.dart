@@ -1,9 +1,11 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_header.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_sections.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_actions.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailPage extends StatelessWidget {
@@ -35,9 +37,9 @@ class LibraryDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: kClzComicsTheme,
+      data: kLibraryTheme,
       child: Scaffold(
-        backgroundColor: kClzCanvas,
+        backgroundColor: kAppCanvas,
         appBar: AppBar(
           backgroundColor: accent,
           foregroundColor: Colors.white,

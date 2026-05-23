@@ -64,8 +64,8 @@ class _LibraryAddBottomBar extends StatelessWidget {
         : 'Select a ${type.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: kClzToolbar,
-        border: Border(top: BorderSide(color: kClzDivider)),
+        color: kAppToolbar,
+        border: Border(top: BorderSide(color: kAppDivider)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 7, 8, 9),

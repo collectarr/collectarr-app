@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +29,7 @@ class LibraryEmptyState extends StatelessWidget {
       builder: (context, color, _) {
         final animatedAccent = color ?? accent;
     return ColoredBox(
-      color: kClzCanvas,
+      color: kAppCanvas,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
@@ -56,7 +56,7 @@ class LibraryEmptyState extends StatelessWidget {
                     : _emptyStateSummary(type),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: kClzTextMuted,
+                  color: kAppTextMuted,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
@@ -85,7 +85,7 @@ class LibraryEmptyState extends StatelessWidget {
                     'Manual add is enabled even without provider search.',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: kClzTextMuted,
+                          color: kAppTextMuted,
                           fontWeight: FontWeight.w700,
                         ),
                   ),

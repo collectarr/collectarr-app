@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/ui/clz_style.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -29,7 +29,7 @@ class MediaLibraryRail extends StatelessWidget {
     return Container(
       width: 78,
       decoration: BoxDecoration(
-        color: kClzToolbar,
+        color: kAppToolbar,
         border: Border(right: BorderSide(color: accent)),
       ),
       child: SafeArea(
@@ -42,7 +42,7 @@ class MediaLibraryRail extends StatelessWidget {
                 child: Icon(Icons.cloud_queue, color: accent, size: 22),
               ),
             ),
-            const Divider(height: 1, color: kClzDivider),
+            const Divider(height: 1, color: kAppDivider),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 6),
