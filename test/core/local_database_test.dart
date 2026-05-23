@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -192,5 +194,36 @@ void main() {
     expect(await queue.pendingCount(), 1005);
     await queue.deleteMany(ids);
     expect(await queue.pendingCount(), 0);
+  });
+
+  test('catalog cache repository preserves title sort and series tags', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = CatalogCacheRepository(db);
+
+    await repo.upsertAll([
+      CatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'The Fellowship of the Ring',
+        sortKey: 'lord-of-the-rings-001',
+        series: const CatalogSeriesDetails(
+          seriesId: 'series-1',
+          seriesTitle: 'The Lord of the Rings',
+          volumeNumber: 1,
+          tags: ['Epic Fantasy', 'Middle-earth'],
+        ),
+        publishing: const CatalogPublishingDetails(
+          subtitle: 'Being the First Part',
+        ),
+      ),
+    ]);
+
+    final item = await repo.findById('book-1');
+
+    expect(item, isA<CatalogItem>());
+    expect(item!.sortKey, 'lord-of-the-rings-001');
+    expect(item.series?.tags, ['Epic Fantasy', 'Middle-earth']);
+    expect(item.publishing?.subtitle, 'Being the First Part');
   });
 }

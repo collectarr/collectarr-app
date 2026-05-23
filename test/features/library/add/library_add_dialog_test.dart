@@ -8,9 +8,12 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -20,6 +23,7 @@ import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -53,6 +57,47 @@ void main() {
     expect(first, isNot(contains('item:1/2')));
   });
 
+  test('book provider add merge preserves preview creators', () {
+    final ingested = LibraryMetadataItem(
+      id: 'book-item-1',
+      kind: 'book',
+      title: 'The Hobbit',
+      publisher: 'Allen & Unwin',
+      publishing: const CatalogPublishingDetails(
+        pageCount: 310,
+      ),
+    );
+    final edited = LibraryMetadataItem(
+      id: 'book-item-1',
+      kind: 'book',
+      title: 'The Hobbit',
+      publisher: 'Allen & Unwin',
+      creators: const [
+        {
+          'name': 'J.R.R. Tolkien',
+          'role': 'Author',
+          'image_url': 'https://cdn.example/tolkien.jpg',
+        },
+      ],
+      genres: const ['Fantasy'],
+      publishing: const CatalogPublishingDetails(
+        pageCount: 310,
+      ),
+    );
+
+    final merged = mergeProviderAddResult(
+      ingested: ingested,
+      edited: edited,
+    );
+
+    expect(merged.creators, isNotNull);
+    expect(merged.creators, isNotEmpty);
+    expect(merged.creators!.first['name'], 'J.R.R. Tolkien');
+    expect(merged.creators!.first['role'], 'Author');
+    expect(merged.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
+    expect(merged.genres, contains('Fantasy'));
+  });
+
   test('local cover image preprocessor applies crop and rotation transforms',
       () async {
     final pngBytes = await _generateSolidPngBytes(width: 2, height: 3);
@@ -78,7 +123,7 @@ void main() {
 
   testWidgets('generic add dialog exposes scanned barcode in manual flow',
       (tester) async {
-    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.physicalSize = const Size(1440, 1080);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -979,6 +1024,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => _TestAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1340,6 +1386,112 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required String providerItemId,
   }) async {
     providerPreviewCallCount += 1;
+    return _providerPreviewFor(provider: provider, providerItemId: providerItemId);
+  }
+
+  @override
+  Future<AdminProviderPreview> adminProviderPreview({
+    required String provider,
+    required String providerItemId,
+  }) async {
+    return _providerPreviewFor(provider: provider, providerItemId: providerItemId);
+  }
+
+  @override
+  Future<AdminProviderIngestResult> adminProviderIngest({
+    required String provider,
+    required String providerItemId,
+  }) async {
+    lastIngestProvider = provider;
+    lastIngestProviderItemId = providerItemId;
+    if (providerItemId == 'openlibrary-1') {
+      return const AdminProviderIngestResult(
+        itemId: 'book-item-1',
+        created: true,
+        item: AdminMetadataItem(
+          id: 'book-item-1',
+          kind: 'book',
+          title: 'The Hobbit',
+          series: CatalogSeriesDetails(seriesTitle: 'Middle-earth Tales'),
+          publisher: 'Allen & Unwin',
+          publishing: CatalogPublishingDetails(pageCount: 310),
+          providerLinks: [
+            AdminProviderLink(
+              provider: 'openlibrary',
+              entityType: 'item',
+              providerItemId: 'openlibrary-1',
+            ),
+          ],
+          editions: [
+            AdminEdition(
+              id: 'edition-book-1',
+              title: 'Standard Edition',
+              publisher: 'Allen & Unwin',
+              variants: [
+                AdminVariant(
+                  id: 'variant-book-1',
+                  name: 'Hardcover',
+                  isPrimary: true,
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+    return const AdminProviderIngestResult(
+      itemId: 'music-item-1',
+      created: true,
+      item: AdminMetadataItem(
+        id: 'music-item-1',
+        kind: 'music',
+        title: 'Provider result Discovery',
+      ),
+    );
+  }
+
+  @override
+  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
+    required String provider,
+    required String providerItemId,
+    int maxAttempts = 3,
+  }) async {
+    lastIngestProvider = provider;
+    lastIngestProviderItemId = providerItemId;
+    return AdminProviderIngestJob(
+      id: 'job-1',
+      provider: provider,
+      providerItemId: providerItemId,
+      status: 'queued',
+      attempts: 0,
+      maxAttempts: maxAttempts,
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    );
+  }
+
+  AdminProviderPreview _providerPreviewFor({
+    required String provider,
+    required String providerItemId,
+  }) {
+    if (providerItemId == 'openlibrary-1') {
+      return AdminProviderPreview.fromJson({
+        'provider': provider,
+        'provider_item_id': providerItemId,
+        'kind': 'book',
+        'title': 'The Hobbit',
+        'series_title': 'Middle-earth Tales',
+        'publisher': 'Allen & Unwin',
+        'release_date': '1937-09-21',
+        'page_count': 310,
+        'creators': [
+          {
+            'name': 'J.R.R. Tolkien',
+            'role': 'Author',
+          },
+        ],
+      });
+    }
     return AdminProviderPreview.fromJson({
       'provider': provider,
       'provider_item_id': providerItemId,
@@ -1362,24 +1514,14 @@ class _FakeLibraryAddApiClient extends ApiClient {
       ],
     });
   }
+}
 
-  @override
-  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
-    required String provider,
-    required String providerItemId,
-    int maxAttempts = 3,
-  }) async {
-    lastIngestProvider = provider;
-    lastIngestProviderItemId = providerItemId;
-    return AdminProviderIngestJob(
-      id: 'job-1',
-      provider: provider,
-      providerItemId: providerItemId,
-      status: 'queued',
-      attempts: 0,
-      maxAttempts: maxAttempts,
-      createdAt: DateTime.utc(2026),
-      updatedAt: DateTime.utc(2026),
+class _TestAuthController extends AuthController {
+  _TestAuthController(super.ref) : super() {
+    state = const AuthState(
+      token: 'test-token',
+      isAdmin: true,
+      isRestoring: false,
     );
   }
 }

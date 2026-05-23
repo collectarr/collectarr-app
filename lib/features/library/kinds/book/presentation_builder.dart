@@ -227,21 +227,25 @@ class _BookAddPreviewPane extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: const Color(0x12000000),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: AspectRatio(
-                              aspectRatio: 2 / 3,
-                              child: LibraryInteractiveCover(
-                                title: title,
-                                itemNumber: itemNumber,
-                                imageUrl: coverUrl,
-                                accentColor: accent,
-                                borderRadius: 6,
+                        Expanded(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: const Color(0x12000000),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Center(
+                                child: AspectRatio(
+                                  aspectRatio: 2 / 3,
+                                  child: LibraryInteractiveCover(
+                                    title: title,
+                                    itemNumber: itemNumber,
+                                    imageUrl: coverUrl,
+                                    accentColor: accent,
+                                    borderRadius: 6,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -505,6 +509,7 @@ List<String> _bookDiscoveryTagsForSelection({
   }
 
   addAll(item?.genres ?? preview?.genres ?? const <String>[]);
+  addAll(item?.series?.tags ?? preview?.series?.tags ?? const <String>[]);
   addAll(
     item?.characters ??
         preview?.characters ??

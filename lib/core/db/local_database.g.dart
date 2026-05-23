@@ -24,6 +24,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortKeyMeta =
+      const VerificationMeta('sortKey');
+  @override
+  late final GeneratedColumn<String> sortKey = GeneratedColumn<String>(
+      'sort_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _itemNumberMeta =
       const VerificationMeta('itemNumber');
   @override
@@ -174,6 +180,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> storyArcsJson = GeneratedColumn<String>(
       'story_arcs_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seriesTagsJsonMeta =
+      const VerificationMeta('seriesTagsJson');
+  @override
+  late final GeneratedColumn<String> seriesTagsJson = GeneratedColumn<String>(
+      'series_tags_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _platformsJsonMeta =
       const VerificationMeta('platformsJson');
   @override
@@ -263,6 +275,7 @@ class $CatalogCacheTable extends CatalogCache
         id,
         kind,
         title,
+        sortKey,
         itemNumber,
         synopsis,
         coverImageUrl,
@@ -288,6 +301,7 @@ class $CatalogCacheTable extends CatalogCache
         creatorsJson,
         charactersJson,
         storyArcsJson,
+        seriesTagsJson,
         platformsJson,
         genresJson,
         pageCount,
@@ -329,6 +343,10 @@ class $CatalogCacheTable extends CatalogCache
           _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
     } else if (isInserting) {
       context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_key')) {
+      context.handle(_sortKeyMeta,
+          sortKey.isAcceptableOrUnknown(data['sort_key']!, _sortKeyMeta));
     }
     if (data.containsKey('item_number')) {
       context.handle(
@@ -470,6 +488,12 @@ class $CatalogCacheTable extends CatalogCache
           storyArcsJson.isAcceptableOrUnknown(
               data['story_arcs_json']!, _storyArcsJsonMeta));
     }
+    if (data.containsKey('series_tags_json')) {
+      context.handle(
+          _seriesTagsJsonMeta,
+          seriesTagsJson.isAcceptableOrUnknown(
+              data['series_tags_json']!, _seriesTagsJsonMeta));
+    }
     if (data.containsKey('platforms_json')) {
       context.handle(
           _platformsJsonMeta,
@@ -557,6 +581,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_key']),
       itemNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_number']),
       synopsis: attachedDatabase.typeMapping
@@ -607,6 +633,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}characters_json']),
       storyArcsJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}story_arcs_json']),
+      seriesTagsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}series_tags_json']),
       platformsJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}platforms_json']),
       genresJson: attachedDatabase.typeMapping
@@ -649,6 +677,7 @@ class CatalogCacheData extends DataClass
   final String id;
   final String kind;
   final String title;
+  final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -674,6 +703,7 @@ class CatalogCacheData extends DataClass
   final String? creatorsJson;
   final String? charactersJson;
   final String? storyArcsJson;
+  final String? seriesTagsJson;
   final String? platformsJson;
   final String? genresJson;
   final int? pageCount;
@@ -692,6 +722,7 @@ class CatalogCacheData extends DataClass
       {required this.id,
       required this.kind,
       required this.title,
+      this.sortKey,
       this.itemNumber,
       this.synopsis,
       this.coverImageUrl,
@@ -717,6 +748,7 @@ class CatalogCacheData extends DataClass
       this.creatorsJson,
       this.charactersJson,
       this.storyArcsJson,
+      this.seriesTagsJson,
       this.platformsJson,
       this.genresJson,
       this.pageCount,
@@ -737,6 +769,9 @@ class CatalogCacheData extends DataClass
     map['id'] = Variable<String>(id);
     map['kind'] = Variable<String>(kind);
     map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortKey != null) {
+      map['sort_key'] = Variable<String>(sortKey);
+    }
     if (!nullToAbsent || itemNumber != null) {
       map['item_number'] = Variable<String>(itemNumber);
     }
@@ -812,6 +847,9 @@ class CatalogCacheData extends DataClass
     if (!nullToAbsent || storyArcsJson != null) {
       map['story_arcs_json'] = Variable<String>(storyArcsJson);
     }
+    if (!nullToAbsent || seriesTagsJson != null) {
+      map['series_tags_json'] = Variable<String>(seriesTagsJson);
+    }
     if (!nullToAbsent || platformsJson != null) {
       map['platforms_json'] = Variable<String>(platformsJson);
     }
@@ -860,6 +898,9 @@ class CatalogCacheData extends DataClass
       id: Value(id),
       kind: Value(kind),
       title: Value(title),
+      sortKey: sortKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortKey),
       itemNumber: itemNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(itemNumber),
@@ -935,6 +976,9 @@ class CatalogCacheData extends DataClass
       storyArcsJson: storyArcsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(storyArcsJson),
+      seriesTagsJson: seriesTagsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seriesTagsJson),
       platformsJson: platformsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(platformsJson),
@@ -985,6 +1029,7 @@ class CatalogCacheData extends DataClass
       id: serializer.fromJson<String>(json['id']),
       kind: serializer.fromJson<String>(json['kind']),
       title: serializer.fromJson<String>(json['title']),
+      sortKey: serializer.fromJson<String?>(json['sortKey']),
       itemNumber: serializer.fromJson<String?>(json['itemNumber']),
       synopsis: serializer.fromJson<String?>(json['synopsis']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
@@ -1012,6 +1057,7 @@ class CatalogCacheData extends DataClass
       creatorsJson: serializer.fromJson<String?>(json['creatorsJson']),
       charactersJson: serializer.fromJson<String?>(json['charactersJson']),
       storyArcsJson: serializer.fromJson<String?>(json['storyArcsJson']),
+      seriesTagsJson: serializer.fromJson<String?>(json['seriesTagsJson']),
       platformsJson: serializer.fromJson<String?>(json['platformsJson']),
       genresJson: serializer.fromJson<String?>(json['genresJson']),
       pageCount: serializer.fromJson<int?>(json['pageCount']),
@@ -1035,6 +1081,7 @@ class CatalogCacheData extends DataClass
       'id': serializer.toJson<String>(id),
       'kind': serializer.toJson<String>(kind),
       'title': serializer.toJson<String>(title),
+      'sortKey': serializer.toJson<String?>(sortKey),
       'itemNumber': serializer.toJson<String?>(itemNumber),
       'synopsis': serializer.toJson<String?>(synopsis),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
@@ -1060,6 +1107,7 @@ class CatalogCacheData extends DataClass
       'creatorsJson': serializer.toJson<String?>(creatorsJson),
       'charactersJson': serializer.toJson<String?>(charactersJson),
       'storyArcsJson': serializer.toJson<String?>(storyArcsJson),
+      'seriesTagsJson': serializer.toJson<String?>(seriesTagsJson),
       'platformsJson': serializer.toJson<String?>(platformsJson),
       'genresJson': serializer.toJson<String?>(genresJson),
       'pageCount': serializer.toJson<int?>(pageCount),
@@ -1081,6 +1129,7 @@ class CatalogCacheData extends DataClass
           {String? id,
           String? kind,
           String? title,
+          Value<String?> sortKey = const Value.absent(),
           Value<String?> itemNumber = const Value.absent(),
           Value<String?> synopsis = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
@@ -1106,6 +1155,7 @@ class CatalogCacheData extends DataClass
           Value<String?> creatorsJson = const Value.absent(),
           Value<String?> charactersJson = const Value.absent(),
           Value<String?> storyArcsJson = const Value.absent(),
+          Value<String?> seriesTagsJson = const Value.absent(),
           Value<String?> platformsJson = const Value.absent(),
           Value<String?> genresJson = const Value.absent(),
           Value<int?> pageCount = const Value.absent(),
@@ -1124,6 +1174,7 @@ class CatalogCacheData extends DataClass
         id: id ?? this.id,
         kind: kind ?? this.kind,
         title: title ?? this.title,
+        sortKey: sortKey.present ? sortKey.value : this.sortKey,
         itemNumber: itemNumber.present ? itemNumber.value : this.itemNumber,
         synopsis: synopsis.present ? synopsis.value : this.synopsis,
         coverImageUrl:
@@ -1165,6 +1216,8 @@ class CatalogCacheData extends DataClass
             charactersJson.present ? charactersJson.value : this.charactersJson,
         storyArcsJson:
             storyArcsJson.present ? storyArcsJson.value : this.storyArcsJson,
+        seriesTagsJson:
+            seriesTagsJson.present ? seriesTagsJson.value : this.seriesTagsJson,
         platformsJson:
             platformsJson.present ? platformsJson.value : this.platformsJson,
         genresJson: genresJson.present ? genresJson.value : this.genresJson,
@@ -1192,6 +1245,7 @@ class CatalogCacheData extends DataClass
       id: data.id.present ? data.id.value : this.id,
       kind: data.kind.present ? data.kind.value : this.kind,
       title: data.title.present ? data.title.value : this.title,
+      sortKey: data.sortKey.present ? data.sortKey.value : this.sortKey,
       itemNumber:
           data.itemNumber.present ? data.itemNumber.value : this.itemNumber,
       synopsis: data.synopsis.present ? data.synopsis.value : this.synopsis,
@@ -1250,6 +1304,9 @@ class CatalogCacheData extends DataClass
       storyArcsJson: data.storyArcsJson.present
           ? data.storyArcsJson.value
           : this.storyArcsJson,
+      seriesTagsJson: data.seriesTagsJson.present
+          ? data.seriesTagsJson.value
+          : this.seriesTagsJson,
       platformsJson: data.platformsJson.present
           ? data.platformsJson.value
           : this.platformsJson,
@@ -1285,6 +1342,7 @@ class CatalogCacheData extends DataClass
           ..write('id: $id, ')
           ..write('kind: $kind, ')
           ..write('title: $title, ')
+          ..write('sortKey: $sortKey, ')
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
@@ -1310,6 +1368,7 @@ class CatalogCacheData extends DataClass
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
           ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('seriesTagsJson: $seriesTagsJson, ')
           ..write('platformsJson: $platformsJson, ')
           ..write('genresJson: $genresJson, ')
           ..write('pageCount: $pageCount, ')
@@ -1333,6 +1392,7 @@ class CatalogCacheData extends DataClass
         id,
         kind,
         title,
+        sortKey,
         itemNumber,
         synopsis,
         coverImageUrl,
@@ -1358,6 +1418,7 @@ class CatalogCacheData extends DataClass
         creatorsJson,
         charactersJson,
         storyArcsJson,
+        seriesTagsJson,
         platformsJson,
         genresJson,
         pageCount,
@@ -1380,6 +1441,7 @@ class CatalogCacheData extends DataClass
           other.id == this.id &&
           other.kind == this.kind &&
           other.title == this.title &&
+          other.sortKey == this.sortKey &&
           other.itemNumber == this.itemNumber &&
           other.synopsis == this.synopsis &&
           other.coverImageUrl == this.coverImageUrl &&
@@ -1405,6 +1467,7 @@ class CatalogCacheData extends DataClass
           other.creatorsJson == this.creatorsJson &&
           other.charactersJson == this.charactersJson &&
           other.storyArcsJson == this.storyArcsJson &&
+          other.seriesTagsJson == this.seriesTagsJson &&
           other.platformsJson == this.platformsJson &&
           other.genresJson == this.genresJson &&
           other.pageCount == this.pageCount &&
@@ -1425,6 +1488,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String> id;
   final Value<String> kind;
   final Value<String> title;
+  final Value<String?> sortKey;
   final Value<String?> itemNumber;
   final Value<String?> synopsis;
   final Value<String?> coverImageUrl;
@@ -1450,6 +1514,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> creatorsJson;
   final Value<String?> charactersJson;
   final Value<String?> storyArcsJson;
+  final Value<String?> seriesTagsJson;
   final Value<String?> platformsJson;
   final Value<String?> genresJson;
   final Value<int?> pageCount;
@@ -1469,6 +1534,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.id = const Value.absent(),
     this.kind = const Value.absent(),
     this.title = const Value.absent(),
+    this.sortKey = const Value.absent(),
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
@@ -1494,6 +1560,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
     this.storyArcsJson = const Value.absent(),
+    this.seriesTagsJson = const Value.absent(),
     this.platformsJson = const Value.absent(),
     this.genresJson = const Value.absent(),
     this.pageCount = const Value.absent(),
@@ -1514,6 +1581,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     required String id,
     required String kind,
     required String title,
+    this.sortKey = const Value.absent(),
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
@@ -1539,6 +1607,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
     this.storyArcsJson = const Value.absent(),
+    this.seriesTagsJson = const Value.absent(),
     this.platformsJson = const Value.absent(),
     this.genresJson = const Value.absent(),
     this.pageCount = const Value.absent(),
@@ -1562,6 +1631,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? id,
     Expression<String>? kind,
     Expression<String>? title,
+    Expression<String>? sortKey,
     Expression<String>? itemNumber,
     Expression<String>? synopsis,
     Expression<String>? coverImageUrl,
@@ -1587,6 +1657,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? creatorsJson,
     Expression<String>? charactersJson,
     Expression<String>? storyArcsJson,
+    Expression<String>? seriesTagsJson,
     Expression<String>? platformsJson,
     Expression<String>? genresJson,
     Expression<int>? pageCount,
@@ -1607,6 +1678,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (id != null) 'id': id,
       if (kind != null) 'kind': kind,
       if (title != null) 'title': title,
+      if (sortKey != null) 'sort_key': sortKey,
       if (itemNumber != null) 'item_number': itemNumber,
       if (synopsis != null) 'synopsis': synopsis,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
@@ -1633,6 +1705,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (creatorsJson != null) 'creators_json': creatorsJson,
       if (charactersJson != null) 'characters_json': charactersJson,
       if (storyArcsJson != null) 'story_arcs_json': storyArcsJson,
+      if (seriesTagsJson != null) 'series_tags_json': seriesTagsJson,
       if (platformsJson != null) 'platforms_json': platformsJson,
       if (genresJson != null) 'genres_json': genresJson,
       if (pageCount != null) 'page_count': pageCount,
@@ -1655,6 +1728,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       {Value<String>? id,
       Value<String>? kind,
       Value<String>? title,
+      Value<String?>? sortKey,
       Value<String?>? itemNumber,
       Value<String?>? synopsis,
       Value<String?>? coverImageUrl,
@@ -1680,6 +1754,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? creatorsJson,
       Value<String?>? charactersJson,
       Value<String?>? storyArcsJson,
+      Value<String?>? seriesTagsJson,
       Value<String?>? platformsJson,
       Value<String?>? genresJson,
       Value<int?>? pageCount,
@@ -1699,6 +1774,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       id: id ?? this.id,
       kind: kind ?? this.kind,
       title: title ?? this.title,
+      sortKey: sortKey ?? this.sortKey,
       itemNumber: itemNumber ?? this.itemNumber,
       synopsis: synopsis ?? this.synopsis,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
@@ -1724,6 +1800,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       creatorsJson: creatorsJson ?? this.creatorsJson,
       charactersJson: charactersJson ?? this.charactersJson,
       storyArcsJson: storyArcsJson ?? this.storyArcsJson,
+      seriesTagsJson: seriesTagsJson ?? this.seriesTagsJson,
       platformsJson: platformsJson ?? this.platformsJson,
       genresJson: genresJson ?? this.genresJson,
       pageCount: pageCount ?? this.pageCount,
@@ -1753,6 +1830,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
+    }
+    if (sortKey.present) {
+      map['sort_key'] = Variable<String>(sortKey.value);
     }
     if (itemNumber.present) {
       map['item_number'] = Variable<String>(itemNumber.value);
@@ -1830,6 +1910,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (storyArcsJson.present) {
       map['story_arcs_json'] = Variable<String>(storyArcsJson.value);
     }
+    if (seriesTagsJson.present) {
+      map['series_tags_json'] = Variable<String>(seriesTagsJson.value);
+    }
     if (platformsJson.present) {
       map['platforms_json'] = Variable<String>(platformsJson.value);
     }
@@ -1884,6 +1967,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('id: $id, ')
           ..write('kind: $kind, ')
           ..write('title: $title, ')
+          ..write('sortKey: $sortKey, ')
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
@@ -1909,6 +1993,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
           ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('seriesTagsJson: $seriesTagsJson, ')
           ..write('platformsJson: $platformsJson, ')
           ..write('genresJson: $genresJson, ')
           ..write('pageCount: $pageCount, ')
@@ -7531,6 +7616,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   required String id,
   required String kind,
   required String title,
+  Value<String?> sortKey,
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
@@ -7556,6 +7642,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
   Value<String?> storyArcsJson,
+  Value<String?> seriesTagsJson,
   Value<String?> platformsJson,
   Value<String?> genresJson,
   Value<int?> pageCount,
@@ -7577,6 +7664,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String> id,
   Value<String> kind,
   Value<String> title,
+  Value<String?> sortKey,
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
@@ -7602,6 +7690,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
   Value<String?> storyArcsJson,
+  Value<String?> seriesTagsJson,
   Value<String?> platformsJson,
   Value<String?> genresJson,
   Value<int?> pageCount,
@@ -7636,6 +7725,9 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortKey => $composableBuilder(
+      column: $table.sortKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get itemNumber => $composableBuilder(
       column: $table.itemNumber, builder: (column) => ColumnFilters(column));
@@ -7718,6 +7810,10 @@ class $$CatalogCacheTableFilterComposer
   ColumnFilters<String> get storyArcsJson => $composableBuilder(
       column: $table.storyArcsJson, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get seriesTagsJson => $composableBuilder(
+      column: $table.seriesTagsJson,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get platformsJson => $composableBuilder(
       column: $table.platformsJson, builder: (column) => ColumnFilters(column));
 
@@ -7780,6 +7876,9 @@ class $$CatalogCacheTableOrderingComposer
 
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortKey => $composableBuilder(
+      column: $table.sortKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get itemNumber => $composableBuilder(
       column: $table.itemNumber, builder: (column) => ColumnOrderings(column));
@@ -7869,6 +7968,10 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.storyArcsJson,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get seriesTagsJson => $composableBuilder(
+      column: $table.seriesTagsJson,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get platformsJson => $composableBuilder(
       column: $table.platformsJson,
       builder: (column) => ColumnOrderings(column));
@@ -7934,6 +8037,9 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get sortKey =>
+      $composableBuilder(column: $table.sortKey, builder: (column) => column);
 
   GeneratedColumn<String> get itemNumber => $composableBuilder(
       column: $table.itemNumber, builder: (column) => column);
@@ -8010,6 +8116,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get storyArcsJson => $composableBuilder(
       column: $table.storyArcsJson, builder: (column) => column);
 
+  GeneratedColumn<String> get seriesTagsJson => $composableBuilder(
+      column: $table.seriesTagsJson, builder: (column) => column);
+
   GeneratedColumn<String> get platformsJson => $composableBuilder(
       column: $table.platformsJson, builder: (column) => column);
 
@@ -8082,6 +8191,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> kind = const Value.absent(),
             Value<String> title = const Value.absent(),
+            Value<String?> sortKey = const Value.absent(),
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
@@ -8107,6 +8217,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
             Value<String?> storyArcsJson = const Value.absent(),
+            Value<String?> seriesTagsJson = const Value.absent(),
             Value<String?> platformsJson = const Value.absent(),
             Value<String?> genresJson = const Value.absent(),
             Value<int?> pageCount = const Value.absent(),
@@ -8127,6 +8238,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             id: id,
             kind: kind,
             title: title,
+            sortKey: sortKey,
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
@@ -8152,6 +8264,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
             storyArcsJson: storyArcsJson,
+            seriesTagsJson: seriesTagsJson,
             platformsJson: platformsJson,
             genresJson: genresJson,
             pageCount: pageCount,
@@ -8172,6 +8285,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             required String id,
             required String kind,
             required String title,
+            Value<String?> sortKey = const Value.absent(),
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
@@ -8197,6 +8311,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
             Value<String?> storyArcsJson = const Value.absent(),
+            Value<String?> seriesTagsJson = const Value.absent(),
             Value<String?> platformsJson = const Value.absent(),
             Value<String?> genresJson = const Value.absent(),
             Value<int?> pageCount = const Value.absent(),
@@ -8217,6 +8332,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             id: id,
             kind: kind,
             title: title,
+            sortKey: sortKey,
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
@@ -8242,6 +8358,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
             storyArcsJson: storyArcsJson,
+            seriesTagsJson: seriesTagsJson,
             platformsJson: platformsJson,
             genresJson: genresJson,
             pageCount: pageCount,

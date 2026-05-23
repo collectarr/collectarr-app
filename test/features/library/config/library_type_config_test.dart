@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -8,7 +9,10 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -177,8 +181,27 @@ void main() {
     );
     expect(collectarrLibraryTypes.providersForKind('bluray'), isEmpty);
     expect(collectarrLibraryTypes.byKind('movie')?.addDialogLauncher, isNull);
-    expect(collectarrLibraryTypes.byKind('movie')?.editDialogBuilder, isNull);
+    expect(collectarrLibraryTypes.byKind('movie')?.editDialogBuilder, isNotNull);
     expect(collectarrLibraryTypes.byKind('movie')?.detailPageBuilder, isNull);
+  });
+
+  test('all registered kinds declare an explicit edit dialog builder', () {
+    for (final kind in collectarrLibraryTypes.supportedKinds) {
+      expect(
+        collectarrLibraryTypes.byKind(kind)?.editDialogBuilder,
+        isNotNull,
+        reason: 'Expected $kind to declare an explicit edit dialog builder.',
+      );
+    }
+  });
+
+  test('comic and manga kinds use dedicated edit dialog builders', () {
+    expect(comicsLibraryConfig.editDialogBuilder, same(buildComicLibraryEditDialog));
+    expect(mangaLibraryConfig.editDialogBuilder, same(buildMangaLibraryEditDialog));
+  });
+
+  test('music kind uses dedicated edit dialog builder', () {
+    expect(musicLibraryConfig.editDialogBuilder, same(buildMusicLibraryEditDialog));
   });
 
   test('video physical formats are variants under movies and tv', () {

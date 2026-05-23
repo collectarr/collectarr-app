@@ -65,6 +65,7 @@ class CatalogSeriesDetails {
     this.volumeStartYear,
     this.seasonNumber,
     this.episodeNumber,
+    this.tags = const <String>[],
   });
 
   final String? seriesId;
@@ -74,6 +75,7 @@ class CatalogSeriesDetails {
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
+  final List<String> tags;
 
   bool get hasData =>
       seriesId != null ||
@@ -82,7 +84,8 @@ class CatalogSeriesDetails {
       volumeNumber != null ||
       volumeStartYear != null ||
       seasonNumber != null ||
-      episodeNumber != null;
+      episodeNumber != null ||
+      tags.isNotEmpty;
 
   bool get hasVolume => volumeName != null || volumeNumber != null;
   bool get hasSeason => seasonNumber != null;
@@ -136,6 +139,7 @@ sealed class CatalogItem {
     required this.id,
     required this.kind,
     required this.title,
+    this.sortKey,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -163,6 +167,7 @@ sealed class CatalogItem {
     required String id,
     required String kind,
     required String title,
+    String? sortKey,
     String? itemNumber,
     String? synopsis,
     String? coverImageUrl,
@@ -195,6 +200,7 @@ sealed class CatalogItem {
       id: id,
       kind: normalizedKind,
       title: title,
+      sortKey: sortKey,
       itemNumber: itemNumber,
       synopsis: synopsis,
       coverImageUrl: coverImageUrl,
@@ -305,6 +311,10 @@ sealed class CatalogItem {
       volumeStartYear: json['volume_start_year'] as int?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
+      tags: (json['tags'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
     );
     final video = VideoCatalogDetails(
       runtimeMinutes: json['runtime_minutes'] as int?,
@@ -334,6 +344,7 @@ sealed class CatalogItem {
       id: json['id'] as String,
       kind: json['kind'] as String,
       title: json['title'] as String,
+      sortKey: json['sort_key'] as String?,
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
@@ -374,6 +385,7 @@ sealed class CatalogItem {
   final String id;
   final String kind;
   final String title;
+  final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -418,6 +430,7 @@ sealed class CatalogItem {
       'snapshot_version': 1,
       'kind': kind,
       'title': title,
+      'sort_key': sortKey,
       'item_number': itemNumber,
       'synopsis': synopsis,
       'cover_image_url': coverImageUrl,
@@ -438,6 +451,7 @@ sealed class CatalogItem {
       'volume_start_year': series?.volumeStartYear,
       'season_number': series?.seasonNumber,
       'episode_number': series?.episodeNumber,
+      'tags': series?.tags,
       'runtime_minutes': video?.runtimeMinutes,
       'track_count': music?.trackCount,
       'tracks': tracks?.map((track) => track.toJson()).toList(growable: false),
@@ -473,6 +487,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           id: common.id,
           kind: common.kind,
           title: common.title,
+          sortKey: common.sortKey,
           itemNumber: common.itemNumber,
           synopsis: common.synopsis,
           coverImageUrl: common.coverImageUrl,
@@ -661,6 +676,7 @@ class _CatalogItemCommon {
     required this.id,
     required this.kind,
     required this.title,
+    this.sortKey,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -687,6 +703,7 @@ class _CatalogItemCommon {
   final String id;
   final String kind;
   final String title;
+  final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;

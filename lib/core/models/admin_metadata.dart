@@ -111,14 +111,16 @@ class AdminProviderIngestResult {
 }
 
 class ProviderPreviewCredit {
-  const ProviderPreviewCredit({required this.name, this.role});
+  const ProviderPreviewCredit({required this.name, this.role, this.imageUrl});
   final String name;
   final String? role;
+  final String? imageUrl;
 
   factory ProviderPreviewCredit.fromJson(Map<String, dynamic> json) {
     return ProviderPreviewCredit(
       name: json['name'] as String,
       role: json['role'] as String?,
+      imageUrl: json['image_url'] as String?,
     );
   }
 }
@@ -193,10 +195,17 @@ class AdminProviderPreview {
             .toList(growable: false) ??
         const <CatalogTrack>[];
     final series = CatalogSeriesDetails(
+      seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
       volumeNumber: json['volume_number'] as int?,
       volumeStartYear: json['volume_start_year'] as int?,
+      seasonNumber: json['season_number'] as int?,
+      episodeNumber: json['episode_number'] as int?,
+      tags: (json['tags'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
     );
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,
@@ -769,9 +778,17 @@ class AdminMetadataItem {
 
   factory AdminMetadataItem.fromJson(Map<String, dynamic> json) {
     final series = CatalogSeriesDetails(
+      seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
+      volumeNumber: json['volume_number'] as int?,
       volumeStartYear: json['volume_start_year'] as int?,
+      seasonNumber: json['season_number'] as int?,
+      episodeNumber: json['episode_number'] as int?,
+      tags: (json['tags'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
     );
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,

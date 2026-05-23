@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -35,6 +36,7 @@ const musicLibraryConfig = LibraryTypeConfig(
     musicBrainzMetadataProvider,
   ],
   trackingProfile: listeningTrackingProfile,
+  editDialogBuilder: buildMusicLibraryEditDialog,
   presentation: musicLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsTrackData: true,

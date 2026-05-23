@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -154,8 +155,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _imprintController = TextEditingController(
       text: item.publishing?.imprint ?? '',
     );
-    _seriesGroupController =
-      TextEditingController(text: item.publishing?.seriesGroup ?? '');
+    _seriesGroupController = TextEditingController(
+      text: item.publishing?.seriesGroup ?? '',
+    );
 
     _conditionController = TextEditingController(text: owned?.condition ?? '');
     _gradeController = TextEditingController(text: owned?.grade ?? '');
@@ -254,226 +256,74 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      clipBehavior: Clip.antiAlias,
-      child: Theme(
-        data: editDialogTheme(seedColor: widget.accent),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: kEditPanel,
-              border: Border.all(color: kEditDivider),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0xCC000000),
-                  blurRadius: 22,
-                  offset: Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  _titleBar(context),
-                  _tabs(),
-                  Expanded(
-                    child: ColoredBox(
-                      color: kEditPanel,
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: _isOwned
-                            ? [
-                                _mainTab(),
-                                _valueTab(),
-                                _personalTab(),
-                                _soldTab(),
-                                _customFieldsTab(),
-                                _photosTab(),
-                                _coverTab(),
-                                _synopsisTab(),
-                              ]
-                            : [
-                                _mainTab(),
-                                _coverTab(),
-                                _synopsisTab(),
-                              ],
-                      ),
-                    ),
-                  ),
-                  _footer(context),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Title bar
-  // -------------------------------------------------------------------------
-
-  Widget _titleBar(BuildContext context) {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF343434), Color(0xFF161616)],
-        ),
-        border: Border(bottom: BorderSide(color: widget.accent)),
-      ),
-      child: Row(
-        children: [
-          Icon(widget.type.workspace.icon, color: widget.accent, size: 22),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w900, fontSize: 15),
-                ),
-                const SizedBox(height: 4),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: [
-                    if (_isOwned) const EditMiniBadge('Owned'),
-                    if (_soldAt != null) const EditMiniBadge('Sold'),
-                    if (_conditionController.text.trim().isNotEmpty)
-                      EditMiniBadge(_conditionController.text.trim()),
-                    if (_selectedLocationLabel != null)
-                      EditMiniBadge(_selectedLocationLabel!),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            tooltip: 'Close',
-            onPressed: () => Navigator.of(context).pop(),
-            visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.close),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Tab bar
-  // -------------------------------------------------------------------------
-
-  Widget _tabs() {
-    return ColoredBox(
-      color: kEditPanelRaised,
-      child: TabBar(
-        controller: _tabController,
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        labelColor: Colors.white,
-        unselectedLabelColor: kEditTextMuted,
-        indicatorColor: widget.accent,
-        dividerColor: kEditDivider,
-        labelPadding: const EdgeInsets.symmetric(horizontal: 11),
-        tabs: _isOwned
-            ? const [
-                EditTab(icon: Icons.article, label: 'Main'),
-                EditTab(icon: Icons.attach_money, label: 'Value'),
-                EditTab(icon: Icons.person, label: 'Personal'),
-                EditTab(icon: Icons.sell, label: 'Sold'),
-                EditTab(icon: Icons.tune, label: 'Custom'),
-                EditTab(icon: Icons.photo_library, label: 'Photos'),
-                EditTab(icon: Icons.image, label: 'Cover'),
-                EditTab(icon: Icons.notes, label: 'Synopsis'),
-              ]
-            : const [
-                EditTab(icon: Icons.article, label: 'Main'),
-                EditTab(icon: Icons.image, label: 'Cover'),
-                EditTab(icon: Icons.notes, label: 'Synopsis'),
-              ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Footer
-  // -------------------------------------------------------------------------
-
-  Widget _footer(BuildContext context) {
-    final currentTab = _tabController.index + 1;
-    final totalTabs = _tabController.length;
-    final actions = Wrap(
-      alignment: WrapAlignment.end,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        FooterReadonlyField(
-          label: 'Tab',
-          value: '$currentTab / $totalTabs',
-          width: 72,
-        ),
-        Tooltip(
-          message: 'Previous tab',
-          child: OutlinedButton.icon(
-            onPressed: _tabController.index == 0 ? null : _previousTab,
-            icon: const Icon(Icons.chevron_left),
-            label: const Text('Previous'),
-          ),
-        ),
-        Tooltip(
-          message: 'Next tab',
-          child: OutlinedButton.icon(
-            onPressed: _tabController.index == totalTabs - 1
-                ? null
-                : _nextTab,
-            icon: const Icon(Icons.chevron_right),
-            label: const Text('Next'),
-          ),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton.icon(
-          onPressed: _submit,
-          icon: const Icon(Icons.save_outlined),
-          label: const Text('Save'),
-        ),
+    return LibraryEditDialogScaffold(
+      formKey: _formKey,
+      accent: widget.accent,
+      icon: widget.type.workspace.icon,
+      title: 'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}',
+      badges: [
+        if (_isOwned) const EditMiniBadge('Owned'),
+        if (_soldAt != null) const EditMiniBadge('Sold'),
+        if (_conditionController.text.trim().isNotEmpty)
+          EditMiniBadge(_conditionController.text.trim()),
+        if (_selectedLocationLabel != null)
+          EditMiniBadge(_selectedLocationLabel!),
       ],
-    );
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: const BoxDecoration(
-        color: kEditToolbar,
-        border: Border(top: BorderSide(color: kEditDivider)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            _isOwned ? 'Catalog + collection' : 'Catalog snapshot only',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: kEditTextMuted,
-                  fontWeight: FontWeight.w800,
-                ),
+      tabController: _tabController,
+      tabs: _tabHeaders(),
+      views: _tabViews(),
+      footerLabel: _isOwned ? 'Catalog + collection' : 'Catalog snapshot only',
+      footerFields: [
+        if (_isOwned)
+          FooterTextField(
+            label: 'User tags',
+            controller: _tagsController,
+            width: 150,
           ),
-          const Spacer(),
-          actions,
-        ],
-      ),
+      ],
+      onPrevious: _previousTab,
+      onNext: _nextTab,
+      onCancel: () => Navigator.of(context).pop(),
+      onSave: _submit,
     );
+  }
+
+  List<Widget> _tabHeaders() {
+    return _isOwned
+        ? const [
+            EditTab(icon: Icons.article, label: 'Main'),
+            EditTab(icon: Icons.attach_money, label: 'Value'),
+            EditTab(icon: Icons.person, label: 'Personal'),
+            EditTab(icon: Icons.sell, label: 'Sold'),
+            EditTab(icon: Icons.tune, label: 'Custom'),
+            EditTab(icon: Icons.photo_library, label: 'Photos'),
+            EditTab(icon: Icons.image, label: 'Cover'),
+            EditTab(icon: Icons.notes, label: 'Synopsis'),
+          ]
+        : const [
+            EditTab(icon: Icons.article, label: 'Main'),
+            EditTab(icon: Icons.image, label: 'Cover'),
+            EditTab(icon: Icons.notes, label: 'Synopsis'),
+          ];
+  }
+
+  List<Widget> _tabViews() {
+    return _isOwned
+        ? [
+            _mainTab(),
+            _valueTab(),
+            _personalTab(),
+            _soldTab(),
+            _customFieldsTab(),
+            _photosTab(),
+            _coverTab(),
+            _synopsisTab(),
+          ]
+        : [
+            _mainTab(),
+            _coverTab(),
+            _synopsisTab(),
+          ];
   }
 
   // -------------------------------------------------------------------------
@@ -916,6 +766,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
   }
 
+
   // -------------------------------------------------------------------------
   // Helpers
   // -------------------------------------------------------------------------
@@ -959,6 +810,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       decoration: InputDecoration(labelText: label, hintText: hint),
     );
   }
+
 
   Widget _locationField() {
     final label = _selectedLocationLabel;

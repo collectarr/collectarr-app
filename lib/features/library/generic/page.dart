@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/services/image_download_servi
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
@@ -321,7 +322,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onRemoveWishlist: (item) => _runCollectionAction(
         (actions) => actions.removeWishlist(item),
       ),
-      onEditItem: (item) => unawaited(_showEditDialog(item)),
+      onEditItem: (item, ownedItem) => unawaited(_showEditDialog(item, ownedItem)),
       onItemContextMenu: _handleItemContextMenu,
       onFilterByValue: (value) => setState(() {
         _linkedMetadataFilter =
@@ -669,7 +670,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     if (result == null || !mounted) return;
     switch (result.action) {
       case LibraryItemContextAction.edit:
-        unawaited(_showEditDialog(item));
+        unawaited(_showEditDialog(item, item.source.ownedItem));
       case LibraryItemContextAction.addToOwned:
         await _runCollectionAction((a) => a.addOwned(item));
       case LibraryItemContextAction.removeFromOwned:
@@ -724,7 +725,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     }
   }
 
-  Future<void> _showEditDialog(LibraryProjectionItem item) async {
+  Future<void> _showEditDialog(
+    LibraryProjectionItem item,
+    OwnedItem? ownedItemOverride,
+  ) async {
     final catalogItem = item.source.catalogItem;
     if (catalogItem == null) {
       return;
@@ -736,7 +740,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final db = ref.read(localDatabaseProvider);
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
-    final owned = item.source.ownedItem;
+    final owned = ownedItemOverride ?? item.source.ownedItem;
     final definitions = await customFieldRepo.listDefinitions(
       mediaKind: widget.type.workspace.kind,
     );

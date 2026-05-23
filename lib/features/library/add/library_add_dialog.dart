@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dar
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -116,6 +117,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   String? _selectedResultId;
   String? _selectedProviderCandidateId;
   final _providerPreviews = <String, AdminProviderPreview>{};
+  final _hydratedResults = <String, LibraryMetadataItem>{};
   String? _physicalFormatId;
   String _defaultCondition = 'Near Mint';
   String _defaultGrade = 'Ungraded';
@@ -127,6 +129,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   String? _lastProviderSearchSignature;
   int _coreSearchGeneration = 0;
   int _providerSearchGeneration = 0;
+  final _pendingHydratedResultIds = <String>{};
   final _pendingProviderPreviewIds = <String>{};
   List<StorageLocation> _availableLocations = const [];
   String? _defaultLocationId;
@@ -202,6 +205,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedQueuedIngest = selectedCandidate == null
         ? null
         : _queuedProviderIngests[selectedCandidate.localCatalogId];
+      final isFetchingSelectedResultPreview =
+        selectedResult != null &&
+        _pendingHydratedResultIds.contains(selectedResult.id) &&
+        !_hydratedResults.containsKey(selectedResult.id);
     final isFetchingSelectedCandidatePreview =
       selectedCandidate != null &&
       _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
@@ -287,10 +294,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         providerNumberText: _searchNumberController.text,
                         providerPublisherText: _searchPublisherController.text,
                         providerYearText: _searchYearController.text,
-                        onSelectResult: (id) => setState(() {
-                          _selectedResultId = id;
-                          _selectedProviderCandidateId = null;
-                        }),
+                        onSelectResult: (id) {
+                          setState(() {
+                            _selectedResultId = id;
+                            _selectedProviderCandidateId = null;
+                          });
+                          if (widget.type.capabilities.showsTrackData) {
+                            unawaited(_ensureSelectedResultLoaded(id));
+                          }
+                        },
                         onSelectProviderCandidate: (id) {
                           setState(() {
                             _selectedProviderCandidateId = id;
@@ -318,7 +330,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         candidatePreview: selectedCandidate == null
                             ? null
                             : _providerPreviews[selectedCandidate.localCatalogId],
-                        isFetchingPreview: isFetchingSelectedCandidatePreview,
+                        isFetchingPreview: isFetchingSelectedCandidatePreview ||
+                            isFetchingSelectedResultPreview,
                         providerLabel: selectedProviderLabel,
                         searched: _results.isNotEmpty || _searchedProvider,
                       );
@@ -510,6 +523,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _results = rankedItems;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
+          _hydratedResults.clear();
+          _pendingHydratedResultIds.clear();
         });
         _precacheMetadataCovers(rankedItems);
       }
@@ -578,6 +593,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _providerResults = const [];
         _selectedResultId = null;
         _selectedProviderCandidateId = null;
+        _hydratedResults.clear();
+        _pendingHydratedResultIds.clear();
         _providerPreviews.clear();
         _searchedProvider = false;
       });
@@ -622,6 +639,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _results = found;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
+          _hydratedResults.clear();
+          _pendingHydratedResultIds.clear();
           _error =
               found.isEmpty &&
                       widget.type.supportedMetadataProviders.isEmpty
@@ -906,6 +925,49 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
   }
 
+  Future<void> _ensureSelectedResultLoaded(String itemId) async {
+    if (_hydratedResults.containsKey(itemId) ||
+        _pendingHydratedResultIds.contains(itemId)) {
+      return;
+    }
+    LibraryMetadataItem? selected;
+    for (final item in _results) {
+      if (item.id == itemId) {
+        selected = item;
+        break;
+      }
+    }
+    if (selected == null) {
+      return;
+    }
+    final searchGeneration = _coreSearchGeneration;
+    setState(() {
+      _pendingHydratedResultIds.add(itemId);
+    });
+    try {
+      final hydrated = await ref.read(apiClientProvider).getMetadataItem(
+            kind: selected.kind,
+            id: itemId,
+          );
+      if (!mounted || searchGeneration != _coreSearchGeneration) {
+        return;
+      }
+      final hydratedItem = LibraryMetadataItem.fromCatalogItem(hydrated);
+      setState(() {
+        _hydratedResults[itemId] = hydratedItem;
+        _pendingHydratedResultIds.remove(itemId);
+      });
+      _precacheMetadataCovers([hydratedItem]);
+    } catch (_) {
+      if (!mounted || searchGeneration != _coreSearchGeneration) {
+        return;
+      }
+      setState(() {
+        _pendingHydratedResultIds.remove(itemId);
+      });
+    }
+  }
+
   void _precacheMetadataCovers(List<LibraryMetadataItem> items) {
     unawaited(
       _precacheCoverUrls([
@@ -1044,30 +1106,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
 
       // Use the ingested item as base but overlay the user's edits.
-      final mergedPublishing = CatalogPublishingDetails(
-        pageCount: ingested.publishing?.pageCount,
-        coverPriceCents: ingested.publishing?.coverPriceCents,
-        currency: ingested.publishing?.currency,
-        imprint: edited.publishing?.imprint,
-        subtitle: ingested.publishing?.subtitle,
-        seriesGroup: edited.publishing?.seriesGroup,
-      );
-      final finalItem = ingested.copyWith(
-        title: edited.title,
-        itemNumber: edited.itemNumber,
-        synopsis: edited.synopsis,
-        coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
-        thumbnailImageUrl:
-            edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
-        editionTitle: edited.editionTitle,
-        physicalFormat: edited.physicalFormat,
-        physicalFormatLabel: edited.physicalFormatLabel,
-        publisher: edited.publisher,
-        releaseDate: edited.releaseDate,
-        releaseYear: edited.releaseYear,
-        barcode: edited.barcode,
-        variant: edited.variant,
-        publishing: mergedPublishing.hasData ? mergedPublishing : null,
+      final finalItem = mergeProviderAddResult(
+        ingested: ingested,
+        edited: edited,
       );
       await _addItems([finalItem], target);
     } catch (error) {
@@ -1125,6 +1166,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           {
             'name': creator.name,
             if (creator.role != null) 'role': creator.role,
+            if (creator.imageUrl != null) 'image_url': creator.imageUrl,
           },
       ],
       characters: preview.characters,
@@ -1361,6 +1403,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final id = _selectedResultId;
     if (id == null) {
       return null;
+    }
+    final hydrated = _hydratedResults[id];
+    if (hydrated != null) {
+      return hydrated;
     }
     for (final item in _results) {
       if (item.id == id) {

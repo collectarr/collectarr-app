@@ -20,7 +20,10 @@ class LibraryDetailPersonalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paid = formatMoney(entry.pricePaidCents, entry.currency);
+    final paid = formatMoney(
+      ownedItem?.pricePaidCents ?? entry.pricePaidCents,
+      ownedItem?.currency ?? entry.currency,
+    );
     final coverPrice = formatMoney(ownedItem?.coverPriceCents, ownedItem?.currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
     final profitLoss = _detailProfitLossLabel(ownedItem);
@@ -40,16 +43,19 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ),
             LibraryInspectorFactData(
               'Condition',
-              genericLibraryDash(entry.condition),
+              genericLibraryDash(ownedItem?.condition ?? entry.condition),
             ),
-            LibraryInspectorFactData('Grade', genericLibraryDash(entry.grade)),
+            LibraryInspectorFactData(
+              'Grade',
+              genericLibraryDash(ownedItem?.grade ?? entry.grade),
+            ),
             LibraryInspectorFactData(
               'Quantity',
               ownedItem == null ? '-' : ownedItem!.quantity.toString(),
             ),
             LibraryInspectorFactData(
               'Storage',
-              genericLibraryDash(entry.storageBox),
+              genericLibraryDash(ownedItem?.storageBox ?? entry.storageBox),
             ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
             LibraryInspectorFactData(
@@ -76,7 +82,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ),
             LibraryInspectorFactData(
               'Updated',
-              formatNullableDate(entry.updatedAt) ?? '-',
+              formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
             ),
             LibraryInspectorFactData(
               'Read status',

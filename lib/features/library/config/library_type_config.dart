@@ -79,7 +79,7 @@ class LibraryDetailPageRequest {
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
-  final VoidCallback? onEdit;
+  final void Function(OwnedItem? ownedItem)? onEdit;
   final ValueChanged<String>? onFilterByValue;
 }
 

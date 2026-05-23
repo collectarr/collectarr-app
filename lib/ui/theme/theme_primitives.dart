@@ -198,7 +198,7 @@ ThemeData applySharedSurfaceTheme(
     visualDensity: compact ? VisualDensity.compact : null,
     colorScheme: buildAppColorScheme(palette),
     scaffoldBackgroundColor: palette.canvas,
-    canvasColor: includeCanvasColor ? palette.canvas : null,
+    canvasColor: includeCanvasColor ? palette.canvas : palette.panelRaised,
     dividerTheme: DividerThemeData(
       color: palette.divider,
       thickness: 1,

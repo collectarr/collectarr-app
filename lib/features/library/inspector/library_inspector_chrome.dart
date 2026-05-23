@@ -64,6 +64,7 @@ class InspectorActionBar extends StatelessWidget {
     required this.onEdit,
     required this.onOpenDetails,
     this.onCorrectMetadata,
+    this.extraActions = const <Widget>[],
   });
 
   final LibraryTypeConfig type;
@@ -73,6 +74,7 @@ class InspectorActionBar extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback onOpenDetails;
   final VoidCallback? onCorrectMetadata;
+  final List<Widget> extraActions;
 
   @override
   Widget build(BuildContext context) {
@@ -85,43 +87,59 @@ class InspectorActionBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         child: Row(
           children: [
-            _GenericInspectorActionButton(
-              tooltip: entry.isOwned
-                  ? 'Remove from collection'
-                  : 'Add to collection',
-              onPressed: onToggleOwned,
-              icon: entry.isOwned
-                  ? Icons.remove_circle_outline
-                  : Icons.add_circle_outline,
-            ),
-            const SizedBox(width: 4),
-            _GenericInspectorActionButton(
-              tooltip: entry.isWishlisted
-                  ? 'Remove from wishlist'
-                  : 'Move to wishlist',
-              onPressed: onToggleWishlist,
-              icon: entry.isWishlisted ? Icons.star : Icons.star_border,
-            ),
-            const SizedBox(width: 4),
-            _GenericInspectorActionButton(
-              tooltip: 'Open details',
-              onPressed: onOpenDetails,
-              icon: Icons.open_in_new,
-            ),
-            const SizedBox(width: 4),
-            _GenericInspectorActionButton(
-              tooltip: 'Edit metadata and collection fields',
-              onPressed: onEdit,
-              icon: Icons.edit_outlined,
-            ),
-            if (onCorrectMetadata != null) ...[              const SizedBox(width: 4),
-              _GenericInspectorActionButton(
-                tooltip: 'Correct metadata',
-                onPressed: onCorrectMetadata,
-                icon: Icons.fact_check_outlined,
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _GenericInspectorActionButton(
+                      tooltip: entry.isOwned
+                          ? 'Remove from collection'
+                          : 'Add to collection',
+                      onPressed: onToggleOwned,
+                      icon: entry.isOwned
+                          ? Icons.remove_circle_outline
+                          : Icons.add_circle_outline,
+                    ),
+                    const SizedBox(width: 4),
+                    _GenericInspectorActionButton(
+                      tooltip: entry.isWishlisted
+                          ? 'Remove from wishlist'
+                          : 'Move to wishlist',
+                      onPressed: onToggleWishlist,
+                      icon:
+                          entry.isWishlisted ? Icons.star : Icons.star_border,
+                    ),
+                    const SizedBox(width: 4),
+                    _GenericInspectorActionButton(
+                      tooltip: 'Open details',
+                      onPressed: onOpenDetails,
+                      icon: Icons.open_in_new,
+                    ),
+                    const SizedBox(width: 4),
+                    _GenericInspectorActionButton(
+                      tooltip: 'Edit metadata and collection fields',
+                      onPressed: onEdit,
+                      icon: Icons.edit_outlined,
+                    ),
+                    for (final action in extraActions) ...[
+                      const SizedBox(width: 4),
+                      action,
+                    ],
+                    if (onCorrectMetadata != null) ...[
+                      const SizedBox(width: 4),
+                      _GenericInspectorActionButton(
+                        tooltip: 'Correct metadata',
+                        onPressed: onCorrectMetadata,
+                        icon: Icons.fact_check_outlined,
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ],
-            const Spacer(),
+            ),
+            const SizedBox(width: 6),
             DecoratedBox(
               decoration: BoxDecoration(
                 color: entry.isOwned ? kAppHighlight : const Color(0xFF2A2A2A),

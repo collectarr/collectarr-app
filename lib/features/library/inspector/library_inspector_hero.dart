@@ -1,11 +1,16 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
+import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class InspectorHero extends StatelessWidget {
   const InspectorHero({
@@ -26,18 +31,60 @@ class InspectorHero extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 560;
-        final cover = SizedBox(
-          width: wide ? 146 : 174,
-          child: AspectRatio(
-            aspectRatio: 2 / 3,
-            child: LibraryInteractiveCover(
-              title: entry.title,
-              itemNumber: entry.itemNumber,
-              imageUrl: entry.displayCoverUrl,
-              ownedItemId: entry.ownedItemId,
-              accentColor: accent,
-            ),
-          ),
+        final cover = Consumer(
+          builder: (context, ref, _) {
+            final ownedItemId = entry.ownedItemId;
+            final db = ref.watch(localDatabaseProvider);
+            final localFront = ownedItemId == null
+                ? null
+                : ref.watch(
+                    localItemImageProvider((
+                      ownedItemId: ownedItemId,
+                      imageType: 'front_cover',
+                    )),
+                  ).value;
+            final localBack = ownedItemId == null
+                ? null
+                : ref.watch(
+                    localItemImageProvider((
+                      ownedItemId: ownedItemId,
+                      imageType: 'back_cover',
+                    )),
+                  ).value;
+            return SizedBox(
+              width: wide ? 146 : 174,
+              child: AspectRatio(
+                aspectRatio: 2 / 3,
+                child: LibraryInteractiveCover(
+                  title: entry.title,
+                  itemNumber: entry.itemNumber,
+                  imageUrl: entry.displayCoverUrl,
+                  localBase64: localFront,
+                  secondaryLocalBase64: localBack,
+                  ownedItemId: entry.ownedItemId,
+                  accentColor: accent,
+                  onMissingSecondaryPressed: ownedItemId == null
+                      ? null
+                      : () async {
+                          final savedType = await pickAndStoreOwnedItemImage(
+                            context: context,
+                            db: db,
+                            ownedItemId: ownedItemId,
+                            imageType: 'back_cover',
+                          );
+                          if (savedType == 'back_cover') {
+                            ref.invalidate(
+                              localItemImageProvider((
+                                ownedItemId: ownedItemId,
+                                imageType: 'back_cover',
+                              )),
+                            );
+                          }
+                        },
+                ),
+              ),
+            );
+          },
         );
         final info = _InspectorHeroInfo(
           type: type,
@@ -147,6 +194,13 @@ class _InspectorHeroInfo extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
         ),
+        if (entry.mediaType == 'book' && (entry.creators?.isNotEmpty ?? false)) ...[
+          const SizedBox(height: 10),
+          BookAuthorSpotlight(
+            creators: entry.creators!,
+            accent: accent,
+          ),
+        ],
         const SizedBox(height: 10),
         Wrap(
           spacing: 6,

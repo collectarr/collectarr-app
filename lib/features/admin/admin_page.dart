@@ -16,6 +16,7 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -924,7 +925,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
     final correction = _catalogCorrectionFromEditedItem(item, result.item);
     final explicitFields = _catalogCorrectionExplicitFields(item, correction);
-    if (explicitFields.isEmpty) {
+    final originalSeriesTags = _normalizedAdminTags(item.series?.tags);
+    final editedSeriesTags = _normalizedAdminTags(result.item.series?.tags);
+    final seriesTagsChanged = !listEquals(originalSeriesTags, editedSeriesTags);
+    if (explicitFields.isEmpty && !seriesTagsChanged) {
       setState(() {
         _catalogErrorMessage =
             'Change at least one persisted metadata field before saving.';
@@ -944,25 +948,40 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _inspectErrorMessage = null;
     });
     try {
-      final updated = await ref.read(apiClientProvider).adminUpdateCatalogItem(
-            kind: item.kind,
-            id: item.id,
-            title: correction.title,
-            itemNumber: correction.itemNumber,
-            synopsis: correction.synopsis,
-            editionTitle: correction.editionTitle,
-            pageCount: correction.pageCount,
-            publisher: correction.publisher,
-            releaseDate: correction.releaseDate,
-            imprint: correction.imprint,
-            seriesGroup: correction.seriesGroup,
-            physicalFormat: correction.physicalFormat,
-            variantName: correction.variantName,
-            barcode: correction.barcode,
-            coverImageUrl: correction.coverImageUrl,
-            thumbnailImageUrl: correction.thumbnailImageUrl,
-            explicitFields: explicitFields,
+      AdminMetadataItem? updated;
+      if (explicitFields.isNotEmpty) {
+        updated = await ref.read(apiClientProvider).adminUpdateCatalogItem(
+              kind: item.kind,
+              id: item.id,
+              title: correction.title,
+              itemNumber: correction.itemNumber,
+              synopsis: correction.synopsis,
+              editionTitle: correction.editionTitle,
+              pageCount: correction.pageCount,
+              publisher: correction.publisher,
+              releaseDate: correction.releaseDate,
+              imprint: correction.imprint,
+              seriesGroup: correction.seriesGroup,
+              physicalFormat: correction.physicalFormat,
+              variantName: correction.variantName,
+              barcode: correction.barcode,
+              coverImageUrl: correction.coverImageUrl,
+              thumbnailImageUrl: correction.thumbnailImageUrl,
+              explicitFields: explicitFields,
+            );
+      }
+      if (seriesTagsChanged) {
+        final seriesId = item.series?.seriesId;
+        if (seriesId == null || seriesId.isEmpty) {
+          throw StateError(
+            'This item has no series id, so series tags cannot be saved.',
           );
+        }
+        await ref.read(apiClientProvider).adminUpdateSeriesTags(
+              seriesId: seriesId,
+              tags: editedSeriesTags,
+            );
+      }
       if (!mounted) {
         return;
       }
@@ -970,9 +989,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _updatingCatalogItemId = null;
         _lastIngest = null;
         _catalogStatusMessage = 'Metadata correction saved.';
-        _catalogItems = [
-          for (final row in _catalogItems) row.id == updated.id ? updated : row,
-        ];
+        if (updated != null) {
+          _catalogItems = [
+            for (final row in _catalogItems)
+              row.id == updated!.id ? updated! : row,
+          ];
+        }
       });
       await _loadDashboard();
     } catch (error) {
@@ -1030,6 +1052,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       barcode: edited.barcode,
       coverImageUrl: edited.coverImageUrl,
       thumbnailImageUrl: edited.thumbnailImageUrl,
+      seriesTags: edited.series?.tags,
     );
   }
 
@@ -1111,7 +1134,19 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
     add('Thumbnail URL', variant?.thumbnailImageUrl, correction.thumbnailImageUrl);
     add('Synopsis', item.synopsis, correction.synopsis);
+    add(
+      'Series tags',
+      _normalizedAdminTags(item.series?.tags).join(', '),
+      _normalizedAdminTags(correction.seriesTags).join(', '),
+    );
     return changes;
+  }
+
+  List<String> _normalizedAdminTags(List<String>? tags) {
+    return (tags ?? const <String>[])
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
   }
 
   Future<bool> _confirmMetadataCorrectionPreview(
@@ -4358,6 +4393,7 @@ class _CatalogCorrection {
     this.barcode,
     this.coverImageUrl,
     this.thumbnailImageUrl,
+    this.seriesTags,
   });
 
   final String? title;
@@ -4374,6 +4410,7 @@ class _CatalogCorrection {
   final String? barcode;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final List<String>? seriesTags;
 }
 
 class _CorrectionPreviewEntry {

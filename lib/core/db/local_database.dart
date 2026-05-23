@@ -7,6 +7,7 @@ class CatalogCache extends Table {
   TextColumn get id => text()();
   TextColumn get kind => text()();
   TextColumn get title => text()();
+  TextColumn get sortKey => text().nullable()();
   TextColumn get itemNumber => text().nullable()();
   TextColumn get synopsis => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
@@ -32,6 +33,7 @@ class CatalogCache extends Table {
   TextColumn get creatorsJson => text().nullable()();
   TextColumn get charactersJson => text().nullable()();
   TextColumn get storyArcsJson => text().nullable()();
+  TextColumn get seriesTagsJson => text().nullable()();
   TextColumn get platformsJson => text().nullable()();
   TextColumn get genresJson => text().nullable()();
   IntColumn get pageCount => integer().nullable()();
@@ -251,7 +253,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {

@@ -308,6 +308,23 @@ class ApiClient {
     return AdminMetadataItem.fromJson(_resolveImageUrls(body));
   }
 
+  Future<Map<String, dynamic>> adminUpdateSeriesTags({
+    required String seriesId,
+    required List<String> tags,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/admin/catalog/series/$seriesId/tags',
+      data: {'tags': tags},
+    );
+    final body = response.data;
+    if (body == null) {
+      throw StateError(
+        '/admin/catalog/series/$seriesId/tags returned an empty response body',
+      );
+    }
+    return body;
+  }
+
   Future<AdminSearchStatus> adminSearchStatus() async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/admin/search/status',

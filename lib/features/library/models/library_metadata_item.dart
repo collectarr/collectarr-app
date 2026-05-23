@@ -5,6 +5,7 @@ class LibraryMetadataItem {
     required this.id,
     required this.kind,
     required this.title,
+        this.sortKey,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -37,6 +38,7 @@ class LibraryMetadataItem {
   final String id;
   final String kind;
   final String title;
+    final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -68,6 +70,7 @@ class LibraryMetadataItem {
       id: item.id,
       kind: item.kind,
       title: item.title,
+    sortKey: item.sortKey,
       itemNumber: item.itemNumber,
       synopsis: item.synopsis,
       coverImageUrl: item.coverImageUrl,
@@ -100,6 +103,7 @@ class LibraryMetadataItem {
     String? id,
     String? kind,
     String? title,
+    Object? sortKey = _unset,
     Object? itemNumber = _unset,
     Object? synopsis = _unset,
     Object? coverImageUrl = _unset,
@@ -130,6 +134,7 @@ class LibraryMetadataItem {
       id: id ?? this.id,
       kind: kind ?? this.kind,
       title: title ?? this.title,
+      sortKey: identical(sortKey, _unset) ? this.sortKey : sortKey as String?,
       itemNumber: identical(itemNumber, _unset)
           ? this.itemNumber
           : itemNumber as String?,
@@ -214,6 +219,7 @@ class LibraryMetadataItem {
       id: id,
       kind: kind,
       title: title,
+    sortKey: sortKey,
       itemNumber: itemNumber,
       synopsis: synopsis,
       coverImageUrl: coverImageUrl,

@@ -1,15 +1,83 @@
+import 'dart:math' as math;
+
+import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder
     extends DefaultLibraryMediaPresentationBuilder {
   const MusicLibraryMediaPresentationBuilder();
+
+  @override
+  Widget? buildAddPreviewPane({
+    required BuildContext context,
+    required Color accent,
+    required String singularLabel,
+    required LibraryMediaFieldLabels labels,
+    required LibraryMediaPreviewLabels previewLabels,
+    required LibraryMetadataItem? item,
+    required ProviderCandidate? candidate,
+    required AdminProviderPreview? preview,
+    required bool isFetchingPreview,
+    required String providerLabel,
+  }) {
+    final albumTitle = item?.title ?? candidate?.title ?? preview?.title;
+    if (albumTitle == null || albumTitle.trim().isEmpty) {
+      return null;
+    }
+    final artist = item?.series?.seriesTitle ??
+        preview?.series?.seriesTitle ??
+        candidate?.series?.seriesTitle;
+    final releaseDetails = item?.music ?? preview?.music;
+    final coverUrl = item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
+    final genres = item?.genres ?? preview?.genres ?? const <String>[];
+    final releaseLine = _musicReleaseLine(
+      albumTitle: albumTitle,
+      item: item,
+      preview: preview,
+    );
+    final labelCatalogLine = _musicLabelCatalogLine(
+      item: item,
+      preview: preview,
+      candidate: candidate,
+    );
+    final genreLine = genres
+        .map((genre) => genre.trim())
+        .where((genre) => genre.isNotEmpty)
+        .join(', ');
+    final subLine = _musicSupportingLine(
+      item: item,
+      preview: preview,
+      candidate: candidate,
+    );
+    final tracks = _musicPreviewTracks(item: item, preview: preview);
+    return _MusicAddPreviewPane(
+      accent: accent,
+      artist: artist,
+      albumTitle: albumTitle,
+      releaseLine: releaseLine,
+      labelCatalogLine: labelCatalogLine,
+      genreLine: genreLine.isEmpty ? null : genreLine,
+      subLine: subLine,
+      coverUrl: coverUrl,
+      itemNumber: item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber,
+      tracks: tracks,
+      trackCount: releaseDetails?.trackCount ?? tracks.length,
+      isFetchingPreview: isFetchingPreview,
+      providerLabel: item == null ? providerLabel : singularLabel,
+    );
+  }
 
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
@@ -113,4 +181,543 @@ class MusicLibraryMediaPresentationBuilder
     }
     return sections;
   }
+}
+
+class _MusicAddPreviewPane extends StatelessWidget {
+  const _MusicAddPreviewPane({
+    required this.accent,
+    required this.artist,
+    required this.albumTitle,
+    required this.releaseLine,
+    required this.labelCatalogLine,
+    required this.genreLine,
+    required this.subLine,
+    required this.coverUrl,
+    required this.itemNumber,
+    required this.tracks,
+    required this.trackCount,
+    required this.isFetchingPreview,
+    required this.providerLabel,
+  });
+
+  final Color accent;
+  final String? artist;
+  final String albumTitle;
+  final String? releaseLine;
+  final String? labelCatalogLine;
+  final String? genreLine;
+  final String? subLine;
+  final String? coverUrl;
+  final String? itemNumber;
+  final List<_MusicPreviewTrackData> tracks;
+  final int? trackCount;
+  final bool isFetchingPreview;
+  final String providerLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final totalDuration = _musicTotalDurationLabel(tracks);
+    final headingCount = trackCount ?? tracks.length;
+    final trackHeading = headingCount > 0
+        ? totalDuration == null
+            ? '$headingCount tracks'
+            : '$headingCount tracks ($totalDuration)'
+        : null;
+    final headerChildren = <Widget>[
+      if (artist != null && artist!.trim().isNotEmpty)
+        Text(
+          artist!,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: accent,
+            fontSize: 24,
+            fontWeight: FontWeight.w500,
+            height: 1,
+          ),
+        ),
+      if (artist != null && artist!.trim().isNotEmpty)
+        const SizedBox(height: 2),
+      Text(
+        albumTitle,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          height: 1.15,
+        ),
+      ),
+      const SizedBox(height: 8),
+      Divider(height: 1, thickness: 1, color: Colors.white.withValues(alpha: 0.86)),
+      const SizedBox(height: 10),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (releaseLine != null && releaseLine!.trim().isNotEmpty)
+                  Text(
+                    releaseLine!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                if (genreLine != null && genreLine!.trim().isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    genreLine!,
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+                if (subLine != null && subLine!.trim().isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    subLine!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              labelCatalogLine ?? providerLabel,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+      Divider(height: 1, thickness: 1, color: Colors.white.withValues(alpha: 0.86)),
+      const SizedBox(height: 12),
+    ];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF020202),
+            Color.alphaBlend(accent.withValues(alpha: 0.18), kAppCanvas),
+            const Color(0xFF060606),
+          ],
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, paneConstraints) {
+          final compactHeight = paneConstraints.maxHeight < 320;
+          if (compactHeight) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...headerChildren,
+                  _buildCompactTrackSection(
+                    maxWidth: paneConstraints.maxWidth - 38,
+                    trackHeading: trackHeading,
+                  ),
+                ],
+              ),
+            );
+          }
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ...headerChildren,
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final stacked = constraints.maxWidth < 560;
+                      final coverImage = LibraryInteractiveCover(
+                        title: albumTitle,
+                        itemNumber: itemNumber,
+                        imageUrl: coverUrl,
+                        accentColor: accent,
+                        borderRadius: 6,
+                      );
+                      final cover = SizedBox(
+                        width: 300,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: coverImage,
+                        ),
+                      );
+                      final stackedCoverSize = math.min(
+                        180.0,
+                        math.min(
+                          constraints.maxWidth,
+                          math.max(0.0, constraints.maxHeight - 96.0),
+                        ),
+                      );
+                      final showStackedCover = stackedCoverSize >= 72;
+                      final details = Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (trackHeading != null)
+                            Text(
+                              trackHeading,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          if (tracks.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: tracks.length,
+                                itemBuilder: (context, index) => _MusicAddPreviewTrackRow(
+                                  index: index + 1,
+                                  track: tracks[index],
+                                  accent: accent,
+                                ),
+                              ),
+                            ),
+                          ] else
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  isFetchingPreview
+                                      ? 'Fetching track list...'
+                                      : 'Track list unavailable for this release yet.',
+                                  style: const TextStyle(
+                                    color: kAppTextMuted,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                      if (stacked) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: details),
+                            if (showStackedCover) ...[
+                              const SizedBox(height: 12),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: SizedBox.square(
+                                  dimension: stackedCoverSize,
+                                  child: coverImage,
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: details),
+                          const SizedBox(width: 20),
+                          cover,
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCompactTrackSection({
+    required double maxWidth,
+    required String? trackHeading,
+  }) {
+    final stacked = maxWidth < 560;
+    final coverSize = math.min(stacked ? 160.0 : 180.0, math.max(0.0, maxWidth));
+    final showCover = coverSize >= 72;
+    final details = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (trackHeading != null)
+          Text(
+            trackHeading,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        if (tracks.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          for (var index = 0; index < tracks.length; index++)
+            _MusicAddPreviewTrackRow(
+              index: index + 1,
+              track: tracks[index],
+              accent: accent,
+            ),
+        ] else
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              isFetchingPreview
+                  ? 'Fetching track list...'
+                  : 'Track list unavailable for this release yet.',
+              style: const TextStyle(
+                color: kAppTextMuted,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+      ],
+    );
+    if (!showCover) {
+      return details;
+    }
+    final cover = SizedBox.square(
+      dimension: coverSize,
+      child: LibraryInteractiveCover(
+        title: albumTitle,
+        itemNumber: itemNumber,
+        imageUrl: coverUrl,
+        accentColor: accent,
+        borderRadius: 6,
+      ),
+    );
+    if (stacked) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          details,
+          const SizedBox(height: 12),
+          cover,
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: details),
+        const SizedBox(width: 20),
+        cover,
+      ],
+    );
+  }
+}
+
+class _MusicAddPreviewTrackRow extends StatelessWidget {
+  const _MusicAddPreviewTrackRow({
+    required this.index,
+    required this.track,
+    required this.accent,
+  });
+
+  final int index;
+  final _MusicPreviewTrackData track;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 20,
+            child: Text(
+              '${track.position ?? index}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              track.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: accent,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          if (track.durationLabel != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text(
+                track.durationLabel!,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MusicPreviewTrackData {
+  const _MusicPreviewTrackData({
+    required this.title,
+    this.position,
+    this.durationSeconds,
+  });
+
+  final String title;
+  final int? position;
+  final int? durationSeconds;
+
+  String? get durationLabel {
+    final value = durationSeconds;
+    if (value == null) {
+      return null;
+    }
+    final hours = value ~/ 3600;
+    final minutes = (value % 3600) ~/ 60;
+    final seconds = value % 60;
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+}
+
+String? _musicReleaseLine({
+  required String albumTitle,
+  required LibraryMetadataItem? item,
+  required AdminProviderPreview? preview,
+}) {
+  final releaseYear = item?.releaseYear ??
+      item?.releaseDate?.year ??
+      preview?.releaseDate?.year ??
+      preview?.series?.volumeStartYear;
+  if (releaseYear == null) {
+    return albumTitle;
+  }
+  return '$albumTitle ($releaseYear)';
+}
+
+String? _musicLabelCatalogLine({
+  required LibraryMetadataItem? item,
+  required AdminProviderPreview? preview,
+  required ProviderCandidate? candidate,
+}) {
+  final parts = <String>[];
+  final format = item?.variant ?? preview?.variantName ?? candidate?.variantName;
+  if (format != null && format.trim().isNotEmpty) {
+    parts.add(format.trim());
+  }
+  final catalogNumber = item?.music?.catalogNumber ?? preview?.music?.catalogNumber;
+  if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
+    parts.add(catalogNumber.trim());
+  }
+  final publisher = item?.publisher ?? preview?.publisher ?? candidate?.publisher;
+  if (parts.isEmpty && publisher != null && publisher.trim().isNotEmpty) {
+    return publisher.trim();
+  }
+  return parts.isEmpty ? null : parts.join('  ');
+}
+
+String? _musicSupportingLine({
+  required LibraryMetadataItem? item,
+  required AdminProviderPreview? preview,
+  required ProviderCandidate? candidate,
+}) {
+  final values = <String>[];
+  final publisher = item?.publisher ?? preview?.publisher ?? candidate?.publisher;
+  if (publisher != null && publisher.trim().isNotEmpty) {
+    values.add(publisher.trim());
+  }
+  final status = item?.music?.releaseStatus ?? preview?.music?.releaseStatus;
+  if (status != null && status.trim().isNotEmpty) {
+    values.add(status.trim());
+  }
+  return values.isEmpty ? null : values.join(' / ');
+}
+
+List<_MusicPreviewTrackData> _musicPreviewTracks({
+  required LibraryMetadataItem? item,
+  required AdminProviderPreview? preview,
+}) {
+  final itemTracks = item?.music?.tracks;
+  if (itemTracks != null && itemTracks.isNotEmpty) {
+    return [
+      for (final track in itemTracks)
+        _MusicPreviewTrackData(
+          title: track.title.trim().isEmpty ? 'Untitled track' : track.title,
+          position: track.position,
+          durationSeconds: track.durationSeconds,
+        ),
+    ];
+  }
+  final previewTracks = preview?.music?.tracks;
+  if (previewTracks == null || previewTracks.isEmpty) {
+    return const [];
+  }
+  return [
+    for (final track in previewTracks)
+      _MusicPreviewTrackData(
+        title: track.title.trim().isEmpty ? 'Untitled track' : track.title,
+        position: track.position,
+        durationSeconds: track.durationSeconds,
+      ),
+  ];
+}
+
+String? _musicTotalDurationLabel(List<_MusicPreviewTrackData> tracks) {
+  if (tracks.isEmpty) {
+    return null;
+  }
+  var total = 0;
+  var hasDuration = false;
+  for (final track in tracks) {
+    if (track.durationSeconds != null) {
+      total += track.durationSeconds!;
+      hasDuration = true;
+    }
+  }
+  if (!hasDuration) {
+    return null;
+  }
+  final hours = total ~/ 3600;
+  final minutes = (total % 3600) ~/ 60;
+  final seconds = total % 60;
+  if (hours > 0) {
+    return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+  return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }

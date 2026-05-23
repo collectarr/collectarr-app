@@ -33,6 +33,7 @@ class CatalogCacheRepository {
                 id: item.id,
                 kind: item.kind,
                 title: item.title,
+                sortKey: Value(item.sortKey),
                 itemNumber: Value(item.itemNumber),
                 synopsis: Value(item.synopsis),
                 coverImageUrl: Value(item.coverImageUrl),
@@ -76,6 +77,11 @@ class CatalogCacheRepository {
                 storyArcsJson: Value(
                   item.storyArcs != null && item.storyArcs!.isNotEmpty
                       ? jsonEncode(item.storyArcs)
+                      : null,
+                ),
+                seriesTagsJson: Value(
+                  series != null && series.tags.isNotEmpty
+                      ? jsonEncode(series.tags)
                       : null,
                 ),
                 platformsJson: Value(
@@ -197,6 +203,7 @@ class CatalogCacheRepository {
       volumeStartYear: row.volumeStartYear,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
+      tags: _decodeStringList(row.seriesTagsJson) ?? const <String>[],
     );
     final video = VideoCatalogDetails(runtimeMinutes: row.runtimeMinutes);
     final tracks = _decodeTracks(row.tracksJson);
@@ -220,6 +227,7 @@ class CatalogCacheRepository {
       id: row.id,
       kind: row.kind,
       title: row.title,
+      sortKey: row.sortKey,
       itemNumber: row.itemNumber,
       synopsis: row.synopsis,
       coverImageUrl: row.coverImageUrl,

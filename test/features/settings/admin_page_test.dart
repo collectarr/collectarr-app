@@ -57,7 +57,7 @@ void main() {
     expect(find.text('admin@example.com'), findsOneWidget);
 
     // ─── Catalog tab ───
-    await tester.tap(find.text('Catalog'));
+    await tester.tap(find.text('Catalog').last);
     await tester.pumpAndSettle();
 
     expect(find.text('Canonical catalog browser'), findsOneWidget);
@@ -235,6 +235,62 @@ void main() {
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, '12345');
   });
+
+  testWidgets('admin page persists series tag corrections for books',
+      (tester) async {
+    final api = _BookAdminApiClient();
+    tester.view.physicalSize = const Size(1280, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [apiClientProvider.overrideWithValue(api)],
+        child: const MaterialApp(home: AdminPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(Tab, 'Catalog'));
+    await tester.pumpAndSettle();
+
+    await _scrollUntilVisible(
+      tester,
+      find.widgetWithText(FilledButton, 'Edit'),
+      delta: -500,
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Edit').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Credits & Characters'), findsOneWidget);
+    await tester.tap(find.text('Credits & Characters'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Add tag').first,
+      'Epic Fantasy',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Add tag').first,
+      'Fellowship',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+    expect(find.text('Preview metadata correction'), findsOneWidget);
+    expect(find.text('Series tags'), findsWidgets);
+
+    await tester.tap(find.text('Save correction').last);
+    await tester.pumpAndSettle();
+
+    expect(api.lastSeriesTagsSeriesId, 'series-book-1');
+    expect(api.lastSeriesTags, ['Fantasy', 'Epic Fantasy', 'Fellowship']);
+    expect(find.text('Metadata correction saved.'), findsOneWidget);
+  });
 }
 
 Future<void> _scrollUntilVisible(
@@ -259,6 +315,7 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastSearchProvider;
   String? lastSearchQuery;
   String? lastSearchKind;
+  String? lastSeriesTagsSeriesId;
   String? lastIngestProvider;
   String? lastIngestProviderItemId;
   String? lastInspectKind;
@@ -268,11 +325,13 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastCatalogUpdatePhysicalFormat;
   String? lastQueuedProviderItemId;
   int? lastRetryHistoryId;
+  List<String>? lastSeriesTags;
   List<String>? lastMergeSourceItemIds;
   bool duplicateResolved = false;
   bool retryResolved = false;
   bool catalogUpdated = false;
   bool queuedJobCreated = false;
+  int catalogUpdateCount = 0;
   int runPendingCount = 0;
   int reindexCount = 0;
 
@@ -446,10 +505,25 @@ class _FakeAdminApiClient extends ApiClient {
     bool includeNulls = false,
     Set<String> explicitFields = const <String>{},
   }) async {
+    catalogUpdateCount += 1;
     lastCatalogUpdateTitle = title;
     lastCatalogUpdatePhysicalFormat = physicalFormat;
     catalogUpdated = true;
     return (await adminCatalogItems()).single;
+  }
+
+  @override
+  Future<Map<String, dynamic>> adminUpdateSeriesTags({
+    required String seriesId,
+    required List<String> tags,
+  }) async {
+    lastSeriesTagsSeriesId = seriesId;
+    lastSeriesTags = tags;
+    return {
+      'id': seriesId,
+      'title': 'Series',
+      'tags': tags,
+    };
   }
 
   @override
@@ -836,5 +910,64 @@ class _FakeAdminApiClient extends ApiClient {
       recovered: 0,
       jobs: await adminProviderIngestJobs(),
     );
+  }
+}
+
+class _BookAdminApiClient extends _FakeAdminApiClient {
+  @override
+  Future<List<CatalogMediaType>> metadataMediaTypes() async {
+    return const [
+      CatalogMediaType(
+        kind: 'book',
+        singularLabel: 'Book',
+        pluralLabel: 'Books',
+        routeSegments: ['books', 'book'],
+        defaultProvider: 'openlibrary',
+        providers: ['openlibrary', 'hardcover'],
+      ),
+    ];
+  }
+
+  @override
+  Future<List<AdminMetadataItem>> adminCatalogItems({
+    String? query,
+    String? kind,
+    int limit = 25,
+  }) async {
+    return [
+      AdminMetadataItem(
+        id: 'book-item-1',
+        kind: 'book',
+        title: 'The Fellowship of the Ring',
+        itemNumber: '1',
+        synopsis: 'The first journey into Middle-earth.',
+        publisher: 'Allen & Unwin',
+        series: CatalogSeriesDetails(
+          seriesId: 'series-book-1',
+          seriesTitle: 'The Lord of the Rings',
+          volumeNumber: 1,
+          tags: lastSeriesTags ?? const ['Fantasy'],
+        ),
+        publishing: const CatalogPublishingDetails(
+          subtitle: 'Being the First Part',
+          pageCount: 423,
+        ),
+        editions: const [
+          AdminEdition(
+            id: 'edition-book-1',
+            title: 'Hardcover',
+            publisher: 'Allen & Unwin',
+            variants: [
+              AdminVariant(
+                id: 'variant-book-1',
+                name: 'Primary',
+                isPrimary: true,
+                coverImageUrl: 'https://cdn.example/fellowship.jpg',
+              ),
+            ],
+          ),
+        ],
+      ),
+    ];
   }
 }

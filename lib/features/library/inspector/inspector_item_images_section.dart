@@ -4,12 +4,9 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
+import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:uuid/uuid.dart';
-
-const _uuid = Uuid();
 
 class InspectorItemImagesSection extends StatefulWidget {
   const InspectorItemImagesSection({
@@ -31,12 +28,6 @@ class InspectorItemImagesSection extends StatefulWidget {
 class _InspectorItemImagesSectionState
     extends State<InspectorItemImagesSection> {
   late Future<List<ItemImage>> _imagesFuture;
-
-  static const _typeLabels = {
-    'front_cover': 'Front Cover',
-    'back_cover': 'Back Cover',
-    'auxiliary': 'Photos',
-  };
 
   @override
   void initState() {
@@ -65,7 +56,7 @@ class _InspectorItemImagesSectionState
         final label = images.isEmpty
             ? 'Images'
             : groups.length == 1
-                ? '${_typeLabels[groups.keys.first] ?? groups.keys.first} (${images.length})'
+            ? '${itemImageTypeLabels[groups.keys.first] ?? groups.keys.first} (${images.length})'
                 : 'Images (${images.length})';
 
         return LibraryInspectorSection(
@@ -77,7 +68,7 @@ class _InspectorItemImagesSectionState
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Text(
-                    _typeLabels[entry.key] ?? entry.key,
+                    itemImageTypeLabels[entry.key] ?? entry.key,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: widget.accent.withValues(alpha: 0.8),
                         ),
@@ -112,42 +103,14 @@ class _InspectorItemImagesSectionState
   }
 
   Future<void> _pickAndAddImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1280,
-      maxHeight: 1280,
-      imageQuality: 85,
-    );
-    if (picked == null || !mounted) return;
-
-    // Ask for image type
-    final imageType = await showDialog<String>(
+    final savedType = await pickAndStoreOwnedItemImage(
       context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Image type'),
-        children: [
-          for (final entry in _typeLabels.entries)
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, entry.key),
-              child: Text(entry.value),
-            ),
-        ],
-      ),
-    );
-    if (imageType == null || !mounted) return;
-
-    final bytes = await picked.readAsBytes();
-    final base64Data = base64Encode(bytes);
-
-    final repo = ItemImagesCacheRepository(widget.db);
-    await repo.upsert(
-      id: _uuid.v4(),
+      db: widget.db,
       ownedItemId: widget.ownedItemId,
-      imageType: imageType,
-      imageData: base64Data,
     );
-    if (mounted) setState(_reload);
+    if (savedType != null && mounted) {
+      setState(_reload);
+    }
   }
 
   Future<void> _deleteImage(String imageId) async {

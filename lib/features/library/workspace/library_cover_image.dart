@@ -110,11 +110,14 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.itemNumber,
     this.imageUrl,
     this.localBase64,
+    this.secondaryImageUrl,
+    this.secondaryLocalBase64,
     this.ownedItemId,
     this.borderRadius = 4,
     this.accentColor = const Color(0xFF10A8D8),
     this.enableFullscreen = true,
     this.enableHoverCue = true,
+    this.onMissingSecondaryPressed,
     super.key,
   });
 
@@ -122,11 +125,14 @@ class LibraryInteractiveCover extends StatefulWidget {
   final String? itemNumber;
   final String? imageUrl;
   final String? localBase64;
+  final String? secondaryImageUrl;
+  final String? secondaryLocalBase64;
   final String? ownedItemId;
   final double borderRadius;
   final Color accentColor;
   final bool enableFullscreen;
   final bool enableHoverCue;
+  final Future<void> Function()? onMissingSecondaryPressed;
 
   @override
   State<LibraryInteractiveCover> createState() =>
@@ -135,11 +141,27 @@ class LibraryInteractiveCover extends StatefulWidget {
 
 class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   bool _hovered = false;
+  bool _showSecondary = false;
+
+  bool get _showSecondaryControl {
+    return _hasSecondary || (widget.ownedItemId?.trim().isNotEmpty ?? false);
+  }
+
+  bool get _hasSecondary {
+    return (widget.secondaryLocalBase64?.trim().isNotEmpty ?? false) ||
+        (widget.secondaryImageUrl?.trim().isNotEmpty ?? false);
+  }
+
+  String? get _activeImageUrl =>
+      _showSecondary ? widget.secondaryImageUrl : widget.imageUrl;
+
+  String? get _activeLocalBase64 =>
+      _showSecondary ? widget.secondaryLocalBase64 : widget.localBase64;
 
   bool get _canPreview {
     return widget.enableFullscreen &&
-        ((widget.imageUrl?.trim().isNotEmpty ?? false) ||
-            (widget.localBase64?.trim().isNotEmpty ?? false) ||
+        ((_activeImageUrl?.trim().isNotEmpty ?? false) ||
+            (_activeLocalBase64?.trim().isNotEmpty ?? false) ||
             (widget.ownedItemId?.trim().isNotEmpty ?? false));
   }
 
@@ -191,8 +213,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                   child: LibraryCoverImage(
                                     title: widget.title,
                                     itemNumber: widget.itemNumber,
-                                    imageUrl: widget.imageUrl,
-                                    localBase64: widget.localBase64,
+                                    imageUrl: _activeImageUrl,
+                                    localBase64: _activeLocalBase64,
                                     ownedItemId: widget.ownedItemId,
                                     borderRadius: 10,
                                   ),
@@ -233,119 +255,187 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
     );
   }
 
+  Future<void> _handleSecondaryPressed() async {
+    if (_hasSecondary) {
+      setState(() => _showSecondary = !_showSecondary);
+      return;
+    }
+    if (widget.onMissingSecondaryPressed != null) {
+      await widget.onMissingSecondaryPressed!();
+      return;
+    }
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    messenger?.hideCurrentSnackBar();
+    messenger?.showSnackBar(
+      const SnackBar(
+        content: Text('No back cover is saved for this item yet.'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final interactive = _canPreview;
     final hoverCue = interactive && widget.enableHoverCue;
-    return MouseRegion(
-      cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
-      onEnter: hoverCue ? (_) => setState(() => _hovered = true) : null,
-      onExit: hoverCue ? (_) => setState(() => _hovered = false) : null,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: interactive ? _openPreview : null,
-        child: AnimatedScale(
-          duration: const Duration(milliseconds: 170),
-          curve: Curves.easeOutCubic,
-          scale: _hovered ? 1.02 : 1,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 170),
-                curve: Curves.easeOutCubic,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                    widget.borderRadius + 8,
-                  ),
-                  boxShadow: [
-                    if (_hovered)
-                      BoxShadow(
-                        color: widget.accentColor.withValues(alpha: 0.28),
-                        blurRadius: 18,
-                        spreadRadius: 1.5,
-                        offset: const Offset(0, 6),
-                      ),
-                  ],
-                ),
-                child: _CoverFrame(
-                  borderRadius: widget.borderRadius,
-                  child: LibraryCoverImage(
-                    title: widget.title,
-                    itemNumber: widget.itemNumber,
-                    imageUrl: widget.imageUrl,
-                    localBase64: widget.localBase64,
-                    ownedItemId: widget.ownedItemId,
-                    borderRadius: widget.borderRadius,
-                  ),
-                ),
-              ),
-              IgnorePointer(
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 170),
-                  opacity: _hovered ? 1 : 0,
-                  child: DecoratedBox(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compactHoverCue = constraints.maxWidth < 180 ||
+            constraints.maxHeight < 160;
+        return MouseRegion(
+          cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
+          onEnter: hoverCue ? (_) => setState(() => _hovered = true) : null,
+          onExit: hoverCue ? (_) => setState(() => _hovered = false) : null,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: interactive ? _openPreview : null,
+            child: AnimatedScale(
+              duration: const Duration(milliseconds: 170),
+              curve: Curves.easeOutCubic,
+              scale: _hovered ? 1.02 : 1,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 170),
+                    curve: Curves.easeOutCubic,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(
                         widget.borderRadius + 8,
                       ),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0x00000000),
-                          Color(0x22000000),
-                          Color(0xCC030303),
-                        ],
+                      boxShadow: [
+                        if (_hovered)
+                          BoxShadow(
+                            color: widget.accentColor.withValues(alpha: 0.28),
+                            blurRadius: 18,
+                            spreadRadius: 1.5,
+                            offset: const Offset(0, 6),
+                          ),
+                      ],
+                    ),
+                    child: _CoverFrame(
+                      borderRadius: widget.borderRadius,
+                      child: LibraryCoverImage(
+                        title: widget.title,
+                        itemNumber: widget.itemNumber,
+                        imageUrl: _activeImageUrl,
+                        localBase64: _activeLocalBase64,
+                        ownedItemId: widget.ownedItemId,
+                        borderRadius: widget.borderRadius,
                       ),
                     ),
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: const Color(0xCC050505),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: widget.accentColor.withValues(alpha: 0.7),
-                            ),
+                  ),
+                  if (_showSecondaryControl)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: FilledButton.tonalIcon(
+                        onPressed: () {
+                          _handleSecondaryPressed();
+                        },
+                        icon: Icon(
+                          _hasSecondary
+                              ? (_showSecondary
+                                  ? Icons.flip_to_front_outlined
+                                  : Icons.flip_to_back_outlined)
+                              : Icons.photo_library_outlined,
+                          size: 14,
+                        ),
+                        label: Text(
+                          _hasSecondary
+                              ? (_showSecondary ? 'View front' : 'View back')
+                              : 'Back cover',
+                        ),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
                           ),
+                          visualDensity: VisualDensity.compact,
+                          backgroundColor: const Color(0xD0101010),
+                          foregroundColor: Colors.white,
+                          side: BorderSide(
+                            color: widget.accentColor.withValues(alpha: 0.45),
+                          ),
+                        ),
+                      ),
+                    ),
+                  IgnorePointer(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 170),
+                      opacity: _hovered ? 1 : 0,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            widget.borderRadius + 8,
+                          ),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Color(0x00000000),
+                              Color(0x22000000),
+                              Color(0xCC030303),
+                            ],
+                          ),
+                        ),
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.open_in_full,
-                                  size: 14,
-                                  color: widget.accentColor,
+                            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: const Color(0xCC050505),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: widget.accentColor.withValues(alpha: 0.7),
                                 ),
-                                const SizedBox(width: 6),
-                                const Text(
-                                  'Open cover',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: compactHoverCue ? 8 : 10,
+                                  vertical: compactHoverCue ? 4 : 5,
                                 ),
-                              ],
+                                child: compactHoverCue
+                                    ? Icon(
+                                        Icons.open_in_full,
+                                        size: 14,
+                                        color: widget.accentColor,
+                                      )
+                                    : FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.open_in_full,
+                                              size: 14,
+                                              color: widget.accentColor,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            const Text(
+                                              'Open cover',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
