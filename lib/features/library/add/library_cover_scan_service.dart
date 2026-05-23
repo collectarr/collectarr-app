@@ -156,24 +156,67 @@ abstract class LibraryCoverImageReview {
   });
 }
 
+class LibraryCoverCropBounds {
+  const LibraryCoverCropBounds({
+    required this.left,
+    required this.top,
+    required this.right,
+    required this.bottom,
+  });
+
+  const LibraryCoverCropBounds.fullFrame()
+      : left = 0,
+        top = 0,
+        right = 1,
+        bottom = 1;
+
+  final double left;
+  final double top;
+  final double right;
+  final double bottom;
+
+  double get width => right - left;
+  double get height => bottom - top;
+
+  bool get isFullFrame =>
+      left == 0 && top == 0 && right == 1 && bottom == 1;
+
+  LibraryCoverCropBounds copyWith({
+    double? left,
+    double? top,
+    double? right,
+    double? bottom,
+  }) {
+    return LibraryCoverCropBounds(
+      left: left ?? this.left,
+      top: top ?? this.top,
+      right: right ?? this.right,
+      bottom: bottom ?? this.bottom,
+    );
+  }
+}
+
 class LibraryCoverReviewedImage {
   const LibraryCoverReviewedImage({
     required this.sourceFile,
     required this.displayName,
     this.imageBytes,
     this.rotationQuarterTurns = 0,
+    this.cropBounds = const LibraryCoverCropBounds.fullFrame(),
   });
 
   final XFile sourceFile;
   final String displayName;
   final Uint8List? imageBytes;
   final int rotationQuarterTurns;
+  final LibraryCoverCropBounds cropBounds;
 
   factory LibraryCoverReviewedImage.fromFile(
     XFile file, {
     Uint8List? imageBytes,
     String? displayName,
     int rotationQuarterTurns = 0,
+    LibraryCoverCropBounds cropBounds = const LibraryCoverCropBounds.fullFrame(),
   }) {
     final resolvedName = displayName?.trim();
     return LibraryCoverReviewedImage(
@@ -183,6 +226,7 @@ class LibraryCoverReviewedImage {
           : resolvedName,
       imageBytes: imageBytes,
       rotationQuarterTurns: rotationQuarterTurns % 4,
+      cropBounds: cropBounds,
     );
   }
 }
@@ -215,9 +259,13 @@ class _LibraryCoverScanReviewDialog extends StatefulWidget {
 
 class _LibraryCoverScanReviewDialogState
     extends State<_LibraryCoverScanReviewDialog> {
+  static const _cropStep = 0.05;
+  static const _minCropSpan = 0.35;
+
   late final TextEditingController _displayNameController;
   late final Future<Uint8List?> _previewBytesFuture;
   int _rotationQuarterTurns = 0;
+  LibraryCoverCropBounds _cropBounds = const LibraryCoverCropBounds.fullFrame();
 
   @override
   void initState() {
@@ -267,6 +315,66 @@ class _LibraryCoverScanReviewDialogState
                   previewBytes: snapshot.data,
                   isLoading: snapshot.connectionState != ConnectionState.done,
                   rotationQuarterTurns: _rotationQuarterTurns,
+                  cropBounds: _cropBounds,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Crop the frame locally so later OCR and cleanup only inspect the relevant cover area.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                      key: const ValueKey('library-cover-review-trim-left'),
+                      onPressed: () => _trimCropEdge(left: _cropStep),
+                      icon: const Icon(Icons.keyboard_double_arrow_right),
+                      label: const Text('Trim left'),
+                    ),
+                    OutlinedButton.icon(
+                      key: const ValueKey('library-cover-review-trim-right'),
+                      onPressed: () => _trimCropEdge(right: -_cropStep),
+                      icon: const Icon(Icons.keyboard_double_arrow_left),
+                      label: const Text('Trim right'),
+                    ),
+                    OutlinedButton.icon(
+                      key: const ValueKey('library-cover-review-trim-top'),
+                      onPressed: () => _trimCropEdge(top: _cropStep),
+                      icon: const Icon(Icons.keyboard_double_arrow_down),
+                      label: const Text('Trim top'),
+                    ),
+                    OutlinedButton.icon(
+                      key: const ValueKey('library-cover-review-trim-bottom'),
+                      onPressed: () => _trimCropEdge(bottom: -_cropStep),
+                      icon: const Icon(Icons.keyboard_double_arrow_up),
+                      label: const Text('Trim bottom'),
+                    ),
+                    TextButton.icon(
+                      key: const ValueKey('library-cover-review-reset-crop'),
+                      onPressed: _cropBounds.isFullFrame
+                          ? null
+                          : () => setState(
+                                () => _cropBounds =
+                                    const LibraryCoverCropBounds.fullFrame(),
+                              ),
+                      icon: const Icon(Icons.crop_free),
+                      label: const Text('Reset crop'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Crop: ${(_cropBounds.width * 100).round()}% width x ${(_cropBounds.height * 100).round()}% height',
+                  key: const ValueKey('library-cover-review-crop-label'),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -332,6 +440,7 @@ class _LibraryCoverScanReviewDialogState
                           imageBytes: snapshot.data,
                           displayName: _displayNameController.text,
                           rotationQuarterTurns: _rotationQuarterTurns,
+                          cropBounds: _cropBounds,
                         ),
                       ),
                       icon: const Icon(Icons.check_circle_outline),
@@ -345,6 +454,34 @@ class _LibraryCoverScanReviewDialogState
         ),
       ),
     );
+  }
+
+  void _trimCropEdge({
+    double left = 0,
+    double top = 0,
+    double right = 0,
+    double bottom = 0,
+  }) {
+    setState(() {
+      var next = _cropBounds;
+      if (left != 0) {
+        final nextLeft = (next.left + left).clamp(0.0, next.right - _minCropSpan);
+        next = next.copyWith(left: nextLeft.toDouble());
+      }
+      if (right != 0) {
+        final nextRight = (next.right + right).clamp(next.left + _minCropSpan, 1.0);
+        next = next.copyWith(right: nextRight.toDouble());
+      }
+      if (top != 0) {
+        final nextTop = (next.top + top).clamp(0.0, next.bottom - _minCropSpan);
+        next = next.copyWith(top: nextTop.toDouble());
+      }
+      if (bottom != 0) {
+        final nextBottom = (next.bottom + bottom).clamp(next.top + _minCropSpan, 1.0);
+        next = next.copyWith(bottom: nextBottom.toDouble());
+      }
+      _cropBounds = next;
+    });
   }
 }
 
@@ -363,12 +500,14 @@ class _LibraryCoverScanReviewPreview extends StatelessWidget {
     required this.previewBytes,
     required this.isLoading,
     required this.rotationQuarterTurns,
+    required this.cropBounds,
   });
 
   final XFile file;
   final Uint8List? previewBytes;
   final bool isLoading;
   final int rotationQuarterTurns;
+  final LibraryCoverCropBounds cropBounds;
 
   @override
   Widget build(BuildContext context) {
@@ -385,29 +524,108 @@ class _LibraryCoverScanReviewPreview extends StatelessWidget {
           aspectRatio: 0.72,
           child: RotatedBox(
             quarterTurns: rotationQuarterTurns,
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : previewBytes == null
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.photo_outlined, size: 42),
-                              SizedBox(height: 8),
-                              Text(
-                                'Preview unavailable, but the image can still be used for local scan hints.',
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
+            child: LayoutBuilder(
+              builder: (context, constraints) => Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (previewBytes == null)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.photo_outlined, size: 42),
+                            SizedBox(height: 8),
+                            Text(
+                              'Preview unavailable, but the image can still be used for local scan hints.',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
-                      )
-                    : Image.memory(previewBytes!, fit: BoxFit.contain),
+                      ),
+                    )
+                  else
+                    Image.memory(previewBytes!, fit: BoxFit.contain),
+                  IgnorePointer(
+                    child: _LibraryCoverCropOverlay(
+                      bounds: cropBounds,
+                      size: Size(
+                        constraints.maxWidth,
+                        constraints.maxHeight,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _LibraryCoverCropOverlay extends StatelessWidget {
+  const _LibraryCoverCropOverlay({required this.bounds, required this.size});
+
+  final LibraryCoverCropBounds bounds;
+  final Size size;
+
+  @override
+  Widget build(BuildContext context) {
+    final left = size.width * bounds.left;
+    final top = size.height * bounds.top;
+    final width = size.width * bounds.width;
+    final height = size.height * bounds.height;
+    return Stack(
+      children: [
+        if (top > 0)
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            height: top,
+            child: const ColoredBox(color: Color(0x7A000000)),
+          ),
+        if (bounds.bottom < 1)
+          Positioned(
+            left: 0,
+            right: 0,
+            top: top + height,
+            height: size.height - (top + height),
+            child: const ColoredBox(color: Color(0x7A000000)),
+          ),
+        if (left > 0)
+          Positioned(
+            left: 0,
+            top: top,
+            width: left,
+            height: height,
+            child: const ColoredBox(color: Color(0x7A000000)),
+          ),
+        if (bounds.right < 1)
+          Positioned(
+            left: left + width,
+            top: top,
+            width: size.width - (left + width),
+            height: height,
+            child: const ColoredBox(color: Color(0x7A000000)),
+          ),
+        Positioned(
+          left: left,
+          top: top,
+          width: width,
+          height: height,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white70, width: 2),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -420,6 +638,7 @@ class LibraryCoverScanResult {
     this.publisher,
     this.year,
     this.confidenceLabel,
+    this.reviewSummary,
     this.warnings = const <String>[],
   });
 
@@ -429,6 +648,7 @@ class LibraryCoverScanResult {
   final String? publisher;
   final int? year;
   final String? confidenceLabel;
+  final String? reviewSummary;
   final List<String> warnings;
 
   bool get hasAnyHint {
@@ -494,10 +714,24 @@ LibraryCoverScanResult _filenameDerivedResult(LibraryCoverReviewedImage image) {
     publisher: publisher,
     year: year,
     confidenceLabel: 'low',
+    reviewSummary: _reviewSummary(image),
     warnings: const <String>[
       'Search hints were derived locally from the imported filename. OCR is not enabled yet.',
     ],
   );
+}
+
+String? _reviewSummary(LibraryCoverReviewedImage image) {
+  final parts = <String>[
+    if (image.rotationQuarterTurns != 0)
+      'rotated ${image.rotationQuarterTurns * 90}°',
+    if (!image.cropBounds.isFullFrame)
+      'cropped ${(image.cropBounds.width * 100).round()}% x ${(image.cropBounds.height * 100).round()}%',
+  ];
+  if (parts.isEmpty) {
+    return null;
+  }
+  return parts.join(', ');
 }
 
 String? _extractPublisher(String value) {

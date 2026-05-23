@@ -426,6 +426,13 @@ void main() {
                 imageReview: const _FakeCoverImageReview(
                   acceptImport: true,
                   reviewedDisplayName: 'Batman_423_1988_DC.jpg',
+                  reviewedRotationQuarterTurns: 1,
+                  reviewedCropBounds: LibraryCoverCropBounds(
+                    left: 0.05,
+                    top: 0.0,
+                    right: 1.0,
+                    bottom: 0.95,
+                  ),
                 ),
               ),
             ),
@@ -446,6 +453,8 @@ void main() {
 
     expect(queryField.controller!.text, 'Batman');
     expect(publisherField.controller!.text, 'DC');
+    expect(find.textContaining('rotated 90°'), findsOneWidget);
+    expect(find.textContaining('cropped 95% x 95%'), findsOneWidget);
   });
 
   testWidgets('comic add dialog applies edited review label from real review dialog',
@@ -576,6 +585,63 @@ void main() {
 
     expect(reviewedImage, isNotNull);
     expect(reviewedImage!.rotationQuarterTurns, 1);
+  });
+
+  testWidgets('real cover review dialog returns selected crop bounds',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    LibraryCoverReviewedImage? reviewedImage;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => FilledButton(
+              onPressed: () async {
+                reviewedImage = await const DialogLibraryCoverImageReview()
+                    .reviewImage(
+                  context: context,
+                  type: comicsLibraryConfig,
+                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                );
+              },
+              child: const Text('Open review'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open review'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(find.text('Crop: 100% width x 100% height'), findsOneWidget);
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('library-cover-review-trim-left')),
+    );
+    await tester.tap(find.byKey(const ValueKey('library-cover-review-trim-left')));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(find.byKey(const ValueKey('library-cover-review-trim-top')));
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(find.text('Crop: 95% width x 95% height'), findsOneWidget);
+
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Use image'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Use image'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(reviewedImage, isNotNull);
+    expect(reviewedImage!.cropBounds.left, closeTo(0.05, 0.0001));
+    expect(reviewedImage!.cropBounds.top, closeTo(0.05, 0.0001));
+    expect(reviewedImage!.cropBounds.right, closeTo(1.0, 0.0001));
+    expect(reviewedImage!.cropBounds.bottom, closeTo(1.0, 0.0001));
   });
 
   testWidgets('provider search does not claim fallback when results are mixed',
@@ -1083,10 +1149,14 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
   const _FakeCoverImageReview({
     required this.acceptImport,
     this.reviewedDisplayName,
+    this.reviewedCropBounds = const LibraryCoverCropBounds.fullFrame(),
+    this.reviewedRotationQuarterTurns = 0,
   });
 
   final bool acceptImport;
   final String? reviewedDisplayName;
+  final LibraryCoverCropBounds reviewedCropBounds;
+  final int reviewedRotationQuarterTurns;
 
   @override
   Future<LibraryCoverReviewedImage?> reviewImage({
@@ -1100,6 +1170,8 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
     return LibraryCoverReviewedImage.fromFile(
       file,
       displayName: reviewedDisplayName,
+      cropBounds: reviewedCropBounds,
+      rotationQuarterTurns: reviewedRotationQuarterTurns,
     );
   }
 }
