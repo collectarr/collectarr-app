@@ -57,8 +57,10 @@ class CatalogCache extends Table {
 class OwnedItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  TextColumn get anchorType => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
   TextColumn get condition => text().nullable()();
   TextColumn get grade => text().nullable()();
   DateTimeColumn get purchaseDate => dateTime().nullable()();
@@ -132,8 +134,10 @@ class ItemImagesCache extends Table {
 class WishlistItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  TextColumn get anchorType => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
   IntColumn get targetPriceCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get notes => text().nullable()();
@@ -279,7 +283,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration {

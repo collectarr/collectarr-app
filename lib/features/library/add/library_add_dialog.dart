@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -17,6 +18,7 @@ import 'package:collectarr_app/features/library/add/library_add_collection_workf
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
+import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
@@ -114,10 +116,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _isAdding = false;
   _LibraryAddDialogMode _mode = _LibraryAddDialogMode.search;
   LibraryAddTarget _addTarget = LibraryAddTarget.owned;
+  LibraryAddReferenceType _referenceType = LibraryAddReferenceType.media;
   String? _selectedResultId;
   String? _selectedProviderCandidateId;
+  String? _selectedBundleReleaseId;
   final _providerPreviews = <String, AdminProviderPreview>{};
   final _hydratedResults = <String, LibraryMetadataItem>{};
+  final _bundleReleasesByItemId = <String, List<BundleReleaseSummary>>{};
+  final _bundleReleaseDetailsById = <String, BundleReleaseDetail>{};
   String? _physicalFormatId;
   String _defaultCondition = 'Near Mint';
   String _defaultGrade = 'Ungraded';
@@ -130,6 +136,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   int _coreSearchGeneration = 0;
   int _providerSearchGeneration = 0;
   final _pendingHydratedResultIds = <String>{};
+  final _pendingBundleReleaseItemIds = <String>{};
+  final _pendingBundleReleaseDetailIds = <String>{};
   final _pendingProviderPreviewIds = <String>{};
   List<StorageLocation> _availableLocations = const [];
   String? _defaultLocationId;
@@ -298,15 +306,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           setState(() {
                             _selectedResultId = id;
                             _selectedProviderCandidateId = null;
+                            _selectedBundleReleaseId = null;
+                            _referenceType = LibraryAddReferenceType.media;
                           });
-                          if (widget.type.capabilities.showsTrackData) {
-                            unawaited(_ensureSelectedResultLoaded(id));
-                          }
+                          unawaited(_ensureSelectedResultLoaded(id));
+                          unawaited(_ensureBundleReleasesLoaded(id));
                         },
                         onSelectProviderCandidate: (id) {
                           setState(() {
                             _selectedProviderCandidateId = id;
                             _selectedResultId = null;
+                            _selectedBundleReleaseId = null;
+                            _referenceType = LibraryAddReferenceType.media;
                           });
                           unawaited(_ensureProviderPreviewLoaded(id));
                         },
@@ -334,6 +345,56 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             isFetchingSelectedResultPreview,
                         providerLabel: selectedProviderLabel,
                         searched: _results.isNotEmpty || _searchedProvider,
+                        addTarget: _addTarget,
+                        referenceType: _referenceType,
+                        availableBundleReleases: selectedResult == null
+                            ? const <BundleReleaseSummary>[]
+                            : _bundleReleasesByItemId[selectedResult.id] ??
+                                const <BundleReleaseSummary>[],
+                        selectedBundleReleaseId: _selectedBundleReleaseId,
+                        selectedBundleReleaseDetail:
+                          _selectedBundleReleaseDetail,
+                        isLoadingBundleReleases: selectedResult != null &&
+                            _pendingBundleReleaseItemIds
+                                .contains(selectedResult.id),
+                        isLoadingBundleReleaseDetail:
+                          _selectedBundleReleaseId != null &&
+                            _pendingBundleReleaseDetailIds
+                              .contains(_selectedBundleReleaseId),
+                        onReferenceTypeChanged: (value) {
+                          if (_addTarget == LibraryAddTarget.track) {
+                            return;
+                          }
+                          final bundles = selectedResult == null
+                              ? const <BundleReleaseSummary>[]
+                              : _bundleReleasesByItemId[selectedResult.id] ??
+                                  const <BundleReleaseSummary>[];
+                          setState(() {
+                            _referenceType = value;
+                            if (value != LibraryAddReferenceType.bundleRelease) {
+                              _selectedBundleReleaseId = null;
+                            } else {
+                              _selectedBundleReleaseId =
+                                  _selectedBundleReleaseId ??
+                                      (bundles.isNotEmpty ? bundles.first.id : null);
+                            }
+                          });
+                          final bundleReleaseId = _selectedBundleReleaseId;
+                          if (value == LibraryAddReferenceType.bundleRelease &&
+                              bundleReleaseId != null) {
+                            unawaited(
+                              _ensureBundleReleaseDetailLoaded(bundleReleaseId),
+                            );
+                          }
+                        },
+                        onBundleReleaseSelected: (bundleReleaseId) {
+                          setState(() {
+                            _selectedBundleReleaseId = bundleReleaseId;
+                          });
+                          unawaited(
+                            _ensureBundleReleaseDetailLoaded(bundleReleaseId),
+                          );
+                        },
                       );
                       final manualPane = _ManualPane(
                         type: widget.type,
@@ -349,6 +410,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onPhysicalFormatChanged: _setPhysicalFormat,
                         isAdding: _isAdding,
                         onAddOwned: () => _addManual(LibraryAddTarget.owned),
+                        onAddTrack: () => _addManual(LibraryAddTarget.track),
                         onAddWishlist: () =>
                             _addManual(LibraryAddTarget.wishlist),
                       );
@@ -397,6 +459,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           ? checkedItems
                           : [if (selectedResult != null) selectedResult];
                       final addCount = addItems.length;
+                        final requiresBundleSelection =
+                          _addTarget != LibraryAddTarget.track &&
+                            _referenceType ==
+                              LibraryAddReferenceType.bundleRelease;
+                        final canAddBundleSelection = !requiresBundleSelection ||
+                          (addCount == 1 &&
+                            selectedResult != null &&
+                            _selectedBundleReleaseId != null);
                       return _LibraryAddBottomBar(
                         type: widget.type,
                         accent: accent,
@@ -413,8 +483,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         defaultGrade: _defaultGrade,
                         defaultLocationLabel: _defaultLocationLabel,
                         defaultPurchaseDate: _defaultPurchaseDate,
-                        onAddTargetChanged: (value) =>
-                            setState(() => _addTarget = value),
+                        onAddTargetChanged: (value) => setState(() {
+                          _addTarget = value;
+                          if (value == LibraryAddTarget.track) {
+                            _referenceType = LibraryAddReferenceType.media;
+                            _selectedBundleReleaseId = null;
+                          }
+                        }),
                         onDefaultConditionChanged: (value) =>
                             setState(() => _defaultCondition = value),
                         onDefaultGradeChanged: (value) =>
@@ -422,11 +497,24 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onDefaultLocationPressed: _pickDefaultLocation,
                         onDefaultPurchaseDateChanged: (value) =>
                             setState(() => _defaultPurchaseDate = value),
-                        onAdd: addItems.isEmpty && selectedCandidate == null
+                        onAdd: (addItems.isEmpty && selectedCandidate == null) ||
+                                !canAddBundleSelection
                             ? null
                             : () {
                                 if (addItems.isNotEmpty) {
-                                  _addItems(addItems, _addTarget);
+                                  _addItems(
+                                    addItems,
+                                    _addTarget,
+                                    referenceType: _referenceType,
+                                    bundleReleaseIdsByItemId:
+                                        selectedResult == null ||
+                                                _selectedBundleReleaseId == null
+                                            ? const <String, String>{}
+                                            : <String, String>{
+                                                selectedResult.id:
+                                                    _selectedBundleReleaseId!,
+                                              },
+                                  );
                                   return;
                                 }
                                 final candidate = selectedCandidate;
@@ -523,8 +611,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _results = rankedItems;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
+          _selectedBundleReleaseId = null;
+          _referenceType = LibraryAddReferenceType.media;
           _hydratedResults.clear();
+          _bundleReleasesByItemId.clear();
+          _bundleReleaseDetailsById.clear();
           _pendingHydratedResultIds.clear();
+          _pendingBundleReleaseItemIds.clear();
+          _pendingBundleReleaseDetailIds.clear();
         });
         _precacheMetadataCovers(rankedItems);
       }
@@ -593,8 +687,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _providerResults = const [];
         _selectedResultId = null;
         _selectedProviderCandidateId = null;
+        _selectedBundleReleaseId = null;
+        _referenceType = LibraryAddReferenceType.media;
         _hydratedResults.clear();
+        _bundleReleasesByItemId.clear();
+        _bundleReleaseDetailsById.clear();
         _pendingHydratedResultIds.clear();
+        _pendingBundleReleaseItemIds.clear();
+        _pendingBundleReleaseDetailIds.clear();
         _providerPreviews.clear();
         _searchedProvider = false;
       });
@@ -639,8 +739,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _results = found;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
+          _selectedBundleReleaseId = null;
+          _referenceType = LibraryAddReferenceType.media;
           _hydratedResults.clear();
+          _bundleReleasesByItemId.clear();
+            _bundleReleaseDetailsById.clear();
           _pendingHydratedResultIds.clear();
+          _pendingBundleReleaseItemIds.clear();
+            _pendingBundleReleaseDetailIds.clear();
           _error =
               found.isEmpty &&
                       widget.type.supportedMetadataProviders.isEmpty
@@ -970,6 +1076,77 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
       setState(() {
         _pendingHydratedResultIds.remove(itemId);
+      });
+    }
+  }
+
+  Future<void> _ensureBundleReleasesLoaded(String itemId) async {
+    if (_bundleReleasesByItemId.containsKey(itemId) ||
+        _pendingBundleReleaseItemIds.contains(itemId)) {
+      return;
+    }
+    final searchGeneration = _coreSearchGeneration;
+    setState(() {
+      _pendingBundleReleaseItemIds.add(itemId);
+    });
+    try {
+      final bundleReleases =
+          await ref.read(apiClientProvider).getItemBundleReleases(itemId);
+      if (!mounted || searchGeneration != _coreSearchGeneration) {
+        return;
+      }
+      setState(() {
+        _bundleReleasesByItemId[itemId] = bundleReleases;
+        _pendingBundleReleaseItemIds.remove(itemId);
+        if (_selectedResultId == itemId &&
+            _referenceType == LibraryAddReferenceType.bundleRelease &&
+            _selectedBundleReleaseId == null &&
+            bundleReleases.isNotEmpty) {
+          _selectedBundleReleaseId = bundleReleases.first.id;
+        }
+      });
+      final bundleReleaseId = _selectedResultId == itemId &&
+              _referenceType == LibraryAddReferenceType.bundleRelease
+          ? _selectedBundleReleaseId
+          : null;
+      if (bundleReleaseId != null) {
+        await _ensureBundleReleaseDetailLoaded(bundleReleaseId);
+      }
+    } catch (_) {
+      if (!mounted || searchGeneration != _coreSearchGeneration) {
+        return;
+      }
+      setState(() {
+        _pendingBundleReleaseItemIds.remove(itemId);
+      });
+    }
+  }
+
+  Future<void> _ensureBundleReleaseDetailLoaded(String bundleReleaseId) async {
+    if (_bundleReleaseDetailsById.containsKey(bundleReleaseId) ||
+        _pendingBundleReleaseDetailIds.contains(bundleReleaseId)) {
+      return;
+    }
+    final searchGeneration = _coreSearchGeneration;
+    setState(() {
+      _pendingBundleReleaseDetailIds.add(bundleReleaseId);
+    });
+    try {
+      final bundleRelease =
+          await ref.read(apiClientProvider).getBundleRelease(bundleReleaseId);
+      if (!mounted || searchGeneration != _coreSearchGeneration) {
+        return;
+      }
+      setState(() {
+        _bundleReleaseDetailsById[bundleReleaseId] = bundleRelease;
+        _pendingBundleReleaseDetailIds.remove(bundleReleaseId);
+      });
+    } catch (_) {
+      if (!mounted || searchGeneration != _coreSearchGeneration) {
+        return;
+      }
+      setState(() {
+        _pendingBundleReleaseDetailIds.remove(bundleReleaseId);
       });
     }
   }
@@ -1422,6 +1599,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     return null;
   }
 
+  BundleReleaseDetail? get _selectedBundleReleaseDetail {
+    final bundleReleaseId = _selectedBundleReleaseId;
+    if (bundleReleaseId == null) {
+      return null;
+    }
+    return _bundleReleaseDetailsById[bundleReleaseId];
+  }
+
   ProviderCandidate? get _selectedProviderCandidate {
     final id = _selectedProviderCandidateId;
     if (id == null) {
@@ -1456,9 +1641,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     List<LibraryMetadataItem> items,
     LibraryAddTarget target,
     {
+    LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
     LibraryAddDefaults? defaults,
     Map<String, LibraryAddOwnedDetails> ownedDetailsByItemId =
         const <String, LibraryAddOwnedDetails>{},
+    Map<String, String> bundleReleaseIdsByItemId = const <String, String>{},
     }
   ) async {
     if (items.isEmpty || _isAdding) {
@@ -1474,6 +1661,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         mutations: ref.read(collectionMutationsProvider),
         items: items,
         target: target,
+        referenceType: referenceType,
         defaults: defaults ??
             LibraryAddDefaults(
               condition: _defaultCondition,
@@ -1484,6 +1672,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               tags: _defaultTags,
             ),
         ownedDetailsByItemId: ownedDetailsByItemId,
+        bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
       );
       if (mounted) {
         Navigator.of(context).pop(true);

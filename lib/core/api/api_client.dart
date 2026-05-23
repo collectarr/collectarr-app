@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
@@ -128,6 +129,34 @@ class ApiClient {
       throw StateError('/metadata/$kind/$id returned an empty response body');
     }
     return CatalogItem.fromJson(_resolveImageUrls(data));
+  }
+
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+    final response = await _dio.get<List<dynamic>>(
+      '/metadata/items/$itemId/bundle-releases',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .map(BundleReleaseSummary.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/metadata/bundle-releases/$bundleReleaseId',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/metadata/bundle-releases/$bundleReleaseId returned an empty response body',
+      );
+    }
+    return BundleReleaseDetail.fromJson(_resolveImageUrls(data));
   }
 
   Future<List<CatalogMediaType>> metadataMediaTypes() async {

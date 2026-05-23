@@ -1,5 +1,7 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
@@ -82,8 +84,10 @@ Future<void> addLibraryItemsToTarget({
   required CollectionMutations mutations,
   required Iterable<LibraryMetadataItem> items,
   required LibraryAddTarget target,
+  LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
   Map<String, LibraryAddOwnedDetails> ownedDetailsByItemId = const {},
+  Map<String, String> bundleReleaseIdsByItemId = const {},
 }) async {
   final values = items.toList(growable: false);
   if (values.isEmpty) {
@@ -95,12 +99,21 @@ Future<void> addLibraryItemsToTarget({
   await catalog.upsertAll(catalogItems);
   for (final item in values) {
     final ownedDetails = ownedDetailsByItemId[item.id];
+    final reference = _resolveReferenceForItem(
+      item,
+      referenceType: target == LibraryAddTarget.track
+          ? LibraryAddReferenceType.media
+          : referenceType,
+      bundleReleaseId: bundleReleaseIdsByItemId[item.id],
+    );
     switch (target) {
       case LibraryAddTarget.owned:
         final ownedItem = await mutations.addItem(
           item.id,
-          editionId: ownedDetails?.editionId,
-          variantId: ownedDetails?.variantId,
+          anchorType: reference.anchorType,
+          editionId: ownedDetails?.editionId ?? reference.editionId,
+          variantId: ownedDetails?.variantId ?? reference.variantId,
+          bundleReleaseId: reference.bundleReleaseId,
           condition: ownedDetails?.condition ?? defaults.condition,
           grade: ownedDetails?.grade ?? defaults.grade,
           purchaseDate: ownedDetails?.purchaseDate ?? defaults.purchaseDate,
@@ -129,8 +142,8 @@ Future<void> addLibraryItemsToTarget({
         );
         await mutations.syncOwnedTrackingEntry(
           ownedItem,
-          editionId: ownedDetails?.editionId,
-          variantId: ownedDetails?.variantId,
+          editionId: ownedDetails?.editionId ?? reference.editionId,
+          variantId: ownedDetails?.variantId ?? reference.variantId,
           status: ownedDetails?.readStatus ?? defaults.readStatus,
           rating: ownedDetails?.rating,
           startedAt: ownedDetails?.startedAt,
@@ -138,8 +151,86 @@ Future<void> addLibraryItemsToTarget({
         );
         break;
       case LibraryAddTarget.wishlist:
-        await mutations.addToWishlist(item.id);
+        await mutations.addToWishlist(
+          item.id,
+          anchorType: reference.anchorType,
+          editionId: reference.editionId,
+          variantId: reference.variantId,
+          bundleReleaseId: reference.bundleReleaseId,
+        );
+        break;
+      case LibraryAddTarget.track:
+        await mutations.upsertTrackingEntry(
+          item.id,
+          status: defaults.readStatus,
+        );
         break;
     }
   }
+}
+
+_ResolvedAddReference _resolveReferenceForItem(
+  LibraryMetadataItem item, {
+  required LibraryAddReferenceType referenceType,
+  String? bundleReleaseId,
+}) {
+  switch (referenceType) {
+    case LibraryAddReferenceType.media:
+      return const _ResolvedAddReference();
+    case LibraryAddReferenceType.bundleRelease:
+      final normalizedBundleId = bundleReleaseId?.trim();
+      if (normalizedBundleId == null || normalizedBundleId.isEmpty) {
+        return const _ResolvedAddReference();
+      }
+      return _ResolvedAddReference(
+        anchorType: 'bundle_release',
+        bundleReleaseId: normalizedBundleId,
+      );
+    case LibraryAddReferenceType.release:
+      final edition = _primaryEditionForItem(item);
+      final variant = _primaryVariantForEdition(edition);
+      return _ResolvedAddReference(
+        anchorType: variant == null ? null : 'variant',
+        editionId: edition?.id,
+        variantId: variant?.id,
+      );
+  }
+}
+
+CatalogEdition? _primaryEditionForItem(LibraryMetadataItem item) {
+  if (item.editions.isEmpty) {
+    return null;
+  }
+  for (final edition in item.editions) {
+    if (_primaryVariantForEdition(edition) != null) {
+      return edition;
+    }
+  }
+  return item.editions.first;
+}
+
+CatalogVariant? _primaryVariantForEdition(CatalogEdition? edition) {
+  if (edition == null || edition.variants.isEmpty) {
+    return null;
+  }
+  for (final variant in edition.variants) {
+    if (variant.isPrimary) {
+      return variant;
+    }
+  }
+  return edition.variants.first;
+}
+
+class _ResolvedAddReference {
+  const _ResolvedAddReference({
+    this.anchorType,
+    this.editionId,
+    this.variantId,
+    this.bundleReleaseId,
+  });
+
+  final String? anchorType;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
 }

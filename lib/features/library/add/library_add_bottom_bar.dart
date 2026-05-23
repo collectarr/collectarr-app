@@ -321,6 +321,12 @@ class _LibraryAddTargetMenu extends StatelessWidget {
           selected: value == LibraryAddTarget.wishlist,
           accent: accent,
         ),
+        compactPopupMenuItem(
+          value: LibraryAddTarget.track,
+          label: LibraryAddTarget.track.actionLabel,
+          selected: value == LibraryAddTarget.track,
+          accent: accent,
+        ),
       ],
       child: CompactMenuButton(
         width: 158,

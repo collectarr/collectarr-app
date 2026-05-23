@@ -89,8 +89,10 @@ class OwnedItemsCacheRepository {
     return OwnedItem(
       id: row.id,
       itemId: row.itemId,
+      anchorType: row.anchorType,
       editionId: row.editionId,
       variantId: row.variantId,
+      bundleReleaseId: row.bundleReleaseId,
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
@@ -125,8 +127,10 @@ class OwnedItemsCacheRepository {
     return OwnedItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
+      anchorType: Value(item.anchorType),
       editionId: Value(item.editionId),
       variantId: Value(item.variantId),
+      bundleReleaseId: Value(item.bundleReleaseId),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),

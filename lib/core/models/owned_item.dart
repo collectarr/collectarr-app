@@ -1,9 +1,13 @@
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+
 class OwnedItem {
   const OwnedItem({
     required this.id,
     required this.itemId,
+    this.anchorType,
     this.editionId,
     this.variantId,
+    this.bundleReleaseId,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -35,8 +39,10 @@ class OwnedItem {
 
   final String id;
   final String itemId;
+  final String? anchorType;
   final String? editionId;
   final String? variantId;
+  final String? bundleReleaseId;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -65,14 +71,34 @@ class OwnedItem {
   final String? soldTo;
   final String? locationId;
 
+  PersonalItemAnchorType? get personalAnchor =>
+      PersonalItemAnchorType.fromApiValue(
+        normalizePersonalItemAnchorType(anchorType) ??
+            _inferredAnchorType?.apiValue,
+      );
+
+  PersonalItemAnchorType? get _inferredAnchorType {
+    if (bundleReleaseId != null && bundleReleaseId!.trim().isNotEmpty) {
+      return PersonalItemAnchorType.bundleRelease;
+    }
+    if ((editionId != null && editionId!.trim().isNotEmpty) ||
+        (variantId != null && variantId!.trim().isNotEmpty)) {
+      return PersonalItemAnchorType.variant;
+    }
+    return PersonalItemAnchorType.item;
+  }
+
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
+        'anchor_type':
+          normalizePersonalItemAnchorType(anchorType) ?? _inferredAnchorType?.apiValue,
       'edition_id': editionId,
       'variant_id': variantId,
+        'bundle_release_id': bundleReleaseId,
       'condition': condition,
       'grade': grade,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -105,8 +131,10 @@ class OwnedItem {
     return OwnedItem(
       id: json['id'] as String,
       itemId: json['item_id'] as String,
+      anchorType: normalizePersonalItemAnchorType(json['anchor_type'] as String?),
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,
+      bundleReleaseId: json['bundle_release_id'] as String?,
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: json['purchase_date'] == null
@@ -150,8 +178,10 @@ class OwnedItem {
   OwnedItem copyWith({
     String? id,
     String? itemId,
+    String? anchorType,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -183,8 +213,10 @@ class OwnedItem {
     return OwnedItem(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      anchorType: anchorType ?? this.anchorType,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,

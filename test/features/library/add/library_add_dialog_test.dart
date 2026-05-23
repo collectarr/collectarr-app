@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
@@ -1054,6 +1055,57 @@ void main() {
     expect(find.text('Matched on: Title'), findsOneWidget);
   });
 
+  testWidgets('comic add dialog previews selected bundle release members', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => _TestAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Batman #423'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Bundle'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batman Anniversary Box'), findsWidgets);
+    expect(find.text('Bundle'), findsWidgets);
+    expect(find.text('Batman #423'), findsOneWidget);
+  });
+
   testWidgets('barcode lookup falls back to provider search on Core miss',
       (tester) async {
     SharedPreferences.setMockInitialValues({
@@ -1242,6 +1294,25 @@ class _FakeLibraryAddApiClient extends ApiClient {
     lastSearchQuery = query.query;
     lastSearchKind = query.kind;
     lastSearchSeries = query.series;
+    if (query.kind == 'comic' && query.query == 'Batman') {
+      return const [
+        {
+          'id': 'comic-423',
+          'kind': 'comic',
+          'title': 'Batman',
+          'item_number': '423',
+          'publisher': 'DC',
+          'release_year': 1988,
+          'series': {
+            'series_id': 'series-batman',
+            'series_title': 'Batman',
+            'volume_name': 'Vol. 2',
+            'volume_number': 2,
+            'volume_start_year': 1987,
+          },
+        },
+      ];
+    }
     if (query.kind == 'movie' && query.query == 'Blade Runner') {
       return const [
         {
@@ -1254,6 +1325,127 @@ class _FakeLibraryAddApiClient extends ApiClient {
       ];
     }
     return const [];
+  }
+
+  @override
+  Future<CatalogItem> getMetadataItem({
+    required String kind,
+    required String id,
+  }) async {
+    if (kind == 'comic' && id == 'comic-423') {
+      return CatalogItem(
+        id: 'comic-423',
+        kind: 'comic',
+        title: 'Batman',
+        itemNumber: '423',
+        publisher: 'DC',
+        releaseYear: 1988,
+        series: const CatalogSeriesDetails(
+          seriesId: 'series-batman',
+          seriesTitle: 'Batman',
+          volumeName: 'Vol. 2',
+          volumeNumber: 2,
+          volumeStartYear: 1987,
+        ),
+        editions: const [
+          CatalogEdition(
+            id: 'edition-comic-423',
+            title: 'Direct Edition',
+            physicalFormatLabel: 'Single Issue',
+            variants: [
+              CatalogVariant(
+                id: 'variant-comic-423-a',
+                name: 'Cover A',
+                isPrimary: true,
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+    throw StateError('Unknown metadata item $kind/$id');
+  }
+
+  @override
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+    if (itemId == 'comic-423') {
+      return [
+        BundleReleaseSummary.fromJson(const {
+          'id': 'bundle-423',
+          'kind': 'comic',
+          'title': 'Batman Anniversary Box',
+          'bundle_type': 'box_set',
+          'packaging_type': 'slipcase',
+          'publisher': 'DC',
+          'primary_item_id': 'comic-423',
+          'primary_item_title': 'Batman',
+          'series_id': 'series-batman',
+          'series_title': 'Batman',
+          'volume_id': 'volume-batman-2',
+          'volume_name': 'Vol. 2',
+          'content_summary': {
+            'total_items': 2,
+            'primary_count': 1,
+            'bonus_count': 1,
+          },
+        }),
+      ];
+    }
+    return const [];
+  }
+
+  @override
+  Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
+    if (bundleReleaseId == 'bundle-423') {
+      return BundleReleaseDetail.fromJson(const {
+        'id': 'bundle-423',
+        'kind': 'comic',
+        'title': 'Batman Anniversary Box',
+        'bundle_type': 'box_set',
+        'packaging_type': 'slipcase',
+        'publisher': 'DC',
+        'primary_item_id': 'comic-423',
+        'primary_item_title': 'Batman',
+        'series_id': 'series-batman',
+        'series_title': 'Batman',
+        'volume_id': 'volume-batman-2',
+        'volume_name': 'Vol. 2',
+        'content_summary': {
+          'total_items': 2,
+          'primary_count': 1,
+          'bonus_count': 1,
+        },
+        'members': [
+          {
+            'item_id': 'comic-423',
+            'role': 'main',
+            'quantity': 1,
+            'is_primary': true,
+            'kind': 'comic',
+            'title': 'Batman',
+            'item_number': '423',
+            'series_id': 'series-batman',
+            'series_title': 'Batman',
+            'volume_name': 'Vol. 2',
+            'volume_number': 2,
+          },
+          {
+            'item_id': 'detective-590',
+            'role': 'bonus',
+            'quantity': 1,
+            'is_primary': false,
+            'kind': 'comic',
+            'title': 'Detective Comics',
+            'item_number': '590',
+            'series_id': 'series-detective',
+            'series_title': 'Detective Comics',
+            'volume_name': 'Vol. 1',
+            'volume_number': 1,
+          },
+        ],
+      });
+    }
+    throw StateError('Unknown bundle release $bundleReleaseId');
   }
 
   @override

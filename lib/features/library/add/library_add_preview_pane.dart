@@ -38,6 +38,15 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     required this.isFetchingPreview,
     required this.providerLabel,
     required this.searched,
+    required this.addTarget,
+    required this.referenceType,
+    required this.availableBundleReleases,
+    required this.selectedBundleReleaseId,
+    required this.selectedBundleReleaseDetail,
+    required this.isLoadingBundleReleases,
+    required this.isLoadingBundleReleaseDetail,
+    required this.onReferenceTypeChanged,
+    required this.onBundleReleaseSelected,
   });
 
   final LibraryTypeConfig type;
@@ -48,11 +57,24 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   final bool isFetchingPreview;
   final String providerLabel;
   final bool searched;
+  final LibraryAddTarget addTarget;
+  final LibraryAddReferenceType referenceType;
+  final List<BundleReleaseSummary> availableBundleReleases;
+  final String? selectedBundleReleaseId;
+  final BundleReleaseDetail? selectedBundleReleaseDetail;
+  final bool isLoadingBundleReleases;
+  final bool isLoadingBundleReleaseDetail;
+  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onBundleReleaseSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedItem = item;
     final selectedCandidate = candidate;
+    final selectedBundle =
+      referenceType == LibraryAddReferenceType.bundleRelease
+        ? selectedBundleReleaseDetail
+        : null;
     if (selectedItem == null && selectedCandidate == null) {
       return ColoredBox(
         color: const Color(0xFF060606),
@@ -65,13 +87,14 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         ),
       );
     }
-    final title = selectedItem?.title ?? selectedCandidate!.title;
-    final itemNumber = selectedItem?.itemNumber;
+    final title = selectedBundle?.title ?? selectedItem?.title ?? selectedCandidate!.title;
+    final itemNumber = selectedBundle == null ? selectedItem?.itemNumber : null;
     final preview = candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
-    final coverUrl = selectedItem?.displayCoverUrl ??
+    final coverUrl = selectedBundle?.coverImageUrl ??
+      selectedItem?.displayCoverUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -168,6 +191,20 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
               ],
             ),
             Divider(height: 22, color: accent.withValues(alpha: 0.42)),
+            if (selectedItem != null) ...[
+              _LibraryAddReferenceSelector(
+                accent: accent,
+                addTarget: addTarget,
+                referenceType: referenceType,
+                item: selectedItem,
+                bundleReleases: availableBundleReleases,
+                selectedBundleReleaseId: selectedBundleReleaseId,
+                isLoadingBundleReleases: isLoadingBundleReleases,
+                onReferenceTypeChanged: onReferenceTypeChanged,
+                onBundleReleaseSelected: onBundleReleaseSelected,
+              ),
+              const SizedBox(height: 14),
+            ],
             _LibraryAddPreviewStatusBanner(
               accent: accent,
               summary: statusSummary,
@@ -205,6 +242,40 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                               title: section.title,
                               values: section.values,
                               accent: accent,
+                            ),
+                        ],
+                        if (selectedItem != null &&
+                            referenceType ==
+                                LibraryAddReferenceType.bundleRelease) ...[
+                          const SizedBox(height: 22),
+                          Text('Bundle', style: TextStyle(color: accent)),
+                          const SizedBox(height: 8),
+                          if (selectedBundleReleaseId != null &&
+                              isLoadingBundleReleaseDetail)
+                            const Row(
+                              children: [
+                                SizedBox.square(
+                                  dimension: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Loading bundle contents...',
+                                  style: TextStyle(color: kAppTextMuted),
+                                ),
+                              ],
+                            )
+                          else if (selectedBundle != null)
+                            _BundleReleaseDetailCard(
+                              detail: selectedBundle,
+                              accent: accent,
+                            )
+                          else
+                            const Text(
+                              'Select a bundle release to preview its members.',
+                              style: TextStyle(color: kAppTextMuted),
                             ),
                         ],
                         const SizedBox(height: 22),
@@ -281,6 +352,438 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _BundleReleaseDetailCard extends StatelessWidget {
+  const _BundleReleaseDetailCard({
+    required this.detail,
+    required this.accent,
+  });
+
+  final BundleReleaseDetail detail;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final summaryParts = <String>[
+      if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
+        detail.bundleType!,
+      if (detail.packagingType != null && detail.packagingType!.trim().isNotEmpty)
+        detail.packagingType!,
+      if (detail.publisher != null && detail.publisher!.trim().isNotEmpty)
+        detail.publisher!,
+      '${detail.contentSummary.totalItems} items',
+    ];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x12000000),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: accent.withValues(alpha: 0.24)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              detail.title,
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            if (summaryParts.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                summaryParts.join(' • '),
+                style: const TextStyle(
+                  color: kAppTextMuted,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+            if (detail.members.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              for (final member in detail.members)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        member.isPrimary
+                            ? Icons.radio_button_checked
+                            : Icons.subdirectory_arrow_right,
+                        size: 16,
+                        color: member.isPrimary
+                            ? accent
+                            : accent.withValues(alpha: 0.7),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _bundleMemberTitle(member),
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            Text(
+                              _bundleMemberSubtitle(member),
+                              style: const TextStyle(
+                                color: kAppTextMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _bundleMemberTitle(BundleReleaseMember member) {
+  final number = member.itemNumber;
+  if (number != null && number.trim().isNotEmpty) {
+    return '${member.title} #$number';
+  }
+  return member.title;
+}
+
+String _bundleMemberSubtitle(BundleReleaseMember member) {
+  final parts = <String>[
+    if (member.role.trim().isNotEmpty) member.role,
+    if (member.seriesTitle != null && member.seriesTitle!.trim().isNotEmpty)
+      member.seriesTitle!,
+    if (member.volumeName != null && member.volumeName!.trim().isNotEmpty)
+      member.volumeName!,
+    if (member.discNumber != null) 'Disc ${member.discNumber}',
+    if (member.quantity > 1) 'x${member.quantity}',
+  ];
+  return parts.join(' • ');
+}
+
+class _LibraryAddReferenceSelector extends StatelessWidget {
+  const _LibraryAddReferenceSelector({
+    required this.accent,
+    required this.addTarget,
+    required this.referenceType,
+    required this.item,
+    required this.bundleReleases,
+    required this.selectedBundleReleaseId,
+    required this.isLoadingBundleReleases,
+    required this.onReferenceTypeChanged,
+    required this.onBundleReleaseSelected,
+  });
+
+  final Color accent;
+  final LibraryAddTarget addTarget;
+  final LibraryAddReferenceType referenceType;
+  final LibraryMetadataItem item;
+  final List<BundleReleaseSummary> bundleReleases;
+  final String? selectedBundleReleaseId;
+  final bool isLoadingBundleReleases;
+  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onBundleReleaseSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final releaseAvailable = item.editions.isNotEmpty;
+    final bundleAvailable = bundleReleases.isNotEmpty;
+    final selectionLocked = addTarget == LibraryAddTarget.track;
+    final selectionSummary = switch (addTarget) {
+      LibraryAddTarget.track =>
+        'Tracking stays item-centric even when ownership points to a release or bundle.',
+      LibraryAddTarget.owned => referenceType.helperLabel,
+      LibraryAddTarget.wishlist => referenceType.helperLabel,
+    };
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x10000000),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: accent.withValues(alpha: 0.24)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Reference',
+                  style: TextStyle(
+                    color: accent,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                LibraryAddResultBadge(addTarget.destinationLabel),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _ReferenceChip(
+                  accent: accent,
+                  selected: referenceType == LibraryAddReferenceType.media,
+                  enabled: !selectionLocked,
+                  label: LibraryAddReferenceType.media.label,
+                  onPressed: () =>
+                      onReferenceTypeChanged(LibraryAddReferenceType.media),
+                ),
+                _ReferenceChip(
+                  accent: accent,
+                  selected: referenceType == LibraryAddReferenceType.release,
+                  enabled: !selectionLocked && releaseAvailable,
+                  label: LibraryAddReferenceType.release.label,
+                  onPressed: () =>
+                      onReferenceTypeChanged(LibraryAddReferenceType.release),
+                ),
+                _ReferenceChip(
+                  accent: accent,
+                  selected:
+                      referenceType == LibraryAddReferenceType.bundleRelease,
+                  enabled: !selectionLocked && (bundleAvailable || isLoadingBundleReleases),
+                  label: LibraryAddReferenceType.bundleRelease.label,
+                  onPressed: () => onReferenceTypeChanged(
+                    LibraryAddReferenceType.bundleRelease,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              selectionSummary,
+              style: const TextStyle(
+                color: kAppTextMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (!selectionLocked &&
+                referenceType == LibraryAddReferenceType.release) ...[
+              const SizedBox(height: 8),
+              Text(
+                _releaseSummary(item),
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ],
+            if (!selectionLocked &&
+                referenceType == LibraryAddReferenceType.bundleRelease) ...[
+              const SizedBox(height: 10),
+              if (isLoadingBundleReleases)
+                const Row(
+                  children: [
+                    SizedBox.square(
+                      dimension: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Loading bundle releases...',
+                      style: TextStyle(color: kAppTextMuted),
+                    ),
+                  ],
+                )
+              else if (bundleReleases.isEmpty)
+                const Text(
+                  'No bundle releases are linked to this item yet.',
+                  style: TextStyle(color: kAppTextMuted),
+                )
+              else
+                Column(
+                  children: [
+                    for (final bundle in bundleReleases)
+                      _BundleReleaseOptionCard(
+                        bundle: bundle,
+                        accent: accent,
+                        selected: bundle.id == selectedBundleReleaseId,
+                        onPressed: () => onBundleReleaseSelected(bundle.id),
+                      ),
+                  ],
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReferenceChip extends StatelessWidget {
+  const _ReferenceChip({
+    required this.accent,
+    required this.selected,
+    required this.enabled,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final Color accent;
+  final bool selected;
+  final bool enabled;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: enabled ? (_) => onPressed() : null,
+      selectedColor: accent.withValues(alpha: 0.2),
+      side: BorderSide(
+        color: selected
+            ? accent.withValues(alpha: 0.8)
+            : kAppDivider.withValues(alpha: enabled ? 1 : 0.5),
+      ),
+      labelStyle: TextStyle(
+        color: enabled ? null : kAppTextMuted,
+        fontWeight: FontWeight.w700,
+      ),
+      backgroundColor: const Color(0x12000000),
+    );
+  }
+}
+
+class _BundleReleaseOptionCard extends StatelessWidget {
+  const _BundleReleaseOptionCard({
+    required this.bundle,
+    required this.accent,
+    required this.selected,
+    required this.onPressed,
+  });
+
+  final BundleReleaseSummary bundle;
+  final Color accent;
+  final bool selected;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final releaseDate = bundle.releaseDate;
+    final subtitleParts = <String>[
+      if (bundle.bundleType != null && bundle.bundleType!.trim().isNotEmpty)
+        bundle.bundleType!,
+      if (bundle.packagingType != null && bundle.packagingType!.trim().isNotEmpty)
+        bundle.packagingType!,
+      if (releaseDate != null)
+        '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
+      '${bundle.contentSummary.totalItems} items',
+    ];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            color: selected
+                ? accent.withValues(alpha: 0.14)
+                : const Color(0x0E000000),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: selected
+                  ? accent.withValues(alpha: 0.85)
+                  : kAppDivider,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                  color: selected ? accent : kAppTextMuted,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        bundle.title,
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      if (subtitleParts.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitleParts.join(' • '),
+                          style: const TextStyle(
+                            color: kAppTextMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                      if (bundle.primaryItemTitle != null &&
+                          bundle.primaryItemTitle!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Primary: ${bundle.primaryItemTitle}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _releaseSummary(LibraryMetadataItem item) {
+  final edition = _previewPrimaryEditionForItem(item);
+  final variant = _previewPrimaryVariantForEdition(edition);
+  if (edition == null) {
+    return 'No canonical release is attached to this item yet.';
+  }
+  final parts = <String>[
+    edition.title,
+    if (variant?.name case final variantName? when variantName.trim().isNotEmpty)
+      variantName,
+    if (edition.physicalFormatLabel != null &&
+        edition.physicalFormatLabel!.trim().isNotEmpty)
+      edition.physicalFormatLabel!,
+  ];
+  return parts.join(' • ');
+}
+
+CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
+  if (item.editions.isEmpty) {
+    return null;
+  }
+  for (final edition in item.editions) {
+    if (_previewPrimaryVariantForEdition(edition) != null) {
+      return edition;
+    }
+  }
+  return item.editions.first;
+}
+
+CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
+  if (edition == null || edition.variants.isEmpty) {
+    return null;
+  }
+  for (final variant in edition.variants) {
+    if (variant.isPrimary) {
+      return variant;
+    }
+  }
+  return edition.variants.first;
 }
 
 List<(String, String?)> _metadataRowsForCandidate(

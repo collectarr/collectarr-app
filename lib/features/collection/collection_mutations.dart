@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -32,8 +33,10 @@ class CollectionMutations {
 
   Future<OwnedItem> addItem(
     String itemId, {
+    String? anchorType,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -63,11 +66,19 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final normalizedAnchorType = _normalizedPersonalAnchorType(
+      anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
     final ownedItem = OwnedItem(
       id: _uuid.v4(),
       itemId: itemId,
+      anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
       condition: condition,
       grade: grade,
       purchaseDate: purchaseDate,
@@ -120,8 +131,10 @@ class CollectionMutations {
 
   Future<OwnedItem> updateItem(
     OwnedItem item, {
+    String? anchorType,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -151,11 +164,22 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final normalizedAnchorType = _normalizedPersonalAnchorType(
+      anchorType ?? item.anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+      fallbackEditionId: item.editionId,
+      fallbackVariantId: item.variantId,
+      fallbackBundleReleaseId: item.bundleReleaseId,
+    );
     final updated = OwnedItem(
       id: item.id,
       itemId: item.itemId,
+      anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
+      bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
       condition: condition,
       grade: grade,
       purchaseDate: purchaseDate,
@@ -313,18 +337,28 @@ class CollectionMutations {
 
   Future<void> addToWishlist(
     String itemId, {
+    String? anchorType,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
     final existing = await _wishlistCache().findActiveByItemId(itemId);
     if (existing == null) {
+      final normalizedAnchorType = _normalizedPersonalAnchorType(
+        anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      );
       final item = WishlistItem(
         id: _uuid.v4(),
         itemId: itemId,
+        anchorType: normalizedAnchorType,
         editionId: editionId,
         variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
         createdAt: now,
         updatedAt: now,
       );
@@ -467,6 +501,7 @@ class CollectionMutations {
         final wishlistItem = WishlistItem(
           id: _uuid.v4(),
           itemId: row.itemId,
+          anchorType: PersonalItemAnchorType.item.apiValue,
           createdAt: now,
           updatedAt: now,
         );
@@ -612,8 +647,10 @@ class CollectionMutations {
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
       itemId: row.itemId,
+      anchorType: existing?.anchorType,
       editionId: existing?.editionId,
       variantId: existing?.variantId,
+      bundleReleaseId: existing?.bundleReleaseId,
       condition: row.condition ?? existing?.condition,
       grade: row.grade ?? existing?.grade,
       purchaseDate: row.purchaseDate ?? existing?.purchaseDate,
@@ -994,6 +1031,32 @@ class CollectionMutations {
       return null;
     }
     return trimmed;
+  }
+
+  String? _normalizedPersonalAnchorType(
+    String? anchorType, {
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    String? fallbackEditionId,
+    String? fallbackVariantId,
+    String? fallbackBundleReleaseId,
+  }) {
+    final normalized = normalizePersonalItemAnchorType(anchorType);
+    if (normalized != null) {
+      return normalized;
+    }
+    final resolvedBundleReleaseId = bundleReleaseId ?? fallbackBundleReleaseId;
+    if (resolvedBundleReleaseId != null && resolvedBundleReleaseId.trim().isNotEmpty) {
+      return PersonalItemAnchorType.bundleRelease.apiValue;
+    }
+    final resolvedEditionId = editionId ?? fallbackEditionId;
+    final resolvedVariantId = variantId ?? fallbackVariantId;
+    if ((resolvedEditionId != null && resolvedEditionId.trim().isNotEmpty) ||
+        (resolvedVariantId != null && resolvedVariantId.trim().isNotEmpty)) {
+      return PersonalItemAnchorType.variant.apiValue;
+    }
+    return PersonalItemAnchorType.item.apiValue;
   }
 
   bool _hasTrackingData(TrackingEntry entry) {

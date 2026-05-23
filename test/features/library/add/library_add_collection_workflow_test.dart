@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
+import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -94,6 +96,79 @@ void main() {
       contains('library_item_snapshot'),
     );
   });
+
+  test('adds release-referenced owned item using the primary edition variant',
+      () async {
+    final fixture = _WorkflowFixture();
+    addTearDown(fixture.dispose);
+
+    await addLibraryItemsToTarget(
+      catalog: fixture.catalog,
+      mutations: fixture.mutations,
+      items: [_comicWithRelease('comic-release-1')],
+      target: LibraryAddTarget.owned,
+      referenceType: LibraryAddReferenceType.release,
+    );
+
+    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+
+    expect(ownedRows.single.itemId, 'comic-release-1');
+    expect(
+      ownedRows.single.anchorType,
+      PersonalItemAnchorType.variant.apiValue,
+    );
+    expect(ownedRows.single.editionId, 'edition-1');
+    expect(ownedRows.single.variantId, 'variant-1');
+  });
+
+  test('adds wishlist item against a bundle release anchor', () async {
+    final fixture = _WorkflowFixture();
+    addTearDown(fixture.dispose);
+
+    await addLibraryItemsToTarget(
+      catalog: fixture.catalog,
+      mutations: fixture.mutations,
+      items: [_comic('comic-bundle-1')],
+      target: LibraryAddTarget.wishlist,
+      referenceType: LibraryAddReferenceType.bundleRelease,
+      bundleReleaseIdsByItemId: const {'comic-bundle-1': 'bundle-1'},
+    );
+
+    final wishlistRows =
+        await fixture.db.select(fixture.db.wishlistItemsCache).get();
+
+    expect(
+      wishlistRows.single.anchorType,
+      PersonalItemAnchorType.bundleRelease.apiValue,
+    );
+    expect(wishlistRows.single.bundleReleaseId, 'bundle-1');
+  });
+
+  test('adds tracking-only entry when target is track', () async {
+    final fixture = _WorkflowFixture();
+    addTearDown(fixture.dispose);
+
+    await addLibraryItemsToTarget(
+      catalog: fixture.catalog,
+      mutations: fixture.mutations,
+      items: [_comic('comic-track-1')],
+      target: LibraryAddTarget.track,
+      defaults: const LibraryAddDefaults(readStatus: 'reading'),
+      referenceType: LibraryAddReferenceType.bundleRelease,
+      bundleReleaseIdsByItemId: const {'comic-track-1': 'bundle-ignored'},
+    );
+
+    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final wishlistRows =
+        await fixture.db.select(fixture.db.wishlistItemsCache).get();
+    final trackingRows =
+        await fixture.db.select(fixture.db.trackingEntriesCache).get();
+
+    expect(ownedRows, isEmpty);
+    expect(wishlistRows, isEmpty);
+    expect(trackingRows.single.itemId, 'comic-track-1');
+    expect(trackingRows.single.status, 'reading');
+  });
 }
 
 class _WorkflowFixture {
@@ -129,6 +204,34 @@ LibraryMetadataItem _comic(String id) {
       publisher: 'DC',
       releaseYear: 2016,
       barcode: '76194134192700811',
+    ),
+  );
+}
+
+LibraryMetadataItem _comicWithRelease(String id) {
+  return LibraryMetadataItem.fromCatalogItem(
+    CatalogItem(
+      id: id,
+      kind: 'comic',
+      title: 'Batman #1',
+      itemNumber: '1',
+      publisher: 'DC',
+      editions: const [
+        CatalogEdition(
+          id: 'edition-1',
+          title: 'Direct Edition',
+          physicalFormat: 'single_issue',
+          physicalFormatLabel: 'Single Issue',
+          variants: [
+            CatalogVariant(
+              id: 'variant-1',
+              name: 'Cover A',
+              variantType: 'cover',
+              isPrimary: true,
+            ),
+          ],
+        ),
+      ],
     ),
   );
 }

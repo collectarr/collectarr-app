@@ -16,6 +16,7 @@ class _ManualPane extends StatelessWidget {
     required this.isAdding,
     required this.onAddOwned,
     required this.onAddWishlist,
+    required this.onAddTrack,
   });
 
   final LibraryTypeConfig type;
@@ -32,6 +33,7 @@ class _ManualPane extends StatelessWidget {
   final bool isAdding;
   final VoidCallback onAddOwned;
   final VoidCallback onAddWishlist;
+  final VoidCallback onAddTrack;
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +189,22 @@ class _ManualPane extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: isAdding ? null : onAddTrack,
+                            style: _libraryAddOutlinedButtonStyle(),
+                            icon: const Icon(Icons.visibility_outlined, size: 18),
+                            label: Text(
+                              LibraryAddCopy.addToTargetLabel(
+                                count: 1,
+                                type: type,
+                                target: LibraryAddTarget.track,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: isAdding ? null : onAddWishlist,

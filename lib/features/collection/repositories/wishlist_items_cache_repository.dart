@@ -106,8 +106,10 @@ class WishlistItemsCacheRepository {
     return WishlistItem(
       id: row.id,
       itemId: row.itemId,
+      anchorType: row.anchorType,
       editionId: row.editionId,
       variantId: row.variantId,
+      bundleReleaseId: row.bundleReleaseId,
       targetPriceCents: row.targetPriceCents,
       currency: row.currency,
       notes: row.notes,
@@ -121,8 +123,10 @@ class WishlistItemsCacheRepository {
     return WishlistItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
+      anchorType: Value(item.anchorType),
       editionId: Value(item.editionId),
       variantId: Value(item.variantId),
+      bundleReleaseId: Value(item.bundleReleaseId),
       targetPriceCents: Value(item.targetPriceCents),
       currency: Value(item.currency),
       notes: Value(item.notes),
