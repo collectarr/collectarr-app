@@ -3,9 +3,13 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart'
+  as mlkit;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 abstract class LibraryCoverScanService {
   const LibraryCoverScanService();
@@ -22,7 +26,7 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
     this.imagePicker = const DeviceLibraryCoverImagePicker(),
     this.imageReview = const DialogLibraryCoverImageReview(),
     this.imagePreprocessor = const LocalLibraryCoverImagePreprocessor(),
-    this.textRecognizer = const ReviewSeedLibraryCoverTextRecognizer(),
+    this.textRecognizer = const CompositeLibraryCoverTextRecognizer(),
   });
 
   final LibraryCoverScanSourcePrompt sourcePrompt;
@@ -351,6 +355,103 @@ class ReviewSeedLibraryCoverTextRecognizer
   }
 }
 
+bool localCoverTextRecognitionSupported({
+  bool isWeb = kIsWeb,
+  TargetPlatform? platform,
+}) {
+  if (isWeb) {
+    return false;
+  }
+  return switch (platform ?? defaultTargetPlatform) {
+    TargetPlatform.android || TargetPlatform.iOS => true,
+    TargetPlatform.fuchsia ||
+    TargetPlatform.linux ||
+    TargetPlatform.macOS ||
+    TargetPlatform.windows =>
+      false,
+  };
+}
+
+class CompositeLibraryCoverTextRecognizer implements LibraryCoverTextRecognizer {
+  const CompositeLibraryCoverTextRecognizer({
+    this.nativeRecognizer = const GoogleMlKitLibraryCoverTextRecognizer(),
+    this.fallbackRecognizer = const ReviewSeedLibraryCoverTextRecognizer(),
+  });
+
+  final LibraryCoverTextRecognizer nativeRecognizer;
+  final LibraryCoverTextRecognizer fallbackRecognizer;
+
+  @override
+  Future<String?> recognizeText({
+    required LibraryTypeConfig type,
+    required LibraryCoverPreparedImage image,
+  }) async {
+    final nativeText = await nativeRecognizer.recognizeText(
+      type: type,
+      image: image,
+    );
+    if (nativeText?.trim().isNotEmpty == true) {
+      return nativeText!.trim();
+    }
+    return fallbackRecognizer.recognizeText(type: type, image: image);
+  }
+}
+
+class GoogleMlKitLibraryCoverTextRecognizer
+    implements LibraryCoverTextRecognizer {
+  const GoogleMlKitLibraryCoverTextRecognizer();
+
+  @override
+  Future<String?> recognizeText({
+    required LibraryTypeConfig type,
+    required LibraryCoverPreparedImage image,
+  }) async {
+    if (!localCoverTextRecognitionSupported()) {
+      return null;
+    }
+    final inputImage = await _buildMlKitInputImage(image);
+    if (inputImage == null) {
+      return null;
+    }
+    final recognizer = mlkit.TextRecognizer(
+      script: mlkit.TextRecognitionScript.latin,
+    );
+    try {
+      final result = await recognizer.processImage(inputImage);
+      final text = result.text.trim();
+      return text.isEmpty ? null : text;
+    } catch (_) {
+      return null;
+    } finally {
+      await recognizer.close();
+    }
+  }
+}
+
+Future<mlkit.InputImage?> _buildMlKitInputImage(
+  LibraryCoverPreparedImage image,
+) async {
+  final preparedBytes = image.preparedBytes;
+  if (preparedBytes != null && image.transformsApplied) {
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = path.join(
+      tempDir.path,
+      'cover-scan-${DateTime.now().microsecondsSinceEpoch}.png',
+    );
+    await XFile.fromData(
+      preparedBytes,
+      mimeType: 'image/png',
+      name: path.basename(tempPath),
+    ).saveTo(tempPath);
+    return mlkit.InputImage.fromFilePath(tempPath);
+  }
+  final sourcePath = image.reviewedImage.sourceFile.path.trim();
+  if (sourcePath.isEmpty) {
+    return null;
+  }
+  return mlkit.InputImage.fromFilePath(sourcePath);
+}
+
 class LibraryCoverCropBounds {
   const LibraryCoverCropBounds({
     required this.left,
@@ -433,7 +534,13 @@ class LibraryCoverReviewedImage {
 }
 
 class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
-  const DialogLibraryCoverImageReview();
+  const DialogLibraryCoverImageReview({
+    this.imagePreprocessor = const LocalLibraryCoverImagePreprocessor(),
+    this.textRecognizer = const CompositeLibraryCoverTextRecognizer(),
+  });
+
+  final LibraryCoverImagePreprocessor imagePreprocessor;
+  final LibraryCoverTextRecognizer textRecognizer;
 
   @override
   Future<LibraryCoverReviewedImage?> reviewImage({
@@ -443,15 +550,28 @@ class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
   }) {
     return showDialog<LibraryCoverReviewedImage>(
       context: context,
-      builder: (context) => _LibraryCoverScanReviewDialog(file: file),
+      builder: (context) => _LibraryCoverScanReviewDialog(
+        file: file,
+        type: type,
+        imagePreprocessor: imagePreprocessor,
+        textRecognizer: textRecognizer,
+      ),
     );
   }
 }
 
 class _LibraryCoverScanReviewDialog extends StatefulWidget {
-  const _LibraryCoverScanReviewDialog({required this.file});
+  const _LibraryCoverScanReviewDialog({
+    required this.file,
+    required this.type,
+    required this.imagePreprocessor,
+    required this.textRecognizer,
+  });
 
   final XFile file;
+  final LibraryTypeConfig type;
+  final LibraryCoverImagePreprocessor imagePreprocessor;
+  final LibraryCoverTextRecognizer textRecognizer;
 
   @override
   State<_LibraryCoverScanReviewDialog> createState() =>
@@ -468,6 +588,8 @@ class _LibraryCoverScanReviewDialogState
   late final Future<Uint8List?> _previewBytesFuture;
   int _rotationQuarterTurns = 0;
   LibraryCoverCropBounds _cropBounds = const LibraryCoverCropBounds.fullFrame();
+  bool _isAutofillingExtractedText = false;
+  String? _autofillStatus;
 
   @override
   void initState() {
@@ -479,6 +601,9 @@ class _LibraryCoverScanReviewDialogState
     );
     _extractedTextController = TextEditingController();
     _previewBytesFuture = _readPreviewBytes(widget.file);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autofillExtractedText();
+    });
   }
 
   @override
@@ -635,10 +760,41 @@ class _LibraryCoverScanReviewDialogState
                   minLines: 2,
                   maxLines: 4,
                   decoration: const InputDecoration(
-                    labelText: 'Visible cover text',
+                    labelText: 'Auto extracted text',
                     hintText:
-                        'Type any title, issue, year, or publisher text you can read from the cover',
+                        'Review or correct locally extracted title, issue, year, or publisher text',
                   ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    TextButton.icon(
+                      key: const ValueKey('library-cover-review-refresh-text'),
+                      onPressed: _isAutofillingExtractedText
+                          ? null
+                          : () => _autofillExtractedText(forceReplace: true),
+                      icon: const Icon(Icons.auto_awesome_outlined),
+                      label: const Text('Refresh auto text'),
+                    ),
+                    if (_isAutofillingExtractedText)
+                      const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else if (_autofillStatus != null)
+                      Text(
+                        _autofillStatus!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -699,6 +855,57 @@ class _LibraryCoverScanReviewDialogState
       }
       _cropBounds = next;
     });
+  }
+
+  Future<void> _autofillExtractedText({bool forceReplace = false}) async {
+    if (_isAutofillingExtractedText) {
+      return;
+    }
+    setState(() {
+      _isAutofillingExtractedText = true;
+      _autofillStatus = 'Extracting local text...';
+    });
+    try {
+      final reviewed = LibraryCoverReviewedImage.fromFile(
+        widget.file,
+        imageBytes: await _previewBytesFuture,
+        displayName: _displayNameController.text,
+        rotationQuarterTurns: _rotationQuarterTurns,
+        cropBounds: _cropBounds,
+      );
+      final prepared = await widget.imagePreprocessor.prepareImage(
+        type: widget.type,
+        image: reviewed,
+      );
+      final recognized = await widget.textRecognizer.recognizeText(
+        type: widget.type,
+        image: prepared,
+      );
+      final fallback = _normalizedAnalysisText(_displayNameController.text);
+      final nextText = (recognized?.trim().isNotEmpty == true
+              ? recognized!.trim()
+              : fallback)
+          ?.trim();
+      if (!mounted) {
+        return;
+      }
+      if ((forceReplace || _extractedTextController.text.trim().isEmpty) &&
+          nextText != null &&
+          nextText.isNotEmpty) {
+        _extractedTextController.text = nextText;
+      }
+      setState(() {
+        _autofillStatus = nextText == null || nextText.isEmpty
+            ? 'No local text detected yet.'
+            : localCoverTextRecognitionSupported()
+                ? 'Local OCR preview ready.'
+                : 'Heuristic text preview ready.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isAutofillingExtractedText = false);
+      }
+    }
   }
 }
 

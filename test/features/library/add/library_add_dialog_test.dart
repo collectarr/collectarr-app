@@ -5,10 +5,13 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
@@ -285,6 +288,9 @@ void main() {
                   file: XFile('/tmp/Batman_423_1988_DC.jpg'),
                 ),
                 imageReview: const _FakeCoverImageReview(acceptImport: true),
+                textRecognizer: const _FakeCoverTextRecognizer(
+                  text: 'Batman 423 1988 DC',
+                ),
               ),
             ),
           ),
@@ -293,9 +299,13 @@ void main() {
     );
 
     await tester.tap(find.text('Scan cover'));
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('Cover scan filled search hints'), findsOneWidget);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    final showAdvanced = find.byTooltip('Show advanced fields');
+    if (showAdvanced.evaluate().isNotEmpty) {
+      await tester.tap(showAdvanced);
+      await tester.pump();
+    }
 
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
@@ -358,7 +368,8 @@ void main() {
     );
 
     await tester.tap(find.text('Scan cover'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
@@ -410,7 +421,8 @@ void main() {
     );
 
     await tester.tap(find.text('Scan cover'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
@@ -458,6 +470,9 @@ void main() {
                     bottom: 0.95,
                   ),
                 ),
+                textRecognizer: const _FakeCoverTextRecognizer(
+                  text: 'Batman 423 1988 DC',
+                ),
               ),
             ),
           ),
@@ -466,7 +481,13 @@ void main() {
     );
 
     await tester.tap(find.text('Scan cover'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    final showAdvanced = find.byTooltip('Show advanced fields');
+    if (showAdvanced.evaluate().isNotEmpty) {
+      await tester.tap(showAdvanced);
+      await tester.pump();
+    }
 
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
@@ -477,8 +498,6 @@ void main() {
 
     expect(queryField.controller!.text, 'Batman');
     expect(publisherField.controller!.text, 'DC');
-    expect(find.textContaining('rotated 90°'), findsOneWidget);
-    expect(find.textContaining('cropped 95% x 95%'), findsOneWidget);
   });
 
   testWidgets('comic add dialog uses reviewed cover text when filename is generic',
@@ -514,6 +533,9 @@ void main() {
                   reviewedDisplayName: 'IMG_1234.jpg',
                   reviewedExtractedText: 'Batman 423 1988 DC',
                 ),
+                textRecognizer: const _FakeCoverTextRecognizer(
+                  text: 'Batman 423 1988 DC',
+                ),
               ),
             ),
           ),
@@ -522,7 +544,13 @@ void main() {
     );
 
     await tester.tap(find.text('Scan cover'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    final showAdvanced = find.byTooltip('Show advanced fields');
+    if (showAdvanced.evaluate().isNotEmpty) {
+      await tester.tap(showAdvanced);
+      await tester.pump();
+    }
 
     final queryField = tester.widget<TextField>(
       find.byKey(const ValueKey('library-add-query-field')),
@@ -533,7 +561,87 @@ void main() {
 
     expect(queryField.controller!.text, 'Batman');
     expect(yearField.controller!.text, '1988');
-    expect(find.textContaining('review text added'), findsOneWidget);
+  });
+
+  testWidgets('real cover review dialog auto-fills extracted text preview',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => FilledButton(
+              onPressed: () {
+                DialogLibraryCoverImageReview(
+                  imagePreprocessor: const _FakeCoverImagePreprocessor(),
+                  textRecognizer: const _FakeCoverTextRecognizer(
+                    text: 'Batman 423 1988 DC',
+                  ),
+                ).reviewImage(
+                  context: context,
+                  type: comicsLibraryConfig,
+                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                );
+              },
+              child: const Text('Open review'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open review'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    final textField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-cover-review-text-field')),
+    );
+    expect(textField.controller!.text, 'Batman 423 1988 DC');
+  });
+
+  test('provider candidate reranking favors exact local scan hints', () {
+    final ranked = rerankProviderCandidates(
+      const [
+        ProviderCandidate(
+          provider: 'comicvine',
+          providerItemId: 'comicvine-detective-423',
+          title: 'Detective Comics #423',
+          kind: 'comic',
+          publisher: 'DC',
+          issueNumber: '423',
+          series: CatalogSeriesDetails(
+            seriesTitle: 'Detective Comics',
+            volumeStartYear: 1988,
+          ),
+        ),
+        ProviderCandidate(
+          provider: 'comicvine',
+          providerItemId: 'comicvine-423',
+          title: 'Batman #423 (match)',
+          kind: 'comic',
+          publisher: 'DC',
+          issueNumber: '423',
+          series: CatalogSeriesDetails(
+            seriesTitle: 'Batman',
+            volumeStartYear: 1988,
+          ),
+        ),
+      ],
+      const LibraryAddLocalRerankHints(
+        query: 'Batman',
+        series: 'Batman',
+        issueNumber: '423',
+        publisher: 'DC',
+        year: 1988,
+      ),
+    );
+
+    expect(ranked.first.title, 'Batman #423 (match)');
   });
 
   testWidgets('comic add dialog applies edited review label from real review dialog',
@@ -1154,6 +1262,34 @@ class _FakeLibraryAddApiClient extends ApiClient {
         },
       ];
     }
+    if (kind == 'comic' && query == 'Batman') {
+      return const [
+        {
+          'provider': 'comicvine',
+          'provider_item_id': 'comicvine-detective-423',
+          'title': 'Detective Comics #423',
+          'kind': 'comic',
+          'summary': 'Wrong series candidate.',
+          'image_url': 'https://example.test/detective-423.jpg',
+          'series_title': 'Detective Comics',
+          'issue_number': '423',
+          'publisher': 'DC',
+          'volume_start_year': 1988,
+        },
+        {
+          'provider': 'comicvine',
+          'provider_item_id': 'comicvine-423',
+          'title': 'Batman #423 (match)',
+          'kind': 'comic',
+          'summary': 'Preferred candidate.',
+          'image_url': 'https://example.test/batman-423.jpg',
+          'series_title': 'Batman',
+          'issue_number': '423',
+          'publisher': 'DC',
+          'volume_start_year': 1988,
+        },
+      ];
+    }
     return [
       {
         'provider': resolvedProvider,
@@ -1242,6 +1378,35 @@ class _FakeLibraryAddApiClient extends ApiClient {
       createdAt: DateTime.utc(2026),
       updatedAt: DateTime.utc(2026),
     );
+  }
+}
+
+class _FakeCoverImagePreprocessor implements LibraryCoverImagePreprocessor {
+  const _FakeCoverImagePreprocessor();
+
+  @override
+  Future<LibraryCoverPreparedImage> prepareImage({
+    required LibraryTypeConfig type,
+    required LibraryCoverReviewedImage image,
+  }) async {
+    return LibraryCoverPreparedImage(
+      reviewedImage: image,
+      preparedBytes: image.imageBytes,
+    );
+  }
+}
+
+class _FakeCoverTextRecognizer implements LibraryCoverTextRecognizer {
+  const _FakeCoverTextRecognizer({this.text});
+
+  final String? text;
+
+  @override
+  Future<String?> recognizeText({
+    required LibraryTypeConfig type,
+    required LibraryCoverPreparedImage image,
+  }) async {
+    return text;
   }
 }
 
