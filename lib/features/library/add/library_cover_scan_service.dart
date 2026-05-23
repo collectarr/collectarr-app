@@ -19,11 +19,15 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
     this.sourcePrompt = const BottomSheetLibraryCoverScanSourcePrompt(),
     this.imagePicker = const DeviceLibraryCoverImagePicker(),
     this.imageReview = const DialogLibraryCoverImageReview(),
+    this.imagePreprocessor = const PassthroughLibraryCoverImagePreprocessor(),
+    this.textRecognizer = const ReviewSeedLibraryCoverTextRecognizer(),
   });
 
   final LibraryCoverScanSourcePrompt sourcePrompt;
   final LibraryCoverImagePicker imagePicker;
   final LibraryCoverImageReview imageReview;
+  final LibraryCoverImagePreprocessor imagePreprocessor;
+  final LibraryCoverTextRecognizer textRecognizer;
 
   @override
   Future<LibraryCoverScanResult?> scanCover({
@@ -49,7 +53,18 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
     if (reviewed == null) {
       return null;
     }
-    return _filenameDerivedResult(reviewed);
+    final prepared = await imagePreprocessor.prepareImage(
+      type: type,
+      image: reviewed,
+    );
+    final recognizedText = await textRecognizer.recognizeText(
+      type: type,
+      image: prepared,
+    );
+    return _analysisDerivedResult(
+      reviewed,
+      recognizedText: recognizedText,
+    );
   }
 }
 
@@ -156,6 +171,64 @@ abstract class LibraryCoverImageReview {
   });
 }
 
+class LibraryCoverPreparedImage {
+  const LibraryCoverPreparedImage({
+    required this.reviewedImage,
+    this.preparedBytes,
+  });
+
+  final LibraryCoverReviewedImage reviewedImage;
+  final Uint8List? preparedBytes;
+}
+
+abstract class LibraryCoverImagePreprocessor {
+  const LibraryCoverImagePreprocessor();
+
+  Future<LibraryCoverPreparedImage> prepareImage({
+    required LibraryTypeConfig type,
+    required LibraryCoverReviewedImage image,
+  });
+}
+
+class PassthroughLibraryCoverImagePreprocessor
+    implements LibraryCoverImagePreprocessor {
+  const PassthroughLibraryCoverImagePreprocessor();
+
+  @override
+  Future<LibraryCoverPreparedImage> prepareImage({
+    required LibraryTypeConfig type,
+    required LibraryCoverReviewedImage image,
+  }) async {
+    return LibraryCoverPreparedImage(
+      reviewedImage: image,
+      preparedBytes: image.imageBytes,
+    );
+  }
+}
+
+abstract class LibraryCoverTextRecognizer {
+  const LibraryCoverTextRecognizer();
+
+  Future<String?> recognizeText({
+    required LibraryTypeConfig type,
+    required LibraryCoverPreparedImage image,
+  });
+}
+
+class ReviewSeedLibraryCoverTextRecognizer
+    implements LibraryCoverTextRecognizer {
+  const ReviewSeedLibraryCoverTextRecognizer();
+
+  @override
+  Future<String?> recognizeText({
+    required LibraryTypeConfig type,
+    required LibraryCoverPreparedImage image,
+  }) async {
+    final extracted = image.reviewedImage.extractedText?.trim();
+    return extracted == null || extracted.isEmpty ? null : extracted;
+  }
+}
+
 class LibraryCoverCropBounds {
   const LibraryCoverCropBounds({
     required this.left,
@@ -203,6 +276,7 @@ class LibraryCoverReviewedImage {
     this.imageBytes,
     this.rotationQuarterTurns = 0,
     this.cropBounds = const LibraryCoverCropBounds.fullFrame(),
+    this.extractedText,
   });
 
   final XFile sourceFile;
@@ -210,6 +284,7 @@ class LibraryCoverReviewedImage {
   final Uint8List? imageBytes;
   final int rotationQuarterTurns;
   final LibraryCoverCropBounds cropBounds;
+  final String? extractedText;
 
   factory LibraryCoverReviewedImage.fromFile(
     XFile file, {
@@ -217,8 +292,10 @@ class LibraryCoverReviewedImage {
     String? displayName,
     int rotationQuarterTurns = 0,
     LibraryCoverCropBounds cropBounds = const LibraryCoverCropBounds.fullFrame(),
+    String? extractedText,
   }) {
     final resolvedName = displayName?.trim();
+    final resolvedText = extractedText?.trim();
     return LibraryCoverReviewedImage(
       sourceFile: file,
       displayName: resolvedName == null || resolvedName.isEmpty
@@ -227,6 +304,8 @@ class LibraryCoverReviewedImage {
       imageBytes: imageBytes,
       rotationQuarterTurns: rotationQuarterTurns % 4,
       cropBounds: cropBounds,
+      extractedText:
+          resolvedText == null || resolvedText.isEmpty ? null : resolvedText,
     );
   }
 }
@@ -263,6 +342,7 @@ class _LibraryCoverScanReviewDialogState
   static const _minCropSpan = 0.35;
 
   late final TextEditingController _displayNameController;
+  late final TextEditingController _extractedTextController;
   late final Future<Uint8List?> _previewBytesFuture;
   int _rotationQuarterTurns = 0;
   LibraryCoverCropBounds _cropBounds = const LibraryCoverCropBounds.fullFrame();
@@ -275,12 +355,14 @@ class _LibraryCoverScanReviewDialogState
           ? path.basename(widget.file.path)
           : widget.file.name.trim(),
     );
+    _extractedTextController = TextEditingController();
     _previewBytesFuture = _readPreviewBytes(widget.file);
   }
 
   @override
   void dispose() {
     _displayNameController.dispose();
+    _extractedTextController.dispose();
     super.dispose();
   }
 
@@ -424,6 +506,18 @@ class _LibraryCoverScanReviewDialogState
                     hintText: 'Edit the title, issue, year, or publisher hints',
                   ),
                 ),
+                const SizedBox(height: 12),
+                TextField(
+                  key: const ValueKey('library-cover-review-text-field'),
+                  controller: _extractedTextController,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Visible cover text',
+                    hintText:
+                        'Type any title, issue, year, or publisher text you can read from the cover',
+                  ),
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -441,6 +535,7 @@ class _LibraryCoverScanReviewDialogState
                           displayName: _displayNameController.text,
                           rotationQuarterTurns: _rotationQuarterTurns,
                           cropBounds: _cropBounds,
+                          extractedText: _extractedTextController.text,
                         ),
                       ),
                       icon: const Icon(Icons.check_circle_outline),
@@ -667,22 +762,102 @@ class LibraryCoverScanResult {
   }
 }
 
-LibraryCoverScanResult _filenameDerivedResult(LibraryCoverReviewedImage image) {
-  final filename = image.displayName.trim();
-  final stem = path.basenameWithoutExtension(filename).trim();
+LibraryCoverScanResult _analysisDerivedResult(
+  LibraryCoverReviewedImage image, {
+  String? recognizedText,
+}) {
+  final primaryText = _normalizedAnalysisText(recognizedText);
+  final fallbackText = _normalizedAnalysisText(image.displayName);
+
+  final drafts = <_CoverHintDraft>[
+    if (primaryText != null) _draftFromText(primaryText),
+    if (fallbackText != null && fallbackText.toLowerCase() != primaryText?.toLowerCase())
+      _draftFromText(fallbackText),
+  ];
+
+  if (drafts.isEmpty || !drafts.any((draft) => draft.hasAnyHint)) {
+    return const LibraryCoverScanResult(
+      confidenceLabel: 'low',
+      warnings: <String>[
+        'Imported image successfully, but the filename and review text do not contain usable search hints yet.',
+      ],
+    );
+  }
+
+  final merged = _mergeDrafts(drafts);
+  final primaryHasReviewText = primaryText != null;
+
+  return LibraryCoverScanResult(
+    query: merged.query,
+    series: merged.series,
+    issueNumber: merged.issueNumber,
+    publisher: merged.publisher,
+    year: merged.year,
+    confidenceLabel: primaryHasReviewText ? 'medium' : 'low',
+    reviewSummary: _reviewSummary(image),
+    warnings: <String>[
+      primaryHasReviewText
+          ? 'Search hints were derived locally from the imported filename and review text. OCR is not enabled yet.'
+          : 'Search hints were derived locally from the imported filename. OCR is not enabled yet.',
+    ],
+  );
+}
+
+String? _reviewSummary(LibraryCoverReviewedImage image) {
+  final parts = <String>[
+    if (image.rotationQuarterTurns != 0)
+      'rotated ${image.rotationQuarterTurns * 90}°',
+    if (!image.cropBounds.isFullFrame)
+      'cropped ${(image.cropBounds.width * 100).round()}% x ${(image.cropBounds.height * 100).round()}%',
+    if (image.extractedText?.trim().isNotEmpty ?? false) 'review text added',
+  ];
+  if (parts.isEmpty) {
+    return null;
+  }
+  return parts.join(', ');
+}
+
+String? _normalizedAnalysisText(String? raw) {
+  final trimmed = raw?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  final stem = path.basenameWithoutExtension(trimmed).trim();
   final cleaned = stem
       .replaceAll(RegExp(r'[_\-.]+'), ' ')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
   if (cleaned.isEmpty || _looksLikeGenericCameraName(cleaned)) {
-    return const LibraryCoverScanResult(
-      confidenceLabel: 'low',
-      warnings: <String>[
-        'Imported image successfully, but the filename does not contain usable search hints yet.',
-      ],
-    );
+    return null;
   }
+  return cleaned;
+}
 
+class _CoverHintDraft {
+  const _CoverHintDraft({
+    this.query,
+    this.series,
+    this.issueNumber,
+    this.publisher,
+    this.year,
+  });
+
+  final String? query;
+  final String? series;
+  final String? issueNumber;
+  final String? publisher;
+  final int? year;
+
+  bool get hasAnyHint {
+    return (query?.isNotEmpty ?? false) ||
+        (series?.isNotEmpty ?? false) ||
+        (issueNumber?.isNotEmpty ?? false) ||
+        (publisher?.isNotEmpty ?? false) ||
+        year != null;
+  }
+}
+
+_CoverHintDraft _draftFromText(String cleaned) {
   final yearMatch = RegExp(r'\b((?:19|20)\d{2})\b').firstMatch(cleaned);
   final year = yearMatch == null ? null : int.tryParse(yearMatch.group(1)!);
   var remainder = cleaned;
@@ -707,31 +882,44 @@ LibraryCoverScanResult _filenameDerivedResult(LibraryCoverReviewedImage image) {
   }
 
   final query = remainder.replaceAll(RegExp(r'\s+'), ' ').trim();
-  return LibraryCoverScanResult(
-    query: query.isEmpty ? cleaned : query,
-    series: query.isEmpty ? cleaned : query,
+  final resolvedQuery = query.isEmpty ? cleaned : query;
+  return _CoverHintDraft(
+    query: resolvedQuery,
+    series: resolvedQuery,
     issueNumber: issueNumber,
     publisher: publisher,
     year: year,
-    confidenceLabel: 'low',
-    reviewSummary: _reviewSummary(image),
-    warnings: const <String>[
-      'Search hints were derived locally from the imported filename. OCR is not enabled yet.',
-    ],
   );
 }
 
-String? _reviewSummary(LibraryCoverReviewedImage image) {
-  final parts = <String>[
-    if (image.rotationQuarterTurns != 0)
-      'rotated ${image.rotationQuarterTurns * 90}°',
-    if (!image.cropBounds.isFullFrame)
-      'cropped ${(image.cropBounds.width * 100).round()}% x ${(image.cropBounds.height * 100).round()}%',
-  ];
-  if (parts.isEmpty) {
-    return null;
+_CoverHintDraft _mergeDrafts(List<_CoverHintDraft> drafts) {
+  var query = '';
+  var series = '';
+  String? issueNumber;
+  String? publisher;
+  int? year;
+  for (final draft in drafts) {
+    if (query.isEmpty && draft.query?.trim().isNotEmpty == true) {
+      query = draft.query!.trim();
+    }
+    if (series.isEmpty && draft.series?.trim().isNotEmpty == true) {
+      series = draft.series!.trim();
+    }
+    issueNumber ??= draft.issueNumber?.trim().isEmpty == true
+        ? null
+        : draft.issueNumber?.trim();
+    publisher ??= draft.publisher?.trim().isEmpty == true
+        ? null
+        : draft.publisher?.trim();
+    year ??= draft.year;
   }
-  return parts.join(', ');
+  return _CoverHintDraft(
+    query: query.isEmpty ? null : query,
+    series: series.isEmpty ? null : series,
+    issueNumber: issueNumber,
+    publisher: publisher,
+    year: year,
+  );
 }
 
 String? _extractPublisher(String value) {

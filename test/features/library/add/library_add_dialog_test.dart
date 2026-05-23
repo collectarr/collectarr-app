@@ -457,6 +457,61 @@ void main() {
     expect(find.textContaining('cropped 95% x 95%'), findsOneWidget);
   });
 
+  testWidgets('comic add dialog uses reviewed cover text when filename is generic',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+              coverScanService: LocalLibraryCoverScanService(
+                sourcePrompt: const _FakeCoverScanSourcePrompt(
+                  action: LibraryCoverScanAction.importImage,
+                ),
+                imagePicker: _FakeCoverImagePicker(
+                  file: XFile('/tmp/IMG_1234.jpg'),
+                ),
+                imageReview: const _FakeCoverImageReview(
+                  acceptImport: true,
+                  reviewedDisplayName: 'IMG_1234.jpg',
+                  reviewedExtractedText: 'Batman 423 1988 DC',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Scan cover'));
+    await tester.pumpAndSettle();
+
+    final queryField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-query-field')),
+    );
+    final yearField = tester.widget<TextField>(
+      find.byKey(const ValueKey('library-add-year-field')),
+    );
+
+    expect(queryField.controller!.text, 'Batman');
+    expect(yearField.controller!.text, '1988');
+    expect(find.textContaining('review text added'), findsOneWidget);
+  });
+
   testWidgets('comic add dialog applies edited review label from real review dialog',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -642,6 +697,52 @@ void main() {
     expect(reviewedImage!.cropBounds.top, closeTo(0.05, 0.0001));
     expect(reviewedImage!.cropBounds.right, closeTo(1.0, 0.0001));
     expect(reviewedImage!.cropBounds.bottom, closeTo(1.0, 0.0001));
+  });
+
+  testWidgets('real cover review dialog returns edited visible text',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    LibraryCoverReviewedImage? reviewedImage;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => FilledButton(
+              onPressed: () async {
+                reviewedImage = await const DialogLibraryCoverImageReview()
+                    .reviewImage(
+                  context: context,
+                  type: comicsLibraryConfig,
+                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                );
+              },
+              child: const Text('Open review'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open review'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-cover-review-text-field')),
+      'Batman 423 1988 DC',
+    );
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Use image'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Use image'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(reviewedImage, isNotNull);
+    expect(reviewedImage!.extractedText, 'Batman 423 1988 DC');
   });
 
   testWidgets('provider search does not claim fallback when results are mixed',
@@ -1151,12 +1252,14 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
     this.reviewedDisplayName,
     this.reviewedCropBounds = const LibraryCoverCropBounds.fullFrame(),
     this.reviewedRotationQuarterTurns = 0,
+    this.reviewedExtractedText,
   });
 
   final bool acceptImport;
   final String? reviewedDisplayName;
   final LibraryCoverCropBounds reviewedCropBounds;
   final int reviewedRotationQuarterTurns;
+  final String? reviewedExtractedText;
 
   @override
   Future<LibraryCoverReviewedImage?> reviewImage({
@@ -1172,6 +1275,7 @@ class _FakeCoverImageReview implements LibraryCoverImageReview {
       displayName: reviewedDisplayName,
       cropBounds: reviewedCropBounds,
       rotationQuarterTurns: reviewedRotationQuarterTurns,
+      extractedText: reviewedExtractedText,
     );
   }
 }
