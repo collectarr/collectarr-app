@@ -38,10 +38,6 @@ void main() {
     expect(find.text('5 ok'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
     expect(find.text('GCD'), findsWidgets);
-    expect(find.text('Tracking'), findsOneWidget);
-    expect(find.text('14 tracked entries'), findsOneWidget);
-    expect(find.text('3 users'), findsOneWidget);
-    expect(find.text('2 digital'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Reindex search'));
     await tester.pumpAndSettle();
@@ -450,53 +446,6 @@ class _FakeAdminApiClient extends ApiClient {
       indexName: 'items',
       documentCount: 12,
       isEmpty: false,
-    );
-  }
-
-  @override
-  Future<AdminTrackingStats> adminTrackingStats({
-    String? kind,
-    String? status,
-    String? sourceType,
-    DateTime? updatedFrom,
-    DateTime? updatedTo,
-    int limit = 10,
-  }) async {
-    return const AdminTrackingStats(
-      totalEntries: 14,
-      uniqueUsers: 3,
-      uniqueItems: 9,
-      averageRating: 8.4,
-      ratingCount: 11,
-      countsByStatus: [AdminTrackingCount(key: 'Completed', count: 6)],
-      countsByKind: [AdminTrackingKindCount(kind: 'comic', count: 8)],
-      countsBySourceType: [
-        AdminTrackingCount(key: 'digital', count: 2),
-        AdminTrackingCount(key: 'physical', count: 10),
-        AdminTrackingCount(key: 'streaming', count: 2),
-      ],
-      topItems: [
-        AdminTrackingTopItem(
-          itemId: 'item-1',
-          title: 'Absolute Batman',
-          kind: 'comic',
-          count: 3,
-        ),
-      ],
-    );
-  }
-
-  @override
-  Future<AdminTrackingFacets> adminTrackingFacets({
-    String? kind,
-    String? status,
-    String? sourceType,
-    DateTime? updatedFrom,
-    DateTime? updatedTo,
-  }) async {
-    return const AdminTrackingFacets(
-      countsBySourceType: [AdminTrackingCount(key: 'digital', count: 2)],
-      countsByPeriod: [AdminTrackingPeriodCount(period: '2026-05', count: 6)],
     );
   }
 

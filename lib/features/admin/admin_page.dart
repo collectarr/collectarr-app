@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -39,8 +38,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _mediaTypes = const <CatalogMediaType>[];
   var _providers = const <AdminProviderStatus>[];
   AdminCatalogSummary? _summary;
-  AdminTrackingStats? _trackingStats;
-  AdminTrackingFacets? _trackingFacets;
   AdminSearchStatus? _searchStatus;
   AdminSearchReindexResult? _lastReindex;
   var _searchHistory = const <AdminSearchHistoryEntry>[];
@@ -55,10 +52,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _duplicates = const <AdminDuplicateCandidate>[];
   var _results = const <ProviderCandidate>[];
   String? _catalogKindFilter;
-  String? _trackingKindFilter;
-  String? _trackingSourceFilter;
-  String? _trackingStatusFilter;
-  int? _trackingPeriodDays;
   var _selectedProvider = '';
   String? _selectedProviderKindFilter;
   String? _ingestJobStatusFilter;
@@ -173,24 +166,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                   ),
                   child: _DashboardSummary(
                     summary: _summary,
-                    trackingStats: _trackingStats,
-                    trackingFacets: _trackingFacets,
-                    trackingKindFilter: _trackingKindFilter,
-                    trackingSourceFilter: _trackingSourceFilter,
-                    trackingStatusFilter: _trackingStatusFilter,
-                    trackingPeriodDays: _trackingPeriodDays,
                     searchStatus: _searchStatus,
                     lastReindex: _lastReindex,
                     configuredProviders: _configuredProviderCount(),
                     registeredProviders: _providers.length,
                     selectedProviderLabel: _selectedProviderLabel(),
                     lastIngest: _lastIngest,
-                    trackingKindOptions: _catalogKindOptions(),
-                    kindLabels: _catalogKindLabels(),
-                    onTrackingKindChanged: _changeTrackingKindFilter,
-                    onTrackingSourceChanged: _changeTrackingSourceFilter,
-                    onTrackingStatusChanged: _changeTrackingStatusFilter,
-                    onTrackingPeriodChanged: _changeTrackingPeriodFilter,
                     errorMessage: _dashboardErrorMessage,
                   ),
                 ),
@@ -670,22 +651,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     try {
       final api = ref.read(apiClientProvider);
       final ingestJobQuery = _ingestJobQueryController.text.trim();
-      final updatedFrom = _trackingUpdatedFrom();
       final results = await Future.wait<Object>([
         api.adminCatalogSummary(),
-        api.adminTrackingStats(
-          kind: _trackingKindFilter,
-          status: _trackingStatusFilter,
-          sourceType: _trackingSourceFilter,
-          updatedFrom: updatedFrom,
-          limit: 5,
-        ),
-        api.adminTrackingFacets(
-          kind: _trackingKindFilter,
-          status: _trackingStatusFilter,
-          sourceType: _trackingSourceFilter,
-          updatedFrom: updatedFrom,
-        ),
         api.adminSearchStatus(),
         api.adminSearchHistory(),
         api.adminAuditLogs(limit: 8),
@@ -700,22 +667,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         api.adminDuplicateCandidates(limit: 5),
       ]);
       final summary = results[0] as AdminCatalogSummary;
-      final trackingStats = results[1] as AdminTrackingStats;
-      final trackingFacets = results[2] as AdminTrackingFacets;
-      final searchStatus = results[3] as AdminSearchStatus;
-      final searchHistory = results[4] as List<AdminSearchHistoryEntry>;
-      final auditLogs = results[5] as List<AdminAuditLogEntry>;
-      final ingestHistory = results[6] as List<AdminProviderIngestHistoryEntry>;
-      final ingestJobSummary = results[7] as AdminProviderIngestJobSummary;
-      final ingestJobs = results[8] as List<AdminProviderIngestJob>;
-      final duplicates = results[9] as List<AdminDuplicateCandidate>;
+      final searchStatus = results[1] as AdminSearchStatus;
+      final searchHistory = results[2] as List<AdminSearchHistoryEntry>;
+      final auditLogs = results[3] as List<AdminAuditLogEntry>;
+      final ingestHistory = results[4] as List<AdminProviderIngestHistoryEntry>;
+      final ingestJobSummary = results[5] as AdminProviderIngestJobSummary;
+      final ingestJobs = results[6] as List<AdminProviderIngestJob>;
+      final duplicates = results[7] as List<AdminDuplicateCandidate>;
       if (!mounted) {
         return;
       }
       setState(() {
         _summary = summary;
-        _trackingStats = trackingStats;
-        _trackingFacets = trackingFacets;
         _searchStatus = searchStatus;
         _searchHistory = searchHistory;
         _auditLogs = auditLogs;
@@ -1939,43 +1902,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return _selectedProvider.isEmpty ? 'No provider' : _selectedProvider;
   }
 
-  void _changeTrackingKindFilter(String? kind) {
-    setState(() {
-      _trackingKindFilter = kind == null || kind.isEmpty ? null : kind;
-    });
-    unawaited(_loadDashboard());
-  }
-
-  void _changeTrackingSourceFilter(String? sourceType) {
-    setState(() {
-      _trackingSourceFilter = normalizeTrackingSourceType(sourceType);
-    });
-    unawaited(_loadDashboard());
-  }
-
-  void _changeTrackingStatusFilter(String value) {
-    setState(() {
-      final normalized = value.trim();
-      _trackingStatusFilter = normalized.isEmpty ? null : normalized;
-    });
-    unawaited(_loadDashboard());
-  }
-
-  void _changeTrackingPeriodFilter(int? days) {
-    setState(() {
-      _trackingPeriodDays = days;
-    });
-    unawaited(_loadDashboard());
-  }
-
-  DateTime? _trackingUpdatedFrom() {
-    final periodDays = _trackingPeriodDays;
-    if (periodDays == null) {
-      return null;
-    }
-    return DateTime.now().toUtc().subtract(Duration(days: periodDays));
-  }
-
   bool _providerSupportsIngest(String providerName) {
     for (final provider in _providers) {
       if (provider.name == providerName) {
@@ -2038,58 +1964,29 @@ class _AdminPanel extends StatelessWidget {
 class _DashboardSummary extends StatelessWidget {
   const _DashboardSummary({
     required this.summary,
-    required this.trackingStats,
-    required this.trackingFacets,
-    required this.trackingKindFilter,
-    required this.trackingSourceFilter,
-    required this.trackingStatusFilter,
-    required this.trackingPeriodDays,
     required this.searchStatus,
     required this.lastReindex,
     required this.configuredProviders,
     required this.registeredProviders,
     required this.selectedProviderLabel,
     required this.lastIngest,
-    required this.trackingKindOptions,
-    required this.kindLabels,
-    required this.onTrackingKindChanged,
-    required this.onTrackingSourceChanged,
-    required this.onTrackingStatusChanged,
-    required this.onTrackingPeriodChanged,
     required this.errorMessage,
   });
 
   final AdminCatalogSummary? summary;
-  final AdminTrackingStats? trackingStats;
-  final AdminTrackingFacets? trackingFacets;
-  final String? trackingKindFilter;
-  final String? trackingSourceFilter;
-  final String? trackingStatusFilter;
-  final int? trackingPeriodDays;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
   final int configuredProviders;
   final int registeredProviders;
   final String selectedProviderLabel;
   final AdminProviderIngestResult? lastIngest;
-  final List<String> trackingKindOptions;
-  final Map<String, String> kindLabels;
-  final ValueChanged<String?> onTrackingKindChanged;
-  final ValueChanged<String?> onTrackingSourceChanged;
-  final ValueChanged<String> onTrackingStatusChanged;
-  final ValueChanged<int?> onTrackingPeriodChanged;
   final String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
     final summary = this.summary;
-    final trackingStats = this.trackingStats;
-    final trackingFacets = this.trackingFacets;
     final searchStatus = this.searchStatus;
-    if (errorMessage != null &&
-        summary == null &&
-        trackingStats == null &&
-        searchStatus == null) {
+    if (errorMessage != null && summary == null && searchStatus == null) {
       return _MessageRow(message: errorMessage!, isError: true);
     }
     return Column(
@@ -2196,131 +2093,6 @@ class _DashboardSummary extends StatelessWidget {
               label: 'Catalog metrics loading',
             ),
           ),
-        const SizedBox(height: 12),
-        _DashboardSection(
-          title: 'Tracking',
-          children: [
-            SizedBox(
-              width: 220,
-              child: DropdownButtonFormField<String?>(
-                initialValue: trackingKindFilter,
-                isExpanded: true,
-                dropdownColor: _kAdminDropdownColor,
-                decoration: const InputDecoration(
-                  labelText: 'Media kind',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  const DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text('All kinds'),
-                  ),
-                  for (final kind in trackingKindOptions)
-                    DropdownMenuItem<String?>(
-                      value: kind,
-                      child: Text(kindLabels[kind] ?? kind),
-                    ),
-                ],
-                onChanged: onTrackingKindChanged,
-              ),
-            ),
-            SizedBox(
-              width: 220,
-              child: DropdownButtonFormField<String?>(
-                initialValue: trackingSourceFilter,
-                isExpanded: true,
-                dropdownColor: _kAdminDropdownColor,
-                decoration: const InputDecoration(
-                  labelText: 'Tracking source',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  const DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text('All sources'),
-                  ),
-                  for (final source in TrackingSourceType.values)
-                    DropdownMenuItem<String?>(
-                      value: source.apiValue,
-                      child: Text(source.label),
-                    ),
-                ],
-                onChanged: onTrackingSourceChanged,
-              ),
-            ),
-            SizedBox(
-              width: 220,
-              child: TextFormField(
-                initialValue: trackingStatusFilter,
-                decoration: const InputDecoration(
-                  labelText: 'Tracking status',
-                  border: OutlineInputBorder(),
-                ),
-                onFieldSubmitted: onTrackingStatusChanged,
-              ),
-            ),
-            SizedBox(
-              width: 180,
-              child: DropdownButtonFormField<int?>(
-                initialValue: trackingPeriodDays,
-                isExpanded: true,
-                dropdownColor: _kAdminDropdownColor,
-                decoration: const InputDecoration(
-                  labelText: 'Period',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem<int?>(value: null, child: Text('All time')),
-                  DropdownMenuItem<int?>(value: 30, child: Text('Last 30 days')),
-                  DropdownMenuItem<int?>(value: 90, child: Text('Last 90 days')),
-                  DropdownMenuItem<int?>(value: 365, child: Text('Last 365 days')),
-                ],
-                onChanged: onTrackingPeriodChanged,
-              ),
-            ),
-            if (trackingStats == null)
-              const _StatusChip(
-                icon: Icons.hourglass_empty,
-                label: 'Tracking metrics loading',
-              )
-            else ...[
-              _StatusChip(
-                icon: Icons.playlist_add_check_circle_outlined,
-                label: '${trackingStats.totalEntries} tracked entries',
-              ),
-              _StatusChip(
-                icon: Icons.people_outline,
-                label: '${trackingStats.uniqueUsers} users',
-              ),
-              _StatusChip(
-                icon: Icons.movie_filter_outlined,
-                label: '${trackingStats.uniqueItems} items',
-              ),
-              _StatusChip(
-                icon: Icons.star_border,
-                label: trackingStats.averageRating == null
-                    ? 'No ratings yet'
-                    : '${trackingStats.averageRating!.toStringAsFixed(1)} avg',
-              ),
-              for (final source in trackingStats.countsBySourceType)
-                _StatusChip(
-                  icon: Icons.route_outlined,
-                  label: '${source.count} ${source.label.toLowerCase()}',
-                ),
-              for (final item in trackingStats.topItems.take(3))
-                _StatusChip(
-                  icon: Icons.local_fire_department_outlined,
-                  label: '${item.title} (${item.count})',
-                ),
-            ],
-            if (trackingFacets != null)
-              for (final period in trackingFacets.countsByPeriod.take(4))
-                _StatusChip(
-                  icon: Icons.calendar_month_outlined,
-                  label: '${period.period}: ${period.count}',
-                ),
-          ],
-        ),
         const SizedBox(height: 12),
         // ── Search ──
         _DashboardSection(
