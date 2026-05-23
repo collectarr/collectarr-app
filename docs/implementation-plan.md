@@ -85,13 +85,16 @@
 - [x] Key-issue / key-release markers, richer slab / grading-company details, and collector-facing notes are now surfaced in workspace badges/cards/detail views
 - [x] Run-completeness tools: stats now surface missing comic issues, missing volumes, and missing seasons in dedicated gap cards
 - [x] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
-- [ ] Investigate optional cover-photo recognition / scan-to-identify for comics as a later Core capability
-	- Define the intended capture flow first: camera/photo import, crop guidance, confidence display, and one-tap fallback into manual search.
-	- Validate whether the first cut should live entirely in Core as a candidate-ranking service fed by cover photos, or whether App also needs local pre-processing/cropping helpers.
-	- Require a safe failure mode: low-confidence results must never auto-ingest and should degrade to a normal provider search seeded with any extracted hints.
-	- Treat this as research/prototype work until accuracy, latency, and hosting cost are understood.
+- [x] Ship an app-local cover-photo recognition / scan-to-identify prototype for comics
+	- Local flow now covers photo import, review/crop/rotate, extracted-text preview, safe fallback into normal search, and local reranking of search/provider candidates.
+	- OCR is local-first: Android/iOS use on-device ML Kit where supported, while unsupported platforms fall back to reviewed text without sending images to the server.
+	- Low-confidence results still degrade to ordinary search seeded by extracted hints; the flow never auto-ingests from a cover scan.
+- [ ] Decide whether any Core-side cover-photo ranking service is still needed after the local-first App prototype
+	- Measure accuracy and latency on real mobile devices before moving more responsibility into Core.
+	- Validate the iOS path on macOS/Xcode hardware; current Windows-side validation only covers Android build success plus app/widget tests.
+	- Only introduce server-side candidate ranking or image hosting if local OCR + reranking proves insufficient.
 
-Current app-side parity work is largely complete; the main remaining gap here is the optional scan-to-identify / cover-photo recognition investigation.
+Current app-side parity work is largely complete; the remaining work here is hardening the local scan-to-identify flow on real mobile devices and deciding whether Core needs any photo-ranking role at all.
 
 ### 🧭 Location Hierarchy Follow-up
 - [x] Owned-item sync payload now includes `location_id`
