@@ -1,16 +1,24 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:flutter/material.dart';
 
 class InspectorBackdrop extends StatelessWidget {
-  const InspectorBackdrop({super.key, required this.entry});
+  const InspectorBackdrop({
+    super.key,
+    required this.entry,
+    this.ownedItem,
+  });
 
   final LibraryWorkspaceEntry entry;
+  final OwnedItem? ownedItem;
 
   @override
   Widget build(BuildContext context) {
+    final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -20,7 +28,7 @@ class InspectorBackdrop extends StatelessWidget {
             title: entry.title,
             itemNumber: entry.itemNumber,
             imageUrl: entry.displayCoverUrl,
-            ownedItemId: entry.ownedItemId,
+            ownedItemId: ownedItemId,
           ),
         ),
         const DecoratedBox(

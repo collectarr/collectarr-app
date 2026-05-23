@@ -28,12 +28,15 @@ class InspectorHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
+    final referenceLabel =
+        libraryOwnedReferenceLabel(ownedItem) ?? entry.primaryReferenceLabel;
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 560;
         final cover = Consumer(
           builder: (context, ref, _) {
-            final ownedItemId = entry.ownedItemId;
+            final ownedItemId = resolvedOwnedItemId;
             final db = ref.watch(localDatabaseProvider);
             final localFront = ownedItemId == null
                 ? null
@@ -61,7 +64,7 @@ class InspectorHero extends StatelessWidget {
                   imageUrl: entry.displayCoverUrl,
                   localBase64: localFront,
                   secondaryLocalBase64: localBack,
-                  ownedItemId: entry.ownedItemId,
+                    ownedItemId: ownedItemId,
                   accentColor: accent,
                   onMissingSecondaryPressed: ownedItemId == null
                       ? null
@@ -149,6 +152,8 @@ class _InspectorHeroInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final referenceLabel =
+      libraryOwnedReferenceLabel(ownedItem) ?? entry.primaryReferenceLabel;
     final releaseLabel = formatNullableDate(entry.releaseDate) ??
         entry.releaseYear?.toString();
     return Column(
@@ -221,6 +226,12 @@ class _InspectorHeroInfo extends StatelessWidget {
               label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
               accent: accent,
             ),
+            if (referenceLabel != null)
+              LibraryMetaChip(
+                icon: Icons.link_outlined,
+                label: referenceLabel,
+                accent: accent,
+              ),
             LibraryMetaChip(
               icon: entry.hasMissingCover
                   ? Icons.image_not_supported_outlined

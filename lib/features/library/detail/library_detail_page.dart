@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
@@ -82,11 +83,26 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               ? const <OwnedItem>[]
               : <OwnedItem>[widget.ownedItem!],
         );
-    final activeOwnedItem = _resolveOwnedItem(ownedCopies, widget.ownedItem);
+    final ownedResolution = resolveActiveOwnedItem(
+      ownedCopies,
+      fallback: widget.ownedItem,
+      selectedOwnedItemId: _selectedOwnedItemId,
+      selectNewest: _selectNewestOwnedItem,
+    );
+    final activeOwnedItem = ownedResolution.ownedItem;
+    if (ownedResolution.shouldScheduleSelection(
+      _selectedOwnedItemId,
+      _selectNewestOwnedItem,
+    )) {
+      _scheduleOwnedCopySelection(
+        ownedResolution.nextSelectedOwnedItemId!,
+        clearNewest: ownedResolution.clearNewest,
+      );
+    }
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogItemProvider)[widget.entry.id] ??
             const <TrackingEntry>[];
-    final activeTrackingEntry = _resolveTrackingEntry(
+    final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
       activeOwnedItem,
     );
@@ -239,59 +255,6 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         ),
       ),
     );
-  }
-
-  TrackingEntry? _resolveTrackingEntry(
-    List<TrackingEntry> entries,
-    OwnedItem? activeOwnedItem,
-  ) {
-    if (entries.isEmpty) {
-      return null;
-    }
-    if (activeOwnedItem != null) {
-      for (final entry in entries) {
-        if (entry.ownedItemId == activeOwnedItem.id) {
-          return entry;
-        }
-      }
-    }
-    for (final entry in entries) {
-      if (entry.ownedItemId == null) {
-        return entry;
-      }
-    }
-    return entries.first;
-  }
-
-  OwnedItem? _resolveOwnedItem(
-    List<OwnedItem> ownedCopies,
-    OwnedItem? fallback,
-  ) {
-    if (ownedCopies.isEmpty) {
-      return fallback;
-    }
-    if (_selectNewestOwnedItem) {
-      final newest = ownedCopies.first;
-      _scheduleOwnedCopySelection(newest.id, clearNewest: true);
-      return newest;
-    }
-    if (_selectedOwnedItemId != null) {
-      for (final item in ownedCopies) {
-        if (item.id == _selectedOwnedItemId) {
-          return item;
-        }
-      }
-    }
-    final resolved = fallback != null
-        ? ownedCopies.firstWhere(
-            (item) => item.id == fallback.id,
-            orElse: () => ownedCopies.first,
-          )
-        : ownedCopies.first;
-    if (_selectedOwnedItemId != resolved.id) {
-      _scheduleOwnedCopySelection(resolved.id);
-    }
-    return resolved;
   }
 
   void _scheduleOwnedCopySelection(

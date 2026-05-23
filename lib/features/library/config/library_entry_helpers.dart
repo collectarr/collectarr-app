@@ -1,11 +1,36 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class LibraryOwnedItemResolution {
+  const LibraryOwnedItemResolution({
+    required this.ownedItem,
+    this.nextSelectedOwnedItemId,
+    this.clearNewest = false,
+  });
+
+  final OwnedItem? ownedItem;
+  final String? nextSelectedOwnedItemId;
+  final bool clearNewest;
+
+  bool shouldScheduleSelection(
+    String? currentSelectedOwnedItemId,
+    bool currentSelectNewest,
+  ) {
+    if (ownedItem == null || nextSelectedOwnedItemId == null) {
+      return false;
+    }
+    return nextSelectedOwnedItemId != currentSelectedOwnedItemId ||
+        (clearNewest && currentSelectNewest);
+  }
+}
 
 bool itemHasMissingCover(CatalogItem item) {
   return item.displayCoverUrl == null ||
@@ -75,6 +100,10 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     keyComic: ownedItem?.keyComic ?? false,
     keyReason: ownedItem?.keyReason,
     notes: ownedItem?.personalNotes ?? wishlistItem?.notes,
+    primaryReferenceLabel: libraryPrimaryReferenceLabel(
+      ownedItem: ownedItem,
+      wishlistItem: wishlistItem,
+    ),
     pricePaidCents: ownedItem?.pricePaidCents,
     currency: ownedItem?.currency,
     storageBox: ownedItem?.storageBox,
@@ -93,6 +122,112 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     editions: item.editions,
     updatedAt: _latestLibraryUpdate(ownedItem, wishlistItem),
   );
+}
+
+String? libraryOwnedReferenceLabel(OwnedItem? ownedItem) {
+  return _libraryReferenceLabel(
+    ownedItem?.personalAnchor,
+    itemLabel: 'Owned as media',
+    releaseLabel: 'Owned as release',
+    bundleLabel: 'Owned as bundle',
+  );
+}
+
+String? libraryWishlistReferenceLabel(WishlistItem? wishlistItem) {
+  return _libraryReferenceLabel(
+    wishlistItem?.personalAnchor,
+    itemLabel: 'Wishlisted as media',
+    releaseLabel: 'Wishlisted as release',
+    bundleLabel: 'Wishlisted as bundle',
+  );
+}
+
+String? libraryPrimaryReferenceLabel({
+  OwnedItem? ownedItem,
+  WishlistItem? wishlistItem,
+}) {
+  return libraryOwnedReferenceLabel(ownedItem) ??
+      libraryWishlistReferenceLabel(wishlistItem);
+}
+
+String? resolveLibraryOwnedItemId(
+  LibraryWorkspaceEntry entry,
+  OwnedItem? ownedItem,
+) {
+  return ownedItem?.id ?? entry.ownedItemId;
+}
+
+TrackingEntry? resolveActiveTrackingEntry(
+  List<TrackingEntry> entries,
+  OwnedItem? activeOwnedItem,
+) {
+  if (entries.isEmpty) {
+    return null;
+  }
+  if (activeOwnedItem != null) {
+    for (final entry in entries) {
+      if (entry.ownedItemId == activeOwnedItem.id) {
+        return entry;
+      }
+    }
+  }
+  for (final entry in entries) {
+    if (entry.ownedItemId == null) {
+      return entry;
+    }
+  }
+  return entries.first;
+}
+
+LibraryOwnedItemResolution resolveActiveOwnedItem(
+  List<OwnedItem> ownedCopies, {
+  OwnedItem? fallback,
+  String? selectedOwnedItemId,
+  bool selectNewest = false,
+}) {
+  if (ownedCopies.isEmpty) {
+    return LibraryOwnedItemResolution(ownedItem: fallback);
+  }
+  if (selectNewest) {
+    final newest = ownedCopies.first;
+    return LibraryOwnedItemResolution(
+      ownedItem: newest,
+      nextSelectedOwnedItemId: newest.id,
+      clearNewest: true,
+    );
+  }
+  if (selectedOwnedItemId != null) {
+    for (final item in ownedCopies) {
+      if (item.id == selectedOwnedItemId) {
+        return LibraryOwnedItemResolution(ownedItem: item);
+      }
+    }
+  }
+  final resolved = fallback != null
+      ? ownedCopies.firstWhere(
+          (item) => item.id == fallback.id,
+          orElse: () => ownedCopies.first,
+        )
+      : ownedCopies.first;
+  return LibraryOwnedItemResolution(
+    ownedItem: resolved,
+    nextSelectedOwnedItemId: resolved.id,
+  );
+}
+
+String? _libraryReferenceLabel(
+  PersonalItemAnchorType? anchor,
+  {
+  required String itemLabel,
+  required String releaseLabel,
+  required String bundleLabel,
+}) {
+  return switch (anchor) {
+    PersonalItemAnchorType.item => itemLabel,
+    PersonalItemAnchorType.variant => releaseLabel,
+    PersonalItemAnchorType.bundleRelease => bundleLabel,
+    null => null,
+  };
 }
 
 String buildOwnedCopyLabel(

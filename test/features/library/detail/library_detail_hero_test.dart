@@ -163,4 +163,41 @@ void main() {
     expect(find.text('Author view'), findsOneWidget);
     expect(find.text('J.R.R. Tolkien'), findsOneWidget);
   });
+
+  testWidgets('detail hero shows the active ownership reference label', (
+    tester,
+  ) async {
+    final type = collectarrLibraryTypes.byKind('book')!;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryDetailHero(
+              type: type,
+              entry: LibraryWorkspaceEntry(
+                id: 'book-1',
+                mediaType: 'book',
+                title: 'The Silmarillion',
+                primaryReferenceLabel: 'Owned as bundle',
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: OwnedItem(
+                id: 'owned-1',
+                itemId: 'book-1',
+                anchorType: 'bundle_release',
+                bundleReleaseId: 'bundle-book-1',
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              accent: Colors.orange,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Owned as bundle'), findsOneWidget);
+  });
 }

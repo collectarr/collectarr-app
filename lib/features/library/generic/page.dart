@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/item_images_cach
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -31,6 +32,7 @@ import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart'
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -743,11 +745,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
     final owned = ownedItemOverride ?? item.source.ownedItem;
-    final activeTrackingEntry = _resolveTrackingEntry(
+    final wishlist = item.source.wishlistItem;
+    final activeTrackingEntry = resolveActiveTrackingEntry(
       ref.read(trackingEntriesByCatalogItemProvider)[catalogItem.id] ??
           const <TrackingEntry>[],
       owned,
     );
+    final Future<List<BundleReleaseSummary>> bundleReleases = (() async {
+      try {
+        return await ref.read(apiClientProvider).getItemBundleReleases(catalogItem.id);
+      } catch (_) {
+        return const <BundleReleaseSummary>[];
+      }
+    })();
     final definitions = await customFieldRepo.listDefinitions(
       mediaKind: widget.type.workspace.kind,
     );
@@ -756,6 +766,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         : <dynamic>[];
     final images =
         owned != null ? await itemImageRepo.listForItem(owned.id) : <dynamic>[];
+    final availableBundleReleases = await bundleReleases;
     if (!mounted) return;
     final result = await showLibraryEditDialog(
       context: context,
@@ -763,8 +774,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         type: widget.type,
         item: LibraryMetadataItem.fromCatalogItem(catalogItem),
         ownedItem: owned,
+        wishlistItem: wishlist,
         trackingEntry: activeTrackingEntry,
         accent: widget.accent,
+        availableBundleReleases: availableBundleReleases,
         physicalFormats: physicalMediaFormatsForKind(
           catalog,
           widget.type.workspace.kind,
@@ -780,14 +793,16 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final mutations = ref.read(collectionMutationsProvider);
     await mutations.updateCatalogSnapshot(
       result.item.toCatalogItem(),
-      notify: owned == null,
+      notify: owned == null && wishlist == null,
     );
     final personal = result.personal;
     if (owned != null && personal != null) {
       final updatedOwned = await mutations.updateItem(
         owned,
+        anchorType: personal.anchorType,
         editionId: personal.editionId,
         variantId: personal.variantId,
+        bundleReleaseId: personal.bundleReleaseId,
         condition: personal.condition,
         grade: personal.grade,
         purchaseDate: personal.purchaseDate,
@@ -819,8 +834,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       );
       await mutations.syncOwnedTrackingEntry(
         updatedOwned,
-        editionId: personal.editionId,
-        variantId: personal.variantId,
+        editionId: result.tracking?.editionId,
+        variantId: result.tracking?.variantId,
         status: result.tracking?.readStatus,
         rating: result.tracking?.rating,
         startedAt: result.tracking?.startedAt,
@@ -855,7 +870,21 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           await itemImageRepo.updateCaption(edit.id, edit.caption);
         }
       }
-    } else if (owned == null && activeTrackingEntry != null && result.tracking != null) {
+    }
+    if (wishlist != null && result.wishlist != null) {
+      await mutations.updateWishlistItem(
+        wishlist,
+        anchorType: result.wishlist!.anchorType,
+        editionId: result.wishlist!.editionId,
+        variantId: result.wishlist!.variantId,
+        bundleReleaseId: result.wishlist!.bundleReleaseId,
+        targetPriceCents: result.wishlist!.targetPriceCents,
+        currency: result.wishlist!.currency,
+        notes: result.wishlist!.notes,
+        notify: false,
+      );
+    }
+    if (owned == null && activeTrackingEntry != null && result.tracking != null) {
       await mutations.upsertTrackingEntry(
         catalogItem.id,
         editionId: result.tracking!.editionId,
@@ -873,28 +902,6 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         episodeNumber: activeTrackingEntry.episodeNumber,
         notify: false,
       );
-    }
-
-    TrackingEntry? _resolveTrackingEntry(
-      List<TrackingEntry> entries,
-      OwnedItem? activeOwnedItem,
-    ) {
-      if (entries.isEmpty) {
-        return null;
-      }
-      if (activeOwnedItem != null) {
-        for (final entry in entries) {
-          if (entry.ownedItemId == activeOwnedItem.id) {
-            return entry;
-          }
-        }
-      }
-      for (final entry in entries) {
-        if (entry.ownedItemId == null) {
-          return entry;
-        }
-      }
-      return entries.first;
     }
     if (!mounted) {
       return;

@@ -31,8 +31,10 @@ class LibraryDetailHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedOwnedItemId = ownedItem?.id ?? entry.ownedItemId;
+    final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     final resolvedIsOwned = isOwned ?? ownedItem != null || entry.isOwned;
+    final referenceLabel =
+      libraryOwnedReferenceLabel(ownedItem) ?? entry.primaryReferenceLabel;
     final releaseLabel = formatNullableDate(entry.releaseDate) ??
         entry.releaseYear?.toString();
     return DecoratedBox(
@@ -168,6 +170,12 @@ class LibraryDetailHero extends StatelessWidget {
                       label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
                       accent: accent,
                     ),
+                    if (referenceLabel != null)
+                      _DetailHeaderChip(
+                        icon: Icons.link_outlined,
+                        label: referenceLabel,
+                        accent: accent,
+                      ),
                     _DetailHeaderChip(
                       icon: entry.hasMissingCover
                           ? Icons.image_not_supported_outlined

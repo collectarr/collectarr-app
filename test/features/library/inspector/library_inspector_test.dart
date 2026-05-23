@@ -317,4 +317,84 @@ void main() {
 
     expect(editedOwnedItem?.id, 'owned-2');
   });
+
+  testWidgets('inspector hero switches local back-cover affordance with the selected copy', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('book')!;
+
+    await db.into(db.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'owned-1',
+            itemId: 'book-1',
+            condition: const Value('Near Mint'),
+            updatedAt: DateTime.utc(2026, 5, 23, 10),
+          ),
+        );
+    await db.into(db.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'owned-2',
+            itemId: 'book-1',
+            condition: const Value('Very Fine'),
+            updatedAt: DateTime.utc(2026, 5, 23, 11),
+          ),
+        );
+    await db.into(db.itemImagesCache).insert(
+          ItemImagesCacheCompanion.insert(
+            id: 'back-owned-2',
+            ownedItemId: 'owned-2',
+            imageType: const Value('back_cover'),
+            imageData: 'AQIDBA==',
+            createdAt: DateTime.utc(2026, 5, 23, 11),
+          ),
+        );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryInspector(
+              type: type,
+              entry: LibraryWorkspaceEntry(
+                id: 'book-1',
+                mediaType: 'book',
+                title: 'The Return of the King',
+                ownedItemId: 'owned-1',
+                isOwned: true,
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: OwnedItem(
+                id: 'owned-1',
+                itemId: 'book-1',
+                condition: 'Near Mint',
+                updatedAt: DateTime.utc(2026, 5, 23, 10),
+              ),
+              accent: Colors.orange,
+              onAddOwned: () {},
+              onRemoveOwned: () {},
+              onAddWishlist: () {},
+              onRemoveWishlist: () {},
+              onEdit: (_) {},
+              db: db,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(FilledButton, 'Back cover'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'View back'), findsNothing);
+
+    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Very Fine').last);
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(FilledButton, 'View back'), findsOneWidget);
+  });
 }
