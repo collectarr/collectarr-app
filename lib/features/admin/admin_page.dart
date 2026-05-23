@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -20,7 +21,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+part 'admin_item_inspection.dart';
+part 'admin_metadata_correction_dialog.dart';
+part 'admin_duplicate_merge_dialog.dart';
+part 'admin_bundle_correction_dialog.dart';
+
 const _kAdminDropdownColor = kAppPanelRaised;
+const _kAdminDialogShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.all(Radius.circular(3)),
+);
 
 class AdminPage extends ConsumerStatefulWidget {
   const AdminPage({super.key});
@@ -856,15 +865,17 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _inspectErrorMessage = null;
     });
     try {
-      final fresh = await ref.read(apiClientProvider).adminGetMetadataItem(
-            kind: item.kind,
-            id: item.id,
-          );
-      final auditLogs = await ref.read(apiClientProvider).adminAuditLogs(
-            entityType: 'item',
-            entityId: item.id,
-            limit: 8,
-          );
+      final api = ref.read(apiClientProvider);
+      final fresh = await api.adminGetMetadataItem(
+        kind: item.kind,
+        id: item.id,
+      );
+      final auditLogs = await api.adminAuditLogs(
+        entityType: 'item',
+        entityId: item.id,
+        limit: 8,
+      );
+      final bundleReleases = await api.getItemBundleReleases(item.id);
       if (!mounted) {
         return;
       }
@@ -872,7 +883,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _lastIngest = null;
         _inspectingItemId = null;
       });
-      await _showCanonicalItemInspectionDialog(fresh, auditLogs);
+      await _showCanonicalItemInspectionDialog(fresh, auditLogs, bundleReleases);
     } catch (error) {
       if (!mounted) {
         return;
@@ -887,24 +898,69 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _showCanonicalItemInspectionDialog(
     AdminMetadataItem item,
     List<AdminAuditLogEntry> auditLogs,
+    List<BundleReleaseSummary> bundleReleases,
   ) async {
-    final action = await showDialog<_CanonicalInspectAction>(
+    final result = await showDialog<_CanonicalInspectResult>(
       context: context,
       builder: (context) => _CanonicalItemInspectionDialog(
         item: item,
         auditLogs: auditLogs,
+        bundleReleases: bundleReleases,
       ),
     );
-    if (action == null || !mounted) {
+    if (result == null || !mounted) {
       return;
     }
-    switch (action) {
+    if (result.bundleReleaseId != null) {
+      await _showBundleCorrectionDialog(result.bundleReleaseId!);
+      await _inspectCatalogItem(item);
+      return;
+    }
+    switch (result.action) {
       case _CanonicalInspectAction.edit:
         await _showMetadataCorrectionDialog(item);
         await _inspectCatalogItem(item);
       case _CanonicalInspectAction.covers:
         await _showCoverInspectionDialog(item);
         await _inspectCatalogItem(item);
+      case null:
+        return;
+    }
+  }
+
+  Future<void> _showBundleCorrectionDialog(String bundleReleaseId) async {
+    try {
+      final api = ref.read(apiClientProvider);
+      final bundle = await api.getBundleRelease(bundleReleaseId);
+      final correction = await showDialog<AdminBundleReleaseCorrection>(
+        context: context,
+        builder: (context) => _BundleReleaseCorrectionDialog(bundle: bundle),
+      );
+      if (correction == null || !mounted) {
+        return;
+      }
+      setState(() {
+        _catalogStatusMessage = null;
+        _catalogErrorMessage = null;
+      });
+      await api.adminUpdateBundleRelease(
+        bundleReleaseId: bundleReleaseId,
+        correction: correction,
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _catalogStatusMessage = 'Bundle release correction saved.';
+      });
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _catalogErrorMessage = _adminErrorMessage(error);
+      });
     }
   }
 
@@ -1444,6 +1500,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             entityId: itemId,
             limit: 8,
           );
+      final bundleReleases =
+          await ref.read(apiClientProvider).getItemBundleReleases(itemId);
       if (!mounted) {
         return;
       }
@@ -1451,7 +1509,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _lastIngest = null;
         _inspectingItemId = null;
       });
-      await _showCanonicalItemInspectionDialog(item, auditLogs);
+      await _showCanonicalItemInspectionDialog(item, auditLogs, bundleReleases);
     } catch (error) {
       if (!mounted) {
         return;
@@ -3726,667 +3784,6 @@ class _ProviderResultTile extends StatelessWidget {
   }
 }
 
-enum _CanonicalInspectAction { edit, covers }
-
-class _CanonicalItemInspectionDialog extends StatelessWidget {
-  const _CanonicalItemInspectionDialog({
-    required this.item,
-    required this.auditLogs,
-  });
-
-  final AdminMetadataItem item;
-  final List<AdminAuditLogEntry> auditLogs;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final dialogWidth =
-        (MediaQuery.sizeOf(context).width - 96).clamp(280.0, 820.0).toDouble();
-    return AlertDialog(
-      title: Row(
-        children: [
-          Icon(Icons.fact_check_outlined, color: colorScheme.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Inspect: ${item.displayTitle}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-      content: SizedBox(
-        width: dialogWidth,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _CanonicalItemSummary(item: item, auditLogs: auditLogs),
-              if (auditLogs.isEmpty) ...[
-                const SizedBox(height: 12),
-                const _MessageRow(
-                  message: 'No item audit history yet.',
-                  isError: false,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-        OutlinedButton.icon(
-          onPressed: () =>
-              Navigator.of(context).pop(_CanonicalInspectAction.covers),
-          icon: const Icon(Icons.image_search_outlined),
-          label: const Text('Covers'),
-        ),
-        FilledButton.icon(
-          onPressed: () =>
-              Navigator.of(context).pop(_CanonicalInspectAction.edit),
-          icon: const Icon(Icons.edit_outlined),
-          label: const Text('Edit metadata'),
-        ),
-      ],
-    );
-  }
-}
-
-class _CanonicalItemSummary extends StatelessWidget {
-  const _CanonicalItemSummary({
-    required this.item,
-    this.created,
-    this.auditLogs = const [],
-  });
-
-  final AdminMetadataItem item;
-  final bool? created;
-  final List<AdminAuditLogEntry> auditLogs;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final variant = item.primaryVariant;
-    final edition = item.primaryEdition;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isNarrow = constraints.maxWidth < 620;
-            final cover = SizedBox(
-              width: 84,
-              height: 118,
-              child: LibraryCoverImage(
-                title: item.title,
-                itemNumber: item.itemNumber,
-                imageUrl: item.displayCoverUrl,
-              ),
-            );
-            final details = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      created == true
-                          ? Icons.add_circle_outline
-                          : Icons.fact_check_outlined,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        item.displayTitle,
-                        style: Theme.of(context).textTheme.titleSmall,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    _MiniChip(label: item.kind),
-                    _MiniChip(label: 'ID ${_shortId(item.id)}'),
-                    if (item.series?.seriesTitle != null)
-                      _MiniChip(label: item.series!.seriesTitle!),
-                    if (edition?.physicalFormatLabel != null)
-                      _MiniChip(label: edition!.physicalFormatLabel!),
-                    if (item.publisher != null)
-                      _MiniChip(label: item.publisher!),
-                    if (item.barcode != null) _MiniChip(label: item.barcode!),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _Fact(
-                        label: 'Editions',
-                        value: item.editions.length.toString()),
-                    _Fact(
-                      label: 'Variants',
-                      value: item.editions
-                          .fold<int>(
-                            0,
-                            (count, edition) => count + edition.variants.length,
-                          )
-                          .toString(),
-                    ),
-                    _Fact(
-                      label: 'Releases',
-                      value: item.editions
-                          .fold<int>(
-                            0,
-                            (count, edition) => count + edition.releases.length,
-                          )
-                          .toString(),
-                    ),
-                    if (item.publishing?.pageCount != null)
-                      _Fact(
-                        label: 'Pages',
-                        value: item.publishing!.pageCount.toString(),
-                      ),
-                    if (item.coverDate != null)
-                      _Fact(
-                          label: 'Cover', value: _formatDate(item.coverDate!)),
-                    if (item.storeDate != null)
-                      _Fact(
-                          label: 'Store', value: _formatDate(item.storeDate!)),
-                    if (variant?.coverPriceCents != null)
-                      _Fact(
-                        label: 'Cover price',
-                        value: _formatMoney(
-                          variant!.coverPriceCents!,
-                          variant.currency ?? item.publishing?.currency,
-                        ),
-                      ),
-                  ],
-                ),
-                if (item.providerLinks.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  _ProviderLinksList(links: item.providerLinks),
-                ],
-                if (item.editions.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _AdminItemVariantSummary(item: item),
-                ],
-                if (auditLogs.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _ItemAuditTimeline(logs: auditLogs),
-                ],
-              ],
-            );
-            if (isNarrow) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  cover,
-                  const SizedBox(height: 12),
-                  details,
-                ],
-              );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                cover,
-                const SizedBox(width: 12),
-                Expanded(child: details),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _CoverUpdate {
-  const _CoverUpdate({
-    required this.coverImageUrl,
-    this.thumbnailImageUrl,
-  });
-
-  final String coverImageUrl;
-  final String? thumbnailImageUrl;
-}
-
-class _ProviderLinksList extends StatelessWidget {
-  const _ProviderLinksList({required this.links});
-
-  final List<AdminProviderLink> links;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Provider links', style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        for (final link in links.take(6))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _MiniChip(label: link.provider),
-                _MiniChip(label: link.entityType),
-                _MiniChip(label: 'ID ${link.providerItemId}'),
-                if (link.siteUrl != null) const _MiniChip(label: 'site URL'),
-                if (link.apiUrl != null) const _MiniChip(label: 'api URL'),
-                if (link.siteUrl != null)
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: SelectableText(
-                      link.siteUrl!,
-                      maxLines: 1,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _CoverInspectionDialog extends StatefulWidget {
-  const _CoverInspectionDialog({required this.item});
-
-  final AdminMetadataItem item;
-
-  @override
-  State<_CoverInspectionDialog> createState() => _CoverInspectionDialogState();
-}
-
-class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
-  late final TextEditingController _coverController;
-  late final TextEditingController _thumbnailController;
-  String? _checkMessage;
-  bool _isChecking = false;
-
-  AdminMetadataItem get item => widget.item;
-
-  @override
-  void initState() {
-    super.initState();
-    _coverController =
-        TextEditingController(text: item.primaryVariant?.coverImageUrl ?? '');
-    _thumbnailController = TextEditingController(
-      text: item.primaryVariant?.thumbnailImageUrl ?? '',
-    );
-    _coverController.addListener(_urlFieldsChanged);
-    _thumbnailController.addListener(_urlFieldsChanged);
-  }
-
-  @override
-  void dispose() {
-    _coverController.removeListener(_urlFieldsChanged);
-    _thumbnailController.removeListener(_urlFieldsChanged);
-    _coverController.dispose();
-    _thumbnailController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final variants = [
-      for (final edition in item.editions) ...edition.variants,
-    ];
-    return AlertDialog(
-      title: Text('Covers: ${item.displayTitle}'),
-      content: SizedBox(
-        width: 640,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: 180,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AspectRatio(
-                      aspectRatio: 2 / 3,
-                      child: LibraryCoverImage(
-                        title: item.title,
-                        itemNumber: item.itemNumber,
-                        imageUrl: item.displayCoverUrl,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    AspectRatio(
-                      aspectRatio: 2 / 3,
-                      child: LibraryCoverImage(
-                        title: item.title,
-                        itemNumber: item.itemNumber,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Generated fallback preview',
-                            style: Theme.of(context).textTheme.labelLarge,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Used by the client when the provider has no usable cover URL.',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _coverController,
-                decoration: const InputDecoration(
-                  labelText: 'Replacement cover URL',
-                  prefixIcon: Icon(Icons.link_outlined),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _thumbnailController,
-                decoration: const InputDecoration(
-                  labelText: 'Replacement thumbnail URL',
-                  prefixIcon: Icon(Icons.image_search_outlined),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              if (_checkMessage != null) ...[
-                const SizedBox(height: 10),
-                _MessageRow(
-                  message: _checkMessage!,
-                  isError: !_checkMessage!.startsWith('URL is reachable'),
-                ),
-              ],
-              const SizedBox(height: 12),
-              if (variants.isEmpty)
-                const Text('No variants attached to this item.')
-              else
-                for (final variant in variants)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          variant.name,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        SelectableText(
-                          [
-                            if (variant.physicalFormatLabel != null)
-                              'format: ${variant.physicalFormatLabel}',
-                            if (variant.coverImageUrl != null)
-                              'cover: ${variant.coverImageUrl}',
-                            if (variant.thumbnailImageUrl != null)
-                              'thumb: ${variant.thumbnailImageUrl}',
-                            if (variant.coverImageUrl == null &&
-                                variant.thumbnailImageUrl == null)
-                              'no cover URLs',
-                            'status: ${variant.coverStatus}',
-                            if (variant.coverStorage != null)
-                              'storage: ${variant.coverStorage}',
-                            if (variant.coverPolicy != null)
-                              'policy: ${variant.coverPolicy}',
-                          ].join('\n'),
-                        ),
-                      ],
-                    ),
-                  ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton.icon(
-          onPressed: _isChecking ? null : _checkCoverUrl,
-          icon: _isChecking
-              ? const SizedBox.square(
-                  dimension: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.fact_check_outlined),
-          label: const Text('Check URL'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-        FilledButton.icon(
-          onPressed: _coverController.text.trim().isEmpty
-              ? null
-              : () => Navigator.of(context).pop(
-                    _CoverUpdate(
-                      coverImageUrl: _coverController.text.trim(),
-                      thumbnailImageUrl:
-                          _emptyToNull(_thumbnailController.text),
-                    ),
-                  ),
-          icon: const Icon(Icons.save_outlined),
-          label: const Text('Replace URL'),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _checkCoverUrl() async {
-    final url = _coverController.text.trim();
-    if (url.isEmpty) {
-      setState(() => _checkMessage = 'Enter a cover URL first.');
-      return;
-    }
-    setState(() {
-      _isChecking = true;
-      _checkMessage = null;
-    });
-    try {
-      await precacheImage(NetworkImage(url), context);
-      if (mounted) {
-        setState(() => _checkMessage = 'URL is reachable in this client.');
-      }
-    } catch (error) {
-      if (mounted) {
-        setState(() => _checkMessage = 'URL check failed: $error');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isChecking = false);
-      }
-    }
-  }
-
-  void _urlFieldsChanged() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
-}
-
-class _AdminItemVariantSummary extends StatelessWidget {
-  const _AdminItemVariantSummary({required this.item});
-
-  final AdminMetadataItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final variants = [
-      for (final edition in item.editions)
-        for (final variant in edition.variants)
-          _EditionVariantPair(edition: edition, variant: variant),
-    ];
-    if (variants.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Variants and cover status',
-            style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final pair in variants.take(6))
-              _VariantStatusCard(edition: pair.edition, variant: pair.variant),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _EditionVariantPair {
-  const _EditionVariantPair({required this.edition, required this.variant});
-
-  final AdminEdition edition;
-  final AdminVariant variant;
-}
-
-class _VariantStatusCard extends StatelessWidget {
-  const _VariantStatusCard({
-    required this.edition,
-    required this.variant,
-  });
-
-  final AdminEdition edition;
-  final AdminVariant variant;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final hasCover = variant.coverImageUrl != null ||
-        variant.thumbnailImageUrl != null ||
-        variant.coverStatus != 'missing';
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 360, minWidth: 240),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.surface.withValues(alpha: 0.72),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colorScheme.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    hasCover ? Icons.image_outlined : Icons.hide_image_outlined,
-                    size: 18,
-                    color: hasCover ? colorScheme.primary : colorScheme.error,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      variant.name.isEmpty ? edition.title : variant.name,
-                      style: Theme.of(context).textTheme.labelLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  _MiniChip(label: variant.coverStatus),
-                  if (variant.coverStorage != null)
-                    _MiniChip(label: variant.coverStorage!),
-                  if (variant.coverPolicy != null)
-                    _MiniChip(label: variant.coverPolicy!),
-                  if (variant.physicalFormatLabel != null)
-                    _MiniChip(label: variant.physicalFormatLabel!),
-                  if (variant.barcode != null)
-                    _MiniChip(label: variant.barcode!),
-                ],
-              ),
-              if (variant.coverSourceUrl != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  variant.coverSourceUrl!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ItemAuditTimeline extends StatelessWidget {
-  const _ItemAuditTimeline({required this.logs});
-
-  final List<AdminAuditLogEntry> logs;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Item audit history',
-            style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        for (final log in logs.take(5))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.manage_history_outlined, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '${_formatDateTime(log.createdAt)} - ${log.action} by ${log.displayActor} (${log.detailsSummary})',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 class _CatalogCorrection {
   const _CatalogCorrection({
     this.title,
@@ -4435,504 +3832,6 @@ class _CorrectionPreviewEntry {
   final String after;
 }
 
-class _MetadataCorrectionDialog extends StatefulWidget {
-  const _MetadataCorrectionDialog({
-    required this.item,
-    required this.physicalFormats,
-  });
-
-  final AdminMetadataItem item;
-  final List<PhysicalMediaFormat> physicalFormats;
-
-  @override
-  State<_MetadataCorrectionDialog> createState() =>
-      _MetadataCorrectionDialogState();
-}
-
-class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
-  late final TextEditingController _titleController;
-  late final TextEditingController _itemNumberController;
-  late final TextEditingController _publisherController;
-  late final TextEditingController _barcodeController;
-  late final TextEditingController _variantController;
-  late final TextEditingController _pageCountController;
-  late final TextEditingController _releaseDateController;
-  late final TextEditingController _coverController;
-  late final TextEditingController _thumbnailController;
-  late final TextEditingController _synopsisController;
-  late String _physicalFormatId;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    final variant = widget.item.primaryVariant;
-    _titleController = TextEditingController(text: widget.item.title);
-    _itemNumberController =
-        TextEditingController(text: widget.item.itemNumber ?? '');
-    _publisherController =
-        TextEditingController(text: widget.item.publisher ?? '');
-    _barcodeController = TextEditingController(
-      text: widget.item.barcode ?? variant?.barcode ?? '',
-    );
-    _variantController = TextEditingController(text: variant?.name ?? '');
-    _pageCountController = TextEditingController(
-      text: widget.item.publishing?.pageCount?.toString() ?? '',
-    );
-    _releaseDateController = TextEditingController(
-      text: widget.item.coverDate == null
-          ? ''
-          : _formatDate(widget.item.coverDate!),
-    );
-    _coverController =
-        TextEditingController(text: variant?.coverImageUrl ?? '');
-    _thumbnailController =
-        TextEditingController(text: variant?.thumbnailImageUrl ?? '');
-    _synopsisController =
-        TextEditingController(text: widget.item.synopsis ?? '');
-    final edition = widget.item.primaryEdition;
-    _physicalFormatId = edition?.physicalFormat ??
-        physicalMediaFormatById(
-          edition?.physicalFormatLabel ?? '',
-          formats: widget.physicalFormats,
-        )?.id ??
-        '';
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _itemNumberController.dispose();
-    _publisherController.dispose();
-    _barcodeController.dispose();
-    _variantController.dispose();
-    _pageCountController.dispose();
-    _releaseDateController.dispose();
-    _coverController.dispose();
-    _thumbnailController.dispose();
-    _synopsisController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Edit metadata: ${widget.item.displayTitle}'),
-      content: SizedBox(
-        width: 680,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_error != null) ...[
-                _MessageRow(message: _error!, isError: true),
-                const SizedBox(height: 12),
-              ],
-              _correctionField(_titleController, 'Title'),
-              _correctionField(_itemNumberController, 'Item number'),
-              _correctionField(_publisherController, 'Publisher'),
-              _correctionField(_barcodeController, 'Barcode'),
-              _correctionField(_variantController, 'Primary variant'),
-              _correctionField(_pageCountController, 'Page count',
-                  keyboardType: TextInputType.number),
-              _correctionField(_releaseDateController, 'Release date'),
-              if (widget.physicalFormats.isNotEmpty) _physicalFormatField(),
-              _correctionField(_coverController, 'Cover URL'),
-              _correctionField(_thumbnailController, 'Thumbnail URL'),
-              _correctionField(
-                _synopsisController,
-                'Synopsis',
-                minLines: 3,
-                maxLines: 5,
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          child: const Text('Save correction'),
-        ),
-      ],
-    );
-  }
-
-  Widget _correctionField(
-    TextEditingController controller,
-    String label, {
-    TextInputType? keyboardType,
-    int minLines = 1,
-    int maxLines = 1,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        minLines: minLines,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
-      ),
-    );
-  }
-
-  Widget _physicalFormatField() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: DropdownButtonFormField<String>(
-        initialValue: _physicalFormatId,
-        dropdownColor: _kAdminDropdownColor,
-        borderRadius: kAppMenuBorderRadius,
-        decoration: const InputDecoration(
-          labelText: 'Physical format',
-          border: OutlineInputBorder(),
-        ),
-        items: [
-          const DropdownMenuItem(value: '', child: Text('No format selected')),
-          for (final format in widget.physicalFormats)
-            DropdownMenuItem(value: format.id, child: Text(format.label)),
-        ],
-        onChanged: (value) {
-          setState(() {
-            _physicalFormatId = value ?? '';
-          });
-        },
-      ),
-    );
-  }
-
-  Future<void> _submit() async {
-    if (_titleController.text.trim().isEmpty) {
-      setState(() {
-        _error = 'Title is required.';
-      });
-      return;
-    }
-    final currentVariantName = widget.item.primaryVariant?.name.trim();
-    if (currentVariantName != null &&
-        currentVariantName.isNotEmpty &&
-        _variantController.text.trim().isEmpty) {
-      setState(() {
-        _error = 'Primary variant cannot be cleared yet.';
-      });
-      return;
-    }
-    final pageCountText = _pageCountController.text.trim();
-    final pageCount =
-        pageCountText.isEmpty ? null : int.tryParse(pageCountText);
-    if (pageCountText.isNotEmpty && pageCount == null) {
-      setState(() {
-        _error = 'Page count must be a number.';
-      });
-      return;
-    }
-    final releaseDateText = _releaseDateController.text.trim();
-    final releaseDate =
-        releaseDateText.isEmpty ? null : DateTime.tryParse(releaseDateText);
-    if (releaseDateText.isNotEmpty && releaseDate == null) {
-      setState(() {
-        _error = 'Release date must use YYYY-MM-DD.';
-      });
-      return;
-    }
-    final correction = _CatalogCorrection(
-      title: _emptyToNull(_titleController.text),
-      itemNumber: _emptyToNull(_itemNumberController.text),
-      publisher: _emptyToNull(_publisherController.text),
-      barcode: _emptyToNull(_barcodeController.text),
-      physicalFormat: widget.physicalFormats.isNotEmpty
-          ? _emptyToNull(_physicalFormatId)
-          : null,
-      variantName: _emptyToNull(_variantController.text),
-      pageCount: pageCount,
-      releaseDate: releaseDate,
-      coverImageUrl: _emptyToNull(_coverController.text),
-      thumbnailImageUrl: _emptyToNull(_thumbnailController.text),
-      synopsis: _emptyToNull(_synopsisController.text),
-    );
-    final changes = _correctionPreview(correction);
-    if (changes.isEmpty) {
-      setState(() {
-        _error = 'Change at least one metadata field before saving.';
-      });
-      return;
-    }
-    final confirmed = await _confirmCorrectionPreview(changes);
-    if (!mounted || !confirmed) {
-      return;
-    }
-    Navigator.of(context).pop(correction);
-  }
-
-  Future<bool> _confirmCorrectionPreview(
-    List<_CorrectionPreviewEntry> changes,
-  ) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Preview metadata correction'),
-            content: SizedBox(
-              width: 620,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const _DestructiveWarning(
-                      icon: Icons.fact_check_outlined,
-                      message:
-                          'This edits canonical catalog metadata and affects every user who sees this item. Review the diff before saving.',
-                    ),
-                    const SizedBox(height: 12),
-                    for (final change in changes)
-                      _CorrectionPreviewRow(change: change),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Back to edit'),
-              ),
-              FilledButton.icon(
-                onPressed: () => Navigator.of(context).pop(true),
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Save correction'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-  }
-
-  List<_CorrectionPreviewEntry> _correctionPreview(
-    _CatalogCorrection correction,
-  ) {
-    final item = widget.item;
-    final variant = item.primaryVariant;
-    final edition = item.primaryEdition;
-    final changes = <_CorrectionPreviewEntry>[];
-    void add(String label, Object? before, Object? after) {
-      final beforeText = _previewValue(before);
-      final afterText = _previewValue(after);
-      if (beforeText == afterText) {
-        return;
-      }
-      changes.add(
-        _CorrectionPreviewEntry(
-          label: label,
-          before: beforeText,
-          after: afterText,
-        ),
-      );
-    }
-
-    add('Title', item.title, correction.title);
-    add('Item number', item.itemNumber, correction.itemNumber);
-    add('Publisher', item.publisher, correction.publisher);
-    add('Barcode', item.barcode ?? variant?.barcode, correction.barcode);
-    add('Primary variant', variant?.name, correction.variantName);
-    add('Page count', item.publishing?.pageCount, correction.pageCount);
-    add('Release date', item.coverDate, correction.releaseDate);
-    if (widget.physicalFormats.isNotEmpty) {
-      add('Physical format', edition?.physicalFormat,
-          correction.physicalFormat);
-    }
-    add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
-    add(
-      'Thumbnail URL',
-      variant?.thumbnailImageUrl,
-      correction.thumbnailImageUrl,
-    );
-    add('Synopsis', item.synopsis, correction.synopsis);
-    return changes;
-  }
-
-  String _previewValue(Object? value) {
-    if (value == null) {
-      return '(empty)';
-    }
-    if (value is DateTime) {
-      return _formatDate(value);
-    }
-    final text = value.toString().trim();
-    return text.isEmpty ? '(empty)' : text;
-  }
-}
-
-class _DuplicateMergeSelection {
-  const _DuplicateMergeSelection({
-    required this.targetItemId,
-    required this.sourceItemIds,
-  });
-
-  final String targetItemId;
-  final List<String> sourceItemIds;
-}
-
-class _DuplicateMergeReviewDialog extends StatefulWidget {
-  const _DuplicateMergeReviewDialog({required this.candidate});
-
-  final AdminDuplicateCandidate candidate;
-
-  @override
-  State<_DuplicateMergeReviewDialog> createState() =>
-      _DuplicateMergeReviewDialogState();
-}
-
-class _DuplicateMergeReviewDialogState
-    extends State<_DuplicateMergeReviewDialog> {
-  late String _targetItemId;
-  late Set<String> _sourceItemIds;
-  late final TextEditingController _confirmController;
-  bool _typedConfirmationMatches = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _targetItemId =
-        widget.candidate.preferredTargetItemId ?? widget.candidate.itemIds.first;
-    _sourceItemIds = widget.candidate.itemIds
-        .where((itemId) => itemId != _targetItemId)
-        .toSet();
-    _confirmController = TextEditingController()
-      ..addListener(() {
-        final matches = _confirmController.text.trim() == 'MERGE';
-        if (matches != _typedConfirmationMatches) {
-          setState(() {
-            _typedConfirmationMatches = matches;
-          });
-        }
-      });
-  }
-
-  @override
-  void dispose() {
-    _confirmController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final candidate = widget.candidate;
-    return AlertDialog(
-      title: Text('Merge review: ${candidate.displayTitle}'),
-      content: SizedBox(
-        width: 560,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  _MiniChip(label: candidate.reason),
-                  _MiniChip(label: '${candidate.duplicateScore}% match'),
-                  if (candidate.hasProviderConflicts)
-                    const _MiniChip(label: 'provider conflict'),
-                  if (candidate.hasCoverConflicts)
-                    const _MiniChip(label: 'cover conflict'),
-                  if (candidate.preferredTargetItemId != null)
-                    _MiniChip(
-                      label:
-                          'target ${_shortId(candidate.preferredTargetItemId!)}',
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              const _DestructiveWarning(
-                icon: Icons.warning_amber_outlined,
-                message:
-                    'This moves provider links, editions, variants, relationships, and admin history onto the selected target. Source catalog records are removed after merge.',
-              ),
-              const SizedBox(height: 12),
-              for (final itemId in candidate.itemIds)
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: _sourceItemIds.contains(itemId),
-                  enabled: itemId != _targetItemId,
-                  title: Text('Source ${_shortId(itemId)}'),
-                    subtitle: itemId == _targetItemId
-                      ? Text(
-                        itemId == candidate.preferredTargetItemId
-                          ? 'Recommended merge target'
-                          : 'Merge target',
-                      )
-                      : itemId == candidate.preferredTargetItemId
-                        ? const Text('Recommended target')
-                        : null,
-                  secondary: IconButton(
-                    tooltip: 'Set merge target',
-                    onPressed: () {
-                      setState(() {
-                        _targetItemId = itemId;
-                        _sourceItemIds = candidate.itemIds
-                            .where((id) => id != itemId)
-                            .toSet();
-                      });
-                    },
-                    icon: Icon(
-                      itemId == _targetItemId
-                          ? Icons.radio_button_checked
-                          : Icons.radio_button_unchecked,
-                    ),
-                  ),
-                  onChanged: itemId == _targetItemId
-                      ? null
-                      : (value) {
-                          setState(() {
-                            if (value == true) {
-                              _sourceItemIds.add(itemId);
-                            } else {
-                              _sourceItemIds.remove(itemId);
-                            }
-                          });
-                        },
-                ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _confirmController,
-                decoration: const InputDecoration(
-                  labelText: 'Type MERGE to confirm',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton.icon(
-          onPressed: _sourceItemIds.isEmpty || !_typedConfirmationMatches
-              ? null
-              : () => Navigator.of(context).pop(
-                    _DuplicateMergeSelection(
-                      targetItemId: _targetItemId,
-                      sourceItemIds: _sourceItemIds.toList(growable: false),
-                    ),
-                  ),
-          icon: const Icon(Icons.merge_type_outlined),
-          label: const Text('Merge selected'),
-        ),
-      ],
-    );
-  }
-}
 
 class _Fact extends StatelessWidget {
   const _Fact({required this.label, required this.value});

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -105,6 +106,28 @@ void main() {
     expect(find.text('Absolute Batman #1B'), findsOneWidget);
     expect(find.text('Provider links'), findsOneWidget);
     expect(find.text('Item audit history'), findsOneWidget);
+    expect(find.text('Bundle releases'), findsOneWidget);
+    expect(find.text('Absolute Batman Collector Bundle'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Edit bundle'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Edit bundle: Absolute Batman Collector Bundle'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Title'),
+      'Absolute Batman Collector Box',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Save correction'));
+    await tester.pumpAndSettle();
+    expect(find.text('Preview bundle correction'), findsOneWidget);
+    await tester.tap(find.text('Save correction').last);
+    await tester.pumpAndSettle();
+
+    expect(api.lastBundleUpdateId, 'bundle-1');
+    expect(api.lastBundleUpdateTitle, 'Absolute Batman Collector Box');
+    expect(find.text('Bundle release correction saved.'), findsOneWidget);
+    expect(find.text('Absolute Batman Collector Box'), findsOneWidget);
+
     await tester.tap(find.widgetWithText(TextButton, 'Close'));
     await tester.pumpAndSettle();
 
@@ -323,6 +346,8 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastMergeTargetItemId;
   String? lastCatalogUpdateTitle;
   String? lastCatalogUpdatePhysicalFormat;
+  String? lastBundleUpdateId;
+  String? lastBundleUpdateTitle;
   String? lastQueuedProviderItemId;
   int? lastRetryHistoryId;
   List<String>? lastSeriesTags;
@@ -330,6 +355,7 @@ class _FakeAdminApiClient extends ApiClient {
   bool duplicateResolved = false;
   bool retryResolved = false;
   bool catalogUpdated = false;
+  bool bundleUpdated = false;
   bool queuedJobCreated = false;
   int catalogUpdateCount = 0;
   int runPendingCount = 0;
@@ -797,6 +823,83 @@ class _FakeAdminApiClient extends ApiClient {
         ),
       ],
     );
+  }
+
+  @override
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+    if (itemId != 'item-1') {
+      return const [];
+    }
+    return [
+      BundleReleaseSummary(
+        id: 'bundle-1',
+        kind: 'comic',
+        title: bundleUpdated
+            ? 'Absolute Batman Collector Box'
+            : 'Absolute Batman Collector Bundle',
+        publisher: 'DC Comics',
+        bundleType: 'box_set',
+        contentSummary: const BundleReleaseContentSummary(
+          totalItems: 2,
+          primaryCount: 1,
+          bonusCount: 1,
+        ),
+      ),
+    ];
+  }
+
+  @override
+  Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
+    expect(bundleReleaseId, 'bundle-1');
+    return BundleReleaseDetail.fromJson({
+      'id': 'bundle-1',
+      'kind': 'comic',
+      'title': bundleUpdated
+          ? 'Absolute Batman Collector Box'
+          : 'Absolute Batman Collector Bundle',
+      'bundle_type': 'box_set',
+      'publisher': 'DC Comics',
+      'primary_item_id': 'item-1',
+      'content_summary': const {
+        'total_items': 2,
+        'primary_count': 1,
+        'bonus_count': 1,
+      },
+      'members': const [
+        {
+          'id': 'bundle-member-1',
+          'item_id': 'item-1',
+          'role': 'primary',
+          'sequence_number': 1,
+          'quantity': 1,
+          'is_primary': true,
+          'kind': 'comic',
+          'title': 'Absolute Batman #1B',
+          'item_number': '1B',
+        },
+        {
+          'id': 'bundle-member-2',
+          'item_id': 'item-3',
+          'role': 'bonus',
+          'sequence_number': 2,
+          'quantity': 1,
+          'is_primary': false,
+          'kind': 'comic',
+          'title': 'Absolute Batman Sketchbook',
+        },
+      ],
+    });
+  }
+
+  @override
+  Future<BundleReleaseDetail> adminUpdateBundleRelease({
+    required String bundleReleaseId,
+    required AdminBundleReleaseCorrection correction,
+  }) async {
+    lastBundleUpdateId = bundleReleaseId;
+    lastBundleUpdateTitle = correction.title;
+    bundleUpdated = true;
+    return getBundleRelease(bundleReleaseId);
   }
 
   @override
