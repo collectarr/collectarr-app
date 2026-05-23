@@ -1106,6 +1106,79 @@ void main() {
     expect(find.text('Batman #423'), findsOneWidget);
   });
 
+  testWidgets('comic add dialog lets the user pick an explicit release variant', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => _TestAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Batman #423'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Release'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('library-add-release-edition-field')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('library-add-release-variant-field')),
+      findsOneWidget,
+    );
+
+    await tester.tap(
+      find.byKey(const ValueKey('library-add-release-edition-field')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Collector Edition • Collector Issue').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(const ValueKey('library-add-release-variant-field')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sketch Cover • sketch').last);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Collector Edition'), findsWidgets);
+    expect(find.textContaining('Sketch Cover'), findsWidgets);
+  });
+
   testWidgets('barcode lookup falls back to provider search on Core miss',
       (tester) async {
     SharedPreferences.setMockInitialValues({
@@ -1356,6 +1429,24 @@ class _FakeLibraryAddApiClient extends ApiClient {
               CatalogVariant(
                 id: 'variant-comic-423-a',
                 name: 'Cover A',
+                isPrimary: true,
+              ),
+            ],
+          ),
+          CatalogEdition(
+            id: 'edition-comic-423-collector',
+            title: 'Collector Edition',
+            physicalFormatLabel: 'Collector Issue',
+            variants: [
+              CatalogVariant(
+                id: 'variant-comic-423-b',
+                name: 'Foil Cover',
+                variantType: 'foil',
+              ),
+              CatalogVariant(
+                id: 'variant-comic-423-c',
+                name: 'Sketch Cover',
+                variantType: 'sketch',
                 isPrimary: true,
               ),
             ],

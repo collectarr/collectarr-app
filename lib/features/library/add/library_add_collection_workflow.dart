@@ -79,6 +79,16 @@ class LibraryAddOwnedDetails {
   final String? soldTo;
 }
 
+class LibraryAddReleaseSelection {
+  const LibraryAddReleaseSelection({
+    required this.editionId,
+    this.variantId,
+  });
+
+  final String editionId;
+  final String? variantId;
+}
+
 Future<void> addLibraryItemsToTarget({
   required CatalogCacheRepository catalog,
   required CollectionMutations mutations,
@@ -87,6 +97,7 @@ Future<void> addLibraryItemsToTarget({
   LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
   Map<String, LibraryAddOwnedDetails> ownedDetailsByItemId = const {},
+  Map<String, LibraryAddReleaseSelection> releaseSelectionsByItemId = const {},
   Map<String, String> bundleReleaseIdsByItemId = const {},
 }) async {
   final values = items.toList(growable: false);
@@ -104,6 +115,7 @@ Future<void> addLibraryItemsToTarget({
       referenceType: target == LibraryAddTarget.track
           ? LibraryAddReferenceType.media
           : referenceType,
+      releaseSelection: releaseSelectionsByItemId[item.id],
       bundleReleaseId: bundleReleaseIdsByItemId[item.id],
     );
     switch (target) {
@@ -172,6 +184,7 @@ Future<void> addLibraryItemsToTarget({
 _ResolvedAddReference _resolveReferenceForItem(
   LibraryMetadataItem item, {
   required LibraryAddReferenceType referenceType,
+  LibraryAddReleaseSelection? releaseSelection,
   String? bundleReleaseId,
 }) {
   switch (referenceType) {
@@ -187,14 +200,53 @@ _ResolvedAddReference _resolveReferenceForItem(
         bundleReleaseId: normalizedBundleId,
       );
     case LibraryAddReferenceType.release:
-      final edition = _primaryEditionForItem(item);
-      final variant = _primaryVariantForEdition(edition);
+      final edition = _selectedEditionForItem(item, releaseSelection?.editionId) ??
+          _primaryEditionForItem(item);
+      final variant = _selectedVariantForEdition(
+            edition,
+            releaseSelection?.variantId,
+          ) ??
+          _primaryVariantForEdition(edition);
       return _ResolvedAddReference(
         anchorType: variant == null ? null : 'variant',
         editionId: edition?.id,
         variantId: variant?.id,
       );
   }
+}
+
+CatalogEdition? _selectedEditionForItem(
+  LibraryMetadataItem item,
+  String? editionId,
+) {
+  final normalizedEditionId = editionId?.trim();
+  if (normalizedEditionId == null || normalizedEditionId.isEmpty) {
+    return null;
+  }
+  for (final edition in item.editions) {
+    if (edition.id == normalizedEditionId) {
+      return edition;
+    }
+  }
+  return null;
+}
+
+CatalogVariant? _selectedVariantForEdition(
+  CatalogEdition? edition,
+  String? variantId,
+) {
+  final normalizedVariantId = variantId?.trim();
+  if (edition == null ||
+      normalizedVariantId == null ||
+      normalizedVariantId.isEmpty) {
+    return null;
+  }
+  for (final variant in edition.variants) {
+    if (variant.id == normalizedVariantId) {
+      return variant;
+    }
+  }
+  return null;
 }
 
 CatalogEdition? _primaryEditionForItem(LibraryMetadataItem item) {

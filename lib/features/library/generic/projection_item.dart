@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 
@@ -44,6 +45,10 @@ class LibraryProjectionItem {
         keyComic: source.ownedItem?.keyComic ?? false,
         keyReason: source.ownedItem?.keyReason,
         notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
+        primaryReferenceLabel: libraryPrimaryReferenceLabel(
+          ownedItem: source.ownedItem,
+          wishlistItem: source.wishlistItem,
+        ),
         pricePaidCents: source.ownedItem?.pricePaidCents,
         currency: source.ownedItem?.currency,
         storageBox: source.locationPath ?? source.ownedItem?.storageBox,

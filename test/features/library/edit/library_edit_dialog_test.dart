@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -139,11 +141,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('4K UHD'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(DropdownButtonFormField<String>).at(1));
+    await tester.tap(find.byType(DropdownButtonFormField<String>).at(2));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Steelbook').last);
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(DropdownButtonFormField<String>).at(2));
+    await tester.tap(find.byType(DropdownButtonFormField<String>).at(3));
     await tester.pumpAndSettle();
     await tester.tap(find.text('4K Variant').last);
     await tester.pumpAndSettle();
@@ -184,6 +186,7 @@ void main() {
     expect(selection?.item.barcode, '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
+    expect(selection?.personal?.anchorType, 'variant');
     expect(selection?.personal?.editionId, 'edition-steelbook');
     expect(selection?.personal?.variantId, 'variant-4k');
     expect(selection?.personal?.pricePaidCents, 1250);
@@ -363,6 +366,187 @@ void main() {
     expect(selection?.tracking?.readStatus, 'Planned');
     expect(selection?.tracking?.rating, 8);
     expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 1));
+  });
+
+  testWidgets('generic edit dialog returns owned bundle reference selection',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+      id: 'movie-bundle-1',
+      kind: 'movie',
+      title: 'Alien Anthology',
+      editions: const [
+        CatalogEdition(
+          id: 'edition-standard',
+          title: 'Standard',
+          variants: [CatalogVariant(id: 'variant-bluray', name: 'Blu-ray', isPrimary: true)],
+        ),
+      ],
+    ));
+    final ownedItem = OwnedItem(
+      id: 'owned-bundle-1',
+      itemId: 'movie-bundle-1',
+      quantity: 1,
+      updatedAt: DateTime.utc(2026, 5, 20),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.blue,
+                      availableBundleReleases: const [
+                        BundleReleaseSummary(
+                          id: 'bundle-1',
+                          kind: 'movie',
+                          title: 'Alien Anthology Box Set',
+                          publisher: 'Fox',
+                          coverImageUrl: null,
+                          thumbnailImageUrl: null,
+                          contentSummary: BundleReleaseContentSummary(
+                            totalItems: 4,
+                            primaryCount: 4,
+                            bonusCount: 0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: const Text('Open bundle owned'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open bundle owned'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bundle release').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(selection?.personal?.anchorType, 'bundle_release');
+    expect(selection?.personal?.bundleReleaseId, 'bundle-1');
+    expect(selection?.tracking?.editionId, isNull);
+    expect(selection?.tracking?.variantId, isNull);
+  });
+
+  testWidgets('generic edit dialog returns wishlist reference edits',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+      id: 'movie-wishlist-1',
+      kind: 'movie',
+      title: 'Akira',
+      editions: const [
+        CatalogEdition(
+          id: 'edition-standard',
+          title: 'Standard',
+          variants: [CatalogVariant(id: 'variant-4k', name: '4K', isPrimary: true)],
+        ),
+      ],
+    ));
+    final wishlistItem = WishlistItem(
+      id: 'wishlist-1',
+      itemId: 'movie-wishlist-1',
+      createdAt: DateTime.utc(2026, 5, 19),
+      updatedAt: DateTime.utc(2026, 5, 20),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      wishlistItem: wishlistItem,
+                      accent: Colors.purple,
+                      availableBundleReleases: const [
+                        BundleReleaseSummary(
+                          id: 'bundle-akira',
+                          kind: 'movie',
+                          title: 'Akira Collector Box',
+                          publisher: 'GKIDS',
+                          coverImageUrl: null,
+                          thumbnailImageUrl: null,
+                          contentSummary: BundleReleaseContentSummary(
+                            totalItems: 3,
+                            primaryCount: 1,
+                            bonusCount: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: const Text('Open wishlist'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open wishlist'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Personal'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('library-edit-wishlist-anchor-field')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bundle release').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Target price'), '54.99');
+    await tester.enterText(find.widgetWithText(TextField, 'Currency'), 'USD');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Wishlist notes'), 'Need the collector box.');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(selection?.wishlist?.anchorType, 'bundle_release');
+    expect(selection?.wishlist?.bundleReleaseId, 'bundle-akira');
+    expect(selection?.wishlist?.targetPriceCents, 5499);
+    expect(selection?.wishlist?.currency, 'USD');
+    expect(selection?.wishlist?.notes, 'Need the collector box.');
   });
 
   testWidgets('music kind uses dedicated edit dialog tabs and music fields',

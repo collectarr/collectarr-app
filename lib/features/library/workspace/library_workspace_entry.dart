@@ -27,6 +27,7 @@ sealed class LibraryWorkspaceEntry {
     this.grade,
     this.rawOrSlabbed,
     this.gradingCompany,
+    this.primaryReferenceLabel,
     this.keyComic = false,
     this.keyReason,
     this.notes,
@@ -68,6 +69,7 @@ sealed class LibraryWorkspaceEntry {
     String? grade,
     String? rawOrSlabbed,
     String? gradingCompany,
+    String? primaryReferenceLabel,
     bool keyComic = false,
     String? keyReason,
     String? notes,
@@ -113,6 +115,7 @@ sealed class LibraryWorkspaceEntry {
       grade: grade,
       rawOrSlabbed: rawOrSlabbed,
       gradingCompany: gradingCompany,
+      primaryReferenceLabel: primaryReferenceLabel,
       keyComic: keyComic,
       keyReason: keyReason,
       notes: notes,
@@ -231,6 +234,7 @@ sealed class LibraryWorkspaceEntry {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? primaryReferenceLabel;
   final bool keyComic;
   final String? keyReason;
   final String? notes;
@@ -289,6 +293,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           grade: common.grade,
           rawOrSlabbed: common.rawOrSlabbed,
           gradingCompany: common.gradingCompany,
+          primaryReferenceLabel: common.primaryReferenceLabel,
           keyComic: common.keyComic,
           keyReason: common.keyReason,
           notes: common.notes,
@@ -491,6 +496,7 @@ class _LibraryWorkspaceCommon {
     required this.grade,
     required this.rawOrSlabbed,
     required this.gradingCompany,
+    required this.primaryReferenceLabel,
     required this.keyComic,
     required this.keyReason,
     required this.notes,
@@ -531,6 +537,7 @@ class _LibraryWorkspaceCommon {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? primaryReferenceLabel;
   final bool keyComic;
   final String? keyReason;
   final String? notes;

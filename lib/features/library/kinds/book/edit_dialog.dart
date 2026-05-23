@@ -1089,8 +1089,12 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(
+            anchorType: (_selectedEditionId != null || _selectedVariantId != null)
+              ? 'variant'
+              : 'item',
             editionId: _selectedEditionId,
             variantId: _selectedVariantId,
+            bundleReleaseId: null,
                 condition: emptyToNull(_conditionController.text),
                 grade: emptyToNull(_gradeController.text),
                 purchaseDate: parseDate(_purchaseDateController.text),

@@ -121,6 +121,36 @@ void main() {
     expect(ownedRows.single.variantId, 'variant-1');
   });
 
+  test('adds release-referenced wishlist item using an explicit edition variant',
+      () async {
+    final fixture = _WorkflowFixture();
+    addTearDown(fixture.dispose);
+
+    await addLibraryItemsToTarget(
+      catalog: fixture.catalog,
+      mutations: fixture.mutations,
+      items: [_comicWithMultipleReleases('comic-release-2')],
+      target: LibraryAddTarget.wishlist,
+      referenceType: LibraryAddReferenceType.release,
+      releaseSelectionsByItemId: const {
+        'comic-release-2': LibraryAddReleaseSelection(
+          editionId: 'edition-2',
+          variantId: 'variant-2b',
+        ),
+      },
+    );
+
+    final wishlistRows =
+        await fixture.db.select(fixture.db.wishlistItemsCache).get();
+
+    expect(
+      wishlistRows.single.anchorType,
+      PersonalItemAnchorType.variant.apiValue,
+    );
+    expect(wishlistRows.single.editionId, 'edition-2');
+    expect(wishlistRows.single.variantId, 'variant-2b');
+  });
+
   test('adds wishlist item against a bundle release anchor', () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
@@ -227,6 +257,53 @@ LibraryMetadataItem _comicWithRelease(String id) {
               id: 'variant-1',
               name: 'Cover A',
               variantType: 'cover',
+              isPrimary: true,
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+LibraryMetadataItem _comicWithMultipleReleases(String id) {
+  return LibraryMetadataItem.fromCatalogItem(
+    CatalogItem(
+      id: id,
+      kind: 'comic',
+      title: 'Detective Comics #27',
+      itemNumber: '27',
+      publisher: 'DC',
+      editions: const [
+        CatalogEdition(
+          id: 'edition-1',
+          title: 'Standard Edition',
+          physicalFormat: 'single_issue',
+          physicalFormatLabel: 'Single Issue',
+          variants: [
+            CatalogVariant(
+              id: 'variant-1',
+              name: 'Cover A',
+              variantType: 'cover',
+              isPrimary: true,
+            ),
+          ],
+        ),
+        CatalogEdition(
+          id: 'edition-2',
+          title: 'Collector Edition',
+          physicalFormat: 'single_issue',
+          physicalFormatLabel: 'Collector Issue',
+          variants: [
+            CatalogVariant(
+              id: 'variant-2a',
+              name: 'Foil Cover',
+              variantType: 'foil',
+            ),
+            CatalogVariant(
+              id: 'variant-2b',
+              name: 'Sketch Cover',
+              variantType: 'sketch',
               isPrimary: true,
             ),
           ],

@@ -371,6 +371,50 @@ class CollectionMutations {
     }
   }
 
+  Future<WishlistItem> updateWishlistItem(
+    WishlistItem item, {
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    int? targetPriceCents,
+    String? currency,
+    String? notes,
+    bool notify = true,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final normalizedAnchorType = _normalizedPersonalAnchorType(
+      anchorType ?? item.anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+      fallbackEditionId: item.editionId,
+      fallbackVariantId: item.variantId,
+      fallbackBundleReleaseId: item.bundleReleaseId,
+    );
+    final updated = WishlistItem(
+      id: item.id,
+      itemId: item.itemId,
+      anchorType: normalizedAnchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+      targetPriceCents: targetPriceCents,
+      currency: currency,
+      notes: notes,
+      createdAt: item.createdAt,
+      updatedAt: now,
+      deletedAt: item.deletedAt,
+    );
+    await _wishlistCache().upsert(updated);
+    await _enqueueWishlistItem(updated, 'upsert', now);
+    await _enqueueCatalogSnapshotForItemId(item.itemId, now);
+    if (notify) {
+      await _notifyWishlistChanged();
+    }
+    return updated;
+  }
+
   Future<void> removeFromWishlist(String itemId, {bool notify = true}) async {
     final now = DateTime.now().toUtc();
     final existing = await _wishlistCache().findActiveByItemId(itemId);

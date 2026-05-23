@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,5 +37,50 @@ void main() {
     expect(projection.entry.keyComic, isTrue);
     expect(projection.entry.keyReason, 'First appearance');
     expect(projection.entry.notes, 'Newsstand copy');
+  });
+
+  test('library projection exposes bundle and release reference labels', () {
+    final bundleProjection = LibraryProjectionItem.fromShelf(
+      ShelfEntry(
+        itemId: 'comic-2',
+        catalogItem: CatalogItem(
+          id: 'comic-2',
+          kind: 'comic',
+          title: 'Batman',
+        ),
+        ownedItem: OwnedItem(
+          id: 'owned-2',
+          itemId: 'comic-2',
+          anchorType: 'bundle_release',
+          bundleReleaseId: 'bundle-2',
+          updatedAt: DateTime.utc(2026, 5, 23),
+        ),
+      ),
+    );
+    final wishlistProjection = LibraryProjectionItem.fromShelf(
+      ShelfEntry(
+        itemId: 'comic-3',
+        catalogItem: CatalogItem(
+          id: 'comic-3',
+          kind: 'comic',
+          title: 'Detective Comics',
+        ),
+        wishlistItem: WishlistItem(
+          id: 'wish-3',
+          itemId: 'comic-3',
+          anchorType: 'variant',
+          editionId: 'edition-3',
+          variantId: 'variant-3',
+          createdAt: DateTime.utc(2026, 5, 23),
+          updatedAt: DateTime.utc(2026, 5, 23),
+        ),
+      ),
+    );
+
+    expect(bundleProjection.entry.primaryReferenceLabel, 'Owned as bundle');
+    expect(
+      wishlistProjection.entry.primaryReferenceLabel,
+      'Wishlisted as release',
+    );
   });
 }

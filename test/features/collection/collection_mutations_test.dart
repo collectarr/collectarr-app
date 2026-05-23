@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -277,6 +278,51 @@ void main() {
     expect(updated.pricePaidCents, isNull);
     expect(updated.currency, isNull);
     expect(updated.personalNotes, isNull);
+  });
+
+  test('wishlist updates persist bundle anchors and notes', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(collectionMutationsProvider).addToWishlist('movie-1');
+    final originalRow = await db.select(db.wishlistItemsCache).getSingle();
+    final original = WishlistItem(
+      id: originalRow.id,
+      itemId: originalRow.itemId,
+      anchorType: originalRow.anchorType,
+      editionId: originalRow.editionId,
+      variantId: originalRow.variantId,
+      bundleReleaseId: originalRow.bundleReleaseId,
+      targetPriceCents: originalRow.targetPriceCents,
+      currency: originalRow.currency,
+      notes: originalRow.notes,
+      createdAt: originalRow.createdAt,
+      updatedAt: originalRow.updatedAt,
+      deletedAt: originalRow.deletedAt,
+    );
+
+    await container.read(collectionMutationsProvider).updateWishlistItem(
+          original,
+          anchorType: 'bundle_release',
+          bundleReleaseId: 'bundle-1',
+          targetPriceCents: 4599,
+          currency: 'USD',
+          notes: 'Wait for the steelbook bundle.',
+        );
+
+    final updated = await db.select(db.wishlistItemsCache).getSingle();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(updated.anchorType, 'bundle_release');
+    expect(updated.bundleReleaseId, 'bundle-1');
+    expect(updated.targetPriceCents, 4599);
+    expect(updated.currency, 'USD');
+    expect(updated.notes, 'Wait for the steelbook bundle.');
+    expect(queued.where((row) => row.entityType == 'wishlist_item'), hasLength(1));
   });
 
   test('collection import enqueues rows and refreshes pending count once',

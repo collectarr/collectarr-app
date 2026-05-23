@@ -147,6 +147,9 @@ class LibraryCardFlowTile extends StatelessWidget {
                           if (entry.variant != null &&
                               entry.variant!.isNotEmpty)
                             entry.variant,
+                          if (entry.primaryReferenceLabel != null &&
+                              entry.primaryReferenceLabel!.isNotEmpty)
+                            entry.primaryReferenceLabel,
                           if (entry.releaseDate != null)
                             dateFormatter(entry.releaseDate!)
                           else if (entry.releaseYear != null)

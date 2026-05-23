@@ -107,6 +107,7 @@ class BundleReleaseSummary {
 
 class BundleReleaseMember {
   const BundleReleaseMember({
+    this.id,
     required this.itemId,
     required this.role,
     required this.quantity,
@@ -123,6 +124,7 @@ class BundleReleaseMember {
     this.volumeNumber,
   });
 
+  final String? id;
   final String itemId;
   final String role;
   final int? sequenceNumber;
@@ -140,6 +142,7 @@ class BundleReleaseMember {
 
   factory BundleReleaseMember.fromJson(Map<String, dynamic> json) {
     return BundleReleaseMember(
+      id: json['id'] as String?,
       itemId: json['item_id'] as String,
       role: json['role'] as String? ?? 'member',
       sequenceNumber: json['sequence_number'] as int?,
@@ -155,6 +158,99 @@ class BundleReleaseMember {
       volumeName: json['volume_name'] as String?,
       volumeNumber: json['volume_number'] as int?,
     );
+  }
+}
+
+
+class AdminBundleReleaseMemberUpdate {
+  const AdminBundleReleaseMemberUpdate({
+    this.id,
+    this.itemId,
+    required this.role,
+    this.sequenceNumber,
+    this.discNumber,
+    this.discLabel,
+    this.quantity = 1,
+    this.isPrimary = false,
+  });
+
+  final String? id;
+  final String? itemId;
+  final String role;
+  final int? sequenceNumber;
+  final int? discNumber;
+  final String? discLabel;
+  final int quantity;
+  final bool isPrimary;
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null && id!.trim().isNotEmpty) 'id': id,
+      if (itemId != null && itemId!.trim().isNotEmpty) 'item_id': itemId,
+      'role': role,
+      if (sequenceNumber != null) 'sequence_number': sequenceNumber,
+      if (discNumber != null) 'disc_number': discNumber,
+      if (discLabel != null) 'disc_label': discLabel,
+      'quantity': quantity,
+      'is_primary': isPrimary,
+    };
+  }
+}
+
+
+class AdminBundleReleaseCorrection {
+  const AdminBundleReleaseCorrection({
+    this.title,
+    this.bundleType,
+    this.format,
+    this.variantType,
+    this.packagingType,
+    this.region,
+    this.language,
+    this.publisher,
+    this.sku,
+    this.barcode,
+    this.releaseDate,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.members,
+  });
+
+  final String? title;
+  final String? bundleType;
+  final String? format;
+  final String? variantType;
+  final String? packagingType;
+  final String? region;
+  final String? language;
+  final String? publisher;
+  final String? sku;
+  final String? barcode;
+  final DateTime? releaseDate;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final List<AdminBundleReleaseMemberUpdate>? members;
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (title != null) 'title': title,
+      if (bundleType != null) 'bundle_type': bundleType,
+      if (format != null) 'format': format,
+      if (variantType != null) 'variant_type': variantType,
+      if (packagingType != null) 'packaging_type': packagingType,
+      if (region != null) 'region': region,
+      if (language != null) 'language': language,
+      if (publisher != null) 'publisher': publisher,
+      if (sku != null) 'sku': sku,
+      if (barcode != null) 'barcode': barcode,
+      if (releaseDate != null)
+        'release_date':
+            '${releaseDate!.toUtc().year.toString().padLeft(4, '0')}-${releaseDate!.toUtc().month.toString().padLeft(2, '0')}-${releaseDate!.toUtc().day.toString().padLeft(2, '0')}',
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (members != null)
+        'members': members!.map((member) => member.toJson()).toList(growable: false),
+    };
   }
 }
 

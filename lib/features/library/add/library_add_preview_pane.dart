@@ -43,9 +43,13 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     required this.availableBundleReleases,
     required this.selectedBundleReleaseId,
     required this.selectedBundleReleaseDetail,
+    required this.selectedReleaseEditionId,
+    required this.selectedReleaseVariantId,
     required this.isLoadingBundleReleases,
     required this.isLoadingBundleReleaseDetail,
     required this.onReferenceTypeChanged,
+    required this.onReleaseEditionSelected,
+    required this.onReleaseVariantSelected,
     required this.onBundleReleaseSelected,
   });
 
@@ -62,9 +66,13 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   final List<BundleReleaseSummary> availableBundleReleases;
   final String? selectedBundleReleaseId;
   final BundleReleaseDetail? selectedBundleReleaseDetail;
+  final String? selectedReleaseEditionId;
+  final String? selectedReleaseVariantId;
   final bool isLoadingBundleReleases;
   final bool isLoadingBundleReleaseDetail;
   final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onReleaseEditionSelected;
+  final ValueChanged<String> onReleaseVariantSelected;
   final ValueChanged<String> onBundleReleaseSelected;
 
   @override
@@ -153,7 +161,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -190,7 +198,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                 ),
               ],
             ),
-            Divider(height: 22, color: accent.withValues(alpha: 0.42)),
+            Divider(height: 18, color: accent.withValues(alpha: 0.42)),
             if (selectedItem != null) ...[
               _LibraryAddReferenceSelector(
                 accent: accent,
@@ -199,17 +207,21 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                 item: selectedItem,
                 bundleReleases: availableBundleReleases,
                 selectedBundleReleaseId: selectedBundleReleaseId,
+                selectedReleaseEditionId: selectedReleaseEditionId,
+                selectedReleaseVariantId: selectedReleaseVariantId,
                 isLoadingBundleReleases: isLoadingBundleReleases,
                 onReferenceTypeChanged: onReferenceTypeChanged,
+                onReleaseEditionSelected: onReleaseEditionSelected,
+                onReleaseVariantSelected: onReleaseVariantSelected,
                 onBundleReleaseSelected: onBundleReleaseSelected,
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
             ],
             _LibraryAddPreviewStatusBanner(
               accent: accent,
               summary: statusSummary,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,8 +487,12 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     required this.item,
     required this.bundleReleases,
     required this.selectedBundleReleaseId,
+    required this.selectedReleaseEditionId,
+    required this.selectedReleaseVariantId,
     required this.isLoadingBundleReleases,
     required this.onReferenceTypeChanged,
+    required this.onReleaseEditionSelected,
+    required this.onReleaseVariantSelected,
     required this.onBundleReleaseSelected,
   });
 
@@ -486,8 +502,12 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   final LibraryMetadataItem item;
   final List<BundleReleaseSummary> bundleReleases;
   final String? selectedBundleReleaseId;
+  final String? selectedReleaseEditionId;
+  final String? selectedReleaseVariantId;
   final bool isLoadingBundleReleases;
   final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onReleaseEditionSelected;
+  final ValueChanged<String> onReleaseVariantSelected;
   final ValueChanged<String> onBundleReleaseSelected;
 
   @override
@@ -495,6 +515,11 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     final releaseAvailable = item.editions.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
+    final selectedEdition = _previewEditionForItem(item, selectedReleaseEditionId);
+    final selectedVariant = _previewVariantForEdition(
+      selectedEdition,
+      selectedReleaseVariantId,
+    );
     final selectionSummary = switch (addTarget) {
       LibraryAddTarget.track =>
         'Tracking stays item-centric even when ownership points to a release or bundle.',
@@ -571,9 +596,72 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 referenceType == LibraryAddReferenceType.release) ...[
               const SizedBox(height: 8),
               Text(
-                _releaseSummary(item),
+                _releaseSummaryForSelection(selectedEdition, selectedVariant),
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                key: const ValueKey('library-add-release-edition-field'),
+                isExpanded: true,
+                value: selectedEdition?.id,
+                decoration: const InputDecoration(
+                  labelText: 'Edition',
+                  isDense: true,
+                ),
+                items: [
+                  for (final edition in item.editions)
+                    DropdownMenuItem<String>(
+                      value: edition.id,
+                      child: Text(
+                        _editionOptionLabel(edition),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: !releaseAvailable
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          onReleaseEditionSelected(value);
+                        }
+                      },
+              ),
+              const SizedBox(height: 8),
+              if (selectedEdition == null)
+                const Text(
+                  'No canonical release is attached to this item yet.',
+                  style: TextStyle(color: kAppTextMuted),
+                )
+              else if (selectedEdition.variants.isEmpty)
+                const Text(
+                  'This edition has no canonical variants, so the edition itself will be used.',
+                  style: TextStyle(color: kAppTextMuted),
+                )
+              else
+                DropdownButtonFormField<String>(
+                  key: const ValueKey('library-add-release-variant-field'),
+                  isExpanded: true,
+                  value: selectedVariant?.id,
+                  decoration: const InputDecoration(
+                    labelText: 'Variant',
+                    isDense: true,
+                  ),
+                  items: [
+                    for (final variant in selectedEdition.variants)
+                      DropdownMenuItem<String>(
+                        value: variant.id,
+                        child: Text(
+                          _variantOptionLabel(variant),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      onReleaseVariantSelected(value);
+                    }
+                  },
+                ),
             ],
             if (!selectionLocked &&
                 referenceType == LibraryAddReferenceType.bundleRelease) ...[
@@ -748,6 +836,13 @@ class _BundleReleaseOptionCard extends StatelessWidget {
 String _releaseSummary(LibraryMetadataItem item) {
   final edition = _previewPrimaryEditionForItem(item);
   final variant = _previewPrimaryVariantForEdition(edition);
+  return _releaseSummaryForSelection(edition, variant);
+}
+
+String _releaseSummaryForSelection(
+  CatalogEdition? edition,
+  CatalogVariant? variant,
+) {
   if (edition == null) {
     return 'No canonical release is attached to this item yet.';
   }
@@ -758,6 +853,60 @@ String _releaseSummary(LibraryMetadataItem item) {
     if (edition.physicalFormatLabel != null &&
         edition.physicalFormatLabel!.trim().isNotEmpty)
       edition.physicalFormatLabel!,
+  ];
+  return parts.join(' • ');
+}
+
+CatalogEdition? _previewEditionForItem(
+  LibraryMetadataItem item,
+  String? editionId,
+) {
+  final normalizedEditionId = editionId?.trim();
+  if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
+    for (final edition in item.editions) {
+      if (edition.id == normalizedEditionId) {
+        return edition;
+      }
+    }
+  }
+  return _previewPrimaryEditionForItem(item);
+}
+
+CatalogVariant? _previewVariantForEdition(
+  CatalogEdition? edition,
+  String? variantId,
+) {
+  final normalizedVariantId = variantId?.trim();
+  if (edition != null && normalizedVariantId != null && normalizedVariantId.isNotEmpty) {
+    for (final variant in edition.variants) {
+      if (variant.id == normalizedVariantId) {
+        return variant;
+      }
+    }
+  }
+  return _previewPrimaryVariantForEdition(edition);
+}
+
+String _editionOptionLabel(CatalogEdition edition) {
+  final parts = <String>[
+    edition.title,
+    if (edition.physicalFormatLabel != null &&
+        edition.physicalFormatLabel!.trim().isNotEmpty)
+      edition.physicalFormatLabel!,
+    if (edition.releaseDate != null)
+      '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
+  ];
+  return parts.join(' • ');
+}
+
+String _variantOptionLabel(CatalogVariant variant) {
+  final parts = <String>[
+    variant.name,
+    if (variant.variantType != null && variant.variantType!.trim().isNotEmpty)
+      variant.variantType!,
+    if (variant.physicalFormatLabel != null &&
+        variant.physicalFormatLabel!.trim().isNotEmpty)
+      variant.physicalFormatLabel!,
   ];
   return parts.join(' • ');
 }
