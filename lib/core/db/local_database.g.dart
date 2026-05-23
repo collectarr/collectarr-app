@@ -3935,6 +3935,880 @@ class WishlistItemsCacheCompanion
   }
 }
 
+class $TrackingEntriesCacheTable extends TrackingEntriesCache
+    with TableInfo<$TrackingEntriesCacheTable, TrackingEntriesCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrackingEntriesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        ownedItemId,
+        editionId,
+        variantId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        seasonNumber,
+        episodeNumber,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tracking_entries_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<TrackingEntriesCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TrackingEntriesCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrackingEntriesCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $TrackingEntriesCacheTable createAlias(String alias) {
+    return $TrackingEntriesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class TrackingEntriesCacheData extends DataClass
+    implements Insertable<TrackingEntriesCacheData> {
+  final String id;
+  final String itemId;
+  final String? ownedItemId;
+  final String? editionId;
+  final String? variantId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const TrackingEntriesCacheData(
+      {required this.id,
+      required this.itemId,
+      this.ownedItemId,
+      this.editionId,
+      this.variantId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      this.seasonNumber,
+      this.episodeNumber,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  TrackingEntriesCacheCompanion toCompanion(bool nullToAbsent) {
+    return TrackingEntriesCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory TrackingEntriesCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrackingEntriesCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  TrackingEntriesCacheData copyWith(
+          {String? id,
+          String? itemId,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      TrackingEntriesCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  TrackingEntriesCacheData copyWithCompanion(
+      TrackingEntriesCacheCompanion data) {
+    return TrackingEntriesCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackingEntriesCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      ownedItemId,
+      editionId,
+      variantId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      seasonNumber,
+      episodeNumber,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrackingEntriesCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class TrackingEntriesCacheCompanion
+    extends UpdateCompanion<TrackingEntriesCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String?> ownedItemId;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const TrackingEntriesCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrackingEntriesCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    this.ownedItemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        updatedAt = Value(updatedAt);
+  static Insertable<TrackingEntriesCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? ownedItemId,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrackingEntriesCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<String?>? ownedItemId,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return TrackingEntriesCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackingEntriesCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SyncQueueTable extends SyncQueue
     with TableInfo<$SyncQueueTable, SyncQueueData> {
   @override
@@ -7570,6 +8444,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $OwnedItemsCacheTable(this);
   late final $WishlistItemsCacheTable wishlistItemsCache =
       $WishlistItemsCacheTable(this);
+  late final $TrackingEntriesCacheTable trackingEntriesCache =
+      $TrackingEntriesCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   late final $CustomFieldDefinitionsCacheTable customFieldDefinitionsCache =
       $CustomFieldDefinitionsCacheTable(this);
@@ -7597,6 +8473,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         catalogCache,
         ownedItemsCache,
         wishlistItemsCache,
+        trackingEntriesCache,
         syncQueue,
         customFieldDefinitionsCache,
         customFieldValuesCache,
@@ -9228,6 +10105,387 @@ typedef $$WishlistItemsCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     WishlistItemsCacheData,
     PrefetchHooks Function()>;
+typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
+    = TrackingEntriesCacheCompanion Function({
+  required String id,
+  required String itemId,
+  Value<String?> ownedItemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
+    = TrackingEntriesCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<String?> ownedItemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$TrackingEntriesCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
+  $$TrackingEntriesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$TrackingEntriesCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
+  $$TrackingEntriesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TrackingEntriesCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
+  $$TrackingEntriesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TrackingEntriesCacheTable,
+    TrackingEntriesCacheData,
+    $$TrackingEntriesCacheTableFilterComposer,
+    $$TrackingEntriesCacheTableOrderingComposer,
+    $$TrackingEntriesCacheTableAnnotationComposer,
+    $$TrackingEntriesCacheTableCreateCompanionBuilder,
+    $$TrackingEntriesCacheTableUpdateCompanionBuilder,
+    (
+      TrackingEntriesCacheData,
+      BaseReferences<_$LocalDatabase, $TrackingEntriesCacheTable,
+          TrackingEntriesCacheData>
+    ),
+    TrackingEntriesCacheData,
+    PrefetchHooks Function()> {
+  $$TrackingEntriesCacheTableTableManager(
+      _$LocalDatabase db, $TrackingEntriesCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TrackingEntriesCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TrackingEntriesCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TrackingEntriesCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TrackingEntriesCacheCompanion(
+            id: id,
+            itemId: itemId,
+            ownedItemId: ownedItemId,
+            editionId: editionId,
+            variantId: variantId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TrackingEntriesCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            ownedItemId: ownedItemId,
+            editionId: editionId,
+            variantId: variantId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TrackingEntriesCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $TrackingEntriesCacheTable,
+        TrackingEntriesCacheData,
+        $$TrackingEntriesCacheTableFilterComposer,
+        $$TrackingEntriesCacheTableOrderingComposer,
+        $$TrackingEntriesCacheTableAnnotationComposer,
+        $$TrackingEntriesCacheTableCreateCompanionBuilder,
+        $$TrackingEntriesCacheTableUpdateCompanionBuilder,
+        (
+          TrackingEntriesCacheData,
+          BaseReferences<_$LocalDatabase, $TrackingEntriesCacheTable,
+              TrackingEntriesCacheData>
+        ),
+        TrackingEntriesCacheData,
+        PrefetchHooks Function()>;
 typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   required String id,
   required String entityType,
@@ -11243,6 +12501,8 @@ class $LocalDatabaseManager {
       $$OwnedItemsCacheTableTableManager(_db, _db.ownedItemsCache);
   $$WishlistItemsCacheTableTableManager get wishlistItemsCache =>
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
+  $$TrackingEntriesCacheTableTableManager get trackingEntriesCache =>
+      $$TrackingEntriesCacheTableTableManager(_db, _db.trackingEntriesCache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
   $$CustomFieldDefinitionsCacheTableTableManager

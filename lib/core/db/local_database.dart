@@ -144,6 +144,30 @@ class WishlistItemsCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class TrackingEntriesCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get editionId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get sourceType => text().nullable()();
+  TextColumn get status => text().nullable()();
+  IntColumn get rating => integer().nullable()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
+  DateTimeColumn get finishedAt => dateTime().nullable()();
+  IntColumn get progressCurrent => integer().nullable()();
+  IntColumn get progressTotal => integer().nullable()();
+  IntColumn get timesCompleted => integer().nullable()();
+  TextColumn get notes => text().nullable()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class SyncQueue extends Table {
   TextColumn get id => text()();
   TextColumn get entityType => text()();
@@ -236,6 +260,7 @@ class PickListValuesCache extends Table {
   CatalogCache,
   OwnedItemsCache,
   WishlistItemsCache,
+  TrackingEntriesCache,
   SyncQueue,
   CustomFieldDefinitionsCache,
   CustomFieldValuesCache,

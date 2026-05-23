@@ -1,10 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,6 +94,34 @@ void main() {
     expect(wishlist.targetPriceCents, 999);
   });
 
+  test('stores tracking entries separately from owned copies', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db.into(db.trackingEntriesCache).insert(
+          TrackingEntriesCacheCompanion.insert(
+            id: 'track-1',
+            itemId: 'movie-1',
+            sourceType: const Value('digital'),
+            status: const Value('Watched'),
+            rating: const Value(9),
+            startedAt: Value(DateTime.utc(2026, 5, 23, 18)),
+            finishedAt: Value(DateTime.utc(2026, 5, 23, 20, 35)),
+            timesCompleted: const Value(1),
+            notes: const Value('Watched on Plex'),
+            updatedAt: DateTime.utc(2026, 5, 23, 20, 35),
+          ),
+        );
+
+    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+
+    expect(tracking.itemId, 'movie-1');
+    expect(tracking.sourceType, 'digital');
+    expect(tracking.status, 'Watched');
+    expect(tracking.rating, 9);
+    expect(tracking.notes, 'Watched on Plex');
+  });
+
   test('owned items repository preserves location ids', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -112,6 +142,36 @@ void main() {
 
     expect(owned?.locationId, 'loc-1');
     expect(raw.locationId, 'loc-1');
+  });
+
+  test('tracking entries repository preserves edition and progress refs', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = TrackingEntriesCacheRepository(db);
+
+    await repo.upsert(
+      TrackingEntry(
+        id: 'track-1',
+        itemId: 'music-1',
+        editionId: 'edition-cd',
+        variantId: 'variant-deluxe',
+        sourceType: 'physical',
+        status: 'Listened',
+        progressCurrent: 10,
+        progressTotal: 10,
+        timesCompleted: 2,
+        updatedAt: DateTime.utc(2026, 5, 23, 22),
+      ),
+    );
+
+    final tracking = await repo.findById('track-1');
+    final raw = await db.select(db.trackingEntriesCache).getSingle();
+
+    expect(tracking?.editionId, 'edition-cd');
+    expect(tracking?.variantId, 'variant-deluxe');
+    expect(tracking?.timesCompleted, 2);
+    expect(raw.progressCurrent, 10);
+    expect(raw.progressTotal, 10);
   });
 
   test('stores pending personal sync changes locally', () async {
