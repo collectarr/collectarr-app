@@ -12,8 +12,15 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   test('collection mutations enqueue personal sync changes', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -208,7 +215,7 @@ void main() {
     final tracking = await db.select(db.trackingEntriesCache).get();
     expect(tracking, hasLength(1));
     expect(tracking.single.id, 'tracking-existing');
-    expect(tracking.single.status, 'Watching');
+    expect(tracking.single.status, 'In progress');
     expect(tracking.single.rating, 9);
   });
 

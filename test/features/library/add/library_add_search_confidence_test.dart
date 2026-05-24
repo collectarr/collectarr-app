@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('exact core match suppresses provider fallback', () {
     final shouldFallback = shouldSearchProviderForCoreResults(
-      const [
+      [
         LibraryMetadataItem(
           id: 'comic-423',
           kind: 'comic',
@@ -34,7 +34,7 @@ void main() {
 
   test('weak core top match keeps provider fallback enabled', () {
     final shouldFallback = shouldSearchProviderForCoreResults(
-      const [
+      [
         LibraryMetadataItem(
           id: 'movie-1',
           kind: 'movie',

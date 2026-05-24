@@ -87,7 +87,13 @@ void main() {
     await tester.tap(find.text('Catalog').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('Canonical catalog browser'), findsOneWidget);
+    expect(find.text('Catalog search'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Find catalog items'),
+      'Batman',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Search'));
+    await tester.pumpAndSettle();
 
     await _scrollUntilVisible(
       tester,
@@ -109,7 +115,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(
         find.widgetWithText(TextField, 'Title'), 'Absolute Batman Deluxe');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save correction').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Preview metadata correction'), findsOneWidget);
+    await tester.tap(find.text('Save correction').last);
     await tester.pumpAndSettle();
     expect(find.text('Preview metadata correction'), findsOneWidget);
     await tester.tap(find.text('Save correction').last);
@@ -269,30 +278,47 @@ void main() {
     expect(api.lastRetryHistoryId, 7);
 
     // Provider ingest by ID
-    await _scrollUntilVisible(
-      tester,
-      find.widgetWithText(TextField, 'Provider item ID'),
-      delta: -700,
+    await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is DropdownButtonFormField<String> &&
+            widget.decoration?.labelText == 'Media kind',
+      ),
     );
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Comic').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Known ID'));
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.widgetWithText(TextField, 'Provider item ID'),
       'direct-123',
     );
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Ingest ID'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Add to catalog'));
     await tester.pumpAndSettle();
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, 'direct-123');
 
-    await _scrollUntilVisible(
-      tester,
-      find.widgetWithText(TextField, 'Provider query'),
+    await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is DropdownButtonFormField<String> &&
+            widget.decoration?.labelText == 'Media kind',
+      ),
     );
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Comic').last);
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.widgetWithText(TextField, 'Provider query'),
       'Batman #1',
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Search').last);
+    await tester.tap(find.widgetWithText(FilledButton, 'Search provider'));
     await tester.pump();
     await tester.pump();
     await tester.pumpAndSettle();
@@ -307,7 +333,7 @@ void main() {
       find.widgetWithText(FilledButton, 'Ingest'),
     );
     expect(find.text('Absolute Batman #1'), findsWidgets);
-    expect(find.text('ID 12345'), findsOneWidget);
+    expect(find.text('12345'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Ingest').first);
     await tester.pumpAndSettle();
@@ -323,7 +349,7 @@ void main() {
     expect(find.text('Manage locations'), findsOneWidget);
     expect(find.text('New custom field'), findsOneWidget);
     expect(find.text('Manage custom fields'), findsOneWidget);
-    expect(find.text('Comic: 1'), findsOneWidget);
+    expect(find.text('Field scope'), findsOneWidget);
     expect(find.text('User management'), findsOneWidget);
     expect(find.text('Image cache'), findsOneWidget);
     expect(find.text('alice@example.com'), findsOneWidget);
@@ -382,6 +408,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(Tab, 'Catalog'));
     await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Find catalog items'),
+      'Lord of the Rings',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Search'));
+    await tester.pumpAndSettle();
 
     await _scrollUntilVisible(
       tester,
@@ -391,27 +423,20 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Edit').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Credits & Characters'), findsOneWidget);
-    await tester.tap(find.text('Credits & Characters'));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.widgetWithText(TextField, 'Series tags'));
     await tester.enterText(
-      find.widgetWithText(TextField, 'Add tag').first,
-      'Epic Fantasy',
+      find.widgetWithText(TextField, 'Series tags'),
+      'Fantasy, Epic Fantasy, Fellowship',
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Add tag').first,
-      'Fellowship',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
-    await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save correction').first);
     await tester.pumpAndSettle();
     expect(find.text('Preview metadata correction'), findsOneWidget);
     expect(find.text('Series tags'), findsWidgets);
 
+    await tester.tap(find.text('Save correction').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Preview metadata correction'), findsOneWidget);
     await tester.tap(find.text('Save correction').last);
     await tester.pumpAndSettle();
 
@@ -607,7 +632,6 @@ class _FakeAdminApiClient extends ApiClient {
       volumes: 4,
       editions: 12,
       variants: 15,
-      releases: 12,
       providerLinks: 20,
       imageAssets: 0,
       imageCacheEntries: 0,
@@ -674,10 +698,17 @@ class _FakeAdminApiClient extends ApiClient {
     String? synopsis,
     String? editionTitle,
     int? pageCount,
+    int? runtimeMinutes,
     String? publisher,
     DateTime? releaseDate,
     String? imprint,
+    String? subtitle,
     String? seriesGroup,
+    String? country,
+    String? language,
+    String? ageRating,
+    String? catalogNumber,
+    String? releaseStatus,
     String? physicalFormat,
     String? variantName,
     String? barcode,
@@ -882,6 +913,7 @@ class _FakeAdminApiClient extends ApiClient {
     required String proposalId,
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
     lastApprovedProposalId = proposalId;
     lastApprovedProposalProviderItemId = providerItemId;
@@ -1099,9 +1131,6 @@ class _FakeAdminApiClient extends ApiClient {
               currency: 'USD',
             ),
           ],
-          releases: [
-            AdminRelease(id: 'release-2', region: 'US'),
-          ],
         ),
       ],
     );
@@ -1208,6 +1237,7 @@ class _FakeAdminApiClient extends ApiClient {
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
     lastIngestProvider = provider;
     lastIngestProviderItemId = providerItemId;
@@ -1246,9 +1276,6 @@ class _FakeAdminApiClient extends ApiClient {
                 coverPriceCents: 499,
                 currency: 'USD',
               ),
-            ],
-            releases: [
-              AdminRelease(id: 'release-1', region: 'US'),
             ],
           ),
         ],

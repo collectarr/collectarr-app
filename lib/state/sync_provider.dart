@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
+import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
@@ -98,6 +99,7 @@ class SyncController extends StateNotifier<SyncState> {
   SyncController(this.ref) : super(const SyncState());
 
   final Ref ref;
+  bool _onlineFirstSyncQueued = false;
 
   Future<void> refreshPendingCount() async {
     final count = await _queue().pendingCount();
@@ -108,6 +110,9 @@ class SyncController extends StateNotifier<SyncState> {
   static const _maxLogEntries = 20;
 
   Future<void> syncNow() async {
+    if (state.isSyncing) {
+      return;
+    }
     final preSyncPending = state.pendingCount;
     state = state.copyWith(
       isSyncing: true,
@@ -180,6 +185,23 @@ class SyncController extends StateNotifier<SyncState> {
     }
   }
 
+  Future<void> syncOnlineFirstIfEnabled() async {
+    if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider))) {
+      return;
+    }
+    _onlineFirstSyncQueued = true;
+    if (state.isSyncing) {
+      return;
+    }
+    while (_onlineFirstSyncQueued) {
+      _onlineFirstSyncQueued = false;
+      await syncNow();
+      if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider))) {
+        _onlineFirstSyncQueued = false;
+      }
+    }
+  }
+
   void dismissRejectedChange(String key) {
     final rejectedChanges = state.rejectedChanges
         .where((change) => change.key != key)
@@ -243,6 +265,14 @@ class SyncController extends StateNotifier<SyncState> {
       );
       return state.lastSyncedAt;
     }
+  }
+
+  bool _shouldUseOnlineFirstSync(ConnectionSettings settings) {
+    if (!settings.preferOnlineFirstSync) {
+      return false;
+    }
+    return settings.syncBaseUrl.trim().isNotEmpty &&
+        settings.syncKey.trim().isNotEmpty;
   }
 }
 

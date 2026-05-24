@@ -47,6 +47,12 @@ class LibraryAddOwnedDetails {
     this.readStatus,
     this.startedAt,
     this.finishedAt,
+    this.progressCurrent,
+    this.progressTotal,
+    this.timesCompleted,
+    this.trackingNotes,
+    this.seasonNumber,
+    this.episodeNumber,
     this.tags,
     this.soldAt,
     this.sellPriceCents,
@@ -74,6 +80,12 @@ class LibraryAddOwnedDetails {
   final String? readStatus;
   final DateTime? startedAt;
   final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? trackingNotes;
+  final int? seasonNumber;
+  final int? episodeNumber;
   final String? tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
@@ -172,6 +184,12 @@ Future<void> addLibraryItemsToTarget({
           rating: ownedDetails?.rating,
           startedAt: ownedDetails?.startedAt,
           finishedAt: ownedDetails?.finishedAt,
+          progressCurrent: ownedDetails?.progressCurrent,
+          progressTotal: ownedDetails?.progressTotal,
+          timesCompleted: ownedDetails?.timesCompleted,
+          notes: ownedDetails?.trackingNotes,
+          seasonNumber: ownedDetails?.seasonNumber,
+          episodeNumber: ownedDetails?.episodeNumber,
         );
         break;
       case LibraryAddTarget.wishlist:

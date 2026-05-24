@@ -248,6 +248,48 @@ List<String> libraryReferenceHierarchySegments({
   return segments;
 }
 
+({CatalogEdition? edition, CatalogVariant? variant})
+resolveLibraryReferenceRelease({
+  required String? editionId,
+  required String? variantId,
+  required List<CatalogEdition> editions,
+}) {
+  return _resolveLibraryReferenceRelease(
+    editionId: editionId,
+    variantId: variantId,
+    editions: editions,
+  );
+}
+
+({CatalogEdition? edition, CatalogVariant? variant})
+resolveLibraryEntryReferenceRelease(
+  LibraryWorkspaceEntry entry,
+) {
+  return resolveLibraryReferenceRelease(
+    editionId: entry.referenceEditionId,
+    variantId: entry.referenceVariantId,
+    editions: entry.editions,
+  );
+}
+
+List<String> libraryReferencePlatforms(LibraryWorkspaceEntry entry) {
+  final resolved = resolveLibraryEntryReferenceRelease(entry);
+  final values = <String>[];
+  final variantPlatform = resolved.variant?.platform?.trim();
+  if (variantPlatform != null && variantPlatform.isNotEmpty) {
+    values.add(variantPlatform);
+  }
+  final rawPlatforms = entry.game?.platforms ?? entry.rawPlatforms;
+  for (final platform in rawPlatforms ?? const <String>[]) {
+    final normalized = platform.trim();
+    if (normalized.isEmpty || values.contains(normalized)) {
+      continue;
+    }
+    values.add(normalized);
+  }
+  return values;
+}
+
 String? resolveLibraryOwnedItemId(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,

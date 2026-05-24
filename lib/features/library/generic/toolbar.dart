@@ -46,6 +46,10 @@ class LibraryToolbar extends StatelessWidget {
     this.selectionCallbacks,
     this.shelfState,
     this.onSmartLists,
+    this.onReadingQueue,
+    this.onEditConditionPickList,
+    this.onEditGradePickList,
+    this.onEditTagPickList,
     this.onPrintReport,
     this.onShareCollection,
   });
@@ -79,6 +83,10 @@ class LibraryToolbar extends StatelessWidget {
   final int selectedCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onReadingQueue;
+  final VoidCallback? onEditConditionPickList;
+  final VoidCallback? onEditGradePickList;
+  final VoidCallback? onEditTagPickList;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
 
@@ -114,6 +122,9 @@ class LibraryToolbar extends StatelessWidget {
               onClearFilters: onClearFilters,
               onRandomPick: onRandomPick,
               onDownloadAllCovers: onDownloadAllCovers,
+              onEditConditionPickList: onEditConditionPickList,
+              onEditGradePickList: onEditGradePickList,
+              onEditTagPickList: onEditTagPickList,
             );
           }
           return Padding(
@@ -161,6 +172,10 @@ class LibraryToolbar extends StatelessWidget {
                       onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
                       onSmartLists: onSmartLists,
+                      onReadingQueue: onReadingQueue,
+                      onEditConditionPickList: onEditConditionPickList,
+                      onEditGradePickList: onEditGradePickList,
+                      onEditTagPickList: onEditTagPickList,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
                     ),

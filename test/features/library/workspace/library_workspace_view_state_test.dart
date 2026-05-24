@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -7,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   const config = LibraryWorkspaceConfig(
-    kind: 'comic',
+    kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,
     preferencePrefix: 'test.comics',

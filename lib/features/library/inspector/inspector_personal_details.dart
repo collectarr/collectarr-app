@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
@@ -430,16 +431,36 @@ class _InspectorTrackingDetailsEditorState
     extends ConsumerState<InspectorTrackingDetailsEditor> {
   late final TextEditingController _ratingController;
   late final TextEditingController _statusController;
+  late final TextEditingController _progressCurrentController;
+  late final TextEditingController _progressTotalController;
+  late final TextEditingController _timesCompletedController;
+  late final TextEditingController _seasonNumberController;
+  late final TextEditingController _episodeNumberController;
+  late final TextEditingController _trackingNotesController;
   DateTime? _startedAt;
   DateTime? _finishedAt;
   String? _selectedEditionId;
   String? _selectedVariantId;
+
+  bool get _showsEpisodeFields {
+    return widget.profile.name == videoTrackingProfile.name ||
+        _seasonNumberController.text.trim().isNotEmpty ||
+        _episodeNumberController.text.trim().isNotEmpty ||
+        widget.trackingEntry.seasonNumber != null ||
+        widget.trackingEntry.episodeNumber != null;
+  }
 
   @override
   void initState() {
     super.initState();
     _ratingController = TextEditingController();
     _statusController = TextEditingController();
+    _progressCurrentController = TextEditingController();
+    _progressTotalController = TextEditingController();
+    _timesCompletedController = TextEditingController();
+    _seasonNumberController = TextEditingController();
+    _episodeNumberController = TextEditingController();
+    _trackingNotesController = TextEditingController();
     _syncFromEntry(widget.trackingEntry);
   }
 
@@ -456,6 +477,12 @@ class _InspectorTrackingDetailsEditorState
   void dispose() {
     _ratingController.dispose();
     _statusController.dispose();
+    _progressCurrentController.dispose();
+    _progressTotalController.dispose();
+    _timesCompletedController.dispose();
+    _seasonNumberController.dispose();
+    _episodeNumberController.dispose();
+    _trackingNotesController.dispose();
     super.dispose();
   }
 
@@ -566,6 +593,92 @@ class _InspectorTrackingDetailsEditorState
               ],
             ),
             const SizedBox(height: 9),
+            TrackingQuickAdjustments(
+              accent: accent,
+              progressCurrentController: _progressCurrentController,
+              progressTotalController: _progressTotalController,
+              seasonNumberController: _seasonNumberController,
+              episodeNumberController: _episodeNumberController,
+              showsEpisodeFields: _showsEpisodeFields,
+              onDecrementProgress: () => _bumpProgress(-1),
+              onIncrementProgress: () => _bumpProgress(1),
+              onDecrementEpisode: () => _bumpEpisode(-1),
+              onIncrementEpisode: () => _bumpEpisode(1),
+            ),
+            const SizedBox(height: 9),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _progressCurrentController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Progress current',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    controller: _progressTotalController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Progress total',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 9),
+            TextField(
+              controller: _timesCompletedController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Times completed',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            if (_showsEpisodeFields) ...[
+              const SizedBox(height: 9),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _seasonNumberController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Season',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _episodeNumberController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Episode',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+                TextField(
+                  controller: _trackingNotesController,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Tracking notes',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 9),
+            ],
+            const SizedBox(height: 9),
             Row(
               children: [
                 Expanded(
@@ -605,6 +718,12 @@ class _InspectorTrackingDetailsEditorState
   void _syncFromEntry(TrackingEntry entry) {
     _ratingController.text = entry.rating?.toString() ?? '';
     _statusController.text = entry.statusStorageValue ?? '';
+    _progressCurrentController.text = entry.progressCurrent?.toString() ?? '';
+    _progressTotalController.text = entry.progressTotal?.toString() ?? '';
+    _timesCompletedController.text = entry.timesCompleted?.toString() ?? '';
+    _seasonNumberController.text = entry.seasonNumber?.toString() ?? '';
+    _episodeNumberController.text = entry.episodeNumber?.toString() ?? '';
+    _trackingNotesController.text = entry.notes ?? '';
     _startedAt = entry.startedAt;
     _finishedAt = entry.finishedAt;
     final selection = resolveLibraryEditionSelection(
@@ -669,6 +788,27 @@ class _InspectorTrackingDetailsEditorState
     );
   }
 
+  void _bumpProgress(int delta) {
+    final current = parseTrackingInt(_progressCurrentController.text) ?? 0;
+    final total = parseTrackingInt(_progressTotalController.text);
+    final bounded = clampTrackingProgress(
+      current: current,
+      delta: delta,
+      progressTotal: total,
+    );
+    setState(() {
+      _progressCurrentController.text = '$bounded';
+    });
+  }
+
+  void _bumpEpisode(int delta) {
+    final current = parseTrackingInt(_episodeNumberController.text) ?? 1;
+    final bounded = clampTrackingEpisode(current: current, delta: delta);
+    setState(() {
+      _episodeNumberController.text = '$bounded';
+    });
+  }
+
   Future<void> _save() async {
     await ref.read(collectionMutationsProvider).upsertTrackingEntry(
           widget.itemId,
@@ -680,12 +820,12 @@ class _InspectorTrackingDetailsEditorState
           rating: _parseInt(_ratingController.text),
           startedAt: _startedAt,
           finishedAt: _finishedAt,
-          progressCurrent: widget.trackingEntry.progressCurrent,
-          progressTotal: widget.trackingEntry.progressTotal,
-          timesCompleted: widget.trackingEntry.timesCompleted,
-          notes: widget.trackingEntry.notes,
-          seasonNumber: widget.trackingEntry.seasonNumber,
-          episodeNumber: widget.trackingEntry.episodeNumber,
+          progressCurrent: _parseInt(_progressCurrentController.text),
+          progressTotal: _parseInt(_progressTotalController.text),
+          timesCompleted: _parseInt(_timesCompletedController.text),
+          notes: _emptyToNull(_trackingNotesController.text),
+          seasonNumber: _parseInt(_seasonNumberController.text),
+          episodeNumber: _parseInt(_episodeNumberController.text),
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

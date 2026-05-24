@@ -104,6 +104,8 @@ class InspectorActionBar extends StatelessWidget {
                     _GenericInspectorActionButton(
                       tooltip: entry.isOwned
                           ? 'Remove from collection'
+                        : entry.isWishlisted
+                          ? 'Convert wishlist to owned'
                           : 'Add to collection',
                       onPressed: onToggleOwned,
                       icon: entry.isOwned

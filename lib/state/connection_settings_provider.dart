@@ -27,11 +27,14 @@ class ConnectionSettingsController extends StateNotifier<ConnectionSettings> {
     required String metadataBaseUrl,
     required String syncBaseUrl,
     required String syncKey,
+    bool? preferOnlineFirstSync,
   }) async {
     final settings = ConnectionSettings(
       metadataBaseUrl: _normalizeUrl(metadataBaseUrl),
       syncBaseUrl: _normalizeUrl(syncBaseUrl),
       syncKey: syncKey.trim(),
+      preferOnlineFirstSync:
+          preferOnlineFirstSync ?? state.preferOnlineFirstSync,
       isLoaded: true,
     );
     await _store.write(settings);

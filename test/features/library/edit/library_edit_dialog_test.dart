@@ -442,12 +442,9 @@ void main() {
     await tester.tap(find.text('Open tracked'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Tracking'), findsOneWidget);
+    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Tracking edition'), findsAtLeastNWidgets(1));
     expect(find.text('Value'), findsNothing);
-    expect(find.text('Personal'), findsNothing);
-
-    await tester.tap(find.text('Tracking'));
-    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 

@@ -3,6 +3,7 @@ class ConnectionSettings {
     this.metadataBaseUrl = defaultMetadataBaseUrl,
     this.syncBaseUrl = defaultSyncBaseUrl,
     this.syncKey = defaultSyncKey,
+    this.preferOnlineFirstSync = false,
     this.isLoaded = false,
   });
 
@@ -22,18 +23,22 @@ class ConnectionSettings {
   final String metadataBaseUrl;
   final String syncBaseUrl;
   final String syncKey;
+  final bool preferOnlineFirstSync;
   final bool isLoaded;
 
   ConnectionSettings copyWith({
     String? metadataBaseUrl,
     String? syncBaseUrl,
     String? syncKey,
+    bool? preferOnlineFirstSync,
     bool? isLoaded,
   }) {
     return ConnectionSettings(
       metadataBaseUrl: metadataBaseUrl ?? this.metadataBaseUrl,
       syncBaseUrl: syncBaseUrl ?? this.syncBaseUrl,
       syncKey: syncKey ?? this.syncKey,
+      preferOnlineFirstSync:
+          preferOnlineFirstSync ?? this.preferOnlineFirstSync,
       isLoaded: isLoaded ?? this.isLoaded,
     );
   }

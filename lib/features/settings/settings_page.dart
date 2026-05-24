@@ -23,8 +23,6 @@ import 'package:collectarr_app/features/library/metadata/metadata_proposal_store
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
-import 'package:collectarr_app/features/settings/location_management_dialog.dart';
-import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/updater/app_update_panel.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -205,6 +203,36 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           decoration: const InputDecoration(
                             labelText: 'Sync key',
                             border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SwitchListTile.adaptive(
+                          contentPadding: EdgeInsets.zero,
+                          value: settings.preferOnlineFirstSync,
+                          onChanged: (value) async {
+                            await ref
+                                .read(connectionSettingsProvider.notifier)
+                                .save(
+                                  metadataBaseUrl: _metadataController.text,
+                                  syncBaseUrl: _syncController.text,
+                                  syncKey: _syncKeyController.text,
+                                  preferOnlineFirstSync: value,
+                                );
+                            if (!mounted) {
+                              return;
+                            }
+                            ref
+                                .read(syncControllerProvider.notifier)
+                                .refreshPendingCount();
+                            if (value) {
+                              unawaited(ref
+                                  .read(syncControllerProvider.notifier)
+                                  .syncOnlineFirstIfEnabled());
+                            }
+                          },
+                          title: const Text('Prefer online-first personal sync'),
+                          subtitle: const Text(
+                            'Keep the local cache, but sync automatically on startup and after local personal changes when your sync service is available.',
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -684,17 +712,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         const SnackBar(content: Text('Appearance defaults restored')),
       );
     }
-  }
-
-  Future<void> _showLocationManager() async {
-    await showLocationManagementDialog(
-      context: context,
-      db: ref.read(localDatabaseProvider),
-    );
-    if (!mounted) {
-      return;
-    }
-    setState(() {});
   }
 
   Future<void> _copyPairingCode() async {
@@ -1830,7 +1847,8 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
       if (type.isTopLevel) type.kind: type,
   };
   final defaultKinds = [
-    for (final config in collectarrLibraryTypes.types) config.workspace.kind,
+    for (final config in collectarrLibraryTypes.types)
+      config.workspace.kind.apiValue,
   ];
   final orderedKinds = preferences.orderedKinds([
     ...defaultKinds,

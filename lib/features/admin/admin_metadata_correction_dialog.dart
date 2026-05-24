@@ -208,16 +208,13 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
+      child: MetadataCorrectionTextField(
         controller: controller,
+        label: label,
         keyboardType: keyboardType,
+        hintText: hintText,
         minLines: minLines,
         maxLines: maxLines,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hintText,
-          border: const OutlineInputBorder(),
-        ),
       ),
     );
   }
@@ -225,10 +222,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   Widget _sectionLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+      child: MetadataCorrectionSectionLabel(label: label),
     );
   }
 
@@ -388,7 +382,6 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   ) {
     final item = widget.item;
     final variant = item.primaryVariant;
-    final edition = item.primaryEdition;
     final changes = <_CorrectionPreviewEntry>[];
     void add(String label, Object? before, Object? after) {
       final beforeText = _previewValue(before);
@@ -450,4 +443,11 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     final text = value.toString().trim();
     return text.isEmpty ? '(empty)' : text;
   }
+}
+
+List<String> _normalizedAdminTags(List<String>? tags) {
+  return (tags ?? const <String>[])
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
 }

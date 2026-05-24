@@ -337,7 +337,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                   ),
                   for (final type in collectarrLibraryTypes.types)
                     DropdownMenuItem<String>(
-                      value: type.workspace.kind,
+                      value: type.workspace.kind.apiValue,
                       child: Text(type.singularLabel),
                     ),
                 ],

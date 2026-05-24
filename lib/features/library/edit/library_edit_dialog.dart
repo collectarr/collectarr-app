@@ -21,11 +21,17 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+part 'library_edit_dialog_anchor_widgets.dart';
 
 class LibraryEditDialog extends ConsumerStatefulWidget {
   const LibraryEditDialog({
@@ -97,7 +103,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   late final TextEditingController _wishlistNotesController;
   late final TextEditingController _ratingController;
   late final TextEditingController _trackingController;
+  late final TextEditingController _progressCurrentController;
+  late final TextEditingController _progressTotalController;
+  late final TextEditingController _timesCompletedController;
+  late final TextEditingController _seasonNumberController;
+  late final TextEditingController _episodeNumberController;
+  late final TextEditingController _trackingNotesController;
   late final TextEditingController _tagsController;
+  List<String> _tagOptions = const [];
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
   String _selectedOwnedAnchorType = PersonalItemAnchorType.item.apiValue;
@@ -202,6 +215,15 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   bool get _showPhysicalOwnedFields => _isOwned && !_isDigitalFormat;
 
+  bool get _showsEpisodeTrackingFields {
+    final series = widget.item.series;
+    return widget.type.trackingProfile.name == videoTrackingProfile.name ||
+        series?.seasonNumber != null ||
+        series?.episodeNumber != null ||
+        _seasonNumberController.text.trim().isNotEmpty ||
+        _episodeNumberController.text.trim().isNotEmpty;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -274,7 +296,24 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _trackingController = TextEditingController(
       text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
     );
+    _progressCurrentController = TextEditingController(
+      text: tracking?.progressCurrent?.toString() ?? '',
+    );
+    _progressTotalController = TextEditingController(
+      text: tracking?.progressTotal?.toString() ?? '',
+    );
+    _timesCompletedController = TextEditingController(
+      text: tracking?.timesCompleted?.toString() ?? '',
+    );
+    _seasonNumberController = TextEditingController(
+      text: (tracking?.seasonNumber ?? item.series?.seasonNumber)?.toString() ?? '',
+    );
+    _episodeNumberController = TextEditingController(
+      text: (tracking?.episodeNumber ?? item.series?.episodeNumber)?.toString() ?? '',
+    );
+    _trackingNotesController = TextEditingController(text: tracking?.notes ?? '');
     _tagsController = TextEditingController(text: owned?.tags ?? '');
+    _tagOptions = splitPickListValues(owned?.tags);
     _selectedLocationId = owned?.locationId;
 
     _sellPriceController = TextEditingController(
@@ -336,6 +375,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
     if (_isOwned) {
       unawaited(_loadAvailableLocations());
+      unawaited(_loadTagOptions());
     }
   }
 
@@ -368,6 +408,12 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _wishlistNotesController.dispose();
     _ratingController.dispose();
     _trackingController.dispose();
+    _progressCurrentController.dispose();
+    _progressTotalController.dispose();
+    _timesCompletedController.dispose();
+    _seasonNumberController.dispose();
+    _episodeNumberController.dispose();
+    _trackingNotesController.dispose();
     _tagsController.dispose();
     _sellPriceController.dispose();
     _soldToController.dispose();
@@ -790,6 +836,43 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   ),
                 ),
               ]),
+              const SizedBox(height: 10),
+              _responsiveFields(
+                buildTrackingProgressFieldWidgets(
+                  progressCurrentController: _progressCurrentController,
+                  progressTotalController: _progressTotalController,
+                  timesCompletedController: _timesCompletedController,
+                  buildField: (controller, label) => _field(
+                    controller: controller,
+                    label: label,
+                    validator: optionalIntValidator,
+                  ),
+                ),
+              ),
+              if (_showsEpisodeTrackingFields) ...[
+                const SizedBox(height: 10),
+                _responsiveFields(
+                  buildTrackingEpisodeFieldWidgets(
+                    seasonNumberController: _seasonNumberController,
+                    episodeNumberController: _episodeNumberController,
+                    buildField: (controller, label) => _field(
+                      controller: controller,
+                      label: label,
+                      validator: optionalIntValidator,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _trackingNotesController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Tracking notes',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               if (_isOwned && _isDigitalFormat) ...[
                 const SizedBox(height: 10),
                 const Align(
@@ -802,7 +885,12 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
               if (_isOwned) ...[
                 const SizedBox(height: 10),
-                _field(controller: _tagsController, label: 'Tags'),
+                TagPickListField(
+                  controller: _tagsController,
+                  options: _tagOptions,
+                  label: 'Tags',
+                  hint: 'Comma-separated tags',
+                ),
                 const SizedBox(height: 10),
               ],
               _responsiveFields([
@@ -1135,6 +1223,18 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     setState(() => _availableLocations = locations);
   }
 
+  Future<void> _loadTagOptions() async {
+    final tagOptions = await loadTagPickListOptions(
+      ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      selectedTags: splitPickListValues(_tagsController.text),
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() => _tagOptions = tagOptions);
+  }
+
   Future<void> _pickLocation() async {
     final result = await showLocationPickerDialog(
       context: context,
@@ -1337,6 +1437,12 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               readStatus: emptyToNull(_trackingController.text),
               startedAt: _startedAt,
               finishedAt: _finishedAt,
+              progressCurrent: parseInt(_progressCurrentController.text),
+              progressTotal: parseInt(_progressTotalController.text),
+              timesCompleted: parseInt(_timesCompletedController.text),
+              notes: emptyToNull(_trackingNotesController.text),
+              seasonNumber: parseInt(_seasonNumberController.text),
+              episodeNumber: parseInt(_episodeNumberController.text),
             ),
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
@@ -1400,41 +1506,13 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     required String value,
     required ValueChanged<String> onChanged,
   }) {
-    final bundleAvailable = widget.availableBundleReleases.isNotEmpty;
-    final editionAvailable = widget.item.editions.isNotEmpty;
-    return DropdownButtonFormField<String>(
-      key: fieldKey,
-      initialValue: value,
-      isExpanded: true,
-      dropdownColor: kEditPanelRaised,
-      borderRadius: kEditMenuBorderRadius,
-      decoration: InputDecoration(labelText: label),
-      items: [
-        const DropdownMenuItem<String>(
-          value: 'item',
-          child: Text('Media'),
-        ),
-        if (editionAvailable)
-          const DropdownMenuItem<String>(
-            value: 'edition',
-            child: Text('Edition'),
-          ),
-        if (editionAvailable)
-          const DropdownMenuItem<String>(
-            value: 'variant',
-            child: Text('Variant'),
-          ),
-        if (bundleAvailable)
-          const DropdownMenuItem<String>(
-            value: 'bundle_release',
-            child: Text('Bundle release'),
-          ),
-      ],
-      onChanged: (value) {
-        if (value != null) {
-          onChanged(value);
-        }
-      },
+    return _LibraryEditAnchorSelector(
+      fieldKey: fieldKey,
+      label: label,
+      value: value,
+      editionAvailable: widget.item.editions.isNotEmpty,
+      bundleAvailable: widget.availableBundleReleases.isNotEmpty,
+      onChanged: onChanged,
     );
   }
 
@@ -1496,23 +1574,10 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     required String? selectedEditionId,
     required ValueChanged<String?> onChanged,
   }) {
-    return DropdownButtonFormField<String>(
-      initialValue: selectedEditionId,
-      isExpanded: true,
-      dropdownColor: kEditPanelRaised,
-      borderRadius: kEditMenuBorderRadius,
-      decoration: InputDecoration(labelText: label),
-      items: [
-        const DropdownMenuItem<String>(
-          value: '',
-          child: Text('Primary / unspecified edition'),
-        ),
-        for (final edition in widget.item.editions)
-          DropdownMenuItem<String>(
-            value: edition.id,
-            child: Text(edition.title),
-          ),
-      ],
+    return _LibraryEditEditionSelector(
+      label: label,
+      selectedEditionId: selectedEditionId,
+      editions: widget.item.editions,
       onChanged: (value) => onChanged(_normalizedId(value)),
     );
   }
@@ -1566,26 +1631,11 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   }) {
     final edition = _selectedEditionById(selectedEditionId);
     final variants = edition?.variants ?? const <CatalogVariant>[];
-    return DropdownButtonFormField<String>(
-      initialValue: selectedVariantId,
-      isExpanded: true,
-      dropdownColor: kEditPanelRaised,
-      borderRadius: kEditMenuBorderRadius,
-      decoration: InputDecoration(labelText: label),
-      items: [
-        const DropdownMenuItem<String>(
-          value: '',
-          child: Text('Any / unspecified variant'),
-        ),
-        for (final variant in variants)
-          DropdownMenuItem<String>(
-            value: variant.id,
-            child: Text(variant.name),
-          ),
-      ],
-      onChanged: variants.isEmpty
-          ? null
-          : (value) => onChanged(_normalizedId(value)),
+    return _LibraryEditVariantSelector(
+      label: label,
+      selectedVariantId: selectedVariantId,
+      variants: variants,
+      onChanged: variants.isEmpty ? (_) {} : (value) => onChanged(_normalizedId(value)),
     );
   }
 
@@ -1595,27 +1645,12 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     required String? selectedBundleReleaseId,
     required ValueChanged<String?> onChanged,
   }) {
-    return DropdownButtonFormField<String>(
-      key: fieldKey,
-      initialValue: selectedBundleReleaseId,
-      isExpanded: true,
-      dropdownColor: kEditPanelRaised,
-      borderRadius: kEditMenuBorderRadius,
-      decoration: InputDecoration(labelText: label),
-      items: [
-        const DropdownMenuItem<String>(
-          value: '',
-          child: Text('Select a bundle release'),
-        ),
-        for (final bundle in widget.availableBundleReleases)
-          DropdownMenuItem<String>(
-            value: bundle.id,
-            child: Text(bundle.title),
-          ),
-      ],
-      onChanged: widget.availableBundleReleases.isEmpty
-          ? null
-          : (value) => onChanged(_normalizedId(value)),
+    return _LibraryEditBundleReleaseSelector(
+      fieldKey: fieldKey,
+      label: label,
+      selectedBundleReleaseId: selectedBundleReleaseId,
+      bundleReleases: widget.availableBundleReleases,
+      onChanged: (value) => onChanged(_normalizedId(value)),
     );
   }
 
@@ -1810,6 +1845,12 @@ class LibraryTrackingEditSelection {
     required this.variantId,
     required this.rating,
     required this.readStatus,
+    this.progressCurrent,
+    this.progressTotal,
+    this.timesCompleted,
+    this.notes,
+    this.seasonNumber,
+    this.episodeNumber,
     this.startedAt,
     this.finishedAt,
   });
@@ -1818,6 +1859,12 @@ class LibraryTrackingEditSelection {
   final String? variantId;
   final int? rating;
   final String? readStatus;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final int? seasonNumber;
+  final int? episodeNumber;
   final DateTime? startedAt;
   final DateTime? finishedAt;
 }

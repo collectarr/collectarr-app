@@ -36,12 +36,14 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/providers/volumes_provider.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -52,6 +54,7 @@ part 'library_add_search_pane.dart';
 part 'library_add_preview_pane.dart';
 part 'library_add_bottom_bar.dart';
 part 'library_add_manual_pane.dart';
+part 'library_add_dialog_selection_state.dart';
 
 String buildPreviewCatalogItemId({
   required String kind,
@@ -142,6 +145,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   final _pendingBundleReleaseDetailIds = <String>{};
   final _pendingProviderPreviewIds = <String>{};
   List<StorageLocation> _availableLocations = const [];
+  List<String> _conditionOptions = const [];
+  List<String> _gradeOptions = const [];
+  List<String> _tagOptions = const [];
   String? _defaultLocationId;
   LibraryCoverScanResult? _coverScanPrefill;
   bool _isScanningCover = false;
@@ -164,7 +170,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   void initState() {
     super.initState();
     _selectedProvider = widget.type.defaultSupportedMetadataProvider;
+    _conditionOptions = widget.type.conditions;
+    _gradeOptions = widget.type.grades;
     _loadAvailableLocations();
+    _loadPickListOptions();
     _loadPrefillDefaults();
     _queryController.text = widget.initialQuery?.trim() ?? '';
     _barcodeController.text = widget.initialBarcode?.trim() ?? '';
@@ -306,27 +315,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         providerPublisherText: _searchPublisherController.text,
                         providerYearText: _searchYearController.text,
                         onSelectResult: (id) {
-                          setState(() {
-                            _selectedResultId = id;
-                            _selectedProviderCandidateId = null;
-                            _selectedBundleReleaseId = null;
-                            _selectedReferenceEditionId = null;
-                            _selectedReferenceVariantId = null;
-                            _referenceType = LibraryAddReferenceType.media;
-                          });
-                          unawaited(_ensureSelectedResultLoaded(id));
-                          unawaited(_ensureBundleReleasesLoaded(id));
+                          _selectCoreResult(id);
                         },
                         onSelectProviderCandidate: (id) {
-                          setState(() {
-                            _selectedProviderCandidateId = id;
-                            _selectedResultId = null;
-                            _selectedBundleReleaseId = null;
-                            _selectedReferenceEditionId = null;
-                            _selectedReferenceVariantId = null;
-                            _referenceType = LibraryAddReferenceType.media;
-                          });
-                          unawaited(_ensureProviderPreviewLoaded(id));
+                          _selectProviderCandidate(id);
                         },
                         onToggleResultCheck: (id) => setState(() {
                           if (!_checkedResultIds.remove(id)) {
@@ -371,61 +363,17 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _pendingBundleReleaseDetailIds
                               .contains(_selectedBundleReleaseId),
                         onReferenceTypeChanged: (value) {
-                          if (_addTarget == LibraryAddTarget.track) {
-                            return;
-                          }
-                          final bundles = selectedResult == null
-                              ? const <BundleReleaseSummary>[]
-                              : _bundleReleasesByItemId[selectedResult.id] ??
-                                  const <BundleReleaseSummary>[];
-                          setState(() {
-                            _referenceType = value;
-                            if (value != LibraryAddReferenceType.bundleRelease) {
-                              _selectedBundleReleaseId = null;
-                            } else {
-                              _selectedBundleReleaseId =
-                                  _selectedBundleReleaseId ??
-                                      (bundles.isNotEmpty ? bundles.first.id : null);
-                            }
-                            if (value != LibraryAddReferenceType.edition) {
-                              _selectedReferenceEditionId = null;
-                              _selectedReferenceVariantId = null;
-                            }
-                          });
-                          final bundleReleaseId = _selectedBundleReleaseId;
-                          if (value == LibraryAddReferenceType.bundleRelease &&
-                              bundleReleaseId != null) {
-                            unawaited(
-                              _ensureBundleReleaseDetailLoaded(bundleReleaseId),
-                            );
-                          }
+                          _handleReferenceTypeChanged(selectedResult, value);
                         },
                         onEditionSelected: (editionId) {
-                          final item = _selectedResult;
-                          if (item == null) {
-                            return;
-                          }
-                          final selectedEdition = _previewEditionForItem(
-                            item,
+                          _handleReferenceEditionSelected(
+                            _selectedResult,
                             editionId,
                           );
-                          setState(() {
-                            _selectedReferenceEditionId = selectedEdition?.id;
-                            _selectedReferenceVariantId = null;
-                          });
                         },
-                        onVariantSelected: (variantId) {
-                          setState(() {
-                            _selectedReferenceVariantId = _emptyToNull(variantId);
-                          });
-                        },
+                        onVariantSelected: _handleReferenceVariantSelected,
                         onBundleReleaseSelected: (bundleReleaseId) {
-                          setState(() {
-                            _selectedBundleReleaseId = bundleReleaseId;
-                          });
-                          unawaited(
-                            _ensureBundleReleaseDetailLoaded(bundleReleaseId),
-                          );
+                          _handleBundleReleaseSelected(bundleReleaseId);
                         },
                       );
                       final manualPane = _ManualPane(
@@ -513,6 +461,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                               selectedEditionSelection != null);
                       return _LibraryAddBottomBar(
                         type: widget.type,
+                        conditions: _conditionOptions,
+                        grades: _gradeOptions,
+                        defaultTags: _defaultTags,
                         accent: accent,
                         selectedItem: selectedResult,
                         selectedCandidate: selectedCandidate,
@@ -540,6 +491,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             setState(() => _defaultCondition = value),
                         onDefaultGradeChanged: (value) =>
                             setState(() => _defaultGrade = value),
+                        onEditDefaultTagsPressed: _showDefaultTagsEditor,
                         onDefaultLocationPressed: _pickDefaultLocation,
                         onDefaultPurchaseDateChanged: (value) =>
                             setState(() => _defaultPurchaseDate = value),
@@ -672,16 +624,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _results = rankedItems;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
-          _selectedBundleReleaseId = null;
-          _selectedReferenceEditionId = null;
-          _selectedReferenceVariantId = null;
-          _referenceType = LibraryAddReferenceType.media;
-          _hydratedResults.clear();
-          _bundleReleasesByItemId.clear();
-          _bundleReleaseDetailsById.clear();
-          _pendingHydratedResultIds.clear();
-          _pendingBundleReleaseItemIds.clear();
-          _pendingBundleReleaseDetailIds.clear();
+          _resetReferenceSelection();
+          _clearSelectionCaches();
         });
         _precacheMetadataCovers(rankedItems);
       }
@@ -750,16 +694,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _providerResults = const [];
         _selectedResultId = null;
         _selectedProviderCandidateId = null;
-        _selectedBundleReleaseId = null;
-        _selectedReferenceEditionId = null;
-        _selectedReferenceVariantId = null;
-        _referenceType = LibraryAddReferenceType.media;
-        _hydratedResults.clear();
-        _bundleReleasesByItemId.clear();
-        _bundleReleaseDetailsById.clear();
-        _pendingHydratedResultIds.clear();
-        _pendingBundleReleaseItemIds.clear();
-        _pendingBundleReleaseDetailIds.clear();
+        _resetReferenceSelection();
+        _clearSelectionCaches();
         _providerPreviews.clear();
         _searchedProvider = false;
       });
@@ -804,16 +740,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _results = found;
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
-          _selectedBundleReleaseId = null;
-          _selectedReferenceEditionId = null;
-          _selectedReferenceVariantId = null;
-          _referenceType = LibraryAddReferenceType.media;
-          _hydratedResults.clear();
-          _bundleReleasesByItemId.clear();
-            _bundleReleaseDetailsById.clear();
-          _pendingHydratedResultIds.clear();
-          _pendingBundleReleaseItemIds.clear();
-            _pendingBundleReleaseDetailIds.clear();
+          _resetReferenceSelection();
+          _clearSelectionCaches();
           _error =
               found.isEmpty &&
                       widget.type.supportedMetadataProviders.isEmpty
@@ -946,6 +874,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       readStatus: selection.tracking?.readStatus,
       startedAt: selection.tracking?.startedAt,
       finishedAt: selection.tracking?.finishedAt,
+      progressCurrent: selection.tracking?.progressCurrent,
+      progressTotal: selection.tracking?.progressTotal,
+      timesCompleted: selection.tracking?.timesCompleted,
+      trackingNotes: selection.tracking?.notes,
+      seasonNumber: selection.tracking?.seasonNumber,
+      episodeNumber: selection.tracking?.episodeNumber,
       tags: personal.tags,
       soldAt: personal.soldAt,
       sellPriceCents: personal.sellPriceCents,
@@ -1840,6 +1774,72 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _pendingLegacyLocationPrefill = defaults.legacyStorageBox;
       _tryResolvePendingLegacyPrefill(_availableLocations);
     });
+    await _loadPickListOptions();
+  }
+
+  Future<void> _loadPickListOptions() async {
+    final options = await loadConditionGradePickListOptions(
+      ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      builtInConditions: widget.type.conditions,
+      builtInGrades: widget.type.grades,
+      selectedCondition: _defaultCondition,
+      selectedGrade: _defaultGrade,
+    );
+    final tagOptions = await loadTagPickListOptions(
+      ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      selectedTags: splitPickListValues(_defaultTags),
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _conditionOptions = options.conditions;
+      _gradeOptions = options.grades;
+      _tagOptions = tagOptions;
+    });
+  }
+
+  Future<void> _showDefaultTagsEditor() async {
+    final controller = TextEditingController(text: _defaultTags ?? '');
+    try {
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Owned default tags'),
+          content: SizedBox(
+            width: 440,
+            child: TagPickListField(
+              controller: controller,
+              options: _tagOptions,
+              label: 'Tags',
+              hint: 'Comma-separated tags',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(
+                joinPickListValues(splitPickListValues(controller.text)) ?? '',
+              ),
+              child: const Text('Apply'),
+            ),
+          ],
+        ),
+      );
+      if (!mounted || result == null) {
+        return;
+      }
+      setState(() {
+        _defaultTags = result.isEmpty ? null : result;
+      });
+    } finally {
+      controller.dispose();
+    }
   }
 
   void _tryResolvePendingLegacyPrefill(List<StorageLocation> locations) {

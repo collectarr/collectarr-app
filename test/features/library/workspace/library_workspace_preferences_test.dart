@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   const config = LibraryWorkspaceConfig(
-    kind: 'comic',
+    kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,
     preferencePrefix: 'comics',
@@ -18,7 +19,7 @@ void main() {
     },
   );
   const mangaConfig = LibraryWorkspaceConfig(
-    kind: 'manga',
+    kind: CatalogMediaKind.manga,
     title: 'Manga',
     icon: Icons.auto_stories,
     preferencePrefix: 'manga',

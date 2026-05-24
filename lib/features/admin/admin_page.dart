@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';

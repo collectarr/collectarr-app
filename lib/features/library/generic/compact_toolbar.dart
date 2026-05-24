@@ -24,6 +24,9 @@ class CompactLibraryToolbar extends StatelessWidget {
     required this.onClearFilters,
     this.onRandomPick,
     this.onDownloadAllCovers,
+    this.onEditConditionPickList,
+    this.onEditGradePickList,
+    this.onEditTagPickList,
   });
 
   final LibraryTypeConfig type;
@@ -42,6 +45,9 @@ class CompactLibraryToolbar extends StatelessWidget {
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
   final VoidCallback? onDownloadAllCovers;
+  final VoidCallback? onEditConditionPickList;
+  final VoidCallback? onEditGradePickList;
+  final VoidCallback? onEditTagPickList;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +95,9 @@ class CompactLibraryToolbar extends StatelessWidget {
             onClearFilters: onClearFilters,
             onRandomPick: onRandomPick,
             onDownloadAllCovers: onDownloadAllCovers,
+            onEditConditionPickList: onEditConditionPickList,
+            onEditGradePickList: onEditGradePickList,
+            onEditTagPickList: onEditTagPickList,
           ),
           Tooltip(
             message: 'Cover size',

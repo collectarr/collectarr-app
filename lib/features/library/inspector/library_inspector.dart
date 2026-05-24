@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
+import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
@@ -19,8 +20,10 @@ import 'package:collectarr_app/features/library/inspector/inspector_reading_queu
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -122,6 +125,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       trackingEntries,
       activeOwnedItem,
     );
+    final activeBundleReleaseId =
+        activeOwnedItem?.bundleReleaseId ?? selected.referenceBundleReleaseId;
     final extraActions = <Widget>[
       if (selected.isOwned)
         _InspectorDialogActionButton(
@@ -264,6 +269,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                       : (value) => setState(() => _selectedOwnedItemId = value),
                 ),
               ],
+              if (activeBundleReleaseId != null) ...[
+                const SizedBox(height: 10),
+                BundleReleaseContentsSection(
+                  bundleReleaseId: activeBundleReleaseId,
+                  accent: widget.accent,
+                ),
+              ],
               if (activeOwnedItem != null &&
                   (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
                   resolveOwnedDigitalFlag(
@@ -273,25 +285,46 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                       ) !=
                       true) ...[
                 const SizedBox(height: 10),
-                InspectorCollectionFields(
-                  enabled: true,
-                  condition: activeOwnedItem.condition,
-                  grade: activeOwnedItem.grade,
-                  conditions: widget.type.conditions,
-                  grades: widget.type.grades,
-                  accent: widget.accent,
-                  onConditionChanged: (value) => _updateConditionGrade(
-                    context,
-                    activeOwnedItem,
-                    condition: value,
-                    grade: activeOwnedItem.grade,
+                FutureBuilder<PickListConditionGradeOptions>(
+                  future: loadConditionGradePickListOptions(
+                    widget.db ?? ref.read(localDatabaseProvider),
+                    mediaKind: widget.type.workspace.kind.apiValue,
+                    builtInConditions: widget.type.conditions,
+                    builtInGrades: widget.type.grades,
+                    selectedCondition: activeOwnedItem.condition,
+                    selectedGrade: activeOwnedItem.grade,
                   ),
-                  onGradeChanged: (value) => _updateConditionGrade(
-                    context,
-                    activeOwnedItem,
-                    condition: activeOwnedItem.condition,
-                    grade: value,
-                  ),
+                  builder: (context, snapshot) {
+                    final options = snapshot.data;
+                    return InspectorCollectionFields(
+                      enabled: true,
+                      condition: activeOwnedItem.condition,
+                      grade: activeOwnedItem.grade,
+                      conditions: options?.conditions ??
+                          mergePickListValues(
+                            builtInValues: widget.type.conditions,
+                            selectedValues: [activeOwnedItem.condition],
+                          ),
+                      grades: options?.grades ??
+                          mergePickListValues(
+                            builtInValues: widget.type.grades,
+                            selectedValues: [activeOwnedItem.grade],
+                          ),
+                      accent: widget.accent,
+                      onConditionChanged: (value) => _updateConditionGrade(
+                        context,
+                        activeOwnedItem,
+                        condition: value,
+                        grade: activeOwnedItem.grade,
+                      ),
+                      onGradeChanged: (value) => _updateConditionGrade(
+                        context,
+                        activeOwnedItem,
+                        condition: activeOwnedItem.condition,
+                        grade: value,
+                      ),
+                    );
+                  },
                 ),
               ],
               const SizedBox(height: 10),

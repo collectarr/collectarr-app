@@ -35,6 +35,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       ? ownedItem?.readStatus
       : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
+    final trackingProgress = _detailTrackingProgressLabel(trackingEntry);
+    final trackingEpisode = _detailTrackingEpisodeLabel(trackingEntry);
     return LibraryInspectorSection(
       title: 'Local collection',
       accentColor: accent,
@@ -97,6 +99,14 @@ class LibraryDetailPersonalSection extends StatelessWidget {
               genericLibraryDash(trackingStatus),
             ),
             LibraryInspectorFactData(
+              'Progress',
+              genericLibraryDash(trackingProgress),
+            ),
+            LibraryInspectorFactData(
+              'Episode',
+              genericLibraryDash(trackingEpisode),
+            ),
+            LibraryInspectorFactData(
               'Rating',
               trackingRating?.toString() ?? '-',
             ),
@@ -128,6 +138,33 @@ String? _detailProfitLossLabel(OwnedItem? ownedItem) {
     return null;
   }
   return formatMoney(sold - paid, ownedItem?.currency);
+}
+
+String? _detailTrackingProgressLabel(TrackingEntry? trackingEntry) {
+  final current = trackingEntry?.progressCurrent;
+  final total = trackingEntry?.progressTotal;
+  if (current == null && total == null) {
+    return null;
+  }
+  if (total != null && total > 0) {
+    return '${current ?? 0}/$total';
+  }
+  return '${current ?? 0}';
+}
+
+String? _detailTrackingEpisodeLabel(TrackingEntry? trackingEntry) {
+  final seasonNumber = trackingEntry?.seasonNumber;
+  final episodeNumber = trackingEntry?.episodeNumber;
+  if (seasonNumber == null && episodeNumber == null) {
+    return null;
+  }
+  if (seasonNumber != null && episodeNumber != null) {
+    return 'S$seasonNumber · Ep $episodeNumber';
+  }
+  if (seasonNumber != null) {
+    return 'S$seasonNumber';
+  }
+  return 'Ep ${episodeNumber!}';
 }
 
 class LibraryDetailLocalSnapshotSection extends StatelessWidget {

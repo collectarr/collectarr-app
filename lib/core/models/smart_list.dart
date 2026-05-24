@@ -65,7 +65,19 @@ class SmartList {
     return {
       if (f.ownershipFilter != LibraryOwnershipFilter.all)
         'ownership': f.ownershipFilter.name,
+      if (f.trackingStatusFilter != LibraryTrackingStatusFilter.all)
+        'tracking_status': f.trackingStatusFilter.name,
+      if (f.loanStatusFilter != LibraryLoanStatusFilter.all)
+        'loan_status': f.loanStatusFilter.name,
+      if (f.hasActiveDateRange) 'date_field': f.dateRangeField.name,
+      if (f.dateFrom != null) 'date_from': f.dateFrom!.toIso8601String(),
+      if (f.dateTo != null) 'date_to': f.dateTo!.toIso8601String(),
+      if (f.customFieldDefinitionId != null)
+        'custom_field_definition_id': f.customFieldDefinitionId,
+      if (f.customFieldValue != null)
+        'custom_field_value': f.customFieldValue,
       if (f.series != null) 'series': f.series,
+      if (f.location != null) 'location': f.location,
       if (f.grade != null) 'grade': f.grade,
       if (f.condition != null) 'condition': f.condition,
       if (f.publisher != null) 'publisher': f.publisher,
@@ -84,7 +96,27 @@ class SmartList {
             json['ownership'],
           ) ??
           LibraryOwnershipFilter.all,
+      trackingStatusFilter: _enumByNameOrNull(
+            LibraryTrackingStatusFilter.values.asNameMap(),
+            json['tracking_status'],
+          ) ??
+          LibraryTrackingStatusFilter.all,
+      loanStatusFilter: _enumByNameOrNull(
+            LibraryLoanStatusFilter.values.asNameMap(),
+            json['loan_status'],
+          ) ??
+          LibraryLoanStatusFilter.all,
+      dateRangeField: _enumByNameOrNull(
+            LibraryDateRangeField.values.asNameMap(),
+            json['date_field'],
+          ) ??
+          LibraryDateRangeField.updated,
+      dateFrom: _dateFromJson(json['date_from']),
+      dateTo: _dateFromJson(json['date_to']),
+      customFieldDefinitionId: json['custom_field_definition_id'] as String?,
+      customFieldValue: json['custom_field_value'] as String?,
       series: json['series'] as String?,
+      location: json['location'] as String?,
       grade: json['grade'] as String?,
       condition: json['condition'] as String?,
       publisher: json['publisher'] as String?,
@@ -101,5 +133,12 @@ class SmartList {
       return null;
     }
     return values[rawValue];
+  }
+
+  static DateTime? _dateFromJson(Object? rawValue) {
+    if (rawValue is! String || rawValue.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(rawValue);
   }
 }

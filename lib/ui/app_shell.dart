@@ -24,6 +24,19 @@ class AppShell extends ConsumerStatefulWidget {
 
 class _AppShellState extends ConsumerState<AppShell> {
   int index = 0;
+  bool _didRequestInitialOnlineFirstSync = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _didRequestInitialOnlineFirstSync) {
+        return;
+      }
+      _didRequestInitialOnlineFirstSync = true;
+      ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +194,7 @@ class _ShellPage {
 
 class LibraryAwareSyncButton extends StatelessWidget {
   const LibraryAwareSyncButton({
+    super.key,
     required this.sync,
     required this.accent,
     required this.animationsEnabled,

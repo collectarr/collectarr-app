@@ -15,10 +15,12 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -78,6 +80,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _sellPriceController;
   late final TextEditingController _soldToController;
 
+  List<String> _tagOptions = const [];
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
   String? _selectedEditionId;
@@ -201,6 +204,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
       );
     _tagsController = TextEditingController(text: owned?.tags ?? '');
+    _tagOptions = splitPickListValues(owned?.tags);
     _sellPriceController = TextEditingController(
       text: owned?.sellPriceCents == null
           ? ''
@@ -228,6 +232,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     };
 
     unawaited(_loadAvailableLocations());
+    unawaited(_loadTagOptions());
   }
 
   @override
@@ -341,10 +346,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           width: 180,
         );
       case 'user_tags':
-        return FooterTextField(
-          label: 'User tags',
-          controller: _tagsController,
-          width: 150,
+        return SizedBox(
+          width: 280,
+          child: TagPickListField(
+            controller: _tagsController,
+            options: _tagOptions,
+            label: 'User tags',
+            hint: 'Comma-separated tags',
+          ),
         );
       default:
         throw StateError('Unsupported music footer field: $id');
@@ -1107,6 +1116,18 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     setState(() => _availableLocations = locations);
   }
 
+  Future<void> _loadTagOptions() async {
+    final tagOptions = await loadTagPickListOptions(
+      ref.read(localDatabaseProvider),
+      mediaKind: widget.request.type.workspace.kind.apiValue,
+      selectedTags: splitPickListValues(_tagsController.text),
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() => _tagOptions = tagOptions);
+  }
+
   Future<void> _pickLocation() async {
     final result = await showLocationPickerDialog(
       context: context,
@@ -1387,6 +1408,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 readStatus: emptyToNull(_trackingController.text),
                 startedAt: _startedAt,
                 finishedAt: _finishedAt,
+                progressCurrent: widget.request.trackingEntry?.progressCurrent,
+                progressTotal: widget.request.trackingEntry?.progressTotal,
+                timesCompleted: widget.request.trackingEntry?.timesCompleted,
+                notes: widget.request.trackingEntry?.notes,
+                seasonNumber: widget.request.trackingEntry?.seasonNumber ?? _item.series?.seasonNumber,
+                episodeNumber: widget.request.trackingEntry?.episodeNumber ?? _item.series?.episodeNumber,
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,

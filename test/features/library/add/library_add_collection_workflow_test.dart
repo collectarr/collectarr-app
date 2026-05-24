@@ -12,8 +12,15 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   test('adds metadata results to owned collection with default details',
       () async {
     final fixture = _WorkflowFixture();
@@ -58,7 +65,7 @@ void main() {
     expect(ownedRows.single.tags, 'favorite,dc');
     expect(ownedRows.single.storageBox, isNull);
     expect(trackingRows.single.itemId, 'comic-1');
-    expect(trackingRows.single.status, 'read');
+    expect(trackingRows.single.status, 'Completed');
     expect(syncRows.map((row) => row.entityType), contains('owned_item'));
     expect(syncRows.map((row) => row.entityType), contains('tracking_entry'));
     expect(
@@ -132,7 +139,7 @@ void main() {
     expect(ownedRows.single.readStatus, 'watched');
   });
 
-  test('adds release-referenced owned item using the selected edition without forcing a physical release',
+  test('adds edition-referenced owned item using the selected edition without forcing a physical variant',
       () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
@@ -142,7 +149,7 @@ void main() {
       mutations: fixture.mutations,
       items: [_comicWithRelease('comic-release-1')],
       target: LibraryAddTarget.owned,
-      referenceType: LibraryAddReferenceType.release,
+      referenceType: LibraryAddReferenceType.edition,
     );
 
     final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
@@ -156,7 +163,7 @@ void main() {
     expect(ownedRows.single.variantId, isNull);
   });
 
-  test('adds release-referenced wishlist item using an explicit edition variant',
+  test('adds edition-referenced wishlist item using an explicit edition variant',
       () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
@@ -166,9 +173,9 @@ void main() {
       mutations: fixture.mutations,
       items: [_comicWithMultipleReleases('comic-release-2')],
       target: LibraryAddTarget.wishlist,
-      referenceType: LibraryAddReferenceType.release,
-      releaseSelectionsByItemId: const {
-        'comic-release-2': LibraryAddReleaseSelection(
+      referenceType: LibraryAddReferenceType.edition,
+      editionSelectionsByItemId: const {
+        'comic-release-2': LibraryAddEditionSelection(
           editionId: 'edition-2',
           variantId: 'variant-2b',
         ),
@@ -232,7 +239,7 @@ void main() {
     expect(ownedRows, isEmpty);
     expect(wishlistRows, isEmpty);
     expect(trackingRows.single.itemId, 'comic-track-1');
-    expect(trackingRows.single.status, 'reading');
+    expect(trackingRows.single.status, 'In progress');
   });
 
   test('adds tracking-only entry when target is track without status', () async {

@@ -21,6 +21,10 @@ class LibraryToolsButton extends StatelessWidget {
     this.onDownloadAllCovers,
     this.shelfState,
     this.onSmartLists,
+    this.onReadingQueue,
+    this.onEditConditionPickList,
+    this.onEditGradePickList,
+    this.onEditTagPickList,
     this.onPrintReport,
     this.onShareCollection,
   });
@@ -36,6 +40,10 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onReadingQueue;
+  final VoidCallback? onEditConditionPickList;
+  final VoidCallback? onEditGradePickList;
+  final VoidCallback? onEditTagPickList;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
 
@@ -119,11 +127,35 @@ class LibraryToolsButton extends StatelessWidget {
             showPrefillSettingsDialog(context: context, accent: accent);
           },
         ),
+        if (onEditConditionPickList != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.inventory_2_outlined,
+            label: 'Condition values...',
+            onSelected: onEditConditionPickList!,
+          ),
+        if (onEditGradePickList != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.workspace_premium_outlined,
+            label: 'Grade values...',
+            onSelected: onEditGradePickList!,
+          ),
+        if (onEditTagPickList != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.sell_outlined,
+            label: 'Tag values...',
+            onSelected: onEditTagPickList!,
+          ),
         if (onSmartLists != null)
           LibraryUtilityMenuAction(
             icon: Icons.auto_awesome_mosaic,
             label: 'Smart Lists...',
             onSelected: onSmartLists!,
+          ),
+        if (onReadingQueue != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.bookmarks_outlined,
+            label: 'Reading Queue...',
+            onSelected: onReadingQueue!,
           ),
         if (onPrintReport != null)
           LibraryUtilityMenuAction(

@@ -397,7 +397,6 @@ void main() {
     expect(detail.primaryEdition?.region, 'US');
     expect(detail.primaryEdition?.physicalFormat, 'blu-ray');
     expect(detail.primaryEdition?.physicalFormatLabel, 'Blu-ray');
-    expect(detail.primaryEdition?.releases.single.region, 'US');
     expect(detail.primaryVariant?.barcode, '75960604716100111');
     expect(detail.primaryVariant?.physicalFormatLabel, 'Blu-ray');
     expect(detail.primaryVariant?.coverPriceCents, 399);

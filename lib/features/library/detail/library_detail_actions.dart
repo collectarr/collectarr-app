@@ -112,7 +112,11 @@ class LibraryDetailActionStrip extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onAddOwned,
                 icon: const Icon(Icons.add_circle_outline),
-                label: const Text('Add to collection'),
+                label: Text(
+                  entry.isWishlisted
+                      ? 'Convert wishlist to owned'
+                      : 'Add to collection',
+                ),
               ),
             OutlinedButton.icon(
               onPressed: entry.isWishlisted ? onRemoveWishlist : onAddWishlist,

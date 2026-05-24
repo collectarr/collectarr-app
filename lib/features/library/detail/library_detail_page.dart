@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
@@ -106,6 +107,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       trackingEntries,
       activeOwnedItem,
     );
+    final activeBundleReleaseId =
+        activeOwnedItem?.bundleReleaseId ?? widget.entry.referenceBundleReleaseId;
     final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || widget.entry.isOwned;
     return Theme(
       data: kLibraryTheme,
@@ -196,6 +199,13 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               ownedCopies: ownedCopies,
             ),
             const SizedBox(height: 16),
+            if (activeBundleReleaseId != null) ...[
+              BundleReleaseContentsSection(
+                bundleReleaseId: activeBundleReleaseId,
+                accent: widget.accent,
+              ),
+              const SizedBox(height: 16),
+            ],
             LibraryDetailMetadataSection(
               type: widget.type,
               entry: widget.entry,

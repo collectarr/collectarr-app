@@ -1164,17 +1164,17 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.ensureVisible(
-      find.byKey(const ValueKey('library-add-release-edition-field')),
+      find.byKey(const ValueKey('library-add-edition-field')),
     );
     await tester.tap(
-      find.byKey(const ValueKey('library-add-release-edition-field')),
+      find.byKey(const ValueKey('library-add-edition-field')),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Collector Edition • Collector Issue').last);
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Collector Edition'), findsWidgets);
-    expect(find.text('Any / unspecified physical release'), findsOneWidget);
+    expect(find.text('Any / unspecified variant'), findsOneWidget);
     expect(find.textContaining('Physical: Sketch Cover'), findsNothing);
   });
 
@@ -1225,29 +1225,29 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.byKey(const ValueKey('library-add-release-edition-field')),
+      find.byKey(const ValueKey('library-add-edition-field')),
       findsOneWidget,
     );
     expect(
-      find.byKey(const ValueKey('library-add-release-variant-field')),
+      find.byKey(const ValueKey('library-add-variant-field')),
       findsOneWidget,
     );
 
     await tester.ensureVisible(
-      find.byKey(const ValueKey('library-add-release-edition-field')),
+      find.byKey(const ValueKey('library-add-edition-field')),
     );
     await tester.tap(
-      find.byKey(const ValueKey('library-add-release-edition-field')),
+      find.byKey(const ValueKey('library-add-edition-field')),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Collector Edition • Collector Issue').last);
     await tester.pumpAndSettle();
 
     await tester.ensureVisible(
-      find.byKey(const ValueKey('library-add-release-variant-field')),
+      find.byKey(const ValueKey('library-add-variant-field')),
     );
     await tester.tap(
-      find.byKey(const ValueKey('library-add-release-variant-field')),
+      find.byKey(const ValueKey('library-add-variant-field')),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sketch Cover • sketch').last);
@@ -1716,6 +1716,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
     lastIngestProvider = provider;
     lastIngestProviderItemId = providerItemId;

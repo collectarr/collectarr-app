@@ -82,6 +82,11 @@ void main() {
 
   testWidgets('tracking details editor saves tracked-only entries',
       (tester) async {
+    tester.view.physicalSize = const Size(1100, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -139,6 +144,9 @@ void main() {
     );
 
     await tester.pumpAndSettle();
+    await tester.ensureVisible(
+      find.widgetWithText(FilledButton, 'Save tracking details'),
+    );
     await tester.tap(find.widgetWithText(FilledButton, 'Save tracking details'));
     await tester.pumpAndSettle();
 

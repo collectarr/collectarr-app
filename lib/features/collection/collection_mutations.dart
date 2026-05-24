@@ -238,6 +238,12 @@ class CollectionMutations {
     int? rating,
     DateTime? startedAt,
     DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    int? seasonNumber,
+    int? episodeNumber,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
@@ -252,6 +258,12 @@ class CollectionMutations {
       rating: rating,
       startedAt: startedAt,
       finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: _normalizeTrackingValue(notes),
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
       updatedAt: now,
     );
     await _syncTrackingEntry(entry, now);
@@ -868,6 +880,7 @@ class CollectionMutations {
       ref.invalidate(wishlistProvider);
     }
     ref.invalidate(shelfProvider);
+    unawaited(ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled());
   }
 
   Future<void> _notifyWishlistChanged() async {
@@ -875,6 +888,7 @@ class CollectionMutations {
     ref.invalidate(wishlistIdsProvider);
     ref.invalidate(wishlistProvider);
     ref.invalidate(shelfProvider);
+    unawaited(ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled());
   }
 
   OwnedItemsCacheRepository _ownedCache() {

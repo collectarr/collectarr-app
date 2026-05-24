@@ -6,8 +6,8 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/features/library/library_entry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final shelfProvider = FutureProvider<ShelfState>((ref) async {

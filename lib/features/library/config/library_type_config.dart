@@ -129,7 +129,12 @@ class LibraryMetadataProviderOption {
   final LibraryMetadataProviderUsagePolicy? usagePolicy;
 
   bool supportsKind(Object? kind) {
-    final normalized = catalogMediaKindFromValue(kind).apiValue;
+    final normalized = switch (kind) {
+      CatalogMediaKind mediaKind => mediaKind.apiValue,
+      String value => value.trim().toLowerCase(),
+      String? => '',
+      _ => catalogMediaKindFromValue(kind).apiValue,
+    };
     return supportedKinds.isEmpty || supportedKinds.contains(normalized);
   }
 }
@@ -209,6 +214,9 @@ class LibraryTypeConfig {
   final LibraryDetailPageBuilder? detailPageBuilder;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
+    if (workspace.kind == CatalogMediaKind.unknown) {
+      return metadataProviders;
+    }
     return [
       for (final provider in metadataProviders)
         if (provider.supportsKind(workspace.kind)) provider,

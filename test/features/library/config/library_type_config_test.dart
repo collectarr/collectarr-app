@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
@@ -22,7 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('comics library config groups reusable media behavior', () {
-    expect(comicsLibraryConfig.workspace.kind, 'comic');
+    expect(comicsLibraryConfig.workspace.kind, CatalogMediaKind.comic);
     expect(comicsLibraryConfig.singularLabel, 'Comic');
     expect(comicsLibraryConfig.pluralLabel, 'Comics');
     expect(comicsLibraryConfig.defaultMetadataProvider, 'gcd');
@@ -236,7 +237,10 @@ void main() {
 
   test('comics media adapter exposes reusable workspace table behavior', () {
     expect(comicsMediaAdapter.type, comicsLibraryConfig);
-    expect(comicsMediaAdapter.viewProfile.config.kind, 'comic');
+    expect(
+      comicsMediaAdapter.viewProfile.config.kind,
+      CatalogMediaKind.comic,
+    );
     expect(comicsMediaAdapter.columnDisplayName(LibraryTableColumn.title),
         'Series');
     expect(comicsMediaAdapter.columnLabel(LibraryTableColumn.cover), '');

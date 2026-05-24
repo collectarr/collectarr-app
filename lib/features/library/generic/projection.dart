@@ -109,6 +109,9 @@ class LibraryProjection {
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     Map<String, List<String>> customFieldValuesByItem = const {},
+    Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+      const {},
+    Set<String> activeLoanOwnedItemIds = const {},
   }) {
     final allItems = libraryItemsForShelf(shelf, type);
     final normalizedQuery = query.trim().toLowerCase();
@@ -117,7 +120,12 @@ class LibraryProjection {
         if (_matchesBucket(item, type, groupMode, selectedBucket) &&
             _matchesConstrainedItemIds(item, constrainedItemIds) &&
             _matchesQuickView(item, quickView) &&
-            _matchesFilter(item, filterSelection) &&
+            _matchesFilter(
+              item,
+              filterSelection,
+              activeLoanOwnedItemIds,
+              customFieldValuesByDefinitionByItem,
+            ) &&
             _matchesLinkedMetadataFilter(item, linkedMetadataFilter) &&
             _matchesQuery(
               item,
@@ -310,9 +318,121 @@ bool _matchesQuickView(LibraryProjectionItem item, LibraryQuickView? quickView) 
 bool _matchesFilter(
   LibraryProjectionItem item,
   LibraryFilterSelection filters,
+  Set<String> activeLoanOwnedItemIds,
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
 ) {
-  if (!filters.hasActiveFilters) return true;
-  return libraryFilterMatches(item.entry, filters);
+  if (!filters.hasActiveFilters) {
+    return true;
+  }
+  if (!libraryFilterMatches(item.entry, filters)) {
+    return false;
+  }
+  if (!libraryTrackingStatusMatchesFilter(
+    item.source.tracking.status,
+    filters.trackingStatusFilter,
+  )) {
+    return false;
+  }
+  if (!_matchesLoanFilter(item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
+    return false;
+  }
+  if (!_matchesDateRange(item, filters)) {
+    return false;
+  }
+  if (!_matchesCustomField(
+    item,
+    filters,
+    customFieldValuesByDefinitionByItem,
+  )) {
+    return false;
+  }
+  return true;
+}
+
+bool _matchesCustomField(
+  LibraryProjectionItem item,
+  LibraryFilterSelection filters,
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
+) {
+  final definitionId = filters.customFieldDefinitionId;
+  if (definitionId == null || definitionId.isEmpty) {
+    return true;
+  }
+  final ownedItemId = item.source.ownedItem?.id;
+  if (ownedItemId == null) {
+    return false;
+  }
+  final values = customFieldValuesByDefinitionByItem[ownedItemId];
+  final actualValue = values?[definitionId]?.trim();
+  if (actualValue == null || actualValue.isEmpty) {
+    return false;
+  }
+  final expectedValue = filters.customFieldValue?.trim();
+  if (expectedValue == null || expectedValue.isEmpty) {
+    return true;
+  }
+  return actualValue == expectedValue;
+}
+
+bool _matchesLoanFilter(
+  LibraryProjectionItem item,
+  LibraryLoanStatusFilter filter,
+  Set<String> activeLoanOwnedItemIds,
+) {
+  if (filter == LibraryLoanStatusFilter.all) {
+    return true;
+  }
+  final ownedItemId = item.source.ownedItem?.id;
+  if (ownedItemId == null) {
+    return false;
+  }
+  final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedItemId);
+  return switch (filter) {
+    LibraryLoanStatusFilter.all => true,
+    LibraryLoanStatusFilter.onLoan => hasActiveLoan,
+    LibraryLoanStatusFilter.available => !hasActiveLoan,
+  };
+}
+
+bool _matchesDateRange(
+  LibraryProjectionItem item,
+  LibraryFilterSelection filters,
+) {
+  if (!filters.hasActiveDateRange) {
+    return true;
+  }
+  final value = _filterDateForItem(item, filters.dateRangeField);
+  if (value == null) {
+    return false;
+  }
+  final candidate = DateUtils.dateOnly(value.toLocal());
+  final from = filters.dateFrom == null
+      ? null
+      : DateUtils.dateOnly(filters.dateFrom!.toLocal());
+  final to = filters.dateTo == null
+      ? null
+      : DateUtils.dateOnly(filters.dateTo!.toLocal());
+  if (from != null && candidate.isBefore(from)) {
+    return false;
+  }
+  if (to != null && candidate.isAfter(to)) {
+    return false;
+  }
+  return true;
+}
+
+DateTime? _filterDateForItem(
+  LibraryProjectionItem item,
+  LibraryDateRangeField field,
+) {
+  final ownedItem = item.source.ownedItem;
+  final trackingEntry = item.source.trackingEntry;
+  return switch (field) {
+    LibraryDateRangeField.updated => item.source.updatedAt,
+    LibraryDateRangeField.purchased => ownedItem?.purchaseDate,
+    LibraryDateRangeField.started => trackingEntry?.startedAt ?? ownedItem?.startedAt,
+    LibraryDateRangeField.finished => trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
+  };
 }
 
 bool _matchesLinkedMetadataFilter(

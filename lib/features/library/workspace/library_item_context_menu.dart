@@ -53,7 +53,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
         _item(
           LibraryItemContextAction.addToOwned,
           Icons.add_circle_outline,
-          'Add to owned',
+          entry.isWishlisted ? 'Convert wishlist to owned' : 'Add to owned',
         )
       else
         _item(

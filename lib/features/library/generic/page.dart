@@ -6,9 +6,11 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
@@ -28,6 +30,7 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
@@ -45,6 +48,8 @@ import 'package:collectarr_app/features/library/workspace/library_item_context_m
 import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/settings/pick_list_editor_dialog.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +88,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   final _detailHydrationInFlight = <String>{};
   final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
   final _facetLoadsInFlight = <LibraryGroupMode>{};
+  Set<String> _activeLoanOwnedItemIds = const {};
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -97,7 +103,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     _viewState = _adapter.viewProfile.defaults();
     unawaited(_loadViewState());
     unawaited(_loadViewPreferences());
-    unawaited(loadCustomFieldValues());
+    unawaited(
+      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
+    );
+    unawaited(_loadActiveLoanIds());
   }
 
   Future<void> _loadViewPreferences() async {
@@ -128,8 +137,24 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           );
       unawaited(_loadViewState());
       unawaited(_loadViewPreferences());
-      unawaited(loadCustomFieldValues());
+      unawaited(
+        loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
+      );
+      unawaited(_loadActiveLoanIds());
     }
+  }
+
+  Future<void> _loadActiveLoanIds() async {
+    final db = ref.read(localDatabaseProvider);
+    final repo = LoanRepository(db);
+    final activeLoans = await repo.getActiveLoans();
+    final next = <String>{
+      for (final loan in activeLoans) loan.ownedItemId,
+    };
+    if (!mounted) {
+      return;
+    }
+    setState(() => _activeLoanOwnedItemIds = next);
   }
 
   @override
@@ -142,7 +167,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
     ref.listen<AsyncValue<ShelfState>>(shelfProvider, (_, next) {
-      unawaited(loadCustomFieldValues());
+      unawaited(
+        loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
+      );
       final shelfState = next.asData?.value;
       if (shelfState != null) {
         _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
@@ -213,7 +240,17 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     : null,
                 counts: projection?.counts ?? const LibraryToolbarCounts(),
                 shelfState: shelfState,
+                onEditConditionPickList: widget.type.conditions.isNotEmpty
+                  ? _showConditionPickListEditor
+                  : null,
+                onEditGradePickList: widget.type.grades.isNotEmpty
+                  ? _showGradePickListEditor
+                  : null,
+                onEditTagPickList: _showTagPickListEditor,
                 onSmartLists: () => _showSmartLists(shelfState),
+                onReadingQueue: libraryShowsReadingQueue(widget.type.workspace.kind)
+                  ? _showReadingQueue
+                  : null,
                 onPrintReport: projection != null &&
                         projection.filteredItems.isNotEmpty
                     ? () => _printReport(projection)
@@ -371,6 +408,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       constrainedItemIds: constrainedItemIds,
       filterSelection: _filterSelection,
       customFieldValuesByItem: customFieldValuesByItem,
+      customFieldValuesByDefinitionByItem:
+          customFieldValuesByDefinitionByItem,
+      activeLoanOwnedItemIds: _activeLoanOwnedItemIds,
     );
   }
 
@@ -509,11 +549,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Future<void> _showFilterDialog(
     LibraryProjection? projection,
   ) async {
+    await _loadActiveLoanIds();
+    if (!mounted) {
+      return;
+    }
     final allEntries = projection?.allItems
             .map((i) => i.entry)
             .toList(growable: false) ??
         const [];
-    final options = LibraryFilterOptions.fromEntries(allEntries);
+    final options = LibraryFilterOptions.fromEntries(
+      allEntries,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
+    );
     final result = await showLibraryFilterDialog(
       context: context,
       type: widget.type,
@@ -538,6 +586,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       currentSearchQuery: _searchController.text.isNotEmpty
           ? _searchController.text
           : null,
+      customFieldDefinitions: customFieldDefinitions,
     );
     if (result != null && mounted) {
       setState(() {
@@ -555,6 +604,74 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           );
         }
       });
+    }
+  }
+
+  Future<void> _showReadingQueue() async {
+    final db = ref.read(localDatabaseProvider);
+    final queueIds = await ReadingQueueRepository(db).getQueue();
+    final ownedItems = await ref.read(collectionProvider.future);
+    final queuedOwnedItems = ownedItems
+        .where((item) => !item.isDeleted && queueIds.contains(item.id))
+        .toList(growable: false);
+    final catalogItemsById = await CatalogCacheRepository(db).findByIds(
+      queuedOwnedItems.map((item) => item.itemId),
+    );
+    if (!mounted) {
+      return;
+    }
+    await showReadingQueueDialog(
+      context: context,
+      db: db,
+      mediaKind: widget.type.workspace.kind.apiValue,
+      ownedItems: queuedOwnedItems,
+      catalogItemsById: catalogItemsById,
+      onSelectItem: _selectItem,
+    );
+  }
+
+  Future<void> _showConditionPickListEditor() async {
+    final db = ref.read(localDatabaseProvider);
+    await showPickListEditorDialog(
+      context: context,
+      db: db,
+      listName: kConditionPickListName,
+      label: 'Condition',
+      mediaKind: widget.type.workspace.kind.apiValue,
+      builtInValues: widget.type.conditions,
+    );
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _showGradePickListEditor() async {
+    final db = ref.read(localDatabaseProvider);
+    await showPickListEditorDialog(
+      context: context,
+      db: db,
+      listName: kGradePickListName,
+      label: 'Grade',
+      mediaKind: widget.type.workspace.kind.apiValue,
+      builtInValues: widget.type.grades,
+    );
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _showTagPickListEditor() async {
+    final db = ref.read(localDatabaseProvider);
+    await showPickListEditorDialog(
+      context: context,
+      db: db,
+      listName: kTagPickListName,
+      label: 'Tag',
+      mediaKind: widget.type.workspace.kind.apiValue,
+      builtInValues: const [],
+    );
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -864,6 +981,17 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         rating: result.tracking?.rating,
         startedAt: result.tracking?.startedAt,
         finishedAt: result.tracking?.finishedAt,
+        progressCurrent:
+          result.tracking?.progressCurrent ?? activeTrackingEntry?.progressCurrent,
+        progressTotal:
+          result.tracking?.progressTotal ?? activeTrackingEntry?.progressTotal,
+        timesCompleted:
+          result.tracking?.timesCompleted ?? activeTrackingEntry?.timesCompleted,
+        notes: result.tracking?.notes ?? activeTrackingEntry?.notes,
+        seasonNumber:
+          result.tracking?.seasonNumber ?? activeTrackingEntry?.seasonNumber,
+        episodeNumber:
+          result.tracking?.episodeNumber ?? activeTrackingEntry?.episodeNumber,
       );
       // Save custom field values
       final now = DateTime.now();
@@ -918,12 +1046,17 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         rating: result.tracking!.rating,
         startedAt: result.tracking!.startedAt,
         finishedAt: result.tracking!.finishedAt,
-        progressCurrent: activeTrackingEntry.progressCurrent,
-        progressTotal: activeTrackingEntry.progressTotal,
-        timesCompleted: activeTrackingEntry.timesCompleted,
-        notes: activeTrackingEntry.notes,
-        seasonNumber: activeTrackingEntry.seasonNumber,
-        episodeNumber: activeTrackingEntry.episodeNumber,
+        progressCurrent:
+          result.tracking!.progressCurrent ?? activeTrackingEntry.progressCurrent,
+        progressTotal:
+          result.tracking!.progressTotal ?? activeTrackingEntry.progressTotal,
+        timesCompleted:
+          result.tracking!.timesCompleted ?? activeTrackingEntry.timesCompleted,
+        notes: result.tracking!.notes ?? activeTrackingEntry.notes,
+        seasonNumber:
+          result.tracking!.seasonNumber ?? activeTrackingEntry.seasonNumber,
+        episodeNumber:
+          result.tracking!.episodeNumber ?? activeTrackingEntry.episodeNumber,
         notify: false,
       );
     }
@@ -931,7 +1064,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       return;
     }
     ref.invalidate(shelfProvider);
-    unawaited(loadCustomFieldValues());
+    unawaited(
+      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
+    );
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${widget.type.singularLabel} updated')),
     );

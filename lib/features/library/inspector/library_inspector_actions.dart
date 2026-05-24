@@ -55,7 +55,11 @@ class InspectorPrimaryActions extends StatelessWidget {
         FilledButton.icon(
           onPressed: onAddOwned,
           icon: const Icon(Icons.add_circle_outline),
-          label: const Text('Add to collection'),
+          label: Text(
+            entry.isWishlisted
+                ? 'Convert wishlist to owned'
+                : 'Add to collection',
+          ),
         ),
         const SizedBox(height: 8),
         OutlinedButton.icon(
