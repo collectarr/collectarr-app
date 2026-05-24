@@ -116,18 +116,6 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       candidate: selectedCandidate,
       preview: preview,
     );
-    final ownedCopyTypeLabel = _previewOwnedCopyTypeLabel(
-      item: selectedItem,
-      preview: preview,
-    );
-    final statusSummary = _previewStatusSummary(
-      item: selectedItem,
-      candidate: selectedCandidate,
-      preview: preview,
-      isFetchingPreview: isFetchingPreview,
-      addTarget: addTarget,
-      ownedCopyTypeLabel: ownedCopyTypeLabel,
-    );
     final discoverySections = _discoverySections(
       item: selectedItem,
       candidate: selectedCandidate,
@@ -205,40 +193,6 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
               ],
             ),
             Divider(height: 18, color: accent.withValues(alpha: 0.42)),
-            Flexible(
-              fit: FlexFit.loose,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (selectedItem != null) ...[
-                      _LibraryAddReferenceSelector(
-                        accent: accent,
-                        addTarget: addTarget,
-                        referenceType: referenceType,
-                        item: selectedItem,
-                        bundleReleases: availableBundleReleases,
-                        selectedBundleReleaseId: selectedBundleReleaseId,
-                        selectedEditionId: selectedEditionId,
-                        selectedVariantId: selectedVariantId,
-                        isLoadingBundleReleases: isLoadingBundleReleases,
-                        onReferenceTypeChanged: onReferenceTypeChanged,
-                        onEditionSelected: onEditionSelected,
-                        onVariantSelected: onVariantSelected,
-                        onBundleReleaseSelected: onBundleReleaseSelected,
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                    _LibraryAddPreviewStatusBanner(
-                      accent: accent,
-                      summary: statusSummary,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,6 +200,24 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                   Expanded(
                     child: ListView(
                       children: [
+                        if (selectedItem != null) ...[
+                          _LibraryAddReferenceSelector(
+                            accent: accent,
+                            addTarget: addTarget,
+                            referenceType: referenceType,
+                            item: selectedItem,
+                            bundleReleases: availableBundleReleases,
+                            selectedBundleReleaseId: selectedBundleReleaseId,
+                            selectedEditionId: selectedEditionId,
+                            selectedVariantId: selectedVariantId,
+                            isLoadingBundleReleases: isLoadingBundleReleases,
+                            onReferenceTypeChanged: onReferenceTypeChanged,
+                            onEditionSelected: onEditionSelected,
+                            onVariantSelected: onVariantSelected,
+                            onBundleReleaseSelected: onBundleReleaseSelected,
+                          ),
+                          const SizedBox(height: 10),
+                        ],
                         if (type.capabilities.showsSynopsis &&
                           synopsis != null &&
                             synopsis.trim().isNotEmpty) ...[
@@ -1431,47 +1403,6 @@ List<(String, String?)> _metadataRowsForFullPreview(
   ];
 }
 
-String _previewStatusSummary({
-  required LibraryMetadataItem? item,
-  required ProviderCandidate? candidate,
-  required AdminProviderPreview? preview,
-  required bool isFetchingPreview,
-  required LibraryAddTarget addTarget,
-  required String? ownedCopyTypeLabel,
-}) {
-  final ownershipSummary = addTarget == LibraryAddTarget.owned &&
-          ownedCopyTypeLabel != null
-      ? ' Owned items from this result will be saved as $ownedCopyTypeLabel.'
-      : '';
-  if (item != null) {
-    return 'Using cached Collectarr Core metadata already stored in the app.$ownershipSummary';
-  }
-  if (preview != null) {
-    return 'Provider metadata loaded directly from search results.$ownershipSummary';
-  }
-  if (candidate?.isStub ?? false) {
-    return 'Provider metadata is unavailable for this result.';
-  }
-  if (isFetchingPreview) {
-    return 'Loading provider metadata.';
-  }
-  return 'Provider metadata is unavailable for this result.';
-}
-
-String? _previewOwnedCopyTypeLabel({
-  required LibraryMetadataItem? item,
-  required AdminProviderPreview? preview,
-}) {
-  return ownedCopyTypeLabel(
-    digitalPhysicalMediaFormatFlag(
-      item?.physicalFormat ?? preview?.physicalFormat,
-      label: item?.physicalFormatLabel ??
-          preview?.physicalFormatLabel ??
-          item?.variant,
-    ),
-  );
-}
-
 List<_PreviewDiscoverySectionData> _discoverySections({
   required LibraryMetadataItem? item,
   required ProviderCandidate? candidate,
@@ -1500,46 +1431,6 @@ List<_PreviewDiscoverySectionData> _discoverySections({
       _PreviewDiscoverySectionData('Story Arcs', storyArcs),
     if (genres.isNotEmpty) _PreviewDiscoverySectionData('Genres', genres),
   ];
-}
-
-class _LibraryAddPreviewStatusBanner extends StatelessWidget {
-  const _LibraryAddPreviewStatusBanner({
-    required this.accent,
-    required this.summary,
-  });
-
-  final Color accent;
-  final String summary;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: accent.withValues(alpha: 0.4)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.info_outline, size: 16, color: accent),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                summary,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _PreviewDiscoverySectionData {
