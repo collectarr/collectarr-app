@@ -109,7 +109,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: kAppPanel,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
@@ -152,12 +152,12 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
         children: [
           Icon(Icons.sync, color: widget.accent, size: 20),
           const SizedBox(width: 8),
-          const Text(
+          Text(
             'Sync Settings',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const Spacer(),
@@ -268,7 +268,7 @@ class _SyncFieldRow extends StatelessWidget {
               field.label,
               style: const TextStyle(
                 fontSize: 13,
-                color: Colors.white70,
+                color: kAppTextMuted,
               ),
             ),
           ),
@@ -287,7 +287,7 @@ class _SyncFieldRow extends StatelessWidget {
                   isExpanded: true,
                   dropdownColor: kAppPanelRaised,
                   borderRadius: kAppMenuBorderRadius,
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
                   icon: const Icon(Icons.expand_more, size: 16),
                   items: SyncFieldPolicy.values
                       .map((p) => DropdownMenuItem(

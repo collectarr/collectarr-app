@@ -120,7 +120,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: kAppPanel,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
@@ -149,7 +149,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                         'Default values applied when adding new items to your collection.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white54,
+                          color: kAppTextMuted,
                         ),
                       ),
                     ),
@@ -192,14 +192,14 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
               children: [
                 Icon(Icons.auto_fix_high, color: widget.accent, size: 20),
                 const SizedBox(width: 8),
-                const Flexible(
+                Flexible(
                   child: Text(
                     'Pre-fill Settings',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -233,7 +233,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           width: 100,
           child: Text(
             'Location',
-            style: TextStyle(fontSize: 13, color: Colors.white70),
+            style: TextStyle(fontSize: 13, color: kAppTextMuted),
           ),
         ),
         Expanded(
@@ -244,13 +244,13 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
               height: 34,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
+                color: kAppPanelRaised,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: const Color(0xFF404040)),
+                border: Border.all(color: kAppDivider),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.place, size: 16, color: Colors.white70),
+                  const Icon(Icons.place, size: 16, color: kAppTextMuted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -338,27 +338,27 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           width: 100,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 13, color: Colors.white70),
+            style: const TextStyle(fontSize: 13, color: kAppTextMuted),
           ),
         ),
         Expanded(
           child: TextField(
             controller: controller,
-            style: const TextStyle(fontSize: 13, color: Colors.white),
+            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(fontSize: 12, color: Colors.white24),
+              hintStyle: const TextStyle(fontSize: 12, color: kAppTextMuted),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               filled: true,
-              fillColor: const Color(0xFF2A2A2A),
+              fillColor: kAppPanelRaised,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: Color(0xFF404040)),
+                borderSide: BorderSide(color: kAppDivider),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: Color(0xFF404040)),
+                borderSide: BorderSide(color: kAppDivider),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
@@ -379,7 +379,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           width: 100,
           child: Text(
             'Read Status',
-            style: TextStyle(fontSize: 13, color: Colors.white70),
+            style: TextStyle(fontSize: 13, color: kAppTextMuted),
           ),
         ),
         Expanded(
@@ -397,7 +397,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 isExpanded: true,
                 dropdownColor: kAppPanelRaised,
                 borderRadius: kAppMenuBorderRadius,
-                style: const TextStyle(fontSize: 13, color: Colors.white),
+                style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
                 icon: const Icon(Icons.expand_more, size: 16),
                 items: _readStatusOptions
                     .map((s) => DropdownMenuItem(
