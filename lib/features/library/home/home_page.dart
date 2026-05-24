@@ -41,10 +41,21 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       data: libraryCountsByKind,
       orElse: () => const <String, LibraryKindCount>{},
     );
+    final overdueLoanOwnedItemIds = ref.watch(overdueLoanOwnedItemIdsProvider)
+        .maybeWhen(data: (value) => value, orElse: () => const <String>{});
+    final overdueCounts = shelf.maybeWhen(
+      data: (value) => overdueLoanCountsByKind(value, overdueLoanOwnedItemIds),
+      orElse: () => const <String, int>{},
+    );
+    final overdueLoanCount = overdueLoanOwnedItemIds.length;
+    final selectedOverdueLoanCount = overdueCounts[selected.kind] ?? 0;
     final registry = ref.watch(resolvedLibraryTypesProvider);
     final topBar = MediaLibraryNav(
       types: visibleTypes,
       counts: counts,
+      overdueLoanCount: overdueLoanCount,
+      selectedOverdueLoanCount: selectedOverdueLoanCount,
+      selectedLabel: selected.pluralLabel,
       registry: registry,
       selectedKind: selected.kind,
       animationDuration: animationDuration,
@@ -53,6 +64,9 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     );
     final titleBar = MediaLibraryTitleBar(
       type: selected,
+      overdueLoanCount: overdueLoanCount,
+      selectedOverdueLoanCount: selectedOverdueLoanCount,
+      selectedLabel: selected.pluralLabel,
       registry: registry,
       animationDuration: animationDuration,
     );

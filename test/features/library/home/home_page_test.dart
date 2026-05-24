@@ -1,10 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -282,5 +287,65 @@ void main() {
     expect(find.byTooltip('Comics'), findsNothing);
     expect(find.byTooltip('Games'), findsOneWidget);
     expect(find.byTooltip('More libraries'), findsNothing);
+  });
+
+  testWidgets('main chrome shows overdue loan alert chip', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1220, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final now = DateTime.utc(2026, 5, 15);
+    final game = CatalogItem(
+      id: 'game-overdue-1',
+      kind: 'game',
+      title: 'Citizen Sleeper',
+      publisher: 'Jump Over the Age',
+      releaseYear: 2022,
+    );
+    final owned = OwnedItem(
+      id: 'owned-overdue-1',
+      itemId: game.id,
+      updatedAt: now,
+    );
+    final shelf = ShelfState.from(
+      ownedItems: [owned],
+      wishlistItems: const [],
+      catalogItems: {game.id: game},
+    );
+    await LoanRepository(db).create(
+      Loan(
+        id: 'loan-overdue-1',
+        ownedItemId: owned.id,
+        borrowerName: 'Alex',
+        lentDate: DateTime.utc(2020, 1, 1),
+        dueDate: DateTime.utc(2020, 1, 10),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          shelfProvider.overrideWith((ref) async => shelf),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          localDatabaseProvider.overrideWithValue(db),
+        ],
+        child: const MaterialApp(home: LibraryHomePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Overdue 1'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

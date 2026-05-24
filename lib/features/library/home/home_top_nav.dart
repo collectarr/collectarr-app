@@ -17,6 +17,9 @@ class MediaLibraryNav extends ConsumerWidget {
     super.key,
     required this.types,
     required this.counts,
+    this.overdueLoanCount = 0,
+    this.selectedOverdueLoanCount = 0,
+    required this.selectedLabel,
     required this.registry,
     required this.selectedKind,
     required this.onSelected,
@@ -25,6 +28,9 @@ class MediaLibraryNav extends ConsumerWidget {
 
   final List<CatalogMediaType> types;
   final Map<String, LibraryKindCount> counts;
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
   final LibraryTypeRegistry registry;
   final String selectedKind;
   final ValueChanged<CatalogMediaType> onSelected;
@@ -89,7 +95,12 @@ class MediaLibraryNav extends ConsumerWidget {
                 width: sideWidth,
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: _MediaLibraryHeaderActions(accent: accent),
+                  child: _MediaLibraryHeaderActions(
+                    accent: accent,
+                    overdueLoanCount: overdueLoanCount,
+                    selectedOverdueLoanCount: selectedOverdueLoanCount,
+                    selectedLabel: selectedLabel,
+                  ),
                 ),
               ),
             ],
@@ -104,11 +115,17 @@ class MediaLibraryTitleBar extends ConsumerWidget {
   const MediaLibraryTitleBar({
     super.key,
     required this.type,
+    this.overdueLoanCount = 0,
+    this.selectedOverdueLoanCount = 0,
+    required this.selectedLabel,
     required this.registry,
     this.animationDuration = const Duration(milliseconds: 320),
   });
 
   final CatalogMediaType type;
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
   final LibraryTypeRegistry registry;
   final Duration animationDuration;
 
@@ -161,7 +178,12 @@ class MediaLibraryTitleBar extends ConsumerWidget {
                   width: sideWidth,
                   child: Align(
                     alignment: Alignment.centerRight,
-                    child: _MediaLibraryHeaderActions(accent: accent),
+                    child: _MediaLibraryHeaderActions(
+                      accent: accent,
+                      overdueLoanCount: overdueLoanCount,
+                      selectedOverdueLoanCount: selectedOverdueLoanCount,
+                      selectedLabel: selectedLabel,
+                    ),
                   ),
                 ),
               ],
@@ -208,79 +230,99 @@ class _MediaLibraryTitle extends StatelessWidget {
 }
 
 class _MediaLibraryHeaderActions extends ConsumerWidget {
-  const _MediaLibraryHeaderActions({required this.accent});
+  const _MediaLibraryHeaderActions({
+    required this.accent,
+    required this.overdueLoanCount,
+    required this.selectedOverdueLoanCount,
+    required this.selectedLabel,
+  });
 
   final Color accent;
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _HeaderIconButton(
-          tooltip: 'Library navigation options',
-          child: PopupMenuButton<_LibraryNavMenuAction>(
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerRight,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (overdueLoanCount > 0) ...[
+            _OverdueLoanChip(
+              overdueLoanCount: overdueLoanCount,
+              selectedOverdueLoanCount: selectedOverdueLoanCount,
+              selectedLabel: selectedLabel,
+            ),
+            const SizedBox(width: 6),
+          ],
+          _HeaderIconButton(
             tooltip: 'Library navigation options',
-            onSelected: (action) => _handleNavMenuAction(ref, action),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            icon: const Icon(Icons.grid_view_outlined, size: 18),
-            iconColor: Colors.white,
-            itemBuilder: (context) {
-              final preferences = ref.read(libraryNavPreferencesProvider);
-              return [
-                CheckedPopupMenuItem<_LibraryNavMenuAction>(
-                  value: _LibraryNavMenuAction.topNav,
-                  checked: preferences.placement == LibraryNavPlacement.top,
-                  child: const Text('Top navigation'),
-                ),
-                CheckedPopupMenuItem<_LibraryNavMenuAction>(
-                  value: _LibraryNavMenuAction.leftRail,
-                  checked: preferences.placement == LibraryNavPlacement.left,
-                  child: const Text('Left rail navigation'),
-                ),
-              ];
-            },
+            child: PopupMenuButton<_LibraryNavMenuAction>(
+              tooltip: 'Library navigation options',
+              onSelected: (action) => _handleNavMenuAction(ref, action),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              icon: const Icon(Icons.grid_view_outlined, size: 18),
+              iconColor: Colors.white,
+              itemBuilder: (context) {
+                final preferences = ref.read(libraryNavPreferencesProvider);
+                return [
+                  CheckedPopupMenuItem<_LibraryNavMenuAction>(
+                    value: _LibraryNavMenuAction.topNav,
+                    checked: preferences.placement == LibraryNavPlacement.top,
+                    child: const Text('Top navigation'),
+                  ),
+                  CheckedPopupMenuItem<_LibraryNavMenuAction>(
+                    value: _LibraryNavMenuAction.leftRail,
+                    checked: preferences.placement == LibraryNavPlacement.left,
+                    child: const Text('Left rail navigation'),
+                  ),
+                ];
+              },
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        _HeaderIconButton(
-          tooltip: 'Account and sync',
-          child: PopupMenuButton<_AccountMenuAction>(
+          const SizedBox(width: 6),
+          _HeaderIconButton(
             tooltip: 'Account and sync',
-            onSelected: (action) => _handleAccountAction(context, ref, action),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            icon: const Icon(Icons.person_outline, size: 18),
-            iconColor: Colors.white,
-            itemBuilder: (context) => const [
-              PopupMenuItem<_AccountMenuAction>(
-                value: _AccountMenuAction.syncSettings,
-                child: ListTile(
-                  dense: true,
-                  leading: Icon(Icons.sync),
-                  title: Text('Sync settings'),
+            child: PopupMenuButton<_AccountMenuAction>(
+              tooltip: 'Account and sync',
+              onSelected: (action) => _handleAccountAction(context, ref, action),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              icon: const Icon(Icons.person_outline, size: 18),
+              iconColor: Colors.white,
+              itemBuilder: (context) => const [
+                PopupMenuItem<_AccountMenuAction>(
+                  value: _AccountMenuAction.syncSettings,
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(Icons.sync),
+                    title: Text('Sync settings'),
+                  ),
                 ),
-              ),
-              PopupMenuItem<_AccountMenuAction>(
-                value: _AccountMenuAction.refreshAccount,
-                child: ListTile(
-                  dense: true,
-                  leading: Icon(Icons.manage_accounts_outlined),
-                  title: Text('Refresh account'),
+                PopupMenuItem<_AccountMenuAction>(
+                  value: _AccountMenuAction.refreshAccount,
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(Icons.manage_accounts_outlined),
+                    title: Text('Refresh account'),
+                  ),
                 ),
-              ),
-              PopupMenuDivider(),
-              PopupMenuItem<_AccountMenuAction>(
-                value: _AccountMenuAction.signOut,
-                child: ListTile(
-                  dense: true,
-                  leading: Icon(Icons.logout),
-                  title: Text('Sign out'),
+                PopupMenuDivider(),
+                PopupMenuItem<_AccountMenuAction>(
+                  value: _AccountMenuAction.signOut,
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(Icons.logout),
+                    title: Text('Sign out'),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -332,6 +374,59 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
       case _AccountMenuAction.signOut:
         await ref.read(authControllerProvider.notifier).logout();
     }
+  }
+}
+
+class _OverdueLoanChip extends StatelessWidget {
+  const _OverdueLoanChip({
+    required this.overdueLoanCount,
+    required this.selectedOverdueLoanCount,
+    required this.selectedLabel,
+  });
+
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = 'Overdue $overdueLoanCount';
+    final tooltip = selectedOverdueLoanCount > 0
+        ? '$overdueLoanCount overdue loan${overdueLoanCount == 1 ? '' : 's'} · '
+            '$selectedOverdueLoanCount in $selectedLabel'
+        : '$overdueLoanCount overdue loan${overdueLoanCount == 1 ? '' : 's'}';
+    return Tooltip(
+      message: tooltip,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: const Color(0xFF5A2100),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: const Color(0xFFFFA352)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.warning_amber_rounded,
+                size: 16,
+                color: Color(0xFFFFC47A),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
