@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 
-class LibraryReleaseSelection {
-  const LibraryReleaseSelection({
+class LibraryEditionSelection {
+  const LibraryEditionSelection({
     required this.edition,
     required this.variant,
   });
@@ -10,7 +10,7 @@ class LibraryReleaseSelection {
   final CatalogVariant? variant;
 }
 
-LibraryReleaseSelection resolveLibraryReleaseSelection(
+LibraryEditionSelection resolveLibraryEditionSelection(
   List<CatalogEdition> editions, {
   String? editionId,
   String? editionTitle,
@@ -24,7 +24,7 @@ LibraryReleaseSelection resolveLibraryReleaseSelection(
     variantId: variantId,
     variantName: variantName,
   );
-  return LibraryReleaseSelection(
+  return LibraryEditionSelection(
     edition: selectedEdition,
     variant: resolveVariantForEdition(
       selectedEdition,

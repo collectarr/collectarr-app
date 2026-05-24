@@ -61,6 +61,12 @@ class LibraryProjectionItem {
           editions: item.editions,
           fallbackFormatLabel: item.physicalFormatLabel,
         ),
+        referenceEditionId:
+          source.ownedItem?.editionId ?? source.wishlistItem?.editionId,
+        referenceVariantId:
+          source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
+        referenceBundleReleaseId: source.ownedItem?.bundleReleaseId ??
+          source.wishlistItem?.bundleReleaseId,
         pricePaidCents: source.ownedItem?.pricePaidCents,
         currency: source.ownedItem?.currency,
         storageBox: source.locationPath ?? source.ownedItem?.storageBox,
@@ -93,7 +99,7 @@ List<LibraryProjectionItem> libraryItemsForShelf(
   final kind = type.workspace.kind;
   return [
     for (final source in shelf.entries)
-      if (source.catalogItem != null && source.catalogItem!.kind == kind)
+      if (source.catalogItem != null && source.catalogItem!.kind == kind.apiValue)
         LibraryProjectionItem.fromShelf(source),
   ];
 }

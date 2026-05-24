@@ -15,7 +15,8 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
       if (type.isTopLevel) type.kind: type,
   };
   final defaultKinds = [
-    for (final config in collectarrLibraryTypes.types) config.workspace.kind,
+    for (final config in collectarrLibraryTypes.types)
+      config.workspace.kind.apiValue,
   ];
   final orderedKinds = preferences.orderedKinds([
     ...defaultKinds,

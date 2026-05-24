@@ -294,10 +294,47 @@ class GameCatalogDetails {
   bool get hasData => platforms.isNotEmpty;
 }
 
+enum CatalogMediaKind {
+  comic('comic'),
+  manga('manga'),
+  anime('anime'),
+  book('book'),
+  game('game'),
+  boardgame('boardgame'),
+  movie('movie'),
+  tv('tv'),
+  music('music'),
+  unknown('unknown');
+
+  const CatalogMediaKind(this.apiValue);
+
+  final String apiValue;
+}
+
+CatalogMediaKind catalogMediaKindFromValue(Object? value) {
+  if (value is CatalogMediaKind) {
+    return value;
+  }
+  if (value is String?) {
+    return catalogMediaKindFromApiValue(value);
+  }
+  return CatalogMediaKind.unknown;
+}
+
+CatalogMediaKind catalogMediaKindFromApiValue(String? value) {
+  final normalized = value?.trim().toLowerCase();
+  for (final kind in CatalogMediaKind.values) {
+    if (kind.apiValue == normalized) {
+      return kind;
+    }
+  }
+  return CatalogMediaKind.unknown;
+}
+
 sealed class CatalogItem {
   const CatalogItem._({
     required this.id,
-    required this.kind,
+    required this.mediaKind,
     required this.title,
     this.sortKey,
     this.itemNumber,
@@ -326,7 +363,8 @@ sealed class CatalogItem {
 
   factory CatalogItem({
     required String id,
-    required String kind,
+    String? kind,
+    CatalogMediaKind? mediaKind,
     required String title,
     String? sortKey,
     String? itemNumber,
@@ -357,10 +395,10 @@ sealed class CatalogItem {
     String? language,
     String? ageRating,
   }) {
-    final normalizedKind = _normalizeKind(kind);
+    final resolvedMediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
     final common = _CatalogItemCommon(
       id: id,
-      kind: normalizedKind,
+      mediaKind: resolvedMediaKind,
       title: title,
       sortKey: sortKey,
       itemNumber: itemNumber,
@@ -392,68 +430,68 @@ sealed class CatalogItem {
     music = music == null ? null : _musicOrNull(music);
     game = game == null ? null : _gameOrNull(game);
 
-    switch (normalizedKind) {
-      case 'comic':
+    switch (resolvedMediaKind) {
+      case CatalogMediaKind.comic:
         return ComicCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
         );
-      case 'manga':
+      case CatalogMediaKind.manga:
         return MangaCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
         );
-      case 'book':
+      case CatalogMediaKind.book:
         return BookCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
         );
-      case 'movie':
+      case CatalogMediaKind.movie:
         return MovieCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           video: video,
         );
-      case 'tv':
+      case CatalogMediaKind.tv:
         return TvCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           video: video,
         );
-      case 'anime':
+      case CatalogMediaKind.anime:
         return AnimeCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           video: video,
         );
-      case 'music':
+      case CatalogMediaKind.music:
         return MusicCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           music: music,
         );
-      case 'game':
+      case CatalogMediaKind.game:
         return GameCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           game: game,
         );
-      case 'boardgame':
+      case CatalogMediaKind.boardgame:
         return BoardGameCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           game: game,
         );
-      default:
+      case CatalogMediaKind.unknown:
         return GenericCatalogItem._(
           common: common,
           series: series,
@@ -551,7 +589,7 @@ sealed class CatalogItem {
   }
 
   final String id;
-  final String kind;
+  final CatalogMediaKind mediaKind;
   final String title;
   final String? sortKey;
   final String? itemNumber;
@@ -576,6 +614,8 @@ sealed class CatalogItem {
   final String? language;
   final String? ageRating;
   final List<String>? rawPlatforms;
+
+  String get kind => mediaKind.apiValue;
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
   String? get displayEditionLabel =>
@@ -655,7 +695,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
     this.gameDetails,
   }) : super._(
           id: common.id,
-          kind: common.kind,
+      mediaKind: common.mediaKind,
           title: common.title,
           sortKey: common.sortKey,
           itemNumber: common.itemNumber,
@@ -845,7 +885,7 @@ final class GenericCatalogItem extends _TypedCatalogItem {
 class _CatalogItemCommon {
   const _CatalogItemCommon({
     required this.id,
-    required this.kind,
+    required this.mediaKind,
     required this.title,
     this.sortKey,
     this.itemNumber,
@@ -873,7 +913,7 @@ class _CatalogItemCommon {
   });
 
   final String id;
-  final String kind;
+  final CatalogMediaKind mediaKind;
   final String title;
   final String? sortKey;
   final String? itemNumber;
@@ -918,10 +958,6 @@ MusicCatalogDetails? _musicOrNull(MusicCatalogDetails details) {
 
 GameCatalogDetails? _gameOrNull(GameCatalogDetails details) {
   return details.hasData ? details : null;
-}
-
-String _normalizeKind(String kind) {
-  return kind.trim().toLowerCase();
 }
 
 List<String>? _normalizeStringList(List<String>? values) {

@@ -71,6 +71,20 @@ void main() {
               publisher: 'Virgin',
               isOwned: true,
               notes: 'Japanese pressing',
+              referenceEditionId: 'edition-1',
+              referenceVariantId: 'variant-1',
+              editions: const [
+                CatalogEdition(
+                  id: 'edition-1',
+                  title: 'Deluxe Edition',
+                  variants: [
+                    CatalogVariant(
+                      id: 'variant-1',
+                      name: 'Japan CD',
+                    ),
+                  ],
+                ),
+              ],
               music: const MusicCatalogDetails(
                 trackCount: 14,
                 releaseStatus: 'Official',
@@ -89,6 +103,10 @@ void main() {
     expect(find.text('14 tracks'), findsOneWidget);
     expect(find.text('Official'), findsOneWidget);
     expect(find.text('Japanese pressing'), findsOneWidget);
+    expect(
+      find.text('Item  ->  Edition: Deluxe Edition  ->  Physical: Japan CD'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('workspace card renders video runtime and game platforms',

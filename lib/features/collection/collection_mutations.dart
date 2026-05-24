@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -233,7 +234,7 @@ class CollectionMutations {
     OwnedItem ownedItem, {
     String? editionId,
     String? variantId,
-    String? status,
+    Object? status,
     int? rating,
     DateTime? startedAt,
     DateTime? finishedAt,
@@ -246,8 +247,8 @@ class CollectionMutations {
       ownedItemId: ownedItem.id,
       editionId: editionId ?? ownedItem.editionId,
       variantId: variantId ?? ownedItem.variantId,
-      sourceType: TrackingSourceType.physical.apiValue,
-      status: _normalizeTrackingValue(status),
+      sourceType: TrackingSourceType.physical,
+      status: _normalizeTrackingStatusValue(status),
       rating: rating,
       startedAt: startedAt,
       finishedAt: finishedAt,
@@ -264,8 +265,8 @@ class CollectionMutations {
     String? ownedItemId,
     String? editionId,
     String? variantId,
-    String? sourceType,
-    String? status,
+    Object? sourceType,
+    Object? status,
     int? rating,
     DateTime? startedAt,
     DateTime? finishedAt,
@@ -279,7 +280,7 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
-    final normalizedSourceType = normalizeTrackingSourceType(sourceType);
+    final normalizedSourceType = _normalizeTrackingSourceTypeValue(sourceType);
     String entryId;
     if (ownedItemId != null) {
       entryId = _trackingEntryIdForOwnedItem(ownedItemId);
@@ -290,7 +291,7 @@ class CollectionMutations {
         if (candidate.ownedItemId != null) {
           continue;
         }
-        if (_normalizeTrackingValue(candidate.sourceType) == normalizedSourceType) {
+        if (candidate.sourceTypeApiValue == normalizedSourceType) {
           existingEntry = candidate;
           break;
         }
@@ -305,7 +306,7 @@ class CollectionMutations {
       editionId: editionId,
       variantId: variantId,
       sourceType: normalizedSourceType,
-      status: _normalizeTrackingValue(status),
+      status: _normalizeTrackingStatusValue(status),
       rating: rating,
       startedAt: startedAt,
       finishedAt: finishedAt,
@@ -1040,8 +1041,8 @@ class CollectionMutations {
       editionId: ownedItem.editionId,
       variantId: ownedItem.variantId,
       sourceType: ownedItem.isDigital == true
-          ? TrackingSourceType.digital.apiValue
-          : TrackingSourceType.physical.apiValue,
+          ? TrackingSourceType.digital
+          : TrackingSourceType.physical,
       status: normalizedStatus,
       rating: ownedItem.rating,
       startedAt: ownedItem.startedAt,
@@ -1121,6 +1122,19 @@ class CollectionMutations {
     return trimmed;
   }
 
+  String? _normalizeTrackingSourceTypeValue(Object? value) {
+    return trackingSourceTypeApiValue(value) ??
+        (value is String? ? normalizeTrackingSourceType(value) : null);
+  }
+
+  String? _normalizeTrackingStatusValue(Object? value) {
+    final normalizedStatus = mediaTrackingStatusFromValue(value);
+    if (normalizedStatus != null) {
+      return mediaTrackingStatusToStorageValue(normalizedStatus);
+    }
+    return value is String? ? _normalizeTrackingValue(value) : null;
+  }
+
   String? _normalizedPersonalAnchorType(
     String? anchorType, {
     String? editionId,
@@ -1140,7 +1154,7 @@ class CollectionMutations {
   }
 
   bool _hasTrackingData(TrackingEntry entry) {
-    return _normalizeTrackingValue(entry.status) != null ||
+    return entry.statusStorageValue != null ||
         entry.rating != null ||
         entry.startedAt != null ||
         entry.finishedAt != null ||

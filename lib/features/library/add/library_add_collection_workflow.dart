@@ -80,8 +80,8 @@ class LibraryAddOwnedDetails {
   final String? soldTo;
 }
 
-class LibraryAddReleaseSelection {
-  const LibraryAddReleaseSelection({
+class LibraryAddEditionSelection {
+  const LibraryAddEditionSelection({
     required this.editionId,
     this.variantId,
   });
@@ -98,7 +98,7 @@ Future<void> addLibraryItemsToTarget({
   LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
   Map<String, LibraryAddOwnedDetails> ownedDetailsByItemId = const {},
-  Map<String, LibraryAddReleaseSelection> releaseSelectionsByItemId = const {},
+  Map<String, LibraryAddEditionSelection> editionSelectionsByItemId = const {},
   Map<String, String> bundleReleaseIdsByItemId = const {},
 }) async {
   final values = items.toList(growable: false);
@@ -118,7 +118,7 @@ Future<void> addLibraryItemsToTarget({
       referenceType: target == LibraryAddTarget.track
           ? LibraryAddReferenceType.media
           : referenceType,
-      releaseSelection: releaseSelectionsByItemId[item.id],
+      editionSelection: editionSelectionsByItemId[item.id],
       bundleReleaseId: bundleReleaseIdsByItemId[item.id],
     );
     switch (target) {
@@ -204,7 +204,7 @@ bool? _digitalOwnedItemFlag(LibraryMetadataItem item) {
 _ResolvedAddReference _resolveReferenceForItem(
   LibraryMetadataItem item, {
   required LibraryAddReferenceType referenceType,
-  LibraryAddReleaseSelection? releaseSelection,
+  LibraryAddEditionSelection? editionSelection,
   String? bundleReleaseId,
 }) {
   switch (referenceType) {
@@ -219,12 +219,12 @@ _ResolvedAddReference _resolveReferenceForItem(
         anchorType: 'bundle_release',
         bundleReleaseId: normalizedBundleId,
       );
-    case LibraryAddReferenceType.release:
-      final edition = _selectedEditionForItem(item, releaseSelection?.editionId) ??
+    case LibraryAddReferenceType.edition:
+      final edition = _selectedEditionForItem(item, editionSelection?.editionId) ??
           _primaryEditionForItem(item);
       final variant = _selectedVariantForEdition(
         edition,
-        releaseSelection?.variantId,
+        editionSelection?.variantId,
       );
       return _ResolvedAddReference(
         anchorType: variant != null

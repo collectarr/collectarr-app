@@ -162,7 +162,6 @@ class _CanonicalItemSummary extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     _MiniChip(label: item.kind),
-                    _MiniChip(label: 'ID ${_shortId(item.id)}'),
                     if (item.series?.seriesTitle != null)
                       _MiniChip(label: item.series!.seriesTitle!),
                     if (edition?.physicalFormatLabel != null)
@@ -187,15 +186,6 @@ class _CanonicalItemSummary extends StatelessWidget {
                           .fold<int>(
                             0,
                             (count, edition) => count + edition.variants.length,
-                          )
-                          .toString(),
-                    ),
-                    _Fact(
-                      label: 'Releases',
-                      value: item.editions
-                          .fold<int>(
-                            0,
-                            (count, edition) => count + edition.releases.length,
                           )
                           .toString(),
                     ),
@@ -290,7 +280,6 @@ class _BundleReleaseSummaryList extends StatelessWidget {
                             spacing: 6,
                             runSpacing: 6,
                             children: [
-                              _MiniChip(label: 'ID ${_shortId(bundle.id)}'),
                               _MiniChip(
                                 label: '${bundle.contentSummary.totalItems} members',
                               ),
@@ -353,9 +342,13 @@ class _ProviderLinksList extends StatelessWidget {
               children: [
                 _MiniChip(label: link.provider),
                 _MiniChip(label: link.entityType),
-                _MiniChip(label: 'ID ${link.providerItemId}'),
+                _MiniChip(label: 'Linked record'),
                 if (link.siteUrl != null) const _MiniChip(label: 'site URL'),
                 if (link.apiUrl != null) const _MiniChip(label: 'api URL'),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: SelectableText(link.providerItemId, maxLines: 1),
+                ),
                 if (link.siteUrl != null)
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 420),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -68,15 +69,16 @@ List<CatalogMediaType> _catalogOrFallback(
 
 List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
-  String kind,
+  Object? kind,
 ) {
-  final mediaFamily = catalogMediaFamilyForKind(kind);
+  final normalizedKind = catalogMediaKindFromValue(kind).apiValue;
+  final mediaFamily = catalogMediaFamilyForKind(normalizedKind);
   final formats = physicalMediaFormatsFromCatalog(catalog,
-      kind: kind, mediaFamily: mediaFamily);
+      kind: normalizedKind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
-  return fallbackPhysicalMediaFormatsForKind(kind);
+  return fallbackPhysicalMediaFormatsForKind(normalizedKind);
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(

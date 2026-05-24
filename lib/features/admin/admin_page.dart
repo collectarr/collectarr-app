@@ -5,10 +5,6 @@ import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -88,6 +84,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   bool _isReindexing = false;
   bool _isLoadingProviders = false;
   bool _isSearchingCatalog = false;
+  bool _hasSearchedCatalog = false;
   bool _isRunningJobs = false;
   bool _isPollingIngestJobs = false;
   bool _autoRefreshIngestJobs = true;
@@ -111,7 +108,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     _loadMediaTypes();
     _loadProviders();
     _loadProposalData();
-    _searchCatalog();
     _restartIngestPolling();
   }
 
@@ -217,7 +213,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               children: [
                 _AdminPanel(
                   icon: Icons.inventory_2_outlined,
-                  title: 'Canonical catalog browser',
+                  title: 'Catalog search',
                   trailing: IconButton(
                     tooltip: 'Search catalog',
                     onPressed:
@@ -247,13 +243,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                                         ? null
                                         : value;
                               });
-                              _searchCatalog();
                             },
                           );
                           final queryField = TextField(
                             controller: _catalogQueryController,
                             decoration: const InputDecoration(
-                              labelText: 'Catalog search',
+                              labelText: 'Find catalog items',
+                              hintText: 'Search by title, number, or provider ID',
                               prefixIcon:
                                   Icon(Icons.manage_search_outlined),
                               border: OutlineInputBorder(),
@@ -319,6 +315,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                       const SizedBox(height: 12),
                       _CatalogItemList(
                         items: _catalogItems,
+                        hasSearched: _hasSearchedCatalog,
                         inspectingItemId: _inspectingItemId,
                         updatingItemId: _updatingCatalogItemId,
                         onInspect: _inspectCatalogItem,
@@ -434,154 +431,67 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 const SizedBox(height: 12),
                 _AdminPanel(
                   icon: Icons.travel_explore_outlined,
-                  title: 'Provider ingest',
+                  title: 'Add from provider',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isNarrow =
-                              constraints.maxWidth < 720;
-                          final kindField = _ProviderKindSelector(
-                            value: _selectedProviderKindFilter,
-                            kinds: _providerKindOptions(
-                                forSearch: true),
-                            kindLabels: _catalogKindLabels(),
-                            isLoading: _isLoadingProviders,
-                            onChanged: _changeProviderKindFilter,
-                          );
-                          final searchableProviders =
-                              _providerOptions();
-                          final providerField = _ProviderSelector(
-                            value: _selectedProvider,
-                            providers: searchableProviders,
-                            isLoading: _isLoadingProviders,
-                            onChanged: (value) {
-                              _changeSelectedProvider(value);
-                            },
-                          );
-                          final queryField = TextField(
-                            controller: _queryController,
-                            decoration: const InputDecoration(
-                              labelText: 'Provider query',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(),
-                            ),
-                            textInputAction:
-                                TextInputAction.search,
-                            onSubmitted: (_) =>
-                                _searchProvider(),
-                          );
-                          final providerItemIdField = TextField(
-                            controller:
-                                _providerItemIdController,
-                            decoration: const InputDecoration(
-                              labelText: 'Provider item ID',
-                              prefixIcon:
-                                  Icon(Icons.tag_outlined),
-                              border: OutlineInputBorder(),
-                            ),
-                            textInputAction:
-                                TextInputAction.done,
-                            onSubmitted: (_) =>
-                                _ingestProviderItemId(),
-                          );
-                          final searchButton =
-                              FilledButton.icon(
-                            onPressed: _isSearching
-                                ? null
-                                : _searchProvider,
-                            icon: _isSearching
-                                ? const SizedBox.square(
-                                    dimension: 18,
-                                    child:
-                                        CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                  )
-                                : const Icon(
-                                    Icons.manage_search),
-                            label: const Text('Search'),
-                          );
-                          final ingestIdButton =
-                              OutlinedButton.icon(
-                            onPressed: _isDirectIngesting ||
-                                    searchableProviders.isEmpty
-                                ? null
-                                : _ingestProviderItemId,
-                            icon: _isDirectIngesting
-                                ? const SizedBox.square(
-                                    dimension: 18,
-                                    child:
-                                        CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                  )
-                                : const Icon(Icons
-                                    .download_for_offline_outlined),
-                            label: const Text('Ingest ID'),
-                          );
-                          if (isNarrow) {
-                            return Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.stretch,
-                              children: [
-                                providerField,
-                                const SizedBox(height: 12),
-                                kindField,
-                                const SizedBox(height: 12),
-                                queryField,
-                                const SizedBox(height: 12),
-                                providerItemIdField,
-                                const SizedBox(height: 12),
-                                Align(
-                                  alignment:
-                                      Alignment.centerLeft,
-                                  child: Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      searchButton,
-                                      ingestIdButton
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-                          return Row(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                  width: 150,
-                                  child: kindField),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                  width: 220,
-                                  child: providerField),
-                              const SizedBox(width: 12),
-                              Expanded(child: queryField),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                  width: 220,
-                                  child:
-                                      providerItemIdField),
-                              const SizedBox(width: 12),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(
-                                        top: 4),
-                                child: Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: [
-                                    searchButton,
-                                    ingestIdButton
-                                  ],
-                                ),
+                      Text(
+                        'Choose a category first, then open the guided add dialog to search a provider or ingest a known provider ID. Search results and proposal review stay below.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (_selectedProviderKindFilter != null)
+                            _MiniChip(
+                              label: _providerKindLabel(
+                                _selectedProviderKindFilter!,
+                                _catalogKindLabels(),
                               ),
-                            ],
-                          );
-                        },
+                            ),
+                          if (_selectedProvider.isNotEmpty)
+                            _MiniChip(label: _selectedProviderLabel()),
+                          if (_activeProposalTitle != null)
+                            _MiniChip(label: 'Reviewing $_activeProposalTitle'),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          FilledButton.icon(
+                            onPressed: _isLoadingProviders ||
+                                    _isSearching ||
+                                    _isDirectIngesting
+                                ? null
+                                : _showProviderAddDialog,
+                            icon: _isSearching || _isDirectIngesting
+                                ? const SizedBox.square(
+                                    dimension: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.add_circle_outline),
+                            label: const Text('Open add dialog'),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: _results.isEmpty
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _results = const <ProviderCandidate>[];
+                                      _statusMessage = null;
+                                      _errorMessage = null;
+                                    });
+                                  },
+                            icon: const Icon(Icons.layers_clear_outlined),
+                            label: const Text('Clear results'),
+                          ),
+                        ],
                       ),
                       if (_statusMessage != null ||
                           _errorMessage != null) ...[
@@ -939,15 +849,29 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _searchCatalog() async {
+    final query = _catalogQueryController.text.trim();
+    final kind = _catalogKindFilter;
+    if (query.isEmpty && (kind == null || kind.isEmpty)) {
+      setState(() {
+        _catalogItems = const <AdminMetadataItem>[];
+        _hasSearchedCatalog = false;
+        _isSearchingCatalog = false;
+        _catalogErrorMessage = null;
+        _catalogStatusMessage =
+            'Enter a title or choose a category before searching the catalog.';
+      });
+      return;
+    }
     setState(() {
       _isSearchingCatalog = true;
+      _hasSearchedCatalog = true;
       _catalogStatusMessage = null;
       _catalogErrorMessage = null;
     });
     try {
       final items = await ref.read(apiClientProvider).adminCatalogItems(
-            query: _catalogQueryController.text,
-            kind: _catalogKindFilter,
+            query: query,
+            kind: kind,
             limit: 12,
           );
       if (!mounted) {
@@ -957,8 +881,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _catalogItems = items;
         _isSearchingCatalog = false;
         _catalogStatusMessage = items.isEmpty
-            ? 'No catalog items found.'
-            : '${items.length} catalog items.';
+            ? 'No catalog items matched the current search.'
+            : '${items.length} catalog items found.';
       });
     } catch (error) {
       if (!mounted) {
@@ -1044,6 +968,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     try {
       final api = ref.read(apiClientProvider);
       final bundle = await api.getBundleRelease(bundleReleaseId);
+      if (!mounted) {
+        return;
+      }
       final correction = await showDialog<AdminBundleReleaseCorrection>(
         context: context,
         builder: (context) => _BundleReleaseCorrectionDialog(bundle: bundle),
@@ -1081,30 +1008,19 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
       item.kind,
     );
-    final type = collectarrLibraryTypes.byKind(item.kind);
-    if (type == null) {
-      setState(() {
-        _catalogErrorMessage = 'No shared editor is registered for ${item.kind}.';
-      });
-      return;
-    }
-    final result = await showLibraryEditDialog(
+    final correction = await showDialog<_CatalogCorrection>(
       context: context,
-      request: LibraryEditDialogRequest(
-        type: type,
-        item: _libraryMetadataItemFromAdminItem(item),
-        ownedItem: null,
-        accent: LibraryAccentScope.accentOf(context),
+      builder: (context) => _MetadataCorrectionDialog(
+        item: item,
         physicalFormats: physicalFormats,
       ),
     );
-    if (result == null || !mounted) {
+    if (correction == null || !mounted) {
       return;
     }
-    final correction = _catalogCorrectionFromEditedItem(item, result.item);
     final explicitFields = _catalogCorrectionExplicitFields(item, correction);
     final originalSeriesTags = _normalizedAdminTags(item.series?.tags);
-    final editedSeriesTags = _normalizedAdminTags(result.item.series?.tags);
+    final editedSeriesTags = _normalizedAdminTags(correction.seriesTags);
     final seriesTagsChanged = !listEquals(originalSeriesTags, editedSeriesTags);
     if (explicitFields.isEmpty && !seriesTagsChanged) {
       setState(() {
@@ -1136,10 +1052,17 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               synopsis: correction.synopsis,
               editionTitle: correction.editionTitle,
               pageCount: correction.pageCount,
+              runtimeMinutes: correction.runtimeMinutes,
               publisher: correction.publisher,
               releaseDate: correction.releaseDate,
               imprint: correction.imprint,
+              subtitle: correction.subtitle,
               seriesGroup: correction.seriesGroup,
+              country: correction.country,
+              language: correction.language,
+              ageRating: correction.ageRating,
+              catalogNumber: correction.catalogNumber,
+              releaseStatus: correction.releaseStatus,
               physicalFormat: correction.physicalFormat,
               variantName: correction.variantName,
               barcode: correction.barcode,
@@ -1170,7 +1093,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         if (updated != null) {
           _catalogItems = [
             for (final row in _catalogItems)
-              row.id == updated!.id ? updated! : row,
+              row.id == updated.id ? updated : row,
           ];
         }
       });
@@ -1184,54 +1107,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _catalogErrorMessage = _adminErrorMessage(error);
       });
     }
-  }
-
-  LibraryMetadataItem _libraryMetadataItemFromAdminItem(AdminMetadataItem item) {
-    final edition = item.primaryEdition;
-    final variant = item.primaryVariant;
-    final releaseDate = edition?.releaseDate ?? item.coverDate;
-    return LibraryMetadataItem(
-      id: item.id,
-      kind: item.kind,
-      title: item.title,
-      itemNumber: item.itemNumber,
-      synopsis: item.synopsis,
-      coverImageUrl: variant?.coverImageUrl ?? item.displayCoverUrl,
-      thumbnailImageUrl: variant?.thumbnailImageUrl ?? item.displayCoverUrl,
-      editionTitle: edition?.title,
-      physicalFormat: edition?.physicalFormat,
-      physicalFormatLabel: edition?.physicalFormatLabel,
-      publisher: edition?.publisher ?? item.publisher,
-      releaseDate: releaseDate,
-      releaseYear: releaseDate?.year ?? item.series?.volumeStartYear,
-      barcode: variant?.barcode ?? item.barcode,
-      variant: variant?.name,
-      series: item.series,
-      publishing: item.publishing,
-    );
-  }
-
-  _CatalogCorrection _catalogCorrectionFromEditedItem(
-    AdminMetadataItem original,
-    LibraryMetadataItem edited,
-  ) {
-    return _CatalogCorrection(
-      title: edited.title,
-      itemNumber: edited.itemNumber,
-      synopsis: edited.synopsis,
-      editionTitle: edited.editionTitle,
-      pageCount: edited.publishing?.pageCount,
-      publisher: edited.publisher,
-      releaseDate: edited.releaseDate,
-      imprint: edited.publishing?.imprint,
-      seriesGroup: edited.publishing?.seriesGroup,
-      physicalFormat: edited.physicalFormat,
-      variantName: edited.variant,
-      barcode: edited.barcode,
-      coverImageUrl: edited.coverImageUrl,
-      thumbnailImageUrl: edited.thumbnailImageUrl,
-      seriesTags: edited.series?.tags,
-    );
   }
 
   Set<String> _catalogCorrectionExplicitFields(
@@ -1252,6 +1127,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     addField('synopsis', item.synopsis, correction.synopsis);
     addField('edition_title', edition?.title, correction.editionTitle);
     addField('page_count', item.publishing?.pageCount, correction.pageCount);
+    addField('runtime_minutes', item.video?.runtimeMinutes, correction.runtimeMinutes);
     addField(
       'publisher',
       edition?.publisher ?? item.publisher,
@@ -1259,7 +1135,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     );
     addField('release_date', edition?.releaseDate ?? item.coverDate, correction.releaseDate);
     addField('imprint', item.publishing?.imprint, correction.imprint);
+    addField('subtitle', item.publishing?.subtitle, correction.subtitle);
     addField('series_group', item.publishing?.seriesGroup, correction.seriesGroup);
+    addField('country', item.country, correction.country);
+    addField('language', item.language, correction.language);
+    addField('age_rating', item.ageRating, correction.ageRating);
+    addField('catalog_number', item.music?.catalogNumber, correction.catalogNumber);
+    addField('release_status', item.music?.releaseStatus, correction.releaseStatus);
     if (correction.physicalFormat != null &&
         edition?.physicalFormat != correction.physicalFormat) {
       fields.add('physical_format');
@@ -1305,9 +1187,16 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     add('Barcode', variant?.barcode ?? item.barcode, correction.barcode);
     add('Primary variant', variant?.name, correction.variantName);
     add('Page count', item.publishing?.pageCount, correction.pageCount);
+    add('Runtime', item.video?.runtimeMinutes, correction.runtimeMinutes);
     add('Release date', edition?.releaseDate ?? item.coverDate, correction.releaseDate);
     add('Imprint', item.publishing?.imprint, correction.imprint);
+    add('Subtitle', item.publishing?.subtitle, correction.subtitle);
     add('Series group', item.publishing?.seriesGroup, correction.seriesGroup);
+    add('Country', item.country, correction.country);
+    add('Language', item.language, correction.language);
+    add('Age rating', item.ageRating, correction.ageRating);
+    add('Catalog number', item.music?.catalogNumber, correction.catalogNumber);
+    add('Release status', item.music?.releaseStatus, correction.releaseStatus);
     add('Physical format', edition?.physicalFormat, correction.physicalFormat);
     add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
     add('Thumbnail URL', variant?.thumbnailImageUrl, correction.thumbnailImageUrl);
@@ -1932,6 +1821,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       proposalId: proposalId,
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
+      kind: candidate.kind,
       successMessage: 'Proposal approved with selected provider item.',
     );
   }
@@ -1940,6 +1830,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     required String proposalId,
     required String provider,
     required String providerItemId,
+    String? kind,
     required String successMessage,
   }) async {
     setState(() {
@@ -1955,6 +1846,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             proposalId: proposalId,
             provider: provider,
             providerItemId: providerItemId,
+            kind: kind,
           );
       if (!mounted) {
         return;
@@ -2048,12 +1940,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     await _ingestProvider(
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
+      kind: candidate.kind,
     );
   }
 
   Future<void> _ingestProvider({
     required String provider,
     required String providerItemId,
+    String? kind,
     bool isDirect = false,
   }) async {
     setState(() {
@@ -2066,6 +1960,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final result = await ref.read(apiClientProvider).adminProviderIngest(
             provider: provider,
             providerItemId: providerItemId,
+            kind: kind ?? _selectedProviderKind(),
           );
       if (!mounted) {
         return;
@@ -2089,6 +1984,38 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _ingestingProviderItemId = null;
         _errorMessage = _adminErrorMessage(error);
       });
+    }
+  }
+
+  Future<void> _showProviderAddDialog() async {
+    final request = await showDialog<_ProviderAddRequest>(
+      context: context,
+      builder: (context) => _ProviderAddDialog(
+        providers: _providers,
+        kinds: _providerKindOptions(forSearch: true),
+        kindLabels: _catalogKindLabels(),
+        initialKind: _selectedProviderKindFilter,
+        initialProvider: _selectedProvider,
+        initialQuery: _queryController.text,
+        initialProviderItemId: _providerItemIdController.text,
+      ),
+    );
+    if (request == null || !mounted) {
+      return;
+    }
+    setState(() {
+      _selectedProviderKindFilter = request.kind;
+      _selectedProvider = request.provider;
+      _queryController.text = request.query ?? '';
+      _providerItemIdController.text = request.providerItemId ?? '';
+      _errorMessage = null;
+      _statusMessage = null;
+    });
+    switch (request.mode) {
+      case _ProviderAddMode.search:
+        await _searchProvider();
+      case _ProviderAddMode.direct:
+        await _ingestProviderItemId();
     }
   }
 
@@ -2158,25 +2085,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _proposalErrorMessage = null;
     });
     unawaited(_loadProposalData());
-  }
-
-  void _changeProviderKindFilter(String? kind) {
-    final normalizedKind = kind?.trim();
-    final nextKind = normalizedKind == null || normalizedKind.isEmpty
-        ? null
-        : normalizedKind;
-    final options = _providerOptions(kind: nextKind);
-    setState(() {
-      _selectedProviderKindFilter = nextKind;
-      _selectedProvider = _preferredProvider(
-        options,
-        current: _selectedProvider,
-      );
-      _results = const [];
-      _lastIngest = null;
-      _statusMessage = null;
-      _errorMessage = null;
-    });
   }
 
   void _changeSelectedProvider(String? value) {
@@ -2768,6 +2676,7 @@ class _ProviderKindSelector extends StatelessWidget {
 class _CatalogItemList extends StatelessWidget {
   const _CatalogItemList({
     required this.items,
+    required this.hasSearched,
     required this.inspectingItemId,
     required this.updatingItemId,
     required this.onInspect,
@@ -2776,6 +2685,7 @@ class _CatalogItemList extends StatelessWidget {
   });
 
   final List<AdminMetadataItem> items;
+  final bool hasSearched;
   final String? inspectingItemId;
   final String? updatingItemId;
   final ValueChanged<AdminMetadataItem> onInspect;
@@ -2785,8 +2695,10 @@ class _CatalogItemList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return const _MessageRow(
-        message: 'No catalog results loaded.',
+      return _MessageRow(
+        message: hasSearched
+            ? 'No catalog items matched the current search.'
+            : 'Search by title or choose a category to load catalog results.',
         isError: false,
       );
     }
@@ -4163,8 +4075,14 @@ class _ProviderResultTile extends StatelessWidget {
               children: [
                 _MiniChip(label: candidate.provider),
                 _MiniChip(label: candidate.kind),
-                _MiniChip(label: 'ID ${candidate.providerItemId}'),
+                _MiniChip(label: 'Provider match'),
               ],
+            ),
+            const SizedBox(height: 4),
+            SelectableText(
+              candidate.providerItemId,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 1,
             ),
             if (candidate.summary != null &&
                 candidate.summary!.trim().isNotEmpty) ...[
@@ -4559,6 +4477,263 @@ class _MetadataProposalTile extends StatelessWidget {
   }
 }
 
+enum _ProviderAddMode { search, direct }
+
+class _ProviderAddRequest {
+  const _ProviderAddRequest({
+    required this.mode,
+    required this.kind,
+    required this.provider,
+    this.query,
+    this.providerItemId,
+  });
+
+  final _ProviderAddMode mode;
+  final String? kind;
+  final String provider;
+  final String? query;
+  final String? providerItemId;
+}
+
+class _ProviderAddDialog extends StatefulWidget {
+  const _ProviderAddDialog({
+    required this.providers,
+    required this.kinds,
+    required this.kindLabels,
+    this.initialKind,
+    this.initialProvider,
+    this.initialQuery,
+    this.initialProviderItemId,
+  });
+
+  final List<AdminProviderStatus> providers;
+  final List<String> kinds;
+  final Map<String, String> kindLabels;
+  final String? initialKind;
+  final String? initialProvider;
+  final String? initialQuery;
+  final String? initialProviderItemId;
+
+  @override
+  State<_ProviderAddDialog> createState() => _ProviderAddDialogState();
+}
+
+class _ProviderAddDialogState extends State<_ProviderAddDialog> {
+  late _ProviderAddMode _mode;
+  late String? _selectedKind;
+  late String _selectedProvider;
+  late final TextEditingController _queryController;
+  late final TextEditingController _providerItemIdController;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _mode = _ProviderAddMode.search;
+    _selectedKind = widget.initialKind;
+    _selectedProvider = widget.initialProvider ?? '';
+    _queryController = TextEditingController(text: widget.initialQuery ?? '');
+    _providerItemIdController = TextEditingController(
+      text: widget.initialProviderItemId ?? '',
+    );
+    _syncSelectedProvider();
+  }
+
+  @override
+  void dispose() {
+    _queryController.dispose();
+    _providerItemIdController.dispose();
+    super.dispose();
+  }
+
+  List<AdminProviderStatus> get _availableProviders {
+    return [
+      for (final provider in widget.providers)
+        if ((_mode == _ProviderAddMode.search
+                ? provider.supportsSearch
+                : provider.supportsIngest) &&
+            (_selectedKind == null || provider.effectiveKinds.contains(_selectedKind)))
+          provider,
+    ];
+  }
+
+  void _syncSelectedProvider() {
+    final providers = _availableProviders;
+    if (providers.any((provider) => provider.name == _selectedProvider)) {
+      return;
+    }
+    _selectedProvider = providers.isEmpty ? '' : providers.first.name;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final actionLabel = _mode == _ProviderAddMode.search
+        ? 'Search provider'
+        : 'Add to catalog';
+    return AlertDialog(
+      shape: _kAdminDialogShape,
+      title: const Text('Add metadata from provider'),
+      content: SizedBox(
+        width: 680,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_error != null) ...[
+                _MessageRow(message: _error!, isError: true),
+                const SizedBox(height: 12),
+              ],
+              SegmentedButton<_ProviderAddMode>(
+                segments: const [
+                  ButtonSegment<_ProviderAddMode>(
+                    value: _ProviderAddMode.search,
+                    icon: Icon(Icons.manage_search_outlined),
+                    label: Text('Search first'),
+                  ),
+                  ButtonSegment<_ProviderAddMode>(
+                    value: _ProviderAddMode.direct,
+                    icon: Icon(Icons.download_for_offline_outlined),
+                    label: Text('Known ID'),
+                  ),
+                ],
+                selected: {_mode},
+                onSelectionChanged: (selection) {
+                  setState(() {
+                    _mode = selection.first;
+                    _error = null;
+                    _syncSelectedProvider();
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              _ProviderKindSelector(
+                value: _selectedKind,
+                kinds: widget.kinds,
+                kindLabels: widget.kindLabels,
+                isLoading: false,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedKind = value == null || value.isEmpty ? null : value;
+                    _error = null;
+                    _syncSelectedProvider();
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              _ProviderSelector(
+                value: _selectedProvider,
+                providers: _availableProviders,
+                isLoading: false,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedProvider = value?.trim() ?? '';
+                    _error = null;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _mode == _ProviderAddMode.search
+                    ? 'Search for candidates inside the selected category before creating anything in the canonical catalog.'
+                    : 'Use a known provider item ID when you already know the exact external record you want to ingest.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 12),
+              if (_mode == _ProviderAddMode.search)
+                TextField(
+                  controller: _queryController,
+                  decoration: const InputDecoration(
+                    labelText: 'Provider query',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (_) => _submit(),
+                )
+              else
+                TextField(
+                  controller: _providerItemIdController,
+                  decoration: const InputDecoration(
+                    labelText: 'Provider item ID',
+                    prefixIcon: Icon(Icons.tag_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _submit(),
+                ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton.icon(
+          onPressed: _submit,
+          icon: Icon(
+            _mode == _ProviderAddMode.search
+                ? Icons.manage_search_outlined
+                : Icons.download_for_offline_outlined,
+          ),
+          label: Text(actionLabel),
+        ),
+      ],
+    );
+  }
+
+  void _submit() {
+    final kind = _selectedKind?.trim();
+    if (kind == null || kind.isEmpty) {
+      setState(() {
+        _error = 'Choose a media category first.';
+      });
+      return;
+    }
+    if (_selectedProvider.trim().isEmpty) {
+      setState(() {
+        _error = 'Choose a provider.';
+      });
+      return;
+    }
+    if (_mode == _ProviderAddMode.search) {
+      final query = _queryController.text.trim();
+      if (query.isEmpty) {
+        setState(() {
+          _error = 'Enter a provider query.';
+        });
+        return;
+      }
+      Navigator.of(context).pop(
+        _ProviderAddRequest(
+          mode: _mode,
+          kind: kind,
+          provider: _selectedProvider,
+          query: query,
+        ),
+      );
+      return;
+    }
+    final providerItemId = _providerItemIdController.text.trim();
+    if (providerItemId.isEmpty) {
+      setState(() {
+        _error = 'Enter a provider item ID.';
+      });
+      return;
+    }
+    Navigator.of(context).pop(
+      _ProviderAddRequest(
+        mode: _mode,
+        kind: kind,
+        provider: _selectedProvider,
+        providerItemId: providerItemId,
+      ),
+    );
+  }
+}
+
 class _CatalogCorrection {
   const _CatalogCorrection({
     this.title,
@@ -4566,10 +4741,17 @@ class _CatalogCorrection {
     this.synopsis,
     this.editionTitle,
     this.pageCount,
+    this.runtimeMinutes,
     this.publisher,
     this.releaseDate,
     this.imprint,
+    this.subtitle,
     this.seriesGroup,
+    this.country,
+    this.language,
+    this.ageRating,
+    this.catalogNumber,
+    this.releaseStatus,
     this.physicalFormat,
     this.variantName,
     this.barcode,
@@ -4583,10 +4765,17 @@ class _CatalogCorrection {
   final String? synopsis;
   final String? editionTitle;
   final int? pageCount;
+  final int? runtimeMinutes;
   final String? publisher;
   final DateTime? releaseDate;
   final String? imprint;
+  final String? subtitle;
   final String? seriesGroup;
+  final String? country;
+  final String? language;
+  final String? ageRating;
+  final String? catalogNumber;
+  final String? releaseStatus;
   final String? physicalFormat;
   final String? variantName;
   final String? barcode;

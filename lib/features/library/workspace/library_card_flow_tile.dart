@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
@@ -37,6 +38,13 @@ class LibraryCardFlowTile extends StatelessWidget {
       entry.mediaType,
     );
     final theme = Theme.of(context);
+    final referenceHierarchy = libraryReferenceHierarchySegments(
+      mediaType: entry.mediaType,
+      editions: entry.editions,
+      editionId: entry.referenceEditionId,
+      variantId: entry.referenceVariantId,
+      bundleReleaseId: entry.referenceBundleReleaseId,
+    );
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       clipBehavior: Clip.antiAlias,
@@ -163,6 +171,19 @@ class LibraryCardFlowTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      if (referenceHierarchy.length > 1) ...[
+                        Text(
+                          referenceHierarchy.join('  ->  '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: accentColor.withValues(alpha: 0.88),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       // Meta pills
                       Wrap(
                         spacing: 6,

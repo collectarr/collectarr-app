@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
-import 'package:collectarr_app/features/library/edit/release_selection_helpers.dart';
+import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -96,11 +97,37 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   bool get _hasTrackingContext => _isOwned || widget.request.trackingEntry != null;
 
-  int get _tabCount => _isOwned ? 8 : _hasTrackingContext ? 7 : 6;
+  bool get _isTrackingOnly => !_isOwned && widget.request.trackingEntry != null;
 
   LibraryTypeConfig get _type => widget.request.type;
 
   Color get _accent => widget.request.accent;
+
+  LibraryEditPresentationContext get _tabPresentationContext {
+    return LibraryEditPresentationContext(
+      isOwned: _isOwned,
+      isTrackingOnly: _isTrackingOnly,
+      hasTrackingContext: _hasTrackingContext,
+      hasWishlistContext: false,
+      isDigitalFormat: false,
+      hasPhysicalFormats: false,
+      hasEditionAnchors: widget.request.item.editions.isNotEmpty,
+      hasBundleReleaseAnchors: false,
+      hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
+    );
+  }
+
+  List<LibraryEditTabSpec> get _tabSpecs {
+    return _type.editPresentation.builder.buildTabs(
+      context: _tabPresentationContext,
+    );
+  }
+
+  LibraryEditFooterSpec get _footerSpec {
+    return _type.editPresentation.builder.buildFooter(
+      context: _tabPresentationContext,
+    );
+  }
 
   String get _bookTitleLabel => _titleController.text.trim().isEmpty
       ? widget.request.item.title
@@ -112,7 +139,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     final item = widget.request.item;
     final owned = widget.request.ownedItem;
     final tracking = widget.request.trackingEntry;
-    _tabController = TabController(length: _tabCount, vsync: this)
+    _tabController = TabController(length: _tabSpecs.length, vsync: this)
       ..addListener(() {
         if (mounted) {
           setState(() {});
@@ -181,7 +208,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _ratingController =
       TextEditingController(text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
     _trackingController =
-      TextEditingController(text: tracking?.status ?? owned?.readStatus ?? '');
+      TextEditingController(
+        text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
+      );
     _tagsController = TextEditingController(text: owned?.tags ?? '');
     _sellPriceController = TextEditingController(
       text: owned?.sellPriceCents == null
@@ -193,15 +222,15 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _startedAt = tracking?.startedAt ?? owned?.startedAt;
     _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
     _soldAt = owned?.soldAt;
-    final releaseSelection = resolveLibraryReleaseSelection(
+    final editionSelection = resolveLibraryEditionSelection(
       item.editions,
       editionId: owned?.editionId ?? tracking?.editionId,
       editionTitle: item.editionTitle,
       variantId: owned?.variantId ?? tracking?.variantId,
       variantName: item.variant,
     );
-    _selectedEditionId = releaseSelection.edition?.id;
-    _selectedVariantId = releaseSelection.variant?.id;
+    _selectedEditionId = editionSelection.edition?.id;
+    _selectedVariantId = editionSelection.variant?.id;
     _customFieldEdits = {
       for (final value in widget.request.customFieldValues)
         value.fieldDefinitionId: value.value,
@@ -290,46 +319,10 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         if (_selectedLocationLabel != null) EditMiniBadge(_selectedLocationLabel!),
       ],
       tabController: _tabController,
-      tabs: _tabHeaders(),
-      views: [
-        _detailsTab(),
-        _creditsTab(),
-        _contentsTab(),
-        _plotNotesTab(),
-        _coversTab(),
-        _linksTab(),
-        if (_hasTrackingContext) _personalTab(),
-        if (_isOwned) _photosTab(),
-      ],
-      footerLabel: null,
-      footerFields: [
-        FooterReadonlyField(
-          label: 'Book',
-          value: _bookTitleLabel,
-          width: 180,
-        ),
-        FooterReadonlyField(
-          label: 'Volume',
-          value: _volumeNumberController.text,
-          width: 74,
-        ),
-        FooterTextField(
-          label: 'Title sort',
-          controller: _sortKeyController,
-          width: 160,
-        ),
-        FooterTextField(
-          label: 'Series tags',
-          controller: _seriesTagsController,
-          width: 170,
-        ),
-        if (_isOwned)
-          FooterTextField(
-            label: 'User tags',
-            controller: _tagsController,
-            width: 150,
-          ),
-      ],
+      tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
+      views: _tabViews(),
+      footerLabel: _footerSpec.label,
+      footerFields: [for (final fieldId in _footerSpec.fieldIds) _footerFieldFor(fieldId)],
       onPrevious: _previousTab,
       onNext: _nextTab,
       onCancel: () => Navigator.of(context).pop(),
@@ -337,21 +330,79 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
-  List<Widget> _tabHeaders() {
-    return [
-      const EditTab(icon: Icons.menu_book, label: 'Details'),
-      const EditTab(icon: Icons.groups_2, label: 'Credits & Characters'),
-      const EditTab(icon: Icons.format_list_numbered, label: 'Contents'),
-      const EditTab(icon: Icons.notes, label: 'Plot & Notes'),
-      const EditTab(icon: Icons.image, label: 'Covers'),
-      const EditTab(icon: Icons.link, label: 'Links'),
-      if (_hasTrackingContext)
-        const EditTab(icon: Icons.person, label: 'Personal'),
-      if (_isOwned) const EditTab(icon: Icons.photo_library, label: 'Photos'),
-    ];
+  List<Widget> _tabViews() {
+    return [for (final tab in _tabSpecs) _tabViewFor(tab.id)];
+  }
+
+  List<String> _tabSectionIds(String tabId) {
+    return _type.editPresentation.builder.buildTabSectionIds(
+      context: _tabPresentationContext,
+      tabId: tabId,
+    );
+  }
+
+  Widget _tabViewFor(String id) {
+    switch (id) {
+      case 'details':
+        return _detailsTab();
+      case 'credits':
+        return _creditsTab();
+      case 'contents':
+        return _contentsTab();
+      case 'plot_notes':
+        return _plotNotesTab();
+      case 'covers':
+        return _coversTab();
+      case 'links':
+        return _linksTab();
+      case 'personal':
+        return _personalTab();
+      case 'photos':
+        return _photosTab();
+      default:
+        throw StateError('Unsupported book edit tab: $id');
+    }
+  }
+
+  Widget _footerFieldFor(String id) {
+    switch (id) {
+      case 'book_title':
+        return FooterReadonlyField(
+          label: 'Book',
+          value: _bookTitleLabel,
+          width: 180,
+        );
+      case 'book_volume':
+        return FooterReadonlyField(
+          label: 'Volume',
+          value: _volumeNumberController.text,
+          width: 74,
+        );
+      case 'title_sort':
+        return FooterTextField(
+          label: 'Title sort',
+          controller: _sortKeyController,
+          width: 160,
+        );
+      case 'series_tags':
+        return FooterTextField(
+          label: 'Series tags',
+          controller: _seriesTagsController,
+          width: 170,
+        );
+      case 'user_tags':
+        return FooterTextField(
+          label: 'User tags',
+          controller: _tagsController,
+          width: 150,
+        );
+      default:
+        throw StateError('Unsupported book footer field: $id');
+    }
   }
 
   Widget _detailsTab() {
+    final sections = _tabSectionIds('details');
     return EditTabShell(
       cover: _coverPreview(),
       children: [
@@ -386,7 +437,106 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           ],
         ),
         const SizedBox(height: 12),
-        EditSection(
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _creditsTab() {
+    final sections = _tabSectionIds('credits');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _contentsTab() {
+    final sections = _tabSectionIds('contents');
+    return EditTabShell(
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            EditSummaryPill(
+              label: 'Book no.',
+              value: _numberController.text,
+              icon: Icons.bookmark_outline,
+              width: 96,
+            ),
+            EditSummaryPill(
+              label: 'Release',
+              value: _releaseDateController.text.isEmpty
+                  ? _releaseYearController.text
+                  : _releaseDateController.text,
+              icon: Icons.event_note_outlined,
+              width: 132,
+            ),
+            EditSummaryPill(
+              label: 'Series tags',
+              value: _seriesTagsController.text,
+              icon: Icons.sell_outlined,
+              width: 220,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _plotNotesTab() {
+    final sections = _tabSectionIds('plot_notes');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _coversTab() {
+    final sections = _tabSectionIds('covers');
+    return EditTabShell(
+      cover: _coverPreview(),
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _linksTab() {
+    final sections = _tabSectionIds('links');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _personalTab() {
+    final sections = _tabSectionIds('personal');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _photosTab() {
+    final sections = _tabSectionIds('photos');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _sectionFor(String id) {
+    switch (id) {
+      case 'book_details':
+        return EditSection(
           title: 'Book details',
           accent: _accent,
           child: Column(
@@ -410,15 +560,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ], wideColumns: 2, ultraWideColumns: 4),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _creditsTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'book_credits':
+        return EditSection(
           title: 'Credits & discovery',
           accent: _accent,
           child: Column(
@@ -454,42 +598,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _contentsTab() {
-    return EditTabShell(
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            EditSummaryPill(
-              label: 'Book no.',
-              value: _numberController.text,
-              icon: Icons.bookmark_outline,
-              width: 96,
-            ),
-            EditSummaryPill(
-              label: 'Release',
-              value: _releaseDateController.text.isEmpty
-                  ? _releaseYearController.text
-                  : _releaseDateController.text,
-              icon: Icons.event_note_outlined,
-              width: 132,
-            ),
-            EditSummaryPill(
-              label: 'Series tags',
-              value: _seriesTagsController.text,
-              icon: Icons.sell_outlined,
-              width: 220,
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        EditSection(
+        );
+      case 'book_contents':
+        return EditSection(
           title: 'Series & contents',
           accent: _accent,
           child: Column(
@@ -521,15 +632,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ], wideColumns: 2, ultraWideColumns: 3),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _plotNotesTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'book_plot':
+        return EditSection(
           title: 'Plot',
           accent: _accent,
           child: TextFormField(
@@ -541,30 +646,23 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               alignLabelWithHint: true,
             ),
           ),
-        ),
-        if (_isOwned)
-          EditSection(
-            title: 'Notes',
-            accent: _accent,
-            child: TextFormField(
-              controller: _notesController,
-              minLines: 4,
-              maxLines: 8,
-              decoration: const InputDecoration(
-                labelText: 'Personal notes',
-                alignLabelWithHint: true,
-              ),
+        );
+      case 'book_notes':
+        return EditSection(
+          title: 'Notes',
+          accent: _accent,
+          child: TextFormField(
+            controller: _notesController,
+            minLines: 4,
+            maxLines: 8,
+            decoration: const InputDecoration(
+              labelText: 'Personal notes',
+              alignLabelWithHint: true,
             ),
           ),
-      ],
-    );
-  }
-
-  Widget _coversTab() {
-    return EditTabShell(
-      cover: _coverPreview(),
-      children: [
-        EditSection(
+        );
+      case 'book_cover_sources':
+        return EditSection(
           title: 'Cover sources',
           accent: _accent,
           child: Column(
@@ -586,15 +684,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ]),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _linksTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'book_identifiers_links':
+        return EditSection(
           title: 'Identifiers & links',
           accent: _accent,
           child: Column(
@@ -605,22 +697,16 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ]),
             ],
           ),
-        ),
-        if (widget.request.customFieldDefinitions.isNotEmpty)
-          CustomFieldsEditSection(
-            definitions: widget.request.customFieldDefinitions,
-            values: _customFieldEdits,
-            accent: _accent,
-            onChanged: (values) => _customFieldEdits = values,
-          ),
-      ],
-    );
-  }
-
-  Widget _personalTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'book_custom_fields':
+        return CustomFieldsEditSection(
+          definitions: widget.request.customFieldDefinitions,
+          values: _customFieldEdits,
+          accent: _accent,
+          onChanged: (values) => _customFieldEdits = values,
+        );
+      case 'book_personal_tracking':
+        return EditSection(
           title: _isOwned ? 'Storage & Tracking' : 'Tracking',
           accent: _accent,
           child: Column(
@@ -633,7 +719,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 const SizedBox(height: 10),
               ],
               _responsiveFields([
-                  if (_isOwned) _locationField(),
+                if (_isOwned) _locationField(),
                 SizedBox(width: 120, child: MediaRatingField(controller: _ratingController)),
                 SizedBox(
                   width: 180,
@@ -684,85 +770,80 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ]),
             ],
           ),
-        ),
-        if (_isOwned)
-          EditSection(
-            title: 'Collection notes',
-            accent: _accent,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _responsiveFields([
-                  _field(controller: _conditionController, label: 'Condition'),
-                  _field(controller: _gradeController, label: 'Grade'),
-                  _field(
-                    controller: _quantityController,
-                    label: 'Quantity',
-                    validator: positiveIntValidator,
-                  ),
-                ]),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: _pickPurchaseDate,
-                  icon: const Icon(Icons.event),
-                  label: Text(
-                    _purchaseDateController.text.isEmpty
-                        ? 'Set purchase date'
-                        : 'Purchase date: ${_purchaseDateController.text}',
-                  ),
+        );
+      case 'book_collection_notes':
+        return EditSection(
+          title: 'Collection notes',
+          accent: _accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(controller: _conditionController, label: 'Condition'),
+                _field(controller: _gradeController, label: 'Grade'),
+                _field(
+                  controller: _quantityController,
+                  label: 'Quantity',
+                  validator: positiveIntValidator,
                 ),
+              ]),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: _pickPurchaseDate,
+                icon: const Icon(Icons.event),
+                label: Text(
+                  _purchaseDateController.text.isEmpty
+                      ? 'Set purchase date'
+                      : 'Purchase date: ${_purchaseDateController.text}',
+                ),
+              ),
+              const SizedBox(height: 10),
+              SwitchListTile(
+                value: _soldAt != null,
+                onChanged: (value) {
+                  setState(() {
+                    _soldAt = value ? DateTime.now() : null;
+                  });
+                },
+                title: const Text('Mark as sold'),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+              ),
+              if (_soldAt != null) ...[
                 const SizedBox(height: 10),
-                SwitchListTile(
-                  value: _soldAt != null,
-                  onChanged: (value) {
-                    setState(() {
-                      _soldAt = value ? DateTime.now() : null;
-                    });
-                  },
-                  title: const Text('Mark as sold'),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
+                OutlinedButton.icon(
+                  onPressed: _pickSoldDate,
+                  icon: const Icon(Icons.event),
+                  label: Text('Sold date: ${formatDate(_soldAt!)}'),
                 ),
-                if (_soldAt != null) ...[
-                  const SizedBox(height: 10),
-                  OutlinedButton.icon(
-                    onPressed: _pickSoldDate,
-                    icon: const Icon(Icons.event),
-                    label: Text('Sold date: ${formatDate(_soldAt!)}'),
-                  ),
-                  const SizedBox(height: 12),
-                  SoldSummaryPanel(
-                    pricePaidCents: parseMoneyCents(_priceController.text),
-                    sellPriceCents: parseMoneyCents(_sellPriceController.text),
-                    currency: _currencyController.text,
-                  ),
-                ],
+                const SizedBox(height: 12),
+                SoldSummaryPanel(
+                  pricePaidCents: parseMoneyCents(_priceController.text),
+                  sellPriceCents: parseMoneyCents(_sellPriceController.text),
+                  currency: _currencyController.text,
+                ),
               ],
-            ),
-          )
-        else
-          EditSection(
-            title: 'Collection fields',
-            accent: _accent,
-            child: const Text(
-              'Storage, quantity, value and personal ownership notes stay unavailable until you add a physical copy. Tracking progress is editable here.',
-              style: TextStyle(color: kEditTextMuted),
-            ),
+            ],
           ),
-      ],
-    );
-  }
-
-  Widget _photosTab() {
-    return EditTabShell(
-      children: [
-        ItemImagesEditSection(
+        );
+      case 'book_collection_fields_info':
+        return EditSection(
+          title: 'Collection fields',
+          accent: _accent,
+          child: const Text(
+            'Storage, quantity, value and personal ownership notes stay unavailable until you add a physical copy. Tracking progress is editable here.',
+            style: TextStyle(color: kEditTextMuted),
+          ),
+        );
+      case 'book_photos':
+        return ItemImagesEditSection(
           images: widget.request.itemImages,
           accent: _accent,
           onChanged: (edits) => _itemImageEdits = edits,
-        ),
-      ],
-    );
+        );
+      default:
+        throw StateError('Unsupported book section: $id');
+    }
   }
 
   Widget _responsiveFields(List<Widget> children) {
@@ -829,13 +910,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       controller: controller,
       validator: validator,
       decoration: InputDecoration(labelText: label, hintText: hint),
-    );
-  }
-
-  Widget _readonlyInfoRow(String label, String value) {
-    return InputDecorator(
-      decoration: InputDecoration(labelText: label),
-      child: SelectableText(value),
     );
   }
 
@@ -1164,7 +1238,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           ),
       ],
       onChanged: (value) {
-        final edition = resolveLibraryReleaseSelection(
+        final edition = resolveLibraryEditionSelection(
           widget.request.item.editions,
           editionId: emptyToNull(value ?? ''),
         ).edition;

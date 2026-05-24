@@ -446,7 +446,7 @@ class _SearchResultsList extends StatelessWidget {
 
 bool _usesTreeProviderCandidates(LibraryTypeConfig type) {
   return switch (type.workspace.kind) {
-    'comic' || 'manga' => true,
+    CatalogMediaKind.comic || CatalogMediaKind.manga => true,
     _ => type.presentation.usesTreeProviderCandidates,
   };
 }
@@ -472,7 +472,7 @@ class _ProviderCandidateTreeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (type.workspace.kind == 'comic') {
+    if (type.workspace.kind == CatalogMediaKind.comic) {
       return _ComicCandidateTreeList(
         type: type,
         results: results,

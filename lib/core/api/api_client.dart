@@ -184,10 +184,17 @@ class ApiClient {
     String? synopsis,
     String? editionTitle,
     int? pageCount,
+    int? runtimeMinutes,
     String? publisher,
     DateTime? releaseDate,
     String? imprint,
+    String? subtitle,
     String? seriesGroup,
+    String? country,
+    String? language,
+    String? ageRating,
+    String? catalogNumber,
+    String? releaseStatus,
     String? physicalFormat,
     String? variantName,
     String? barcode,
@@ -204,10 +211,17 @@ class ApiClient {
       synopsis: synopsis,
       editionTitle: editionTitle,
       pageCount: pageCount,
+      runtimeMinutes: runtimeMinutes,
       publisher: publisher,
       releaseDate: releaseDate,
       imprint: imprint,
+      subtitle: subtitle,
       seriesGroup: seriesGroup,
+      country: country,
+      language: language,
+      ageRating: ageRating,
+      catalogNumber: catalogNumber,
+      releaseStatus: releaseStatus,
       physicalFormat: physicalFormat,
       variantName: variantName,
       barcode: barcode,
@@ -344,10 +358,12 @@ class ApiClient {
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
     return _adminApi.adminProviderIngest(
       provider: provider,
       providerItemId: providerItemId,
+      kind: kind,
     );
   }
 
@@ -435,11 +451,13 @@ class ApiClient {
     required String proposalId,
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
     return _adminApi.adminApproveMetadataProposalWithProviderItem(
       proposalId: proposalId,
       provider: provider,
       providerItemId: providerItemId,
+      kind: kind,
     );
   }
 

@@ -44,7 +44,7 @@ bool itemHasMissingDetails(CatalogItem item) {
       (item.synopsis == null || item.synopsis!.trim().isEmpty);
 }
 
-bool libraryShowsTrackData(String mediaType) {
+bool libraryShowsTrackData(Object? mediaType) {
   return collectarrLibraryTypes
           .byKind(mediaType)
           ?.capabilities
@@ -52,12 +52,12 @@ bool libraryShowsTrackData(String mediaType) {
       false;
 }
 
-bool libraryShowsSynopsis(String mediaType) {
+bool libraryShowsSynopsis(Object? mediaType) {
   return collectarrLibraryTypes.byKind(mediaType)?.capabilities.showsSynopsis ??
       false;
 }
 
-bool libraryShowsReadingQueue(String mediaType) {
+bool libraryShowsReadingQueue(Object? mediaType) {
   final type = collectarrLibraryTypes.byKind(mediaType);
   if (type == null) {
     return false;
@@ -117,6 +117,10 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
       editions: item.editions,
       fallbackFormatLabel: item.physicalFormatLabel,
     ),
+    referenceEditionId: ownedItem?.editionId ?? wishlistItem?.editionId,
+    referenceVariantId: ownedItem?.variantId ?? wishlistItem?.variantId,
+    referenceBundleReleaseId:
+        ownedItem?.bundleReleaseId ?? wishlistItem?.bundleReleaseId,
     pricePaidCents: ownedItem?.pricePaidCents,
     currency: ownedItem?.currency,
     storageBox: ownedItem?.storageBox,
@@ -212,6 +216,36 @@ String? libraryReferenceFormatLabel({
     return fallback;
   }
   return null;
+}
+
+List<String> libraryReferenceHierarchySegments({
+  required String mediaType,
+  required List<CatalogEdition> editions,
+  String? editionId,
+  String? variantId,
+  String? bundleReleaseId,
+}) {
+  final itemLabel = mediaType.trim().toLowerCase() == 'music' ? 'Item' : 'Item';
+  final segments = <String>[itemLabel];
+  final normalizedBundleId = bundleReleaseId?.trim();
+  if (normalizedBundleId != null && normalizedBundleId.isNotEmpty) {
+    segments.add('Bundle release');
+    return segments;
+  }
+  final resolved = _resolveLibraryReferenceRelease(
+    editionId: editionId,
+    variantId: variantId,
+    editions: editions,
+  );
+  final editionTitle = resolved.edition?.title.trim();
+  if (editionTitle != null && editionTitle.isNotEmpty) {
+    segments.add('Edition: $editionTitle');
+  }
+  final variantName = resolved.variant?.name.trim();
+  if (variantName != null && variantName.isNotEmpty) {
+    segments.add('Physical: $variantName');
+  }
+  return segments;
 }
 
 String? resolveLibraryOwnedItemId(

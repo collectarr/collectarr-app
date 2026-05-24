@@ -16,7 +16,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
 }) {
   return MetadataSearchQuery(
     query: query,
-    kind: type.workspace.kind,
+    kind: type.workspace.kind.apiValue,
     series: series,
     issueNumber: issueNumber,
     publisher: publisher,
@@ -59,7 +59,7 @@ Future<CatalogItem> lookupLibraryBarcode(
 ) async {
   final row = await api.lookupBarcode(
     barcode,
-    kind: type.workspace.kind,
+    kind: type.workspace.kind.apiValue,
   );
   return CatalogItem.fromJson(row);
 }
@@ -76,7 +76,7 @@ Future<List<ProviderCandidate>> searchLibraryProviderCandidates(
   final rows = await api.searchProvider(
     provider: provider,
     query: query,
-    kind: type.workspace.kind,
+    kind: type.workspace.kind.apiValue,
     series: series,
     issueNumber: issueNumber,
     year: year,
@@ -85,7 +85,7 @@ Future<List<ProviderCandidate>> searchLibraryProviderCandidates(
       .map(
         (row) => ProviderCandidate.fromJson(
           row,
-          fallbackKind: type.workspace.kind,
+          fallbackKind: type.workspace.kind.apiValue,
         ),
       )
       .toList(growable: false);

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -384,7 +385,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _filterSelection.hasActiveFilters;
 
   bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
-    if (widget.type.workspace.kind != 'comic') {
+    if (widget.type.workspace.kind != CatalogMediaKind.comic) {
       return false;
     }
     return mode == LibraryGroupMode.storyArc ||
@@ -529,7 +530,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final result = await showSmartListsDialog(
       context: context,
       db: db,
-      mediaKind: widget.type.workspace.kind,
+      mediaKind: widget.type.workspace.kind.apiValue,
       currentFilter: _filterSelection,
       currentQuickView: _quickView,
       currentSortColumn: _viewState?.sortColumn,
@@ -739,7 +740,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     }
     try {
       final item = await ref.read(apiClientProvider).getMetadataItem(
-            kind: widget.type.workspace.kind,
+            kind: widget.type.workspace.kind.apiValue,
             id: itemId,
           );
       await CatalogCacheRepository(ref.read(localDatabaseProvider)).upsertAll([
@@ -782,7 +783,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       }
     })();
     final definitions = await customFieldRepo.listDefinitions(
-      mediaKind: widget.type.workspace.kind,
+      mediaKind: widget.type.workspace.kind.apiValue,
     );
     final cfValues = owned != null
         ? await customFieldRepo.listValuesForItem(owned.id)

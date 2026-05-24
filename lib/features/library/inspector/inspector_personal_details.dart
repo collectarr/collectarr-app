@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/release_selection_helpers.dart';
+import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -509,7 +509,7 @@ class _InspectorTrackingDetailsEditorState
                     ),
                 ],
                 onChanged: (value) {
-                  final edition = resolveLibraryReleaseSelection(
+                  final edition = resolveLibraryEditionSelection(
                     widget.editions,
                     editionId: _emptyToNull(value ?? ''),
                   ).edition;
@@ -604,10 +604,10 @@ class _InspectorTrackingDetailsEditorState
 
   void _syncFromEntry(TrackingEntry entry) {
     _ratingController.text = entry.rating?.toString() ?? '';
-    _statusController.text = entry.status ?? '';
+    _statusController.text = entry.statusStorageValue ?? '';
     _startedAt = entry.startedAt;
     _finishedAt = entry.finishedAt;
-    final selection = resolveLibraryReleaseSelection(
+    final selection = resolveLibraryEditionSelection(
       widget.editions,
       editionId: entry.editionId,
       variantId: entry.variantId,

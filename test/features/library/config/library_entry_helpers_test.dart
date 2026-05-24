@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,5 +56,30 @@ void main() {
     expect(resolution.nextSelectedOwnedItemId, 'owned-2');
     expect(resolution.clearNewest, isTrue);
     expect(resolution.shouldScheduleSelection(null, true), isTrue);
+  });
+
+  test('libraryReferenceHierarchySegments resolves edition and physical release', () {
+    final hierarchy = libraryReferenceHierarchySegments(
+      mediaType: 'music',
+      editions: const [
+        CatalogEdition(
+          id: 'edition-1',
+          title: 'Deluxe Edition',
+          variants: [
+            CatalogVariant(
+              id: 'variant-1',
+              name: 'Japan CD',
+            ),
+          ],
+        ),
+      ],
+      editionId: 'edition-1',
+      variantId: 'variant-1',
+    );
+
+    expect(
+      hierarchy,
+      ['Item', 'Edition: Deluxe Edition', 'Physical: Japan CD'],
+    );
   });
 }

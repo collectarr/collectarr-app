@@ -22,6 +22,20 @@ enum TrackingSourceType {
   }
 }
 
+TrackingSourceType? trackingSourceTypeFromValue(Object? value) {
+  if (value is TrackingSourceType) {
+    return value;
+  }
+  if (value is String?) {
+    return TrackingSourceType.fromApiValue(value);
+  }
+  return null;
+}
+
+String? trackingSourceTypeApiValue(Object? value) {
+  return trackingSourceTypeFromValue(value)?.apiValue;
+}
+
 String? normalizeTrackingSourceType(String? value) {
   final normalized = value?.trim().toLowerCase();
   if (normalized == null || normalized.isEmpty) {
@@ -65,6 +79,6 @@ String? normalizeTrackingSourceType(String? value) {
   }
 }
 
-String trackingSourceTypeLabel(String? value) {
-  return TrackingSourceType.fromApiValue(value)?.label ?? 'Unknown';
+String trackingSourceTypeLabel(Object? value) {
+  return trackingSourceTypeFromValue(value)?.label ?? 'Unknown';
 }

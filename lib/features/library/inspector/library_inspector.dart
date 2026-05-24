@@ -212,7 +212,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                           ref: ref,
                           item: CatalogItem(
                             id: selected.id,
-                            kind: widget.type.workspace.kind,
+                            kind: widget.type.workspace.kind.apiValue,
                             title: selected.title,
                             itemNumber: selected.itemNumber,
                             publisher: selected.publisher,
@@ -306,7 +306,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 ownedItem: activeOwnedItem,
                 trackingEntry: activeTrackingEntry,
                 accent: widget.accent,
-                kind: widget.type.workspace.kind,
+                kind: widget.type.workspace.kind.apiValue,
               ),
               if (activeOwnedItem != null)
                 InspectorPersonalDetailsEditor(
@@ -324,11 +324,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               if (activeOwnedItem != null && widget.db != null) ...[
                 InspectorCustomFieldsSection(
                   ownedItemId: activeOwnedItem.id,
-                  mediaKind: widget.type.workspace.kind,
+                  mediaKind: widget.type.workspace.kind.apiValue,
                   db: widget.db!,
                   accent: widget.accent,
                 ),
-                if (widget.type.workspace.kind != 'book')
+                if (widget.type.workspace.kind != CatalogMediaKind.book)
                   InspectorItemImagesSection(
                     ownedItemId: activeOwnedItem.id,
                     db: widget.db!,
@@ -498,7 +498,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                           ),
                     )
                   : DropdownButtonFormField<String>(
-                      value: selectedOwnedItemId,
+                      initialValue: selectedOwnedItemId,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Active copy',

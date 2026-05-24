@@ -1,14 +1,15 @@
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 
 class TrackingEntry {
-  const TrackingEntry({
+  TrackingEntry({
     required this.id,
     required this.itemId,
     this.ownedItemId,
     this.editionId,
     this.variantId,
-    this.sourceType,
-    this.status,
+    Object? sourceType,
+    Object? status,
     this.rating,
     this.startedAt,
     this.finishedAt,
@@ -20,15 +21,16 @@ class TrackingEntry {
     this.episodeNumber,
     required this.updatedAt,
     this.deletedAt,
-  });
+  })  : sourceType = trackingSourceTypeFromValue(sourceType),
+        status = mediaTrackingStatusFromValue(status);
 
   final String id;
   final String itemId;
   final String? ownedItemId;
   final String? editionId;
   final String? variantId;
-  final String? sourceType;
-  final String? status;
+  final TrackingSourceType? sourceType;
+  final MediaTrackingStatus? status;
   final int? rating;
   final DateTime? startedAt;
   final DateTime? finishedAt;
@@ -41,8 +43,11 @@ class TrackingEntry {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  TrackingSourceType? get trackingSource =>
-      TrackingSourceType.fromApiValue(sourceType);
+  TrackingSourceType? get trackingSource => sourceType;
+
+  String? get sourceTypeApiValue => sourceType?.apiValue;
+
+  String? get statusStorageValue => mediaTrackingStatusToStorageValue(status);
 
   bool get isDeleted => deletedAt != null;
 
@@ -52,8 +57,8 @@ class TrackingEntry {
       'owned_item_id': ownedItemId,
       'edition_id': editionId,
       'variant_id': variantId,
-      'source_type': normalizeTrackingSourceType(sourceType),
-      'status': status,
+      'source_type': sourceTypeApiValue,
+      'status': statusStorageValue,
       'rating': rating,
       'started_at': startedAt?.toUtc().toIso8601String(),
       'finished_at': finishedAt?.toUtc().toIso8601String(),
@@ -73,7 +78,7 @@ class TrackingEntry {
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,
-      sourceType: normalizeTrackingSourceType(json['source_type'] as String?),
+      sourceType: json['source_type'] as String?,
       status: json['status'] as String?,
       rating: json['rating'] as int?,
       startedAt: json['started_at'] == null
@@ -101,8 +106,8 @@ class TrackingEntry {
     String? ownedItemId,
     String? editionId,
     String? variantId,
-    String? sourceType,
-    String? status,
+    Object? sourceType,
+    Object? status,
     int? rating,
     DateTime? startedAt,
     DateTime? finishedAt,
@@ -121,8 +126,8 @@ class TrackingEntry {
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
-      sourceType: normalizeTrackingSourceType(sourceType) ?? this.sourceType,
-      status: status ?? this.status,
+      sourceType: trackingSourceTypeFromValue(sourceType) ?? this.sourceType,
+      status: mediaTrackingStatusFromValue(status) ?? this.status,
       rating: rating ?? this.rating,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,

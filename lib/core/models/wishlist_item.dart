@@ -1,27 +1,33 @@
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 
+const Object _wishlistItemUnset = Object();
+
 class WishlistItem {
-  const WishlistItem({
+  WishlistItem({
     required this.id,
     required this.itemId,
-    this.anchorType,
-    this.editionId,
-    this.variantId,
-    this.bundleReleaseId,
+    PersonalItemAnchor? anchor,
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
     this.targetPriceCents,
     this.currency,
     this.notes,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
-  });
+  }) : anchor = anchor ??
+            PersonalItemAnchor.fromRaw(
+              anchorType: anchorType,
+              editionId: editionId,
+              variantId: variantId,
+              bundleReleaseId: bundleReleaseId,
+            );
 
   final String id;
   final String itemId;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final PersonalItemAnchor? anchor;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;
@@ -29,28 +35,20 @@ class WishlistItem {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
+  String? get anchorType => anchor?.apiValue;
+  String? get editionId => anchor?.editionId;
+  String? get variantId => anchor?.variantId;
+  String? get bundleReleaseId => anchor?.bundleReleaseId;
+
   PersonalItemAnchorType? get personalAnchor =>
-      resolvePersonalItemAnchor(
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
+      anchor?.type;
 
   bool get isDeleted => deletedAt != null;
 
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
-      'anchor_type': resolvePersonalItemAnchorType(
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      ),
-      'edition_id': editionId,
-      'variant_id': variantId,
-      'bundle_release_id': bundleReleaseId,
+      ...?anchor?.toSyncPayload(),
       'target_price_cents': targetPriceCents,
       'currency': currency,
       'notes': notes,
@@ -62,10 +60,12 @@ class WishlistItem {
     return WishlistItem(
       id: json['id'] as String,
       itemId: json['item_id'] as String,
-      anchorType: normalizePersonalItemAnchorType(json['anchor_type'] as String?),
-      editionId: json['edition_id'] as String?,
-      variantId: json['variant_id'] as String?,
-      bundleReleaseId: json['bundle_release_id'] as String?,
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: json['anchor_type'] as String?,
+        editionId: json['edition_id'] as String?,
+        variantId: json['variant_id'] as String?,
+        bundleReleaseId: json['bundle_release_id'] as String?,
+      ),
       targetPriceCents: json['target_price_cents'] as int?,
       currency: json['currency'] as String?,
       notes: json['notes'] as String?,
@@ -80,6 +80,7 @@ class WishlistItem {
   WishlistItem copyWith({
     String? id,
     String? itemId,
+    Object? anchor = _wishlistItemUnset,
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -91,13 +92,19 @@ class WishlistItem {
     DateTime? updatedAt,
     DateTime? deletedAt,
   }) {
+    final resolvedAnchor = identical(anchor, _wishlistItemUnset)
+        ? PersonalItemAnchor.fromRaw(
+            anchorType: anchorType ?? this.anchorType,
+            editionId: editionId ?? this.editionId,
+            variantId: variantId ?? this.variantId,
+            bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+          )
+        : anchor as PersonalItemAnchor?;
+
     return WishlistItem(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      anchor: resolvedAnchor,
       targetPriceCents: targetPriceCents ?? this.targetPriceCents,
       currency: currency ?? this.currency,
       notes: notes ?? this.notes,

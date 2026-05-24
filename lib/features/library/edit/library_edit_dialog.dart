@@ -10,11 +10,12 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
-import 'package:collectarr_app/features/library/edit/release_selection_helpers.dart';
+import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -133,10 +134,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
 
-  static const _ownedTabCount = 8;
-  static const _trackedTabCount = 4;
-  static const _catalogOnlyTabCount = 3;
-
   bool get _isOwned => widget.ownedItem != null;
 
   bool get _hasTrackingContext => _isOwned || widget.trackingEntry != null;
@@ -145,9 +142,50 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   bool get _hasWishlistContext => widget.wishlistItem != null;
 
-  bool get _isComicKind {
-    final kind = widget.type.workspace.kind;
-    return kind == 'comic' || kind == 'manga';
+  LibraryEditPresentationContext get _editPresentationContext {
+    return LibraryEditPresentationContext(
+      isOwned: _isOwned,
+      isTrackingOnly: _isTrackingOnly,
+      hasTrackingContext: _hasTrackingContext,
+      hasWishlistContext: _hasWishlistContext,
+      isDigitalFormat: _isDigitalFormat,
+      hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
+      hasEditionAnchors: widget.item.editions.isNotEmpty,
+      hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
+      hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
+    );
+  }
+
+  LibraryEditPresentationContext get _initialEditPresentationContext {
+    return LibraryEditPresentationContext(
+      isOwned: _isOwned,
+      isTrackingOnly: _isTrackingOnly,
+      hasTrackingContext: _hasTrackingContext,
+      hasWishlistContext: _hasWishlistContext,
+      isDigitalFormat: false,
+      hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
+      hasEditionAnchors: widget.item.editions.isNotEmpty,
+      hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
+      hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
+    );
+  }
+
+  List<LibraryEditTabSpec> get _tabSpecs {
+    return widget.type.editPresentation.builder.buildTabs(
+      context: _editPresentationContext,
+    );
+  }
+
+  LibraryEditFooterSpec get _footerSpec {
+    return widget.type.editPresentation.builder.buildFooter(
+      context: _editPresentationContext,
+    );
+  }
+
+  LibraryEditPresentationState get _editPresentation {
+    return widget.type.editPresentation.builder.build(
+      context: _editPresentationContext,
+    );
   }
 
   bool get _isDigitalFormat {
@@ -172,11 +210,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     final wishlist = widget.wishlistItem;
     final tracking = widget.trackingEntry;
     _tabController = TabController(
-      length: _isOwned
-          ? _ownedTabCount
-          : (_isTrackingOnly || _hasWishlistContext)
-              ? _trackedTabCount
-              : _catalogOnlyTabCount,
+      length: widget.type.editPresentation.builder
+          .buildTabs(context: _initialEditPresentationContext)
+          .length,
       vsync: this,
     )..addListener(() {
         if (mounted) setState(() {});
@@ -236,7 +272,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _ratingController =
         TextEditingController(text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
     _trackingController = TextEditingController(
-      text: tracking?.status ?? owned?.readStatus ?? '',
+      text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
     );
     _tagsController = TextEditingController(text: owned?.tags ?? '');
     _selectedLocationId = owned?.locationId;
@@ -265,14 +301,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
     _keyComic = owned?.keyComic ?? false;
     _keyReasonController = TextEditingController(text: owned?.keyReason ?? '');
-    final releaseSelection = resolveLibraryReleaseSelection(
+    final editionSelection = resolveLibraryEditionSelection(
       item.editions,
       editionId: owned?.editionId ?? tracking?.editionId,
       editionTitle: item.editionTitle,
       variantId: owned?.variantId ?? tracking?.variantId,
       variantName: item.variant,
     );
-    final wishlistReleaseSelection = resolveLibraryReleaseSelection(
+    final wishlistEditionSelection = resolveLibraryEditionSelection(
       item.editions,
       editionId: wishlist?.editionId,
       editionTitle: item.editionTitle,
@@ -281,15 +317,15 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
     _selectedOwnedAnchorType =
         owned?.personalAnchor?.apiValue ?? PersonalItemAnchorType.item.apiValue;
-    _selectedEditionId = releaseSelection.edition?.id;
-    _selectedVariantId = releaseSelection.variant?.id;
+    _selectedEditionId = editionSelection.edition?.id;
+    _selectedVariantId = editionSelection.variant?.id;
     _selectedBundleReleaseId = _normalizedId(owned?.bundleReleaseId);
     _selectedTrackingEditionId = tracking?.editionId ?? _selectedEditionId;
     _selectedTrackingVariantId = tracking?.variantId ?? _selectedVariantId;
     _selectedWishlistAnchorType =
         wishlist?.personalAnchor?.apiValue ?? PersonalItemAnchorType.item.apiValue;
-    _selectedWishlistEditionId = wishlistReleaseSelection.edition?.id;
-    _selectedWishlistVariantId = wishlistReleaseSelection.variant?.id;
+    _selectedWishlistEditionId = wishlistEditionSelection.edition?.id;
+    _selectedWishlistVariantId = wishlistEditionSelection.variant?.id;
     _selectedWishlistBundleReleaseId = _normalizedId(wishlist?.bundleReleaseId);
 
     _physicalFormatId = _initialPhysicalFormatId(item);
@@ -361,23 +397,10 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
           EditMiniBadge(_selectedLocationLabel!),
       ],
       tabController: _tabController,
-      tabs: _tabHeaders(),
+      tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
       views: _tabViews(),
-      footerLabel: _isOwned
-          ? 'Catalog + collection'
-          : _hasWishlistContext
-              ? 'Catalog + wishlist'
-              : _isTrackingOnly
-                  ? 'Catalog + tracking'
-                  : 'Catalog snapshot only',
-      footerFields: [
-        if (_isOwned)
-          FooterTextField(
-            label: 'User tags',
-            controller: _tagsController,
-            width: 150,
-          ),
-      ],
+      footerLabel: _footerSpec.label,
+      footerFields: [for (final fieldId in _footerSpec.fieldIds) _footerFieldFor(fieldId)],
       onPrevious: _previousTab,
       onNext: _nextTab,
       onCancel: () => Navigator.of(context).pop(),
@@ -385,59 +408,44 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
   }
 
-  List<Widget> _tabHeaders() {
-    return _isOwned
-        ? const [
-            EditTab(icon: Icons.article, label: 'Main'),
-            EditTab(icon: Icons.attach_money, label: 'Value'),
-            EditTab(icon: Icons.person, label: 'Personal'),
-            EditTab(icon: Icons.sell, label: 'Sold'),
-            EditTab(icon: Icons.tune, label: 'Custom'),
-            EditTab(icon: Icons.photo_library, label: 'Photos'),
-            EditTab(icon: Icons.image, label: 'Cover'),
-            EditTab(icon: Icons.notes, label: 'Synopsis'),
-          ]
-        : (_isTrackingOnly || _hasWishlistContext)
-            ? [
-                const EditTab(icon: Icons.article, label: 'Main'),
-                EditTab(
-                  icon: _hasWishlistContext ? Icons.person : Icons.equalizer,
-                  label: _hasWishlistContext ? 'Personal' : 'Tracking',
-                ),
-                const EditTab(icon: Icons.image, label: 'Cover'),
-                const EditTab(icon: Icons.notes, label: 'Synopsis'),
-              ]
-            : const [
-            EditTab(icon: Icons.article, label: 'Main'),
-            EditTab(icon: Icons.image, label: 'Cover'),
-            EditTab(icon: Icons.notes, label: 'Synopsis'),
-          ];
+  List<Widget> _tabViews() {
+    return [for (final tab in _tabSpecs) _tabViewFor(tab.id)];
   }
 
-  List<Widget> _tabViews() {
-    return _isOwned
-        ? [
-            _mainTab(),
-            _valueTab(),
-            _personalTab(),
-            _soldTab(),
-            _customFieldsTab(),
-            _photosTab(),
-            _coverTab(),
-            _synopsisTab(),
-          ]
-        : (_isTrackingOnly || _hasWishlistContext)
-            ? [
-                _mainTab(),
-                _personalTab(),
-                _coverTab(),
-                _synopsisTab(),
-              ]
-            : [
-            _mainTab(),
-            _coverTab(),
-            _synopsisTab(),
-          ];
+  Widget _tabViewFor(String id) {
+    switch (id) {
+      case 'main':
+        return _mainTab();
+      case 'value':
+        return _valueTab();
+      case 'personal':
+        return _personalTab();
+      case 'sold':
+        return _soldTab();
+      case 'custom':
+        return _customFieldsTab();
+      case 'photos':
+        return _photosTab();
+      case 'cover':
+        return _coverTab();
+      case 'synopsis':
+        return _synopsisTab();
+      default:
+        throw StateError('Unsupported generic edit tab: $id');
+    }
+  }
+
+  Widget _footerFieldFor(String id) {
+    switch (id) {
+      case 'user_tags':
+        return FooterTextField(
+          label: 'User tags',
+          controller: _tagsController,
+          width: 150,
+        );
+      default:
+        throw StateError('Unsupported generic footer field: $id');
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -446,6 +454,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   Widget _mainTab() {
     final labels = libraryMediaFieldLabels(widget.type);
+    final editPresentation = _editPresentation;
     return EditTabShell(
       children: [
         EditSection(
@@ -473,7 +482,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 _field(controller: _variantController, label: labels.variant),
                 _field(controller: _barcodeController, label: labels.barcode),
               ]),
-              if (widget.physicalFormats.isNotEmpty) ...[
+              if (editPresentation.showsPhysicalFormatSelector) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   initialValue: _physicalFormatId,
@@ -542,21 +551,17 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         ),
         if (_hasTrackingContext)
           EditSection(
-            title: _isOwned
-                ? _isDigitalFormat
-                    ? 'Ownership details'
-                    : 'Condition & Grade'
-                : 'Tracking release',
+            title: editPresentation.trackingSectionTitle,
             accent: widget.accent,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_isOwned && _isDigitalFormat)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10),
+                if (editPresentation.trackingSectionHint != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
                     child: Text(
-                      'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-                      style: TextStyle(color: kEditTextMuted),
+                      editPresentation.trackingSectionHint!,
+                      style: const TextStyle(color: kEditTextMuted),
                     ),
                   ),
                 _responsiveFields([
@@ -578,11 +583,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
             ),
           ),
-        if (_isOwned &&
-            (widget.item.editions.isNotEmpty ||
-                widget.availableBundleReleases.isNotEmpty))
+        if (editPresentation.showsOwnershipReferenceSection)
           EditSection(
-            title: 'Ownership reference',
+            title: editPresentation.ownershipReferenceTitle,
             accent: widget.accent,
             child: Column(
               children: [
@@ -604,7 +607,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   const SizedBox(height: 10),
                   _bundleReleaseSelectionField(
                     fieldKey: const Key('library-edit-owned-bundle-field'),
-                    label: 'Owned bundle',
+                    label: editPresentation.ownedBundleLabel,
                     selectedBundleReleaseId: _selectedBundleReleaseId,
                     onChanged: (value) {
                       setState(() {
@@ -616,9 +619,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
             ),
           ),
-        if (_isOwned && _isComicKind) ...[
+        if (editPresentation.showsOwnedGradingSection) ...[
           EditSection(
-            title: _isDigitalFormat ? 'Collection flags' : 'Grading details',
+            title: editPresentation.ownedGradingSectionTitle,
             accent: widget.accent,
             child: Column(
               children: [
@@ -648,18 +651,18 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     ),
                   ]),
                   const SizedBox(height: 10),
-                ] else
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10),
+                ] else if (editPresentation.ownedGradingSectionHint != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
                     child: Text(
-                      'Grading and copy-condition fields are hidden for digital copies.',
-                      style: TextStyle(color: kEditTextMuted),
+                      editPresentation.ownedGradingSectionHint!,
+                      style: const TextStyle(color: kEditTextMuted),
                     ),
                   ),
                 SwitchListTile(
                   value: _keyComic,
                   onChanged: (value) => setState(() => _keyComic = value),
-                  title: const Text('Key comic'),
+                  title: Text(editPresentation.keyToggleLabel),
                   contentPadding: EdgeInsets.zero,
                   dense: true,
                 ),
@@ -667,7 +670,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   const SizedBox(height: 6),
                   _field(
                     controller: _keyReasonController,
-                    label: 'Key reason (first appearance, etc.)',
+                    label: editPresentation.keyReasonLabel,
                   ),
                 ],
               ],
@@ -1398,7 +1401,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     required ValueChanged<String> onChanged,
   }) {
     final bundleAvailable = widget.availableBundleReleases.isNotEmpty;
-    final releaseAvailable = widget.item.editions.isNotEmpty;
+    final editionAvailable = widget.item.editions.isNotEmpty;
     return DropdownButtonFormField<String>(
       key: fieldKey,
       initialValue: value,
@@ -1411,15 +1414,15 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
           value: 'item',
           child: Text('Media'),
         ),
-        if (releaseAvailable)
+        if (editionAvailable)
           const DropdownMenuItem<String>(
             value: 'edition',
             child: Text('Edition'),
           ),
-        if (releaseAvailable)
+        if (editionAvailable)
           const DropdownMenuItem<String>(
             value: 'variant',
-            child: Text('Physical release'),
+            child: Text('Variant'),
           ),
         if (bundleAvailable)
           const DropdownMenuItem<String>(
@@ -1440,7 +1443,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       label: 'Owned edition',
       selectedEditionId: _selectedEditionId,
       onChanged: (editionId) {
-        final edition = resolveLibraryReleaseSelection(
+        final edition = resolveLibraryEditionSelection(
           widget.item.editions,
           editionId: editionId,
         ).edition;
@@ -1459,7 +1462,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       label: 'Tracking edition',
       selectedEditionId: _selectedTrackingEditionId,
       onChanged: (editionId) {
-        final edition = resolveLibraryReleaseSelection(
+        final edition = resolveLibraryEditionSelection(
           widget.item.editions,
           editionId: editionId,
         ).edition;
@@ -1476,7 +1479,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       label: 'Wishlist edition',
       selectedEditionId: _selectedWishlistEditionId,
       onChanged: (editionId) {
-        final edition = resolveLibraryReleaseSelection(
+        final edition = resolveLibraryEditionSelection(
           widget.item.editions,
           editionId: editionId,
         ).edition;
@@ -1572,7 +1575,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       items: [
         const DropdownMenuItem<String>(
           value: '',
-          child: Text('Any / unspecified physical release'),
+          child: Text('Any / unspecified variant'),
         ),
         for (final variant in variants)
           DropdownMenuItem<String>(
@@ -1620,27 +1623,27 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     setState(() {
       _selectedOwnedAnchorType = value;
       if (value == PersonalItemAnchorType.variant.apiValue) {
-        final releaseSelection = resolveLibraryReleaseSelection(
+        final editionSelection = resolveLibraryEditionSelection(
           widget.item.editions,
           editionId: _selectedEditionId,
           variantId: _selectedVariantId,
           editionTitle: widget.item.editionTitle,
           variantName: widget.item.variant,
         );
-        _selectedEditionId = releaseSelection.edition?.id;
-        _selectedVariantId = releaseSelection.variant?.id;
+        _selectedEditionId = editionSelection.edition?.id;
+        _selectedVariantId = editionSelection.variant?.id;
         _selectedBundleReleaseId = null;
         _selectedTrackingEditionId = _selectedEditionId;
         _selectedTrackingVariantId = _selectedVariantId;
       } else if (value == PersonalItemAnchorType.edition.apiValue) {
-        final releaseSelection = resolveLibraryReleaseSelection(
+        final editionSelection = resolveLibraryEditionSelection(
           widget.item.editions,
           editionId: _selectedEditionId,
           variantId: _selectedVariantId,
           editionTitle: widget.item.editionTitle,
           variantName: widget.item.variant,
         );
-        _selectedEditionId = releaseSelection.edition?.id;
+        _selectedEditionId = editionSelection.edition?.id;
         _selectedVariantId = null;
         _selectedBundleReleaseId = null;
         _selectedTrackingEditionId = _selectedEditionId;
@@ -1666,25 +1669,25 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     setState(() {
       _selectedWishlistAnchorType = value;
       if (value == PersonalItemAnchorType.variant.apiValue) {
-        final releaseSelection = resolveLibraryReleaseSelection(
+        final editionSelection = resolveLibraryEditionSelection(
           widget.item.editions,
           editionId: _selectedWishlistEditionId,
           variantId: _selectedWishlistVariantId,
           editionTitle: widget.item.editionTitle,
           variantName: widget.item.variant,
         );
-        _selectedWishlistEditionId = releaseSelection.edition?.id;
-        _selectedWishlistVariantId = releaseSelection.variant?.id;
+        _selectedWishlistEditionId = editionSelection.edition?.id;
+        _selectedWishlistVariantId = editionSelection.variant?.id;
         _selectedWishlistBundleReleaseId = null;
       } else if (value == PersonalItemAnchorType.edition.apiValue) {
-        final releaseSelection = resolveLibraryReleaseSelection(
+        final editionSelection = resolveLibraryEditionSelection(
           widget.item.editions,
           editionId: _selectedWishlistEditionId,
           variantId: _selectedWishlistVariantId,
           editionTitle: widget.item.editionTitle,
           variantName: widget.item.variant,
         );
-        _selectedWishlistEditionId = releaseSelection.edition?.id;
+        _selectedWishlistEditionId = editionSelection.edition?.id;
         _selectedWishlistVariantId = null;
         _selectedWishlistBundleReleaseId = null;
       } else if (value == PersonalItemAnchorType.bundleRelease.apiValue) {

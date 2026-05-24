@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 
 class LibraryMetadataItem {
-  const LibraryMetadataItem({
+    LibraryMetadataItem({
     required this.id,
-    required this.kind,
+        String? kind,
+        CatalogMediaKind? mediaKind,
     required this.title,
         this.sortKey,
     this.itemNumber,
@@ -32,12 +33,12 @@ class LibraryMetadataItem {
     this.country,
     this.language,
     this.ageRating,
-  });
+    }) : mediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
 
   static const _unset = Object();
 
   final String id;
-  final String kind;
+    final CatalogMediaKind mediaKind;
   final String title;
     final String? sortKey;
   final String? itemNumber;
@@ -67,10 +68,12 @@ class LibraryMetadataItem {
   final String? language;
   final String? ageRating;
 
+    String get kind => mediaKind.apiValue;
+
   factory LibraryMetadataItem.fromCatalogItem(CatalogItem item) {
     return LibraryMetadataItem(
       id: item.id,
-      kind: item.kind,
+            mediaKind: item.mediaKind,
       title: item.title,
     sortKey: item.sortKey,
       itemNumber: item.itemNumber,
@@ -105,6 +108,7 @@ class LibraryMetadataItem {
   LibraryMetadataItem copyWith({
     String? id,
     String? kind,
+        CatalogMediaKind? mediaKind,
     String? title,
     Object? sortKey = _unset,
     Object? itemNumber = _unset,
@@ -136,7 +140,8 @@ class LibraryMetadataItem {
   }) {
     return LibraryMetadataItem(
       id: id ?? this.id,
-      kind: kind ?? this.kind,
+        mediaKind: mediaKind ??
+            (kind != null ? catalogMediaKindFromApiValue(kind) : this.mediaKind),
       title: title ?? this.title,
       sortKey: identical(sortKey, _unset) ? this.sortKey : sortKey as String?,
       itemNumber: identical(itemNumber, _unset)
@@ -224,7 +229,7 @@ class LibraryMetadataItem {
         final platformList = game?.platforms;
     return CatalogItem(
       id: id,
-      kind: kind,
+            mediaKind: mediaKind,
       title: title,
     sortKey: sortKey,
       itemNumber: itemNumber,

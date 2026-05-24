@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, cardFlow, list }
@@ -108,7 +109,7 @@ class LibraryWorkspaceConfig {
     required this.defaultVisibleColumns,
   });
 
-  final String kind;
+  final CatalogMediaKind kind;
   final String title;
   final IconData icon;
   final String preferencePrefix;

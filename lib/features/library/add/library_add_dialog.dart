@@ -120,8 +120,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   String? _selectedResultId;
   String? _selectedProviderCandidateId;
   String? _selectedBundleReleaseId;
-  String? _selectedReleaseEditionId;
-  String? _selectedReleaseVariantId;
+  String? _selectedReferenceEditionId;
+  String? _selectedReferenceVariantId;
   final _providerPreviews = <String, AdminProviderPreview>{};
   final _hydratedResults = <String, LibraryMetadataItem>{};
   final _bundleReleasesByItemId = <String, List<BundleReleaseSummary>>{};
@@ -260,7 +260,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   isSearchingProvider: _isSearchingProvider,
                   onModeChanged: (mode) => setState(() => _mode = mode),
                   onSearch: _search,
-                  canScanCover: widget.type.workspace.kind == 'comic',
+                  canScanCover:
+                      widget.type.workspace.kind == CatalogMediaKind.comic,
                   isScanningCover: _isScanningCover,
                   onScanCover: _scanCover,
                   onLookupBarcode: _lookupBarcode,
@@ -309,8 +310,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _selectedResultId = id;
                             _selectedProviderCandidateId = null;
                             _selectedBundleReleaseId = null;
-                            _selectedReleaseEditionId = null;
-                            _selectedReleaseVariantId = null;
+                            _selectedReferenceEditionId = null;
+                            _selectedReferenceVariantId = null;
                             _referenceType = LibraryAddReferenceType.media;
                           });
                           unawaited(_ensureSelectedResultLoaded(id));
@@ -321,8 +322,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _selectedProviderCandidateId = id;
                             _selectedResultId = null;
                             _selectedBundleReleaseId = null;
-                            _selectedReleaseEditionId = null;
-                            _selectedReleaseVariantId = null;
+                            _selectedReferenceEditionId = null;
+                            _selectedReferenceVariantId = null;
                             _referenceType = LibraryAddReferenceType.media;
                           });
                           unawaited(_ensureProviderPreviewLoaded(id));
@@ -360,8 +361,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         selectedBundleReleaseId: _selectedBundleReleaseId,
                         selectedBundleReleaseDetail:
                           _selectedBundleReleaseDetail,
-                        selectedReleaseEditionId: _selectedReleaseEditionId,
-                        selectedReleaseVariantId: _selectedReleaseVariantId,
+                        selectedEditionId: _selectedReferenceEditionId,
+                        selectedVariantId: _selectedReferenceVariantId,
                         isLoadingBundleReleases: selectedResult != null &&
                             _pendingBundleReleaseItemIds
                                 .contains(selectedResult.id),
@@ -386,9 +387,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                   _selectedBundleReleaseId ??
                                       (bundles.isNotEmpty ? bundles.first.id : null);
                             }
-                            if (value != LibraryAddReferenceType.release) {
-                              _selectedReleaseEditionId = null;
-                              _selectedReleaseVariantId = null;
+                            if (value != LibraryAddReferenceType.edition) {
+                              _selectedReferenceEditionId = null;
+                              _selectedReferenceVariantId = null;
                             }
                           });
                           final bundleReleaseId = _selectedBundleReleaseId;
@@ -399,7 +400,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             );
                           }
                         },
-                        onReleaseEditionSelected: (editionId) {
+                        onEditionSelected: (editionId) {
                           final item = _selectedResult;
                           if (item == null) {
                             return;
@@ -409,13 +410,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             editionId,
                           );
                           setState(() {
-                            _selectedReleaseEditionId = selectedEdition?.id;
-                            _selectedReleaseVariantId = null;
+                            _selectedReferenceEditionId = selectedEdition?.id;
+                            _selectedReferenceVariantId = null;
                           });
                         },
-                        onReleaseVariantSelected: (variantId) {
+                        onVariantSelected: (variantId) {
                           setState(() {
-                            _selectedReleaseVariantId = _emptyToNull(variantId);
+                            _selectedReferenceVariantId = _emptyToNull(variantId);
                           });
                         },
                         onBundleReleaseSelected: (bundleReleaseId) {
@@ -490,26 +491,26 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           ? checkedItems
                           : [if (selectedResult != null) selectedResult];
                       final addCount = addItems.length;
-                        final selectedReleaseSelection = selectedResult == null
+                        final selectedEditionSelection = selectedResult == null
                           ? null
-                          : _selectedReleaseSelectionForItem(selectedResult);
+                          : _selectedEditionSelectionForItem(selectedResult);
                         final requiresBundleSelection =
                           _addTarget != LibraryAddTarget.track &&
                             _referenceType ==
                               LibraryAddReferenceType.bundleRelease;
-                        final requiresReleaseSelection =
+                        final requiresEditionSelection =
                           _addTarget != LibraryAddTarget.track &&
                             _referenceType ==
-                              LibraryAddReferenceType.release;
+                              LibraryAddReferenceType.edition;
                         final canAddBundleSelection = !requiresBundleSelection ||
                           (addCount == 1 &&
                             selectedResult != null &&
                             _selectedBundleReleaseId != null);
-                        final canAddReleaseSelection =
-                          !requiresReleaseSelection ||
+                        final canAddEditionSelection =
+                          !requiresEditionSelection ||
                             (addCount == 1 &&
                               selectedResult != null &&
-                              selectedReleaseSelection != null);
+                              selectedEditionSelection != null);
                       return _LibraryAddBottomBar(
                         type: widget.type,
                         accent: accent,
@@ -531,8 +532,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           if (value == LibraryAddTarget.track) {
                             _referenceType = LibraryAddReferenceType.media;
                             _selectedBundleReleaseId = null;
-                            _selectedReleaseEditionId = null;
-                            _selectedReleaseVariantId = null;
+                            _selectedReferenceEditionId = null;
+                            _selectedReferenceVariantId = null;
                           }
                         }),
                         onDefaultConditionChanged: (value) =>
@@ -544,7 +545,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             setState(() => _defaultPurchaseDate = value),
                         onAdd: (addItems.isEmpty && selectedCandidate == null) ||
                             !canAddBundleSelection ||
-                            !canAddReleaseSelection
+                          !canAddEditionSelection
                             ? null
                             : () {
                                 if (addItems.isNotEmpty) {
@@ -552,16 +553,16 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                     addItems,
                                     _addTarget,
                                     referenceType: _referenceType,
-                              releaseSelectionsByItemId:
+                              editionSelectionsByItemId:
                                 selectedResult == null ||
-                                    selectedReleaseSelection == null ||
+                                    selectedEditionSelection == null ||
                                     addCount != 1
                                   ? const <String,
-                                    LibraryAddReleaseSelection>{}
+                                    LibraryAddEditionSelection>{}
                                   : <String,
-                                    LibraryAddReleaseSelection>{
+                                    LibraryAddEditionSelection>{
                                     selectedResult.id:
-                                      selectedReleaseSelection,
+                                      selectedEditionSelection,
                                     },
                                     bundleReleaseIdsByItemId:
                                         selectedResult == null ||
@@ -672,8 +673,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
           _selectedBundleReleaseId = null;
-          _selectedReleaseEditionId = null;
-          _selectedReleaseVariantId = null;
+          _selectedReferenceEditionId = null;
+          _selectedReferenceVariantId = null;
           _referenceType = LibraryAddReferenceType.media;
           _hydratedResults.clear();
           _bundleReleasesByItemId.clear();
@@ -750,8 +751,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _selectedResultId = null;
         _selectedProviderCandidateId = null;
         _selectedBundleReleaseId = null;
-        _selectedReleaseEditionId = null;
-        _selectedReleaseVariantId = null;
+        _selectedReferenceEditionId = null;
+        _selectedReferenceVariantId = null;
         _referenceType = LibraryAddReferenceType.media;
         _hydratedResults.clear();
         _bundleReleasesByItemId.clear();
@@ -804,8 +805,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _selectedResultId = null;
           _selectedProviderCandidateId = null;
           _selectedBundleReleaseId = null;
-          _selectedReleaseEditionId = null;
-          _selectedReleaseVariantId = null;
+          _selectedReferenceEditionId = null;
+          _selectedReferenceVariantId = null;
           _referenceType = LibraryAddReferenceType.media;
           _hydratedResults.clear();
           _bundleReleasesByItemId.clear();
@@ -880,8 +881,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final year = int.tryParse(_yearController.text.trim());
     final coverUrl = _emptyToNull(_coverController.text);
     return LibraryMetadataItem(
-      id: 'local-${widget.type.workspace.kind}-${_uuid.v4()}',
-      kind: widget.type.workspace.kind,
+      id: 'local-${widget.type.workspace.kind.apiValue}-${_uuid.v4()}',
+      kind: widget.type.workspace.kind.apiValue,
       title: _titleController.text.trim(),
       itemNumber: _emptyToNull(_numberController.text),
       editionTitle: _emptyToNull(_variantController.text),
@@ -1693,18 +1694,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     return _bundleReleaseDetailsById[bundleReleaseId];
   }
 
-  LibraryAddReleaseSelection? _selectedReleaseSelectionForItem(
+  LibraryAddEditionSelection? _selectedEditionSelectionForItem(
     LibraryMetadataItem item,
   ) {
-    final edition = _previewEditionForItem(item, _selectedReleaseEditionId);
+    final edition = _previewEditionForItem(item, _selectedReferenceEditionId);
     if (edition == null) {
       return null;
     }
     final variant = _selectedVariantForEdition(
       edition,
-      _selectedReleaseVariantId,
+      _selectedReferenceVariantId,
     );
-    return LibraryAddReleaseSelection(
+    return LibraryAddEditionSelection(
       editionId: edition.id,
       variantId: variant?.id,
     );
@@ -1748,8 +1749,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     LibraryAddDefaults? defaults,
     Map<String, LibraryAddOwnedDetails> ownedDetailsByItemId =
         const <String, LibraryAddOwnedDetails>{},
-    Map<String, LibraryAddReleaseSelection> releaseSelectionsByItemId =
-        const <String, LibraryAddReleaseSelection>{},
+    Map<String, LibraryAddEditionSelection> editionSelectionsByItemId =
+      const <String, LibraryAddEditionSelection>{},
     Map<String, String> bundleReleaseIdsByItemId = const <String, String>{},
     }
   ) async {
@@ -1777,7 +1778,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               tags: _defaultTags,
             ),
         ownedDetailsByItemId: ownedDetailsByItemId,
-        releaseSelectionsByItemId: releaseSelectionsByItemId,
+        editionSelectionsByItemId: editionSelectionsByItemId,
         bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
       );
       if (mounted) {
@@ -1887,11 +1888,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   LibraryMetadataItem _proposalDraftFromCandidate(ProviderCandidate candidate) {
     return LibraryMetadataItem(
       id: buildPreviewCatalogItemId(
-        kind: widget.type.workspace.kind,
+        kind: widget.type.workspace.kind.apiValue,
         provider: candidate.provider,
         providerItemId: candidate.providerItemId,
       ),
-      kind: widget.type.workspace.kind,
+      kind: widget.type.workspace.kind.apiValue,
       title: candidate.title,
       synopsis: candidate.summary,
       coverImageUrl: candidate.imageUrl,

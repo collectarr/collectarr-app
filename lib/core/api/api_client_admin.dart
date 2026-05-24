@@ -65,10 +65,17 @@ class _AdminApiClient {
     String? synopsis,
     String? editionTitle,
     int? pageCount,
+    int? runtimeMinutes,
     String? publisher,
     DateTime? releaseDate,
     String? imprint,
+    String? subtitle,
     String? seriesGroup,
+    String? country,
+    String? language,
+    String? ageRating,
+    String? catalogNumber,
+    String? releaseStatus,
     String? physicalFormat,
     String? variantName,
     String? barcode,
@@ -88,14 +95,28 @@ class _AdminApiClient {
         'edition_title': editionTitle,
       if (explicitFields.contains('page_count') || includeNulls || pageCount != null)
         'page_count': pageCount,
+      if (explicitFields.contains('runtime_minutes') || includeNulls || runtimeMinutes != null)
+        'runtime_minutes': runtimeMinutes,
       if (explicitFields.contains('publisher') || includeNulls || publisher != null)
         'publisher': publisher,
       if (explicitFields.contains('release_date') || includeNulls || releaseDate != null)
         'release_date': releaseDate == null ? null : _dateForApi(releaseDate.toUtc()),
       if (explicitFields.contains('imprint') || includeNulls || imprint != null)
         'imprint': imprint,
+      if (explicitFields.contains('subtitle') || includeNulls || subtitle != null)
+        'subtitle': subtitle,
       if (explicitFields.contains('series_group') || includeNulls || seriesGroup != null)
         'series_group': seriesGroup,
+      if (explicitFields.contains('country') || includeNulls || country != null)
+        'country': country,
+      if (explicitFields.contains('language') || includeNulls || language != null)
+        'language': language,
+      if (explicitFields.contains('age_rating') || includeNulls || ageRating != null)
+        'age_rating': ageRating,
+      if (explicitFields.contains('catalog_number') || includeNulls || catalogNumber != null)
+        'catalog_number': catalogNumber,
+      if (explicitFields.contains('release_status') || includeNulls || releaseStatus != null)
+        'release_status': releaseStatus,
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (explicitFields.contains('variant_name') || includeNulls || variantName != null)
         'variant_name': variantName,
@@ -300,12 +321,14 @@ class _AdminApiClient {
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
       '/admin/providers/ingest',
       data: {
         'provider': provider,
         'provider_item_id': providerItemId,
+        if (kind != null && kind.isNotEmpty) 'kind': kind,
       },
     );
     final data = response.data;
@@ -370,12 +393,14 @@ class _AdminApiClient {
     required String proposalId,
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
       '/admin/metadata/proposals/$proposalId/approve-provider',
       data: {
         'provider': provider,
         'provider_item_id': providerItemId,
+        if (kind != null && kind.isNotEmpty) 'kind': kind,
       },
     );
     final data = response.data;

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +74,9 @@ class InspectorPersonalSection extends StatelessWidget {
       fallbackLabel: entry.variant,
     );
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
-    final trackingStatus = trackingEntry?.status ?? ownedItem?.readStatus;
+    final trackingStatus = trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
+      ? ownedItem?.readStatus
+      : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
     final trackingStartedAt = trackingEntry?.startedAt ?? ownedItem?.startedAt;
     final trackingFinishedAt =
         trackingEntry?.finishedAt ?? ownedItem?.finishedAt;

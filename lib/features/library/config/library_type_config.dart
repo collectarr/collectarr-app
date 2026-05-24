@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -6,7 +7,9 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -125,8 +128,8 @@ class LibraryMetadataProviderOption {
   final bool requiresApiKey;
   final LibraryMetadataProviderUsagePolicy? usagePolicy;
 
-  bool supportsKind(String kind) {
-    final normalized = kind.trim().toLowerCase();
+  bool supportsKind(Object? kind) {
+    final normalized = catalogMediaKindFromValue(kind).apiValue;
     return supportedKinds.isEmpty || supportedKinds.contains(normalized);
   }
 }
@@ -181,6 +184,8 @@ class LibraryTypeConfig {
     this.defaultGrade,
     this.capabilities = const LibraryTypeCapabilities(),
     this.presentation = genericLibraryMediaPresentation,
+    this.editPresentation =
+      const LibraryEditPresentation(builder: DefaultLibraryEditPresentationBuilder()),
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
@@ -198,6 +203,7 @@ class LibraryTypeConfig {
   final String? defaultGrade;
   final LibraryTypeCapabilities capabilities;
   final LibraryMediaPresentation presentation;
+  final LibraryEditPresentation editPresentation;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;

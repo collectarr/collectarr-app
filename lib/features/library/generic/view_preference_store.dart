@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -5,9 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LibraryViewPreferenceStore {
   const LibraryViewPreferenceStore(this.kind);
 
-  final String kind;
+  final Object? kind;
 
-  String _key(String suffix) => 'library.$kind.$suffix';
+  String _key(String suffix) =>
+      'library.${catalogMediaKindFromValue(kind).apiValue}.$suffix';
 
   Future<LibraryQuickView?> readQuickView() async {
     final prefs = await SharedPreferences.getInstance();

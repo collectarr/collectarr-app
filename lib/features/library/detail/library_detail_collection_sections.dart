@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,9 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final coverPrice = formatMoney(ownedItem?.coverPriceCents, ownedItem?.currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
     final profitLoss = _detailProfitLossLabel(ownedItem);
-    final trackingStatus = trackingEntry?.status ?? ownedItem?.readStatus;
+    final trackingStatus = trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
+      ? ownedItem?.readStatus
+      : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     return LibraryInspectorSection(
       title: 'Local collection',

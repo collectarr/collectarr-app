@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:drift/drift.dart';
 
 class TrackingEntriesCacheRepository {
@@ -81,7 +80,7 @@ class TrackingEntriesCacheRepository {
       ownedItemId: row.ownedItemId,
       editionId: row.editionId,
       variantId: row.variantId,
-      sourceType: normalizeTrackingSourceType(row.sourceType),
+      sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,
       startedAt: row.startedAt,
@@ -104,8 +103,8 @@ class TrackingEntriesCacheRepository {
       ownedItemId: Value(item.ownedItemId),
       editionId: Value(item.editionId),
       variantId: Value(item.variantId),
-      sourceType: Value(normalizeTrackingSourceType(item.sourceType)),
-      status: Value(item.status),
+      sourceType: Value(item.sourceTypeApiValue),
+      status: Value(item.statusStorageValue),
       rating: Value(item.rating),
       startedAt: Value(item.startedAt),
       finishedAt: Value(item.finishedAt),

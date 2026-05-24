@@ -1,13 +1,15 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const musicWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'music',
+  kind: CatalogMediaKind.music,
   title: 'Music',
   icon: Icons.music_note,
   preferencePrefix: 'music',
@@ -38,6 +40,7 @@ const musicLibraryConfig = LibraryTypeConfig(
   trackingProfile: listeningTrackingProfile,
   editDialogBuilder: buildMusicLibraryEditDialog,
   presentation: musicLibraryMediaPresentation,
+  editPresentation: musicLibraryEditPresentation,
   capabilities: LibraryTypeCapabilities(
     showsTrackData: true,
   ),

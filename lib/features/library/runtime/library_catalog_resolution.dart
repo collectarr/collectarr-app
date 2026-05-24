@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -39,6 +40,7 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
       defaultGrade: defaultGrade,
       capabilities: capabilities,
       presentation: presentation,
+      editPresentation: editPresentation,
       addDialogLauncher: addDialogLauncher,
       editDialogBuilder: editDialogBuilder,
       detailPageBuilder: detailPageBuilder,
@@ -61,9 +63,9 @@ extension LibraryTypeRegistryCatalogResolution on LibraryTypeRegistry {
 
 CatalogMediaType? _mediaTypeForKind(
   Iterable<CatalogMediaType> catalog,
-  String kind,
+  Object? kind,
 ) {
-  final normalized = kind.trim().toLowerCase();
+  final normalized = catalogMediaKindFromValue(kind).apiValue;
   for (final mediaType in catalog) {
     if (mediaType.kind == normalized) {
       return mediaType;

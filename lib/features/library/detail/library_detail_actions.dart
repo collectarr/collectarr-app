@@ -55,7 +55,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
                             ),
                       )
                     : DropdownButtonFormField<String>(
-                        value: selectedOwnedItemId,
+                        initialValue: selectedOwnedItemId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Active copy',

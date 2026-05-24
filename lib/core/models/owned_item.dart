@@ -1,14 +1,17 @@
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 
+const Object _ownedItemUnset = Object();
+
 class OwnedItem {
-  const OwnedItem({
+  OwnedItem({
     required this.id,
     required this.itemId,
     this.isDigital,
-    this.anchorType,
-    this.editionId,
-    this.variantId,
-    this.bundleReleaseId,
+    PersonalItemAnchor? anchor,
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -36,15 +39,18 @@ class OwnedItem {
     this.sellPriceCents,
     this.soldTo,
     this.locationId,
-  });
+  }) : anchor = anchor ??
+            PersonalItemAnchor.fromRaw(
+              anchorType: anchorType,
+              editionId: editionId,
+              variantId: variantId,
+              bundleReleaseId: bundleReleaseId,
+            );
 
   final String id;
   final String itemId;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final PersonalItemAnchor? anchor;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -73,13 +79,13 @@ class OwnedItem {
   final String? soldTo;
   final String? locationId;
 
+  String? get anchorType => anchor?.apiValue;
+  String? get editionId => anchor?.editionId;
+  String? get variantId => anchor?.variantId;
+  String? get bundleReleaseId => anchor?.bundleReleaseId;
+
   PersonalItemAnchorType? get personalAnchor =>
-      resolvePersonalItemAnchor(
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
+      anchor?.type;
 
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
@@ -88,15 +94,7 @@ class OwnedItem {
     return {
       'item_id': itemId,
       if (isDigital != null) 'is_digital': isDigital,
-      'anchor_type': resolvePersonalItemAnchorType(
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      ),
-      'edition_id': editionId,
-      'variant_id': variantId,
-      'bundle_release_id': bundleReleaseId,
+      ...?anchor?.toSyncPayload(),
       'condition': condition,
       'grade': grade,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -130,10 +128,12 @@ class OwnedItem {
       id: json['id'] as String,
       itemId: json['item_id'] as String,
       isDigital: json['is_digital'] as bool?,
-      anchorType: normalizePersonalItemAnchorType(json['anchor_type'] as String?),
-      editionId: json['edition_id'] as String?,
-      variantId: json['variant_id'] as String?,
-      bundleReleaseId: json['bundle_release_id'] as String?,
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: json['anchor_type'] as String?,
+        editionId: json['edition_id'] as String?,
+        variantId: json['variant_id'] as String?,
+        bundleReleaseId: json['bundle_release_id'] as String?,
+      ),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: json['purchase_date'] == null
@@ -178,6 +178,7 @@ class OwnedItem {
     String? id,
     String? itemId,
     bool? isDigital,
+    Object? anchor = _ownedItemUnset,
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -210,14 +211,20 @@ class OwnedItem {
     String? soldTo,
     String? locationId,
   }) {
+    final resolvedAnchor = identical(anchor, _ownedItemUnset)
+        ? PersonalItemAnchor.fromRaw(
+            anchorType: anchorType ?? this.anchorType,
+            editionId: editionId ?? this.editionId,
+            variantId: variantId ?? this.variantId,
+            bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+          )
+        : anchor as PersonalItemAnchor?;
+
     return OwnedItem(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      anchor: resolvedAnchor,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,

@@ -30,6 +30,9 @@ sealed class LibraryWorkspaceEntry {
     this.primaryReferenceLabel,
     this.referenceScopeLabel,
     this.referenceFormatLabel,
+    this.referenceEditionId,
+    this.referenceVariantId,
+    this.referenceBundleReleaseId,
     this.keyComic = false,
     this.keyReason,
     this.notes,
@@ -74,6 +77,9 @@ sealed class LibraryWorkspaceEntry {
     String? primaryReferenceLabel,
     String? referenceScopeLabel,
     String? referenceFormatLabel,
+    String? referenceEditionId,
+    String? referenceVariantId,
+    String? referenceBundleReleaseId,
     bool keyComic = false,
     String? keyReason,
     String? notes,
@@ -122,6 +128,9 @@ sealed class LibraryWorkspaceEntry {
       primaryReferenceLabel: primaryReferenceLabel,
       referenceScopeLabel: referenceScopeLabel,
       referenceFormatLabel: referenceFormatLabel,
+      referenceEditionId: referenceEditionId,
+      referenceVariantId: referenceVariantId,
+      referenceBundleReleaseId: referenceBundleReleaseId,
       keyComic: keyComic,
       keyReason: keyReason,
       notes: notes,
@@ -243,6 +252,9 @@ sealed class LibraryWorkspaceEntry {
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;
+  final String? referenceEditionId;
+  final String? referenceVariantId;
+  final String? referenceBundleReleaseId;
   final bool keyComic;
   final String? keyReason;
   final String? notes;
@@ -304,6 +316,9 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           primaryReferenceLabel: common.primaryReferenceLabel,
           referenceScopeLabel: common.referenceScopeLabel,
           referenceFormatLabel: common.referenceFormatLabel,
+          referenceEditionId: common.referenceEditionId,
+          referenceVariantId: common.referenceVariantId,
+          referenceBundleReleaseId: common.referenceBundleReleaseId,
           keyComic: common.keyComic,
           keyReason: common.keyReason,
           notes: common.notes,
@@ -509,6 +524,9 @@ class _LibraryWorkspaceCommon {
     required this.primaryReferenceLabel,
     required this.referenceScopeLabel,
     required this.referenceFormatLabel,
+    required this.referenceEditionId,
+    required this.referenceVariantId,
+    required this.referenceBundleReleaseId,
     required this.keyComic,
     required this.keyReason,
     required this.notes,
@@ -552,6 +570,9 @@ class _LibraryWorkspaceCommon {
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;
+  final String? referenceEditionId;
+  final String? referenceVariantId;
+  final String? referenceBundleReleaseId;
   final bool keyComic;
   final String? keyReason;
   final String? notes;

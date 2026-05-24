@@ -452,7 +452,6 @@ class AdminCatalogSummary {
     required this.volumes,
     required this.editions,
     required this.variants,
-    required this.releases,
     required this.providerLinks,
     required this.imageAssets,
     required this.imageCacheEntries,
@@ -469,7 +468,6 @@ class AdminCatalogSummary {
   final int volumes;
   final int editions;
   final int variants;
-  final int releases;
   final int providerLinks;
   final int imageAssets;
   final int imageCacheEntries;
@@ -498,7 +496,6 @@ class AdminCatalogSummary {
       volumes: json['volumes'] as int? ?? 0,
       editions: json['editions'] as int? ?? 0,
       variants: json['variants'] as int? ?? 0,
-      releases: json['releases'] as int? ?? 0,
       providerLinks: json['provider_links'] as int? ?? 0,
       imageAssets: json['image_assets'] as int? ?? 0,
       imageCacheEntries: json['image_cache_entries'] as int? ?? 0,
@@ -906,6 +903,12 @@ class AdminMetadataItem {
     this.publishing,
     this.coverDate,
     this.storeDate,
+    this.video,
+    this.music,
+    this.genres = const [],
+    this.country,
+    this.language,
+    this.ageRating,
     this.providerLinks = const [],
     this.editions = const [],
   });
@@ -921,6 +924,12 @@ class AdminMetadataItem {
   final CatalogPublishingDetails? publishing;
   final DateTime? coverDate;
   final DateTime? storeDate;
+  final VideoCatalogDetails? video;
+  final MusicCatalogDetails? music;
+  final List<String> genres;
+  final String? country;
+  final String? language;
+  final String? ageRating;
   final List<AdminProviderLink> providerLinks;
   final List<AdminEdition> editions;
 
@@ -972,6 +981,19 @@ class AdminMetadataItem {
       subtitle: json['subtitle'] as String?,
       seriesGroup: json['series_group'] as String?,
     );
+    final video = VideoCatalogDetails(
+      runtimeMinutes: json['runtime_minutes'] as int?,
+    );
+    final music = MusicCatalogDetails(
+      trackCount: json['track_count'] as int?,
+      tracks: (json['tracks'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CatalogTrack.fromJson)
+              .toList(growable: false) ??
+          const <CatalogTrack>[],
+      catalogNumber: json['catalog_number'] as String?,
+      releaseStatus: json['release_status'] as String?,
+    );
     return AdminMetadataItem(
       id: json['id']?.toString() ?? '',
       kind: json['kind'] as String? ?? '',
@@ -984,6 +1006,15 @@ class AdminMetadataItem {
       publishing: publishing.hasData ? publishing : null,
       coverDate: _parseDate(json['cover_date'] as String?),
       storeDate: _parseDate(json['store_date'] as String?),
+      video: video.hasData ? video : null,
+      music: music.hasData ? music : null,
+      genres: (json['genres'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
+      country: json['country'] as String?,
+      language: json['language'] as String?,
+      ageRating: json['age_rating'] as String?,
       providerLinks: [
         for (final link in (json['provider_links'] as List<dynamic>? ?? []))
           AdminProviderLink.fromJson(link as Map<String, dynamic>),
@@ -1005,7 +1036,6 @@ class AdminEdition {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.variants = const [],
-    this.releases = const [],
   });
 
   final String id;
@@ -1015,7 +1045,6 @@ class AdminEdition {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final List<AdminVariant> variants;
-  final List<AdminRelease> releases;
 
   factory AdminEdition.fromJson(Map<String, dynamic> json) {
     return AdminEdition(
@@ -1028,10 +1057,6 @@ class AdminEdition {
       variants: [
         for (final variant in (json['variants'] as List<dynamic>? ?? []))
           AdminVariant.fromJson(variant as Map<String, dynamic>),
-      ],
-      releases: [
-        for (final release in (json['releases'] as List<dynamic>? ?? []))
-          AdminRelease.fromJson(release as Map<String, dynamic>),
       ],
     );
   }
@@ -1103,29 +1128,6 @@ class AdminVariant {
       physicalFormatLabel: json['physical_format_label'] as String?,
       metadataJson: (json['metadata_json'] as Map?)?.cast<String, dynamic>() ??
           const <String, dynamic>{},
-    );
-  }
-}
-
-class AdminRelease {
-  const AdminRelease({
-    required this.id,
-    required this.region,
-    this.releaseDate,
-    this.publisher,
-  });
-
-  final String id;
-  final String region;
-  final DateTime? releaseDate;
-  final String? publisher;
-
-  factory AdminRelease.fromJson(Map<String, dynamic> json) {
-    return AdminRelease(
-      id: json['id']?.toString() ?? '',
-      region: json['region'] as String? ?? '',
-      releaseDate: _parseDate(json['release_date'] as String?),
-      publisher: json['publisher'] as String?,
     );
   }
 }

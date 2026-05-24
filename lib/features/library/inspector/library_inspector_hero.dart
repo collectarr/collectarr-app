@@ -153,6 +153,13 @@ class _InspectorHeroInfo extends StatelessWidget {
     final referenceLabel =
       libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
       entry.primaryReferenceLabel;
+    final referenceHierarchy = libraryReferenceHierarchySegments(
+      mediaType: entry.mediaType,
+      editions: entry.editions,
+      editionId: ownedItem?.editionId ?? entry.referenceEditionId,
+      variantId: ownedItem?.variantId ?? entry.referenceVariantId,
+      bundleReleaseId: ownedItem?.bundleReleaseId ?? entry.referenceBundleReleaseId,
+    );
     final releaseLabel = formatNullableDate(entry.releaseDate) ??
         entry.releaseYear?.toString();
     return Column(
@@ -206,6 +213,13 @@ class _InspectorHeroInfo extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 10),
+        if (referenceHierarchy.length > 1) ...[
+          _ReferenceHierarchyLine(
+            segments: referenceHierarchy,
+            accent: accent,
+          ),
+          const SizedBox(height: 10),
+        ],
         Wrap(
           spacing: 6,
           runSpacing: 6,
@@ -305,6 +319,54 @@ class _InspectorHeroInfo extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _ReferenceHierarchyLine extends StatelessWidget {
+  const _ReferenceHierarchyLine({
+    required this.segments,
+    required this.accent,
+  });
+
+  final List<String> segments;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x10000000),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: accent.withValues(alpha: 0.18)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            for (var i = 0; i < segments.length; i++) ...[
+              Text(
+                segments[i],
+                style: TextStyle(
+                  color: i == segments.length - 1 ? Colors.white : kAppTextMuted,
+                  fontWeight: i == segments.length - 1
+                      ? FontWeight.w800
+                      : FontWeight.w600,
+                ),
+              ),
+              if (i < segments.length - 1)
+                Icon(
+                  Icons.chevron_right,
+                  size: 16,
+                  color: accent.withValues(alpha: 0.8),
+                ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

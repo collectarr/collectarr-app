@@ -1,5 +1,7 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -12,40 +14,44 @@ import 'package:collectarr_app/features/library/kinds/generic/presentation.dart'
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);
+  final mediaKind = catalogMediaKindFromApiValue(normalizedType.kind);
   final presentation = _presentationForCatalogKind(normalizedType.kind);
+  final editPresentation = _editPresentationForCatalogKind(normalizedType.kind);
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
-      kind: normalizedType.kind,
+      kind: mediaKind,
       title: catalogDisplayLabel(
         normalizedType.pluralLabel,
-        normalizedType.kind,
+        mediaKind,
         plural: true,
       ),
-      icon: libraryIconForKind(normalizedType.kind),
+      icon: libraryIconForKind(mediaKind),
       preferencePrefix: 'catalog_${normalizedType.kind}',
       defaultSortColumn: LibrarySortColumn.title,
       defaultVisibleColumns: presentation.defaultVisibleColumns,
     ),
     singularLabel: catalogDisplayLabel(
       normalizedType.singularLabel,
-      normalizedType.kind,
+      mediaKind,
     ),
     pluralLabel: catalogDisplayLabel(
       normalizedType.pluralLabel,
-      normalizedType.kind,
+      mediaKind,
       plural: true,
     ),
     defaultMetadataProvider: normalizedType.defaultProvider ??
         (normalizedType.providers.isEmpty ? '' : normalizedType.providers.first),
     metadataProviders: const [],
-    trackingProfile: catalogTrackingProfileForKind(normalizedType.kind),
+    trackingProfile: catalogTrackingProfileForKind(mediaKind),
     presentation: presentation,
+    editPresentation: editPresentation,
   ).resolveWithCatalog([normalizedType]);
 }
 
@@ -71,5 +77,16 @@ LibraryMediaPresentation _presentationForCatalogKind(String kind) {
       return tvLibraryMediaPresentation;
     default:
       return genericLibraryMediaPresentation;
+  }
+}
+
+LibraryEditPresentation _editPresentationForCatalogKind(String kind) {
+  switch (kind.trim().toLowerCase()) {
+    case 'comic':
+      return comicsLibraryEditPresentation;
+    case 'manga':
+      return mangaLibraryEditPresentation;
+    default:
+      return genericLibraryEditPresentation;
   }
 }

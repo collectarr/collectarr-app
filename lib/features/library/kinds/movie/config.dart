@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
@@ -7,7 +8,7 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:flutter/material.dart';
 
 const moviesWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'movie',
+  kind: CatalogMediaKind.movie,
   title: 'Movies',
   icon: Icons.movie_outlined,
   preferencePrefix: 'movies',

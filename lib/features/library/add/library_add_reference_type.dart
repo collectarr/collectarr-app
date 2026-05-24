@@ -1,25 +1,25 @@
-enum LibraryAddReferenceType { media, release, bundleRelease }
+import 'package:collectarr_app/core/models/catalog_item.dart';
+
+enum LibraryAddReferenceType { media, edition, bundleRelease }
 
 extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
-  String labelForKind(String kind) {
-    final normalizedKind = kind.trim().toLowerCase();
+  String labelForMediaKind(CatalogMediaKind mediaKind) {
     return switch (this) {
       LibraryAddReferenceType.media =>
-        normalizedKind == 'music' ? 'Album' : 'Media',
-      LibraryAddReferenceType.release => 'Edition',
+        mediaKind == CatalogMediaKind.music ? 'Album' : 'Media',
+      LibraryAddReferenceType.edition => 'Edition',
       LibraryAddReferenceType.bundleRelease => 'Bundle',
     };
   }
 
-  String helperLabelForKind(String kind) {
-    final normalizedKind = kind.trim().toLowerCase();
+  String helperLabelForMediaKind(CatalogMediaKind mediaKind) {
     return switch (this) {
-      LibraryAddReferenceType.media => normalizedKind == 'music'
+      LibraryAddReferenceType.media => mediaKind == CatalogMediaKind.music
           ? 'Track or save the album itself.'
           : 'Track or save the canonical item itself.',
-      LibraryAddReferenceType.release => normalizedKind == 'music'
-          ? 'Attach ownership to an album edition. Pick a physical release only if you want one exact format or pressing.'
-          : 'Attach ownership to a specific edition. Pick a physical release only if you want one exact variant.',
+        LibraryAddReferenceType.edition => mediaKind == CatalogMediaKind.music
+          ? 'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.'
+          : 'Attach ownership to a specific edition. Pick a variant only if you want one exact physical version.',
       LibraryAddReferenceType.bundleRelease => 'Attach ownership to a bundle that contains this item',
     };
   }
