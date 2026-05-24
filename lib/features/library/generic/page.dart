@@ -22,6 +22,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
@@ -57,6 +58,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+
+part 'page_edit_handler.dart';
+part 'page_dialogs.dart';
+part 'page_collection_actions.dart';
 
 class LibraryPage extends ConsumerStatefulWidget {
   const LibraryPage({
@@ -164,6 +169,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     super.dispose();
   }
 
+  /// Wrapper for [setState] accessible from part-file extensions.
+  void _rebuild([VoidCallback? fn]) {
+    setState(fn ?? () {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
@@ -201,14 +211,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 searchController: _searchController,
                 viewState: viewState,
                 adapter: _adapter,
-                onAdd: () => _showAddDialog(),
-                onScan: _scanBarcode,
+                onAdd: () => showAddDialogFlow(),
+                onScan: scanBarcodeFlow,
                 onSearchChanged: (value) => setState(() {}),
-                onEditColumns: _showColumnChooser,
+                onEditColumns: showColumnChooserFlow,
                 onSortChanged: (column) => _updateViewState(
                   (state) => state.withSortColumn(column, _adapter.viewProfile),
                 ),
-                onEditSort: _showSortDialog,
+                onEditSort: showSortDialogFlow,
                 onViewModeChanged: (mode) => _updateViewState(
                   (state) => state.copyWith(viewMode: mode),
                 ),
@@ -220,7 +230,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 ),
                 selectedBucket: _linkedMetadataFilter?.chipLabel ?? _selectedBucket,
                 onClearBucket: _clearToolbarSearchChip,
-                onRefreshMetadata: () => _showMetadataRefreshDialog(
+                onRefreshMetadata: () => showMetadataRefreshFlow(
                   projection,
                 ),
                 quickView: _quickView,
@@ -231,35 +241,35 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 },
                 hasActiveFilters: _hasActiveFilter,
                 onClearFilters: _clearFilters,
-                onEditFilters: () => _showFilterDialog(projection),
+                onEditFilters: () => showFilterDialogFlow(projection),
                 activeFilterCount: _filterSelection.activeFilterCount,
                 onRandomPick:
                     projection != null && projection.filteredItems.isNotEmpty
-                        ? () => _pickRandomItem(projection)
+                        ? () => pickRandomItemFlow(projection)
                         : null,
                 onDownloadAllCovers: shelfState != null
-                    ? () => _downloadAllCovers(shelfState)
+                    ? () => downloadAllCoversFlow(shelfState)
                     : null,
                 counts: projection?.counts ?? const LibraryToolbarCounts(),
                 shelfState: shelfState,
                 onEditConditionPickList: widget.type.conditions.isNotEmpty
-                  ? _showConditionPickListEditor
+                  ? showConditionPickListEditorFlow
                   : null,
                 onEditGradePickList: widget.type.grades.isNotEmpty
-                  ? _showGradePickListEditor
+                  ? showGradePickListEditorFlow
                   : null,
-                onEditTagPickList: _showTagPickListEditor,
-                onSmartLists: () => _showSmartLists(shelfState),
+                onEditTagPickList: showTagPickListEditorFlow,
+                onSmartLists: () => showSmartListsFlow(shelfState),
                 onReadingQueue: libraryShowsReadingQueue(widget.type.workspace.kind)
-                  ? _showReadingQueue
+                  ? showReadingQueueFlow
                   : null,
                 onPrintReport: projection != null &&
                         projection.filteredItems.isNotEmpty
-                    ? () => _printReport(projection)
+                    ? () => printReportFlow(projection)
                     : null,
                 onShareCollection: projection != null &&
                         projection.filteredItems.isNotEmpty
-                    ? () => _shareCollection(projection)
+                    ? () => shareCollectionFlow(projection)
                     : null,
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
@@ -268,10 +278,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                       () => _selection = _selection.setEnabled(enabled)),
                   onClearSelection: () =>
                       setState(() => _selection = _selection.clear()),
-                  onBulkEdit: () => _bulkEdit(projection),
-                  onBulkMoveToOwned: () => _bulkMoveToOwned(projection),
-                  onBulkMoveToWishlist: () => _bulkMoveToWishlist(projection),
-                  onBulkRemove: () => _bulkRemove(projection),
+                  onBulkEdit: () => bulkEditFlow(projection),
+                  onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
+                  onBulkMoveToWishlist: () => bulkMoveToWishlistFlow(projection),
+                  onBulkRemove: () => bulkRemoveFlow(projection),
                 ),
               ),
               Expanded(
@@ -306,7 +316,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       groupLoading: _facetLoadsInFlight.contains(_activeGroupMode),
       accent: widget.accent,
       hasActiveFilter: _hasActiveFilter,
-      onAdd: () => _showAddDialog(),
+      onAdd: () => showAddDialogFlow(),
       onClearFilters: _clearFilters,
       selectionEnabled: _selection.enabled,
       selectedItemIds: _selection.itemIds,
@@ -357,18 +367,18 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onDetailsWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(detailsWidth: width),
       ),
-      onAddOwned: (item) => _runCollectionAction(
+      onAddOwned: (item) => runCollectionAction(
         (actions) => actions.addOwned(item),
       ),
-      onRemoveOwned: _confirmRemoveOwned,
-      onAddWishlist: (item) => _runCollectionAction(
+      onRemoveOwned: confirmAndRemoveOwned,
+      onAddWishlist: (item) => runCollectionAction(
         (actions) => actions.addWishlist(item),
       ),
-      onRemoveWishlist: (item) => _runCollectionAction(
+      onRemoveWishlist: (item) => runCollectionAction(
         (actions) => actions.removeWishlist(item),
       ),
-      onEditItem: (item, ownedItem) => unawaited(_showEditDialog(item, ownedItem)),
-      onItemContextMenu: _handleItemContextMenu,
+      onEditItem: (item, ownedItem) => unawaited(showEditDialog(item, ownedItem)),
+      onItemContextMenu: handleItemContextMenu,
       onFilterByValue: (value) => setState(() {
         _linkedMetadataFilter =
             _linkedMetadataFilter?.value == value
@@ -548,219 +558,6 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     });
   }
 
-  Future<void> _showFilterDialog(
-    LibraryProjection? projection,
-  ) async {
-    await _loadActiveLoanIds();
-    if (!mounted) {
-      return;
-    }
-    final allEntries = projection?.allItems
-            .map((i) => i.entry)
-            .toList(growable: false) ??
-        const [];
-    final options = LibraryFilterOptions.fromEntries(
-      allEntries,
-      customFieldDefinitions: customFieldDefinitions,
-      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-    );
-    final result = await showLibraryFilterDialog(
-      context: context,
-      type: widget.type,
-      current: _filterSelection,
-      options: options,
-    );
-    if (result != null && mounted) {
-      setState(() => _filterSelection = result);
-    }
-  }
-
-  Future<void> _showSmartLists(ShelfState? shelfState) async {
-    final db = ref.read(localDatabaseProvider);
-    final result = await showSmartListsDialog(
-      context: context,
-      db: db,
-      mediaKind: widget.type.workspace.kind.apiValue,
-      currentFilter: _filterSelection,
-      currentQuickView: _quickView,
-      currentSortRules: _viewState?.sortRules,
-      currentSortColumn: _viewState?.sortColumn,
-      currentSortAscending: _viewState?.sortAscending,
-      currentSearchQuery: _searchController.text.isNotEmpty
-          ? _searchController.text
-          : null,
-      customFieldDefinitions: customFieldDefinitions,
-    );
-    if (result != null && mounted) {
-      setState(() {
-        _filterSelection = result.filterSelection;
-        _quickView = result.quickView;
-        if (result.searchQuery != null) {
-          _searchController.text = result.searchQuery!;
-        } else {
-          _searchController.clear();
-        }
-        if (_viewState != null) {
-          if (result.sortRules != null && result.sortRules!.isNotEmpty) {
-            _viewState = _viewState!.withSortRules(
-              result.sortRules!,
-              _adapter.viewProfile,
-            );
-          } else if (result.sortColumn != null) {
-            _viewState = _viewState!.copyWith(
-              sortColumn: result.sortColumn,
-              sortAscending: result.sortAscending ?? true,
-            );
-          }
-        }
-      });
-    }
-  }
-
-  Future<void> _showSortDialog() async {
-    final viewState = _viewState;
-    if (viewState == null) {
-      return;
-    }
-    final sortRules = await showLibrarySortDialog(
-      context: context,
-      currentRules: viewState.sortRules,
-    );
-    if (sortRules != null && mounted) {
-      _updateViewState(
-        (state) => state.withSortRules(sortRules, _adapter.viewProfile),
-      );
-    }
-  }
-
-  Future<void> _showReadingQueue() async {
-    final db = ref.read(localDatabaseProvider);
-    final queueIds = await ReadingQueueRepository(db).getQueue();
-    final ownedItems = await ref.read(collectionProvider.future);
-    final queuedOwnedItems = ownedItems
-        .where((item) => !item.isDeleted && queueIds.contains(item.id))
-        .toList(growable: false);
-    final catalogItemsById = await CatalogCacheRepository(db).findByIds(
-      queuedOwnedItems.map((item) => item.itemId),
-    );
-    if (!mounted) {
-      return;
-    }
-    await showReadingQueueDialog(
-      context: context,
-      db: db,
-      mediaKind: widget.type.workspace.kind.apiValue,
-      ownedItems: queuedOwnedItems,
-      catalogItemsById: catalogItemsById,
-      onSelectItem: _selectItem,
-    );
-  }
-
-  Future<void> _showConditionPickListEditor() async {
-    final db = ref.read(localDatabaseProvider);
-    await showPickListEditorDialog(
-      context: context,
-      db: db,
-      listName: kConditionPickListName,
-      label: 'Condition',
-      mediaKind: widget.type.workspace.kind.apiValue,
-      builtInValues: widget.type.conditions,
-    );
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  Future<void> _showGradePickListEditor() async {
-    final db = ref.read(localDatabaseProvider);
-    await showPickListEditorDialog(
-      context: context,
-      db: db,
-      listName: kGradePickListName,
-      label: 'Grade',
-      mediaKind: widget.type.workspace.kind.apiValue,
-      builtInValues: widget.type.grades,
-    );
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  Future<void> _showTagPickListEditor() async {
-    final db = ref.read(localDatabaseProvider);
-    await showPickListEditorDialog(
-      context: context,
-      db: db,
-      listName: kTagPickListName,
-      label: 'Tag',
-      mediaKind: widget.type.workspace.kind.apiValue,
-      builtInValues: const [],
-    );
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  void _printReport(LibraryProjection projection) {
-    final items = projection.filteredItems.map((i) => i.entry).toList();
-    printCollectionReport(
-      title: widget.type.workspace.title,
-      items: items,
-    );
-  }
-
-  void _shareCollection(LibraryProjection projection) {
-    final items = projection.filteredItems.map((i) => i.entry).toList();
-    showCollectionShareDialog(
-      context: context,
-      title: widget.type.workspace.title,
-      items: items,
-    );
-  }
-
-  void _pickRandomItem(LibraryProjection projection) {
-    final items = projection.filteredItems;
-    if (items.isEmpty) return;
-    final random = items[_random.nextInt(items.length)];
-    _selectItem(random.entry.id);
-  }
-
-  Future<void> _downloadAllCovers(ShelfState shelfState) async {
-    final db = ref.read(localDatabaseProvider);
-    final imagesRepo = ItemImagesCacheRepository(db);
-    final service = ImageDownloadService(imagesRepo: imagesRepo);
-
-    // Build map: ownedItemId → coverUrl for items that have owned entries.
-    final itemsToCover = <String, String?>{};
-    for (final entry in shelfState.entries) {
-      final ownedId = entry.ownedItem?.id;
-      if (ownedId == null) continue;
-      itemsToCover[ownedId] = entry.catalogItem?.displayCoverUrl;
-    }
-    if (itemsToCover.isEmpty) return;
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Downloading covers for ${itemsToCover.length} items...'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-
-    final results = await service.downloadCoversForItems(itemsToCover);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Downloaded ${results.length} covers.'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  static final _random = math.Random();
-
   Future<void> _loadViewState() async {
     final state = await _adapter.viewProfile.load();
     if (mounted) {
@@ -776,20 +573,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     unawaited(_adapter.viewProfile.save(next));
   }
 
-  Future<void> _showColumnChooser() async {
-    final viewState = _viewState ?? _adapter.viewProfile.defaults();
-    final selected = await showGenericLibraryColumnChooser(
-      context: context,
-      type: widget.type,
-      adapter: _adapter,
-      viewState: viewState,
-    );
-    if (selected != null) {
-      _updateViewState((state) => state.copyWith(visibleColumns: selected));
-    }
-  }
-
-  Future<void> _showAddDialog({String? barcode}) async {
+  Future<void> showAddDialogFlow({String? barcode}) async {
     final added = await showLibraryAddDialog(
       context: context,
       type: widget.type,
@@ -827,49 +611,6 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     });
   }
 
-  Future<void> _handleItemContextMenu(
-    LibraryProjectionItem item,
-    Offset position,
-  ) async {
-    _selectItem(item.entry.id);
-    final result = await showLibraryItemContextMenu(
-      context: context,
-      position: position,
-      entry: item.entry,
-      accent: widget.accent,
-    );
-    if (result == null || !mounted) return;
-    switch (result.action) {
-      case LibraryItemContextAction.edit:
-        unawaited(_showEditDialog(item, item.source.ownedItem));
-      case LibraryItemContextAction.addToOwned:
-        await _runCollectionAction((a) => a.addOwned(item));
-      case LibraryItemContextAction.removeFromOwned:
-        await _confirmRemoveOwned(item);
-      case LibraryItemContextAction.addToWishlist:
-        await _runCollectionAction((a) => a.addWishlist(item));
-      case LibraryItemContextAction.removeFromWishlist:
-        await _runCollectionAction((a) => a.removeWishlist(item));
-      case LibraryItemContextAction.copyTitle:
-        await Clipboard.setData(ClipboardData(text: item.entry.title));
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Title copied')),
-          );
-        }
-      case LibraryItemContextAction.copyBarcode:
-        final barcode = item.entry.barcode;
-        if (barcode != null && barcode.isNotEmpty) {
-          await Clipboard.setData(ClipboardData(text: barcode));
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Barcode copied')),
-            );
-          }
-        }
-    }
-  }
-
   void _selectItem(String id) {
     setState(() => _selectedId = id);
     if (widget.type.capabilities.showsTrackData) {
@@ -894,335 +635,5 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     } finally {
       _detailHydrationInFlight.remove(itemId);
     }
-  }
-
-  Future<void> _showEditDialog(
-    LibraryProjectionItem item,
-    OwnedItem? ownedItemOverride,
-  ) async {
-    final catalogItem = item.source.catalogItem;
-    if (catalogItem == null) {
-      return;
-    }
-    final catalog = ref.read(mediaCatalogProvider).maybeWhen(
-          data: (value) => value,
-          orElse: () => fallbackMediaCatalog,
-        );
-    final db = ref.read(localDatabaseProvider);
-    final customFieldRepo = CustomFieldRepository(db);
-    final itemImageRepo = ItemImageRepository(db);
-    final owned = ownedItemOverride ?? item.source.ownedItem;
-    final wishlist = item.source.wishlistItem;
-    final activeTrackingEntry = resolveActiveTrackingEntry(
-      ref.read(trackingEntriesByCatalogItemProvider)[catalogItem.id] ??
-          const <TrackingEntry>[],
-      owned,
-    );
-    final Future<List<BundleReleaseSummary>> bundleReleases = (() async {
-      try {
-        return await ref.read(apiClientProvider).getItemBundleReleases(catalogItem.id);
-      } catch (_) {
-        return const <BundleReleaseSummary>[];
-      }
-    })();
-    final definitions = await customFieldRepo.listDefinitions(
-      mediaKind: widget.type.workspace.kind.apiValue,
-    );
-    final cfValues = owned != null
-        ? await customFieldRepo.listValuesForItem(owned.id)
-        : <dynamic>[];
-    final images =
-        owned != null ? await itemImageRepo.listForItem(owned.id) : <dynamic>[];
-    final availableBundleReleases = await bundleReleases;
-    if (!mounted) return;
-    final result = await showLibraryEditDialog(
-      context: context,
-      request: LibraryEditDialogRequest(
-        type: widget.type,
-        item: LibraryMetadataItem.fromCatalogItem(catalogItem),
-        ownedItem: owned,
-        wishlistItem: wishlist,
-        trackingEntry: activeTrackingEntry,
-        accent: widget.accent,
-        availableBundleReleases: availableBundleReleases,
-        physicalFormats: physicalMediaFormatsForKind(
-          catalog,
-          widget.type.workspace.kind,
-        ),
-        customFieldDefinitions: definitions,
-        customFieldValues: cfValues.cast(),
-        itemImages: images.cast(),
-      ),
-    );
-    if (result == null || !mounted) {
-      return;
-    }
-    final mutations = ref.read(collectionMutationsProvider);
-    await mutations.updateCatalogSnapshot(
-      result.item.toCatalogItem(),
-      notify: owned == null && wishlist == null,
-    );
-    final personal = result.personal;
-    if (owned != null && personal != null) {
-      final updatedOwned = await mutations.updateItem(
-        owned,
-        anchorType: personal.anchorType,
-        editionId: personal.editionId,
-        variantId: personal.variantId,
-        bundleReleaseId: personal.bundleReleaseId,
-        condition: personal.condition,
-        grade: personal.grade,
-        purchaseDate: personal.purchaseDate,
-        pricePaidCents: personal.pricePaidCents,
-        currency: personal.currency,
-        personalNotes: personal.personalNotes,
-        quantity: personal.quantity,
-        storageBox: personal.locationChanged ? null : owned.storageBox,
-        locationId:
-            personal.locationChanged ? personal.locationId : owned.locationId,
-        indexNumber: owned.indexNumber,
-        coverPriceCents: personal.coverPriceCents,
-        rawOrSlabbed: personal.rawOrSlabbed,
-        gradingCompany: personal.gradingCompany,
-        graderNotes: personal.graderNotes,
-        signedBy: personal.signedBy,
-        keyComic: personal.keyComic,
-        keyReason: personal.keyReason,
-        rating: result.tracking?.rating,
-        readStatus: result.tracking?.readStatus,
-        startedAt: result.tracking?.startedAt,
-        finishedAt: result.tracking?.finishedAt,
-        tags: personal.tags,
-        soldAt: personal.soldAt,
-        sellPriceCents: personal.sellPriceCents,
-        soldTo: personal.soldTo,
-        syncTracking: false,
-        notify: false,
-      );
-      await mutations.syncOwnedTrackingEntry(
-        updatedOwned,
-        editionId: result.tracking?.editionId,
-        variantId: result.tracking?.variantId,
-        status: result.tracking?.readStatus,
-        rating: result.tracking?.rating,
-        startedAt: result.tracking?.startedAt,
-        finishedAt: result.tracking?.finishedAt,
-        progressCurrent:
-          result.tracking?.progressCurrent ?? activeTrackingEntry?.progressCurrent,
-        progressTotal:
-          result.tracking?.progressTotal ?? activeTrackingEntry?.progressTotal,
-        timesCompleted:
-          result.tracking?.timesCompleted ?? activeTrackingEntry?.timesCompleted,
-        notes: result.tracking?.notes ?? activeTrackingEntry?.notes,
-        seasonNumber:
-          result.tracking?.seasonNumber ?? activeTrackingEntry?.seasonNumber,
-        episodeNumber:
-          result.tracking?.episodeNumber ?? activeTrackingEntry?.episodeNumber,
-      );
-      // Save custom field values
-      final now = DateTime.now();
-      final cfList = result.customFieldEdits.entries.map((e) {
-        return CustomFieldValue(
-          id: const Uuid().v4(),
-          ownedItemId: owned.id,
-          fieldDefinitionId: e.key,
-          value: e.value,
-          updatedAt: now,
-        );
-      }).toList();
-      await customFieldRepo.upsertValues(cfList);
-      // Save item image edits
-      for (final edit in result.itemImageEdits) {
-        if (edit.deleted) {
-          await itemImageRepo.delete(edit.id);
-        } else if (edit.imageData != null) {
-          await itemImageRepo.add(ItemImage(
-            id: edit.id,
-            ownedItemId: owned.id,
-            imageData: edit.imageData!,
-            caption: edit.caption,
-            sortOrder: edit.sortOrder,
-            createdAt: now,
-          ));
-        } else {
-          await itemImageRepo.updateCaption(edit.id, edit.caption);
-        }
-      }
-    }
-    if (wishlist != null && result.wishlist != null) {
-      await mutations.updateWishlistItem(
-        wishlist,
-        anchorType: result.wishlist!.anchorType,
-        editionId: result.wishlist!.editionId,
-        variantId: result.wishlist!.variantId,
-        bundleReleaseId: result.wishlist!.bundleReleaseId,
-        targetPriceCents: result.wishlist!.targetPriceCents,
-        currency: result.wishlist!.currency,
-        notes: result.wishlist!.notes,
-        notify: false,
-      );
-    }
-    if (owned == null && activeTrackingEntry != null && result.tracking != null) {
-      await mutations.upsertTrackingEntry(
-        catalogItem.id,
-        editionId: result.tracking!.editionId,
-        variantId: result.tracking!.variantId,
-        sourceType: activeTrackingEntry.sourceType,
-        status: result.tracking!.readStatus,
-        rating: result.tracking!.rating,
-        startedAt: result.tracking!.startedAt,
-        finishedAt: result.tracking!.finishedAt,
-        progressCurrent:
-          result.tracking!.progressCurrent ?? activeTrackingEntry.progressCurrent,
-        progressTotal:
-          result.tracking!.progressTotal ?? activeTrackingEntry.progressTotal,
-        timesCompleted:
-          result.tracking!.timesCompleted ?? activeTrackingEntry.timesCompleted,
-        notes: result.tracking!.notes ?? activeTrackingEntry.notes,
-        seasonNumber:
-          result.tracking!.seasonNumber ?? activeTrackingEntry.seasonNumber,
-        episodeNumber:
-          result.tracking!.episodeNumber ?? activeTrackingEntry.episodeNumber,
-        notify: false,
-      );
-    }
-    if (!mounted) {
-      return;
-    }
-    ref.invalidate(shelfProvider);
-    unawaited(
-      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${widget.type.singularLabel} updated')),
-    );
-  }
-
-  Future<void> _scanBarcode() async {
-    final code = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => BarcodeScanSheet(
-        title: 'Scan ${widget.type.singularLabel.toLowerCase()} barcode',
-        description:
-            'Scan or enter a barcode, UPC, or ISBN. Collectarr will open Add ${widget.type.pluralLabel} with this code prefilled.',
-        manualLabel: '${widget.type.singularLabel} barcode / UPC / ISBN',
-        submitLabel: 'Continue to Add ${widget.type.pluralLabel}',
-        leadingIcon: widget.type.workspace.icon,
-      ),
-    );
-    if (code != null && mounted) {
-      await _showAddDialog(barcode: code);
-    }
-  }
-
-  Future<void> _showMetadataRefreshDialog(
-    LibraryProjection? projection,
-  ) async {
-    if (projection == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Library data is still loading')),
-      );
-      return;
-    }
-    final result = await showGenericLibraryMetadataRefreshDialog(
-      context: context,
-      type: widget.type,
-      accent: widget.accent,
-      projection: projection,
-    );
-    if (result == null || !mounted) {
-      return;
-    }
-    ref.invalidate(shelfProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
-        ),
-      ),
-    );
-  }
-
-  Future<void> _runCollectionAction(
-    Future<void> Function(LibraryCollectionActions actions) action,
-  ) async {
-    await action(ref.read(genericLibraryCollectionActionsProvider));
-    if (mounted) {
-      ref.invalidate(shelfProvider);
-    }
-  }
-
-  Future<void> _confirmRemoveOwned(LibraryProjectionItem item) async {
-    final confirmed = await confirmSingleRemove(
-      context,
-      title: item.entry.title,
-      itemLabel: widget.type.singularLabel.toLowerCase(),
-    );
-    if (!confirmed || !mounted) {
-      return;
-    }
-    await _runCollectionAction((actions) => actions.removeOwned(item));
-  }
-
-  Future<void> _bulkEdit(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final selection = await showBulkEditDialog(
-      context,
-      type: widget.type,
-      selectedCount: _selection.selectedCount,
-    );
-    if (selection == null || !mounted) return;
-    final entries = selectedShelfEntries(
-      projection.filteredItems,
-      _selection.itemIds,
-    );
-    await bulkActions().editSelected(entries: entries, selection: selection);
-    setState(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
-  }
-
-  Future<void> _bulkMoveToOwned(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final entries = selectedShelfEntries(
-      projection.filteredItems,
-      _selection.itemIds,
-    );
-    await bulkActions().moveSelectedToOwned(
-      entries,
-      defaultCondition: widget.type.defaultCondition,
-      defaultGrade: widget.type.defaultGrade,
-    );
-    setState(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
-  }
-
-  Future<void> _bulkMoveToWishlist(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final entries = selectedShelfEntries(
-      projection.filteredItems,
-      _selection.itemIds,
-    );
-    await bulkActions().moveSelectedToWishlist(entries);
-    setState(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
-  }
-
-  Future<void> _bulkRemove(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final entries = selectedShelfEntries(
-      projection.filteredItems,
-      _selection.itemIds,
-    );
-    final confirmed = await confirmBulkRemove(
-      context,
-      count: entries.length,
-      itemLabel: widget.type.pluralLabel.toLowerCase(),
-    );
-    if (!confirmed || !mounted) return;
-    await bulkActions().removeSelected(entries);
-    setState(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
   }
 }
