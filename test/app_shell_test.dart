@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -12,12 +14,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Builds a [MaterialApp.router] backed by the real [appRouterProvider] so the
+/// [AppShell] receives a proper [StatefulNavigationShell].
+Widget _shellTestApp({List<Override> overrides = const []}) {
+  return ProviderScope(
+    overrides: overrides,
+    child: Consumer(
+      builder: (context, ref, _) {
+        final router = ref.watch(appRouterProvider);
+        return MaterialApp.router(routerConfig: router);
+      },
+    ),
+  );
+}
 
 void main() {
   testWidgets('app shell requests online-first sync once on startup',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
     tester.view.physicalSize = const Size(1200, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -25,8 +48,11 @@ void main() {
 
     late _SpySyncController syncController;
     await tester.pumpWidget(
-      ProviderScope(
+      _shellTestApp(
         overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
           syncControllerProvider.overrideWith(
             (ref) => syncController = _SpySyncController(ref),
           ),
@@ -46,7 +72,6 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: AppShell()),
       ),
     );
 
@@ -59,15 +84,24 @@ void main() {
 
   testWidgets('app shell exposes sync status in the floating action button',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
     tester.view.physicalSize = const Size(1200, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      ProviderScope(
+      _shellTestApp(
         overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
           syncControllerProvider.overrideWith(
             (ref) => _StaticSyncController(
               ref,
@@ -90,7 +124,6 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: AppShell()),
       ),
     );
     await tester.pumpAndSettle();
@@ -110,15 +143,24 @@ void main() {
   });
 
   testWidgets('app shell shows offline sync state', (tester) async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
     tester.view.physicalSize = const Size(1200, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      ProviderScope(
+      _shellTestApp(
         overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
           syncControllerProvider.overrideWith(
             (ref) => _StaticSyncController(
               ref,
@@ -145,7 +187,6 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: AppShell()),
       ),
     );
     await tester.pumpAndSettle();
@@ -169,15 +210,24 @@ void main() {
 
   testWidgets('app shell tints bottom navigation with active library color',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
     tester.view.physicalSize = const Size(1200, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      ProviderScope(
+      _shellTestApp(
         overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
           selectedLibraryKindProvider.overrideWith((ref) => 'manga'),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
@@ -200,7 +250,6 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: AppShell()),
       ),
     );
     await tester.pumpAndSettle();
@@ -244,16 +293,26 @@ void main() {
 
   testWidgets('app shell hides admin destination for standard accounts',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
     tester.view.physicalSize = const Size(1200, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: _baseShellOverrides(),
-        child: const MaterialApp(home: AppShell()),
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
       ),
     );
     await tester.pumpAndSettle();
@@ -280,9 +339,13 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: _baseShellOverrides(),
-        child: const MaterialApp(home: AppShell()),
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
       ),
     );
     await tester.pumpAndSettle();
@@ -356,4 +419,11 @@ class _SpySyncController extends _StaticSyncController {
   Future<void> syncOnlineFirstIfEnabled() async {
     onlineFirstRequests += 1;
   }
+}
+
+/// Auth controller that relies on [SharedPreferences.setMockInitialValues]
+/// being called with a valid JWT before construction.  The parent's private
+/// [_restoreSession] reads the mocked prefs and transitions to authenticated.
+class _AuthenticatedAuthController extends AuthController {
+  _AuthenticatedAuthController(super.ref);
 }

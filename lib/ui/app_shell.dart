@@ -1,12 +1,8 @@
-import 'package:collectarr_app/features/admin/admin_page.dart';
-import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
-import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
-import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/features/settings/sync_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -14,16 +10,18 @@ import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
-  const AppShell({super.key});
+  const AppShell({super.key, required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends ConsumerState<AppShell> {
-  int index = 0;
   bool _didRequestInitialOnlineFirstSync = false;
 
   @override
@@ -38,6 +36,13 @@ class _AppShellState extends ConsumerState<AppShell> {
     });
   }
 
+  /// Branch indices in the GoRouter StatefulShellRoute:
+  /// 0 = libraries, 1 = shelf, 2 = admin, 3 = settings
+  static const _branchLibraries = 0;
+  static const _branchShelf = 1;
+  static const _branchAdmin = 2;
+  static const _branchSettings = 3;
+
   @override
   Widget build(BuildContext context) {
     final sync = ref.watch(syncControllerProvider);
@@ -47,8 +52,31 @@ class _AppShellState extends ConsumerState<AppShell> {
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final mediaQuery = MediaQuery.maybeOf(context);
     final accentTheme = buildLibraryAccentTheme(Theme.of(context), accent);
-    final pages = _shellPages(isAdmin: auth.isAdmin);
-    final selectedIndex = index.clamp(0, pages.length - 1).toInt();
+    final isAdmin = auth.isAdmin;
+
+    // Map GoRouter branch index to visible nav destinations.
+    final currentBranch = widget.navigationShell.currentIndex;
+    final visibleBranches = [
+      _branchLibraries,
+      _branchShelf,
+      if (isAdmin) _branchAdmin,
+      _branchSettings,
+    ];
+    final selectedVisualIndex = visibleBranches.indexOf(currentBranch).clamp(0, visibleBranches.length - 1);
+    final isOnLibraries = currentBranch == _branchLibraries;
+
+    final pages = [
+      const _ShellPage(label: 'Libraries', icon: Icons.apps_outlined),
+      const _ShellPage(label: 'Shelf', icon: Icons.inventory_2),
+      if (isAdmin)
+        const _ShellPage(
+          label: 'Admin',
+          icon: Icons.admin_panel_settings_outlined,
+          adminOnly: true,
+        ),
+      const _ShellPage(label: 'Settings', icon: Icons.settings_outlined),
+    ];
+
     final shell = Scaffold(
       body: LibraryAccentScope(
         accent: accent,
@@ -59,10 +87,10 @@ class _AppShellState extends ConsumerState<AppShell> {
               ? const Duration(milliseconds: 360)
               : Duration.zero,
           curve: Curves.easeOutCubic,
-          child: pages[selectedIndex].child,
+          child: widget.navigationShell,
         ),
       ),
-        floatingActionButton: selectedIndex == 0
+      floatingActionButton: isOnLibraries
           ? LibraryAwareSyncButton(
               sync: sync,
               accent: accent,
@@ -73,10 +101,16 @@ class _AppShellState extends ConsumerState<AppShell> {
           : null,
       bottomNavigationBar: _LibraryAwareNavigationBar(
         pages: pages,
-        selectedIndex: selectedIndex,
+        selectedIndex: selectedVisualIndex,
         accent: accent,
         animationsEnabled: uiPreferences.animationsEnabled,
-        onDestinationSelected: (value) => setState(() => index = value),
+        onDestinationSelected: (visualIndex) {
+          final branchIndex = visibleBranches[visualIndex];
+          widget.navigationShell.goBranch(
+            branchIndex,
+            initialLocation: branchIndex == widget.navigationShell.currentIndex,
+          );
+        },
       ),
     );
     if (mediaQuery == null) {
@@ -89,33 +123,6 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
       child: shell,
     );
-  }
-
-  List<_ShellPage> _shellPages({required bool isAdmin}) {
-    return [
-      const _ShellPage(
-        label: 'Libraries',
-        icon: Icons.apps_outlined,
-        child: LibraryHomePage(),
-      ),
-      const _ShellPage(
-        label: 'Shelf',
-        icon: Icons.inventory_2,
-        child: CollectionPage(),
-      ),
-      if (isAdmin)
-        const _ShellPage(
-          label: 'Admin',
-          icon: Icons.admin_panel_settings_outlined,
-          child: AdminPage(),
-          adminOnly: true,
-        ),
-      const _ShellPage(
-        label: 'Settings',
-        icon: Icons.settings_outlined,
-        child: SettingsPage(),
-      ),
-    ];
   }
 
   String _activeLibraryKind() {
@@ -182,13 +189,11 @@ class _ShellPage {
   const _ShellPage({
     required this.label,
     required this.icon,
-    required this.child,
     this.adminOnly = false,
   });
 
   final String label;
   final IconData icon;
-  final Widget child;
   final bool adminOnly;
 }
 
