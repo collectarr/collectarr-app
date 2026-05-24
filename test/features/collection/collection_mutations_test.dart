@@ -47,6 +47,26 @@ void main() {
     expect(container.read(syncControllerProvider).pendingCount, 1);
   });
 
+  test('collection mutations request online-first sync after local changes',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    late _SpySyncController syncController;
+    final container = ProviderContainer(
+      overrides: [
+        localDatabaseProvider.overrideWithValue(db),
+        syncControllerProvider.overrideWith(
+          (ref) => syncController = _SpySyncController(ref),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(collectionMutationsProvider).addItem('comic-1');
+
+    expect(syncController.onlineFirstRequests, 1);
+  });
+
   test('collection mutations mirror tracking into tracking entries', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -715,4 +735,21 @@ void main() {
     expect(owned.single.locationId, 'loc-short-box-6');
     expect(owned.single.storageBox, isNull);
   });
+}
+
+class _SpySyncController extends SyncController {
+  _SpySyncController(super.ref);
+
+  int onlineFirstRequests = 0;
+
+  @override
+  Future<void> refreshPendingCount() async {}
+
+  @override
+  Future<void> syncOnlineFirstIfEnabled() async {
+    onlineFirstRequests += 1;
+  }
+
+  @override
+  Future<void> syncNow() async {}
 }

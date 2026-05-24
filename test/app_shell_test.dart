@@ -15,6 +15,48 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  testWidgets('app shell requests online-first sync once on startup',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    late _SpySyncController syncController;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          syncControllerProvider.overrideWith(
+            (ref) => syncController = _SpySyncController(ref),
+          ),
+          shelfProvider.overrideWith(
+            (ref) async => const ShelfState(
+              entries: [],
+              ownedCount: 0,
+              wishlistCount: 0,
+              missingGradeCount: 0,
+              pricedCount: 0,
+              totalPaidCents: null,
+              primaryCurrency: null,
+              hasMixedCurrencies: false,
+            ),
+          ),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+        ],
+        child: const MaterialApp(home: AppShell()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    expect(syncController.onlineFirstRequests, 1);
+
+    await tester.pump();
+    expect(syncController.onlineFirstRequests, 1);
+  });
+
   testWidgets('app shell exposes sync status in the floating action button',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -303,4 +345,15 @@ class _StaticSyncController extends SyncController {
 
   @override
   Future<void> syncNow() async {}
+}
+
+class _SpySyncController extends _StaticSyncController {
+  _SpySyncController(Ref ref) : super(ref, const SyncState());
+
+  int onlineFirstRequests = 0;
+
+  @override
+  Future<void> syncOnlineFirstIfEnabled() async {
+    onlineFirstRequests += 1;
+  }
 }
