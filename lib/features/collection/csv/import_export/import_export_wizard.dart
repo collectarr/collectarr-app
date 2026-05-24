@@ -309,66 +309,78 @@ class _ImportWizardPane extends StatelessWidget {
     final importable = preview == null
         ? 0
         : preview.resolvedRows.length + preview.conflictRows.length;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            const _WizardStat(icon: Icons.content_paste, label: 'Paste CSV'),
-            _WizardStat(
-              icon: Icons.fact_check_outlined,
-              label: preview == null
-                  ? 'Preview pending'
-                  : '${preview.totalRows} rows',
-            ),
-            _WizardStat(
-              icon: Icons.upload_file_outlined,
-              label: '$importable importable',
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: controller,
-          minLines: 7,
-          maxLines: 9,
-          decoration: const InputDecoration(
-            labelText: 'Collectarr CSV or CLZ-friendly CSV',
-            border: OutlineInputBorder(),
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  const _WizardStat(
+                    icon: Icons.content_paste,
+                    label: 'Paste CSV',
+                  ),
+                  _WizardStat(
+                    icon: Icons.fact_check_outlined,
+                    label: preview == null
+                        ? 'Preview pending'
+                        : '${preview.totalRows} rows',
+                  ),
+                  _WizardStat(
+                    icon: Icons.upload_file_outlined,
+                    label: '$importable importable',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                minLines: 7,
+                maxLines: 9,
+                decoration: const InputDecoration(
+                  labelText: 'Collectarr CSV or CLZ-friendly CSV',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              if (error != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ],
+              const SizedBox(height: 12),
+              if (preview != null) _ImportPreviewSummary(preview: preview),
+              SizedBox(height: preview == null ? 0 : 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: isWorking ? null : onPreview,
+                    icon: const Icon(Icons.fact_check_outlined),
+                    label: const Text('Preview rows'),
+                  ),
+                  FilledButton.icon(
+                    onPressed: isWorking || importable == 0 ? null : onImport,
+                    icon: isWorking
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.upload_file_outlined),
+                    label: Text('Import $importable'),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        if (error != null) ...[
-          const SizedBox(height: 8),
-          Text(error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
-        ],
-        const SizedBox(height: 12),
-        if (preview != null) _ImportPreviewSummary(preview: preview),
-        const Spacer(),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            OutlinedButton.icon(
-              onPressed: isWorking ? null : onPreview,
-              icon: const Icon(Icons.fact_check_outlined),
-              label: const Text('Preview rows'),
-            ),
-            FilledButton.icon(
-              onPressed: isWorking || importable == 0 ? null : onImport,
-              icon: isWorking
-                  ? const SizedBox.square(
-                      dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.upload_file_outlined),
-              label: Text('Import $importable'),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }
