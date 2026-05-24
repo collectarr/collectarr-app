@@ -46,18 +46,21 @@ class _InspectorItemImagesSectionState
       future: _imagesFuture,
       builder: (context, snapshot) {
         final images = snapshot.data ?? [];
+        final visibleImages = images
+            .where((image) => image.imageType != 'front_cover')
+            .toList(growable: false);
 
         // Group by image type.
         final groups = <String, List<ItemImage>>{};
-        for (final img in images) {
+        for (final img in visibleImages) {
           (groups[img.imageType] ??= []).add(img);
         }
 
-        final label = images.isEmpty
+        final label = visibleImages.isEmpty
             ? 'Images'
             : groups.length == 1
-            ? '${itemImageTypeLabels[groups.keys.first] ?? groups.keys.first} (${images.length})'
-                : 'Images (${images.length})';
+                ? '${itemImageTypeLabels[groups.keys.first] ?? groups.keys.first} (${visibleImages.length})'
+                : 'Images (${visibleImages.length})';
 
         return LibraryInspectorSection(
           title: label,

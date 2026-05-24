@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class MediaRatingField extends StatelessWidget {
+class MediaRatingField extends StatefulWidget {
   const MediaRatingField({
     super.key,
     required this.controller,
@@ -13,10 +13,51 @@ class MediaRatingField extends StatelessWidget {
   final int maxRating;
 
   @override
+  State<MediaRatingField> createState() => _MediaRatingFieldState();
+}
+
+class _MediaRatingFieldState extends State<MediaRatingField> {
+  late int _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = int.tryParse(widget.controller.text) ?? 0;
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(MediaRatingField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+      widget.controller.addListener(_onControllerChanged);
+      _value = int.tryParse(widget.controller.text) ?? 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    final parsed = int.tryParse(widget.controller.text) ?? 0;
+    if (parsed != _value) {
+      setState(() => _value = parsed);
+    }
+  }
+
+  void _onStarTap(int newValue) {
+    final next = _value == newValue ? 0 : newValue;
+    widget.controller.text = next.toString();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final value = int.tryParse(controller.text) ?? 0;
-    final starCount = maxRating <= 5 ? maxRating : 5;
-    final pointsPerStar = maxRating / starCount;
+    final starCount = widget.maxRating <= 5 ? widget.maxRating : 5;
+    final pointsPerStar = widget.maxRating / starCount;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -25,7 +66,7 @@ class MediaRatingField extends StatelessWidget {
         final starSize = isVeryCompact ? 20.0 : isCompact ? 22.0 : 28.0;
         final starPadding = isVeryCompact ? 0.0 : isCompact ? 1.0 : 2.0;
         final ratingText = Text(
-          '$value/$maxRating',
+          '$_value/${widget.maxRating}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context)
                     .colorScheme
@@ -36,7 +77,7 @@ class MediaRatingField extends StatelessWidget {
 
         return InputDecorator(
           decoration: InputDecoration(
-            labelText: label,
+            labelText: widget.label,
             border: const OutlineInputBorder(),
             contentPadding: EdgeInsets.symmetric(
               horizontal: isCompact ? 10 : 12,
@@ -54,21 +95,13 @@ class MediaRatingField extends StatelessWidget {
                       children: [
                         for (var i = 1; i <= starCount; i++)
                           _StarButton(
-                            filled: value >= (i * pointsPerStar).round(),
+                            filled: _value >= (i * pointsPerStar).round(),
                             half:
-                                value >= ((i - 0.5) * pointsPerStar).round() &&
-                                value < (i * pointsPerStar).round(),
+                                _value >= ((i - 0.5) * pointsPerStar).round() &&
+                                _value < (i * pointsPerStar).round(),
                             size: starSize,
                             horizontalPadding: starPadding,
-                            onTap: () {
-                              final newValue = (i * pointsPerStar).round();
-                              final current =
-                                  int.tryParse(controller.text) ?? 0;
-                              controller.text =
-                                  (current == newValue ? 0 : newValue)
-                                      .toString();
-                              (context as Element).markNeedsBuild();
-                            },
+                            onTap: () => _onStarTap((i * pointsPerStar).round()),
                           ),
                       ],
                     ),
@@ -87,22 +120,13 @@ class MediaRatingField extends StatelessWidget {
                           children: [
                             for (var i = 1; i <= starCount; i++)
                               _StarButton(
-                                filled: value >= (i * pointsPerStar).round(),
-                                half: value >=
+                                filled: _value >= (i * pointsPerStar).round(),
+                                half: _value >=
                                         ((i - 0.5) * pointsPerStar).round() &&
-                                    value < (i * pointsPerStar).round(),
+                                    _value < (i * pointsPerStar).round(),
                                 size: starSize,
                                 horizontalPadding: starPadding,
-                                onTap: () {
-                                  final newValue =
-                                      (i * pointsPerStar).round();
-                                  final current =
-                                      int.tryParse(controller.text) ?? 0;
-                                  controller.text =
-                                      (current == newValue ? 0 : newValue)
-                                          .toString();
-                                  (context as Element).markNeedsBuild();
-                                },
+                                onTap: () => _onStarTap((i * pointsPerStar).round()),
                               ),
                           ],
                         ),

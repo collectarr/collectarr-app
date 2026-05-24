@@ -199,7 +199,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    final saveButton = find.widgetWithText(FilledButton, 'Save tracking details');
+    final saveButton = find.widgetWithText(FilledButton, 'Apply tracking changes');
     await tester.scrollUntilVisible(
       saveButton,
       300,

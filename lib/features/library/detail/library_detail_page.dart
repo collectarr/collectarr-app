@@ -247,8 +247,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               InspectorPersonalDetailsEditor(
                 ownedItem: activeOwnedItem,
                 accent: widget.accent,
-              )
-            else if (activeTrackingEntry != null)
+              ),
+            if (activeTrackingEntry != null)
               InspectorTrackingDetailsEditor(
                 itemId: widget.entry.id,
                 trackingEntry: activeTrackingEntry,

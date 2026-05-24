@@ -156,6 +156,7 @@ class TrackingEntriesCache extends Table {
   TextColumn get ownedItemId => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();
@@ -284,7 +285,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration {

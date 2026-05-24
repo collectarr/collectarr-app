@@ -105,7 +105,7 @@ class InspectorActionBar extends StatelessWidget {
                       tooltip: entry.isOwned
                           ? 'Remove from collection'
                         : entry.isWishlisted
-                          ? 'Convert wishlist to owned'
+                          ? 'Convert wishlist to collection'
                           : 'Add to collection',
                       onPressed: onToggleOwned,
                       icon: entry.isOwned
@@ -172,7 +172,7 @@ class InspectorActionBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      entry.isOwned ? 'OWNED' : 'LOCAL',
+                      entry.isOwned ? 'OWNED' : 'CATALOG',
                       style: TextStyle(
                         color: entry.isOwned
                             ? const Color(0xFF141414)

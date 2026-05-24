@@ -277,6 +277,7 @@ class CollectionMutations {
     String? ownedItemId,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -317,6 +318,7 @@ class CollectionMutations {
       ownedItemId: ownedItemId,
       editionId: editionId,
       variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
       sourceType: normalizedSourceType,
       status: _normalizeTrackingStatusValue(status),
       rating: rating,
@@ -354,6 +356,16 @@ class CollectionMutations {
     await _ownedCache().markDeleted(item, now);
     await _enqueueOwnedItem(
         item.copyWith(updatedAt: now, deletedAt: now), 'delete', now);
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
+  }
+
+  Future<void> removeTrackingEntry(TrackingEntry entry, {bool notify = true}) async {
+    final now = DateTime.now().toUtc();
+    final deleted = _trackingDeletion(entry, now);
+    await _trackingCache().markDeleted(entry, now);
+    await _enqueueTrackingEntry(deleted, 'delete', now);
     if (notify) {
       await _notifyCollectionChanged();
     }

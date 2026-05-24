@@ -48,6 +48,10 @@ class ApiClient {
     _dio.options.headers.remove('Authorization');
   }
 
+  void addInterceptor(Interceptor interceptor) {
+    _dio.interceptors.add(interceptor);
+  }
+
   Future<Map<String, dynamic>> register({
     required String email,
     required String password,
@@ -519,6 +523,14 @@ class ApiClient {
 
   Future<List<Season>> getItemVolumes(String itemId) async {
     return _catalogApi.getItemVolumes(itemId);
+  }
+
+  Future<List<Season>> getItemSeasons(String itemId) async {
+    return _catalogApi.getItemSeasons(itemId);
+  }
+
+  Future<CatalogEdition> createEdition(String itemId, {required String title}) async {
+    return _catalogApi.createEdition(itemId, title: title);
   }
 
   Future<List<Map<String, dynamic>>> searchStoryArcs({

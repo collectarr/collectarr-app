@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
@@ -93,7 +95,8 @@ void main() {
     expect(find.text('USD 6.00'), findsOneWidget);
   });
 
-  testWidgets('personal section labels digital ownership and hides physical-only facts',
+  testWidgets(
+      'personal section labels digital ownership and hides physical-only facts',
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -219,6 +222,49 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(InspectorItemImagesSection), findsNothing);
+  });
+
+  testWidgets('item images section hides front cover thumbnails', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db.into(db.itemImagesCache).insert(
+          ItemImagesCacheCompanion.insert(
+            id: 'front-1',
+            ownedItemId: 'owned-1',
+            imageType: const Value('front_cover'),
+            imageData: base64Encode(const [0, 1, 2, 3]),
+            createdAt: DateTime.utc(2026, 5, 23),
+          ),
+        );
+    await db.into(db.itemImagesCache).insert(
+          ItemImagesCacheCompanion.insert(
+            id: 'back-1',
+            ownedItemId: 'owned-1',
+            imageType: const Value('back_cover'),
+            imageData: base64Encode(const [4, 5, 6, 7]),
+            createdAt: DateTime.utc(2026, 5, 23),
+          ),
+        );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: InspectorItemImagesSection(
+            ownedItemId: 'owned-1',
+            db: db,
+            accent: Colors.orange,
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Back Cover (1)'), findsOneWidget);
+    expect(find.text('Front Cover'), findsNothing);
   });
 
   testWidgets('inspector shows a copy selector when multiple copies exist', (
@@ -353,7 +399,9 @@ void main() {
     expect(editedOwnedItem?.id, 'owned-2');
   });
 
-  testWidgets('inspector hero switches local back-cover affordance with the selected copy', (
+  testWidgets(
+      'inspector hero switches local back-cover affordance with the selected copy',
+      (
     tester,
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());

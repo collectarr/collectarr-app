@@ -72,7 +72,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Save personal details'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
     await tester.pumpAndSettle();
 
     final updated = await db.select(db.ownedItemsCache).getSingle();
@@ -145,9 +145,9 @@ void main() {
 
     await tester.pumpAndSettle();
     await tester.ensureVisible(
-      find.widgetWithText(FilledButton, 'Save tracking details'),
+      find.widgetWithText(FilledButton, 'Apply tracking changes'),
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Save tracking details'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Apply tracking changes'));
     await tester.pumpAndSettle();
 
     final updated = await db.select(db.trackingEntriesCache).getSingle();

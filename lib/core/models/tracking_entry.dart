@@ -8,6 +8,7 @@ class TrackingEntry {
     this.ownedItemId,
     this.editionId,
     this.variantId,
+    this.bundleReleaseId,
     Object? sourceType,
     Object? status,
     this.rating,
@@ -29,6 +30,7 @@ class TrackingEntry {
   final String? ownedItemId;
   final String? editionId;
   final String? variantId;
+  final String? bundleReleaseId;
   final TrackingSourceType? sourceType;
   final MediaTrackingStatus? status;
   final int? rating;
@@ -57,6 +59,7 @@ class TrackingEntry {
       'owned_item_id': ownedItemId,
       'edition_id': editionId,
       'variant_id': variantId,
+      'bundle_release_id': bundleReleaseId,
       'source_type': sourceTypeApiValue,
       'status': statusStorageValue,
       'rating': rating,
@@ -78,6 +81,7 @@ class TrackingEntry {
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,
+      bundleReleaseId: json['bundle_release_id'] as String?,
       sourceType: json['source_type'] as String?,
       status: json['status'] as String?,
       rating: json['rating'] as int?,
@@ -106,6 +110,7 @@ class TrackingEntry {
     String? ownedItemId,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -126,6 +131,7 @@ class TrackingEntry {
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
       sourceType: trackingSourceTypeFromValue(sourceType) ?? this.sourceType,
       status: mediaTrackingStatusFromValue(status) ?? this.status,
       rating: rating ?? this.rating,

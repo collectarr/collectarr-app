@@ -343,7 +343,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Overdue 1'), findsOneWidget);
+    expect(find.text('1 overdue'), findsOneWidget);
+    expect(
+      find.byTooltip('1 overdue loan · Open Shelf'),
+      findsOneWidget,
+    );
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();

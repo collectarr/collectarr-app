@@ -59,6 +59,14 @@ class LibraryWorkspaceViewProfile {
   final LibrarySortColumnDirectionResolver? sortAscendingForColumn;
 
   LibraryWorkspaceViewState defaults() {
+    // Use cached snapshot from a previous load/save when available so that the
+    // first frame renders with the user's last-known cover size, avoiding a
+    // visible pop-in when the async load completes.
+    final cached = LibraryWorkspacePreferences.cachedSnapshot(config);
+    if (cached != null) {
+      return fromPreferences(cached)
+          .withChrome(LibraryWorkspacePreferences.cachedChrome);
+    }
     final defaults = LibraryWorkspaceViewState(
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,

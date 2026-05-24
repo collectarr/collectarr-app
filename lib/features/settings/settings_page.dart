@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -99,7 +100,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Theme(
       data: buildLibraryAccentTheme(Theme.of(context), accent),
       child: DefaultTabController(
-        length: 6,
+        length: 7,
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Settings'),
@@ -119,6 +120,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 Tab(icon: Icon(Icons.palette_outlined), text: 'Appearance'),
                 Tab(icon: Icon(Icons.backup_outlined), text: 'Data'),
                 Tab(icon: Icon(Icons.account_circle_outlined), text: 'Account'),
+                Tab(icon: Icon(Icons.bug_report_outlined), text: 'Logs'),
                 Tab(icon: Icon(Icons.system_update_outlined), text: 'Updates'),
               ],
             ),
@@ -482,7 +484,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Text(
-                          'Copy a CSV snapshot of the local shelf. This includes personal fields stored on this device.',
+                          'Import or export your local collection as Collectarr CSV, CLZ-friendly CSV, or ComicInfo.xml. Personal fields stored on this device stay in the exported data.',
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -490,19 +492,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           runSpacing: 8,
                           children: [
                             FilledButton.tonalIcon(
-                              onPressed: () => _showImportExportWizard(),
-                              icon: const Icon(Icons.import_export_outlined),
-                              label: const Text('Open CSV / CLZ wizard'),
+                              onPressed: () =>
+                                  _showImportExportWizard(initialIndex: 1),
+                              icon: const Icon(Icons.upload_file_outlined),
+                              label: const Text('Import collection'),
+                            ),
+                            FilledButton.tonalIcon(
+                              onPressed: () =>
+                                  _showImportExportWizard(initialIndex: 0),
+                              icon: const Icon(Icons.download_outlined),
+                              label: const Text('Export collection'),
                             ),
                             OutlinedButton.icon(
                               onPressed: () => _copyBackup(clzFriendly: false),
                               icon: const Icon(Icons.copy_all),
-                              label: const Text('Copy Collectarr CSV'),
+                              label: const Text('Copy Collectarr export'),
                             ),
                             OutlinedButton.icon(
                               onPressed: () => _copyBackup(clzFriendly: true),
                               icon: const Icon(Icons.table_view),
-                              label: const Text('Copy CLZ-friendly CSV'),
+                              label: const Text('Copy CLZ-friendly export'),
                             ),
                             OutlinedButton.icon(
                               onPressed: _copySyncBackupGuide,
@@ -623,6 +632,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ),
                       ],
                     ),
+                  ),
+                ],
+              ),
+              // ── Logs tab ─────────────────────────────────────────────
+              _SettingsTabBody(
+                children: [
+                  _SettingsPanel(
+                    icon: Icons.bug_report_outlined,
+                    title: 'Application log',
+                    child: const AppLogViewerPanel(),
                   ),
                 ],
               ),
@@ -1009,7 +1028,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Future<void> _showImportExportWizard() async {
+  Future<void> _showImportExportWizard({required int initialIndex}) async {
     final state = await ref.read(shelfProvider.future);
     final db = ref.read(localDatabaseProvider);
     final cfRepo = CustomFieldRepository(db);
@@ -1022,13 +1041,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (context) => ImportExportWizardDialog(
         entries: state.entries,
+        initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,
       ),
     );
     if (imported != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported $imported CSV rows')),
+        SnackBar(content: Text('Imported $imported rows into your collection')),
       );
     }
   }

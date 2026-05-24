@@ -10,6 +10,11 @@ void main() {
   testWidgets('import export wizard exposes collectarr and CLZ flows', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
@@ -41,18 +46,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('CSV / CLZ import-export'), findsOneWidget);
+    expect(find.text('Import or export collection'), findsOneWidget);
     expect(find.text('Collectarr CSV'), findsOneWidget);
     expect(find.text('CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('ComicInfo.xml'), findsOneWidget);
-    expect(find.text('Copy Collectarr'), findsOneWidget);
-    expect(find.text('Copy CLZ'), findsOneWidget);
+    expect(find.text('Copy Collectarr CSV'), findsOneWidget);
+    expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
 
-    await tester.tap(find.text('Import'));
+    await tester.tap(find.text('Import collection'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Collectarr CSV or CLZ-friendly CSV'), findsOneWidget);
-    expect(find.text('Preview rows'), findsOneWidget);
-    expect(find.text('Import 0'), findsOneWidget);
+    expect(find.text('Paste Collectarr CSV or CLZ-friendly CSV'), findsOneWidget);
+    expect(find.text('Preview import'), findsOneWidget);
+    expect(find.text('Import 0 rows'), findsOneWidget);
   });
 }

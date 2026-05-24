@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -46,45 +47,58 @@ class InspectorCollectionFields extends StatelessWidget {
     final hasConditions = conditions.isNotEmpty;
     final hasGrades = grades.isNotEmpty;
     if (!hasConditions && !hasGrades) return const SizedBox.shrink();
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (hasConditions)
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              isExpanded: true,
-              dropdownColor: kAppPanelRaised,
-              borderRadius: kAppMenuBorderRadius,
-              initialValue: conditions.contains(condition) ? condition : null,
-              decoration: const InputDecoration(
-                labelText: 'Condition',
-                border: OutlineInputBorder(),
+        Row(
+          children: [
+            if (hasConditions)
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  dropdownColor: kAppPanelRaised,
+                  borderRadius: kAppMenuBorderRadius,
+                  initialValue:
+                      conditions.contains(condition) ? condition : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Condition',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    for (final option in conditions)
+                      DropdownMenuItem(value: option, child: Text(option)),
+                  ],
+                  onChanged: enabled ? onConditionChanged : null,
+                ),
               ),
-              items: [
-                for (final option in conditions)
-                  DropdownMenuItem(value: option, child: Text(option)),
-              ],
-              onChanged: enabled ? onConditionChanged : null,
-            ),
-          ),
-        if (hasConditions && hasGrades) const SizedBox(width: 10),
-        if (hasGrades)
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              isExpanded: true,
-              dropdownColor: kAppPanelRaised,
-              borderRadius: kAppMenuBorderRadius,
-              initialValue: grades.contains(grade) ? grade : null,
-              decoration: const InputDecoration(
-                labelText: 'Grade',
-                border: OutlineInputBorder(),
+            if (hasConditions && hasGrades) const SizedBox(width: 10),
+            if (hasGrades)
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  dropdownColor: kAppPanelRaised,
+                  borderRadius: kAppMenuBorderRadius,
+                  initialValue: grades.contains(grade) ? grade : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Grade',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    for (final option in grades)
+                      DropdownMenuItem(value: option, child: Text(option)),
+                  ],
+                  onChanged: enabled ? onGradeChanged : null,
+                ),
               ),
-              items: [
-                for (final option in grades)
-                  DropdownMenuItem(value: option, child: Text(option)),
-              ],
-              onChanged: enabled ? onGradeChanged : null,
-            ),
-          ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Condition and grade save immediately.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: kAppTextMuted,
+              ),
+        ),
       ],
     );
   }
@@ -171,6 +185,13 @@ class _InspectorPersonalDetailsEditorState
                       ),
                 ),
               ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'This panel uses draft editing. Apply changes when you are ready to save.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: kAppTextMuted,
+                  ),
             ),
             const SizedBox(height: 9),
             OutlinedButton.icon(
@@ -268,7 +289,7 @@ class _InspectorPersonalDetailsEditorState
               child: FilledButton.icon(
                 onPressed: _save,
                 icon: const Icon(Icons.save_outlined),
-                label: const Text('Save personal details'),
+                label: const Text('Apply personal changes'),
               ),
             ),
           ],
@@ -441,6 +462,7 @@ class _InspectorTrackingDetailsEditorState
   DateTime? _finishedAt;
   String? _selectedEditionId;
   String? _selectedVariantId;
+  bool _expanded = true;
 
   bool get _showsEpisodeFields {
     return widget.profile.name == videoTrackingProfile.name ||
@@ -499,80 +521,77 @@ class _InspectorTrackingDetailsEditorState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Icon(Icons.equalizer, size: 17, color: accent),
-                const SizedBox(width: 7),
-                Text(
-                  'Tracking details',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: accent,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                      ),
-                ),
-              ],
+            InkWell(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: Row(
+                children: [
+                  Icon(Icons.equalizer, size: 17, color: accent),
+                  const SizedBox(width: 7),
+                  Text(
+                    'Tracking details',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: accent,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                        ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    _expanded
+                        ? Icons.keyboard_arrow_down
+                        : Icons.keyboard_arrow_right,
+                    size: 16,
+                    color: kAppTextMuted,
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(height: 6),
+            Text(
+              'Tracking quick actions save immediately; this editor uses draft changes until you apply them.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: kAppTextMuted,
+                  ),
+            ),
+            AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
             if (widget.editions.isNotEmpty) ...[
               const SizedBox(height: 9),
-              DropdownButtonFormField<String>(
-                isExpanded: true,
-                dropdownColor: kAppPanelRaised,
-                borderRadius: kEditMenuBorderRadius,
-                initialValue: _selectedEditionId,
-                decoration: const InputDecoration(
-                  labelText: 'Tracked edition',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  const DropdownMenuItem<String>(
-                    value: '',
-                    child: Text('Primary / unspecified edition'),
-                  ),
-                  for (final edition in widget.editions)
-                    DropdownMenuItem<String>(
-                      value: edition.id,
-                      child: Text(edition.title),
-                    ),
-                ],
-                onChanged: (value) {
+              _TrackingEditionBrowser(
+                editions: widget.editions,
+                selectedEditionId: _selectedEditionId,
+                selectedVariantId: _selectedVariantId,
+                accent: accent,
+                onEditionSelected: (editionId) {
                   final edition = resolveLibraryEditionSelection(
                     widget.editions,
-                    editionId: _emptyToNull(value ?? ''),
+                    editionId: editionId,
                   ).edition;
                   setState(() {
                     _selectedEditionId = edition?.id;
                     _selectedVariantId = resolveVariantForEdition(edition)?.id;
                   });
                 },
-              ),
-              const SizedBox(height: 9),
-              DropdownButtonFormField<String>(
-                isExpanded: true,
-                dropdownColor: kAppPanelRaised,
-                borderRadius: kEditMenuBorderRadius,
-                initialValue: _selectedVariantId,
-                decoration: const InputDecoration(
-                  labelText: 'Tracked variant',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  const DropdownMenuItem<String>(
-                    value: '',
-                    child: Text('Primary / unspecified variant'),
-                  ),
-                  for (final variant in (_selectedEdition()?.variants ?? const <CatalogVariant>[]))
-                    DropdownMenuItem<String>(
-                      value: variant.id,
-                      child: Text(variant.name),
-                    ),
-                ],
-                onChanged: (_selectedEdition()?.variants.isEmpty ?? true)
-                    ? null
-                    : (value) =>
-                        setState(() => _selectedVariantId = _emptyToNull(value ?? '')),
+                onVariantSelected: (variantId) {
+                  setState(() => _selectedVariantId = variantId);
+                },
               ),
             ],
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _createEdition,
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add edition'),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ),
             const SizedBox(height: 9),
             Row(
               children: [
@@ -703,11 +722,32 @@ class _InspectorTrackingDetailsEditorState
             const SizedBox(height: 9),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: _save,
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Save tracking details'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    onPressed: _stopTracking,
+                    icon: const Icon(Icons.playlist_remove, size: 18),
+                    label: const Text('Stop tracking'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.icon(
+                    onPressed: _save,
+                    icon: const Icon(Icons.save_outlined),
+                    label: const Text('Apply tracking changes'),
+                  ),
+                ],
               ),
+            ),
+                ],
+              ),
+              crossFadeState: _expanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 180),
             ),
           ],
         ),
@@ -809,6 +849,51 @@ class _InspectorTrackingDetailsEditorState
     });
   }
 
+  Future<void> _createEdition() async {
+    final controller = TextEditingController();
+    final title = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('New edition'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Edition title',
+            border: OutlineInputBorder(),
+          ),
+          onSubmitted: (value) => Navigator.of(context).pop(value.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (title == null || title.isEmpty || !mounted) return;
+    try {
+      final api = ref.read(apiClientProvider);
+      final edition = await api.createEdition(widget.itemId, title: title);
+      if (!mounted) return;
+      setState(() => _selectedEditionId = edition.id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Edition "$title" created')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create edition: $e')),
+      );
+    }
+  }
+
   Future<void> _save() async {
     await ref.read(collectionMutationsProvider).upsertTrackingEntry(
           widget.itemId,
@@ -834,6 +919,37 @@ class _InspectorTrackingDetailsEditorState
     }
   }
 
+  Future<void> _stopTracking() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Stop tracking'),
+        content: const Text(
+          'This will remove all tracking details for this item. Continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Stop tracking'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await ref
+        .read(collectionMutationsProvider)
+        .removeTrackingEntry(widget.trackingEntry);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tracking removed')),
+      );
+    }
+  }
+
   int? _parseInt(String value) {
     return int.tryParse(value.trim());
   }
@@ -847,4 +963,290 @@ class _InspectorTrackingDetailsEditorState
     final local = value.toLocal();
     return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
   }
+}
+
+/// Visual edition & variant browser for tracked items.
+///
+/// Shows each edition as a selectable card. When an edition with variants is
+/// selected, variant tiles with cover thumbnails appear below.
+class _TrackingEditionBrowser extends StatelessWidget {
+  const _TrackingEditionBrowser({
+    required this.editions,
+    required this.selectedEditionId,
+    required this.selectedVariantId,
+    required this.accent,
+    required this.onEditionSelected,
+    required this.onVariantSelected,
+  });
+
+  final List<CatalogEdition> editions;
+  final String? selectedEditionId;
+  final String? selectedVariantId;
+  final Color accent;
+  final ValueChanged<String?> onEditionSelected;
+  final ValueChanged<String?> onVariantSelected;
+
+  CatalogEdition? get _activeEdition {
+    if (selectedEditionId == null) return null;
+    for (final e in editions) {
+      if (e.id == selectedEditionId) return e;
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final activeEdition = _activeEdition;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Releases',
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: kAppTextMuted,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const SizedBox(height: 6),
+        SizedBox(
+          height: 100,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: editions.length + 1,
+            separatorBuilder: (_, __) => const SizedBox(width: 6),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return _EditionCard(
+                  title: 'Primary',
+                  subtitle: 'Default',
+                  isSelected: selectedEditionId == null,
+                  accent: accent,
+                  onTap: () => onEditionSelected(null),
+                );
+              }
+              final edition = editions[index - 1];
+              final coverUrl = edition.variants
+                  .where((v) => v.coverImageUrl != null)
+                  .map((v) => v.thumbnailImageUrl ?? v.coverImageUrl)
+                  .firstOrNull;
+              return _EditionCard(
+                title: edition.title,
+                subtitle: [
+                  if (edition.physicalFormatLabel != null)
+                    edition.physicalFormatLabel!,
+                  if (edition.publisher != null) edition.publisher!,
+                ].join(' · '),
+                coverUrl: coverUrl,
+                isSelected: selectedEditionId == edition.id,
+                accent: accent,
+                onTap: () => onEditionSelected(edition.id),
+              );
+            },
+          ),
+        ),
+        if (activeEdition != null && activeEdition.variants.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Variants',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: kAppTextMuted,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 110,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: activeEdition.variants.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 6),
+              itemBuilder: (context, index) {
+                final variant = activeEdition.variants[index];
+                return _VariantCard(
+                  variant: variant,
+                  isSelected: selectedVariantId == variant.id,
+                  accent: accent,
+                  onTap: () => onVariantSelected(variant.id),
+                );
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _EditionCard extends StatelessWidget {
+  const _EditionCard({
+    required this.title,
+    required this.isSelected,
+    required this.accent,
+    required this.onTap,
+    this.subtitle = '',
+    this.coverUrl,
+  });
+
+  final String title;
+  final String subtitle;
+  final String? coverUrl;
+  final bool isSelected;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        width: 90,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? accent.withValues(alpha: 0.18)
+              : const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSelected ? accent : kAppDivider,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(5)),
+                child: coverUrl != null
+                    ? Image.network(
+                        coverUrl!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorBuilder: (_, __, ___) =>
+                            _placeholderIcon(Icons.album),
+                      )
+                    : _placeholderIcon(Icons.album),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: Column(
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? accent : Colors.white,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty)
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        color: kAppTextMuted,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VariantCard extends StatelessWidget {
+  const _VariantCard({
+    required this.variant,
+    required this.isSelected,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final CatalogVariant variant;
+  final bool isSelected;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        width: 80,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? accent.withValues(alpha: 0.18)
+              : const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSelected ? accent : kAppDivider,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(5)),
+                child: variant.coverImageUrl != null
+                    ? Image.network(
+                        variant.thumbnailImageUrl ?? variant.coverImageUrl!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorBuilder: (_, __, ___) =>
+                            _placeholderIcon(Icons.image_outlined),
+                      )
+                    : _placeholderIcon(Icons.image_outlined),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: Column(
+                children: [
+                  Text(
+                    variant.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? accent : Colors.white,
+                    ),
+                  ),
+                  if (variant.physicalFormatLabel != null)
+                    Text(
+                      variant.physicalFormatLabel!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        color: kAppTextMuted,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _placeholderIcon(IconData icon) {
+  return Center(
+    child: Icon(icon, size: 22, color: kAppTextMuted),
+  );
 }

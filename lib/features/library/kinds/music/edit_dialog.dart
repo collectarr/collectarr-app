@@ -274,9 +274,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: editDialogTheme(seedColor: _accent),
-      child: LibraryEditDialogScaffold(
+    return LibraryEditDialogScaffold(
         formKey: _formKey,
         accent: _accent,
         icon: widget.request.type.workspace.icon,
@@ -299,7 +297,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         onNext: _nextTab,
         onCancel: () => Navigator.of(context).pop(),
         onSave: _submit,
-      ),
     );
   }
 

@@ -93,7 +93,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.shelf,
-                builder: (context, state) => const CollectionPage(),
+                builder: (context, state) => CollectionPage(
+                  showOverdueOnly:
+                      state.uri.queryParameters['filter'] == 'overdue',
+                ),
               ),
             ],
           ),

@@ -52,14 +52,23 @@ class LibraryWorkspacePreferences {
 
   static const _globalChromePrefix = 'collectarr.workspace.chrome';
   static LibraryWorkspaceChromePreferenceSnapshot? _cachedChrome;
+  static final _cachedSnapshots = <String, LibraryWorkspacePreferenceSnapshot>{};
 
   final LibraryWorkspaceConfig config;
 
   static LibraryWorkspaceChromePreferenceSnapshot? get cachedChrome =>
       _cachedChrome;
 
+  /// Returns the last loaded/written snapshot for [config], or `null` if the
+  /// preferences have not been loaded yet for this media type.
+  static LibraryWorkspacePreferenceSnapshot? cachedSnapshot(
+    LibraryWorkspaceConfig config,
+  ) =>
+      _cachedSnapshots[config.preferenceKey('')];
+
   static void resetCachedChromeForTesting() {
     _cachedChrome = null;
+    _cachedSnapshots.clear();
   }
 
   Future<LibraryWorkspacePreferenceSnapshot> read({
@@ -119,11 +128,13 @@ class LibraryWorkspacePreferences {
       ),
     );
     _cachedChrome = snapshot.chrome;
+    _cachedSnapshots[config.preferenceKey('')] = snapshot;
     return snapshot;
   }
 
   Future<void> write(LibraryWorkspacePreferenceSnapshot snapshot) async {
     _cachedChrome = snapshot.chrome;
+    _cachedSnapshots[config.preferenceKey('')] = snapshot;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key('view_mode'), snapshot.viewMode.name);
     await prefs.setString(

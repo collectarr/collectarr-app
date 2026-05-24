@@ -148,7 +148,7 @@ void _showCompactCoverSizeSheet(
         children: [
           ListTile(
             leading: const Icon(Icons.grid_view),
-            title: const Text('Cover view'),
+            title: const Text('Grid view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.grid);
@@ -156,7 +156,7 @@ void _showCompactCoverSizeSheet(
           ),
           ListTile(
             leading: const Icon(Icons.view_module),
-            title: const Text('Card view'),
+            title: const Text('Cards view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.card);
@@ -164,7 +164,7 @@ void _showCompactCoverSizeSheet(
           ),
           ListTile(
             leading: const Icon(Icons.view_agenda),
-            title: const Text('Card flow'),
+            title: const Text('Flow view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.cardFlow);

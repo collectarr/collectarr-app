@@ -82,6 +82,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                           ownedItemId: entry.ownedItemId,
                           accentColor: accentColor,
                           enableFullscreen: false,
+                          enableSecondaryControl: false,
                         ),
                       ),
                       Positioned(
@@ -271,7 +272,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: entry.music!.releaseStatus!,
                               accentColor: accentColor,
                             ),
-                          if (_platformLabel(entry.rawPlatforms) case final platformLabel?)
+                          if (_platformLabel(entry.rawPlatforms)
+                              case final platformLabel?)
                             _MetaPill(
                               icon: Icons.sports_esports,
                               label: platformLabel,

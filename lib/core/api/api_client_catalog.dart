@@ -184,6 +184,32 @@ class _CatalogApiClient {
         .toList(growable: false);
   }
 
+  Future<List<Season>> getItemSeasons(String itemId) async {
+    final response = await _client._dio.get<List<dynamic>>(
+      '/metadata/items/${Uri.encodeComponent(itemId)}/seasons',
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(Season.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<CatalogEdition> createEdition(String itemId, {required String title}) async {
+    final response = await _client._dio.post<Map<String, dynamic>>(
+      '/metadata/items/${Uri.encodeComponent(itemId)}/editions',
+      data: {'title': title},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('/metadata/items/$itemId/editions returned empty body');
+    }
+    return CatalogEdition.fromJson(data);
+  }
+
   Future<Map<String, dynamic>> lookupBarcode(String barcode, {String? kind}) async {
     final response = await _client._dio.get<Map<String, dynamic>>(
       '/barcode/${Uri.encodeComponent(MetadataSearchQuery.normalizeBarcode(barcode))}',

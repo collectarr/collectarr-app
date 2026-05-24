@@ -49,6 +49,16 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
         await runCollectionAction((a) => a.addWishlist(item));
       case LibraryItemContextAction.removeFromWishlist:
         await runCollectionAction((a) => a.removeWishlist(item));
+      case LibraryItemContextAction.removeTracking:
+        final trackingEntries =
+            ref.read(trackingEntriesByCatalogItemProvider)[item.entry.id] ??
+                const <TrackingEntry>[];
+        final active = resolveActiveTrackingEntry(trackingEntries, null);
+        if (active != null) {
+          await runCollectionAction(
+            (a) => a.mutations.removeTrackingEntry(active),
+          );
+        }
       case LibraryItemContextAction.copyTitle:
         await Clipboard.setData(ClipboardData(text: item.entry.title));
         if (mounted) {

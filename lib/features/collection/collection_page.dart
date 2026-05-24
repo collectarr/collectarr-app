@@ -6,10 +6,12 @@ import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/shelf_volumes_provider.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
@@ -21,21 +23,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum _ShelfFilter { all, owned, wishlist, missingGrade, notes }
+enum _ShelfFilter { all, owned, wishlist, overdue, missingGrade, notes }
 
 class CollectionPage extends ConsumerStatefulWidget {
-  const CollectionPage({super.key});
+  const CollectionPage({
+    super.key,
+    this.showOverdueOnly = false,
+  });
+
+  final bool showOverdueOnly;
 
   @override
   ConsumerState<CollectionPage> createState() => _CollectionPageState();
 }
 
 class _CollectionPageState extends ConsumerState<CollectionPage> {
-  _ShelfFilter filter = _ShelfFilter.all;
+  late _ShelfFilter filter;
+
+  @override
+  void initState() {
+    super.initState();
+    filter = widget.showOverdueOnly ? _ShelfFilter.overdue : _ShelfFilter.all;
+  }
 
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
+    final overdueOwnedItemIds = ref.watch(overdueLoanOwnedItemIdsProvider)
+        .maybeWhen(data: (value) => value, orElse: () => const <String>{});
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
     return Scaffold(
@@ -49,14 +64,23 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Import CSV',
-            onPressed: _showImportDialog,
+            tooltip: 'Import collection',
+            onPressed: shelf.maybeWhen(
+              data: (state) => () => _showImportExportWizard(
+                state.entries,
+                initialIndex: 1,
+              ),
+              orElse: () => null,
+            ),
             icon: const Icon(Icons.upload_file),
           ),
           IconButton(
-            tooltip: 'Export CSV',
+            tooltip: 'Export collection',
             onPressed: shelf.maybeWhen(
-              data: (state) => () => _showExportDialog(state.entries),
+              data: (state) => () => _showImportExportWizard(
+                state.entries,
+                initialIndex: 0,
+              ),
               orElse: () => null,
             ),
             icon: const Icon(Icons.download),
@@ -65,13 +89,14 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       ),
       body: shelf.when(
         data: (state) {
-          final entries = _filteredEntries(state.entries);
+          final entries = _filteredEntries(state.entries, overdueOwnedItemIds);
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: _ShelfHeader(
                   state: state,
                   filter: filter,
+                  overdueCount: overdueOwnedItemIds.length,
                   onFilterChanged: (value) => setState(() => filter = value),
                 ),
               ),
@@ -104,13 +129,19 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     );
   }
 
-  List<ShelfEntry> _filteredEntries(List<ShelfEntry> entries) {
+  List<ShelfEntry> _filteredEntries(
+    List<ShelfEntry> entries,
+    Set<String> overdueOwnedItemIds,
+  ) {
     return switch (filter) {
       _ShelfFilter.all => entries,
       _ShelfFilter.owned =>
         entries.where((entry) => entry.isOwned).toList(growable: false),
       _ShelfFilter.wishlist =>
         entries.where((entry) => entry.isWishlisted).toList(growable: false),
+      _ShelfFilter.overdue => entries
+          .where((entry) => overdueOwnedItemIds.contains(entry.ownedItem?.id))
+          .toList(growable: false),
       _ShelfFilter.missingGrade =>
         entries.where((entry) => entry.isMissingGrade).toList(growable: false),
       _ShelfFilter.notes =>
@@ -135,6 +166,31 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         .read(collectionMutationsProvider)
         .removeFromWishlist(entry.itemId);
     ref.invalidate(shelfProvider);
+  }
+
+  Future<void> _showImportExportWizard(
+    List<ShelfEntry> entries, {
+    required int initialIndex,
+  }) async {
+    final db = ref.read(localDatabaseProvider);
+    final cfRepo = CustomFieldRepository(db);
+    final cfDefs = await cfRepo.listDefinitions();
+    final cfValues = await cfRepo.listAllValues();
+    final imported = await showDialog<int>(
+      context: context,
+      builder: (context) => ImportExportWizardDialog(
+        entries: entries,
+        initialIndex: initialIndex,
+        customFieldDefinitions: cfDefs,
+        customFieldValuesByItem: cfValues,
+      ),
+    );
+    if (imported != null && mounted) {
+      ref.invalidate(shelfProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Imported $imported rows into your collection')),
+      );
+    }
   }
 
   Future<void> _showExportDialog(List<ShelfEntry> entries) async {
@@ -238,18 +294,8 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     messenger.showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Future<void> _showImportDialog() async {
-    final imported = await showDialog<int>(
-      context: context,
-      builder: (context) => const _ImportCsvDialog(),
-    );
-    if (imported != null && mounted) {
-      ref.invalidate(shelfProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported $imported CSV rows')),
-      );
-    }
-  }
+  Future<void> _showImportDialog() =>
+      _showImportExportWizard(const <ShelfEntry>[], initialIndex: 1);
 }
 
 class _ImportCsvDialog extends ConsumerStatefulWidget {
@@ -1374,11 +1420,13 @@ class _ShelfHeader extends StatelessWidget {
   const _ShelfHeader({
     required this.state,
     required this.filter,
+    required this.overdueCount,
     required this.onFilterChanged,
   });
 
   final ShelfState state;
   final _ShelfFilter filter;
+  final int overdueCount;
   final ValueChanged<_ShelfFilter> onFilterChanged;
 
   @override
@@ -1453,6 +1501,11 @@ class _ShelfHeader extends StatelessWidget {
                       Text('Wishlist', key: ValueKey('shelf-filter-wishlist')),
                 ),
                 ButtonSegment(
+                  value: _ShelfFilter.overdue,
+                  icon: Icon(Icons.warning_amber_rounded),
+                  label: Text('Overdue', key: ValueKey('shelf-filter-overdue')),
+                ),
+                ButtonSegment(
                   value: _ShelfFilter.missingGrade,
                   icon: Icon(Icons.rule_outlined),
                   label: Text(
@@ -1470,6 +1523,13 @@ class _ShelfHeader extends StatelessWidget {
               onSelectionChanged: (value) => onFilterChanged(value.first),
             ),
           ),
+          if (overdueCount > 0) ...[
+            const SizedBox(height: 8),
+            Text(
+              '$overdueCount overdue loan${overdueCount == 1 ? '' : 's'} in your shelf',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
         ],
       ),
     );

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _tinyPngBase64 =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX9kAAAAASUVORK5CYII=';
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX9kAAAAASUVORK5CYII=';
 
 void main() {
   testWidgets('narrow interactive covers keep the hover cue compact', (
@@ -30,7 +30,8 @@ void main() {
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     addTearDown(gesture.removePointer);
     await gesture.addPointer(location: Offset.zero);
-    await gesture.moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
+    await gesture
+        .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await tester.pumpAndSettle();
 
     expect(find.text('Open cover'), findsNothing);
@@ -61,7 +62,8 @@ void main() {
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     addTearDown(gesture.removePointer);
     await gesture.addPointer(location: Offset.zero);
-    await gesture.moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
+    await gesture
+        .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await tester.pumpAndSettle();
 
     expect(find.text('Open cover'), findsOneWidget);
@@ -91,7 +93,8 @@ void main() {
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     addTearDown(gesture.removePointer);
     await gesture.addPointer(location: Offset.zero);
-    await gesture.moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
+    await gesture
+        .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
@@ -145,5 +148,34 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(InteractiveViewer), findsNothing);
+  });
+
+  testWidgets('secondary cover control can be disabled for shelf covers', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 180,
+              height: 270,
+              child: LibraryInteractiveCover(
+                title: 'The Hobbit',
+                localBase64: _tinyPngBase64,
+                ownedItemId: 'owned-1',
+                enableFullscreen: false,
+                enableSecondaryControl: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(FilledButton, 'Back cover'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'View back'), findsNothing);
   });
 }

@@ -345,8 +345,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 InspectorPersonalDetailsEditor(
                   ownedItem: activeOwnedItem,
                   accent: widget.accent,
-                )
-              else if (activeTrackingEntry != null)
+                ),
+              if (activeTrackingEntry != null)
                 InspectorTrackingDetailsEditor(
                   itemId: selected.id,
                   trackingEntry: activeTrackingEntry,

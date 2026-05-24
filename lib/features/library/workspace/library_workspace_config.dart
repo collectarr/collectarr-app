@@ -23,10 +23,10 @@ enum LibraryWorkspacePreset { cover, card, list, details }
 extension LibraryWorkspacePresetLabels on LibraryWorkspacePreset {
   String get label {
     return switch (this) {
-      LibraryWorkspacePreset.cover => 'Cover',
-      LibraryWorkspacePreset.card => 'Card',
+      LibraryWorkspacePreset.cover => 'Grid',
+      LibraryWorkspacePreset.card => 'Cards',
       LibraryWorkspacePreset.list => 'List',
-      LibraryWorkspacePreset.details => 'Details',
+      LibraryWorkspacePreset.details => 'Details panel',
     };
   }
 

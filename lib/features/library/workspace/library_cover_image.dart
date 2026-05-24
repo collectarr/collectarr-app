@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:math' as math;
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -117,6 +115,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.accentColor = const Color(0xFF10A8D8),
     this.enableFullscreen = true,
     this.enableHoverCue = true,
+    this.enableSecondaryControl = true,
     this.onMissingSecondaryPressed,
     super.key,
   });
@@ -132,6 +131,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   final Color accentColor;
   final bool enableFullscreen;
   final bool enableHoverCue;
+  final bool enableSecondaryControl;
   final Future<void> Function()? onMissingSecondaryPressed;
 
   @override
@@ -144,6 +144,9 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   bool _showSecondary = false;
 
   bool get _showSecondaryControl {
+    if (!widget.enableSecondaryControl) {
+      return false;
+    }
     return _hasSecondary || (widget.ownedItemId?.trim().isNotEmpty ?? false);
   }
 
@@ -274,11 +277,11 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   @override
   Widget build(BuildContext context) {
     final interactive = _canPreview;
-    final hoverCue = interactive && widget.enableHoverCue;
+    final hoverCue = widget.enableHoverCue;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compactHoverCue = constraints.maxWidth < 180 ||
-            constraints.maxHeight < 160;
+        final compactHoverCue =
+            constraints.maxWidth < 180 || constraints.maxHeight < 160;
         return MouseRegion(
           cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
           onEnter: hoverCue ? (_) => setState(() => _hovered = true) : null,
@@ -291,7 +294,6 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
               curve: Curves.easeOutCubic,
               scale: _hovered ? 1.02 : 1,
               child: Stack(
-                fit: StackFit.expand,
                 children: [
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 170),
@@ -357,77 +359,79 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         ),
                       ),
                     ),
-                  IgnorePointer(
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 170),
-                      opacity: _hovered ? 1 : 0,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(
-                            widget.borderRadius + 8,
+                  if (interactive)
+                    IgnorePointer(
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 170),
+                        opacity: _hovered ? 1 : 0,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              widget.borderRadius + 8,
+                            ),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Color(0x00000000),
+                                Color(0x22000000),
+                                Color(0xCC030303),
+                              ],
+                            ),
                           ),
-                          gradient: const LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0x00000000),
-                              Color(0x22000000),
-                              Color(0xCC030303),
-                            ],
-                          ),
-                        ),
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: const Color(0xCC050505),
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(
-                                  color: widget.accentColor.withValues(alpha: 0.7),
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xCC050505),
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: widget.accentColor
+                                        .withValues(alpha: 0.7),
+                                  ),
                                 ),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: compactHoverCue ? 8 : 10,
-                                  vertical: compactHoverCue ? 4 : 5,
-                                ),
-                                child: compactHoverCue
-                                    ? Icon(
-                                        Icons.open_in_full,
-                                        size: 14,
-                                        color: widget.accentColor,
-                                      )
-                                    : FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.open_in_full,
-                                              size: 14,
-                                              color: widget.accentColor,
-                                            ),
-                                            const SizedBox(width: 6),
-                                            const Text(
-                                              'Open cover',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w800,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: compactHoverCue ? 8 : 10,
+                                    vertical: compactHoverCue ? 4 : 5,
+                                  ),
+                                  child: compactHoverCue
+                                      ? Icon(
+                                          Icons.open_in_full,
+                                          size: 14,
+                                          color: widget.accentColor,
+                                        )
+                                      : FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.open_in_full,
+                                                size: 14,
+                                                color: widget.accentColor,
                                               ),
-                                            ),
-                                          ],
+                                              const SizedBox(width: 6),
+                                              const Text(
+                                                'Open cover',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -449,59 +453,25 @@ class _CoverFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final shortestSide = math.min(
-          constraints.maxWidth,
-          constraints.maxHeight,
-        );
-        final inset = shortestSide.isFinite
-            ? (shortestSide * 0.055).clamp(3.0, 12.0)
-            : 6.0;
-        final outerRadius = borderRadius + inset;
-        final frameStroke = (inset * 0.22).clamp(1.0, 2.25);
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(outerRadius),
-            gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF253039),
-                Color(0xFF131A20),
-                Color(0xFF090C10),
-              ],
-            ),
-            border: Border.all(
-              color: const Color(0x80FFFFFF),
-              width: frameStroke,
-            ),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0xCC000000),
-                blurRadius: 18,
-                offset: Offset(0, 6),
-              ),
-            ],
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius + 2),
+        border: Border.all(
+          color: const Color(0x90FFFFFF),
+          width: 1.2,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0xA6000000),
+            blurRadius: 16,
+            offset: Offset(0, 6),
           ),
-          child: Padding(
-            padding: EdgeInsets.all(inset),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: const Color(0xFF06080A),
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(
-                  color: const Color(0x22000000),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(borderRadius),
-                child: child,
-              ),
-            ),
-          ),
-        );
-      },
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius + 1),
+        child: child,
+      ),
     );
   }
 }
@@ -531,7 +501,7 @@ class LibraryGeneratedCover extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = _palettes[title.hashCode.abs() % _palettes.length];
     final displayTitle = title.replaceAll(', Vol.', '\nVol.');
-    return ClipRRect(
+    final cover = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: DecoratedBox(
         decoration: BoxDecoration(color: palette.$1),
@@ -594,6 +564,17 @@ class LibraryGeneratedCover extends StatelessWidget {
           ],
         ),
       ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.hasBoundedHeight) {
+          return cover;
+        }
+        return AspectRatio(
+          aspectRatio: 2 / 3,
+          child: cover,
+        );
+      },
     );
   }
 }

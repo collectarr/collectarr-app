@@ -72,6 +72,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         ownedItemId: entry.ownedItemId,
                         accentColor: accentColor,
                         enableFullscreen: false,
+                        enableSecondaryControl: false,
                       ),
                       Positioned(
                         left: 4,
@@ -147,10 +148,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           referenceHierarchy.join('  ->  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: accentColor.withValues(alpha: 0.88),
-                                fontWeight: FontWeight.w700,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: accentColor.withValues(alpha: 0.88),
+                                    fontWeight: FontWeight.w700,
+                                  ),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -200,13 +202,15 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               label: entry.music!.releaseStatus!,
                               accentColor: accentColor,
                             ),
-                          if (_compactPlatformLabel(entry.rawPlatforms) case final platformLabel?)
+                          if (_compactPlatformLabel(entry.rawPlatforms)
+                              case final platformLabel?)
                             _LibraryCompactMetaPill(
                               icon: Icons.sports_esports,
                               label: platformLabel,
                               accentColor: accentColor,
                             ),
-                          if (_compactNotesLabel(entry.notes) case final noteLabel?)
+                          if (_compactNotesLabel(entry.notes)
+                              case final noteLabel?)
                             _LibraryCompactMetaPill(
                               icon: Icons.sticky_note_2_outlined,
                               label: noteLabel,
@@ -283,7 +287,8 @@ String? _compactPlatformLabel(List<String>? platforms) {
   if (first.isEmpty) {
     return null;
   }
-  final extra = platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
+  final extra =
+      platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
   return extra == 0 ? first : '$first +$extra';
 }
 

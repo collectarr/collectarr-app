@@ -33,7 +33,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(viewMode, LibraryViewMode.list);
 
-    await tester.tap(find.byTooltip('Hide details'));
+    await tester.tap(find.byTooltip('Hide details panel'));
     await tester.pumpAndSettle();
     expect(detailsLayout, LibraryDetailsLayout.hidden);
 

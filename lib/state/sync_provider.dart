@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
+import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -167,6 +168,11 @@ class SyncController extends StateNotifier<SyncState> {
         error: error,
         stackTrace: stackTrace,
       );
+      ref.read(appLogProvider.notifier).error(
+            'sync',
+            'Sync failed: $error',
+            detail: stackTrace.toString(),
+          );
       final count = await _queue().pendingCount();
       final log = _appendLog(SyncLogEntry(
         timestamp: DateTime.now().toUtc(),
@@ -263,6 +269,11 @@ class SyncController extends StateNotifier<SyncState> {
         error: error,
         stackTrace: stackTrace,
       );
+      ref.read(appLogProvider.notifier).error(
+            'sync',
+            'Sync cursor read failed: $error',
+            detail: stackTrace.toString(),
+          );
       return state.lastSyncedAt;
     }
   }

@@ -65,6 +65,7 @@ class LibraryCoverTile extends StatelessWidget {
                       ownedItemId: entry.ownedItemId,
                       accentColor: accentColor,
                       enableFullscreen: false,
+                      enableSecondaryControl: false,
                     ),
                     Positioned(
                       left: 4,
@@ -75,8 +76,8 @@ class LibraryCoverTile extends StatelessWidget {
                         isWishlisted: entry.isWishlisted,
                         hasMissingCover: entry.hasMissingCover,
                         hasMissingMetadata: entry.hasMissingMetadata,
-                        keyLabel:
-                            libraryKeyMarkerLabel(entry.keyComic, entry.keyReason),
+                        keyLabel: libraryKeyMarkerLabel(
+                            entry.keyComic, entry.keyReason),
                         slabLabel: librarySlabMarkerLabel(
                           entry.rawOrSlabbed,
                           entry.gradingCompany,

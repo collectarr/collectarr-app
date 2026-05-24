@@ -45,7 +45,7 @@ class LibraryCoverBadges extends StatelessWidget {
             backgroundColor: colorScheme.primary,
             foregroundColor: colorScheme.onPrimary,
           ),
-        if (isTracked && !isOwned)
+        if (isTracked)
           LibraryCoverBadge(
             icon: Icons.equalizer,
             label: 'Tracked',
@@ -176,7 +176,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
           size: 17,
           color: isOwned ? colorScheme.primary : colorScheme.outline,
         ),
-        if (isTracked && !isOwned) ...[
+        if (isTracked) ...[
           const SizedBox(width: 4),
           Icon(Icons.equalizer, size: 16, color: colorScheme.secondary),
         ],

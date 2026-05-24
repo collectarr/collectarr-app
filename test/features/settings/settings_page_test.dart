@@ -82,8 +82,10 @@ void main() {
 
     await _openSettingsTab(tester, 'Data');
     expect(find.text('Local backup'), findsOneWidget);
-    expect(find.text('Copy Collectarr CSV'), findsOneWidget);
-    expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
+    expect(find.text('Import collection'), findsOneWidget);
+    expect(find.text('Export collection'), findsOneWidget);
+    expect(find.text('Copy Collectarr export'), findsOneWidget);
+    expect(find.text('Copy CLZ-friendly export'), findsOneWidget);
     expect(find.text('Copy sync backup guide'), findsOneWidget);
     expect(find.text('Custom fields'), findsNothing);
     await _scrollToText(tester, 'Metadata proposals');

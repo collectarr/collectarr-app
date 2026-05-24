@@ -38,51 +38,52 @@ class InspectorHero extends StatelessWidget {
             final db = ref.watch(localDatabaseProvider);
             final localFront = ownedItemId == null
                 ? null
-                : ref.watch(
-                    localItemImageProvider((
-                      ownedItemId: ownedItemId,
-                      imageType: 'front_cover',
-                    )),
-                  ).value;
+                : ref
+                    .watch(
+                      localItemImageProvider((
+                        ownedItemId: ownedItemId,
+                        imageType: 'front_cover',
+                      )),
+                    )
+                    .value;
             final localBack = ownedItemId == null
                 ? null
-                : ref.watch(
-                    localItemImageProvider((
-                      ownedItemId: ownedItemId,
-                      imageType: 'back_cover',
-                    )),
-                  ).value;
+                : ref
+                    .watch(
+                      localItemImageProvider((
+                        ownedItemId: ownedItemId,
+                        imageType: 'back_cover',
+                      )),
+                    )
+                    .value;
             return SizedBox(
               width: wide ? 146 : 174,
-              child: AspectRatio(
-                aspectRatio: 2 / 3,
-                child: LibraryInteractiveCover(
-                  title: entry.title,
-                  itemNumber: entry.itemNumber,
-                  imageUrl: entry.displayCoverUrl,
-                  localBase64: localFront,
-                  secondaryLocalBase64: localBack,
-                    ownedItemId: ownedItemId,
-                  accentColor: accent,
-                  onMissingSecondaryPressed: ownedItemId == null
-                      ? null
-                      : () async {
-                          final savedType = await pickAndStoreOwnedItemImage(
-                            context: context,
-                            db: db,
-                            ownedItemId: ownedItemId,
-                            imageType: 'back_cover',
+              child: LibraryInteractiveCover(
+                title: entry.title,
+                itemNumber: entry.itemNumber,
+                imageUrl: entry.displayCoverUrl,
+                localBase64: localFront,
+                secondaryLocalBase64: localBack,
+                ownedItemId: ownedItemId,
+                accentColor: accent,
+                onMissingSecondaryPressed: ownedItemId == null
+                    ? null
+                    : () async {
+                        final savedType = await pickAndStoreOwnedItemImage(
+                          context: context,
+                          db: db,
+                          ownedItemId: ownedItemId,
+                          imageType: 'back_cover',
+                        );
+                        if (savedType == 'back_cover') {
+                          ref.invalidate(
+                            localItemImageProvider((
+                              ownedItemId: ownedItemId,
+                              imageType: 'back_cover',
+                            )),
                           );
-                          if (savedType == 'back_cover') {
-                            ref.invalidate(
-                              localItemImageProvider((
-                                ownedItemId: ownedItemId,
-                                imageType: 'back_cover',
-                              )),
-                            );
-                          }
-                        },
-                ),
+                        }
+                      },
               ),
             );
           },
@@ -151,17 +152,18 @@ class _InspectorHeroInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final referenceLabel =
-      libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
-      entry.primaryReferenceLabel;
+        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+            entry.primaryReferenceLabel;
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: entry.mediaType,
       editions: entry.editions,
       editionId: ownedItem?.editionId ?? entry.referenceEditionId,
       variantId: ownedItem?.variantId ?? entry.referenceVariantId,
-      bundleReleaseId: ownedItem?.bundleReleaseId ?? entry.referenceBundleReleaseId,
+      bundleReleaseId:
+          ownedItem?.bundleReleaseId ?? entry.referenceBundleReleaseId,
     );
-    final releaseLabel = formatNullableDate(entry.releaseDate) ??
-        entry.releaseYear?.toString();
+    final releaseLabel =
+        formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -205,7 +207,8 @@ class _InspectorHeroInfo extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
         ),
-        if (entry.mediaType == 'book' && (entry.creators?.isNotEmpty ?? false)) ...[
+        if (entry.mediaType == 'book' &&
+            (entry.creators?.isNotEmpty ?? false)) ...[
           const SizedBox(height: 10),
           BookAuthorSpotlight(
             creators: entry.creators!,
@@ -351,7 +354,8 @@ class _ReferenceHierarchyLine extends StatelessWidget {
               Text(
                 segments[i],
                 style: TextStyle(
-                  color: i == segments.length - 1 ? Colors.white : kAppTextMuted,
+                  color:
+                      i == segments.length - 1 ? Colors.white : kAppTextMuted,
                   fontWeight: i == segments.length - 1
                       ? FontWeight.w800
                       : FontWeight.w600,

@@ -114,7 +114,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
                 icon: const Icon(Icons.add_circle_outline),
                 label: Text(
                   entry.isWishlisted
-                      ? 'Convert wishlist to owned'
+                      ? 'Convert wishlist to collection'
                       : 'Add to collection',
                 ),
               ),

@@ -34,10 +34,10 @@ class LibraryDetailHero extends StatelessWidget {
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     final resolvedIsOwned = isOwned ?? ownedItem != null || entry.isOwned;
     final referenceLabel =
-      libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
-      entry.primaryReferenceLabel;
-    final releaseLabel = formatNullableDate(entry.releaseDate) ??
-        entry.releaseYear?.toString();
+        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+            entry.primaryReferenceLabel;
+    final releaseLabel =
+        formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: accent.withValues(alpha: 0.6)),
@@ -65,51 +65,52 @@ class LibraryDetailHero extends StatelessWidget {
                 final db = ref.watch(localDatabaseProvider);
                 final localFront = ownedItemId == null
                     ? null
-                    : ref.watch(
-                        localItemImageProvider((
-                          ownedItemId: ownedItemId,
-                          imageType: 'front_cover',
-                        )),
-                      ).value;
+                    : ref
+                        .watch(
+                          localItemImageProvider((
+                            ownedItemId: ownedItemId,
+                            imageType: 'front_cover',
+                          )),
+                        )
+                        .value;
                 final localBack = ownedItemId == null
                     ? null
-                    : ref.watch(
-                        localItemImageProvider((
-                          ownedItemId: ownedItemId,
-                          imageType: 'back_cover',
-                        )),
-                      ).value;
+                    : ref
+                        .watch(
+                          localItemImageProvider((
+                            ownedItemId: ownedItemId,
+                            imageType: 'back_cover',
+                          )),
+                        )
+                        .value;
                 return SizedBox(
                   width: wide ? 180 : 150,
-                  child: AspectRatio(
-                    aspectRatio: 2 / 3,
-                    child: LibraryInteractiveCover(
-                      title: entry.title,
-                      itemNumber: entry.itemNumber,
-                      imageUrl: entry.displayCoverUrl,
-                      localBase64: localFront,
-                      secondaryLocalBase64: localBack,
-                        ownedItemId: ownedItemId,
-                      accentColor: accent,
-                      onMissingSecondaryPressed: ownedItemId == null
-                          ? null
-                          : () async {
-                              final savedType = await pickAndStoreOwnedItemImage(
-                                context: context,
-                                db: db,
-                                ownedItemId: ownedItemId,
-                                imageType: 'back_cover',
+                  child: LibraryInteractiveCover(
+                    title: entry.title,
+                    itemNumber: entry.itemNumber,
+                    imageUrl: entry.displayCoverUrl,
+                    localBase64: localFront,
+                    secondaryLocalBase64: localBack,
+                    ownedItemId: ownedItemId,
+                    accentColor: accent,
+                    onMissingSecondaryPressed: ownedItemId == null
+                        ? null
+                        : () async {
+                            final savedType = await pickAndStoreOwnedItemImage(
+                              context: context,
+                              db: db,
+                              ownedItemId: ownedItemId,
+                              imageType: 'back_cover',
+                            );
+                            if (savedType == 'back_cover') {
+                              ref.invalidate(
+                                localItemImageProvider((
+                                  ownedItemId: ownedItemId,
+                                  imageType: 'back_cover',
+                                )),
                               );
-                              if (savedType == 'back_cover') {
-                                ref.invalidate(
-                                  localItemImageProvider((
-                                    ownedItemId: ownedItemId,
-                                    imageType: 'back_cover',
-                                  )),
-                                );
-                              }
-                            },
-                    ),
+                            }
+                          },
                   ),
                 );
               },
@@ -231,7 +232,8 @@ class LibraryDetailHero extends StatelessWidget {
                         label: entry.music!.releaseStatus!,
                         accent: accent,
                       ),
-                    if (_detailPlatformLabel(entry.rawPlatforms) case final platformLabel?)
+                    if (_detailPlatformLabel(entry.rawPlatforms)
+                        case final platformLabel?)
                       _DetailHeaderChip(
                         icon: Icons.sports_esports,
                         label: platformLabel,

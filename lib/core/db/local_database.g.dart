@@ -4244,6 +4244,12 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
   late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
       'variant_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bundleReleaseIdMeta =
+      const VerificationMeta('bundleReleaseId');
+  @override
+  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
+      'bundle_release_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
   @override
@@ -4326,6 +4332,7 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
         ownedItemId,
         editionId,
         variantId,
+        bundleReleaseId,
         sourceType,
         status,
         rating,
@@ -4375,6 +4382,12 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
     if (data.containsKey('variant_id')) {
       context.handle(_variantIdMeta,
           variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('bundle_release_id')) {
+      context.handle(
+          _bundleReleaseIdMeta,
+          bundleReleaseId.isAcceptableOrUnknown(
+              data['bundle_release_id']!, _bundleReleaseIdMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -4464,6 +4477,8 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
           .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
       variantId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      bundleReleaseId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -4506,6 +4521,7 @@ class TrackingEntriesCacheData extends DataClass
   final String? ownedItemId;
   final String? editionId;
   final String? variantId;
+  final String? bundleReleaseId;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -4525,6 +4541,7 @@ class TrackingEntriesCacheData extends DataClass
       this.ownedItemId,
       this.editionId,
       this.variantId,
+      this.bundleReleaseId,
       this.sourceType,
       this.status,
       this.rating,
@@ -4551,6 +4568,9 @@ class TrackingEntriesCacheData extends DataClass
     }
     if (!nullToAbsent || variantId != null) {
       map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || bundleReleaseId != null) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -4605,6 +4625,9 @@ class TrackingEntriesCacheData extends DataClass
       variantId: variantId == null && nullToAbsent
           ? const Value.absent()
           : Value(variantId),
+      bundleReleaseId: bundleReleaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bundleReleaseId),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -4651,6 +4674,7 @@ class TrackingEntriesCacheData extends DataClass
       ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
       editionId: serializer.fromJson<String?>(json['editionId']),
       variantId: serializer.fromJson<String?>(json['variantId']),
+      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -4675,6 +4699,7 @@ class TrackingEntriesCacheData extends DataClass
       'ownedItemId': serializer.toJson<String?>(ownedItemId),
       'editionId': serializer.toJson<String?>(editionId),
       'variantId': serializer.toJson<String?>(variantId),
+      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -4697,6 +4722,7 @@ class TrackingEntriesCacheData extends DataClass
           Value<String?> ownedItemId = const Value.absent(),
           Value<String?> editionId = const Value.absent(),
           Value<String?> variantId = const Value.absent(),
+          Value<String?> bundleReleaseId = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -4716,6 +4742,9 @@ class TrackingEntriesCacheData extends DataClass
         ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
         editionId: editionId.present ? editionId.value : this.editionId,
         variantId: variantId.present ? variantId.value : this.variantId,
+        bundleReleaseId: bundleReleaseId.present
+            ? bundleReleaseId.value
+            : this.bundleReleaseId,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -4745,6 +4774,9 @@ class TrackingEntriesCacheData extends DataClass
           data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
       editionId: data.editionId.present ? data.editionId.value : this.editionId,
       variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      bundleReleaseId: data.bundleReleaseId.present
+          ? data.bundleReleaseId.value
+          : this.bundleReleaseId,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -4781,6 +4813,7 @@ class TrackingEntriesCacheData extends DataClass
           ..write('ownedItemId: $ownedItemId, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -4805,6 +4838,7 @@ class TrackingEntriesCacheData extends DataClass
       ownedItemId,
       editionId,
       variantId,
+      bundleReleaseId,
       sourceType,
       status,
       rating,
@@ -4827,6 +4861,7 @@ class TrackingEntriesCacheData extends DataClass
           other.ownedItemId == this.ownedItemId &&
           other.editionId == this.editionId &&
           other.variantId == this.variantId &&
+          other.bundleReleaseId == this.bundleReleaseId &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -4849,6 +4884,7 @@ class TrackingEntriesCacheCompanion
   final Value<String?> ownedItemId;
   final Value<String?> editionId;
   final Value<String?> variantId;
+  final Value<String?> bundleReleaseId;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -4869,6 +4905,7 @@ class TrackingEntriesCacheCompanion
     this.ownedItemId = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -4890,6 +4927,7 @@ class TrackingEntriesCacheCompanion
     this.ownedItemId = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -4913,6 +4951,7 @@ class TrackingEntriesCacheCompanion
     Expression<String>? ownedItemId,
     Expression<String>? editionId,
     Expression<String>? variantId,
+    Expression<String>? bundleReleaseId,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -4934,6 +4973,7 @@ class TrackingEntriesCacheCompanion
       if (ownedItemId != null) 'owned_item_id': ownedItemId,
       if (editionId != null) 'edition_id': editionId,
       if (variantId != null) 'variant_id': variantId,
+      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -4957,6 +4997,7 @@ class TrackingEntriesCacheCompanion
       Value<String?>? ownedItemId,
       Value<String?>? editionId,
       Value<String?>? variantId,
+      Value<String?>? bundleReleaseId,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -4977,6 +5018,7 @@ class TrackingEntriesCacheCompanion
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -5011,6 +5053,9 @@ class TrackingEntriesCacheCompanion
     }
     if (variantId.present) {
       map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (bundleReleaseId.present) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -5065,6 +5110,7 @@ class TrackingEntriesCacheCompanion
           ..write('ownedItemId: $ownedItemId, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -10482,6 +10528,7 @@ typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
   Value<String?> ownedItemId,
   Value<String?> editionId,
   Value<String?> variantId,
+  Value<String?> bundleReleaseId,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -10504,6 +10551,7 @@ typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
   Value<String?> ownedItemId,
   Value<String?> editionId,
   Value<String?> variantId,
+  Value<String?> bundleReleaseId,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -10543,6 +10591,10 @@ class $$TrackingEntriesCacheTableFilterComposer
 
   ColumnFilters<String> get variantId => $composableBuilder(
       column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -10609,6 +10661,10 @@ class $$TrackingEntriesCacheTableOrderingComposer
 
   ColumnOrderings<String> get variantId => $composableBuilder(
       column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -10678,6 +10734,9 @@ class $$TrackingEntriesCacheTableAnnotationComposer
 
   GeneratedColumn<String> get variantId =>
       $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -10754,6 +10813,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -10775,6 +10835,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             ownedItemId: ownedItemId,
             editionId: editionId,
             variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -10796,6 +10857,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -10817,6 +10879,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             ownedItemId: ownedItemId,
             editionId: editionId,
             variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
             sourceType: sourceType,
             status: status,
             rating: rating,
