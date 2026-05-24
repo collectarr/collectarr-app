@@ -7,12 +7,29 @@ class LibrarySeriesBucket {
     required this.count,
     this.coverUrl,
     this.startYear,
+    this.ownedCount,
   });
 
   final String title;
   final int count;
   final String? coverUrl;
   final int? startYear;
+  final int? ownedCount;
+
+  int? get completionPercent {
+    final owned = ownedCount;
+    if (owned == null || count <= 0) {
+      return null;
+    }
+    final percent = ((owned / count) * 100).round();
+    if (percent < 0) {
+      return 0;
+    }
+    if (percent > 100) {
+      return 100;
+    }
+    return percent;
+  }
 }
 
 class LibrarySeriesSidebar extends StatelessWidget {
@@ -128,7 +145,11 @@ class _LibrarySeriesRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasCover = bucket.coverUrl != null && bucket.coverUrl!.isNotEmpty;
-    final hasSubtitle = bucket.startYear != null;
+    final subtitleParts = <String>[
+      if (bucket.startYear != null) bucket.startYear.toString(),
+      if (bucket.completionPercent != null) '${bucket.completionPercent}% complete',
+    ];
+    final hasSubtitle = subtitleParts.isNotEmpty;
     return Material(
       color: selected ? selectionColor : Colors.transparent,
       child: InkWell(
@@ -177,9 +198,9 @@ class _LibrarySeriesRow extends StatelessWidget {
                                   selected ? FontWeight.w800 : FontWeight.w500,
                             ),
                       ),
-                      if (bucket.startYear != null)
+                      if (hasSubtitle)
                         Text(
-                          bucket.startYear.toString(),
+                          subtitleParts.join(' | '),
                           maxLines: 1,
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: selected
@@ -204,4 +225,12 @@ class _LibrarySeriesRow extends StatelessWidget {
       ),
     );
   }
+}
+
+String libraryBucketLabel(LibrarySeriesBucket bucket) {
+  final completionPercent = bucket.completionPercent;
+  if (completionPercent == null) {
+    return '${bucket.title} ${bucket.count}';
+  }
+  return '${bucket.title} ${bucket.count} (${completionPercent}%)';
 }

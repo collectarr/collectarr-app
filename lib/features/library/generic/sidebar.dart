@@ -110,7 +110,7 @@ class LibraryCompactBucketBar extends StatelessWidget {
               avatar: selected
                   ? Icon(genericLibrarySidebarIcon(type), size: 15)
                   : null,
-              label: Text('${bucket.title} ${bucket.count}'),
+              label: Text(libraryBucketLabel(bucket)),
               selectedColor: accent.withValues(alpha: 0.42),
               side: BorderSide(color: selected ? accent : kAppDivider),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

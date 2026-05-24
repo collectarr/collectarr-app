@@ -164,12 +164,21 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
   LibraryTypeConfig type,
   LibraryGroupMode groupMode,
 ) {
-  final counts = <String, int>{genericAllBucketLabel(type): items.length};
+  final allBucketLabel = genericAllBucketLabel(type);
+  final counts = <String, int>{allBucketLabel: items.length};
+  final ownedCounts = groupMode == LibraryGroupMode.series
+      ? <String, int>{
+          allBucketLabel: items.where((item) => item.entry.isOwned).length,
+        }
+      : null;
   final coverUrls = <String, String?>{};
   final startYears = <String, int?>{};
   for (final item in items) {
     final bucket = genericBucketForItemMode(item, type, groupMode);
     counts[bucket] = (counts[bucket] ?? 0) + 1;
+    if (ownedCounts != null && item.entry.isOwned) {
+      ownedCounts[bucket] = (ownedCounts[bucket] ?? 0) + 1;
+    }
     if (!coverUrls.containsKey(bucket)) {
       coverUrls[bucket] = item.entry.displayCoverUrl;
     }
@@ -188,13 +197,14 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
         count: entry.value,
         coverUrl: coverUrls[entry.key],
         startYear: startYears[entry.key],
+        ownedCount: ownedCounts?[entry.key],
       ),
   ];
   buckets.sort((a, b) {
-    if (a.title == genericAllBucketLabel(type)) {
+    if (a.title == allBucketLabel) {
       return -1;
     }
-    if (b.title == genericAllBucketLabel(type)) {
+    if (b.title == allBucketLabel) {
       return 1;
     }
     return a.title.compareTo(b.title);
