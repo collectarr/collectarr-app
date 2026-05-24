@@ -7,10 +7,16 @@ import 'package:flutter/material.dart';
 Future<void> showLocationManagementDialog({
   required BuildContext context,
   required LocalDatabase db,
+  bool startCreating = false,
+  String? initialParentId,
 }) {
   return showDialog<void>(
     context: context,
-    builder: (context) => LocationManagementDialog(db: db),
+    builder: (context) => LocationManagementDialog(
+      db: db,
+      startCreating: startCreating,
+      initialParentId: initialParentId,
+    ),
   );
 }
 
@@ -18,9 +24,13 @@ class LocationManagementDialog extends StatefulWidget {
   const LocationManagementDialog({
     super.key,
     required this.db,
+    this.startCreating = false,
+    this.initialParentId,
   });
 
   final LocalDatabase db;
+  final bool startCreating;
+  final String? initialParentId;
 
   @override
   State<LocationManagementDialog> createState() =>
@@ -83,6 +93,12 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
       if (_selectedLocationId != null &&
           locations.every((location) => location.id != _selectedLocationId)) {
         _selectedLocationId = null;
+      }
+      if (widget.startCreating && !_creating && _selectedLocationId == null) {
+        _creating = true;
+        _draftParentId = widget.initialParentId;
+        _nameController.clear();
+        _descriptionController.clear();
       }
     });
   }

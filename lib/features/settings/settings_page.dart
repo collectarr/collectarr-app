@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/providers/media_catalog_provider
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
 import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -402,24 +403,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                   _SettingsPanel(
-                    icon: Icons.place_outlined,
-                    title: 'Locations',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Manage the reusable location hierarchy used by add defaults, item editing, inspector assignment, and bulk edit flows.',
-                        ),
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: OutlinedButton.icon(
-                            onPressed: _showLocationManager,
-                            icon: const Icon(Icons.edit_location_alt_outlined),
-                            label: const Text('Manage locations'),
-                          ),
-                        ),
-                      ],
+                    icon: Icons.account_tree_outlined,
+                    title: 'Collection schema',
+                    child: CollectionSchemaManagementPanel(
+                      db: ref.read(localDatabaseProvider),
                     ),
                   ),
                 ],
@@ -497,13 +484,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ],
                         ),
                       ],
-                    ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.tune_outlined,
-                    title: 'Custom fields',
-                    child: CustomFieldsSettings(
-                      db: ref.read(localDatabaseProvider),
                     ),
                   ),
                   _SettingsPanel(

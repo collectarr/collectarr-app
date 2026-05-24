@@ -57,6 +57,7 @@ class CatalogCache extends Table {
 class OwnedItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  BoolColumn get isDigital => boolean().nullable()();
   TextColumn get anchorType => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
@@ -283,7 +284,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {

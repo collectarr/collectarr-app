@@ -1,16 +1,16 @@
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
@@ -53,13 +53,32 @@ void main() {
     );
     expect(comicsLibraryConfig.trackingProfile, comicTrackingProfile);
     expect(comicsLibraryConfig.presentation, comicsLibraryMediaPresentation);
+    expect(
+      comicsLibraryConfig.editDialogBuilder,
+      same(buildGenericLibraryEditDialog),
+    );
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
     expect(comicsLibraryConfig.countLabel(2), 'Comics');
   });
 
+  test('manga library config uses the generic edit dialog builder', () {
+    expect(
+      mangaLibraryConfig.editDialogBuilder,
+      same(buildGenericLibraryEditDialog),
+    );
+  });
+
   test('library type config can carry an add dialog launcher override', () {
-    Future<bool?> fakeLauncher(BuildContext context, LibraryAddDialogRequest request) {
-      return Future.value(true);
+    Future<LibraryAddDialogResult?> fakeLauncher(
+      BuildContext context,
+      LibraryAddDialogRequest request,
+    ) {
+      return Future.value(
+        const LibraryAddDialogResult(
+          target: LibraryAddTarget.owned,
+          itemIds: ['comic-1'],
+        ),
+      );
     }
 
     final config = LibraryTypeConfig(
@@ -195,9 +214,9 @@ void main() {
     }
   });
 
-  test('comic and manga kinds use dedicated edit dialog builders', () {
-    expect(comicsLibraryConfig.editDialogBuilder, same(buildComicLibraryEditDialog));
-    expect(mangaLibraryConfig.editDialogBuilder, same(buildMangaLibraryEditDialog));
+  test('comic and manga kinds use the generic edit dialog builder', () {
+    expect(comicsLibraryConfig.editDialogBuilder, same(buildGenericLibraryEditDialog));
+    expect(mangaLibraryConfig.editDialogBuilder, same(buildGenericLibraryEditDialog));
   });
 
   test('music kind uses dedicated edit dialog builder', () {

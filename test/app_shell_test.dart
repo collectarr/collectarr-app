@@ -116,7 +116,13 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.text('2'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(FloatingActionButton),
+        matching: find.text('2'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('app shell tints bottom navigation with active library color',
@@ -168,30 +174,22 @@ void main() {
 
   testWidgets('sync action keeps white foreground on bright library accents',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    Future<void> pumpForLibrary(String kind) async {
+    for (final kind in ['comic', 'manga', 'boardgame', 'movie']) {
       await tester.pumpWidget(
-        ProviderScope(
-          key: ValueKey(kind),
-          overrides: [
-            selectedLibraryKindProvider.overrideWith((ref) => kind),
-            mediaCatalogProvider
-                .overrideWith((ref) async => fallbackMediaCatalog),
-            ..._baseShellOverrides(),
-          ],
-          child: const MaterialApp(home: AppShell()),
+        MaterialApp(
+          home: Scaffold(
+            floatingActionButton: LibraryAwareSyncButton(
+              sync: const SyncState(),
+              accent: libraryAccentForKind(kind),
+              animationsEnabled: false,
+              tooltip: 'Sync',
+              onPressed: () {},
+            ),
+          ),
         ),
       );
-      await tester.pumpAndSettle();
-    }
+      await tester.pump();
 
-    for (final kind in ['comic', 'manga', 'boardgame', 'movie']) {
-      await pumpForLibrary(kind);
       final button = tester.widget<FloatingActionButton>(
         find.byType(FloatingActionButton),
       );

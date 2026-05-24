@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -40,7 +40,7 @@ const mangaLibraryConfig = LibraryTypeConfig(
     hardcoverMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
-  editDialogBuilder: buildMangaLibraryEditDialog,
+  editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: mangaLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,

@@ -71,6 +71,37 @@ void main() {
     );
   });
 
+  test('collection mutations infer digital ownership from catalog snapshots', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await CatalogCacheRepository(db).upsertAll([
+      CatalogItem(
+        id: 'movie-digital-1',
+        kind: 'movie',
+        title: 'Ghost in the Shell',
+        physicalFormat: 'digital',
+        physicalFormatLabel: 'Digital',
+      ),
+    ]);
+
+    await container.read(collectionMutationsProvider).addItem(
+          'movie-digital-1',
+          rating: 9,
+          readStatus: 'Completed',
+        );
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+
+    expect(owned.isDigital, isTrue);
+    expect(tracking.sourceType, TrackingSourceType.digital.apiValue);
+  });
+
   test('collection mutations can sync owned tracking entries directly',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());

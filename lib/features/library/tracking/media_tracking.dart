@@ -61,8 +61,9 @@ extension OwnedItemTracking on OwnedItem {
       status: mediaTrackingStatusFromString(readStatus),
       rating: rating,
       startedAt: startedAt,
-      completedAt: finishedAt,
+      completedAt: finishedAt ?? purchaseDate,
       lastActivityAt: updatedAt,
+      notes: personalNotes,
     );
   }
 }

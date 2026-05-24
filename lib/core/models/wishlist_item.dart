@@ -30,32 +30,27 @@ class WishlistItem {
   final DateTime? deletedAt;
 
   PersonalItemAnchorType? get personalAnchor =>
-      PersonalItemAnchorType.fromApiValue(
-        normalizePersonalItemAnchorType(anchorType) ??
-            _inferredAnchorType?.apiValue,
+      resolvePersonalItemAnchor(
+        anchorType: anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
       );
-
-  PersonalItemAnchorType? get _inferredAnchorType {
-    if (bundleReleaseId != null && bundleReleaseId!.trim().isNotEmpty) {
-      return PersonalItemAnchorType.bundleRelease;
-    }
-    if ((editionId != null && editionId!.trim().isNotEmpty) ||
-        (variantId != null && variantId!.trim().isNotEmpty)) {
-      return PersonalItemAnchorType.variant;
-    }
-    return PersonalItemAnchorType.item;
-  }
 
   bool get isDeleted => deletedAt != null;
 
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
-        'anchor_type':
-          normalizePersonalItemAnchorType(anchorType) ?? _inferredAnchorType?.apiValue,
+      'anchor_type': resolvePersonalItemAnchorType(
+        anchorType: anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      ),
       'edition_id': editionId,
       'variant_id': variantId,
-        'bundle_release_id': bundleReleaseId,
+      'bundle_release_id': bundleReleaseId,
       'target_price_cents': targetPriceCents,
       'currency': currency,
       'notes': notes,

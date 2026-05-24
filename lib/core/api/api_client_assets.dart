@@ -5,26 +5,31 @@ class _AssetsApiClient {
 
   final ApiClient _client;
 
-  Future<List<Map<String, dynamic>>> adminListUsers() async {
+  Future<List<AdminUser>> adminListUsers() async {
     final response = await _client._dio.get<List<dynamic>>('/admin/users');
     final data = response.data;
     if (data == null) {
       return const [];
     }
-    return data.cast<Map<String, dynamic>>();
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(AdminUser.fromJson)
+        .toList(growable: false);
   }
 
-  Future<Map<String, dynamic>> adminImageCacheStats() async {
+  Future<AdminImageCacheStats> adminImageCacheStats() async {
     final response =
         await _client._dio.get<Map<String, dynamic>>('/admin/image-cache/stats');
     final data = response.data;
     if (data == null) {
       throw StateError('/admin/image-cache/stats returned empty body');
     }
-    return data;
+    return AdminImageCacheStats.fromJson(data);
   }
 
-  Future<Map<String, dynamic>> adminPurgeImageCache({String? provider}) async {
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache({
+    String? provider,
+  }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
       '/admin/image-cache/purge',
       queryParameters: {if (provider != null) 'provider': provider},
@@ -33,10 +38,10 @@ class _AssetsApiClient {
     if (data == null) {
       throw StateError('/admin/image-cache/purge returned empty body');
     }
-    return data;
+    return AdminImageCachePurgeResult.fromJson(data);
   }
 
-  Future<Map<String, dynamic>> adminUpdateUser(
+  Future<AdminUser> adminUpdateUser(
     String userId, {
     String? role,
     bool? isActive,
@@ -55,7 +60,7 @@ class _AssetsApiClient {
     if (data == null) {
       throw StateError('/admin/users/$userId returned an empty response body');
     }
-    return data;
+    return AdminUser.fromJson(data);
   }
 
   Future<List<int>> downloadImageBytes(String objectKey) async {

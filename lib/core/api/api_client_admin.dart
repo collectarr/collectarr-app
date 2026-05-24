@@ -315,6 +315,93 @@ class _AdminApiClient {
     return AdminProviderIngestResult.fromJson(data);
   }
 
+  Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
+    final response = await _client._dio.get<Map<String, dynamic>>(
+      '/admin/metadata/proposals/summary',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/admin/metadata/proposals/summary returned an empty response body',
+      );
+    }
+    return AdminMetadataProposalSummary.fromJson(data);
+  }
+
+  Future<List<AdminMetadataProposal>> adminMetadataProposals({
+    String status = 'pending',
+    String? provider,
+  }) async {
+    final response = await _client._dio.get<List<dynamic>>(
+      '/admin/metadata/proposals',
+      queryParameters: {
+        'status': status,
+        if (provider != null && provider.isNotEmpty) 'provider': provider,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      return const [];
+    }
+    return data
+        .cast<Map<String, dynamic>>()
+        .map(_client._resolveImageUrls)
+        .map(AdminMetadataProposal.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<AdminProviderIngestResult> adminApproveMetadataProposal({
+    required String proposalId,
+  }) async {
+    final response = await _client._dio.post<Map<String, dynamic>>(
+      '/admin/metadata/proposals/$proposalId/approve',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/admin/metadata/proposals/$proposalId/approve returned an empty response body',
+      );
+    }
+    return AdminProviderIngestResult.fromJson(data);
+  }
+
+  Future<AdminProviderIngestResult>
+      adminApproveMetadataProposalWithProviderItem({
+    required String proposalId,
+    required String provider,
+    required String providerItemId,
+  }) async {
+    final response = await _client._dio.post<Map<String, dynamic>>(
+      '/admin/metadata/proposals/$proposalId/approve-provider',
+      data: {
+        'provider': provider,
+        'provider_item_id': providerItemId,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/admin/metadata/proposals/$proposalId/approve-provider returned an empty response body',
+      );
+    }
+    return AdminProviderIngestResult.fromJson(data);
+  }
+
+  Future<AdminMetadataProposal> adminRejectMetadataProposal({
+    required String proposalId,
+  }) async {
+    final response = await _client._dio.post<Map<String, dynamic>>(
+      '/admin/metadata/proposals/$proposalId/reject',
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError(
+        '/admin/metadata/proposals/$proposalId/reject returned an empty response body',
+      );
+    }
+    return AdminMetadataProposal.fromJson(_client._resolveImageUrls(data));
+  }
+
   Future<List<AdminProviderIngestHistoryEntry>> adminProviderIngestHistory() async {
     final response = await _client._dio.get<List<dynamic>>('/admin/providers/ingest/history');
     final data = response.data;

@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -103,6 +104,18 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
     primaryReferenceLabel: libraryPrimaryReferenceLabel(
       ownedItem: ownedItem,
       wishlistItem: wishlistItem,
+      mediaType: item.kind,
+    ),
+    referenceScopeLabel: libraryReferenceScopeLabel(
+      ownedItem: ownedItem,
+      wishlistItem: wishlistItem,
+      mediaType: item.kind,
+    ),
+    referenceFormatLabel: libraryReferenceFormatLabel(
+      ownedItem: ownedItem,
+      wishlistItem: wishlistItem,
+      editions: item.editions,
+      fallbackFormatLabel: item.physicalFormatLabel,
     ),
     pricePaidCents: ownedItem?.pricePaidCents,
     currency: ownedItem?.currency,
@@ -124,20 +137,31 @@ LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
   );
 }
 
-String? libraryOwnedReferenceLabel(OwnedItem? ownedItem) {
+String? libraryOwnedReferenceLabel(OwnedItem? ownedItem, {String? mediaType}) {
   return _libraryReferenceLabel(
     ownedItem?.personalAnchor,
-    itemLabel: 'Owned as media',
-    releaseLabel: 'Owned as release',
+    itemLabel: 'Owned as ${_referenceScopeLabelForAnchor(
+      PersonalItemAnchorType.item,
+      mediaType: mediaType,
+    )!.toLowerCase()}',
+    editionLabel: 'Owned as edition',
+    variantLabel: 'Owned as physical release',
     bundleLabel: 'Owned as bundle',
   );
 }
 
-String? libraryWishlistReferenceLabel(WishlistItem? wishlistItem) {
+String? libraryWishlistReferenceLabel(
+  WishlistItem? wishlistItem, {
+  String? mediaType,
+}) {
   return _libraryReferenceLabel(
     wishlistItem?.personalAnchor,
-    itemLabel: 'Wishlisted as media',
-    releaseLabel: 'Wishlisted as release',
+    itemLabel: 'Wishlisted as ${_referenceScopeLabelForAnchor(
+      PersonalItemAnchorType.item,
+      mediaType: mediaType,
+    )!.toLowerCase()}',
+    editionLabel: 'Wishlisted as edition',
+    variantLabel: 'Wishlisted as physical release',
     bundleLabel: 'Wishlisted as bundle',
   );
 }
@@ -145,9 +169,49 @@ String? libraryWishlistReferenceLabel(WishlistItem? wishlistItem) {
 String? libraryPrimaryReferenceLabel({
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
+  String? mediaType,
 }) {
-  return libraryOwnedReferenceLabel(ownedItem) ??
-      libraryWishlistReferenceLabel(wishlistItem);
+  return libraryOwnedReferenceLabel(ownedItem, mediaType: mediaType) ??
+      libraryWishlistReferenceLabel(wishlistItem, mediaType: mediaType);
+}
+
+String? libraryReferenceScopeLabel({
+  OwnedItem? ownedItem,
+  WishlistItem? wishlistItem,
+  String? mediaType,
+}) {
+  final anchor = ownedItem?.personalAnchor ?? wishlistItem?.personalAnchor;
+  return _referenceScopeLabelForAnchor(anchor, mediaType: mediaType);
+}
+
+String? libraryReferenceFormatLabel({
+  OwnedItem? ownedItem,
+  WishlistItem? wishlistItem,
+  required List<CatalogEdition> editions,
+  String? fallbackFormatLabel,
+}) {
+  final anchor = ownedItem?.personalAnchor ?? wishlistItem?.personalAnchor;
+  if (anchor == PersonalItemAnchorType.bundleRelease) {
+    return null;
+  }
+  final resolved = _resolveLibraryReferenceRelease(
+    editionId: ownedItem?.editionId ?? wishlistItem?.editionId,
+    variantId: ownedItem?.variantId ?? wishlistItem?.variantId,
+    editions: editions,
+  );
+  final variantLabel = resolved.variant?.physicalFormatLabel?.trim();
+  if (variantLabel != null && variantLabel.isNotEmpty) {
+    return variantLabel;
+  }
+  final editionLabel = resolved.edition?.physicalFormatLabel?.trim();
+  if (editionLabel != null && editionLabel.isNotEmpty) {
+    return editionLabel;
+  }
+  final fallback = fallbackFormatLabel?.trim();
+  if (fallback != null && fallback.isNotEmpty) {
+    return fallback;
+  }
+  return null;
 }
 
 String? resolveLibraryOwnedItemId(
@@ -219,13 +283,31 @@ String? _libraryReferenceLabel(
   PersonalItemAnchorType? anchor,
   {
   required String itemLabel,
-  required String releaseLabel,
+  required String editionLabel,
+  required String variantLabel,
   required String bundleLabel,
 }) {
   return switch (anchor) {
     PersonalItemAnchorType.item => itemLabel,
-    PersonalItemAnchorType.variant => releaseLabel,
+    PersonalItemAnchorType.edition => editionLabel,
+    PersonalItemAnchorType.variant => variantLabel,
     PersonalItemAnchorType.bundleRelease => bundleLabel,
+    null => null,
+  };
+}
+
+String? _referenceScopeLabelForAnchor(
+  PersonalItemAnchorType? anchor, {
+  String? mediaType,
+}) {
+  final itemLabel = mediaType?.trim().toLowerCase() == 'music'
+      ? 'Album'
+      : 'Media';
+  return switch (anchor) {
+    PersonalItemAnchorType.item => itemLabel,
+    PersonalItemAnchorType.edition => 'Edition',
+    PersonalItemAnchorType.variant => 'Physical release',
+    PersonalItemAnchorType.bundleRelease => 'Bundle',
     null => null,
   };
 }
@@ -239,6 +321,10 @@ String buildOwnedCopyLabel(
   final editionLabel = _ownedCopyEditionLabel(item, editions);
   if (editionLabel != null) {
     parts.add(editionLabel);
+  }
+  final copyTypeLabel = libraryOwnedCopyTypeLabel(item, editions);
+  if (copyTypeLabel != null) {
+    parts.add(copyTypeLabel);
   }
   if (item.condition != null && item.condition!.trim().isNotEmpty) {
     parts.add(item.condition!.trim());
@@ -256,33 +342,65 @@ String buildOwnedCopyLabel(
   return parts.join('  ·  ');
 }
 
+String? libraryOwnedCopyTypeLabel(
+  OwnedItem? ownedItem,
+  List<CatalogEdition> editions, {
+  String? fallbackFormat,
+  String? fallbackLabel,
+}) {
+  final digital = resolveOwnedDigitalFlag(
+    ownedItem,
+    editions,
+    fallbackFormat: fallbackFormat,
+    fallbackLabel: fallbackLabel,
+  );
+  return ownedCopyTypeLabel(digital);
+}
+
+bool? resolveOwnedDigitalFlag(
+  OwnedItem? ownedItem,
+  List<CatalogEdition> editions, {
+  String? fallbackFormat,
+  String? fallbackLabel,
+}) {
+  if (ownedItem == null) {
+    return null;
+  }
+  if (ownedItem.isDigital != null) {
+    return ownedItem.isDigital;
+  }
+
+  final matchedRelease = _resolveOwnedCopyRelease(ownedItem, editions);
+  final matchedEdition = matchedRelease.edition;
+  final matchedVariant = matchedRelease.variant;
+
+  final variantFlag = digitalPhysicalMediaFormatFlag(
+    matchedVariant?.physicalFormat,
+    label: matchedVariant?.physicalFormatLabel ?? matchedVariant?.name,
+  );
+  if (variantFlag != null) {
+    return variantFlag;
+  }
+
+  final editionFlag = digitalPhysicalMediaFormatFlag(
+    matchedEdition?.physicalFormat,
+    label: matchedEdition?.physicalFormatLabel ?? matchedEdition?.title,
+  );
+  if (editionFlag != null) {
+    return editionFlag;
+  }
+
+  return digitalPhysicalMediaFormatFlag(
+    fallbackFormat,
+    label: fallbackLabel,
+  );
+}
+
 String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
-  CatalogEdition? matchedEdition;
-  CatalogVariant? matchedVariant;
-  if (item.editionId != null) {
-    for (final edition in editions) {
-      if (edition.id == item.editionId) {
-        matchedEdition = edition;
-        break;
-      }
-    }
-  }
-  if (item.variantId != null) {
-    final editionPool =
-        matchedEdition != null ? <CatalogEdition>[matchedEdition] : editions;
-    for (final edition in editionPool) {
-      for (final variant in edition.variants) {
-        if (variant.id == item.variantId) {
-          matchedEdition ??= edition;
-          matchedVariant = variant;
-          break;
-        }
-      }
-      if (matchedVariant != null) {
-        break;
-      }
-    }
-  }
+  final matchedRelease = _resolveOwnedCopyRelease(item, editions);
+  final matchedEdition = matchedRelease.edition;
+  final matchedVariant = matchedRelease.variant;
+
   final parts = <String>[];
   final editionTitle = matchedEdition?.title.trim();
   if (editionTitle != null && editionTitle.isNotEmpty) {
@@ -298,6 +416,51 @@ String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
     return null;
   }
   return parts.join(' / ');
+}
+
+({CatalogEdition? edition, CatalogVariant? variant}) _resolveOwnedCopyRelease(
+  OwnedItem item,
+  List<CatalogEdition> editions,
+) {
+  return _resolveLibraryReferenceRelease(
+    editionId: item.editionId,
+    variantId: item.variantId,
+    editions: editions,
+  );
+}
+
+({CatalogEdition? edition, CatalogVariant? variant}) _resolveLibraryReferenceRelease({
+  required String? editionId,
+  required String? variantId,
+  required List<CatalogEdition> editions,
+}) {
+  CatalogEdition? matchedEdition;
+  CatalogVariant? matchedVariant;
+  if (editionId != null) {
+    for (final edition in editions) {
+      if (edition.id == editionId) {
+        matchedEdition = edition;
+        break;
+      }
+    }
+  }
+  if (variantId != null) {
+    final editionPool =
+        matchedEdition != null ? <CatalogEdition>[matchedEdition] : editions;
+    for (final edition in editionPool) {
+      for (final variant in edition.variants) {
+        if (variant.id == variantId) {
+          matchedEdition ??= edition;
+          matchedVariant = variant;
+          break;
+        }
+      }
+      if (matchedVariant != null) {
+        break;
+      }
+    }
+  }
+  return (edition: matchedEdition, variant: matchedVariant);
 }
 
 Set<String> watchWishlistIds(WidgetRef ref) {

@@ -93,6 +93,41 @@ void main() {
     expect(find.text('USD 6.00'), findsOneWidget);
   });
 
+  testWidgets('personal section labels digital ownership and hides physical-only facts',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: InspectorPersonalSection(
+            entry: LibraryWorkspaceEntry(
+              id: 'movie-1',
+              mediaType: 'movie',
+              title: 'Blade Runner 2049',
+              variant: 'Digital',
+              updatedAt: DateTime.utc(2026, 5, 22),
+            ),
+            ownedItem: OwnedItem(
+              id: 'owned-1',
+              itemId: 'movie-1',
+              isDigital: true,
+              pricePaidCents: 1299,
+              currency: 'USD',
+              updatedAt: DateTime.utc(2026, 5, 22),
+            ),
+            accent: Colors.orange,
+            kind: 'movie',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Ownership'), findsOneWidget);
+    expect(find.text('Digital copy'), findsOneWidget);
+    expect(find.text('Condition'), findsNothing);
+    expect(find.text('Grade'), findsNothing);
+    expect(find.text('Storage'), findsNothing);
+  });
+
   testWidgets('inspector action bar avoids overflow on narrow widths', (
     tester,
   ) async {

@@ -116,11 +116,17 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       candidate: selectedCandidate,
       preview: preview,
     );
+    final ownedCopyTypeLabel = _previewOwnedCopyTypeLabel(
+      item: selectedItem,
+      preview: preview,
+    );
     final statusSummary = _previewStatusSummary(
       item: selectedItem,
       candidate: selectedCandidate,
       preview: preview,
       isFetchingPreview: isFetchingPreview,
+      addTarget: addTarget,
+      ownedCopyTypeLabel: ownedCopyTypeLabel,
     );
     final discoverySections = _discoverySections(
       item: selectedItem,
@@ -199,27 +205,38 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
               ],
             ),
             Divider(height: 18, color: accent.withValues(alpha: 0.42)),
-            if (selectedItem != null) ...[
-              _LibraryAddReferenceSelector(
-                accent: accent,
-                addTarget: addTarget,
-                referenceType: referenceType,
-                item: selectedItem,
-                bundleReleases: availableBundleReleases,
-                selectedBundleReleaseId: selectedBundleReleaseId,
-                selectedReleaseEditionId: selectedReleaseEditionId,
-                selectedReleaseVariantId: selectedReleaseVariantId,
-                isLoadingBundleReleases: isLoadingBundleReleases,
-                onReferenceTypeChanged: onReferenceTypeChanged,
-                onReleaseEditionSelected: onReleaseEditionSelected,
-                onReleaseVariantSelected: onReleaseVariantSelected,
-                onBundleReleaseSelected: onBundleReleaseSelected,
+            Flexible(
+              fit: FlexFit.loose,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (selectedItem != null) ...[
+                      _LibraryAddReferenceSelector(
+                        accent: accent,
+                        addTarget: addTarget,
+                        referenceType: referenceType,
+                        item: selectedItem,
+                        bundleReleases: availableBundleReleases,
+                        selectedBundleReleaseId: selectedBundleReleaseId,
+                        selectedReleaseEditionId: selectedReleaseEditionId,
+                        selectedReleaseVariantId: selectedReleaseVariantId,
+                        isLoadingBundleReleases: isLoadingBundleReleases,
+                        onReferenceTypeChanged: onReferenceTypeChanged,
+                        onReleaseEditionSelected: onReleaseEditionSelected,
+                        onReleaseVariantSelected: onReleaseVariantSelected,
+                        onBundleReleaseSelected: onBundleReleaseSelected,
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                    _LibraryAddPreviewStatusBanner(
+                      accent: accent,
+                      summary: statusSummary,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-            ],
-            _LibraryAddPreviewStatusBanner(
-              accent: accent,
-              summary: statusSummary,
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -516,15 +533,16 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
     final selectedEdition = _previewEditionForItem(item, selectedReleaseEditionId);
-    final selectedVariant = _previewVariantForEdition(
+    final selectedVariant = _selectedVariantForEdition(
       selectedEdition,
       selectedReleaseVariantId,
     );
     final selectionSummary = switch (addTarget) {
-      LibraryAddTarget.track =>
-        'Tracking stays item-centric even when ownership points to a release or bundle.',
-      LibraryAddTarget.owned => referenceType.helperLabel,
-      LibraryAddTarget.wishlist => referenceType.helperLabel,
+      LibraryAddTarget.track => item.kind.trim().toLowerCase() == 'music'
+          ? 'Tracking stays album-level here. Edition and physical-release scope are only available for owned or wishlist entries.'
+          : 'Tracking stays item-centric here. Edition and bundle scope are only available for owned or wishlist entries.',
+      LibraryAddTarget.owned => referenceType.helperLabelForKind(item.kind),
+      LibraryAddTarget.wishlist => referenceType.helperLabelForKind(item.kind),
     };
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -540,7 +558,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'Reference',
+                  'Scope',
                   style: TextStyle(
                     color: accent,
                     fontWeight: FontWeight.w800,
@@ -557,30 +575,33 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               children: [
                 _ReferenceChip(
                   accent: accent,
-                  selected: referenceType == LibraryAddReferenceType.media,
+                  selected: true,
                   enabled: !selectionLocked,
-                  label: LibraryAddReferenceType.media.label,
+                  label: LibraryAddReferenceType.media.labelForKind(item.kind),
                   onPressed: () =>
                       onReferenceTypeChanged(LibraryAddReferenceType.media),
                 ),
-                _ReferenceChip(
-                  accent: accent,
-                  selected: referenceType == LibraryAddReferenceType.release,
-                  enabled: !selectionLocked && releaseAvailable,
-                  label: LibraryAddReferenceType.release.label,
-                  onPressed: () =>
-                      onReferenceTypeChanged(LibraryAddReferenceType.release),
-                ),
-                _ReferenceChip(
-                  accent: accent,
-                  selected:
-                      referenceType == LibraryAddReferenceType.bundleRelease,
-                  enabled: !selectionLocked && (bundleAvailable || isLoadingBundleReleases),
-                  label: LibraryAddReferenceType.bundleRelease.label,
-                  onPressed: () => onReferenceTypeChanged(
-                    LibraryAddReferenceType.bundleRelease,
+                if (!selectionLocked) ...[
+                  _ReferenceChip(
+                    accent: accent,
+                    selected: referenceType == LibraryAddReferenceType.release,
+                    enabled: releaseAvailable,
+                    label: LibraryAddReferenceType.release.labelForKind(item.kind),
+                    onPressed: () => onReferenceTypeChanged(
+                      LibraryAddReferenceType.release,
+                    ),
                   ),
-                ),
+                  _ReferenceChip(
+                    accent: accent,
+                    selected:
+                        referenceType == LibraryAddReferenceType.bundleRelease,
+                    enabled: bundleAvailable || isLoadingBundleReleases,
+                    label: LibraryAddReferenceType.bundleRelease.labelForKind(item.kind),
+                    onPressed: () => onReferenceTypeChanged(
+                      LibraryAddReferenceType.bundleRelease,
+                    ),
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 8),
@@ -603,7 +624,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               DropdownButtonFormField<String>(
                 key: const ValueKey('library-add-release-edition-field'),
                 isExpanded: true,
-                value: selectedEdition?.id,
+                initialValue: selectedEdition?.id,
                 decoration: const InputDecoration(
                   labelText: 'Edition',
                   isDense: true,
@@ -634,19 +655,23 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 )
               else if (selectedEdition.variants.isEmpty)
                 const Text(
-                  'This edition has no canonical variants, so the edition itself will be used.',
+                  'This edition has no canonical physical releases yet, so the edition itself will be used.',
                   style: TextStyle(color: kAppTextMuted),
                 )
               else
                 DropdownButtonFormField<String>(
                   key: const ValueKey('library-add-release-variant-field'),
                   isExpanded: true,
-                  value: selectedVariant?.id,
+                  initialValue: selectedVariant?.id ?? '',
                   decoration: const InputDecoration(
-                    labelText: 'Variant',
+                    labelText: 'Physical release',
                     isDense: true,
                   ),
                   items: [
+                    const DropdownMenuItem<String>(
+                      value: '',
+                      child: Text('Any / unspecified physical release'),
+                    ),
                     for (final variant in selectedEdition.variants)
                       DropdownMenuItem<String>(
                         value: variant.id,
@@ -657,9 +682,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                       ),
                   ],
                   onChanged: (value) {
-                    if (value != null) {
-                      onReleaseVariantSelected(value);
-                    }
+                    onReleaseVariantSelected(value ?? '');
                   },
                 ),
             ],
@@ -833,12 +856,6 @@ class _BundleReleaseOptionCard extends StatelessWidget {
   }
 }
 
-String _releaseSummary(LibraryMetadataItem item) {
-  final edition = _previewPrimaryEditionForItem(item);
-  final variant = _previewPrimaryVariantForEdition(edition);
-  return _releaseSummaryForSelection(edition, variant);
-}
-
 String _releaseSummaryForSelection(
   CatalogEdition? edition,
   CatalogVariant? variant,
@@ -849,7 +866,7 @@ String _releaseSummaryForSelection(
   final parts = <String>[
     edition.title,
     if (variant?.name case final variantName? when variantName.trim().isNotEmpty)
-      variantName,
+      'Physical: $variantName',
     if (edition.physicalFormatLabel != null &&
         edition.physicalFormatLabel!.trim().isNotEmpty)
       edition.physicalFormatLabel!,
@@ -872,7 +889,7 @@ CatalogEdition? _previewEditionForItem(
   return _previewPrimaryEditionForItem(item);
 }
 
-CatalogVariant? _previewVariantForEdition(
+CatalogVariant? _selectedVariantForEdition(
   CatalogEdition? edition,
   String? variantId,
 ) {
@@ -884,7 +901,7 @@ CatalogVariant? _previewVariantForEdition(
       }
     }
   }
-  return _previewPrimaryVariantForEdition(edition);
+  return null;
 }
 
 String _editionOptionLabel(CatalogEdition edition) {
@@ -1296,12 +1313,18 @@ String _previewStatusSummary({
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
   required bool isFetchingPreview,
+  required LibraryAddTarget addTarget,
+  required String? ownedCopyTypeLabel,
 }) {
+  final ownershipSummary = addTarget == LibraryAddTarget.owned &&
+          ownedCopyTypeLabel != null
+      ? ' Owned items from this result will be saved as $ownedCopyTypeLabel.'
+      : '';
   if (item != null) {
-    return 'Using cached Collectarr Core metadata already stored in the app.';
+    return 'Using cached Collectarr Core metadata already stored in the app.$ownershipSummary';
   }
   if (preview != null) {
-    return 'Provider metadata loaded directly from search results.';
+    return 'Provider metadata loaded directly from search results.$ownershipSummary';
   }
   if (candidate?.isStub ?? false) {
     return 'Provider metadata is unavailable for this result.';
@@ -1310,6 +1333,20 @@ String _previewStatusSummary({
     return 'Loading provider metadata.';
   }
   return 'Provider metadata is unavailable for this result.';
+}
+
+String? _previewOwnedCopyTypeLabel({
+  required LibraryMetadataItem? item,
+  required AdminProviderPreview? preview,
+}) {
+  return ownedCopyTypeLabel(
+    digitalPhysicalMediaFormatFlag(
+      item?.physicalFormat ?? preview?.physicalFormat,
+      label: item?.physicalFormatLabel ??
+          preview?.physicalFormatLabel ??
+          item?.variant,
+    ),
+  );
 }
 
 List<_PreviewDiscoverySectionData> _discoverySections({
@@ -1449,6 +1486,8 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
 }
 
 class _PreviewTrackRow extends StatelessWidget {
+  static const double _durationColumnWidth = 42;
+
   const _PreviewTrackRow({
     required this.index,
     required this.track,
@@ -1492,10 +1531,11 @@ class _PreviewTrackRow extends StatelessWidget {
             ),
           ),
           if (durationStr != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
+            SizedBox(
+              width: _durationColumnWidth,
               child: Text(
                 durationStr,
+                textAlign: TextAlign.right,
                 style: const TextStyle(
                   color: kAppTextMuted,
                   fontSize: 13,

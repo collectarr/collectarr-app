@@ -70,7 +70,7 @@ void main() {
     expect(find.text('Read status'), findsOneWidget);
     expect(find.text('Storage boxes'), findsOneWidget);
     expect(find.text('Top series'), findsOneWidget);
-    expect(find.text('read: 1'), findsOneWidget);
+    expect(find.text('Completed: 1'), findsOneWidget);
     expect(find.text('Box 6: 1'), findsOneWidget);
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
     expect(find.text('Signed copy'), findsOneWidget);

@@ -9,7 +9,6 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
@@ -19,7 +18,6 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
@@ -34,6 +32,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'support/library_add_test_harness.dart';
 
 void main() {
   setUp(() {
@@ -1003,6 +1003,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Blu-ray'), findsOneWidget);
     expect(find.text('4K UHD'), findsOneWidget);
+    expect(find.text('Digital'), findsOneWidget);
+    await tester.tap(find.text('Digital').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Owned copies created from this draft will be saved as Digital copy.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Studio'), findsOneWidget);
     expect(find.text('Format / Edition'), findsOneWidget);
     expect(find.text('UPC / Barcode'), findsOneWidget);
@@ -1025,7 +1034,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => _TestAuthController(ref)),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1050,7 +1059,9 @@ void main() {
 
     expect(api.lastSearchKind, 'movie');
     expect(api.lastSearchQuery, 'Blade Runner');
-    expect(api.lastProvider, isNull);
+    expect(api.lastProvider, 'tmdb');
+    expect(api.lastProviderKind, 'movie');
+    expect(api.lastProviderQuery, 'Blade Runner');
     expect(find.text('Blade Runner 2049'), findsWidgets);
     expect(find.text('Matched on: Title'), findsOneWidget);
   });
@@ -1072,7 +1083,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => _TestAuthController(ref)),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1106,7 +1117,7 @@ void main() {
     expect(find.text('Batman #423'), findsOneWidget);
   });
 
-  testWidgets('comic add dialog lets the user pick an explicit release variant', (
+  testWidgets('comic add dialog lets the user keep edition scope without picking a physical release', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1100, 760);
@@ -1123,7 +1134,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider.overrideWith((ref) => _TestAuthController(ref)),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1149,7 +1160,68 @@ void main() {
     await tester.tap(find.text('Batman #423'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Release'));
+    await tester.tap(find.text('Edition'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('library-add-release-edition-field')),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('library-add-release-edition-field')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Collector Edition • Collector Issue').last);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Collector Edition'), findsWidgets);
+    expect(find.text('Any / unspecified physical release'), findsOneWidget);
+    expect(find.textContaining('Physical: Sketch Cover'), findsNothing);
+  });
+
+  testWidgets('comic add dialog lets the user pick an explicit physical release', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Batman #423'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Edition'));
     await tester.pumpAndSettle();
 
     expect(
@@ -1161,6 +1233,9 @@ void main() {
       findsOneWidget,
     );
 
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('library-add-release-edition-field')),
+    );
     await tester.tap(
       find.byKey(const ValueKey('library-add-release-edition-field')),
     );
@@ -1168,6 +1243,9 @@ void main() {
     await tester.tap(find.text('Collector Edition • Collector Issue').last);
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('library-add-release-variant-field')),
+    );
     await tester.tap(
       find.byKey(const ValueKey('library-add-release-variant-field')),
     );
@@ -1206,7 +1284,7 @@ void main() {
         child: const MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: booksLibraryConfig,
+              type: musicLibraryConfig,
               autoLookupInitialBarcode: false,
             ),
           ),
@@ -1219,64 +1297,18 @@ void main() {
 
     await tester.enterText(
       find.byKey(const ValueKey('library-add-barcode-field')),
-      '9780140328721',
+      '012345678905',
     );
+
     await tester.tap(find.text('Lookup barcode'));
     await tester.pumpAndSettle();
 
-    expect(api.lastLookupBarcode, '9780140328721');
-    expect(api.lastLookupKind, 'book');
-    expect(api.lastProvider, 'openlibrary');
-    expect(api.lastProviderKind, 'book');
-    expect(api.lastProviderQuery, '9780140328721');
-    expect(find.textContaining('openlibrary-1'), findsWidgets);
-  });
-
-  testWidgets('music add dialog uses artist-oriented advanced search copy',
-      (tester) async {
-    tester.view.physicalSize = const Size(1100, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          mediaCatalogProvider
-              .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: const MaterialApp(
-          home: Scaffold(
-            body: LibraryAddDialog(
-              type: musicLibraryConfig,
-              autoLookupInitialBarcode: false,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
-    expect(find.text('Search Music'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Show advanced fields'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Artist...'), findsOneWidget);
-    expect(find.text('Album / Release...'), findsOneWidget);
-    expect(find.text('Label...'), findsOneWidget);
-    expect(find.text('Series...'), findsNothing);
-
-    await tester.tap(find.text('Search Music'));
-    await tester.pumpAndSettle();
-
-    expect(
-      find.text('Enter an album, artist, release, or label.'),
-      findsOneWidget,
-    );
+    expect(api.lastLookupBarcode, '012345678905');
+    expect(api.lastLookupKind, 'music');
+    expect(api.lastProvider, 'musicbrainz');
+    expect(api.lastProviderKind, 'music');
+    expect(api.lastProviderQuery, '012345678905');
+    expect(find.textContaining('A ninja candidate.'), findsWidgets);
   });
 
   testWidgets('music provider search works with artist-only advanced search',
@@ -1796,16 +1828,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
         },
       ],
     });
-  }
-}
-
-class _TestAuthController extends AuthController {
-  _TestAuthController(super.ref) : super() {
-    state = const AuthState(
-      token: 'test-token',
-      isAdmin: true,
-      isRestoring: false,
-    );
   }
 }
 

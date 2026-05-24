@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,9 +12,10 @@ class AdminImageCachePanel extends ConsumerStatefulWidget {
 }
 
 class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
-  Map<String, dynamic>? _stats;
+  AdminImageCacheStats? _stats;
   bool _isLoading = false;
   bool _isPurging = false;
+  String? _purgingProvider;
   String? _errorMessage;
   String? _statusMessage;
 
@@ -48,6 +50,7 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
   Future<void> _purge({String? provider}) async {
     setState(() {
       _isPurging = true;
+      _purgingProvider = provider;
       _statusMessage = null;
       _errorMessage = null;
     });
@@ -55,18 +58,19 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
       final api = ref.read(apiClientProvider);
       final result = await api.adminPurgeImageCache(provider: provider);
       if (!mounted) return;
-      final deleted = result['deleted_entries'] ?? 0;
-      final freed = result['freed_bytes'] ?? 0;
       setState(() {
         _isPurging = false;
-        _statusMessage =
-            'Purged $deleted entries, freed ${_formatBytes(freed)}';
+        _purgingProvider = null;
+        _statusMessage = provider == null || provider.isEmpty
+            ? 'Purged ${result.deletedEntries} entries, freed ${_formatBytes(result.freedBytes)}'
+            : 'Purged ${result.deletedEntries} $provider entries, freed ${_formatBytes(result.freedBytes)}';
       });
       await _loadStats();
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isPurging = false;
+        _purgingProvider = null;
         _errorMessage = e.toString();
       });
     }
@@ -93,13 +97,13 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
     final stats = _stats;
     if (stats == null) return const SizedBox.shrink();
 
-    final totalEntries = stats['total_entries'] ?? 0;
-    final totalSize = stats['total_size_bytes'] ?? 0;
-    final maxSize = stats['max_size_bytes'] ?? 0;
-    final usagePct = (stats['usage_percent'] ?? 0.0).toDouble();
-    final mirroring = stats['mirroring_enabled'] == true;
-    final providers =
-        (stats['providers'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+    final totalEntries = stats.totalEntries;
+    final totalSize = stats.totalSizeBytes;
+    final maxSize = stats.maxSizeBytes;
+    final usagePct = stats.usagePercent;
+    final mirroring = stats.mirroringEnabled;
+    final providers = stats.providers.entries.toList(growable: false)
+      ..sort((left, right) => right.value.compareTo(left.value));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -156,30 +160,87 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
         ),
         if (providers.isNotEmpty) ...[
           const SizedBox(height: 12),
-          const Text('Per-provider entries',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          const Text(
+            'Per-provider purge',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          ),
           const SizedBox(height: 4),
-          Wrap(
-            spacing: 12,
-            runSpacing: 4,
-            children: providers.entries
-                .map((e) => Chip(label: Text('${e.key}: ${e.value}')))
-                .toList(),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: providers.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final provider = providers[index];
+              final share = totalEntries == 0
+                  ? 0
+                  : ((provider.value / totalEntries) * 100).round();
+              final isPurgingProvider = _purgingProvider == provider.key;
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              provider.key,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 4),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                Chip(label: Text('${provider.value} entries')),
+                                Chip(label: Text('$share% of cache')),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      OutlinedButton.icon(
+                        onPressed: _isPurging || provider.value == 0
+                            ? null
+                            : () => _purge(provider: provider.key),
+                        icon: isPurgingProvider
+                            ? const SizedBox.square(
+                                dimension: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.delete_outline, size: 18),
+                        label: Text('Purge ${provider.key}'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ],
         const SizedBox(height: 12),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
             OutlinedButton.icon(
               onPressed: _isLoading ? null : _loadStats,
               icon: const Icon(Icons.refresh, size: 18),
               label: const Text('Refresh'),
             ),
-            const SizedBox(width: 8),
             OutlinedButton.icon(
               onPressed:
                   _isPurging || totalEntries == 0 ? null : () => _purge(),
-              icon: _isPurging
+              icon: _purgingProvider == null && _isPurging
                   ? const SizedBox.square(
                       dimension: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),

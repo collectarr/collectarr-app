@@ -265,7 +265,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 ),
               ],
               if (activeOwnedItem != null &&
-                  (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty)) ...[
+                  (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
+                  resolveOwnedDigitalFlag(
+                        activeOwnedItem,
+                        selected.editions,
+                        fallbackLabel: selected.variant,
+                      ) !=
+                      true) ...[
                 const SizedBox(height: 10),
                 InspectorCollectionFields(
                   enabled: true,

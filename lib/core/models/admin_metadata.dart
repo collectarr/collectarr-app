@@ -110,6 +110,173 @@ class AdminProviderIngestResult {
   }
 }
 
+class AdminMetadataProposalSummary {
+  const AdminMetadataProposalSummary({
+    required this.pending,
+    required this.approved,
+    required this.rejected,
+    required this.total,
+  });
+
+  final int pending;
+  final int approved;
+  final int rejected;
+  final int total;
+
+  factory AdminMetadataProposalSummary.fromJson(Map<String, dynamic> json) {
+    return AdminMetadataProposalSummary(
+      pending: json['pending'] as int? ?? 0,
+      approved: json['approved'] as int? ?? 0,
+      rejected: json['rejected'] as int? ?? 0,
+      total: json['total'] as int? ?? 0,
+    );
+  }
+}
+
+class AdminMetadataProposal {
+  const AdminMetadataProposal({
+    required this.id,
+    required this.provider,
+    required this.query,
+    required this.status,
+    this.providerItemId,
+    this.title,
+    this.summary,
+    this.imageUrl,
+    this.metadataPayload,
+  });
+
+  final String id;
+  final String provider;
+  final String query;
+  final String status;
+  final String? providerItemId;
+  final String? title;
+  final String? summary;
+  final String? imageUrl;
+  final Map<String, dynamic>? metadataPayload;
+
+  String get displayTitle {
+    final title = this.title?.trim();
+    if (title != null && title.isNotEmpty) {
+      return title;
+    }
+    return query;
+  }
+
+  bool get isPending => status == 'pending';
+
+  factory AdminMetadataProposal.fromJson(Map<String, dynamic> json) {
+    final payload = json['metadata_payload'];
+    return AdminMetadataProposal(
+      id: json['id']?.toString() ?? '',
+      provider: json['provider']?.toString() ?? '',
+      providerItemId: json['provider_item_id']?.toString(),
+      query: json['query']?.toString() ?? '',
+      title: json['title'] as String?,
+      summary: json['summary'] as String?,
+      imageUrl: json['image_url'] as String?,
+      metadataPayload:
+          payload is Map<String, dynamic> ? payload : const <String, dynamic>{},
+      status: json['status']?.toString() ?? 'pending',
+    );
+  }
+}
+
+class AdminUser {
+  const AdminUser({
+    required this.id,
+    required this.email,
+    required this.isActive,
+    required this.isAdmin,
+    required this.role,
+    required this.createdAt,
+    required this.updatedAt,
+    this.displayName,
+  });
+
+  final String id;
+  final String email;
+  final String? displayName;
+  final bool isActive;
+  final bool isAdmin;
+  final String role;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  String get label {
+    final value = displayName?.trim();
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+    return email;
+  }
+
+  factory AdminUser.fromJson(Map<String, dynamic> json) {
+    return AdminUser(
+      id: json['id']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      displayName: json['display_name'] as String?,
+      isActive: json['is_active'] as bool? ?? true,
+      isAdmin: json['is_admin'] as bool? ?? false,
+      role: json['role']?.toString() ?? 'viewer',
+      createdAt: _adminDateTimeFromJson(json['created_at']),
+      updatedAt: _adminDateTimeFromJson(json['updated_at']),
+    );
+  }
+}
+
+class AdminImageCacheStats {
+  const AdminImageCacheStats({
+    required this.totalEntries,
+    required this.totalSizeBytes,
+    required this.maxSizeBytes,
+    required this.usagePercent,
+    required this.mirroringEnabled,
+    this.providers = const <String, int>{},
+  });
+
+  final int totalEntries;
+  final int totalSizeBytes;
+  final int maxSizeBytes;
+  final double usagePercent;
+  final bool mirroringEnabled;
+  final Map<String, int> providers;
+
+  factory AdminImageCacheStats.fromJson(Map<String, dynamic> json) {
+    final providerMap = json['providers'];
+    return AdminImageCacheStats(
+      totalEntries: (json['total_entries'] as num?)?.toInt() ?? 0,
+      totalSizeBytes: (json['total_size_bytes'] as num?)?.toInt() ?? 0,
+      maxSizeBytes: (json['max_size_bytes'] as num?)?.toInt() ?? 0,
+      usagePercent: (json['usage_percent'] as num?)?.toDouble() ?? 0,
+      mirroringEnabled: json['mirroring_enabled'] as bool? ?? false,
+      providers: providerMap is Map<String, dynamic>
+          ? providerMap.map(
+              (key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0),
+            )
+          : const <String, int>{},
+    );
+  }
+}
+
+class AdminImageCachePurgeResult {
+  const AdminImageCachePurgeResult({
+    required this.deletedEntries,
+    required this.freedBytes,
+  });
+
+  final int deletedEntries;
+  final int freedBytes;
+
+  factory AdminImageCachePurgeResult.fromJson(Map<String, dynamic> json) {
+    return AdminImageCachePurgeResult(
+      deletedEntries: (json['deleted_entries'] as num?)?.toInt() ?? 0,
+      freedBytes: (json['freed_bytes'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
 class ProviderPreviewCredit {
   const ProviderPreviewCredit({required this.name, this.role, this.imageUrl});
   final String name;
@@ -635,6 +802,13 @@ class AdminAuditLogEntry {
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
   }
+}
+
+DateTime _adminDateTimeFromJson(Object? value) {
+  if (value is String) {
+    return DateTime.tryParse(value) ?? DateTime.fromMillisecondsSinceEpoch(0);
+  }
+  return DateTime.fromMillisecondsSinceEpoch(0);
 }
 
 class AdminDuplicateActionResult {

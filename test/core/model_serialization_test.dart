@@ -411,6 +411,7 @@ void main() {
     final item = OwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
+      isDigital: true,
       condition: 'Near Mint',
       grade: '9.8',
       purchaseDate: DateTime.utc(2026, 5, 11),
@@ -432,6 +433,7 @@ void main() {
     final payload = item.toSyncPayload();
 
     expect(payload['item_id'], 'comic-1');
+    expect(payload['is_digital'], isTrue);
     expect(payload['grade'], '9.8');
     expect(payload['purchase_date'], '2026-05-11T00:00:00.000Z');
     expect(payload['price_paid_cents'], 1299);

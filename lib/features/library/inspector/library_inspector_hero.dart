@@ -29,8 +29,6 @@ class InspectorHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
-    final referenceLabel =
-        libraryOwnedReferenceLabel(ownedItem) ?? entry.primaryReferenceLabel;
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 560;
@@ -153,7 +151,8 @@ class _InspectorHeroInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final referenceLabel =
-      libraryOwnedReferenceLabel(ownedItem) ?? entry.primaryReferenceLabel;
+      libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+      entry.primaryReferenceLabel;
     final releaseLabel = formatNullableDate(entry.releaseDate) ??
         entry.releaseYear?.toString();
     return Column(
@@ -230,6 +229,12 @@ class _InspectorHeroInfo extends StatelessWidget {
               LibraryMetaChip(
                 icon: Icons.link_outlined,
                 label: referenceLabel,
+                accent: accent,
+              ),
+            if (entry.referenceFormatLabel != null)
+              LibraryMetaChip(
+                icon: Icons.album_outlined,
+                label: 'Format: ${entry.referenceFormatLabel!}',
                 accent: accent,
               ),
             LibraryMetaChip(

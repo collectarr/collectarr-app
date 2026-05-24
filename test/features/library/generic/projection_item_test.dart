@@ -80,7 +80,7 @@ void main() {
     expect(bundleProjection.entry.primaryReferenceLabel, 'Owned as bundle');
     expect(
       wishlistProjection.entry.primaryReferenceLabel,
-      'Wishlisted as release',
+      'Wishlisted as physical release',
     );
   });
 }

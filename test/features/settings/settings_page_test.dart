@@ -63,8 +63,12 @@ void main() {
 
     await _openSettingsTab(tester, 'Libraries');
     expect(find.text('Library navigation'), findsOneWidget);
-    expect(find.text('Locations'), findsOneWidget);
+    expect(find.text('Collection schema'), findsOneWidget);
+    expect(find.text('New root location'), findsOneWidget);
     expect(find.text('Manage locations'), findsOneWidget);
+    expect(find.text('New custom field'), findsOneWidget);
+    expect(find.text('Manage custom fields'), findsOneWidget);
+    expect(find.text('All libraries: 0'), findsOneWidget);
     expect(find.text('Overflow uses More'), findsOneWidget);
     expect(find.text('Position'), findsOneWidget);
     expect(find.text('Top bar'), findsWidgets);
@@ -81,6 +85,7 @@ void main() {
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('Copy sync backup guide'), findsOneWidget);
+    expect(find.text('Custom fields'), findsNothing);
     await _scrollToText(tester, 'Metadata proposals');
     expect(find.text('Metadata proposals'), findsOneWidget);
     expect(find.text('No local proposal submissions yet.'), findsOneWidget);

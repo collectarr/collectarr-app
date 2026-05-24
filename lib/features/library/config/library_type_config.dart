@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
@@ -28,7 +29,17 @@ class LibraryAddDialogRequest {
   final String? initialBarcode;
 }
 
-typedef LibraryAddDialogLauncher = Future<bool?> Function(
+class LibraryAddDialogResult {
+  const LibraryAddDialogResult({
+    required this.target,
+    required this.itemIds,
+  });
+
+  final LibraryAddTarget target;
+  final List<String> itemIds;
+}
+
+typedef LibraryAddDialogLauncher = Future<LibraryAddDialogResult?> Function(
   BuildContext context,
   LibraryAddDialogRequest request,
 );

@@ -17,6 +17,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
+import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
@@ -652,12 +653,34 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       initialQuery: _searchController.text,
       initialBarcode: barcode,
     );
-    if (added == true && mounted) {
+    if (added != null && mounted) {
       ref.invalidate(shelfProvider);
+      _revealAddedItems(added.itemIds);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${widget.type.singularLabel} added')),
+        SnackBar(
+          content: Text(
+            added.target == LibraryAddTarget.track
+                ? '${widget.type.singularLabel} added to tracking'
+                : '${widget.type.singularLabel} added',
+          ),
+        ),
       );
     }
+  }
+
+  void _revealAddedItems(List<String> itemIds) {
+    if (itemIds.isEmpty) {
+      return;
+    }
+    setState(() {
+      _selectedId = itemIds.first;
+      _selectedBucket = null;
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _quickView = null;
+      _filterSelection = LibraryFilterSelection.none;
+      _searchController.clear();
+    });
   }
 
   Future<void> _handleItemContextMenu(

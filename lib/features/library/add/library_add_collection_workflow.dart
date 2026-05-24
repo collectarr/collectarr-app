@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -110,6 +111,8 @@ Future<void> addLibraryItemsToTarget({
   await catalog.upsertAll(catalogItems);
   for (final item in values) {
     final ownedDetails = ownedDetailsByItemId[item.id];
+    final digitalOwnedItem = _digitalOwnedItemFlag(item);
+    final isDigitalOwnedItem = digitalOwnedItem == true;
     final reference = _resolveReferenceForItem(
       item,
       referenceType: target == LibraryAddTarget.track
@@ -122,23 +125,32 @@ Future<void> addLibraryItemsToTarget({
       case LibraryAddTarget.owned:
         final ownedItem = await mutations.addItem(
           item.id,
+          isDigital: digitalOwnedItem,
           anchorType: reference.anchorType,
           editionId: ownedDetails?.editionId ?? reference.editionId,
           variantId: ownedDetails?.variantId ?? reference.variantId,
           bundleReleaseId: reference.bundleReleaseId,
-          condition: ownedDetails?.condition ?? defaults.condition,
-          grade: ownedDetails?.grade ?? defaults.grade,
+          condition: isDigitalOwnedItem
+            ? null
+            : ownedDetails?.condition ?? defaults.condition,
+          grade: isDigitalOwnedItem
+            ? null
+            : ownedDetails?.grade ?? defaults.grade,
           purchaseDate: ownedDetails?.purchaseDate ?? defaults.purchaseDate,
           pricePaidCents: ownedDetails?.pricePaidCents,
           currency: ownedDetails?.currency,
           personalNotes: ownedDetails?.personalNotes,
           quantity: ownedDetails?.quantity ?? 1,
-          locationId: ownedDetails?.locationId ?? defaults.locationId,
-          coverPriceCents: ownedDetails?.coverPriceCents,
-          rawOrSlabbed: ownedDetails?.rawOrSlabbed,
-          gradingCompany: ownedDetails?.gradingCompany,
-          graderNotes: ownedDetails?.graderNotes,
-          signedBy: ownedDetails?.signedBy,
+          locationId: isDigitalOwnedItem
+            ? null
+            : ownedDetails?.locationId ?? defaults.locationId,
+          coverPriceCents:
+            isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
+          rawOrSlabbed: isDigitalOwnedItem ? null : ownedDetails?.rawOrSlabbed,
+          gradingCompany:
+            isDigitalOwnedItem ? null : ownedDetails?.gradingCompany,
+          graderNotes: isDigitalOwnedItem ? null : ownedDetails?.graderNotes,
+          signedBy: isDigitalOwnedItem ? null : ownedDetails?.signedBy,
           keyComic: ownedDetails?.keyComic ?? false,
           keyReason: ownedDetails?.keyReason,
           rating: ownedDetails?.rating,
@@ -175,10 +187,18 @@ Future<void> addLibraryItemsToTarget({
         await mutations.upsertTrackingEntry(
           item.id,
           status: defaults.readStatus,
+          allowEmpty: true,
         );
         break;
     }
   }
+}
+
+bool? _digitalOwnedItemFlag(LibraryMetadataItem item) {
+  return digitalPhysicalMediaFormatFlag(
+    item.physicalFormat,
+    label: item.physicalFormatLabel ?? item.variant,
+  );
 }
 
 _ResolvedAddReference _resolveReferenceForItem(
@@ -203,12 +223,15 @@ _ResolvedAddReference _resolveReferenceForItem(
       final edition = _selectedEditionForItem(item, releaseSelection?.editionId) ??
           _primaryEditionForItem(item);
       final variant = _selectedVariantForEdition(
-            edition,
-            releaseSelection?.variantId,
-          ) ??
-          _primaryVariantForEdition(edition);
+        edition,
+        releaseSelection?.variantId,
+      );
       return _ResolvedAddReference(
-        anchorType: variant == null ? null : 'variant',
+        anchorType: variant != null
+            ? 'variant'
+            : edition != null
+            ? 'edition'
+            : null,
         editionId: edition?.id,
         variantId: variant?.id,
       );

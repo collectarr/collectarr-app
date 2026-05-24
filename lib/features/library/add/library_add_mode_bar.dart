@@ -34,7 +34,7 @@ class _DialogHeader extends StatelessWidget {
             ),
             IconButton(
               tooltip: 'Close',
-              onPressed: () => Navigator.of(context).pop(false),
+              onPressed: () => Navigator.of(context).pop(),
               icon: const Icon(Icons.close, size: 18),
               visualDensity: VisualDensity.compact,
             ),

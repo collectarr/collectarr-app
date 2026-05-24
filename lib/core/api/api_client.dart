@@ -410,6 +410,45 @@ class ApiClient {
     return _adminApi.adminRetryProviderIngestJob(jobId: jobId);
   }
 
+  Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
+    return _adminApi.adminMetadataProposalSummary();
+  }
+
+  Future<List<AdminMetadataProposal>> adminMetadataProposals({
+    String status = 'pending',
+    String? provider,
+  }) async {
+    return _adminApi.adminMetadataProposals(
+      status: status,
+      provider: provider,
+    );
+  }
+
+  Future<AdminProviderIngestResult> adminApproveMetadataProposal({
+    required String proposalId,
+  }) async {
+    return _adminApi.adminApproveMetadataProposal(proposalId: proposalId);
+  }
+
+  Future<AdminProviderIngestResult>
+      adminApproveMetadataProposalWithProviderItem({
+    required String proposalId,
+    required String provider,
+    required String providerItemId,
+  }) async {
+    return _adminApi.adminApproveMetadataProposalWithProviderItem(
+      proposalId: proposalId,
+      provider: provider,
+      providerItemId: providerItemId,
+    );
+  }
+
+  Future<AdminMetadataProposal> adminRejectMetadataProposal({
+    required String proposalId,
+  }) async {
+    return _adminApi.adminRejectMetadataProposal(proposalId: proposalId);
+  }
+
   Future<Map<String, dynamic>> createMetadataProposal({
     required String provider,
     required String query,
@@ -537,19 +576,21 @@ class ApiClient {
   // User management
   // -----------------------------------------------------------------------
 
-  Future<List<Map<String, dynamic>>> adminListUsers() async {
+  Future<List<AdminUser>> adminListUsers() async {
     return _assetsApi.adminListUsers();
   }
 
-  Future<Map<String, dynamic>> adminImageCacheStats() async {
+  Future<AdminImageCacheStats> adminImageCacheStats() async {
     return _assetsApi.adminImageCacheStats();
   }
 
-  Future<Map<String, dynamic>> adminPurgeImageCache({String? provider}) async {
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache({
+    String? provider,
+  }) async {
     return _assetsApi.adminPurgeImageCache(provider: provider);
   }
 
-  Future<Map<String, dynamic>> adminUpdateUser(
+  Future<AdminUser> adminUpdateUser(
     String userId, {
     String? role,
     bool? isActive,

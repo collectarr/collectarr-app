@@ -2075,6 +2075,15 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDigitalMeta =
+      const VerificationMeta('isDigital');
+  @override
+  late final GeneratedColumn<bool> isDigital = GeneratedColumn<bool>(
+      'is_digital', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
   static const VerificationMeta _anchorTypeMeta =
       const VerificationMeta('anchorType');
   @override
@@ -2266,6 +2275,7 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   List<GeneratedColumn> get $columns => [
         id,
         itemId,
+        isDigital,
         anchorType,
         editionId,
         variantId,
@@ -2319,6 +2329,10 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
     } else if (isInserting) {
       context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('is_digital')) {
+      context.handle(_isDigitalMeta,
+          isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
     if (data.containsKey('anchor_type')) {
       context.handle(
@@ -2489,6 +2503,8 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      isDigital: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
       anchorType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
       editionId: attachedDatabase.typeMapping
@@ -2564,6 +2580,7 @@ class OwnedItemsCacheData extends DataClass
     implements Insertable<OwnedItemsCacheData> {
   final String id;
   final String itemId;
+  final bool? isDigital;
   final String? anchorType;
   final String? editionId;
   final String? variantId;
@@ -2598,6 +2615,7 @@ class OwnedItemsCacheData extends DataClass
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
+      this.isDigital,
       this.anchorType,
       this.editionId,
       this.variantId,
@@ -2634,6 +2652,9 @@ class OwnedItemsCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || isDigital != null) {
+      map['is_digital'] = Variable<bool>(isDigital);
+    }
     if (!nullToAbsent || anchorType != null) {
       map['anchor_type'] = Variable<String>(anchorType);
     }
@@ -2728,6 +2749,9 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
+      isDigital: isDigital == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isDigital),
       anchorType: anchorType == null && nullToAbsent
           ? const Value.absent()
           : Value(anchorType),
@@ -2818,6 +2842,7 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
+      isDigital: serializer.fromJson<bool?>(json['isDigital']),
       anchorType: serializer.fromJson<String?>(json['anchorType']),
       editionId: serializer.fromJson<String?>(json['editionId']),
       variantId: serializer.fromJson<String?>(json['variantId']),
@@ -2857,6 +2882,7 @@ class OwnedItemsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
+      'isDigital': serializer.toJson<bool?>(isDigital),
       'anchorType': serializer.toJson<String?>(anchorType),
       'editionId': serializer.toJson<String?>(editionId),
       'variantId': serializer.toJson<String?>(variantId),
@@ -2894,6 +2920,7 @@ class OwnedItemsCacheData extends DataClass
   OwnedItemsCacheData copyWith(
           {String? id,
           String? itemId,
+          Value<bool?> isDigital = const Value.absent(),
           Value<String?> anchorType = const Value.absent(),
           Value<String?> editionId = const Value.absent(),
           Value<String?> variantId = const Value.absent(),
@@ -2928,6 +2955,7 @@ class OwnedItemsCacheData extends DataClass
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
+        isDigital: isDigital.present ? isDigital.value : this.isDigital,
         anchorType: anchorType.present ? anchorType.value : this.anchorType,
         editionId: editionId.present ? editionId.value : this.editionId,
         variantId: variantId.present ? variantId.value : this.variantId,
@@ -2974,6 +3002,7 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
       anchorType:
           data.anchorType.present ? data.anchorType.value : this.anchorType,
       editionId: data.editionId.present ? data.editionId.value : this.editionId,
@@ -3036,6 +3065,7 @@ class OwnedItemsCacheData extends DataClass
     return (StringBuffer('OwnedItemsCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('isDigital: $isDigital, ')
           ..write('anchorType: $anchorType, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
@@ -3075,6 +3105,7 @@ class OwnedItemsCacheData extends DataClass
   int get hashCode => Object.hashAll([
         id,
         itemId,
+        isDigital,
         anchorType,
         editionId,
         variantId,
@@ -3113,6 +3144,7 @@ class OwnedItemsCacheData extends DataClass
       (other is OwnedItemsCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
+          other.isDigital == this.isDigital &&
           other.anchorType == this.anchorType &&
           other.editionId == this.editionId &&
           other.variantId == this.variantId &&
@@ -3149,6 +3181,7 @@ class OwnedItemsCacheData extends DataClass
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String> id;
   final Value<String> itemId;
+  final Value<bool?> isDigital;
   final Value<String?> anchorType;
   final Value<String?> editionId;
   final Value<String?> variantId;
@@ -3184,6 +3217,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
+    this.isDigital = const Value.absent(),
     this.anchorType = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
@@ -3220,6 +3254,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   OwnedItemsCacheCompanion.insert({
     required String id,
     required String itemId,
+    this.isDigital = const Value.absent(),
     this.anchorType = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
@@ -3258,6 +3293,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   static Insertable<OwnedItemsCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
+    Expression<bool>? isDigital,
     Expression<String>? anchorType,
     Expression<String>? editionId,
     Expression<String>? variantId,
@@ -3294,6 +3330,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
+      if (isDigital != null) 'is_digital': isDigital,
       if (anchorType != null) 'anchor_type': anchorType,
       if (editionId != null) 'edition_id': editionId,
       if (variantId != null) 'variant_id': variantId,
@@ -3332,6 +3369,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   OwnedItemsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
+      Value<bool?>? isDigital,
       Value<String?>? anchorType,
       Value<String?>? editionId,
       Value<String?>? variantId,
@@ -3367,6 +3405,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      isDigital: isDigital ?? this.isDigital,
       anchorType: anchorType ?? this.anchorType,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
@@ -3410,6 +3449,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     }
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (isDigital.present) {
+      map['is_digital'] = Variable<bool>(isDigital.value);
     }
     if (anchorType.present) {
       map['anchor_type'] = Variable<String>(anchorType.value);
@@ -3515,6 +3557,7 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return (StringBuffer('OwnedItemsCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('isDigital: $isDigital, ')
           ..write('anchorType: $anchorType, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
@@ -9526,6 +9569,7 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
     Function({
   required String id,
   required String itemId,
+  Value<bool?> isDigital,
   Value<String?> anchorType,
   Value<String?> editionId,
   Value<String?> variantId,
@@ -9563,6 +9607,7 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
     Function({
   Value<String> id,
   Value<String> itemId,
+  Value<bool?> isDigital,
   Value<String?> anchorType,
   Value<String?> editionId,
   Value<String?> variantId,
@@ -9611,6 +9656,9 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDigital => $composableBuilder(
+      column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get anchorType => $composableBuilder(
       column: $table.anchorType, builder: (column) => ColumnFilters(column));
@@ -9725,6 +9773,9 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDigital => $composableBuilder(
+      column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get anchorType => $composableBuilder(
       column: $table.anchorType, builder: (column) => ColumnOrderings(column));
@@ -9842,6 +9893,9 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDigital =>
+      $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
   GeneratedColumn<String> get anchorType => $composableBuilder(
       column: $table.anchorType, builder: (column) => column);
@@ -9967,6 +10021,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
+            Value<bool?> isDigital = const Value.absent(),
             Value<String?> anchorType = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
@@ -10003,6 +10058,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
               OwnedItemsCacheCompanion(
             id: id,
             itemId: itemId,
+            isDigital: isDigital,
             anchorType: anchorType,
             editionId: editionId,
             variantId: variantId,
@@ -10039,6 +10095,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String itemId,
+            Value<bool?> isDigital = const Value.absent(),
             Value<String?> anchorType = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
@@ -10075,6 +10132,7 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
               OwnedItemsCacheCompanion.insert(
             id: id,
             itemId: itemId,
+            isDigital: isDigital,
             anchorType: anchorType,
             editionId: editionId,
             variantId: variantId,

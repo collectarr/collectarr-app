@@ -1,10 +1,16 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,14 +19,29 @@ void main() {
   testWidgets('admin page searches provider metadata and ingests a result',
       (tester) async {
     final api = _FakeAdminApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    await LocationRepository(db).create(name: 'Shelf A');
+    await CustomFieldRepository(db).upsertDefinition(
+      CustomFieldDefinition(
+        id: 'cf-1',
+        name: 'Signed',
+        fieldType: 'bool',
+        mediaKind: 'comic',
+        createdAt: DateTime.utc(2026, 5, 14),
+      ),
+    );
     tester.view.physicalSize = const Size(1200, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(db.close);
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [apiClientProvider.overrideWithValue(api)],
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+        ],
         child: const MaterialApp(home: AdminPage()),
       ),
     );
@@ -39,6 +60,11 @@ void main() {
     expect(find.text('5 ok'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
     expect(find.text('GCD'), findsWidgets);
+    expect(find.text('Metadata proposal activity'), findsOneWidget);
+    expect(find.text('1 recent approve'), findsOneWidget);
+    expect(find.text('1 recent reject'), findsOneWidget);
+    expect(find.text('Approved via provider'), findsOneWidget);
+    expect(find.text('Rejected proposal'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Reindex search'));
     await tester.pumpAndSettle();
@@ -156,6 +182,37 @@ void main() {
     await tester.tap(find.text('Providers'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Metadata proposals'), findsOneWidget);
+    expect(find.text('2 pending'), findsOneWidget);
+    expect(find.text('1 approved'), findsOneWidget);
+    expect(find.text('1 rejected'), findsOneWidget);
+    expect(find.text('Manual GCD correction'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Review in search').first);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Reviewing proposal:'), findsOneWidget);
+    await _scrollUntilVisible(
+      tester,
+      find.widgetWithText(FilledButton, 'Approve proposal').first,
+      delta: -400,
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Approve proposal').first);
+    await tester.pumpAndSettle();
+
+    expect(api.lastApprovedProposalId, 'proposal-1');
+    expect(api.lastApprovedProposalProviderItemId, '12345');
+    expect(
+      find.text('Proposal approved with selected provider item.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Reject').first);
+    await tester.pumpAndSettle();
+
+    expect(api.lastRejectedProposalId, 'proposal-2');
+    expect(find.text('Proposal rejected.'), findsOneWidget);
+
     await _scrollUntilVisible(tester, find.text('Provider ingest jobs'));
     expect(find.text('Provider ingest jobs'), findsOneWidget);
     expect(find.text('1 queued'), findsOneWidget);
@@ -257,19 +314,67 @@ void main() {
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, '12345');
+
+    await tester.tap(find.text('System'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Collection schema'), findsOneWidget);
+    expect(find.text('New root location'), findsOneWidget);
+    expect(find.text('Manage locations'), findsOneWidget);
+    expect(find.text('New custom field'), findsOneWidget);
+    expect(find.text('Manage custom fields'), findsOneWidget);
+    expect(find.text('Comic: 1'), findsOneWidget);
+    expect(find.text('User management'), findsOneWidget);
+    expect(find.text('Image cache'), findsOneWidget);
+    expect(find.text('alice@example.com'), findsOneWidget);
+    expect(find.text('bob@example.com'), findsOneWidget);
+    expect(find.text('Visible 2'), findsOneWidget);
+    expect(find.text('Admins 1'), findsOneWidget);
+    expect(find.text('Per-provider purge'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Purge gcd'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Edit user').first);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Display name'),
+      'Alice Curator',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastUpdatedUserId, 'user-1');
+    expect(api.lastUpdatedUserDisplayName, 'Alice Curator');
+    expect(find.text('Updated alice@example.com.'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Deactivate').first);
+    await tester.pumpAndSettle();
+
+    expect(api.lastUpdatedUserIsActive, isFalse);
+    expect(find.text('Deactivated alice@example.com.'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Purge gcd'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastPurgedImageProvider, 'gcd');
+    expect(find.textContaining('Purged 12 gcd entries'), findsOneWidget);
   });
 
   testWidgets('admin page persists series tag corrections for books',
       (tester) async {
     final api = _BookAdminApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
     tester.view.physicalSize = const Size(1280, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(db.close);
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [apiClientProvider.overrideWithValue(api)],
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+        ],
         child: const MaterialApp(home: AdminPage()),
       ),
     );
@@ -338,6 +443,14 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastSearchProvider;
   String? lastSearchQuery;
   String? lastSearchKind;
+  String? lastApprovedProposalId;
+  String? lastApprovedProposalProviderItemId;
+  String? lastRejectedProposalId;
+  String? lastUpdatedUserId;
+  String? lastUpdatedUserDisplayName;
+  String? lastUpdatedUserRole;
+  bool? lastUpdatedUserIsActive;
+  String? lastPurgedImageProvider;
   String? lastSeriesTagsSeriesId;
   String? lastIngestProvider;
   String? lastIngestProviderItemId;
@@ -360,6 +473,48 @@ class _FakeAdminApiClient extends ApiClient {
   int catalogUpdateCount = 0;
   int runPendingCount = 0;
   int reindexCount = 0;
+  final List<AdminUser> _users = [
+    AdminUser(
+      id: 'user-1',
+      email: 'alice@example.com',
+      displayName: 'Alice Admin',
+      isActive: true,
+      isAdmin: true,
+      role: 'admin',
+      createdAt: DateTime.utc(2026, 5, 10, 9),
+      updatedAt: DateTime.utc(2026, 5, 14, 9),
+    ),
+    AdminUser(
+      id: 'user-2',
+      email: 'bob@example.com',
+      displayName: 'Bob Editor',
+      isActive: true,
+      isAdmin: false,
+      role: 'editor',
+      createdAt: DateTime.utc(2026, 5, 11, 9),
+      updatedAt: DateTime.utc(2026, 5, 14, 10),
+    ),
+  ];
+  final Map<String, int> _imageProviders = {'gcd': 12, 'comicvine': 4};
+  final List<AdminMetadataProposal> _pendingProposals = [
+    const AdminMetadataProposal(
+      id: 'proposal-1',
+      provider: 'gcd',
+      providerItemId: 'manual-123',
+      query: 'Absolute Batman manual correction',
+      title: 'Manual GCD correction',
+      summary: 'Needs a provider-backed match before ingest.',
+      status: 'pending',
+    ),
+    const AdminMetadataProposal(
+      id: 'proposal-2',
+      provider: 'comicvine',
+      query: 'Variant cleanup proposal',
+      title: 'Variant cleanup',
+      summary: 'Reject this duplicate suggestion.',
+      status: 'pending',
+    ),
+  ];
 
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
@@ -584,6 +739,28 @@ class _FakeAdminApiClient extends ApiClient {
     String? entityId,
     int limit = 10,
   }) async {
+    if (entityType == 'metadata_proposal') {
+      return [
+        AdminAuditLogEntry(
+          id: 'proposal-audit-1',
+          action: 'metadata_proposal.approve_provider',
+          actorEmail: 'admin@example.com',
+          entityType: 'metadata_proposal',
+          entityId: 'proposal-1',
+          detailsJson: const {'provider': 'gcd'},
+          createdAt: DateTime.utc(2026, 5, 14, 9, 20),
+        ),
+        AdminAuditLogEntry(
+          id: 'proposal-audit-2',
+          action: 'metadata_proposal.reject',
+          actorEmail: 'admin@example.com',
+          entityType: 'metadata_proposal',
+          entityId: 'proposal-2',
+          detailsJson: const {'provider': 'comicvine'},
+          createdAt: DateTime.utc(2026, 5, 14, 9, 25),
+        ),
+      ];
+    }
     return [
       AdminAuditLogEntry(
         id: 'audit-1',
@@ -626,6 +803,111 @@ class _FakeAdminApiClient extends ApiClient {
         error: 'Provider timeout',
       ),
     ];
+  }
+
+  @override
+  Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
+    return AdminMetadataProposalSummary(
+      pending: _pendingProposals
+          .where((proposal) =>
+              proposal.id != lastApprovedProposalId &&
+              proposal.id != lastRejectedProposalId)
+          .length,
+      approved: 1 + (lastApprovedProposalId == null ? 0 : 1),
+      rejected: 1 + (lastRejectedProposalId == null ? 0 : 1),
+      total: _pendingProposals.length + 2,
+    );
+  }
+
+  @override
+  Future<List<AdminMetadataProposal>> adminMetadataProposals({
+    String status = 'pending',
+    String? provider,
+  }) async {
+    Iterable<AdminMetadataProposal> proposals;
+    if (status == 'pending') {
+      proposals = _pendingProposals.where((proposal) {
+        if (lastApprovedProposalId == proposal.id ||
+            lastRejectedProposalId == proposal.id) {
+          return false;
+        }
+        return true;
+      });
+    } else if (status == 'approved') {
+      proposals = const [
+        AdminMetadataProposal(
+          id: 'proposal-approved-1',
+          provider: 'gcd',
+          query: 'Approved proposal',
+          title: 'Approved proposal',
+          status: 'approved',
+        ),
+      ];
+    } else {
+      proposals = const [
+        AdminMetadataProposal(
+          id: 'proposal-rejected-1',
+          provider: 'comicvine',
+          query: 'Rejected proposal',
+          title: 'Rejected proposal',
+          status: 'rejected',
+        ),
+      ];
+    }
+    if (provider != null && provider.isNotEmpty) {
+      proposals = proposals.where((proposal) => proposal.provider == provider);
+    }
+    return proposals.toList(growable: false);
+  }
+
+  @override
+  Future<AdminProviderIngestResult> adminApproveMetadataProposal({
+    required String proposalId,
+  }) async {
+    lastApprovedProposalId = proposalId;
+    return const AdminProviderIngestResult(
+      itemId: 'item-1',
+      created: true,
+      item: AdminMetadataItem(
+        id: 'item-1',
+        kind: 'comic',
+        title: 'Absolute Batman',
+      ),
+    );
+  }
+
+  @override
+  Future<AdminProviderIngestResult>
+      adminApproveMetadataProposalWithProviderItem({
+    required String proposalId,
+    required String provider,
+    required String providerItemId,
+  }) async {
+    lastApprovedProposalId = proposalId;
+    lastApprovedProposalProviderItemId = providerItemId;
+    return const AdminProviderIngestResult(
+      itemId: 'item-1',
+      created: true,
+      item: AdminMetadataItem(
+        id: 'item-1',
+        kind: 'comic',
+        title: 'Absolute Batman',
+      ),
+    );
+  }
+
+  @override
+  Future<AdminMetadataProposal> adminRejectMetadataProposal({
+    required String proposalId,
+  }) async {
+    lastRejectedProposalId = proposalId;
+    return const AdminMetadataProposal(
+      id: 'proposal-2',
+      provider: 'comicvine',
+      query: 'Variant cleanup proposal',
+      title: 'Variant cleanup',
+      status: 'rejected',
+    );
   }
 
   @override
@@ -1012,6 +1294,73 @@ class _FakeAdminApiClient extends ApiClient {
       processed: 1,
       recovered: 0,
       jobs: await adminProviderIngestJobs(),
+    );
+  }
+
+  @override
+  Future<List<AdminUser>> adminListUsers() async {
+    return List<AdminUser>.from(_users);
+  }
+
+  @override
+  Future<AdminUser> adminUpdateUser(
+    String userId, {
+    String? role,
+    bool? isActive,
+    String? displayName,
+  }) async {
+    final index = _users.indexWhere((user) => user.id == userId);
+    expect(index, isNonNegative);
+    final current = _users[index];
+    final updated = AdminUser(
+      id: current.id,
+      email: current.email,
+      displayName: displayName ?? current.displayName,
+      isActive: isActive ?? current.isActive,
+      isAdmin: (role ?? current.role) == 'admin',
+      role: role ?? current.role,
+      createdAt: current.createdAt,
+      updatedAt: DateTime.utc(2026, 5, 14, 11),
+    );
+    _users[index] = updated;
+    lastUpdatedUserId = userId;
+    lastUpdatedUserDisplayName = displayName;
+    lastUpdatedUserRole = role;
+    lastUpdatedUserIsActive = isActive;
+    return updated;
+  }
+
+  @override
+  Future<AdminImageCacheStats> adminImageCacheStats() async {
+    final totalEntries = _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
+    final totalSizeBytes = totalEntries * 1024 * 128;
+    const maxSizeBytes = 1024 * 1024 * 8;
+    return AdminImageCacheStats(
+      totalEntries: totalEntries,
+      totalSizeBytes: totalSizeBytes,
+      maxSizeBytes: maxSizeBytes,
+      usagePercent: totalSizeBytes / maxSizeBytes * 100,
+      mirroringEnabled: true,
+      providers: Map<String, int>.from(_imageProviders),
+    );
+  }
+
+  @override
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache({String? provider}) async {
+    lastPurgedImageProvider = provider;
+    if (provider == null || provider.isEmpty) {
+      final deletedEntries = _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
+      _imageProviders.updateAll((key, value) => 0);
+      return AdminImageCachePurgeResult(
+        deletedEntries: deletedEntries,
+        freedBytes: deletedEntries * 1024 * 128,
+      );
+    }
+    final deletedEntries = _imageProviders[provider] ?? 0;
+    _imageProviders[provider] = 0;
+    return AdminImageCachePurgeResult(
+      deletedEntries: deletedEntries,
+      freedBytes: deletedEntries * 1024 * 128,
     );
   }
 }

@@ -89,6 +89,7 @@ class OwnedItemsCacheRepository {
     return OwnedItem(
       id: row.id,
       itemId: row.itemId,
+      isDigital: row.isDigital,
       anchorType: row.anchorType,
       editionId: row.editionId,
       variantId: row.variantId,
@@ -127,6 +128,7 @@ class OwnedItemsCacheRepository {
     return OwnedItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
+      isDigital: Value(item.isDigital),
       anchorType: Value(item.anchorType),
       editionId: Value(item.editionId),
       variantId: Value(item.variantId),

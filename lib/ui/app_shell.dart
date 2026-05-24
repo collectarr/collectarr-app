@@ -49,8 +49,8 @@ class _AppShellState extends ConsumerState<AppShell> {
           child: pages[selectedIndex].child,
         ),
       ),
-      floatingActionButton: selectedIndex == 0
-          ? _LibraryAwareSyncButton(
+        floatingActionButton: selectedIndex == 0
+          ? LibraryAwareSyncButton(
               sync: sync,
               accent: accent,
               animationsEnabled: uiPreferences.animationsEnabled,
@@ -179,8 +179,8 @@ class _ShellPage {
   final bool adminOnly;
 }
 
-class _LibraryAwareSyncButton extends StatelessWidget {
-  const _LibraryAwareSyncButton({
+class LibraryAwareSyncButton extends StatelessWidget {
+  const LibraryAwareSyncButton({
     required this.sync,
     required this.accent,
     required this.animationsEnabled,

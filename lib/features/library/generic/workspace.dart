@@ -356,7 +356,16 @@ class LibraryWorkspace extends StatelessWidget {
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
         ),
       LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
-      LibraryTableColumn.variant => LibraryTableCellText(entry.variant),
+      LibraryTableColumn.variant => LibraryTableCellText(
+          [
+            if (entry.variant != null && entry.variant!.trim().isNotEmpty)
+              entry.variant,
+            if (entry.referenceScopeLabel != null)
+              'Scope: ${entry.referenceScopeLabel!}',
+            if (entry.referenceFormatLabel != null)
+              'Format: ${entry.referenceFormatLabel!}',
+          ].join('  ·  '),
+        ),
       LibraryTableColumn.publisher => LibraryTableCellText(entry.publisher),
       LibraryTableColumn.releaseDate =>
         LibraryTableCellText(formatNullableDate(entry.releaseDate)),

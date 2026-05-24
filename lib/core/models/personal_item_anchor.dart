@@ -1,5 +1,6 @@
 enum PersonalItemAnchorType {
   item('item', 'Media'),
+  edition('edition', 'Edition'),
   variant('variant', 'Physical release'),
   bundleRelease('bundle_release', 'Bundle release');
 
@@ -32,8 +33,10 @@ String? normalizePersonalItemAnchorType(String? value) {
     case 'media':
     case 'work':
       return PersonalItemAnchorType.item.apiValue;
+    case 'edition':
     case 'variant':
     case 'release':
+      return PersonalItemAnchorType.edition.apiValue;
     case 'physical_release':
     case 'physical-release':
       return PersonalItemAnchorType.variant.apiValue;
@@ -47,4 +50,54 @@ String? normalizePersonalItemAnchorType(String? value) {
     default:
       return null;
   }
+}
+
+PersonalItemAnchorType? resolvePersonalItemAnchor({
+  String? anchorType,
+  String? editionId,
+  String? variantId,
+  String? bundleReleaseId,
+}) {
+  final normalized = normalizePersonalItemAnchorType(anchorType);
+  final hasBundleRelease = _hasAnchorValue(bundleReleaseId);
+  final hasVariant = _hasAnchorValue(variantId);
+  final hasEdition = _hasAnchorValue(editionId);
+
+  if (normalized == PersonalItemAnchorType.item.apiValue) {
+    return PersonalItemAnchorType.item;
+  }
+  if (hasBundleRelease ||
+      normalized == PersonalItemAnchorType.bundleRelease.apiValue) {
+    return PersonalItemAnchorType.bundleRelease;
+  }
+  if (hasVariant || normalized == PersonalItemAnchorType.variant.apiValue) {
+    return hasVariant
+        ? PersonalItemAnchorType.variant
+        : hasEdition
+        ? PersonalItemAnchorType.edition
+        : PersonalItemAnchorType.variant;
+  }
+  if (hasEdition || normalized == PersonalItemAnchorType.edition.apiValue) {
+    return PersonalItemAnchorType.edition;
+  }
+  return normalized == null ? null : PersonalItemAnchorType.fromApiValue(normalized);
+}
+
+String? resolvePersonalItemAnchorType({
+  String? anchorType,
+  String? editionId,
+  String? variantId,
+  String? bundleReleaseId,
+}) {
+  return resolvePersonalItemAnchor(
+    anchorType: anchorType,
+    editionId: editionId,
+    variantId: variantId,
+    bundleReleaseId: bundleReleaseId,
+  )?.apiValue;
+}
+
+bool _hasAnchorValue(String? value) {
+  final trimmed = value?.trim();
+  return trimmed != null && trimmed.isNotEmpty;
 }

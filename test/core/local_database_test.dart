@@ -144,6 +144,27 @@ void main() {
     expect(raw.locationId, 'loc-1');
   });
 
+  test('owned items repository preserves explicit digital flag', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = OwnedItemsCacheRepository(db);
+
+    await repo.upsert(
+      OwnedItem(
+        id: 'owned-digital-1',
+        itemId: 'movie-1',
+        isDigital: true,
+        updatedAt: DateTime.utc(2026, 5, 22),
+      ),
+    );
+
+    final owned = await repo.findById('owned-digital-1');
+    final raw = await db.select(db.ownedItemsCache).getSingle();
+
+    expect(owned?.isDigital, isTrue);
+    expect(raw.isDigital, isTrue);
+  });
+
   test('tracking entries repository preserves edition and progress refs', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);

@@ -410,13 +410,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                           );
                           setState(() {
                             _selectedReleaseEditionId = selectedEdition?.id;
-                            _selectedReleaseVariantId =
-                                _previewPrimaryVariantForEdition(selectedEdition)?.id;
+                            _selectedReleaseVariantId = null;
                           });
                         },
                         onReleaseVariantSelected: (variantId) {
                           setState(() {
-                            _selectedReleaseVariantId = variantId;
+                            _selectedReleaseVariantId = _emptyToNull(variantId);
                           });
                         },
                         onBundleReleaseSelected: (bundleReleaseId) {
@@ -662,7 +661,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final rerankHints = _currentLocalRerankHints();
       final rankedItems = rerankLibraryMetadataItems(mappedItems, rerankHints);
       final shouldSearchProvider =
-          rankedItems.isEmpty &&
+          shouldSearchProviderForCoreResults(
+            rankedItems,
+            rerankHints,
+          ) &&
           widget.type.supportedMetadataProviders.isNotEmpty;
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() {
@@ -1129,11 +1131,26 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       final hydratedItem = LibraryMetadataItem.fromCatalogItem(hydrated);
+      LibraryMetadataItem? originalItem;
+      for (final item in _results) {
+        if (item.id == itemId) {
+          originalItem = item;
+          break;
+        }
+      }
+      final mergedItem = originalItem == null ||
+              hydratedItem.displayCoverUrl != null
+          ? hydratedItem
+          : hydratedItem.copyWith(
+              coverImageUrl: originalItem.coverImageUrl,
+              thumbnailImageUrl:
+                  originalItem.thumbnailImageUrl ?? originalItem.coverImageUrl,
+            );
       setState(() {
-        _hydratedResults[itemId] = hydratedItem;
+        _hydratedResults[itemId] = mergedItem;
         _pendingHydratedResultIds.remove(itemId);
       });
-      _precacheMetadataCovers([hydratedItem]);
+      _precacheMetadataCovers([mergedItem]);
     } catch (_) {
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
@@ -1561,7 +1578,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       final messenger = ScaffoldMessenger.of(context);
-      Navigator.of(context).pop(true);
+      Navigator.of(context).pop(
+        LibraryAddDialogResult(
+          target: LibraryAddTarget.track,
+          itemIds: [result.item.id],
+        ),
+      );
       messenger.showSnackBar(
         SnackBar(
           content: Text(
@@ -1678,7 +1700,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (edition == null) {
       return null;
     }
-    final variant = _previewVariantForEdition(edition, _selectedReleaseVariantId);
+    final variant = _selectedVariantForEdition(
+      edition,
+      _selectedReleaseVariantId,
+    );
     return LibraryAddReleaseSelection(
       editionId: edition.id,
       variantId: variant?.id,
@@ -1756,7 +1781,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
       );
       if (mounted) {
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop(
+          LibraryAddDialogResult(
+            target: target,
+            itemIds: [for (final item in items) item.id],
+          ),
+        );
       }
     } catch (error) {
       if (mounted) {
@@ -1960,6 +1990,34 @@ List<ProviderCandidate> rerankProviderCandidates(
   return indexed.map((entry) => entry.$2).toList(growable: false);
 }
 
+const libraryAddProviderFallbackConfidenceThreshold = 0.72;
+
+bool shouldSearchProviderForCoreResults(
+  List<LibraryMetadataItem> items,
+  LibraryAddLocalRerankHints hints, {
+  double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
+}) {
+  if (items.isEmpty) {
+    return true;
+  }
+  return _topMetadataMatchConfidence(items, hints) < confidenceThreshold;
+}
+
+double _topMetadataMatchConfidence(
+  List<LibraryMetadataItem> items,
+  LibraryAddLocalRerankHints hints,
+) {
+  if (items.isEmpty || !hints.hasAnyHint) {
+    return 0;
+  }
+  final maxScore = _maxPossibleMatchScore(hints);
+  if (maxScore <= 0) {
+    return 0;
+  }
+  final topScore = _scoreMetadataItem(items.first, hints);
+  return (topScore / maxScore).clamp(0, 1).toDouble();
+}
+
 int _scoreMetadataItem(LibraryMetadataItem item, LibraryAddLocalRerankHints hints) {
   return _scoreMatchFields(
     title: item.title,
@@ -1980,6 +2038,26 @@ int _scoreProviderCandidate(ProviderCandidate item, LibraryAddLocalRerankHints h
     year: item.series?.volumeStartYear,
     hints: hints,
   );
+}
+
+int _maxPossibleMatchScore(LibraryAddLocalRerankHints hints) {
+  var score = 0;
+  if (_normalizeHint(hints.query).isNotEmpty) {
+    score += 100;
+  }
+  if (_normalizeHint(hints.series).isNotEmpty) {
+    score += 120;
+  }
+  if (_normalizeHint(hints.publisher).isNotEmpty) {
+    score += 60;
+  }
+  if (_normalizeHint(hints.issueNumber).isNotEmpty) {
+    score += 75;
+  }
+  if (hints.year != null) {
+    score += 55;
+  }
+  return score;
 }
 
 int _scoreMatchFields({

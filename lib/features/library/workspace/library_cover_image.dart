@@ -171,6 +171,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
     }
     final size = MediaQuery.sizeOf(context);
     final previewWidth = (size.width * 0.55).clamp(280.0, 720.0);
+    final previewHeight = (size.height * 0.88).clamp(280.0, 1200.0);
     await showGeneralDialog<void>(
       context: context,
       barrierLabel: 'Close cover preview',
@@ -198,27 +199,24 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Center(
-                        child: SizedBox(
-                          width: previewWidth,
-                          child: AspectRatio(
-                            aspectRatio: 2 / 3,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {},
-                              child: InteractiveViewer(
-                                minScale: 0.5,
-                                maxScale: 5,
-                                child: _CoverFrame(
-                                  borderRadius: 10,
-                                  child: LibraryCoverImage(
-                                    title: widget.title,
-                                    itemNumber: widget.itemNumber,
-                                    imageUrl: _activeImageUrl,
-                                    localBase64: _activeLocalBase64,
-                                    ownedItemId: widget.ownedItemId,
-                                    borderRadius: 10,
-                                  ),
-                                ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: previewWidth,
+                            maxHeight: previewHeight,
+                          ),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {},
+                            child: InteractiveViewer(
+                              minScale: 0.5,
+                              maxScale: 5,
+                              child: LibraryCoverImage(
+                                title: widget.title,
+                                itemNumber: widget.itemNumber,
+                                imageUrl: _activeImageUrl,
+                                localBase64: _activeLocalBase64,
+                                ownedItemId: widget.ownedItemId,
+                                borderRadius: 0,
                               ),
                             ),
                           ),

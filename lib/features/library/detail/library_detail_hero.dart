@@ -34,7 +34,8 @@ class LibraryDetailHero extends StatelessWidget {
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     final resolvedIsOwned = isOwned ?? ownedItem != null || entry.isOwned;
     final referenceLabel =
-      libraryOwnedReferenceLabel(ownedItem) ?? entry.primaryReferenceLabel;
+      libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+      entry.primaryReferenceLabel;
     final releaseLabel = formatNullableDate(entry.releaseDate) ??
         entry.releaseYear?.toString();
     return DecoratedBox(
@@ -174,6 +175,12 @@ class LibraryDetailHero extends StatelessWidget {
                       _DetailHeaderChip(
                         icon: Icons.link_outlined,
                         label: referenceLabel,
+                        accent: accent,
+                      ),
+                    if (entry.referenceFormatLabel != null)
+                      _DetailHeaderChip(
+                        icon: Icons.album_outlined,
+                        label: 'Format: ${entry.referenceFormatLabel!}',
                         accent: accent,
                       ),
                     _DetailHeaderChip(

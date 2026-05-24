@@ -120,9 +120,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           if (entry.variant != null &&
                               entry.variant!.isNotEmpty)
                             entry.variant,
-                          if (entry.primaryReferenceLabel != null &&
-                              entry.primaryReferenceLabel!.isNotEmpty)
-                            entry.primaryReferenceLabel,
                           if (entry.releaseDate != null)
                             dateFormatter(entry.releaseDate!),
                           if (entry.publisher != null &&
@@ -140,6 +137,18 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         spacing: 6,
                         runSpacing: 6,
                         children: [
+                          if (entry.referenceScopeLabel != null)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.link_outlined,
+                              label: 'Scope: ${entry.referenceScopeLabel!}',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.referenceFormatLabel != null)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.album_outlined,
+                              label: 'Format: ${entry.referenceFormatLabel!}',
+                              accentColor: accentColor,
+                            ),
                           if (entry.grade != null)
                             _LibraryCompactMetaPill(
                               icon: Icons.workspace_premium,

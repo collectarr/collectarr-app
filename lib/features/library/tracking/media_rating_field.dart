@@ -18,41 +18,102 @@ class MediaRatingField extends StatelessWidget {
     final starCount = maxRating <= 5 ? maxRating : 5;
     final pointsPerStar = maxRating / starCount;
 
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 1; i <= starCount; i++)
-            _StarButton(
-              filled: value >= (i * pointsPerStar).round(),
-              half: value >= ((i - 0.5) * pointsPerStar).round() &&
-                  value < (i * pointsPerStar).round(),
-              onTap: () {
-                final newValue = (i * pointsPerStar).round();
-                final current = int.tryParse(controller.text) ?? 0;
-                controller.text =
-                    (current == newValue ? 0 : newValue).toString();
-                (context as Element).markNeedsBuild();
-              },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 220;
+        final isVeryCompact = constraints.maxWidth < 150;
+        final starSize = isVeryCompact ? 20.0 : isCompact ? 22.0 : 28.0;
+        final starPadding = isVeryCompact ? 0.0 : isCompact ? 1.0 : 2.0;
+        final ratingText = Text(
+          '$value/$maxRating',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.5),
+              ),
+        );
+
+        return InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            border: const OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: isCompact ? 10 : 12,
+              vertical: isCompact ? 6 : 8,
             ),
-          const SizedBox(width: 8),
-          Text(
-            '$value/$maxRating',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.5),
-                ),
           ),
-        ],
-      ),
+          child: isVeryCompact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Wrap(
+                      spacing: 0,
+                      runSpacing: 0,
+                      children: [
+                        for (var i = 1; i <= starCount; i++)
+                          _StarButton(
+                            filled: value >= (i * pointsPerStar).round(),
+                            half:
+                                value >= ((i - 0.5) * pointsPerStar).round() &&
+                                value < (i * pointsPerStar).round(),
+                            size: starSize,
+                            horizontalPadding: starPadding,
+                            onTap: () {
+                              final newValue = (i * pointsPerStar).round();
+                              final current =
+                                  int.tryParse(controller.text) ?? 0;
+                              controller.text =
+                                  (current == newValue ? 0 : newValue)
+                                      .toString();
+                              (context as Element).markNeedsBuild();
+                            },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    ratingText,
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      child: FittedBox(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var i = 1; i <= starCount; i++)
+                              _StarButton(
+                                filled: value >= (i * pointsPerStar).round(),
+                                half: value >=
+                                        ((i - 0.5) * pointsPerStar).round() &&
+                                    value < (i * pointsPerStar).round(),
+                                size: starSize,
+                                horizontalPadding: starPadding,
+                                onTap: () {
+                                  final newValue =
+                                      (i * pointsPerStar).round();
+                                  final current =
+                                      int.tryParse(controller.text) ?? 0;
+                                  controller.text =
+                                      (current == newValue ? 0 : newValue)
+                                          .toString();
+                                  (context as Element).markNeedsBuild();
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(child: ratingText),
+                  ],
+                ),
+        );
+      },
     );
   }
 }
@@ -62,11 +123,15 @@ class _StarButton extends StatelessWidget {
     required this.filled,
     required this.half,
     required this.onTap,
+    this.size = 28,
+    this.horizontalPadding = 2,
   });
 
   final bool filled;
   final bool half;
   final VoidCallback onTap;
+  final double size;
+  final double horizontalPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -76,14 +141,14 @@ class _StarButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         child: Icon(
           filled
               ? Icons.star_rounded
               : half
                   ? Icons.star_half_rounded
                   : Icons.star_outline_rounded,
-          size: 28,
+          size: size,
           color: filled || half ? accent : muted,
         ),
       ),

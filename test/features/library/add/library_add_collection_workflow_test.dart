@@ -97,7 +97,42 @@ void main() {
     );
   });
 
-  test('adds release-referenced owned item using the primary edition variant',
+  test('adds digital owned items without physical-only defaults', () async {
+    final fixture = _WorkflowFixture();
+    addTearDown(fixture.dispose);
+
+    await fixture.db.into(fixture.db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'loc-digital',
+            name: 'Cloud Shelf',
+            sortOrder: const Value(1),
+          ),
+        );
+
+    await addLibraryItemsToTarget(
+      catalog: fixture.catalog,
+      mutations: fixture.mutations,
+      items: [_digitalMovie('movie-digital-1')],
+      target: LibraryAddTarget.owned,
+      defaults: LibraryAddDefaults(
+        condition: 'Mint',
+        grade: '10.0',
+        locationId: 'loc-digital',
+        readStatus: 'watched',
+      ),
+    );
+
+    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+
+    expect(ownedRows.single.itemId, 'movie-digital-1');
+    expect(ownedRows.single.isDigital, isTrue);
+    expect(ownedRows.single.condition, isNull);
+    expect(ownedRows.single.grade, isNull);
+    expect(ownedRows.single.locationId, isNull);
+    expect(ownedRows.single.readStatus, 'watched');
+  });
+
+  test('adds release-referenced owned item using the selected edition without forcing a physical release',
       () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
@@ -115,10 +150,10 @@ void main() {
     expect(ownedRows.single.itemId, 'comic-release-1');
     expect(
       ownedRows.single.anchorType,
-      PersonalItemAnchorType.variant.apiValue,
+      PersonalItemAnchorType.edition.apiValue,
     );
     expect(ownedRows.single.editionId, 'edition-1');
-    expect(ownedRows.single.variantId, 'variant-1');
+    expect(ownedRows.single.variantId, isNull);
   });
 
   test('adds release-referenced wishlist item using an explicit edition variant',
@@ -199,6 +234,30 @@ void main() {
     expect(trackingRows.single.itemId, 'comic-track-1');
     expect(trackingRows.single.status, 'reading');
   });
+
+  test('adds tracking-only entry when target is track without status', () async {
+    final fixture = _WorkflowFixture();
+    addTearDown(fixture.dispose);
+
+    await addLibraryItemsToTarget(
+      catalog: fixture.catalog,
+      mutations: fixture.mutations,
+      items: [_comic('comic-track-empty-1')],
+      target: LibraryAddTarget.track,
+      defaults: const LibraryAddDefaults(),
+    );
+
+    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final wishlistRows =
+        await fixture.db.select(fixture.db.wishlistItemsCache).get();
+    final trackingRows =
+        await fixture.db.select(fixture.db.trackingEntriesCache).get();
+
+    expect(ownedRows, isEmpty);
+    expect(wishlistRows, isEmpty);
+    expect(trackingRows.single.itemId, 'comic-track-empty-1');
+    expect(trackingRows.single.status, isNull);
+  });
 }
 
 class _WorkflowFixture {
@@ -262,6 +321,19 @@ LibraryMetadataItem _comicWithRelease(String id) {
           ],
         ),
       ],
+    ),
+  );
+}
+
+LibraryMetadataItem _digitalMovie(String id) {
+  return LibraryMetadataItem.fromCatalogItem(
+    CatalogItem(
+      id: id,
+      kind: 'movie',
+      title: 'Akira',
+      publisher: 'GKIDS',
+      physicalFormat: 'digital',
+      physicalFormatLabel: 'Digital',
     ),
   );
 }

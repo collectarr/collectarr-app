@@ -13,7 +13,9 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';
@@ -51,9 +53,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   AdminSearchReindexResult? _lastReindex;
   var _searchHistory = const <AdminSearchHistoryEntry>[];
   var _auditLogs = const <AdminAuditLogEntry>[];
+  var _proposalHistory = const <AdminAuditLogEntry>[];
   var _ingestHistory = const <AdminProviderIngestHistoryEntry>[];
   var _ingestJobs = const <AdminProviderIngestJob>[];
+  var _proposals = const <AdminMetadataProposal>[];
   AdminProviderIngestJobSummary? _ingestJobSummary;
+  AdminMetadataProposalSummary? _dashboardProposalSummary;
+  AdminMetadataProposalSummary? _proposalSummary;
   static const _ingestPollInterval = Duration(seconds: 15);
   Timer? _ingestPollTimer;
   DateTime? _ingestJobsRefreshedAt;
@@ -65,6 +71,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   String? _selectedProviderKindFilter;
   String? _ingestJobStatusFilter;
   String? _ingestJobProviderFilter;
+  String _proposalStatusFilter = 'pending';
+  String? _proposalProviderFilter;
   AdminProviderIngestResult? _lastIngest;
   String? _statusMessage;
   String? _errorMessage;
@@ -74,6 +82,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   String? _inspectErrorMessage;
   String? _duplicateStatusMessage;
   String? _duplicateErrorMessage;
+  String? _proposalStatusMessage;
+  String? _proposalErrorMessage;
   bool _isLoadingDashboard = false;
   bool _isReindexing = false;
   bool _isLoadingProviders = false;
@@ -83,11 +93,15 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   bool _autoRefreshIngestJobs = true;
   bool _isSearching = false;
   bool _isDirectIngesting = false;
+  bool _isLoadingProposals = false;
   String? _inspectingItemId;
   String? _updatingCatalogItemId;
   String? _duplicateActionItemId;
   String? _ingestingProviderItemId;
   String? _jobActionId;
+  String? _proposalActionId;
+  String? _activeProposalId;
+  String? _activeProposalTitle;
   int? _retryingHistoryId;
 
   @override
@@ -96,6 +110,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     _loadDashboard();
     _loadMediaTypes();
     _loadProviders();
+    _loadProposalData();
     _searchCatalog();
     _restartIngestPolling();
   }
@@ -181,6 +196,16 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     registeredProviders: _providers.length,
                     selectedProviderLabel: _selectedProviderLabel(),
                     lastIngest: _lastIngest,
+                    errorMessage: _dashboardErrorMessage,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
+                  icon: Icons.pending_actions_outlined,
+                  title: 'Metadata proposal activity',
+                  child: _DashboardProposalActivity(
+                    summary: _dashboardProposalSummary,
+                    history: _proposalHistory,
                     errorMessage: _dashboardErrorMessage,
                   ),
                 ),
@@ -373,6 +398,41 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 ),
                 const SizedBox(height: 12),
                 _AdminPanel(
+                  icon: Icons.pending_actions_outlined,
+                  title: 'Metadata proposals',
+                  trailing: IconButton(
+                    tooltip: 'Refresh proposals',
+                    onPressed: _isLoadingProposals ? null : _loadProposalData,
+                    icon: _isLoadingProposals
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh),
+                  ),
+                  child: _MetadataProposalPanel(
+                    summary: _proposalSummary,
+                    proposals: _proposals,
+                    statusFilter: _proposalStatusFilter,
+                    providerFilter: _proposalProviderFilter,
+                    providers: _providers,
+                    isLoading: _isLoadingProposals,
+                    actingProposalId: _proposalActionId,
+                    activeProposalTitle: _activeProposalTitle,
+                    statusMessage: _proposalStatusMessage,
+                    errorMessage: _proposalErrorMessage,
+                    onStatusChanged: _changeProposalStatusFilter,
+                    onProviderChanged: _changeProposalProviderFilter,
+                    onReview: _reviewProposal,
+                    onApprove: _approveProposal,
+                    onApproveLinked: _approveProposalWithLinkedItem,
+                    onReject: _rejectProposal,
+                    onClearReview: _clearActiveProposal,
+                    canApproveLinkedItem: _providerSupportsIngest,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
                   icon: Icons.travel_explore_outlined,
                   title: 'Provider ingest',
                   child: Column(
@@ -539,6 +599,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                             _ingestingProviderItemId,
                         canIngestProvider:
                             _providerSupportsIngest,
+                        activeProposalId: _activeProposalId,
+                        activeProposalTitle: _activeProposalTitle,
+                        onApproveProposal: _approveProposalWithCandidate,
                         onIngest: _ingestProviderItem,
                       ),
                     ],
@@ -634,6 +697,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               padding: const EdgeInsets.all(16),
               children: [
                 _AdminPanel(
+                  icon: Icons.account_tree_outlined,
+                  title: 'Collection schema',
+                  child: CollectionSchemaManagementPanel(
+                    db: ref.read(localDatabaseProvider),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
                   icon: Icons.people_outline,
                   title: 'User management',
                   child: const AdminUsersPanel(),
@@ -665,6 +736,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         api.adminSearchStatus(),
         api.adminSearchHistory(),
         api.adminAuditLogs(limit: 8),
+        api.adminMetadataProposalSummary(),
+        api.adminAuditLogs(entityType: 'metadata_proposal', limit: 6),
         api.adminProviderIngestHistory(),
         api.adminProviderIngestJobSummary(),
         api.adminProviderIngestJobs(
@@ -679,10 +752,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final searchStatus = results[1] as AdminSearchStatus;
       final searchHistory = results[2] as List<AdminSearchHistoryEntry>;
       final auditLogs = results[3] as List<AdminAuditLogEntry>;
-      final ingestHistory = results[4] as List<AdminProviderIngestHistoryEntry>;
-      final ingestJobSummary = results[5] as AdminProviderIngestJobSummary;
-      final ingestJobs = results[6] as List<AdminProviderIngestJob>;
-      final duplicates = results[7] as List<AdminDuplicateCandidate>;
+      final proposalSummary = results[4] as AdminMetadataProposalSummary;
+      final proposalHistory = results[5] as List<AdminAuditLogEntry>;
+      final ingestHistory = results[6] as List<AdminProviderIngestHistoryEntry>;
+      final ingestJobSummary = results[7] as AdminProviderIngestJobSummary;
+      final ingestJobs = results[8] as List<AdminProviderIngestJob>;
+      final duplicates = results[9] as List<AdminDuplicateCandidate>;
       if (!mounted) {
         return;
       }
@@ -691,6 +766,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _searchStatus = searchStatus;
         _searchHistory = searchHistory;
         _auditLogs = auditLogs;
+        _dashboardProposalSummary = proposalSummary;
+        _proposalHistory = proposalHistory;
         _ingestHistory = ingestHistory;
         _ingestJobs = ingestJobs;
         _ingestJobSummary = ingestJobSummary;
@@ -754,6 +831,41 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         if (!silent) {
           _errorMessage = _adminErrorMessage(error);
         }
+      });
+    }
+  }
+
+  Future<void> _loadProposalData() async {
+    setState(() {
+      _isLoadingProposals = true;
+      _proposalErrorMessage = null;
+    });
+    try {
+      final api = ref.read(apiClientProvider);
+      final results = await Future.wait<Object>([
+        api.adminMetadataProposalSummary(),
+        api.adminMetadataProposals(
+          status: _proposalStatusFilter,
+          provider: _proposalProviderFilter,
+        ),
+      ]);
+      final summary = results[0] as AdminMetadataProposalSummary;
+      final proposals = results[1] as List<AdminMetadataProposal>;
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalSummary = summary;
+        _proposals = proposals;
+        _isLoadingProposals = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isLoadingProposals = false;
+        _proposalErrorMessage = _adminErrorMessage(error);
       });
     }
   }
@@ -1761,6 +1873,150 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
+  Future<void> _approveProposal(AdminMetadataProposal proposal) async {
+    setState(() {
+      _proposalActionId = proposal.id;
+      _proposalErrorMessage = null;
+      _proposalStatusMessage = null;
+    });
+    try {
+      final result = await ref.read(apiClientProvider).adminApproveMetadataProposal(
+            proposalId: proposal.id,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _lastIngest = result;
+        _proposalStatusMessage = 'Proposal approved and ingested.';
+        if (_activeProposalId == proposal.id) {
+          _activeProposalId = null;
+          _activeProposalTitle = null;
+        }
+      });
+      await _loadProposalData();
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _proposalErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _approveProposalWithLinkedItem(
+    AdminMetadataProposal proposal,
+  ) async {
+    final providerItemId = proposal.providerItemId?.trim();
+    if (providerItemId == null || providerItemId.isEmpty) {
+      return;
+    }
+    await _approveProposalWithProviderItem(
+      proposalId: proposal.id,
+      provider: proposal.provider,
+      providerItemId: providerItemId,
+      successMessage: 'Proposal approved with linked provider item.',
+    );
+  }
+
+  Future<void> _approveProposalWithCandidate(ProviderCandidate candidate) async {
+    final proposalId = _activeProposalId;
+    if (proposalId == null || proposalId.isEmpty) {
+      return;
+    }
+    await _approveProposalWithProviderItem(
+      proposalId: proposalId,
+      provider: candidate.provider,
+      providerItemId: candidate.providerItemId,
+      successMessage: 'Proposal approved with selected provider item.',
+    );
+  }
+
+  Future<void> _approveProposalWithProviderItem({
+    required String proposalId,
+    required String provider,
+    required String providerItemId,
+    required String successMessage,
+  }) async {
+    setState(() {
+      _proposalActionId = proposalId;
+      _ingestingProviderItemId = providerItemId;
+      _proposalErrorMessage = null;
+      _proposalStatusMessage = null;
+    });
+    try {
+      final result = await ref
+          .read(apiClientProvider)
+          .adminApproveMetadataProposalWithProviderItem(
+            proposalId: proposalId,
+            provider: provider,
+            providerItemId: providerItemId,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _ingestingProviderItemId = null;
+        _lastIngest = result;
+        _proposalStatusMessage = successMessage;
+        if (_activeProposalId == proposalId) {
+          _activeProposalId = null;
+          _activeProposalTitle = null;
+        }
+      });
+      await _loadProposalData();
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _ingestingProviderItemId = null;
+        _proposalErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _rejectProposal(AdminMetadataProposal proposal) async {
+    setState(() {
+      _proposalActionId = proposal.id;
+      _proposalErrorMessage = null;
+      _proposalStatusMessage = null;
+    });
+    try {
+      await ref.read(apiClientProvider).adminRejectMetadataProposal(
+            proposalId: proposal.id,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _proposalStatusMessage = 'Proposal rejected.';
+        if (_activeProposalId == proposal.id) {
+          _activeProposalId = null;
+          _activeProposalTitle = null;
+        }
+      });
+      await _loadProposalData();
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _proposalErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
   Future<void> _ingestProviderItemId() async {
     final provider = _selectedProvider.trim();
     if (provider.isEmpty ||
@@ -1838,6 +2094,70 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   int _configuredProviderCount() {
     return _providers.where((provider) => provider.isConfigured).length;
+  }
+
+  void _reviewProposal(AdminMetadataProposal proposal) {
+    final searchableProviders = _providerOptions();
+    final canSearchWithProvider = searchableProviders.any(
+      (provider) => provider.name == proposal.provider,
+    );
+    setState(() {
+      if (canSearchWithProvider) {
+        _selectedProvider = proposal.provider;
+      }
+      _queryController.text = proposal.query.trim().isEmpty
+          ? proposal.displayTitle
+          : proposal.query;
+      _providerItemIdController.text = proposal.providerItemId ?? '';
+      _activeProposalId = proposal.id;
+      _activeProposalTitle = proposal.displayTitle;
+      _proposalStatusMessage = canSearchWithProvider
+          ? 'Provider search prepared from proposal.'
+          : 'Proposal pinned. Choose a searchable provider to continue review.';
+      _proposalErrorMessage = null;
+      _statusMessage = null;
+      _errorMessage = null;
+    });
+    if (canSearchWithProvider) {
+      unawaited(_searchProvider());
+    }
+  }
+
+  void _clearActiveProposal() {
+    setState(() {
+      _activeProposalId = null;
+      _activeProposalTitle = null;
+      _proposalStatusMessage = 'Proposal review cleared.';
+      _proposalErrorMessage = null;
+    });
+  }
+
+  void _changeProposalStatusFilter(String? value) {
+    final nextValue = value?.trim();
+    if (nextValue == null ||
+        nextValue.isEmpty ||
+        nextValue == _proposalStatusFilter) {
+      return;
+    }
+    setState(() {
+      _proposalStatusFilter = nextValue;
+      _proposalStatusMessage = null;
+      _proposalErrorMessage = null;
+    });
+    unawaited(_loadProposalData());
+  }
+
+  void _changeProposalProviderFilter(String? value) {
+    final nextValue = value == null || value.trim().isEmpty ? null : value.trim();
+    if (nextValue == _proposalProviderFilter) {
+      return;
+    }
+    setState(() {
+      _proposalProviderFilter = nextValue;
+      _proposalStatusMessage = null;
+      _proposalErrorMessage = null;
+    });
+    unawaited(_loadProposalData());
   }
 
   void _changeProviderKindFilter(String? kind) {
@@ -2214,6 +2534,122 @@ class _DashboardSection extends StatelessWidget {
           runSpacing: 8,
           children: children,
         ),
+      ],
+    );
+  }
+}
+
+class _DashboardProposalActivity extends StatelessWidget {
+  const _DashboardProposalActivity({
+    required this.summary,
+    required this.history,
+    required this.errorMessage,
+  });
+
+  final AdminMetadataProposalSummary? summary;
+  final List<AdminAuditLogEntry> history;
+  final String? errorMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    if (errorMessage != null && summary == null && history.isEmpty) {
+      return _MessageRow(message: errorMessage!, isError: true);
+    }
+    final recentApprovals = history
+        .where((entry) => entry.action.contains('metadata_proposal.approve'))
+        .length;
+    final recentRejections = history
+        .where((entry) => entry.action.contains('metadata_proposal.reject'))
+        .length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _DashboardSection(
+          title: 'Backlog',
+          children: [
+            _StatusChip(
+              icon: Icons.pending_actions_outlined,
+              label: '${summary?.pending ?? 0} pending',
+            ),
+            _StatusChip(
+              icon: Icons.task_alt_outlined,
+              label: '${summary?.approved ?? 0} approved',
+            ),
+            _StatusChip(
+              icon: Icons.block_outlined,
+              label: '${summary?.rejected ?? 0} rejected',
+            ),
+            _StatusChip(
+              icon: Icons.insights_outlined,
+              label: '${summary?.total ?? 0} total',
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _DashboardSection(
+          title: 'Recent trend',
+          children: [
+            _StatusChip(
+              icon: Icons.trending_up_outlined,
+              label: '$recentApprovals recent approve',
+            ),
+            _StatusChip(
+              icon: Icons.trending_down_outlined,
+              label: '$recentRejections recent reject',
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (history.isEmpty)
+          const _MessageRow(
+            message: 'No proposal review activity recorded yet.',
+            isError: false,
+          )
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final entry in history)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Icon(
+                            entry.action.contains('reject')
+                                ? Icons.block_outlined
+                                : Icons.task_alt_outlined,
+                          ),
+                          Text(
+                            _proposalAuditActionLabel(entry.action),
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          _MiniChip(label: entry.actorEmail ?? 'unknown actor'),
+                          _MiniChip(label: _formatDateTime(entry.createdAt)),
+                          if ((entry.entityId?.isNotEmpty ?? false))
+                            _MiniChip(label: _shortId(entry.entityId!)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
       ],
     );
   }
@@ -3637,13 +4073,19 @@ class _ProviderResultsList extends StatelessWidget {
     required this.results,
     required this.ingestingProviderItemId,
     required this.canIngestProvider,
+    required this.onApproveProposal,
     required this.onIngest,
+    this.activeProposalId,
+    this.activeProposalTitle,
   });
 
   final List<ProviderCandidate> results;
   final String? ingestingProviderItemId;
   final bool Function(String provider) canIngestProvider;
+  final ValueChanged<ProviderCandidate> onApproveProposal;
   final ValueChanged<ProviderCandidate> onIngest;
+  final String? activeProposalId;
+  final String? activeProposalTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -3662,6 +4104,9 @@ class _ProviderResultsList extends StatelessWidget {
           candidate: candidate,
           isIngesting: isIngesting,
           canIngest: canIngestProvider(candidate.provider),
+          activeProposalId: activeProposalId,
+          activeProposalTitle: activeProposalTitle,
+          onApproveProposal: () => onApproveProposal(candidate),
           onIngest: () => onIngest(candidate),
         );
       },
@@ -3674,13 +4119,19 @@ class _ProviderResultTile extends StatelessWidget {
     required this.candidate,
     required this.isIngesting,
     required this.canIngest,
+    required this.onApproveProposal,
     required this.onIngest,
+    this.activeProposalId,
+    this.activeProposalTitle,
   });
 
   final ProviderCandidate candidate;
   final bool isIngesting;
   final bool canIngest;
+  final VoidCallback onApproveProposal;
   final VoidCallback onIngest;
+  final String? activeProposalId;
+  final String? activeProposalTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -3741,6 +4192,18 @@ class _ProviderResultTile extends StatelessWidget {
                 ),
           label: Text(canIngest ? 'Ingest' : 'Search only'),
         );
+        final proposalButton = activeProposalId == null
+            ? null
+            : FilledButton.icon(
+                onPressed: isIngesting || !canIngest ? null : onApproveProposal,
+                icon: isIngesting
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.task_alt_outlined),
+                label: const Text('Approve proposal'),
+              );
         return DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -3763,7 +4226,14 @@ class _ProviderResultTile extends StatelessWidget {
                       const SizedBox(height: 12),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: button,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (proposalButton != null) proposalButton,
+                            button,
+                          ],
+                        ),
                       ),
                     ],
                   )
@@ -3774,12 +4244,317 @@ class _ProviderResultTile extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(child: details),
                       const SizedBox(width: 12),
-                      button,
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (proposalButton != null) proposalButton,
+                          button,
+                        ],
+                      ),
                     ],
                   ),
           ),
         );
       },
+    );
+  }
+}
+
+class _MetadataProposalPanel extends StatelessWidget {
+  const _MetadataProposalPanel({
+    required this.summary,
+    required this.proposals,
+    required this.statusFilter,
+    required this.providerFilter,
+    required this.providers,
+    required this.isLoading,
+    required this.actingProposalId,
+    required this.activeProposalTitle,
+    required this.statusMessage,
+    required this.errorMessage,
+    required this.onStatusChanged,
+    required this.onProviderChanged,
+    required this.onReview,
+    required this.onApprove,
+    required this.onApproveLinked,
+    required this.onReject,
+    required this.onClearReview,
+    required this.canApproveLinkedItem,
+  });
+
+  final AdminMetadataProposalSummary? summary;
+  final List<AdminMetadataProposal> proposals;
+  final String statusFilter;
+  final String? providerFilter;
+  final List<AdminProviderStatus> providers;
+  final bool isLoading;
+  final String? actingProposalId;
+  final String? activeProposalTitle;
+  final String? statusMessage;
+  final String? errorMessage;
+  final ValueChanged<String?> onStatusChanged;
+  final ValueChanged<String?> onProviderChanged;
+  final ValueChanged<AdminMetadataProposal> onReview;
+  final ValueChanged<AdminMetadataProposal> onApprove;
+  final ValueChanged<AdminMetadataProposal> onApproveLinked;
+  final ValueChanged<AdminMetadataProposal> onReject;
+  final VoidCallback onClearReview;
+  final bool Function(String provider) canApproveLinkedItem;
+
+  @override
+  Widget build(BuildContext context) {
+    final providerOptions = [
+      const DropdownMenuItem<String>(value: '', child: Text('All providers')),
+      for (final provider in providers)
+        DropdownMenuItem<String>(
+          value: provider.name,
+          child: Text(provider.displayName),
+        ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _StatusChip(
+              icon: Icons.pending_actions_outlined,
+              label: '${summary?.pending ?? 0} pending',
+            ),
+            _StatusChip(
+              icon: Icons.task_alt_outlined,
+              label: '${summary?.approved ?? 0} approved',
+            ),
+            _StatusChip(
+              icon: Icons.block_outlined,
+              label: '${summary?.rejected ?? 0} rejected',
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 760;
+            final statusField = DropdownButtonFormField<String>(
+              initialValue: statusFilter,
+              decoration: const InputDecoration(
+                labelText: 'Status',
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'pending', child: Text('Pending')),
+                DropdownMenuItem(value: 'approved', child: Text('Approved')),
+                DropdownMenuItem(value: 'rejected', child: Text('Rejected')),
+              ],
+              onChanged: onStatusChanged,
+            );
+            final providerField = DropdownButtonFormField<String>(
+              initialValue: providerFilter ?? '',
+              decoration: const InputDecoration(
+                labelText: 'Provider',
+                border: OutlineInputBorder(),
+              ),
+              items: providerOptions,
+              onChanged: onProviderChanged,
+            );
+            if (isNarrow) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  statusField,
+                  const SizedBox(height: 12),
+                  providerField,
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: statusField),
+                const SizedBox(width: 12),
+                Expanded(child: providerField),
+              ],
+            );
+          },
+        ),
+        if (activeProposalTitle != null) ...[
+          const SizedBox(height: 12),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Icon(Icons.travel_explore_outlined),
+                  Text('Reviewing proposal: $activeProposalTitle'),
+                  OutlinedButton.icon(
+                    onPressed: onClearReview,
+                    icon: const Icon(Icons.close_outlined),
+                    label: const Text('Clear review'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+        if (statusMessage != null || errorMessage != null) ...[
+          const SizedBox(height: 12),
+          _MessageRow(
+            message: errorMessage ?? statusMessage!,
+            isError: errorMessage != null,
+          ),
+        ],
+        const SizedBox(height: 12),
+        if (isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (proposals.isEmpty)
+          _MessageRow(
+            message: 'No ${statusFilter.toLowerCase()} proposals found.',
+            isError: false,
+          )
+        else
+          Column(
+            children: [
+              for (final proposal in proposals)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _MetadataProposalTile(
+                    proposal: proposal,
+                    isActing: actingProposalId == proposal.id,
+                    canApproveLinkedItem: canApproveLinkedItem(proposal.provider),
+                    onReview: () => onReview(proposal),
+                    onApprove: () => onApprove(proposal),
+                    onApproveLinked: () => onApproveLinked(proposal),
+                    onReject: () => onReject(proposal),
+                  ),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class _MetadataProposalTile extends StatelessWidget {
+  const _MetadataProposalTile({
+    required this.proposal,
+    required this.isActing,
+    required this.canApproveLinkedItem,
+    required this.onReview,
+    required this.onApprove,
+    required this.onApproveLinked,
+    required this.onReject,
+  });
+
+  final AdminMetadataProposal proposal;
+  final bool isActing;
+  final bool canApproveLinkedItem;
+  final VoidCallback onReview;
+  final VoidCallback onApprove;
+  final VoidCallback onApproveLinked;
+  final VoidCallback onReject;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  proposal.displayTitle,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                _MiniChip(label: proposal.provider),
+                _MiniChip(label: proposal.status),
+                if (proposal.providerItemId != null &&
+                    proposal.providerItemId!.isNotEmpty)
+                  _MiniChip(label: 'ID ${proposal.providerItemId}'),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              proposal.query,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
+            ),
+            if (proposal.summary != null && proposal.summary!.trim().isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                proposal.summary!,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+            if (proposal.isPending) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: isActing ? null : onReview,
+                    icon: const Icon(Icons.travel_explore_outlined),
+                    label: const Text('Review in search'),
+                  ),
+                  if ((proposal.providerItemId?.isNotEmpty ?? false) &&
+                      canApproveLinkedItem)
+                    FilledButton.tonalIcon(
+                      onPressed: isActing ? null : onApproveLinked,
+                      icon: isActing
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.link_outlined),
+                      label: const Text('Approve linked ID'),
+                    ),
+                  FilledButton.icon(
+                    onPressed: isActing ? null : onApprove,
+                    icon: isActing
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.task_alt_outlined),
+                    label: const Text('Approve'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: isActing ? null : onReject,
+                    icon: const Icon(Icons.block_outlined),
+                    label: const Text('Reject'),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -4008,6 +4783,15 @@ String _adminErrorMessage(Object error) {
     }
   }
   return error.toString();
+}
+
+String _proposalAuditActionLabel(String action) {
+  return switch (action) {
+    'metadata_proposal.approve' => 'Approved proposal',
+    'metadata_proposal.approve_provider' => 'Approved via provider',
+    'metadata_proposal.reject' => 'Rejected proposal',
+    _ => action,
+  };
 }
 
 String _shortId(String id) {

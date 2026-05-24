@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -7,11 +8,46 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+Future<void> showCustomFieldsManagementDialog({
+  required BuildContext context,
+  required LocalDatabase db,
+  bool startCreating = false,
+}) {
+  return showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: kAppPanel,
+      title: const Text('Manage custom fields'),
+      content: SizedBox(
+        width: 920,
+        height: 560,
+        child: SingleChildScrollView(
+          child: CustomFieldsSettings(
+            db: db,
+            startCreating: startCreating,
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
+}
+
 /// Settings panel for managing custom field definitions.
 class CustomFieldsSettings extends StatefulWidget {
-  const CustomFieldsSettings({super.key, required this.db});
+  const CustomFieldsSettings({
+    super.key,
+    required this.db,
+    this.startCreating = false,
+  });
 
   final LocalDatabase db;
+  final bool startCreating;
 
   @override
   State<CustomFieldsSettings> createState() => _CustomFieldsSettingsState();
@@ -21,12 +57,22 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   late final CustomFieldRepository _repo;
   List<CustomFieldDefinition> _definitions = const [];
   bool _loading = true;
+  bool _openedInitialEditor = false;
 
   @override
   void initState() {
     super.initState();
     _repo = CustomFieldRepository(widget.db);
     _reload();
+    if (widget.startCreating) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _openedInitialEditor) {
+          return;
+        }
+        _openedInitialEditor = true;
+        unawaited(_showEditor());
+      });
+    }
   }
 
   Future<void> _reload() async {

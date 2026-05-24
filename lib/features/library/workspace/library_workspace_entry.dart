@@ -28,6 +28,8 @@ sealed class LibraryWorkspaceEntry {
     this.rawOrSlabbed,
     this.gradingCompany,
     this.primaryReferenceLabel,
+    this.referenceScopeLabel,
+    this.referenceFormatLabel,
     this.keyComic = false,
     this.keyReason,
     this.notes,
@@ -70,6 +72,8 @@ sealed class LibraryWorkspaceEntry {
     String? rawOrSlabbed,
     String? gradingCompany,
     String? primaryReferenceLabel,
+    String? referenceScopeLabel,
+    String? referenceFormatLabel,
     bool keyComic = false,
     String? keyReason,
     String? notes,
@@ -116,6 +120,8 @@ sealed class LibraryWorkspaceEntry {
       rawOrSlabbed: rawOrSlabbed,
       gradingCompany: gradingCompany,
       primaryReferenceLabel: primaryReferenceLabel,
+      referenceScopeLabel: referenceScopeLabel,
+      referenceFormatLabel: referenceFormatLabel,
       keyComic: keyComic,
       keyReason: keyReason,
       notes: notes,
@@ -235,6 +241,8 @@ sealed class LibraryWorkspaceEntry {
   final String? rawOrSlabbed;
   final String? gradingCompany;
   final String? primaryReferenceLabel;
+  final String? referenceScopeLabel;
+  final String? referenceFormatLabel;
   final bool keyComic;
   final String? keyReason;
   final String? notes;
@@ -294,6 +302,8 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           rawOrSlabbed: common.rawOrSlabbed,
           gradingCompany: common.gradingCompany,
           primaryReferenceLabel: common.primaryReferenceLabel,
+          referenceScopeLabel: common.referenceScopeLabel,
+          referenceFormatLabel: common.referenceFormatLabel,
           keyComic: common.keyComic,
           keyReason: common.keyReason,
           notes: common.notes,
@@ -497,6 +507,8 @@ class _LibraryWorkspaceCommon {
     required this.rawOrSlabbed,
     required this.gradingCompany,
     required this.primaryReferenceLabel,
+    required this.referenceScopeLabel,
+    required this.referenceFormatLabel,
     required this.keyComic,
     required this.keyReason,
     required this.notes,
@@ -538,6 +550,8 @@ class _LibraryWorkspaceCommon {
   final String? rawOrSlabbed;
   final String? gradingCompany;
   final String? primaryReferenceLabel;
+  final String? referenceScopeLabel;
+  final String? referenceFormatLabel;
   final bool keyComic;
   final String? keyReason;
   final String? notes;

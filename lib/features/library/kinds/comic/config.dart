@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -41,7 +41,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
     comicVineMetadataProvider,
   ],
   trackingProfile: comicTrackingProfile,
-  editDialogBuilder: buildComicLibraryEditDialog,
+  editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: comicsLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,

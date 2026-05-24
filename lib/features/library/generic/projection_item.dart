@@ -48,6 +48,18 @@ class LibraryProjectionItem {
         primaryReferenceLabel: libraryPrimaryReferenceLabel(
           ownedItem: source.ownedItem,
           wishlistItem: source.wishlistItem,
+          mediaType: item.kind,
+        ),
+        referenceScopeLabel: libraryReferenceScopeLabel(
+          ownedItem: source.ownedItem,
+          wishlistItem: source.wishlistItem,
+          mediaType: item.kind,
+        ),
+        referenceFormatLabel: libraryReferenceFormatLabel(
+          ownedItem: source.ownedItem,
+          wishlistItem: source.wishlistItem,
+          editions: item.editions,
+          fallbackFormatLabel: item.physicalFormatLabel,
         ),
         pricePaidCents: source.ownedItem?.pricePaidCents,
         currency: source.ownedItem?.currency,

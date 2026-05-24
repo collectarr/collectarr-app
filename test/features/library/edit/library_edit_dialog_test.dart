@@ -196,6 +196,97 @@ void main() {
     expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 10));
   });
 
+  testWidgets('generic edit dialog saves edition ownership without a physical release',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+      id: 'movie-edition-1',
+      kind: 'movie',
+      title: 'Blade Runner',
+      variant: 'DVD',
+      editions: const [
+        CatalogEdition(
+          id: 'edition-standard',
+          title: 'Standard',
+          variants: [
+            CatalogVariant(id: 'variant-dvd', name: 'DVD', isPrimary: true),
+          ],
+        ),
+        CatalogEdition(
+          id: 'edition-steelbook',
+          title: 'Steelbook',
+          variants: [
+            CatalogVariant(id: 'variant-4k', name: '4K Variant', isPrimary: true),
+          ],
+        ),
+      ],
+    ));
+    final ownedItem = OwnedItem(
+      id: 'owned-edition-1',
+      itemId: 'movie-edition-1',
+      quantity: 1,
+      updatedAt: DateTime.utc(2026, 5, 24),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.red,
+                      physicalFormats: videoPhysicalMediaFormats,
+                    ),
+                  );
+                },
+                child: const Text('Open edition owned'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open edition owned'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('library-edit-owned-anchor-field')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edition').last);
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(InputDecorator, 'Owned edition'), findsOneWidget);
+    expect(find.widgetWithText(InputDecorator, 'Owned variant'), findsNothing);
+
+    await tester.tap(find.widgetWithText(InputDecorator, 'Owned edition'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Steelbook').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(selection?.personal?.anchorType, 'edition');
+    expect(selection?.personal?.editionId, 'edition-steelbook');
+    expect(selection?.personal?.variantId, isNull);
+  });
+
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {
     tester.view.physicalSize = const Size(1100, 860);
     tester.view.devicePixelRatio = 1;
@@ -453,6 +544,87 @@ void main() {
     expect(selection?.personal?.bundleReleaseId, 'bundle-1');
     expect(selection?.tracking?.editionId, isNull);
     expect(selection?.tracking?.variantId, isNull);
+  });
+
+  testWidgets('generic edit dialog hides physical-only owned fields for digital items',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.locationsCache).insert(
+          LocationsCacheCompanion.insert(
+            id: 'loc-digital',
+            name: 'Downloads',
+            sortOrder: const Value(1),
+          ),
+        );
+
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'movie-digital-1',
+        kind: 'movie',
+        title: 'Ghost in the Shell',
+        physicalFormat: 'digital',
+        physicalFormatLabel: 'Digital',
+      ),
+    );
+    final ownedItem = OwnedItem(
+      id: 'owned-digital-1',
+      itemId: 'movie-digital-1',
+      condition: 'Mint',
+      grade: '10',
+      locationId: 'loc-digital',
+      updatedAt: DateTime.utc(2026, 5, 24),
+    );
+    LibraryEditSelection? selection;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  selection = await showDialog<LibraryEditSelection>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.teal,
+                      physicalFormats: videoPhysicalMediaFormats,
+                    ),
+                  );
+                },
+                child: const Text('Open digital'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open digital'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Condition'), findsNothing);
+    expect(find.widgetWithText(TextField, 'Grade'), findsNothing);
+    expect(find.byIcon(Icons.place), findsNothing);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(selection?.personal?.condition, isNull);
+    expect(selection?.personal?.grade, isNull);
+    expect(selection?.personal?.locationId, isNull);
+    expect(selection?.personal?.locationChanged, isFalse);
   });
 
   testWidgets('generic edit dialog returns wishlist reference edits',

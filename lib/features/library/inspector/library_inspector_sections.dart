@@ -62,6 +62,16 @@ class InspectorPersonalSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final paid = formatMoney(entry.pricePaidCents, entry.currency);
     final profitLoss = _profitLossLabel(ownedItem);
+    final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
+      ownedItem,
+      entry.editions,
+      fallbackLabel: entry.variant,
+    );
+    final ownedIsDigital = resolveOwnedDigitalFlag(
+      ownedItem,
+      entry.editions,
+      fallbackLabel: entry.variant,
+    );
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     final trackingStatus = trackingEntry?.status ?? ownedItem?.readStatus;
     final trackingStartedAt = trackingEntry?.startedAt ?? ownedItem?.startedAt;
@@ -83,6 +93,8 @@ class InspectorPersonalSection extends StatelessWidget {
               'Status',
               genericLibraryStatusLabel(entry),
             ),
+            if (ownedCopyTypeLabel != null)
+              LibraryInspectorFactData('Ownership', ownedCopyTypeLabel),
             if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
               LibraryInspectorFactData('Tracking', trackingStatus),
             if (trackingStartedAt != null)
@@ -95,19 +107,22 @@ class InspectorPersonalSection extends StatelessWidget {
                 'Finished',
                 formatNullableDate(trackingFinishedAt) ?? '-',
               ),
-            LibraryInspectorFactData(
-              'Condition',
-              genericLibraryDash(entry.condition),
-            ),
-            LibraryInspectorFactData('Grade', genericLibraryDash(entry.grade)),
+            if (ownedIsDigital != true)
+              LibraryInspectorFactData(
+                'Condition',
+                genericLibraryDash(entry.condition),
+              ),
+            if (ownedIsDigital != true)
+              LibraryInspectorFactData('Grade', genericLibraryDash(entry.grade)),
             LibraryInspectorFactData(
               'Quantity',
               ownedItem == null ? '-' : ownedItem!.quantity.toString(),
             ),
-            LibraryInspectorFactData(
-              'Storage',
-              genericLibraryDash(entry.storageBox),
-            ),
+            if (ownedIsDigital != true)
+              LibraryInspectorFactData(
+                'Storage',
+                genericLibraryDash(entry.storageBox),
+              ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
             LibraryInspectorFactData(
               'Purchased',
@@ -115,7 +130,7 @@ class InspectorPersonalSection extends StatelessWidget {
                 formatNullableDate(ownedItem?.purchaseDate),
               ),
             ),
-            if (ownedItem?.coverPriceCents != null)
+            if (ownedIsDigital != true && ownedItem?.coverPriceCents != null)
               LibraryInspectorFactData(
                 'Cover price',
                 formatMoney(ownedItem!.coverPriceCents, ownedItem!.currency),
@@ -143,7 +158,7 @@ class InspectorPersonalSection extends StatelessWidget {
               'Updated',
               formatNullableDate(entry.updatedAt) ?? '-',
             ),
-            if (_isComicKind && ownedItem != null) ...[
+            if (_isComicKind && ownedItem != null && ownedIsDigital != true) ...[
               if (ownedItem!.rawOrSlabbed != null &&
                   ownedItem!.rawOrSlabbed!.trim().isNotEmpty)
                 LibraryInspectorFactData(

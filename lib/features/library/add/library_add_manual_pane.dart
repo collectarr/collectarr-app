@@ -38,6 +38,12 @@ class _ManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labels = libraryMediaFieldLabels(type);
+    final copyTypeLabel = ownedCopyTypeLabel(
+      digitalPhysicalMediaFormatFlag(
+        physicalFormatId,
+        formats: physicalFormats,
+      ),
+    );
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: kAppPanelRaised,
@@ -186,6 +192,20 @@ class _ManualPane extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (copyTypeLabel != null) ...[
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Owned copies created from this draft will be saved as $copyTypeLabel.',
+                          style: const TextStyle(
+                            color: kAppTextMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Row(
                       children: [

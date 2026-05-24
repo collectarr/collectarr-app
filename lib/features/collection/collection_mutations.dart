@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +34,7 @@ class CollectionMutations {
 
   Future<OwnedItem> addItem(
     String itemId, {
+    bool? isDigital,
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -66,6 +68,8 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final resolvedIsDigital =
+        isDigital ?? await _resolveOwnedDigitalFlag(itemId: itemId);
     final normalizedAnchorType = _normalizedPersonalAnchorType(
       anchorType,
       editionId: editionId,
@@ -75,6 +79,7 @@ class CollectionMutations {
     final ownedItem = OwnedItem(
       id: _uuid.v4(),
       itemId: itemId,
+      isDigital: resolvedIsDigital,
       anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
@@ -131,6 +136,7 @@ class CollectionMutations {
 
   Future<OwnedItem> updateItem(
     OwnedItem item, {
+    bool? isDigital,
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -164,6 +170,9 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final resolvedIsDigital = isDigital ??
+        item.isDigital ??
+        await _resolveOwnedDigitalFlag(itemId: item.itemId);
     final normalizedAnchorType = _normalizedPersonalAnchorType(
       anchorType ?? item.anchorType,
       editionId: editionId,
@@ -176,6 +185,7 @@ class CollectionMutations {
     final updated = OwnedItem(
       id: item.id,
       itemId: item.itemId,
+      isDigital: resolvedIsDigital,
       anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
@@ -265,6 +275,7 @@ class CollectionMutations {
     String? notes,
     int? seasonNumber,
     int? episodeNumber,
+    bool allowEmpty = false,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
@@ -306,7 +317,7 @@ class CollectionMutations {
       episodeNumber: episodeNumber,
       updatedAt: now,
     );
-    await _syncTrackingEntry(entry, now);
+    await _syncTrackingEntry(entry, now, allowEmpty: allowEmpty);
     await _enqueueCatalogSnapshotForItemId(itemId, now);
     if (notify) {
       await _notifyCollectionChanged();
@@ -691,6 +702,7 @@ class CollectionMutations {
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
       itemId: row.itemId,
+      isDigital: _csvOwnedItemIsDigital(row, existing: existing),
       anchorType: existing?.anchorType,
       editionId: existing?.editionId,
       variantId: existing?.variantId,
@@ -993,9 +1005,12 @@ class CollectionMutations {
   Future<void> _syncTrackingEntry(
     TrackingEntry entry,
     DateTime changedAt,
+    {
+      bool allowEmpty = false,
+    }
   ) async {
     final existing = await _trackingCache().findById(entry.id);
-    if (!_hasTrackingData(entry)) {
+    if (!_hasTrackingData(entry) && !allowEmpty) {
       if (existing != null && !existing.isDeleted) {
         final deleted = _trackingDeletion(existing, changedAt);
         await _trackingCache().markDeleted(existing, changedAt);
@@ -1024,7 +1039,9 @@ class CollectionMutations {
       ownedItemId: ownedItem.id,
       editionId: ownedItem.editionId,
       variantId: ownedItem.variantId,
-      sourceType: TrackingSourceType.physical.apiValue,
+      sourceType: ownedItem.isDigital == true
+          ? TrackingSourceType.digital.apiValue
+          : TrackingSourceType.physical.apiValue,
       status: normalizedStatus,
       rating: ownedItem.rating,
       startedAt: ownedItem.startedAt,
@@ -1060,6 +1077,33 @@ class CollectionMutations {
     return _uuid.v5(Namespace.url.value, 'tracking-entry:owned:$ownedItemId');
   }
 
+  Future<bool?> _resolveOwnedDigitalFlag({
+    required String itemId,
+  }) async {
+    final catalogItem = await _catalogCache().findById(itemId);
+    if (catalogItem == null) {
+      return null;
+    }
+    return digitalPhysicalMediaFormatFlag(
+      catalogItem.physicalFormat,
+      label: catalogItem.physicalFormatLabel ?? catalogItem.variant,
+    );
+  }
+
+  bool? _csvOwnedItemIsDigital(
+    CollectionCsvRow row, {
+    OwnedItem? existing,
+  }) {
+    if ((row.physicalFormat?.trim().isNotEmpty ?? false) ||
+        (row.physicalFormatLabel?.trim().isNotEmpty ?? false)) {
+      return digitalPhysicalMediaFormatFlag(
+        row.physicalFormat,
+        label: row.physicalFormatLabel,
+      );
+    }
+    return existing?.isDigital;
+  }
+
   String _trackingEntryIdForItem(String itemId, {String? sourceType}) {
     final normalizedSource =
       normalizeTrackingSourceType(sourceType) ?? _normalizeTrackingValue(sourceType) ?? 'item';
@@ -1086,21 +1130,13 @@ class CollectionMutations {
     String? fallbackVariantId,
     String? fallbackBundleReleaseId,
   }) {
-    final normalized = normalizePersonalItemAnchorType(anchorType);
-    if (normalized != null) {
-      return normalized;
-    }
-    final resolvedBundleReleaseId = bundleReleaseId ?? fallbackBundleReleaseId;
-    if (resolvedBundleReleaseId != null && resolvedBundleReleaseId.trim().isNotEmpty) {
-      return PersonalItemAnchorType.bundleRelease.apiValue;
-    }
-    final resolvedEditionId = editionId ?? fallbackEditionId;
-    final resolvedVariantId = variantId ?? fallbackVariantId;
-    if ((resolvedEditionId != null && resolvedEditionId.trim().isNotEmpty) ||
-        (resolvedVariantId != null && resolvedVariantId.trim().isNotEmpty)) {
-      return PersonalItemAnchorType.variant.apiValue;
-    }
-    return PersonalItemAnchorType.item.apiValue;
+    return resolvePersonalItemAnchorType(
+          anchorType: anchorType,
+          editionId: editionId ?? fallbackEditionId,
+          variantId: variantId ?? fallbackVariantId,
+          bundleReleaseId: bundleReleaseId ?? fallbackBundleReleaseId,
+        ) ??
+        PersonalItemAnchorType.item.apiValue;
   }
 
   bool _hasTrackingData(TrackingEntry entry) {
