@@ -110,12 +110,6 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         ? _metadataRowsForFullPreview(preview, type)
         : _metadataRowsForCandidate(selectedCandidate!, type))
         : _metadataRowsForItem(selectedItem, type);
-    final seriesTree = _seriesTreeDataForSelection(
-      type: type,
-      item: selectedItem,
-      candidate: selectedCandidate,
-      preview: preview,
-    );
     final discoverySections = _discoverySections(
       item: selectedItem,
       candidate: selectedCandidate,
@@ -225,14 +219,6 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                           const SizedBox(height: 6),
                           Text(synopsis),
                           const SizedBox(height: 22),
-                        ],
-                        if (seriesTree != null) ...[
-                          Text('Series', style: TextStyle(color: accent)),
-                          const SizedBox(height: 8),
-                          _LibraryAddPreviewSeriesTree(
-                            data: seriesTree,
-                            accent: accent,
-                          ),
                         ],
                         if (discoverySections.isNotEmpty) ...[
                           const SizedBox(height: 22),
@@ -1102,63 +1088,6 @@ List<(String, String?)> _metadataRowsForItem(
   ];
 }
 
-_PreviewSeriesTreeData? _seriesTreeDataForSelection({
-  required LibraryTypeConfig type,
-  required LibraryMetadataItem? item,
-  required ProviderCandidate? candidate,
-  required AdminProviderPreview? preview,
-}) {
-  final labels = libraryMediaFieldLabels(type);
-  final seriesTitle =
-      item?.series?.seriesTitle ??
-      preview?.series?.seriesTitle ??
-      candidate?.series?.seriesTitle;
-  if (seriesTitle == null || seriesTitle.trim().isEmpty) {
-    return null;
-  }
-  final issueNumber = item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
-  final selectedTitle = item?.title ?? preview?.title ?? candidate?.title;
-  final year =
-      preview?.series?.volumeStartYear ??
-      candidate?.series?.volumeStartYear ??
-      item?.releaseYear;
-  final issueCount = candidate?.issueCount;
-  final variantLabel =
-      item?.displayEditionLabel ?? preview?.variantName ?? candidate?.variantName;
-  final children = <_PreviewSeriesTreeChildData>[];
-
-  if (issueNumber != null && issueNumber.trim().isNotEmpty) {
-    final childTitle = '${labels.number}: $issueNumber';
-    final childSubtitle = selectedTitle != null &&
-            selectedTitle.trim().isNotEmpty &&
-            selectedTitle.trim() != seriesTitle.trim()
-        ? selectedTitle
-        : variantLabel;
-    children.add(
-      _PreviewSeriesTreeChildData(
-        title: childTitle,
-        subtitle: childSubtitle,
-      ),
-    );
-  } else if (selectedTitle != null &&
-      selectedTitle.trim().isNotEmpty &&
-      selectedTitle.trim() != seriesTitle.trim()) {
-    children.add(_PreviewSeriesTreeChildData(title: selectedTitle));
-  }
-
-  final badges = <String>[
-    if (year != null) '$year',
-    if (issueCount != null)
-      '$issueCount ${issueCount == 1 ? labels.number.toLowerCase() : '${labels.number.toLowerCase()}s'}',
-  ];
-
-  return _PreviewSeriesTreeData(
-    title: seriesTitle,
-    badges: badges,
-    children: children,
-  );
-}
-
 class _LibraryAddPreviewMetadataRow extends StatelessWidget {
   const _LibraryAddPreviewMetadataRow({
     required this.label,
@@ -1192,167 +1121,6 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PreviewSeriesTreeData {
-  const _PreviewSeriesTreeData({
-    required this.title,
-    required this.badges,
-    required this.children,
-  });
-
-  final String title;
-  final List<String> badges;
-  final List<_PreviewSeriesTreeChildData> children;
-}
-
-class _PreviewSeriesTreeChildData {
-  const _PreviewSeriesTreeChildData({
-    required this.title,
-    this.subtitle,
-  });
-
-  final String title;
-  final String? subtitle;
-}
-
-class _LibraryAddPreviewSeriesTree extends StatelessWidget {
-  const _LibraryAddPreviewSeriesTree({
-    required this.data,
-    required this.accent,
-  });
-
-  final _PreviewSeriesTreeData data;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0x14000000),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: accent.withValues(alpha: 0.22)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.account_tree_outlined,
-                  size: 16,
-                  color: accent.withValues(alpha: 0.95),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      if (data.badges.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            for (final badge in data.badges)
-                              _LibraryAddPreviewSeriesBadge(
-                                label: badge,
-                                accent: accent,
-                              ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (data.children.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              for (final child in data.children)
-                Padding(
-                  padding: const EdgeInsets.only(left: 24, bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.subdirectory_arrow_right,
-                        size: 16,
-                        color: accent.withValues(alpha: 0.72),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              child.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            if (child.subtitle != null &&
-                                child.subtitle!.trim().isNotEmpty)
-                              Text(
-                                child.subtitle!,
-                                style: const TextStyle(
-                                  color: kAppTextMuted,
-                                  fontSize: 12,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LibraryAddPreviewSeriesBadge extends StatelessWidget {
-  const _LibraryAddPreviewSeriesBadge({
-    required this.label,
-    required this.accent,
-  });
-
-  final String label;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: accent.withValues(alpha: 0.3)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: accent.withValues(alpha: 0.95),
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
       ),
     );
   }
