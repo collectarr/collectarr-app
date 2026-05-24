@@ -25,6 +25,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.onEditConditionPickList,
     this.onEditGradePickList,
     this.onEditTagPickList,
+    this.onEditSort,
     this.onPrintReport,
     this.onShareCollection,
   });
@@ -44,6 +45,7 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditTagPickList;
+  final VoidCallback? onEditSort;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
 
@@ -97,6 +99,12 @@ class LibraryToolsButton extends StatelessWidget {
           enabled: hasActiveFilters,
           onSelected: onClearFilters,
         ),
+        if (onEditSort != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.sort,
+            label: 'Sort...',
+            onSelected: onEditSort!,
+          ),
         if (onDownloadAllCovers != null)
           LibraryUtilityMenuAction(
             icon: Icons.download_outlined,

@@ -8,6 +8,7 @@ class LibraryWorkspacePreferenceSnapshot {
     required this.detailsLayout,
     required this.sortColumn,
     required this.sortAscending,
+    this.sortRules,
     required this.coverSize,
     required this.sidebarWidth,
     required this.detailsWidth,
@@ -19,6 +20,7 @@ class LibraryWorkspacePreferenceSnapshot {
   final LibraryDetailsLayout detailsLayout;
   final LibrarySortColumn sortColumn;
   final bool sortAscending;
+  final List<LibrarySortRule>? sortRules;
   final double coverSize;
   final double sidebarWidth;
   final double detailsWidth;
@@ -90,13 +92,14 @@ class LibraryWorkspacePreferences {
                 prefs.getString(_key('details_layout')),
           ) ??
           defaultDetailsLayout,
-      sortColumn: _enumByName(
+        sortColumn: _enumByName(
             LibrarySortColumn.values,
             prefs.getString(_key('sort_column')),
           ) ??
           config.defaultSortColumn,
       sortAscending:
           prefs.getBool(_key('sort_ascending')) ?? defaultSortAscending,
+        sortRules: _decodeSortRules(prefs.getStringList(_key('sort_rules'))),
       coverSize: _clamp(coverSize, minCoverSize, maxCoverSize),
       sidebarWidth: clampLibraryPaneWidth(
         sidebarWidth,
@@ -129,6 +132,10 @@ class LibraryWorkspacePreferences {
     );
     await prefs.setString(_key('sort_column'), snapshot.sortColumn.name);
     await prefs.setBool(_key('sort_ascending'), snapshot.sortAscending);
+    await prefs.setStringList(
+      _key('sort_rules'),
+      _encodeSortRules(snapshot.sortRules),
+    );
     await prefs.setDouble(_key('cover_size'), snapshot.coverSize);
     await prefs.setDouble(_globalKey('sidebar_width'), snapshot.sidebarWidth);
     await prefs.setDouble(_globalKey('details_width'), snapshot.detailsWidth);
@@ -168,6 +175,40 @@ class LibraryWorkspacePreferences {
       for (final entry in widths.entries)
         '${entry.key.name}:${entry.value.round()}',
     ];
+  }
+
+  List<String> _encodeSortRules(List<LibrarySortRule>? rules) {
+    if (rules == null || rules.isEmpty) {
+      return const <String>[];
+    }
+    return [
+      for (final rule in rules)
+        '${rule.column.name}:${rule.ascending ? 'asc' : 'desc'}',
+    ];
+  }
+
+  List<LibrarySortRule>? _decodeSortRules(List<String>? values) {
+    if (values == null || values.isEmpty) {
+      return null;
+    }
+    final rules = <LibrarySortRule>[];
+    for (final value in values) {
+      final parts = value.split(':');
+      if (parts.length != 2) {
+        continue;
+      }
+      final column = _enumByName(LibrarySortColumn.values, parts.first);
+      if (column == null) {
+        continue;
+      }
+      rules.add(
+        LibrarySortRule(
+          column: column,
+          ascending: parts[1] != 'desc',
+        ),
+      );
+    }
+    return rules.isEmpty ? null : rules;
   }
 
   Map<LibraryTableColumn, double> _decodeColumnWidths(List<String>? values) {

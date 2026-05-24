@@ -45,6 +45,16 @@ void main() {
         detailsLayout: LibraryDetailsLayout.bottom,
         sortColumn: LibrarySortColumn.grade,
         sortAscending: false,
+        sortRules: [
+          LibrarySortRule(
+            column: LibrarySortColumn.grade,
+            ascending: false,
+          ),
+          LibrarySortRule(
+            column: LibrarySortColumn.updated,
+            ascending: false,
+          ),
+        ],
         coverSize: 144,
         sidebarWidth: 280,
         detailsWidth: 390,
@@ -69,6 +79,16 @@ void main() {
     expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
     expect(restored.sortColumn, LibrarySortColumn.grade);
     expect(restored.sortAscending, isFalse);
+    expect(restored.sortRules, [
+      const LibrarySortRule(
+        column: LibrarySortColumn.grade,
+        ascending: false,
+      ),
+      const LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: false,
+      ),
+    ]);
     expect(restored.coverSize, 144);
     expect(restored.sidebarWidth, 280);
     expect(restored.detailsWidth, 390);

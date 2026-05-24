@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
+import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
@@ -207,6 +208,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 onSortChanged: (column) => _updateViewState(
                   (state) => state.withSortColumn(column, _adapter.viewProfile),
                 ),
+                onEditSort: _showSortDialog,
                 onViewModeChanged: (mode) => _updateViewState(
                   (state) => state.copyWith(viewMode: mode),
                 ),
@@ -581,6 +583,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       mediaKind: widget.type.workspace.kind.apiValue,
       currentFilter: _filterSelection,
       currentQuickView: _quickView,
+      currentSortRules: _viewState?.sortRules,
       currentSortColumn: _viewState?.sortColumn,
       currentSortAscending: _viewState?.sortAscending,
       currentSearchQuery: _searchController.text.isNotEmpty
@@ -597,13 +600,36 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         } else {
           _searchController.clear();
         }
-        if (result.sortColumn != null && _viewState != null) {
-          _viewState = _viewState!.copyWith(
-            sortColumn: result.sortColumn,
-            sortAscending: result.sortAscending ?? true,
-          );
+        if (_viewState != null) {
+          if (result.sortRules != null && result.sortRules!.isNotEmpty) {
+            _viewState = _viewState!.withSortRules(
+              result.sortRules!,
+              _adapter.viewProfile,
+            );
+          } else if (result.sortColumn != null) {
+            _viewState = _viewState!.copyWith(
+              sortColumn: result.sortColumn,
+              sortAscending: result.sortAscending ?? true,
+            );
+          }
         }
       });
+    }
+  }
+
+  Future<void> _showSortDialog() async {
+    final viewState = _viewState;
+    if (viewState == null) {
+      return;
+    }
+    final sortRules = await showLibrarySortDialog(
+      context: context,
+      currentRules: viewState.sortRules,
+    );
+    if (sortRules != null && mounted) {
+      _updateViewState(
+        (state) => state.withSortRules(sortRules, _adapter.viewProfile),
+      );
     }
   }
 

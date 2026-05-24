@@ -35,8 +35,16 @@ void main() {
           missingCover: true,
         ),
         quickView: LibraryQuickView.owned,
-        sortColumn: LibrarySortColumn.updated,
-        sortAscending: false,
+        sortRules: const [
+          LibrarySortRule(
+            column: LibrarySortColumn.updated,
+            ascending: false,
+          ),
+          LibrarySortRule(
+            column: LibrarySortColumn.title,
+            ascending: true,
+          ),
+        ],
         searchQuery: 'dune',
       ),
     );
@@ -68,6 +76,16 @@ void main() {
     expect(global.quickView, LibraryQuickView.owned);
     expect(global.sortColumn, LibrarySortColumn.updated);
     expect(global.sortAscending, isFalse);
+    expect(global.sortRules, const [
+      LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: false,
+      ),
+      LibrarySortRule(
+        column: LibrarySortColumn.title,
+        ascending: true,
+      ),
+    ]);
     expect(global.searchQuery, 'dune');
     expect(
       global.filterSelection.trackingStatusFilter,
@@ -111,6 +129,16 @@ void main() {
           customFieldDefinitionId: 'status',
           customFieldValue: 'Backlog',
         ),
+        sortRules: const [
+          LibrarySortRule(
+            column: LibrarySortColumn.title,
+            ascending: true,
+          ),
+          LibrarySortRule(
+            column: LibrarySortColumn.updated,
+            ascending: false,
+          ),
+        ],
         searchQuery: 'paperback',
       ),
     );
@@ -124,6 +152,16 @@ void main() {
     );
     expect(updated.single.filterSelection.customFieldDefinitionId, 'status');
     expect(updated.single.filterSelection.customFieldValue, 'Backlog');
+    expect(updated.single.sortRules, const [
+      LibrarySortRule(
+        column: LibrarySortColumn.title,
+        ascending: true,
+      ),
+      LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: false,
+      ),
+    ]);
     expect(updated.single.searchQuery, 'paperback');
 
     await repo.delete(created.id);

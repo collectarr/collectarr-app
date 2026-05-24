@@ -27,6 +27,7 @@ class LibraryToolbar extends StatelessWidget {
     required this.onSearchChanged,
     required this.onEditColumns,
     required this.onSortChanged,
+    this.onEditSort,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
@@ -64,6 +65,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onEditColumns;
   final ValueChanged<LibrarySortColumn> onSortChanged;
+  final VoidCallback? onEditSort;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
@@ -125,6 +127,7 @@ class LibraryToolbar extends StatelessWidget {
               onEditConditionPickList: onEditConditionPickList,
               onEditGradePickList: onEditGradePickList,
               onEditTagPickList: onEditTagPickList,
+              onEditSort: onEditSort,
             );
           }
           return Padding(
@@ -176,6 +179,7 @@ class LibraryToolbar extends StatelessWidget {
                       onEditConditionPickList: onEditConditionPickList,
                       onEditGradePickList: onEditGradePickList,
                       onEditTagPickList: onEditTagPickList,
+                      onEditSort: onEditSort,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
                     ),

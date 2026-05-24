@@ -38,8 +38,16 @@ void main() {
           customFieldValue: 'Shelf A',
         ),
         quickView: LibraryQuickView.owned,
-        sortColumn: LibrarySortColumn.updated,
-        sortAscending: false,
+        sortRules: const [
+          LibrarySortRule(
+            column: LibrarySortColumn.updated,
+            ascending: false,
+          ),
+          LibrarySortRule(
+            column: LibrarySortColumn.title,
+            ascending: true,
+          ),
+        ],
         searchQuery: 'dune',
       ),
     );
@@ -79,7 +87,7 @@ void main() {
 
     expect(find.text('Backlog sci-fi'), findsWidgets);
     expect(find.text('Quick view: Owned'), findsOneWidget);
-    expect(find.text('Sort: updated desc'), findsOneWidget);
+    expect(find.text('Sort: updated desc, title asc'), findsOneWidget);
     expect(find.text('Search: dune'), findsOneWidget);
     expect(find.text('Kind: book'), findsOneWidget);
     expect(find.text('Tracking: In progress'), findsOneWidget);
@@ -98,6 +106,16 @@ void main() {
     expect(loaded!.filterSelection.customFieldDefinitionId, 'cf-location');
     expect(loaded!.filterSelection.customFieldValue, 'Shelf A');
     expect(loaded!.quickView, LibraryQuickView.owned);
+    expect(loaded!.sortRules, const [
+      LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: false,
+      ),
+      LibrarySortRule(
+        column: LibrarySortColumn.title,
+        ascending: true,
+      ),
+    ]);
     expect(loaded!.sortColumn, LibrarySortColumn.updated);
     expect(loaded!.sortAscending, isFalse);
     expect(loaded!.searchQuery, 'dune');

@@ -13,6 +13,7 @@ class SmartListLoadResult {
   const SmartListLoadResult({
     required this.filterSelection,
     this.quickView,
+    this.sortRules,
     this.sortColumn,
     this.sortAscending,
     this.searchQuery,
@@ -20,6 +21,7 @@ class SmartListLoadResult {
 
   final LibraryFilterSelection filterSelection;
   final LibraryQuickView? quickView;
+  final List<LibrarySortRule>? sortRules;
   final LibrarySortColumn? sortColumn;
   final bool? sortAscending;
   final String? searchQuery;
@@ -33,6 +35,7 @@ Future<SmartListLoadResult?> showSmartListsDialog({
   String? mediaKind,
   required LibraryFilterSelection currentFilter,
   LibraryQuickView? currentQuickView,
+  List<LibrarySortRule>? currentSortRules,
   LibrarySortColumn? currentSortColumn,
   bool? currentSortAscending,
   String? currentSearchQuery,
@@ -45,6 +48,7 @@ Future<SmartListLoadResult?> showSmartListsDialog({
       mediaKind: mediaKind,
       currentFilter: currentFilter,
       currentQuickView: currentQuickView,
+      currentSortRules: currentSortRules,
       currentSortColumn: currentSortColumn,
       currentSortAscending: currentSortAscending,
       currentSearchQuery: currentSearchQuery,
@@ -59,6 +63,7 @@ class _SmartListsDialog extends StatefulWidget {
     required this.mediaKind,
     required this.currentFilter,
     this.currentQuickView,
+    this.currentSortRules,
     this.currentSortColumn,
     this.currentSortAscending,
     this.currentSearchQuery,
@@ -69,6 +74,7 @@ class _SmartListsDialog extends StatefulWidget {
   final String? mediaKind;
   final LibraryFilterSelection currentFilter;
   final LibraryQuickView? currentQuickView;
+  final List<LibrarySortRule>? currentSortRules;
   final LibrarySortColumn? currentSortColumn;
   final bool? currentSortAscending;
   final String? currentSearchQuery;
@@ -158,6 +164,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       mediaKind: widget.mediaKind,
       filterSelection: widget.currentFilter,
       quickView: widget.currentQuickView,
+      sortRules: widget.currentSortRules,
       sortColumn: widget.currentSortColumn,
       sortAscending: widget.currentSortAscending,
       searchQuery: widget.currentSearchQuery,
@@ -183,6 +190,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
         mediaKind: list.mediaKind,
         filterSelection: list.filterSelection,
         quickView: list.quickView,
+        sortRules: list.sortRules,
         sortColumn: list.sortColumn,
         sortAscending: list.sortAscending,
         searchQuery: list.searchQuery,
@@ -255,6 +263,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       SmartListLoadResult(
         filterSelection: list.filterSelection,
         quickView: list.quickView,
+        sortRules: list.sortRules,
         sortColumn: list.sortColumn,
         sortAscending: list.sortAscending,
         searchQuery: list.searchQuery,
@@ -416,7 +425,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     }
     if (list.quickView != null) parts.add(list.quickView!.label);
     if (list.searchQuery != null) parts.add('"${list.searchQuery}"');
-    if (list.sortColumn != null) parts.add('sort: ${list.sortColumn!.name}');
+    final sortSummary = _smartListSortSummary(list.effectiveSortRules);
+    if (sortSummary != null) parts.add('sort: $sortSummary');
     if (parts.isEmpty) return null;
     return Text(
       parts.join(' · '),
@@ -445,6 +455,7 @@ class _SmartListDetailsPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final criteriaChips = _criteriaChips(list);
+    final sortSummary = _smartListSortSummary(list.effectiveSortRules);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: kAppPanelRaised,
@@ -479,10 +490,10 @@ class _SmartListDetailsPane extends StatelessWidget {
                       children: [
                         if (list.quickView != null)
                           Chip(label: Text('Quick view: ${list.quickView!.label}')),
-                        if (list.sortColumn != null)
+                        if (sortSummary != null)
                           Chip(
                             label: Text(
-                              'Sort: ${list.sortColumn!.name} ${list.sortAscending == false ? 'desc' : 'asc'}',
+                              'Sort: $sortSummary',
                             ),
                           ),
                         if (list.searchQuery != null && list.searchQuery!.isNotEmpty)
@@ -628,4 +639,13 @@ enum _SmartListAction {
   rename,
   overwrite,
   delete,
+}
+
+String? _smartListSortSummary(List<LibrarySortRule> rules) {
+  if (rules.isEmpty) {
+    return null;
+  }
+  return rules
+      .map((rule) => '${rule.column.name} ${rule.ascending ? 'asc' : 'desc'}')
+      .join(', ');
 }

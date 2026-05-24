@@ -638,7 +638,37 @@ int compareLibraryWorkspaceEntries(
   LibrarySortColumn column,
   bool ascending,
 ) {
-  final result = switch (column) {
+  return compareLibraryWorkspaceEntriesByRules(
+    left,
+    right,
+    [LibrarySortRule(column: column, ascending: ascending)],
+  );
+}
+
+int compareLibraryWorkspaceEntriesByRules(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  Iterable<LibrarySortRule> rules,
+) {
+  for (final rule in rules) {
+    final result = _compareLibraryWorkspaceEntriesByColumn(
+      left,
+      right,
+      rule.column,
+    );
+    if (result != 0) {
+      return rule.ascending ? result : -result;
+    }
+  }
+  return _compareNullableStrings(left.title, right.title);
+}
+
+int _compareLibraryWorkspaceEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) {
+  return switch (column) {
     LibrarySortColumn.status => _compareBools(left.isOwned, right.isOwned),
     LibrarySortColumn.title => _compareNullableStrings(left.title, right.title),
     LibrarySortColumn.issue =>
@@ -672,10 +702,6 @@ int compareLibraryWorkspaceEntries(
     LibrarySortColumn.imprint =>
       _compareNullableStrings(left.publishing?.imprint, right.publishing?.imprint),
   };
-  if (result != 0) {
-    return ascending ? result : -result;
-  }
-  return _compareNullableStrings(left.title, right.title);
 }
 
 int _compareIssueNumbers(String? left, String? right) {

@@ -133,11 +133,10 @@ class LibraryProjection {
               customFieldValuesByItem,
             ))
           item,
-    ]..sort((a, b) => compareLibraryWorkspaceEntries(
+    ]..sort((a, b) => compareLibraryWorkspaceEntriesByRules(
           a.entry,
           b.entry,
-          viewState.sortColumn,
-          viewState.sortAscending,
+          viewState.sortRules,
         ));
     final counts = _toolbarCountsForItems(
       allItems: allItems,

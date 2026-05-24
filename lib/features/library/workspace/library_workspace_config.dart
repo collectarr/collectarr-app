@@ -61,6 +61,33 @@ enum LibrarySortColumn {
   imprint,
 }
 
+class LibrarySortRule {
+  const LibrarySortRule({required this.column, required this.ascending});
+
+  final LibrarySortColumn column;
+  final bool ascending;
+
+  LibrarySortRule copyWith({
+    LibrarySortColumn? column,
+    bool? ascending,
+  }) {
+    return LibrarySortRule(
+      column: column ?? this.column,
+      ascending: ascending ?? this.ascending,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LibrarySortRule &&
+        other.column == column &&
+        other.ascending == ascending;
+  }
+
+  @override
+  int get hashCode => Object.hash(column, ascending);
+}
+
 enum LibraryTableColumn {
   status,
   cover,

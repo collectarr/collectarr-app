@@ -27,6 +27,7 @@ class CompactLibraryToolbar extends StatelessWidget {
     this.onEditConditionPickList,
     this.onEditGradePickList,
     this.onEditTagPickList,
+    this.onEditSort,
   });
 
   final LibraryTypeConfig type;
@@ -48,6 +49,7 @@ class CompactLibraryToolbar extends StatelessWidget {
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditTagPickList;
+  final VoidCallback? onEditSort;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +100,7 @@ class CompactLibraryToolbar extends StatelessWidget {
             onEditConditionPickList: onEditConditionPickList,
             onEditGradePickList: onEditGradePickList,
             onEditTagPickList: onEditTagPickList,
+            onEditSort: onEditSort,
           ),
           Tooltip(
             message: 'Cover size',
