@@ -28,105 +28,139 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
     }).toList();
     // Show newest first.
     final entries = filtered.reversed.toList();
+    final filterControls = Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        SegmentedButton<AppLogLevel?>(
+          segments: const [
+            ButtonSegment(value: null, label: Text('All')),
+            ButtonSegment(
+              value: AppLogLevel.error,
+              icon: Icon(Icons.error_outline, size: 16),
+              label: Text('Errors'),
+            ),
+            ButtonSegment(
+              value: AppLogLevel.warning,
+              icon: Icon(Icons.warning_amber, size: 16),
+              label: Text('Warn'),
+            ),
+            ButtonSegment(
+              value: AppLogLevel.info,
+              icon: Icon(Icons.info_outline, size: 16),
+              label: Text('Info'),
+            ),
+          ],
+          selected: {_levelFilter},
+          onSelectionChanged: (value) =>
+              setState(() => _levelFilter = value.first),
+          showSelectedIcon: false,
+          style: ButtonStyle(
+            visualDensity: VisualDensity.compact,
+            textStyle: WidgetStatePropertyAll(
+              Theme.of(context).textTheme.labelSmall,
+            ),
+          ),
+        ),
+        if (sources.length > 1)
+          DropdownButton<String?>(
+            value: _sourceFilter,
+            underline: const SizedBox.shrink(),
+            isDense: true,
+            dropdownColor: kAppPanelRaised,
+            borderRadius: kAppMenuBorderRadius,
+            items: [
+              const DropdownMenuItem(
+                value: null,
+                child: Text('All sources', style: TextStyle(fontSize: 12)),
+              ),
+              for (final source in sources.toList()..sort())
+                DropdownMenuItem(
+                  value: source,
+                  child: Text(source, style: const TextStyle(fontSize: 12)),
+                ),
+            ],
+            onChanged: (value) => setState(() => _sourceFilter = value),
+          ),
+      ],
+    );
+    final actionControls = Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      alignment: WrapAlignment.end,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Text(
+            '${entries.length} entries',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: kAppTextMuted,
+                ),
+          ),
+        ),
+        IconButton(
+          tooltip: 'Copy all to clipboard',
+          icon: const Icon(Icons.copy_outlined, size: 18),
+          onPressed: entries.isEmpty
+              ? null
+              : () {
+                  final buffer = StringBuffer();
+                  for (final e in entries) {
+                    buffer.writeln(
+                      '[${_levelLabel(e.level)}] ${_formatTime(e.timestamp)} '
+                      '[${e.source}] ${e.message}',
+                    );
+                    if (e.detail != null) {
+                      buffer.writeln(e.detail);
+                    }
+                  }
+                  Clipboard.setData(ClipboardData(text: buffer.toString()));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Log copied')),
+                  );
+                },
+        ),
+        IconButton(
+          tooltip: 'Clear log',
+          icon: const Icon(Icons.delete_outline, size: 18),
+          onPressed: entries.isEmpty
+              ? null
+              : () => ref.read(appLogProvider.notifier).clear(),
+        ),
+      ],
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // ── Toolbar ───────────────────────────────────────────
-        Row(
-          children: [
-            // Level filter
-            SegmentedButton<AppLogLevel?>(
-              segments: const [
-                ButtonSegment(value: null, label: Text('All')),
-                ButtonSegment(
-                  value: AppLogLevel.error,
-                  icon: Icon(Icons.error_outline, size: 16),
-                  label: Text('Errors'),
-                ),
-                ButtonSegment(
-                  value: AppLogLevel.warning,
-                  icon: Icon(Icons.warning_amber, size: 16),
-                  label: Text('Warn'),
-                ),
-                ButtonSegment(
-                  value: AppLogLevel.info,
-                  icon: Icon(Icons.info_outline, size: 16),
-                  label: Text('Info'),
-                ),
-              ],
-              selected: {_levelFilter},
-              onSelectionChanged: (value) =>
-                  setState(() => _levelFilter = value.first),
-              showSelectedIcon: false,
-              style: ButtonStyle(
-                visualDensity: VisualDensity.compact,
-                textStyle: WidgetStatePropertyAll(
-                  Theme.of(context).textTheme.labelSmall,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Source filter
-            if (sources.length > 1)
-              DropdownButton<String?>(
-                value: _sourceFilter,
-                underline: const SizedBox.shrink(),
-                isDense: true,
-                dropdownColor: kAppPanelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                items: [
-                  const DropdownMenuItem(
-                    value: null,
-                    child: Text('All sources', style: TextStyle(fontSize: 12)),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final stacked = constraints.maxWidth < 920;
+            if (stacked) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  filterControls,
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: actionControls,
                   ),
-                  for (final source in sources.toList()..sort())
-                    DropdownMenuItem(
-                      value: source,
-                      child: Text(source, style: const TextStyle(fontSize: 12)),
-                    ),
                 ],
-                onChanged: (value) => setState(() => _sourceFilter = value),
-              ),
-            const Spacer(),
-            // Actions
-            Text(
-              '${entries.length} entries',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: kAppTextMuted,
-                  ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              tooltip: 'Copy all to clipboard',
-              icon: const Icon(Icons.copy_outlined, size: 18),
-              onPressed: entries.isEmpty
-                  ? null
-                  : () {
-                      final buffer = StringBuffer();
-                      for (final e in entries) {
-                        buffer.writeln(
-                          '[${_levelLabel(e.level)}] ${_formatTime(e.timestamp)} '
-                          '[${e.source}] ${e.message}',
-                        );
-                        if (e.detail != null) {
-                          buffer.writeln(e.detail);
-                        }
-                      }
-                      Clipboard.setData(ClipboardData(text: buffer.toString()));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Log copied')),
-                      );
-                    },
-            ),
-            IconButton(
-              tooltip: 'Clear log',
-              icon: const Icon(Icons.delete_outline, size: 18),
-              onPressed: entries.isEmpty
-                  ? null
-                  : () => ref.read(appLogProvider.notifier).clear(),
-            ),
-          ],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: filterControls),
+                const SizedBox(width: 8),
+                actionControls,
+              ],
+            );
+          },
         ),
         const SizedBox(height: 8),
         // ── Entry list ────────────────────────────────────────
@@ -221,7 +255,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                         const SizedBox(height: 6),
                         DecoratedBox(
                           decoration: BoxDecoration(
-                            color: const Color(0xFF111111),
+                            color: kAppField,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Padding(
@@ -249,19 +283,28 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
 
   static Widget _levelIcon(AppLogLevel level) {
     return switch (level) {
-      AppLogLevel.error => const Icon(Icons.error_outline,
-          size: 15, color: Color(0xFFE57373)),
-      AppLogLevel.warning => const Icon(Icons.warning_amber,
-          size: 15, color: Color(0xFFFFB74D)),
-      AppLogLevel.info => const Icon(Icons.info_outline,
-          size: 15, color: Color(0xFF81C784)),
+      AppLogLevel.error => Icon(
+          Icons.error_outline,
+          size: 15,
+          color: Colors.red.shade300,
+        ),
+      AppLogLevel.warning => Icon(
+          Icons.warning_amber,
+          size: 15,
+          color: Colors.orange.shade300,
+        ),
+      AppLogLevel.info => Icon(
+          Icons.info_outline,
+          size: 15,
+          color: Colors.green.shade300,
+        ),
     };
   }
 
   static Color _levelColor(AppLogLevel level) {
     return switch (level) {
-      AppLogLevel.error => const Color(0xFFE57373),
-      AppLogLevel.warning => const Color(0xFFFFB74D),
+      AppLogLevel.error => Colors.red.shade300,
+      AppLogLevel.warning => Colors.orange.shade300,
       AppLogLevel.info => Colors.white70,
     };
   }

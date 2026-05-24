@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/tracking/media_rating_field.dart
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -622,7 +623,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               else
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF101010),
+                    color: kAppField,
                     border: Border.all(color: kEditDivider),
                   ),
                   child: Column(

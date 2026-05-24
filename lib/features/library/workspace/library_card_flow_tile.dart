@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/workspace/library_cover_image.da
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// A tall card showing a large cover beside rich metadata, used in "card flow"
@@ -16,9 +17,9 @@ class LibraryCardFlowTile extends StatelessWidget {
     this.onSecondaryTapUp,
     required this.dateFormatter,
     required this.moneyFormatter,
-    this.selectedColor = const Color(0xFF075F75),
-    this.accentColor = const Color(0xFF10A8D8),
-    this.mutedTextColor = const Color(0xFFB8B8B8),
+    this.selectedColor = kAppSelection,
+    this.accentColor = kAppAccent,
+    this.mutedTextColor = kAppTextMuted,
     super.key,
   });
 
@@ -358,7 +359,7 @@ class _IssuePill extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFD400),
+        color: kAppHighlight,
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(

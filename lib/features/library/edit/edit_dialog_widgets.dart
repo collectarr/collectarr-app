@@ -55,7 +55,7 @@ ThemeData editDialogTheme({Color seedColor = kEditAccent}) {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF101010),
+      fillColor: kAppField,
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       labelStyle: const TextStyle(color: kEditTextMuted),
@@ -104,7 +104,7 @@ class EditTabShell extends StatelessWidget {
               width: 204,
               padding: const EdgeInsets.all(14),
               decoration: const BoxDecoration(
-                color: Color(0xFF101010),
+                color: kAppField,
                 border: Border(right: BorderSide(color: kEditDivider)),
               ),
               child: Column(
@@ -363,7 +363,7 @@ class SoldSummaryPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFF101010),
+        color: kAppField,
         border: Border.all(color: kEditDivider),
       ),
       child: Row(

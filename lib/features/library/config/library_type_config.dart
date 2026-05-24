@@ -132,8 +132,8 @@ class LibraryMetadataProviderOption {
     final normalized = switch (kind) {
       CatalogMediaKind mediaKind => mediaKind.apiValue,
       String value => value.trim().toLowerCase(),
-      String? => '',
-      _ => catalogMediaKindFromValue(kind).apiValue,
+      null => '',
+      Object? _ => catalogMediaKindFromValue(kind).apiValue,
     };
     return supportedKinds.isEmpty || supportedKinds.contains(normalized);
   }

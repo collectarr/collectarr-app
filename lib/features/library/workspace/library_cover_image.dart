@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -112,7 +113,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.secondaryLocalBase64,
     this.ownedItemId,
     this.borderRadius = 4,
-    this.accentColor = const Color(0xFF10A8D8),
+    this.accentColor = kAppAccent,
     this.enableFullscreen = true,
     this.enableHoverCue = true,
     this.enableSecondaryControl = true,
@@ -552,7 +553,7 @@ class LibraryGeneratedCover extends StatelessWidget {
                       '#$itemNumber',
                       style: TextStyle(
                         color: palette.$3 == const Color(0xFFFFFFFF)
-                            ? const Color(0xFF1D1D1D)
+                            ? kAppPanel
                             : palette.$3,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,

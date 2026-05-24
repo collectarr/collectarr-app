@@ -65,82 +65,6 @@ bool libraryShowsReadingQueue(Object? mediaType) {
   return type.trackingProfile.name == readingTrackingProfile.name;
 }
 
-LibraryWorkspaceEntry libraryWorkspaceEntryFromItem(
-  CatalogItem item,
-  OwnedItem? ownedItem,
-  WishlistItem? wishlistItem, {
-  bool? isWishlisted,
-}) {
-  final series = item.series;
-  final video = item.video;
-  final music = item.music;
-  final game = item.game;
-  final publishing = item.publishing;
-  return LibraryWorkspaceEntry(
-    id: item.id,
-    mediaType: item.kind,
-    title: item.title,
-    itemNumber: item.itemNumber,
-    synopsis: item.synopsis,
-    coverImageUrl: item.coverImageUrl,
-    thumbnailImageUrl: item.thumbnailImageUrl,
-    publisher: item.publisher,
-    releaseDate: item.releaseDate,
-    releaseYear: item.releaseYear,
-    barcode: item.barcode,
-    variant: item.variant,
-    isOwned: ownedItem != null,
-    isTracked: false,
-    isWishlisted: isWishlisted ?? wishlistItem != null,
-    hasMissingCover: itemHasMissingCover(item),
-    hasMissingMetadata: itemHasMissingDetails(item),
-    condition: ownedItem?.condition,
-    grade: ownedItem?.grade,
-    rawOrSlabbed: ownedItem?.rawOrSlabbed,
-    gradingCompany: ownedItem?.gradingCompany,
-    keyComic: ownedItem?.keyComic ?? false,
-    keyReason: ownedItem?.keyReason,
-    notes: ownedItem?.personalNotes ?? wishlistItem?.notes,
-    primaryReferenceLabel: libraryPrimaryReferenceLabel(
-      ownedItem: ownedItem,
-      wishlistItem: wishlistItem,
-      mediaType: item.kind,
-    ),
-    referenceScopeLabel: libraryReferenceScopeLabel(
-      ownedItem: ownedItem,
-      wishlistItem: wishlistItem,
-      mediaType: item.kind,
-    ),
-    referenceFormatLabel: libraryReferenceFormatLabel(
-      ownedItem: ownedItem,
-      wishlistItem: wishlistItem,
-      editions: item.editions,
-      fallbackFormatLabel: item.physicalFormatLabel,
-    ),
-    referenceEditionId: ownedItem?.editionId ?? wishlistItem?.editionId,
-    referenceVariantId: ownedItem?.variantId ?? wishlistItem?.variantId,
-    referenceBundleReleaseId:
-        ownedItem?.bundleReleaseId ?? wishlistItem?.bundleReleaseId,
-    pricePaidCents: ownedItem?.pricePaidCents,
-    currency: ownedItem?.currency,
-    storageBox: ownedItem?.storageBox,
-    series: series,
-    video: video,
-    music: music,
-    game: game,
-    publishing: publishing,
-    creators: item.creators,
-    characters: item.characters,
-    storyArcs: item.storyArcs,
-    genres: item.genres,
-    country: item.country,
-    language: item.language,
-    ageRating: item.ageRating,
-    editions: item.editions,
-    updatedAt: _latestLibraryUpdate(ownedItem, wishlistItem),
-  );
-}
-
 String? libraryOwnedReferenceLabel(OwnedItem? ownedItem, {String? mediaType}) {
   return _libraryReferenceLabel(
     ownedItem?.personalAnchor,
@@ -565,19 +489,4 @@ String formatDate(DateTime value) {
 
 String? formatNullableDate(DateTime? value) {
   return value == null ? null : formatDate(value);
-}
-
-DateTime _latestLibraryUpdate(
-  OwnedItem? ownedItem,
-  WishlistItem? wishlistItem,
-) {
-  final ownedUpdated = ownedItem?.updatedAt;
-  final wishUpdated = wishlistItem?.updatedAt;
-  if (ownedUpdated == null) {
-    return wishUpdated ?? DateTime.fromMillisecondsSinceEpoch(0);
-  }
-  if (wishUpdated == null) {
-    return ownedUpdated;
-  }
-  return ownedUpdated.isAfter(wishUpdated) ? ownedUpdated : wishUpdated;
 }

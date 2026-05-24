@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibrarySeriesBucket {
@@ -41,14 +42,14 @@ class LibrarySeriesSidebar extends StatelessWidget {
     this.title = 'Series',
     this.icon = Icons.folder,
     this.trailing,
-    this.backgroundColor = const Color(0xFF1D1D1D),
+    this.backgroundColor = kAppPanel,
     this.headerColor = const Color(0xFF303030),
-    this.dividerColor = const Color(0xFF4A4A4A),
-    this.accentColor = const Color(0xFF10A8D8),
-    this.selectionColor = const Color(0xFF075F75),
+    this.dividerColor = kAppDivider,
+    this.accentColor = kAppAccent,
+    this.selectionColor = kAppSelection,
     this.badgeColor = const Color(0xFF444444),
-    this.selectedBadgeColor = const Color(0xFFFFD400),
-    this.mutedTextColor = const Color(0xFFB8B8B8),
+    this.selectedBadgeColor = kAppHighlight,
+    this.mutedTextColor = kAppTextMuted,
   });
 
   final List<LibrarySeriesBucket> series;
@@ -232,5 +233,5 @@ String libraryBucketLabel(LibrarySeriesBucket bucket) {
   if (completionPercent == null) {
     return '${bucket.title} ${bucket.count}';
   }
-  return '${bucket.title} ${bucket.count} (${completionPercent}%)';
+  return '${bucket.title} ${bucket.count} ($completionPercent%)';
 }

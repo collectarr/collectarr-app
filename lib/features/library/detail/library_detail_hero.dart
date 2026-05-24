@@ -45,12 +45,12 @@ class LibraryDetailHero extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF101010),
+            kAppField,
             Color.alphaBlend(
               accent.withValues(alpha: 0.18),
               const Color(0xFF18242A),
             ),
-            const Color(0xFF101010),
+            kAppField,
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryColumnWidthFor = double Function(LibraryTableColumn column);
@@ -42,14 +43,14 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
     this.horizontalMargin = 8,
     this.selectionRailWidth = 3,
     this.headerColor = const Color(0xFF303030),
-    this.dividerColor = const Color(0xFF4A4A4A),
-    this.selectedColor = const Color(0xFF075F75),
-    this.oddColor = const Color(0xFF202428),
-    this.evenColor = const Color(0xFF181B1E),
-    this.selectionRailColor = const Color(0xFFFFD400),
-    this.bottomBorderColor = const Color(0xFF2E2E2E),
-    this.hoverColor = const Color(0xFF263940),
-    this.accentColor = const Color(0xFF10A8D8),
+    this.dividerColor = kAppDivider,
+    this.selectedColor = kAppSelection,
+    this.oddColor = kAppTableOddRow,
+    this.evenColor = kAppTableEvenRow,
+    this.selectionRailColor = kAppHighlight,
+    this.bottomBorderColor = kAppTableBottomBorder,
+    this.hoverColor = kAppTableHover,
+    this.accentColor = kAppAccent,
     super.key,
   });
 

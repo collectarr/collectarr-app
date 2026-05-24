@@ -124,7 +124,8 @@ class _CollectionSchemaManagementPanelState
     }
     final stats = <String>['All libraries: ${data.globalCustomFieldCount}'];
     for (final type in collectarrLibraryTypes.types) {
-      final count = data.customFieldCountsByKind[type.workspace.kind];
+      final count =
+          data.customFieldCountsByKind[type.workspace.kind.apiValue];
       if (count == null || count == 0) {
         continue;
       }

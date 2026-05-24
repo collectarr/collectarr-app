@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const Color kLibraryFallbackAccent = Color(0xFF10A8D8);
+const Color kLibraryFallbackAccent = kAppAccent;
 
 Color libraryAccentForKind(Object? kind) {
   return switch (catalogMediaKindFromValue(kind)) {
-    CatalogMediaKind.comic => const Color(0xFF4DBBD5),
+    CatalogMediaKind.comic => kAppTopBar,
     CatalogMediaKind.manga => const Color(0xFFE96BA8),
     CatalogMediaKind.anime => const Color(0xFF00AFA5),
     CatalogMediaKind.book => const Color(0xFF48A868),

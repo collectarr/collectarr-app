@@ -20,7 +20,6 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum _ShelfFilter { all, owned, wishlist, overdue, missingGrade, notes }
@@ -176,6 +175,9 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     final cfRepo = CustomFieldRepository(db);
     final cfDefs = await cfRepo.listDefinitions();
     final cfValues = await cfRepo.listAllValues();
+    if (!mounted) {
+      return;
+    }
     final imported = await showDialog<int>(
       context: context,
       builder: (context) => ImportExportWizardDialog(
@@ -185,117 +187,14 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         customFieldValuesByItem: cfValues,
       ),
     );
-    if (imported != null && mounted) {
-      ref.invalidate(shelfProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported $imported rows into your collection')),
-      );
-    }
-  }
-
-  Future<void> _showExportDialog(List<ShelfEntry> entries) async {
-    final db = ref.read(localDatabaseProvider);
-    final cfRepo = CustomFieldRepository(db);
-    final cfDefs = await cfRepo.listDefinitions();
-    final cfValues = await cfRepo.listAllValues();
-    final csv = CollectionCsv();
-    final collectarrCsv = csv.exportShelf(
-      entries,
-      customFieldDefinitions: cfDefs,
-      customFieldValuesByItem: cfValues,
-    );
-    final clzCsv = csv.exportClzFriendlyShelf(
-      entries,
-      customFieldDefinitions: cfDefs,
-      customFieldValuesByItem: cfValues,
-    );
-    final ownedCount = entries.where((entry) => entry.isOwned).length;
-    final wishlistCount = entries.where((entry) => entry.isWishlisted).length;
-    if (!mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Export CSV'),
-        content: SizedBox(
-          width: 760,
-          height: 420,
-          child: DefaultTabController(
-            length: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const TabBar(
-                  tabs: [
-                    Tab(text: 'Collectarr'),
-                    Tab(text: 'CLZ-friendly'),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _PreviewChip('Rows', entries.length),
-                    _PreviewChip('Owned', ownedCount),
-                    _PreviewChip('Wishlist', wishlistCount),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      SelectableText(collectarrCsv),
-                      SelectableText(clzCsv),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton.icon(
-            onPressed: () => _copyCsvFromDialog(
-              context,
-              collectarrCsv,
-              'Collectarr CSV copied',
-            ),
-            icon: const Icon(Icons.copy_all),
-            label: const Text('Copy Collectarr'),
-          ),
-          TextButton.icon(
-            onPressed: () => _copyCsvFromDialog(
-              context,
-              clzCsv,
-              'CLZ-friendly CSV copied',
-            ),
-            icon: const Icon(Icons.table_view),
-            label: const Text('Copy CLZ'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Done'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _copyCsvFromDialog(
-    BuildContext dialogContext,
-    String data,
-    String message,
-  ) async {
-    final messenger = ScaffoldMessenger.of(dialogContext);
-    await Clipboard.setData(ClipboardData(text: data));
-    if (!mounted) {
+    if (!mounted || imported == null) {
       return;
     }
-    messenger.showSnackBar(SnackBar(content: Text(message)));
+    ref.invalidate(shelfProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Imported $imported rows into your collection')),
+    );
   }
-
-  Future<void> _showImportDialog() =>
-      _showImportExportWizard(const <ShelfEntry>[], initialIndex: 1);
 }
 
 class _ImportCsvDialog extends ConsumerStatefulWidget {

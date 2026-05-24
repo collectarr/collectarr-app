@@ -167,7 +167,7 @@ class InspectorActionBar extends StatelessWidget {
                           : Icons.check_box_outline_blank,
                       size: 15,
                       color: entry.isOwned
-                          ? const Color(0xFF141414)
+                        ? kAppCanvas
                           : kAppTextMuted,
                     ),
                     const SizedBox(width: 4),
@@ -175,7 +175,7 @@ class InspectorActionBar extends StatelessWidget {
                       entry.isOwned ? 'OWNED' : 'CATALOG',
                       style: TextStyle(
                         color: entry.isOwned
-                            ? const Color(0xFF141414)
+                            ? kAppCanvas
                             : kAppTextMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,

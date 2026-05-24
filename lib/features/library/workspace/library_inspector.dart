@@ -1,7 +1,8 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const Color _kDefaultAccent = Color(0xFF10A8D8);
-const Color _kDefaultMutedText = Color(0xFFB8B8B8);
+const Color _kDefaultAccent = kAppAccent;
+const Color _kDefaultMutedText = kAppTextMuted;
 const double _kTwoColumnBreakpoint = 420;
 
 class LibraryInspectorFactData {

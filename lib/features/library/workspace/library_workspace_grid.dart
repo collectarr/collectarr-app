@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryGridItemBuilder<T> = Widget Function(
@@ -23,7 +24,7 @@ class LibraryWorkspaceGrid<T> extends StatefulWidget {
     this.crossAxisSpacing = 10,
     this.mainAxisSpacing = 10,
     this.padding = const EdgeInsets.all(10),
-    this.backgroundColor = const Color(0xFF202020),
+    this.backgroundColor = kAppGridCanvas,
     super.key,
   });
 
@@ -188,9 +189,9 @@ class _SelectionRectPainter extends CustomPainter {
       rect.right.clamp(0, size.width),
       rect.bottom.clamp(0, size.height),
     );
-    final fill = Paint()..color = const Color(0x3310A8D8);
+    final fill = Paint()..color = kAppAccent.withValues(alpha: 0.2);
     final stroke = Paint()
-      ..color = const Color(0xFF10A8D8)
+      ..color = kAppAccent
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
     canvas.drawRect(normalized, fill);

@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
@@ -775,19 +774,6 @@ class _InspectorTrackingDetailsEditorState
     _selectedVariantId = selection.variant?.id;
   }
 
-  CatalogEdition? _selectedEdition() {
-    final selectedId = _selectedEditionId;
-    if (selectedId == null) {
-      return null;
-    }
-    for (final edition in widget.editions) {
-      if (edition.id == selectedId) {
-        return edition;
-      }
-    }
-    return null;
-  }
-
   Widget _dateField(
     BuildContext context, {
     required String label,
@@ -1077,6 +1063,25 @@ class _TrackingEditionBrowser extends StatelessWidget {
   }
 }
 
+@visibleForTesting
+Widget buildTrackingEditionBrowserForTesting({
+  required List<CatalogEdition> editions,
+  required String? selectedEditionId,
+  required String? selectedVariantId,
+  required Color accent,
+  required ValueChanged<String?> onEditionSelected,
+  required ValueChanged<String?> onVariantSelected,
+}) {
+  return _TrackingEditionBrowser(
+    editions: editions,
+    selectedEditionId: selectedEditionId,
+    selectedVariantId: selectedVariantId,
+    accent: accent,
+    onEditionSelected: onEditionSelected,
+    onVariantSelected: onVariantSelected,
+  );
+}
+
 class _EditionCard extends StatelessWidget {
   const _EditionCard({
     required this.title,
@@ -1104,7 +1109,7 @@ class _EditionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? accent.withValues(alpha: 0.18)
-              : const Color(0xFF1E1E1E),
+              : kAppPanel,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: isSelected ? accent : kAppDivider,
@@ -1186,7 +1191,7 @@ class _VariantCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? accent.withValues(alpha: 0.18)
-              : const Color(0xFF1E1E1E),
+              : kAppPanel,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: isSelected ? accent : kAppDivider,

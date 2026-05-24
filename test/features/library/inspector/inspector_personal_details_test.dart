@@ -157,4 +157,81 @@ void main() {
     expect(updated.variantId, 'variant-hd');
     expect(updated.updatedAt.isAfter(DateTime.utc(2026, 5, 23)), isTrue);
   });
+
+  testWidgets('tracking edition browser exposes edition and variant selection',
+      (tester) async {
+    String? selectedEditionId;
+    String? selectedVariantId;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, setState) {
+              return buildTrackingEditionBrowserForTesting(
+                editions: const [
+                  CatalogEdition(
+                    id: 'edition-hc',
+                    title: 'Hardcover',
+                    physicalFormatLabel: 'HC',
+                    publisher: 'Image',
+                    variants: [
+                      CatalogVariant(
+                        id: 'variant-blue',
+                        name: 'Blue foil',
+                        physicalFormatLabel: 'Foil',
+                      ),
+                      CatalogVariant(
+                        id: 'variant-red',
+                        name: 'Red foil',
+                        physicalFormatLabel: 'Foil',
+                      ),
+                    ],
+                  ),
+                ],
+                selectedEditionId: selectedEditionId,
+                selectedVariantId: selectedVariantId,
+                accent: Colors.orange,
+                onEditionSelected: (value) {
+                  setState(() {
+                    selectedEditionId = value;
+                    selectedVariantId = null;
+                  });
+                },
+                onVariantSelected: (value) {
+                  setState(() => selectedVariantId = value);
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Primary'), findsOneWidget);
+    expect(find.text('Hardcover'), findsOneWidget);
+    expect(find.text('Variants'), findsNothing);
+
+    await tester.tap(find.text('Hardcover'));
+    await tester.pumpAndSettle();
+
+    expect(selectedEditionId, 'edition-hc');
+    expect(find.text('Variants'), findsOneWidget);
+    expect(find.text('Blue foil'), findsOneWidget);
+    expect(find.text('Red foil'), findsOneWidget);
+
+    await tester.tap(find.text('Red foil'));
+    await tester.pumpAndSettle();
+
+    expect(selectedVariantId, 'variant-red');
+
+    await tester.tap(find.text('Primary'));
+    await tester.pumpAndSettle();
+
+    expect(selectedEditionId, isNull);
+    expect(selectedVariantId, isNull);
+    expect(find.text('Variants'), findsNothing);
+  });
 }
