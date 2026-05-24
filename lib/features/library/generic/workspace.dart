@@ -108,6 +108,7 @@ class LibraryWorkspace extends StatelessWidget {
             mainAxisExtent: viewState.coverSize * 1.53,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCoverTile(
+              key: ValueKey(item.entry.id),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -133,6 +134,7 @@ class LibraryWorkspace extends StatelessWidget {
                 (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
+              key: ValueKey(item.entry.id),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -158,6 +160,7 @@ class LibraryWorkspace extends StatelessWidget {
             mainAxisExtent: 204,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCardFlowTile(
+              key: ValueKey(item.entry.id),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -186,6 +189,7 @@ class LibraryWorkspace extends StatelessWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
+            key: ValueKey(item.entry.id),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
@@ -210,6 +214,7 @@ class LibraryWorkspace extends StatelessWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
+            key: ValueKey(item.entry.id),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
@@ -234,6 +239,7 @@ class LibraryWorkspace extends StatelessWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryCardFlowTile(
+            key: ValueKey(item.entry.id),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),

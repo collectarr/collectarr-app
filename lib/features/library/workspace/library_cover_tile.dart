@@ -64,6 +64,7 @@ class LibraryCoverTile extends StatelessWidget {
                       imageUrl: entry.displayCoverUrl,
                       ownedItemId: entry.ownedItemId,
                       accentColor: accentColor,
+                      enableFullscreen: false,
                     ),
                     Positioned(
                       left: 4,
