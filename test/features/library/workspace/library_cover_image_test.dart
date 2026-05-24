@@ -3,6 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+const _tinyPngBase64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX9kAAAAASUVORK5CYII=';
+
 void main() {
   testWidgets('narrow interactive covers keep the hover cue compact', (
     tester,
@@ -111,5 +114,36 @@ void main() {
 
     expect(find.text('The Amazing Spider-Man\nVol. 4'), findsOneWidget);
     expect(find.text('#15A'), findsOneWidget);
+  });
+
+  testWidgets('interactive covers open and close fullscreen preview on tap', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 180,
+              height: 270,
+              child: LibraryInteractiveCover(
+                title: 'The Hobbit',
+                localBase64: _tinyPngBase64,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(LibraryInteractiveCover));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(InteractiveViewer), findsNothing);
   });
 }
