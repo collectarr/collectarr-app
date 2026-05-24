@@ -575,6 +575,8 @@ class _SmartListDetailsPane extends StatelessWidget {
         'Series: ${filter.series!}',
       if (filter.location != null && filter.location!.isNotEmpty)
         'Location: ${filter.location!}',
+      if (filter.tag != null && filter.tag!.isNotEmpty)
+        'Tag: ${filter.tag!}',
       if (filter.publisher != null && filter.publisher!.isNotEmpty)
         'Publisher: ${filter.publisher!}',
       if (filter.condition != null && filter.condition!.isNotEmpty)

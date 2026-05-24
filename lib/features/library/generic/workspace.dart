@@ -288,6 +288,7 @@ class LibraryWorkspace extends StatelessWidget {
                         adapter.orderedTableColumns(viewState.visibleColumns),
                     sortColumn: viewState.sortColumn,
                     sortAscending: viewState.sortAscending,
+                    sortRules: viewState.sortRules,
                     columnWidthFor: (column) => adapter.tableColumnWidth(
                       column,
                       viewState.columnWidths,

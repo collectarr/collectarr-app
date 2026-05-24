@@ -45,6 +45,7 @@ class LibraryProjectionItem {
         keyComic: source.ownedItem?.keyComic ?? false,
         keyReason: source.ownedItem?.keyReason,
         notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
+        tags: source.ownedItem?.tags,
         primaryReferenceLabel: libraryPrimaryReferenceLabel(
           ownedItem: source.ownedItem,
           wishlistItem: source.wishlistItem,

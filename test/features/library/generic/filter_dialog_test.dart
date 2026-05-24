@@ -105,6 +105,52 @@ void main() {
     );
   });
 
+  test('tag filter matches exact tag case-insensitively', () {
+    final entry = LibraryWorkspaceEntry(
+      id: 'comic-1',
+      mediaType: 'comic',
+      title: 'Batman',
+      tags: 'Signed, Slabbed, Variant',
+      updatedAt: DateTime.utc(2026, 5, 22),
+    );
+
+    expect(
+      libraryFilterMatches(
+        entry,
+        const LibraryFilterSelection(tag: 'signed'),
+      ),
+      isTrue,
+    );
+    expect(
+      libraryFilterMatches(
+        entry,
+        const LibraryFilterSelection(tag: 'Exclusive'),
+      ),
+      isFalse,
+    );
+  });
+
+  test('filter options extract normalized tags from entries', () {
+    final options = LibraryFilterOptions.fromEntries([
+      LibraryWorkspaceEntry(
+        id: 'comic-1',
+        mediaType: 'comic',
+        title: 'Batman',
+        tags: 'Signed, Variant',
+        updatedAt: DateTime.utc(2026, 5, 22),
+      ),
+      LibraryWorkspaceEntry(
+        id: 'comic-2',
+        mediaType: 'comic',
+        title: 'Robin',
+        tags: 'variant, Sketched',
+        updatedAt: DateTime.utc(2026, 5, 22),
+      ),
+    ]);
+
+    expect(options.tags, ['Signed', 'Sketched', 'Variant']);
+  });
+
   testWidgets('filter dialog exposes custom field filter and returns selection', (
     tester,
   ) async {
@@ -162,5 +208,48 @@ void main() {
     expect(selection, isNotNull);
     expect(selection!.customFieldDefinitionId, 'cf-location');
     expect(selection!.customFieldValue, isNull);
+  });
+
+  testWidgets('filter dialog exposes tag autocomplete and returns selection', (
+    tester,
+  ) async {
+    LibraryFilterSelection? selection;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () async {
+                selection = await showLibraryFilterDialog(
+                  context: context,
+                  type: comicsLibraryConfig,
+                  current: LibraryFilterSelection.none,
+                  options: const LibraryFilterOptions(
+                    tags: ['Signed', 'Sketched', 'Variant'],
+                  ),
+                );
+              },
+              child: const Text('Open filters'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open filters'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tag'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).last, 'Sig');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Signed').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply'));
+    await tester.pumpAndSettle();
+
+    expect(selection, isNotNull);
+    expect(selection!.tag, 'Signed');
   });
 }

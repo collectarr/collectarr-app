@@ -32,6 +32,7 @@ void main() {
           customFieldDefinitionId: 'location',
           customFieldValue: 'Shelf A',
           location: 'Vault',
+          tag: 'Signed',
           missingCover: true,
         ),
         quickView: LibraryQuickView.owned,
@@ -104,6 +105,7 @@ void main() {
     expect(global.filterSelection.customFieldDefinitionId, 'location');
     expect(global.filterSelection.customFieldValue, 'Shelf A');
     expect(global.filterSelection.location, 'Vault');
+    expect(global.filterSelection.tag, 'Signed');
     expect(global.filterSelection.missingCover, isTrue);
   });
 
@@ -128,6 +130,7 @@ void main() {
           trackingStatusFilter: LibraryTrackingStatusFilter.planned,
           customFieldDefinitionId: 'status',
           customFieldValue: 'Backlog',
+          tag: 'Backlog',
         ),
         sortRules: const [
           LibrarySortRule(
@@ -152,6 +155,7 @@ void main() {
     );
     expect(updated.single.filterSelection.customFieldDefinitionId, 'status');
     expect(updated.single.filterSelection.customFieldValue, 'Backlog');
+    expect(updated.single.filterSelection.tag, 'Backlog');
     expect(updated.single.sortRules, const [
       LibrarySortRule(
         column: LibrarySortColumn.title,

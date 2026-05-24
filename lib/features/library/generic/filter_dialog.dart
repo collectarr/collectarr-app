@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -119,6 +120,7 @@ class LibraryFilterSelection {
     this.customFieldValue,
     this.series,
     this.location,
+    this.tag,
     this.grade,
     this.condition,
     this.publisher,
@@ -141,6 +143,7 @@ class LibraryFilterSelection {
   final String? customFieldValue;
   final String? series;
   final String? location;
+  final String? tag;
   final String? grade;
   final String? condition;
   final String? publisher;
@@ -161,6 +164,7 @@ class LibraryFilterSelection {
       customFieldValue != null ||
         series != null ||
         location != null ||
+        tag != null ||
         grade != null ||
         condition != null ||
         publisher != null ||
@@ -180,6 +184,7 @@ class LibraryFilterSelection {
     if (customFieldDefinitionId != null || customFieldValue != null) count++;
     if (series != null) count++;
     if (location != null) count++;
+    if (tag != null) count++;
     if (grade != null) count++;
     if (condition != null) count++;
     if (publisher != null) count++;
@@ -205,6 +210,7 @@ class LibraryFilterSelection {
             other.customFieldValue == customFieldValue &&
             other.series == series &&
             other.location == location &&
+            other.tag == tag &&
             other.grade == grade &&
             other.condition == condition &&
             other.publisher == publisher &&
@@ -227,6 +233,7 @@ class LibraryFilterSelection {
       customFieldValue,
         series,
         location,
+      tag,
         grade,
         condition,
         publisher,
@@ -243,6 +250,7 @@ class LibraryFilterOptions {
   const LibraryFilterOptions({
     this.series = const [],
     this.locations = const [],
+    this.tags = const [],
     this.grades = const [],
     this.conditions = const [],
     this.publishers = const [],
@@ -254,6 +262,7 @@ class LibraryFilterOptions {
 
   final List<String> series;
   final List<String> locations;
+  final List<String> tags;
   final List<String> grades;
   final List<String> conditions;
   final List<String> publishers;
@@ -272,6 +281,8 @@ class LibraryFilterOptions {
   ) {
     final series = <String>{};
     final locations = <String>{};
+    final tags = <String>[];
+    final normalizedTags = <String>{};
     final grades = <String>{};
     final conditions = <String>{};
     final publishers = <String>{};
@@ -290,6 +301,13 @@ class LibraryFilterOptions {
       }
       if (entry.storageBox?.trim().isNotEmpty == true) {
         locations.add(entry.storageBox!.trim());
+      }
+      for (final tag in splitPickListValues(entry.tags)) {
+        final normalized = tag.trim().toLowerCase();
+        if (normalized.isEmpty || !normalizedTags.add(normalized)) {
+          continue;
+        }
+        tags.add(tag);
       }
       if (entry.grade?.trim().isNotEmpty == true) {
         grades.add(entry.grade!.trim());
@@ -329,6 +347,7 @@ class LibraryFilterOptions {
     return LibraryFilterOptions(
       series: series.toList()..sort(),
       locations: locations.toList()..sort(),
+      tags: tags..sort(),
       grades: grades.toList()..sort(),
       conditions: conditions.toList()..sort(),
       publishers: publishers.toList()..sort(),
@@ -389,6 +408,10 @@ bool libraryFilterMatches(
     return false;
   }
   if (filters.location != null && entry.storageBox?.trim() != filters.location) {
+    return false;
+  }
+  if (filters.tag != null &&
+      !_entryHasTag(entry.tags, filters.tag!)) {
     return false;
   }
   if (filters.grade != null && entry.grade?.trim() != filters.grade) {
@@ -463,6 +486,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   String? _customFieldValue;
   String? _series;
   String? _location;
+  String? _tag;
   String? _grade;
   String? _condition;
   String? _publisher;
@@ -486,6 +510,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     _customFieldValue = i.customFieldValue;
     _series = i.series;
     _location = i.location;
+    _tag = i.tag;
     _grade = i.grade;
     _condition = i.condition;
     _publisher = i.publisher;
@@ -700,6 +725,16 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
                   onChanged: (v) => setState(() => _location = v),
                 ),
               ],
+              if (widget.options.tags.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _AutocompleteFilterField(
+                  label: 'Tag',
+                  hint: 'Any tag',
+                  value: _tag,
+                  options: widget.options.tags,
+                  onChanged: (value) => setState(() => _tag = value),
+                ),
+              ],
               if (widget.options.publishers.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _FilterDropdown(
@@ -800,6 +835,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
               customFieldValue: _customFieldValue,
               series: _series,
               location: _location,
+              tag: _tag,
               grade: _grade,
               condition: _condition,
               publisher: _publisher,
@@ -861,6 +897,19 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   }
 }
 
+bool _entryHasTag(String? rawTags, String filterTag) {
+  final normalizedFilter = filterTag.trim().toLowerCase();
+  if (normalizedFilter.isEmpty) {
+    return true;
+  }
+  for (final tag in splitPickListValues(rawTags)) {
+    if (tag.trim().toLowerCase() == normalizedFilter) {
+      return true;
+    }
+  }
+  return false;
+}
+
 class _FilterDropdown extends StatelessWidget {
   const _FilterDropdown({
     required this.label,
@@ -893,6 +942,90 @@ class _FilterDropdown extends StatelessWidget {
           DropdownMenuItem(value: option, child: Text(option)),
       ],
       onChanged: (v) => onChanged(v == null || v.isEmpty ? null : v),
+    );
+  }
+}
+
+class _AutocompleteFilterField extends StatelessWidget {
+  const _AutocompleteFilterField({
+    required this.label,
+    required this.hint,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String hint;
+  final String? value;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Autocomplete<String>(
+      initialValue: TextEditingValue(text: value ?? ''),
+      optionsBuilder: (textEditingValue) {
+        final query = textEditingValue.text.trim().toLowerCase();
+        if (query.isEmpty) {
+          return options;
+        }
+        return options.where(
+          (option) => option.toLowerCase().contains(query),
+        );
+      },
+      onSelected: (selection) => onChanged(selection),
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+        return TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: hint,
+            border: const OutlineInputBorder(),
+            suffixIcon: controller.text.trim().isEmpty
+                ? null
+                : IconButton(
+                    onPressed: () {
+                      controller.clear();
+                      onChanged(null);
+                    },
+                    icon: const Icon(Icons.close),
+                    tooltip: 'Clear $label filter',
+                  ),
+          ),
+          onChanged: (text) {
+            final normalized = text.trim();
+            onChanged(normalized.isEmpty ? null : normalized);
+          },
+          onFieldSubmitted: (_) => onFieldSubmitted(),
+        );
+      },
+      optionsViewBuilder: (context, onSelected, displayedOptions) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            color: kAppPanelRaised,
+            elevation: 4,
+            borderRadius: kAppMenuBorderRadius,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 240, maxWidth: 420),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                children: [
+                  for (final option in displayedOptions)
+                    ListTile(
+                      dense: true,
+                      title: Text(option),
+                      onTap: () => onSelected(option),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

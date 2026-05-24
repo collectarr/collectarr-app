@@ -33,6 +33,16 @@ void main() {
               ],
               sortColumn: LibrarySortColumn.title,
               sortAscending: true,
+              sortRules: const [
+                LibrarySortRule(
+                  column: LibrarySortColumn.title,
+                  ascending: true,
+                ),
+                LibrarySortRule(
+                  column: LibrarySortColumn.issue,
+                  ascending: false,
+                ),
+              ],
               columnWidthFor: (column) =>
                   column == LibraryTableColumn.title ? 180 : 80,
               defaultColumnWidthFor: (column) =>
@@ -71,6 +81,8 @@ void main() {
     expect(sortedBy, LibrarySortColumn.title);
     expect(tapped, 'Batman');
     expect(reordered, (LibraryTableColumn.issue, LibraryTableColumn.title));
+    expect(find.byKey(const ValueKey('sort-priority-title')), findsOneWidget);
+    expect(find.byKey(const ValueKey('sort-priority-issue')), findsOneWidget);
   });
 
   testWidgets('workspace table highlights selected row after tap',
