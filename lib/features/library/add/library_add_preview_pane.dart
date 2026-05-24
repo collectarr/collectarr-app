@@ -347,6 +347,13 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                               accent: accent,
                             ),
                         ],
+                        if (type.capabilities.usesSeasonHierarchy &&
+                            selectedCandidate != null)
+                          _PreviewSeasonsSection(
+                            provider: selectedCandidate.provider,
+                            providerItemId: selectedCandidate.providerItemId,
+                            accent: accent,
+                          ),
                       ],
                     ),
                   ),
@@ -1703,6 +1710,192 @@ List<_PreviewTrackData> _previewTracksForSelection({
         durationSeconds: track.durationSeconds,
       ),
   ];
+}
+
+class _PreviewSeasonsSection extends ConsumerWidget {
+  const _PreviewSeasonsSection({
+    required this.provider,
+    required this.providerItemId,
+    required this.accent,
+  });
+
+  final String provider;
+  final String providerItemId;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final seasonsAsync = ref.watch(
+      seasonsProvider((provider: provider, providerItemId: providerItemId)),
+    );
+
+    return seasonsAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.only(top: 22),
+        child: Row(
+          children: [
+            SizedBox.square(
+              dimension: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Loading seasons...',
+              style: TextStyle(color: kAppTextMuted),
+            ),
+          ],
+        ),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (seasons) {
+        if (seasons.isEmpty) return const SizedBox.shrink();
+        final totalEpisodes = seasons.fold<int>(
+          0,
+          (sum, s) => sum + (s.episodeCount ?? s.episodes.length),
+        );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 22),
+            Text(
+              'Seasons (${seasons.length}) · $totalEpisodes episodes',
+              style: TextStyle(color: accent),
+            ),
+            const SizedBox(height: 8),
+            for (final season in seasons)
+              _PreviewSeasonNode(season: season, accent: accent),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _PreviewSeasonNode extends StatefulWidget {
+  const _PreviewSeasonNode({required this.season, required this.accent});
+
+  final Season season;
+  final Color accent;
+
+  @override
+  State<_PreviewSeasonNode> createState() => _PreviewSeasonNodeState();
+}
+
+class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final season = widget.season;
+    final episodeCount = season.episodeCount ?? season.episodes.length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(4),
+          onTap: season.episodes.isNotEmpty
+              ? () => setState(() => _expanded = !_expanded)
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                if (season.posterUrl != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: Image.network(
+                      season.posterUrl!,
+                      width: 28,
+                      height: 42,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        season.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        [
+                          '$episodeCount episodes',
+                          if (season.airDate != null) season.airDate!,
+                        ].join(' · '),
+                        style: const TextStyle(
+                          color: kAppTextMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (season.episodes.isNotEmpty)
+                  Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    size: 18,
+                    color: kAppTextMuted,
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (_expanded)
+          Padding(
+            padding: const EdgeInsets.only(left: 36, bottom: 4),
+            child: Column(
+              children: [
+                for (final ep in season.episodes)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 3),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 26,
+                          child: Text(
+                            '${ep.episodeNumber}',
+                            style: TextStyle(
+                              color: widget.accent.withValues(alpha: 0.7),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            ep.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        if (ep.runtimeMinutes != null)
+                          Text(
+                            '${ep.runtimeMinutes} min',
+                            style: const TextStyle(
+                              color: kAppTextMuted,
+                              fontSize: 13,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 /// A decorated dialog shell with resize handles on the right and bottom edges.

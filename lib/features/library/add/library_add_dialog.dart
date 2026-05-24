@@ -36,6 +36,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/providers/volumes_provider.dart';
+import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
