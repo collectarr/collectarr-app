@@ -104,7 +104,7 @@ void main() {
     expect(find.text('Official'), findsOneWidget);
     expect(find.text('Japanese pressing'), findsOneWidget);
     expect(
-      find.text('Item  ->  Edition: Deluxe Edition  ->  Physical: Japan CD'),
+      find.text('Album  ->  Edition: Deluxe Edition  ->  Physical: Japan CD'),
       findsOneWidget,
     );
   });
