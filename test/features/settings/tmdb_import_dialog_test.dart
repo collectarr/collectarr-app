@@ -34,6 +34,14 @@ void main() {
 
     expect(find.text('Import JSON / CSV'), findsOneWidget);
     expect(find.text('Import file'), findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+    await pumpUntilSettled(tester);
+    expect(
+      find.textContaining(
+        'TMDB file exports often omit poster data.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Import from TMDB'), findsNothing);
 
     await tester.tap(find.text('Account sync'));

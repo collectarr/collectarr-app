@@ -1,25 +1,63 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 enum ProviderImportId {
   tmdb,
+  trakt,
+  simkl,
+  myAnimeList,
+  aniList,
+  kitsu,
+  imdb,
+  goodReads,
+  howLongToBeat,
+  steam,
 }
 
 extension ProviderImportIdX on ProviderImportId {
   String get storageValue {
     return switch (this) {
       ProviderImportId.tmdb => 'tmdb',
+      ProviderImportId.trakt => 'trakt',
+      ProviderImportId.simkl => 'simkl',
+      ProviderImportId.myAnimeList => 'myanimelist',
+      ProviderImportId.aniList => 'anilist',
+      ProviderImportId.kitsu => 'kitsu',
+      ProviderImportId.imdb => 'imdb',
+      ProviderImportId.goodReads => 'goodreads',
+      ProviderImportId.howLongToBeat => 'howlongtobeat',
+      ProviderImportId.steam => 'steam',
     };
   }
 
   String get label {
     return switch (this) {
       ProviderImportId.tmdb => 'TMDB',
+      ProviderImportId.trakt => 'Trakt',
+      ProviderImportId.simkl => 'SIMKL',
+      ProviderImportId.myAnimeList => 'MyAnimeList',
+      ProviderImportId.aniList => 'AniList',
+      ProviderImportId.kitsu => 'Kitsu',
+      ProviderImportId.imdb => 'IMDB',
+      ProviderImportId.goodReads => 'GoodReads',
+      ProviderImportId.howLongToBeat => 'HowLongToBeat',
+      ProviderImportId.steam => 'Steam',
     };
   }
 
   static ProviderImportId? fromStorageValue(String? value) {
     return switch (value?.trim().toLowerCase()) {
       'tmdb' => ProviderImportId.tmdb,
+      'trakt' => ProviderImportId.trakt,
+      'simkl' => ProviderImportId.simkl,
+      'myanimelist' => ProviderImportId.myAnimeList,
+      'anilist' => ProviderImportId.aniList,
+      'kitsu' => ProviderImportId.kitsu,
+      'imdb' => ProviderImportId.imdb,
+      'goodreads' => ProviderImportId.goodReads,
+      'howlongtobeat' => ProviderImportId.howLongToBeat,
+      'steam' => ProviderImportId.steam,
       _ => null,
     };
   }
@@ -48,6 +86,22 @@ class ProviderImportDescriptor {
   final ProviderImportAvailability availability;
 }
 
+/// Icon data for each provider (Material Icons fallback for missing logos).
+IconData providerImportIcon(ProviderImportId id) {
+  return switch (id) {
+    ProviderImportId.tmdb => Icons.movie_outlined,
+    ProviderImportId.trakt => Icons.live_tv_outlined,
+    ProviderImportId.simkl => Icons.connected_tv_outlined,
+    ProviderImportId.myAnimeList => Icons.auto_awesome_outlined,
+    ProviderImportId.aniList => Icons.auto_awesome_outlined,
+    ProviderImportId.kitsu => Icons.auto_awesome_outlined,
+    ProviderImportId.imdb => Icons.theaters_outlined,
+    ProviderImportId.goodReads => Icons.menu_book_outlined,
+    ProviderImportId.howLongToBeat => Icons.sports_esports_outlined,
+    ProviderImportId.steam => Icons.sports_esports_outlined,
+  };
+}
+
 const providerImportDescriptors = <ProviderImportDescriptor>[
   ProviderImportDescriptor(
     id: ProviderImportId.tmdb,
@@ -55,6 +109,78 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     summary: 'Import rated and watchlist movies from TMDB account sync or TMDB export files.',
     supportsAccountSync: true,
     supportsFileImport: true,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.trakt,
+    title: 'Trakt',
+    summary: 'Import TV shows and movies.',
+    supportsAccountSync: true,
+    supportsFileImport: false,
+    availability: ProviderImportAvailability.comingSoon,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.simkl,
+    title: 'SIMKL',
+    summary: 'Import TV shows, movies and anime.',
+    supportsAccountSync: true,
+    supportsFileImport: false,
+    availability: ProviderImportAvailability.comingSoon,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.myAnimeList,
+    title: 'MyAnimeList',
+    summary: 'Import anime and manga.',
+    supportsAccountSync: true,
+    supportsFileImport: false,
+    availability: ProviderImportAvailability.comingSoon,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.aniList,
+    title: 'AniList',
+    summary: 'Import anime and manga.',
+    supportsAccountSync: true,
+    supportsFileImport: false,
+    availability: ProviderImportAvailability.comingSoon,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.kitsu,
+    title: 'Kitsu',
+    summary: 'Import anime and manga.',
+    supportsAccountSync: true,
+    supportsFileImport: false,
+    availability: ProviderImportAvailability.comingSoon,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.imdb,
+    title: 'IMDB',
+    summary: 'Import movies and TV shows from your ratings.',
+    supportsAccountSync: false,
+    supportsFileImport: true,
+    availability: ProviderImportAvailability.comingSoon,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.goodReads,
+    title: 'GoodReads',
+    summary: 'Import from GoodReads backup.',
+    supportsAccountSync: false,
+    supportsFileImport: true,
+    availability: ProviderImportAvailability.comingSoon,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.howLongToBeat,
+    title: 'HowLongToBeat',
+    summary: 'Import games.',
+    supportsAccountSync: false,
+    supportsFileImport: true,
+    availability: ProviderImportAvailability.comingSoon,
+  ),
+  ProviderImportDescriptor(
+    id: ProviderImportId.steam,
+    title: 'Steam',
+    summary: 'Import games from your Steam library.',
+    supportsAccountSync: true,
+    supportsFileImport: false,
+    availability: ProviderImportAvailability.comingSoon,
   ),
 ];
 

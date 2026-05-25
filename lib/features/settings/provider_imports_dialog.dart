@@ -123,6 +123,12 @@ class _ProviderImportsDialogState
                             onImportRecorded: _refreshShellData,
                             onStateChanged: _refreshShellData,
                           ),
+                        _ => Center(
+                            child: Text(
+                              '${_selectedProvider.label} import is not yet available.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
                       },
                     ),
                   );

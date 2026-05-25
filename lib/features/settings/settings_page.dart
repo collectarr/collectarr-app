@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
+import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:collectarr_app/features/settings/provider_imports_dialog.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -538,34 +539,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                   _SettingsPanel(
-                    icon: Icons.movie_outlined,
-                    title: 'Provider imports',
+                    icon: Icons.download_outlined,
+                    title: 'Import data',
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Text(
-                          'Import personal activity from external providers. TMDB is available now for rated and watchlist movie imports, and the same shell can host more provider flows later.',
+                          'Import your collection and tracking data from external services.',
                         ),
                         const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _StatusChip(
-                              icon: tmdbImportSettings.isConfigured
-                                  ? Icons.verified_outlined
-                                  : Icons.key_off_outlined,
-                              label: tmdbImportSettings.isConfigured
-                                  ? 'TMDB account configured'
-                                  : 'TMDB account not configured',
-                              isError: !tmdbImportSettings.isConfigured,
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: _showProviderImportsDialog,
-                              icon: const Icon(Icons.import_export_outlined),
-                              label: const Text('Open provider imports'),
-                            ),
-                          ],
+                        _ImportSourcesGrid(
+                          tmdbSettings: tmdbImportSettings,
                         ),
                       ],
                     ),
@@ -1087,15 +1071,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return;
     }
     _showToast('Sync backup guide copied', tone: AppToastTone.success);
-  }
-
-  Future<void> _showProviderImportsDialog() async {
-    await showDialog<void>(
-      context: context,
-      builder: (context) => ProviderImportsDialog(
-        initialTmdbSettings: ref.read(tmdbImportSettingsProvider),
-      ),
-    );
   }
 
   Future<void> _clearProposalHistory() async {
@@ -2376,4 +2351,155 @@ class _DiagnosticState {
   final bool isChecking;
   final bool isOk;
   final String message;
+}
+
+class _ImportSourcesGrid extends ConsumerWidget {
+  const _ImportSourcesGrid({required this.tmdbSettings});
+
+  final TmdbImportSettings tmdbSettings;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth >= 600 ? 2 : 1;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            mainAxisExtent: 150,
+          ),
+          itemCount: providerImportDescriptors.length,
+          itemBuilder: (context, index) {
+            final descriptor = providerImportDescriptors[index];
+            final isAvailable = descriptor.availability ==
+                ProviderImportAvailability.available;
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isAvailable
+                      ? theme.colorScheme.outline.withValues(alpha: 0.4)
+                      : theme.dividerColor,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          providerImportIcon(descriptor.id),
+                          size: 22,
+                          color: isAvailable
+                              ? theme.colorScheme.primary
+                              : theme.hintColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            descriptor.title,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        if (!isAvailable)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  theme.colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              'Coming soon',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.hintColor,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      descriptor.summary,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.hintColor,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    if (isAvailable)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: FilledButton.icon(
+                          onPressed: () => _openProvider(
+                            context,
+                            ref,
+                            descriptor.id,
+                          ),
+                          icon: const Icon(Icons.import_export_outlined,
+                              size: 18),
+                          label: const Text('Import'),
+                        ),
+                      )
+                    else if (descriptor.supportsFileImport)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: FilledButton.icon(
+                          onPressed: null,
+                          icon: const Icon(Icons.upload_file_outlined,
+                              size: 18),
+                          label: const Text('Select CSV File'),
+                        ),
+                      )
+                    else
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: FilledButton.icon(
+                          onPressed: null,
+                          icon: const Icon(Icons.sync_outlined, size: 18),
+                          label: const Text('Import'),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _openProvider(
+    BuildContext context,
+    WidgetRef ref,
+    ProviderImportId id,
+  ) {
+    switch (id) {
+      case ProviderImportId.tmdb:
+        showDialog<void>(
+          context: context,
+          builder: (_) => ProviderImportsDialog(
+            initialTmdbSettings: tmdbSettings,
+          ),
+        );
+      default:
+        break;
+    }
+  }
 }
