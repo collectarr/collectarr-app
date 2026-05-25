@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -200,6 +201,40 @@ void main() {
     );
     expect(navigationBar.destinations.length, 4);
     expect(find.text('Admin'), findsOneWidget);
+  });
+
+  testWidgets('detail route without request payload redirects to libraries',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final context = tester.element(find.byType(AppShell));
+    GoRouter.of(context).go(AppRoutes.detail);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LibraryHomePage), findsOneWidget);
+    expect(find.byType(AppShell), findsOneWidget);
   });
 }
 

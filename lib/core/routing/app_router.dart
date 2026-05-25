@@ -122,8 +122,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Detail pages (outside shell — full-screen push).
       GoRoute(
         path: AppRoutes.detail,
+        redirect: (context, state) {
+          return state.extra is LibraryDetailPageRequest
+              ? null
+              : AppRoutes.libraries;
+        },
         builder: (context, state) {
-          final request = state.extra! as LibraryDetailPageRequest;
+          final request = state.extra as LibraryDetailPageRequest?;
+          if (request == null) {
+            return const LibraryHomePage();
+          }
           final builder =
               request.type.detailPageBuilder ?? _buildDefaultDetailPage;
           return builder(context, request);

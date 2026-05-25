@@ -91,15 +91,6 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedItem = ownedResolution.ownedItem;
-    if (ownedResolution.shouldScheduleSelection(
-      _selectedOwnedItemId,
-      _selectNewestOwnedItem,
-    )) {
-      _scheduleOwnedCopySelection(
-        ownedResolution.nextSelectedOwnedItemId!,
-        clearNewest: ownedResolution.clearNewest,
-      );
-    }
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogItemProvider)[widget.entry.id] ??
             const <TrackingEntry>[];
@@ -179,7 +170,10 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               selectedOwnedItemId: activeOwnedItem?.id,
               onSelectOwnedItem: ownedCopies.length < 2
                   ? null
-                  : (value) => setState(() => _selectedOwnedItemId = value),
+                  : (value) => setState(() {
+                    _selectedOwnedItemId = value;
+                    _selectNewestOwnedItem = false;
+                  }),
               onAddOwned: isOwned
                   ? () => _addOwnedCopy(widget.entry.id)
                   : widget.onAddOwned,
@@ -265,23 +259,6 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         ),
       ),
     );
-  }
-
-  void _scheduleOwnedCopySelection(
-    String ownedItemId, {
-    bool clearNewest = true,
-  }) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _selectedOwnedItemId = ownedItemId;
-        if (clearNewest) {
-          _selectNewestOwnedItem = false;
-        }
-      });
-    });
   }
 
   Future<void> _addOwnedCopy(String itemId) async {
