@@ -58,7 +58,6 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       const ProviderImportHistoryStore();
   TmdbImportCollection _collection = TmdbImportCollection.ratedMovies;
   _TmdbImportSourceMode _sourceMode = _TmdbImportSourceMode.exportFile;
-  _TmdbPreviewSummary? _lastPreviewSummary;
   bool _isWorking = false;
   bool _keepUnmatchedLocally = true;
   int _pendingLocalCount = 0;
@@ -125,7 +124,6 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
                             }
                             setState(() {
                               _collection = value;
-                              _lastPreviewSummary = null;
                             });
                           },
                   ),
@@ -141,7 +139,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
                     ButtonSegment<_TmdbImportSourceMode>(
                       value: _TmdbImportSourceMode.exportFile,
                       icon: Icon(Icons.upload_file_outlined, size: 18),
-                      label: Text('Export file'),
+                      label: Text('JSON / CSV'),
                     ),
                   ],
                   selected: {_sourceMode},
@@ -157,25 +155,6 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
                           });
                         },
                 ),
-                _PreviewCountChip(
-                  label: 'Pending',
-                  value: _pendingLocalCount,
-                ),
-                if (_lastPreviewSummary != null)
-                  _PreviewCountChip(
-                    label: 'Rows',
-                    value: _lastPreviewSummary!.rows,
-                  ),
-                if (_lastPreviewSummary != null)
-                  _PreviewCountChip(
-                    label: 'Matched',
-                    value: _lastPreviewSummary!.matched,
-                  ),
-                if (_lastPreviewSummary != null)
-                  _PreviewCountChip(
-                    label: 'Unmatched',
-                    value: _lastPreviewSummary!.unmatched,
-                  ),
                 if (_isWorking)
                   const SizedBox(
                     width: 18,
@@ -234,8 +213,6 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
                   const Expanded(
                     child: Text('Keep unmatched locally'),
                   ),
-                  if (_pendingLocalCount > 0)
-                    _PreviewCountChip(label: 'Pending', value: _pendingLocalCount),
                 ],
               ),
               Text(
@@ -311,7 +288,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
               FilledButton.tonalIcon(
                 onPressed: _isWorking ? null : _loadFromTmdb,
                 icon: const Icon(Icons.cloud_download_outlined),
-                label: const Text('Preview TMDB import'),
+                label: const Text('Import from TMDB'),
               ),
             ],
           ),
@@ -322,7 +299,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
 
   Widget _buildExportPane(BuildContext context) {
     return _ImportSectionCard(
-      title: 'Export file',
+      title: 'JSON / CSV import',
       expandChild: true,
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -342,7 +319,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
                   textAlignVertical: TextAlignVertical.top,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Paste TMDB JSON or CSV',
+                    labelText: 'Paste TMDB JSON or CSV export',
                     alignLabelWithHint: true,
                   ),
                 ),
@@ -354,13 +331,13 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
                 children: [
                   FilledButton.tonalIcon(
                     onPressed: _isWorking ? null : _previewPayload,
-                    icon: const Icon(Icons.preview_outlined),
-                    label: const Text('Preview JSON/CSV'),
+                    icon: const Icon(Icons.file_download_outlined),
+                    label: const Text('Import JSON / CSV'),
                   ),
                   OutlinedButton.icon(
                     onPressed: _isWorking ? null : _pickImportFile,
                     icon: const Icon(Icons.folder_open_outlined),
-                    label: const Text('Preview file'),
+                    label: const Text('Import file'),
                   ),
                 ],
               ),
@@ -482,7 +459,6 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     setState(() {
       _sourceMode = sourceMode;
       _isWorking = true;
-      _lastPreviewSummary = null;
     });
     try {
       final request = await preparePreview();
@@ -495,7 +471,6 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
         return;
       }
       setState(() {
-        _lastPreviewSummary = _TmdbPreviewSummary.fromPreview(preview);
         _isWorking = false;
       });
       await _openPreviewDialog(preview);
@@ -1042,48 +1017,6 @@ class _UnmatchedTmdbImportResult {
   final TmdbImportEntry entry;
   final bool proposalCreated;
   final String? proposalServerId;
-}
-
-class _PreviewCountChip extends StatelessWidget {
-  const _PreviewCountChip({
-    required this.label,
-    this.value,
-    this.valueText,
-  }) : assert(value != null || valueText != null);
-
-  final String label;
-  final int? value;
-  final String? valueText;
-
-  @override
-  Widget build(BuildContext context) {
-    final displayValue = valueText ?? '$value';
-    return Chip(
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      label: Text('$label: $displayValue'),
-    );
-  }
-}
-
-class _TmdbPreviewSummary {
-  const _TmdbPreviewSummary({
-    required this.rows,
-    required this.matched,
-    required this.unmatched,
-  });
-
-  final int rows;
-  final int matched;
-  final int unmatched;
-
-  factory _TmdbPreviewSummary.fromPreview(TmdbImportPreview preview) {
-    return _TmdbPreviewSummary(
-      rows: preview.matches.length,
-      matched: preview.matched.length,
-      unmatched: preview.unmatched.length,
-    );
-  }
 }
 
 class _TmdbPreviewRequest {

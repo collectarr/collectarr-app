@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('tmdb workspace uses preview-first labels in both source modes', (
+  testWidgets('tmdb workspace uses import labels in both source modes', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
@@ -32,15 +32,15 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(find.text('Preview JSON/CSV'), findsOneWidget);
-    expect(find.text('Preview file'), findsOneWidget);
-    expect(find.text('Preview TMDB import'), findsNothing);
+    expect(find.text('Import JSON / CSV'), findsOneWidget);
+    expect(find.text('Import file'), findsOneWidget);
+    expect(find.text('Import from TMDB'), findsNothing);
 
     await tester.tap(find.text('Account sync'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Preview TMDB import'), findsOneWidget);
+    expect(find.text('Import from TMDB'), findsOneWidget);
     expect(find.text('Save'), findsOneWidget);
-    expect(find.text('Preview JSON/CSV'), findsNothing);
+    expect(find.text('Import JSON / CSV'), findsNothing);
   });
 }

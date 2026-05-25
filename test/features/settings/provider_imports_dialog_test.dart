@@ -15,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('provider imports dialog shows recent TMDB activity and pending items', (
+  testWidgets('provider imports dialog keeps the TMDB overview clean', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({
@@ -65,17 +65,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('TMDB overview'), findsOneWidget);
-    expect(find.text('Recent activity'), findsOneWidget);
-    expect(find.text('Imported 2 items. Sent 1 metadata proposals.'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Pending reconciliation'),
-      200,
-      scrollable: find.byType(Scrollable).last,
-    );
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Pending reconciliation'), findsOneWidget);
-    expect(find.text('The Matrix Reloaded'), findsOneWidget);
-    expect(find.text('1 pending rows'), findsOneWidget);
+    expect(find.text('Account sync'), findsWidgets);
+    expect(find.text('JSON / CSV import'), findsWidgets);
+    expect(find.text('Recent activity'), findsNothing);
+    expect(find.text('Pending reconciliation'), findsNothing);
+    expect(find.text('Imported 2 items. Sent 1 metadata proposals.'), findsNothing);
+    expect(find.text('The Matrix Reloaded'), findsNothing);
+    expect(find.text('1 pending rows'), findsNothing);
   });
 }
