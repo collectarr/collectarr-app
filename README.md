@@ -144,6 +144,10 @@ bundle-release-level anchors without dropping back to media-specific dialogs.
 Release publishing is manual-only. The `Release` GitHub Actions workflow uses
 `workflow_dispatch`; pushing to `main` runs CI only — no auto-publish.
 
+The first packaged rollout keeps installation manual. The in-app updater stays
+hidden until the release workflow also publishes installer assets that the
+desktop client can install directly.
+
 ## Related Repos
 
 | Repo | Purpose |

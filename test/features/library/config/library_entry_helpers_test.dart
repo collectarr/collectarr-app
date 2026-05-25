@@ -79,7 +79,7 @@ void main() {
 
     expect(
       hierarchy,
-      ['Item', 'Edition: Deluxe Edition', 'Physical: Japan CD'],
+      ['Album', 'Edition: Deluxe Edition', 'Physical: Japan CD'],
     );
   });
 }

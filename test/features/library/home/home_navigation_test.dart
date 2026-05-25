@@ -68,6 +68,7 @@ void main() {
       genericLibraryMediaPresentation.defaultVisibleColumns);
     expect(config.trackingProfile.name, readingTrackingProfile.name);
     expect(config.supportedMetadataProviders.single.id, 'podindex');
+    expect(config.supportedMetadataProviders.single.supportsKind(null), isFalse);
     expect(config.supportedMetadataProviders.single.supportsKind('podcast'),
         isTrue);
   });

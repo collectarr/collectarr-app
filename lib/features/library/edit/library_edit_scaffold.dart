@@ -197,33 +197,111 @@ class _LibraryEditFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final actions = Wrap(
-      alignment: WrapAlignment.end,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        TextButton(
-          onPressed: onCancel,
-          child: const Text('Cancel'),
+    final metaChildren = <Widget>[
+      if (footerLabel != null)
+        Text(
+          footerLabel!,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: kEditTextMuted,
+                fontWeight: FontWeight.w800,
+              ),
         ),
-        FilledButton.icon(
-          onPressed: onSave,
-          icon: const Icon(Icons.save_outlined),
-          label: const Text('Save'),
-        ),
-      ],
-    );
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: const BoxDecoration(
-        color: kEditToolbar,
-        border: Border(top: BorderSide(color: kEditDivider)),
-      ),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: actions,
-      ),
+      ...footerFields,
+    ];
+    return AnimatedBuilder(
+      animation: tabController,
+      builder: (context, _) {
+        final currentTab = tabController.index + 1;
+        final totalTabs = tabController.length;
+        final actions = Wrap(
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            FooterReadonlyField(
+              label: 'Tab',
+              value: '$currentTab / $totalTabs',
+              width: 72,
+            ),
+            Tooltip(
+              message: 'Previous tab',
+              child: OutlinedButton.icon(
+                onPressed: currentTab <= 1 ? null : onPrevious,
+                icon: const Icon(Icons.chevron_left),
+                label: const Text('Previous'),
+              ),
+            ),
+            Tooltip(
+              message: 'Next tab',
+              child: OutlinedButton.icon(
+                onPressed: currentTab >= totalTabs ? null : onNext,
+                icon: const Icon(Icons.chevron_right),
+                label: const Text('Next'),
+              ),
+            ),
+            TextButton(
+              onPressed: onCancel,
+              child: const Text('Cancel'),
+            ),
+            FilledButton.icon(
+              onPressed: onSave,
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('Save'),
+            ),
+          ],
+        );
+        final meta = Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: metaChildren,
+        );
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: const BoxDecoration(
+            color: kEditToolbar,
+            border: Border(top: BorderSide(color: kEditDivider)),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 760) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (metaChildren.isNotEmpty) meta,
+                    if (metaChildren.isNotEmpty) const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: actions,
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  if (metaChildren.isNotEmpty)
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: meta,
+                      ),
+                    )
+                  else
+                    const Spacer(),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: actions,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

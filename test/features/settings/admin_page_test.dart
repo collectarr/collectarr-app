@@ -284,7 +284,7 @@ void main() {
       find.byWidgetPredicate(
         (widget) =>
             widget is DropdownButtonFormField<String> &&
-            widget.decoration?.labelText == 'Media kind',
+            widget.decoration.labelText == 'Media kind',
       ),
     );
     await tester.pumpAndSettle();
@@ -308,7 +308,7 @@ void main() {
       find.byWidgetPredicate(
         (widget) =>
             widget is DropdownButtonFormField<String> &&
-            widget.decoration?.labelText == 'Media kind',
+            widget.decoration.labelText == 'Media kind',
       ),
     );
     await tester.pumpAndSettle();

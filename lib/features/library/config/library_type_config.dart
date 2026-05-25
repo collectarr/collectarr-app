@@ -130,7 +130,6 @@ class LibraryMetadataProviderOption {
 
   bool supportsKind(Object? kind) {
     final normalized = switch (kind) {
-      CatalogMediaKind mediaKind => mediaKind.apiValue,
       String value => value.trim().toLowerCase(),
       null => '',
       Object? _ => catalogMediaKindFromValue(kind).apiValue,

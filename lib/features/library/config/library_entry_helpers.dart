@@ -149,7 +149,7 @@ List<String> libraryReferenceHierarchySegments({
   String? variantId,
   String? bundleReleaseId,
 }) {
-  final itemLabel = mediaType.trim().toLowerCase() == 'music' ? 'Item' : 'Item';
+  final itemLabel = mediaType.trim().toLowerCase() == 'music' ? 'Album' : 'Media';
   final segments = <String>[itemLabel];
   final normalizedBundleId = bundleReleaseId?.trim();
   if (normalizedBundleId != null && normalizedBundleId.isNotEmpty) {

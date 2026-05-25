@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
