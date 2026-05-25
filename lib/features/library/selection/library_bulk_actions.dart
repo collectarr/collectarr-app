@@ -101,21 +101,30 @@ class LibraryBulkActions {
       for (final entry in entries)
         if (entry.ownedItem != null) entry,
     ];
-    for (var index = 0; index < ownedEntries.length; index++) {
-      await mutations.removeItem(
-        ownedEntries[index].ownedItem!,
-        notify: index == ownedEntries.length - 1,
-      );
-    }
     final wishlistedEntries = [
       for (final entry in entries)
         if (entry.isWishlisted) entry,
     ];
+    final trackedEntries = [
+      for (final entry in entries)
+        if (entry.trackingEntry != null && entry.ownedItem == null) entry,
+    ];
+    final totalRemovals =
+        ownedEntries.length + wishlistedEntries.length + trackedEntries.length;
+    var completedRemovals = 0;
+    for (var index = 0; index < ownedEntries.length; index++) {
+      completedRemovals += 1;
+      await mutations.removeItem(
+        ownedEntries[index].ownedItem!,
+        notify: completedRemovals == totalRemovals,
+      );
+    }
     for (var index = 0; index < wishlistedEntries.length; index++) {
       final anchor = resolveLibraryMutationAnchor(
         ownedItem: wishlistedEntries[index].ownedItem,
         wishlistItem: wishlistedEntries[index].wishlistItem,
       );
+      completedRemovals += 1;
       await mutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
@@ -123,7 +132,14 @@ class LibraryBulkActions {
         editionId: anchor.editionId,
         variantId: anchor.variantId,
         bundleReleaseId: anchor.bundleReleaseId,
-        notify: index == wishlistedEntries.length - 1,
+        notify: completedRemovals == totalRemovals,
+      );
+    }
+    for (var index = 0; index < trackedEntries.length; index++) {
+      completedRemovals += 1;
+      await mutations.removeTrackingEntry(
+        trackedEntries[index].trackingEntry!,
+        notify: completedRemovals == totalRemovals,
       );
     }
   }
