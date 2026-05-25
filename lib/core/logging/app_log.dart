@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,11 +30,19 @@ class AppLogEntry {
 /// In-memory ring-buffer log that keeps the most recent entries.
 class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   static const _maxEntries = 200;
-  final _pendingEntries = <AppLogEntry>[];
+  final _entries = <AppLogEntry>[];
   var _flushScheduled = false;
+  var _disposed = false;
 
   @override
-  List<AppLogEntry> build() => const [];
+  List<AppLogEntry> build() {
+    _disposed = false;
+    ref.onDispose(() {
+      _disposed = true;
+      _flushScheduled = false;
+    });
+    return UnmodifiableListView(_entries);
+  }
 
   void log(
     AppLogLevel level,
@@ -48,7 +57,10 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
       message: message,
       detail: detail,
     );
-    _pendingEntries.add(entry);
+    _entries.add(entry);
+    if (_entries.length > _maxEntries) {
+      _entries.removeRange(0, _entries.length - _maxEntries);
+    }
     _scheduleFlush();
   }
 
@@ -62,17 +74,15 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
       log(AppLogLevel.error, source, message, detail: detail);
 
   void clear() {
-    _pendingEntries.clear();
-    state = const [];
+    _entries.clear();
+    state = UnmodifiableListView(_entries);
   }
 
-  void _appendEntries(List<AppLogEntry> entries) {
-    final next = [...state, ...entries];
-    if (next.length > _maxEntries) {
-      state = next.sublist(next.length - _maxEntries);
-    } else {
-      state = next;
+  void _publishEntries() {
+    if (_disposed || !ref.mounted) {
+      return;
     }
+    state = UnmodifiableListView(_entries);
   }
 
   void _scheduleFlush() {
@@ -85,12 +95,10 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
 
   void _flushPending() {
     _flushScheduled = false;
-    if (_pendingEntries.isEmpty) {
+    if (_entries.isEmpty) {
       return;
     }
-    final pending = List<AppLogEntry>.from(_pendingEntries);
-    _pendingEntries.clear();
-    _appendEntries(pending);
+    _publishEntries();
   }
 }
 
