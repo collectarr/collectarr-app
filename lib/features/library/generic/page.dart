@@ -34,6 +34,7 @@ import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
+import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
@@ -259,7 +260,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             shelfState,
             viewState,
           );
-    return Scaffold(
+    return LibraryKeyboardShortcuts(
+      onSelectAll: projection == null ? null : () => _selectAllVisible(projection),
+      child: Scaffold(
         backgroundColor: kAppCanvas,
         body: SafeArea(
           bottom: false,
@@ -362,7 +365,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             ],
           ),
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildBody(
@@ -744,6 +748,39 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedId = focusedId;
       _selectionAnchorId ??= focusedId;
     });
+  }
+
+  void _selectAllVisible(LibraryProjection projection) {
+    if (_isTextInputFocused) {
+      return;
+    }
+    final visibleIds = _visibleSelectionItemIds(projection);
+    if (visibleIds.isEmpty) {
+      return;
+    }
+    _applySelection(visibleIds, _selectedId ?? visibleIds.first);
+  }
+
+  Set<String> _visibleSelectionItemIds(LibraryProjection projection) {
+    final visibleItems = _selectedLetter == null
+        ? projection.filteredItems
+        : projection.filteredItems
+            .where(
+              (item) => LibraryAlphaJumpBar.matchesLetter(
+                item.entry.resolvedTitle,
+                _selectedLetter!,
+              ),
+            )
+            .toList(growable: false);
+              return visibleItems.map((item) => item.entry.id).toSet();
+  }
+
+  bool get _isTextInputFocused {
+    final focusedContext = FocusManager.instance.primaryFocus?.context;
+    if (focusedContext == null) {
+      return false;
+    }
+    return focusedContext.widget is EditableText;
   }
 
   bool _canOpenVideoShelfDrilldown(LibraryProjectionItem item) {
