@@ -222,16 +222,34 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<String?> _readStoredToken(SharedPreferences prefs) async {
-    final secureToken = await _authSecureStorage.read(key: _authTokenKey);
-    if (secureToken != null && secureToken.isNotEmpty) {
-      return secureToken;
+    try {
+      final secureToken = await _authSecureStorage.read(key: _authTokenKey);
+      if (secureToken != null && secureToken.isNotEmpty) {
+        return secureToken;
+      }
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message: 'Failed to read secure token; falling back to legacy token.',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
     final legacyToken = prefs.getString(_authTokenKey);
     if (legacyToken == null || legacyToken.isEmpty) {
       return null;
     }
-    await _authSecureStorage.write(key: _authTokenKey, value: legacyToken);
-    await prefs.remove(_authTokenKey);
+    try {
+      await _authSecureStorage.write(key: _authTokenKey, value: legacyToken);
+      await prefs.remove(_authTokenKey);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message: 'Failed to migrate legacy token into secure storage.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
     return legacyToken;
   }
 }

@@ -29,10 +29,8 @@ class AppLogEntry {
 /// In-memory ring-buffer log that keeps the most recent entries.
 class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   static const _maxEntries = 200;
-  static const _maxFlushRetries = 5;
   final _pendingEntries = <AppLogEntry>[];
   var _flushScheduled = false;
-  var _flushRetries = 0;
 
   @override
   List<AppLogEntry> build() => const [];
@@ -50,9 +48,6 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
       message: message,
       detail: detail,
     );
-    if (_tryAppendEntries([entry])) {
-      return;
-    }
     _pendingEntries.add(entry);
     _scheduleFlush();
   }
@@ -68,17 +63,7 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
 
   void clear() {
     _pendingEntries.clear();
-    _flushRetries = 0;
     state = const [];
-  }
-
-  bool _tryAppendEntries(List<AppLogEntry> entries) {
-    try {
-      _appendEntries(entries);
-      return true;
-    } on AssertionError {
-      return false;
-    }
   }
 
   void _appendEntries(List<AppLogEntry> entries) {
@@ -95,32 +80,17 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
       return;
     }
     _flushScheduled = true;
-    scheduleMicrotask(_flushPending);
+    Timer.run(_flushPending);
   }
 
   void _flushPending() {
     _flushScheduled = false;
     if (_pendingEntries.isEmpty) {
-      _flushRetries = 0;
       return;
     }
     final pending = List<AppLogEntry>.from(_pendingEntries);
     _pendingEntries.clear();
-    if (_tryAppendEntries(pending)) {
-      _flushRetries = 0;
-      return;
-    }
-    _pendingEntries.insertAll(0, pending);
-    if (_flushRetries >= _maxFlushRetries) {
-      _pendingEntries.clear();
-      _flushRetries = 0;
-      return;
-    }
-    _flushRetries += 1;
-    if (!_flushScheduled) {
-      _flushScheduled = true;
-      Timer.run(_flushPending);
-    }
+    _appendEntries(pending);
   }
 }
 

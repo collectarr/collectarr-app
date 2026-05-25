@@ -575,19 +575,32 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
         }
 
         final enrichedEntry = await _enrichUnmatchedEntry(match.entry);
-        final response = await createAndRecordLibraryMetadataProposal(
-          api: ref.read(apiClientProvider),
-          type: type,
-          provider: 'tmdb',
-          providerItemId: enrichedEntry.tmdbId.toString(),
-          query: enrichedEntry.query,
-          title: enrichedEntry.title,
-          summary: enrichedEntry.overview,
-          imageUrl: enrichedEntry.posterUrl,
-          metadataPayload: enrichedEntry.rawPayload,
-          source: 'TMDB import',
-        );
-        proposedCount += 1;
+        Map<String, dynamic>? response;
+        try {
+          response = await createAndRecordLibraryMetadataProposal(
+            api: ref.read(apiClientProvider),
+            type: type,
+            provider: 'tmdb',
+            providerItemId: enrichedEntry.tmdbId.toString(),
+            query: enrichedEntry.query,
+            title: enrichedEntry.title,
+            summary: enrichedEntry.overview,
+            imageUrl: enrichedEntry.posterUrl,
+            metadataPayload: enrichedEntry.rawPayload,
+            source: 'TMDB import',
+          );
+          proposedCount += 1;
+        } catch (error, stackTrace) {
+          logRecoverableError(
+            source: 'tmdb_import',
+            message:
+                'Failed to create metadata proposal for ${enrichedEntry.title}.',
+            error: error,
+            stackTrace: stackTrace,
+          );
+          skippedCount += 1;
+          continue;
+        }
 
         if (_keepUnmatchedLocally) {
           final localItem = _service.localSyntheticCatalogItem(enrichedEntry);

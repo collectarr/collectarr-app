@@ -121,10 +121,14 @@ List<Widget> buildVideoInspectorSections(
 ) {
   final ownedReleaseIds = <String>{};
   for (final edition in request.entry.editions) {
+    if (edition.id == request.entry.referenceEditionId) {
+      ownedReleaseIds.add(edition.id);
+      continue;
+    }
     for (final variant in edition.variants) {
-      if (variant.id == request.entry.referenceVariantId ||
-          edition.id == request.entry.referenceEditionId) {
+      if (variant.id == request.entry.referenceVariantId) {
         ownedReleaseIds.add(edition.id);
+        break;
       }
     }
   }
