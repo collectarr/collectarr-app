@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
@@ -8,9 +7,6 @@ import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_overflow_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
-import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
-import 'package:collectarr_app/features/settings/sync_settings_dialog.dart';
-import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -250,7 +246,6 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
-    final auth = ref.watch(authControllerProvider);
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerRight,
@@ -266,34 +261,6 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
             ),
             const SizedBox(width: 6),
           ],
-          _HeaderMenuButton(
-            tooltip: 'Choose library layout',
-            label: 'Layout',
-            icon: Icons.space_dashboard_outlined,
-            child: PopupMenuButton<_LibraryNavMenuAction>(
-              tooltip: 'Choose library layout',
-              onSelected: (action) => _handleNavMenuAction(ref, action),
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              padding: EdgeInsets.zero,
-              child: const SizedBox.expand(),
-              itemBuilder: (context) {
-                final preferences = ref.read(libraryNavPreferencesProvider);
-                return [
-                  CheckedPopupMenuItem<_LibraryNavMenuAction>(
-                    value: _LibraryNavMenuAction.topNav,
-                    checked: preferences.placement == LibraryNavPlacement.top,
-                    child: const Text('Top bar'),
-                  ),
-                  CheckedPopupMenuItem<_LibraryNavMenuAction>(
-                    value: _LibraryNavMenuAction.leftRail,
-                    checked: preferences.placement == LibraryNavPlacement.left,
-                    child: const Text('Left rail'),
-                  ),
-                ];
-              },
-            ),
-          ),
-          const SizedBox(width: 6),
           _HeaderActionButton(
             tooltip: sync.isSyncing
                 ? 'Personal sync is running'
@@ -310,119 +277,9 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
                 ? null
                 : () => ref.read(syncControllerProvider.notifier).syncNow(),
           ),
-          const SizedBox(width: 6),
-          _HeaderActionButton(
-            tooltip: 'Open personal sync settings',
-            label: 'Sync settings',
-            icon: Icons.tune,
-            onPressed: () => showSyncSettingsDialog(context: context, accent: accent),
-          ),
-          const SizedBox(width: 6),
-          _HeaderMenuButton(
-            tooltip: 'Open account actions',
-            label: 'Account',
-            icon: Icons.person_outline,
-            child: PopupMenuButton<_AccountMenuAction>(
-              tooltip: 'Open account actions',
-              onSelected: (action) => _handleAccountAction(context, ref, action),
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              padding: EdgeInsets.zero,
-              child: const SizedBox.expand(),
-              itemBuilder: (context) => [
-                if (auth.isAuthenticated) ...[
-                  const PopupMenuItem<_AccountMenuAction>(
-                    value: _AccountMenuAction.refreshAccount,
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(Icons.manage_accounts_outlined),
-                      title: Text('Refresh account'),
-                    ),
-                  ),
-                  const PopupMenuDivider(),
-                  const PopupMenuItem<_AccountMenuAction>(
-                    value: _AccountMenuAction.signOut,
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(Icons.logout),
-                      title: Text('Sign out'),
-                    ),
-                  ),
-                ] else
-                  const PopupMenuItem<_AccountMenuAction>(
-                    value: _AccountMenuAction.signIn,
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(Icons.login),
-                      title: Text('Sign in'),
-                    ),
-                  ),
-              ],
-            ),
-          ),
         ],
       ),
     );
-  }
-
-  Future<void> _handleNavMenuAction(
-    WidgetRef ref,
-    _LibraryNavMenuAction action,
-  ) async {
-    final controller = ref.read(libraryNavPreferencesProvider.notifier);
-    switch (action) {
-      case _LibraryNavMenuAction.topNav:
-        await controller.setPlacement(LibraryNavPlacement.top);
-      case _LibraryNavMenuAction.leftRail:
-        await controller.setPlacement(LibraryNavPlacement.left);
-    }
-  }
-
-  Future<void> _handleAccountAction(
-    BuildContext context,
-    WidgetRef ref,
-    _AccountMenuAction action,
-  ) async {
-    switch (action) {
-      case _AccountMenuAction.signIn:
-        context.go(AppRoutes.auth);
-      case _AccountMenuAction.refreshAccount:
-        try {
-          await ref.read(authControllerProvider.notifier).refreshCurrentUser();
-          if (!context.mounted) {
-            return;
-          }
-          final auth = ref.read(authControllerProvider);
-          showAppToast(
-            context,
-            auth.isAdmin
-                ? 'Account permissions refreshed: admin'
-                : 'Account permissions refreshed: standard account',
-            tone: AppToastTone.success,
-          );
-        } catch (error) {
-          if (!context.mounted) {
-            return;
-          }
-          showAppToast(
-            context,
-            'Account refresh failed: ${_describeAccountError(error)}',
-            tone: AppToastTone.error,
-          );
-        }
-      case _AccountMenuAction.signOut:
-        await ref.read(authControllerProvider.notifier).logout();
-    }
-  }
-
-  String _describeAccountError(Object error) {
-    final text = error.toString().trim();
-    if (text.startsWith('Exception: ')) {
-      return text.substring('Exception: '.length);
-    }
-    if (text.startsWith('StateError: ')) {
-      return text.substring('StateError: '.length);
-    }
-    return text;
   }
 }
 
@@ -521,65 +378,6 @@ class _HeaderActionButton extends StatelessWidget {
     );
   }
 }
-
-class _HeaderMenuButton extends StatelessWidget {
-  const _HeaderMenuButton({
-    required this.tooltip,
-    required this.label,
-    required this.icon,
-    required this.child,
-  });
-
-  final String tooltip;
-  final String label;
-  final IconData icon;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white24),
-        ),
-        child: SizedBox(
-          height: 34,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 16, color: Colors.white),
-                    const SizedBox(width: 6),
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned.fill(child: child),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-enum _LibraryNavMenuAction { topNav, leftRail }
-
-enum _AccountMenuAction { signIn, refreshAccount, signOut }
 
 double _headerSideWidth({
   required Iterable<String> labels,
