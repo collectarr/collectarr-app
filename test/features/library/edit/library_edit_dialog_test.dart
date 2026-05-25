@@ -270,6 +270,68 @@ void main() {
     expect(selection?.personal?.variantId, isNull);
   });
 
+  testWidgets('movie edit dialog hides book-style publishing fields', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'movie-publishing-1',
+        kind: 'movie',
+        title: 'Session 9',
+        releaseYear: 2001,
+        publishing: const CatalogPublishingDetails(
+          pageCount: 123,
+          imprint: 'Should stay hidden',
+          seriesGroup: 'Noisy field',
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      accent: Colors.red,
+                      physicalFormats: videoPhysicalMediaFormats,
+                    ),
+                  );
+                },
+                child: const Text('Open movie publishing test'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie publishing test'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Release date'), findsOneWidget);
+    expect(find.text('Release year'), findsOneWidget);
+    expect(find.text('Page count'), findsNothing);
+    expect(find.text('Imprint'), findsNothing);
+    expect(find.text('Series group'), findsNothing);
+  });
+
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {
     tester.view.physicalSize = const Size(1100, 860);
     tester.view.devicePixelRatio = 1;

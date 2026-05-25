@@ -6,6 +6,7 @@ class DefaultLibraryEditPresentationBuilder
   const DefaultLibraryEditPresentationBuilder({
     this.showPhysicalFormatSelector = true,
     this.showCatalogReleaseFields = true,
+    this.showBookPublishingFields = false,
     this.showOwnershipReferenceSection = true,
     this.showOwnedGradingSection = false,
     this.trackingSectionTitle = 'Tracking edition',
@@ -46,6 +47,7 @@ class DefaultLibraryEditPresentationBuilder
 
   final bool showPhysicalFormatSelector;
   final bool showCatalogReleaseFields;
+  final bool showBookPublishingFields;
   final bool showOwnershipReferenceSection;
   final bool showOwnedGradingSection;
   final String trackingSectionTitle;
@@ -119,6 +121,7 @@ class DefaultLibraryEditPresentationBuilder
       showsPhysicalFormatSelector:
           showPhysicalFormatSelector && context.hasPhysicalFormats,
       showsCatalogReleaseFields: showCatalogReleaseFields,
+      showsBookPublishingFields: showBookPublishingFields,
       showsOwnershipReferenceSection:
           showOwnershipReferenceSection &&
           context.isOwned &&

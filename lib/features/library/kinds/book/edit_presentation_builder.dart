@@ -55,7 +55,8 @@ class BookLibraryEditPresentationBuilder
         ],
       'personal' => [
           'book_personal_tracking',
-          if (context.isOwned) 'book_collection_notes' else 'book_collection_fields_info',
+          if (context.hasWishlistContext) 'book_wishlist_reference',
+          if (context.isOwned) 'book_collection_notes' else if (!context.hasWishlistContext) 'book_collection_fields_info',
         ],
       'photos' => ['book_photos'],
       _ => const <String>[],

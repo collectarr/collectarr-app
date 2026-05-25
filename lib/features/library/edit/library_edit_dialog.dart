@@ -585,19 +585,22 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   label: 'Release year',
                   validator: optionalIntValidator,
                 ),
-                _field(
-                  controller: _pageCountController,
-                  label: 'Page count',
-                  validator: optionalIntValidator,
-                ),
               ]),
-              const SizedBox(height: 10),
-              _responsiveFields([
-                _field(controller: _imprintController, label: 'Imprint'),
-                _field(
+              if (editPresentation.showsBookPublishingFields) ...[
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _pageCountController,
+                    label: 'Page count',
+                    validator: optionalIntValidator,
+                  ),
+                  _field(controller: _imprintController, label: 'Imprint'),
+                  _field(
                     controller: _seriesGroupController,
-                    label: 'Series group'),
-              ]),
+                    label: 'Series group',
+                  ),
+                ]),
+              ],
             ],
           ),
         ),

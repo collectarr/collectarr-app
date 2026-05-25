@@ -50,6 +50,7 @@ class LibraryEditPresentationState {
   const LibraryEditPresentationState({
     required this.showsPhysicalFormatSelector,
     required this.showsCatalogReleaseFields,
+    this.showsBookPublishingFields = false,
     required this.showsOwnershipReferenceSection,
     required this.showsOwnedGradingSection,
     required this.trackingSectionTitle,
@@ -64,6 +65,8 @@ class LibraryEditPresentationState {
 
   final bool showsPhysicalFormatSelector;
   final bool showsCatalogReleaseFields;
+  /// Whether to show book-specific publishing fields (page count, imprint, series group).
+  final bool showsBookPublishingFields;
   final bool showsOwnershipReferenceSection;
   final bool showsOwnedGradingSection;
   final String trackingSectionTitle;

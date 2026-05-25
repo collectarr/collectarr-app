@@ -84,6 +84,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   late final TextEditingController _tagsController;
   late final TextEditingController _sellPriceController;
   late final TextEditingController _soldToController;
+  late final TextEditingController _wishlistPriceController;
+  late final TextEditingController _wishlistCurrencyController;
+  late final TextEditingController _wishlistNotesController;
 
   List<String> _tagOptions = const [];
   List<StorageLocation> _availableLocations = const [];
@@ -103,6 +106,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   bool get _isTrackingOnly => !_isOwned && widget.request.trackingEntry != null;
 
+  bool get _hasWishlistContext => widget.request.wishlistItem != null;
+
   LibraryTypeConfig get _type => widget.request.type;
 
   Color get _accent => widget.request.accent;
@@ -112,7 +117,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       isOwned: _isOwned,
       isTrackingOnly: _isTrackingOnly,
       hasTrackingContext: _hasTrackingContext,
-      hasWishlistContext: false,
+      hasWishlistContext: _hasWishlistContext,
       isDigitalFormat: false,
       hasPhysicalFormats: false,
       hasEditionAnchors: widget.request.item.editions.isNotEmpty,
@@ -223,6 +228,16 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           : (owned!.sellPriceCents! / 100).toStringAsFixed(2),
     );
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
+    final wishlist = widget.request.wishlistItem;
+    _wishlistPriceController = TextEditingController(
+      text: wishlist?.targetPriceCents == null
+          ? ''
+          : (wishlist!.targetPriceCents! / 100).toStringAsFixed(2),
+    );
+    _wishlistCurrencyController =
+        TextEditingController(text: wishlist?.currency ?? '');
+    _wishlistNotesController =
+        TextEditingController(text: wishlist?.notes ?? '');
     _selectedLocationId = owned?.locationId;
     _startedAt = tracking?.startedAt ?? owned?.startedAt;
     _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
@@ -306,6 +321,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _tagsController.dispose();
     _sellPriceController.dispose();
     _soldToController.dispose();
+    _wishlistPriceController.dispose();
+    _wishlistCurrencyController.dispose();
+    _wishlistNotesController.dispose();
     super.dispose();
   }
 
@@ -851,6 +869,36 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
             style: TextStyle(color: kEditTextMuted),
           ),
         );
+      case 'book_wishlist_reference':
+        return EditSection(
+          title: 'Wishlist',
+          accent: _accent,
+          child: Column(
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _wishlistPriceController,
+                  label: 'Target price',
+                  validator: optionalMoneyValidator,
+                ),
+                _field(
+                  controller: _wishlistCurrencyController,
+                  label: 'Currency',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _wishlistNotesController,
+                minLines: 3,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  labelText: 'Wishlist notes',
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ],
+          ),
+        );
       case 'book_photos':
         return ItemImagesEditSection(
           images: widget.request.itemImages,
@@ -1237,6 +1285,20 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
+        wishlist: !_hasWishlistContext
+            ? null
+            : LibraryWishlistEditSelection(
+                anchorType: (_selectedEditionId != null || _selectedVariantId != null)
+                    ? 'variant'
+                    : 'item',
+                editionId: _selectedEditionId,
+                variantId: _selectedVariantId,
+                bundleReleaseId: null,
+                targetPriceCents:
+                    parseMoneyCents(_wishlistPriceController.text),
+                currency: emptyToNull(_wishlistCurrencyController.text),
+                notes: emptyToNull(_wishlistNotesController.text),
+              ),
       ),
     );
   }

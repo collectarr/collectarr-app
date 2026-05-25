@@ -8,7 +8,7 @@ class VideoLibraryEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const VideoLibraryEditPresentationBuilder()
       : super(
-          showCatalogReleaseFields: false,
+          showCatalogReleaseFields: true,
           trackingSectionTitle: 'Title tracking',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
