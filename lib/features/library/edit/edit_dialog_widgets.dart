@@ -789,6 +789,12 @@ String? positiveIntValidator(String? value) {
   return parsed == null || parsed < 1 ? 'Enter a positive number' : null;
 }
 
+String? optionalPositiveIntValidator(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  final parsed = int.tryParse(value.trim());
+  return parsed == null || parsed < 0 ? 'Enter a positive number' : null;
+}
+
 String? optionalMoneyValidator(String? value) {
   if (value == null || value.trim().isEmpty) return null;
   final normalized = value.trim().replaceAll(',', '.');

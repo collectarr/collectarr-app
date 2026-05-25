@@ -80,6 +80,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _tagsController;
   late final TextEditingController _sellPriceController;
   late final TextEditingController _soldToController;
+  late final TextEditingController _progressCurrentController;
+  late final TextEditingController _progressTotalController;
+  late final TextEditingController _timesCompletedController;
+  late final TextEditingController _trackingNotesController;
 
   List<String> _tagOptions = const [];
   List<StorageLocation> _availableLocations = const [];
@@ -213,6 +217,19 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
 
+    _progressCurrentController = TextEditingController(
+      text: tracking?.progressCurrent?.toString() ?? '',
+    );
+    _progressTotalController = TextEditingController(
+      text: tracking?.progressTotal?.toString() ?? '',
+    );
+    _timesCompletedController = TextEditingController(
+      text: tracking?.timesCompleted?.toString() ?? '',
+    );
+    _trackingNotesController = TextEditingController(
+      text: tracking?.notes ?? '',
+    );
+
     _selectedLocationId = owned?.locationId;
     _startedAt = tracking?.startedAt ?? owned?.startedAt;
     _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
@@ -270,6 +287,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _tagsController.dispose();
     _sellPriceController.dispose();
     _soldToController.dispose();
+    _progressCurrentController.dispose();
+    _progressTotalController.dispose();
+    _timesCompletedController.dispose();
+    _trackingNotesController.dispose();
     super.dispose();
   }
 
@@ -750,6 +771,34 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     onChanged: (value) => setState(() => _finishedAt = value),
                   ),
                 ]),
+                const SizedBox(height: 10),
+                _denseFields([
+                  _field(
+                    controller: _timesCompletedController,
+                    label: 'Times listened',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressCurrentController,
+                    label: 'Tracks heard',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressTotalController,
+                    label: 'Total tracks',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _trackingNotesController,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Tracking notes',
+                    alignLabelWithHint: true,
+                  ),
+                ),
               ],
             ),
           );
@@ -797,6 +846,34 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     onChanged: (value) => setState(() => _finishedAt = value),
                   ),
                 ]),
+                const SizedBox(height: 10),
+                _denseFields([
+                  _field(
+                    controller: _timesCompletedController,
+                    label: 'Times listened',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressCurrentController,
+                    label: 'Tracks heard',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressTotalController,
+                    label: 'Total tracks',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _trackingNotesController,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Tracking notes',
+                    alignLabelWithHint: true,
+                  ),
+                ),
               ],
             ),
           );
@@ -1407,10 +1484,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 readStatus: emptyToNull(_trackingController.text),
                 startedAt: _startedAt,
                 finishedAt: _finishedAt,
-                progressCurrent: widget.request.trackingEntry?.progressCurrent,
-                progressTotal: widget.request.trackingEntry?.progressTotal,
-                timesCompleted: widget.request.trackingEntry?.timesCompleted,
-                notes: widget.request.trackingEntry?.notes,
+                progressCurrent: parseInt(_progressCurrentController.text),
+                progressTotal: parseInt(_progressTotalController.text),
+                timesCompleted: parseInt(_timesCompletedController.text),
+                notes: emptyToNull(_trackingNotesController.text),
                 seasonNumber: widget.request.trackingEntry?.seasonNumber ?? _item.series?.seasonNumber,
                 episodeNumber: widget.request.trackingEntry?.episodeNumber ?? _item.series?.episodeNumber,
               ),

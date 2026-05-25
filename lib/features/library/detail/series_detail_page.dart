@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -60,13 +62,14 @@ class _SeriesDetailData {
   final List<SeriesRelation> relations;
 }
 
-class _SeriesDetailBody extends StatelessWidget {
+class _SeriesDetailBody extends ConsumerWidget {
   const _SeriesDetailBody({required this.data});
 
   final _SeriesDetailData data;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ownedItemIds = ref.watch(collectionByCatalogItemProvider);
     final series = data.series;
     final description = series['description']?.toString();
     final itemCount = (series['item_count'] as num?)?.toInt() ?? data.items.length;
@@ -165,24 +168,52 @@ class _SeriesDetailBody extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 20),
-        Text(
-          'Series Items',
-          style: Theme.of(context).textTheme.titleMedium,
+        Row(
+          children: [
+            Text(
+              'Series Items',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(width: 8),
+            if (data.items.isNotEmpty) ...[
+              Builder(builder: (context) {
+                final ownedCount = data.items.where((item) {
+                  final id = item['id']?.toString();
+                  return id != null && ownedItemIds.containsKey(id);
+                }).length;
+                return Text(
+                  '$ownedCount / ${data.items.length} owned',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: ownedCount == data.items.length
+                        ? kAppAccent
+                        : kAppTextMuted,
+                    fontWeight: FontWeight.w600,
+                  ),
+                );
+              }),
+            ],
+          ],
         ),
         const SizedBox(height: 8),
         if (data.items.isEmpty)
           const Text('No catalog items were returned for this series.')
         else
-          for (final item in data.items) _SeriesItemTile(item: item),
+          for (final item in data.items)
+            _SeriesItemTile(
+              item: item,
+              isOwned: ownedItemIds.containsKey(item['id']?.toString()),
+            ),
       ],
     );
   }
 }
 
 class _SeriesItemTile extends StatelessWidget {
-  const _SeriesItemTile({required this.item});
+  const _SeriesItemTile({required this.item, required this.isOwned});
 
   final Map<String, dynamic> item;
+  final bool isOwned;
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +261,9 @@ class _SeriesItemTile extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
+        trailing: isOwned
+            ? const Icon(Icons.check_circle, color: kAppAccent, size: 20)
+            : const Icon(Icons.circle_outlined, color: kAppTextMuted, size: 20),
       ),
     );
   }
