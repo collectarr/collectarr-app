@@ -735,6 +735,106 @@ void main() {
     expect(owned.single.locationId, 'loc-short-box-6');
     expect(owned.single.storageBox, isNull);
   });
+
+  test('collection mutations can keep unmatched tmdb items local-only',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final snapshot = CatalogItem(
+      id: 'tmdb-local:movie:603',
+      kind: 'movie',
+      title: 'The Matrix',
+      releaseYear: 1999,
+    );
+
+    await container.read(collectionMutationsProvider).addLocalOnlyTrackingEntry(
+          snapshot,
+          sourceType: 'streaming',
+          status: 'Completed',
+          rating: 9,
+          timesCompleted: 1,
+        );
+    await container.read(collectionMutationsProvider).addLocalOnlyWishlistItem(
+          snapshot,
+        );
+
+    final catalog = await db.select(db.catalogCache).get();
+    final tracking = await db.select(db.trackingEntriesCache).get();
+    final wishlist = await db.select(db.wishlistItemsCache).get();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(catalog.single.id, 'tmdb-local:movie:603');
+    expect(tracking.single.itemId, 'tmdb-local:movie:603');
+    expect(wishlist.single.itemId, 'tmdb-local:movie:603');
+    expect(queued, isEmpty);
+  });
+
+  test('collection mutations can promote local-only tmdb items to core ids',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    final mutations = container.read(collectionMutationsProvider);
+
+    final localSnapshot = CatalogItem(
+      id: 'tmdb-local:movie:603',
+      kind: 'movie',
+      title: 'The Matrix',
+      releaseYear: 1999,
+    );
+    await mutations.addLocalOnlyTrackingEntry(
+      localSnapshot,
+      sourceType: 'streaming',
+      status: 'Completed',
+      rating: 9,
+      timesCompleted: 1,
+    );
+    await mutations.addLocalOnlyWishlistItem(localSnapshot);
+
+    final promotedCount = await mutations.promoteLocalOnlyItemToCatalog(
+      'tmdb-local:movie:603',
+      CatalogItem(
+        id: 'movie-603',
+        kind: 'movie',
+        title: 'The Matrix',
+        releaseYear: 1999,
+      ),
+    );
+
+    final tracking = await db.select(db.trackingEntriesCache).get();
+    final wishlist = await db.select(db.wishlistItemsCache).get();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(promotedCount, 2);
+    expect(
+      tracking.where((row) => row.deletedAt == null).single.itemId,
+      'movie-603',
+    );
+    expect(
+      wishlist.where((row) => row.deletedAt == null).single.itemId,
+      'movie-603',
+    );
+    expect(
+      queued.where((row) => row.entityType == 'tracking_entry'),
+      hasLength(1),
+    );
+    expect(
+      queued.where((row) => row.entityType == 'wishlist_item'),
+      hasLength(1),
+    );
+    expect(
+      queued.where((row) => row.entityType == 'library_item_snapshot'),
+      hasLength(1),
+    );
+  });
 }
 
 class _SpySyncController extends SyncController {

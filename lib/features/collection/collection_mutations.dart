@@ -339,6 +339,62 @@ class CollectionMutations {
     }
   }
 
+  Future<void> addLocalOnlyTrackingEntry(
+    CatalogItem item, {
+    Object? sourceType,
+    Object? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    int? seasonNumber,
+    int? episodeNumber,
+    bool allowEmpty = false,
+    bool notify = true,
+  }) async {
+    final now = DateTime.now().toUtc();
+    await _catalogCache().upsertAll([item]);
+    final normalizedSourceType = _normalizeTrackingSourceTypeValue(sourceType);
+    TrackingEntry? existingEntry;
+    final existingEntries = await _trackingCache().findActiveByItemIds([item.id]);
+    for (final candidate in existingEntries) {
+      if (candidate.ownedItemId != null) {
+        continue;
+      }
+      if (candidate.sourceTypeApiValue == normalizedSourceType) {
+        existingEntry = candidate;
+        break;
+      }
+    }
+    final entry = TrackingEntry(
+      id: existingEntry?.id ??
+          _trackingEntryIdForItem(item.id, sourceType: normalizedSourceType),
+      itemId: item.id,
+      sourceType: normalizedSourceType,
+      status: _normalizeTrackingStatusValue(status),
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: _normalizeTrackingValue(notes),
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      updatedAt: now,
+    );
+    if (!_hasTrackingData(entry) && !allowEmpty) {
+      return;
+    }
+    await _trackingCache().upsert(entry);
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
+  }
+
   Future<void> updateCatalogSnapshot(
     CatalogItem item, {
     bool notify = true,
@@ -405,6 +461,134 @@ class CollectionMutations {
     if (notify) {
       await _notifyWishlistChanged();
     }
+  }
+
+  Future<void> addLocalOnlyWishlistItem(
+    CatalogItem item, {
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    bool notify = true,
+  }) async {
+    final now = DateTime.now().toUtc();
+    await _catalogCache().upsertAll([item]);
+    final existing = await _wishlistCache().findActiveByItemId(item.id);
+    if (existing == null) {
+      final normalizedAnchorType = _normalizedPersonalAnchorType(
+        anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      );
+      await _wishlistCache().upsert(
+        WishlistItem(
+          id: _uuid.v4(),
+          itemId: item.id,
+          anchorType: normalizedAnchorType,
+          editionId: editionId,
+          variantId: variantId,
+          bundleReleaseId: bundleReleaseId,
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
+    }
+    if (notify) {
+      await _notifyWishlistChanged();
+    }
+  }
+
+  Future<int> promoteLocalOnlyItemToCatalog(
+    String localItemId,
+    CatalogItem item, {
+    bool notify = true,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final localTrackingEntries =
+        await _trackingCache().findActiveByItemIds([localItemId]);
+    final localWishlistItems =
+        await _wishlistCache().findActiveByItemIds([localItemId]);
+    if (localTrackingEntries.isEmpty && localWishlistItems.isEmpty) {
+      return 0;
+    }
+
+    final targetTrackingEntries =
+        await _trackingCache().findActiveByItemIds([item.id]);
+    final targetWishlistItem = await _wishlistCache().findActiveByItemId(item.id);
+    final trackingUpserts = <TrackingEntry>[];
+    final trackingDeletes = <TrackingEntry>[];
+    final wishlistUpserts = <WishlistItem>[];
+    final wishlistDeletes = <WishlistItem>[];
+    final syncChanges = <SyncChange>[];
+
+    for (final localEntry in localTrackingEntries.where((entry) => entry.ownedItemId == null)) {
+      TrackingEntry? targetEntry;
+      for (final candidate in targetTrackingEntries) {
+        if (candidate.ownedItemId != null) {
+          continue;
+        }
+        if (candidate.sourceTypeApiValue == localEntry.sourceTypeApiValue) {
+          targetEntry = candidate;
+          break;
+        }
+      }
+      if (targetEntry != null) {
+        final merged = _mergeTrackingEntryForPromotion(
+          targetEntry,
+          localEntry,
+          itemId: item.id,
+          changedAt: now,
+        );
+        trackingUpserts.add(merged);
+        syncChanges.add(_syncChangeForTrackingEntry(merged, 'upsert', now));
+        trackingDeletes.add(_trackingDeletion(localEntry, now));
+      } else {
+        final promoted = localEntry.copyWith(
+          itemId: item.id,
+          updatedAt: now,
+          deletedAt: null,
+        );
+        trackingUpserts.add(promoted);
+        syncChanges.add(_syncChangeForTrackingEntry(promoted, 'upsert', now));
+      }
+    }
+
+    for (final localWishlist in localWishlistItems) {
+      if (targetWishlistItem != null) {
+        final merged = _mergeWishlistItemForPromotion(
+          targetWishlistItem,
+          localWishlist,
+          itemId: item.id,
+          changedAt: now,
+        );
+        wishlistUpserts.add(merged);
+        syncChanges.add(_syncChangeForWishlistItem(merged, 'upsert', now));
+        wishlistDeletes.add(localWishlist.copyWith(updatedAt: now, deletedAt: now));
+      } else {
+        final promoted = localWishlist.copyWith(
+          itemId: item.id,
+          updatedAt: now,
+          deletedAt: null,
+        );
+        wishlistUpserts.add(promoted);
+        syncChanges.add(_syncChangeForWishlistItem(promoted, 'upsert', now));
+      }
+    }
+
+    await _catalogCache().upsertAll([item]);
+    _addCatalogSnapshotChange(syncChanges, <String>{}, item, now);
+    await _trackingCache().upsertAll(trackingUpserts);
+    for (final deleted in trackingDeletes) {
+      await _trackingCache().markDeleted(deleted, now);
+    }
+    await _wishlistCache().upsertAll(wishlistUpserts);
+    await _wishlistCache().markDeletedAll(wishlistDeletes, now);
+    await _syncQueue().enqueueAll(syncChanges);
+    if (notify) {
+      await _notifyCollectionChanged(wishlistChanged: localWishlistItems.isNotEmpty);
+    }
+    return localTrackingEntries.length + localWishlistItems.length;
   }
 
   Future<WishlistItem> updateWishlistItem(
@@ -1190,6 +1374,46 @@ class CollectionMutations {
         _normalizeTrackingValue(entry.notes) != null ||
         entry.seasonNumber != null ||
         entry.episodeNumber != null;
+  }
+
+  TrackingEntry _mergeTrackingEntryForPromotion(
+    TrackingEntry target,
+    TrackingEntry local, {
+    required String itemId,
+    required DateTime changedAt,
+  }) {
+    return target.copyWith(
+      itemId: itemId,
+      status: local.status ?? target.status,
+      rating: local.rating ?? target.rating,
+      startedAt: local.startedAt ?? target.startedAt,
+      finishedAt: local.finishedAt ?? target.finishedAt,
+      progressCurrent: local.progressCurrent ?? target.progressCurrent,
+      progressTotal: local.progressTotal ?? target.progressTotal,
+      timesCompleted: local.timesCompleted ?? target.timesCompleted,
+      notes: local.notes ?? target.notes,
+      seasonNumber: local.seasonNumber ?? target.seasonNumber,
+      episodeNumber: local.episodeNumber ?? target.episodeNumber,
+      updatedAt: changedAt,
+      deletedAt: null,
+    );
+  }
+
+  WishlistItem _mergeWishlistItemForPromotion(
+    WishlistItem target,
+    WishlistItem local, {
+    required String itemId,
+    required DateTime changedAt,
+  }) {
+    return target.copyWith(
+      itemId: itemId,
+      anchor: local.anchor ?? target.anchor,
+      targetPriceCents: local.targetPriceCents ?? target.targetPriceCents,
+      currency: local.currency ?? target.currency,
+      notes: local.notes ?? target.notes,
+      updatedAt: changedAt,
+      deletedAt: null,
+    );
   }
 }
 

@@ -16,6 +16,8 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
+import 'package:collectarr_app/features/settings/tmdb_import_dialog.dart';
+import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -86,6 +88,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
+    final tmdbImportSettings = ref.watch(tmdbImportSettingsProvider);
     final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
     final accentScope = LibraryAccentScope.maybeOf(context);
     final accent =
@@ -515,6 +518,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               onPressed: _copySyncBackupGuide,
                               icon: const Icon(Icons.description_outlined),
                               label: const Text('Copy sync backup guide'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.movie_outlined,
+                    title: 'TMDB import',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Import TMDB rated movies into completed tracking, or TMDB watchlist movies into wishlist. TMDB personal endpoints require account id and session id in addition to your API key.',
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _StatusChip(
+                              icon: tmdbImportSettings.isConfigured
+                                  ? Icons.verified_outlined
+                                  : Icons.key_off_outlined,
+                              label: tmdbImportSettings.isConfigured
+                                  ? 'TMDB account configured'
+                                  : 'TMDB account not configured',
+                              isError: !tmdbImportSettings.isConfigured,
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: _showTmdbImportDialog,
+                              icon: const Icon(Icons.import_export_outlined),
+                              label: const Text('Open TMDB import'),
                             ),
                           ],
                         ),
@@ -1066,6 +1102,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Sync backup guide copied')),
+    );
+  }
+
+  Future<void> _showTmdbImportDialog() async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => TmdbImportDialog(
+        initialSettings: ref.read(tmdbImportSettingsProvider),
+      ),
     );
   }
 
