@@ -134,6 +134,15 @@ class LibraryToolbar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             child: Row(
               children: [
+                LibraryToolbarPrimaryActions(
+                  addLabel: 'Add ${type.pluralLabel}',
+                  onAdd: onAdd,
+                  onScanBarcode: onScan,
+                  onRefreshMetadata: onRefreshMetadata,
+                  addBackgroundColor: accent,
+                  addForegroundColor: _toolbarForegroundForAccent(accent),
+                ),
+                const LibraryWorkspaceSeparator(color: kAppDivider),
                 LibraryToolbarSearch(
                   controller: searchController,
                   hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
@@ -142,15 +151,6 @@ class LibraryToolbar extends StatelessWidget {
                   onClearFilter: onClearBucket,
                   onChanged: onSearchChanged,
                   selectionColor: kAppSelection,
-                ),
-                const LibraryWorkspaceSeparator(color: kAppDivider),
-                LibraryToolbarPrimaryActions(
-                  addLabel: 'Add ${type.pluralLabel}',
-                  onAdd: onAdd,
-                  onScanBarcode: onScan,
-                  onRefreshMetadata: onRefreshMetadata,
-                  addBackgroundColor: accent,
-                  addForegroundColor: _toolbarForegroundForAccent(accent),
                 ),
                 const LibraryWorkspaceSeparator(color: kAppDivider),
                 if (selectionCallbacks != null)
