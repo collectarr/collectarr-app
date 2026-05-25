@@ -26,4 +26,25 @@ void main() {
 
     expect(selectAllInvocations, 1);
   });
+
+  testWidgets('delete invokes delete shortcut', (tester) async {
+    var deleteInvocations = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryKeyboardShortcuts(
+            onDelete: () => deleteInvocations += 1,
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.delete);
+
+    expect(deleteInvocations, 1);
+  });
 }

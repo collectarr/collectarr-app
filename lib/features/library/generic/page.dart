@@ -262,6 +262,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           );
     return LibraryKeyboardShortcuts(
       onSelectAll: projection == null ? null : () => _selectAllVisible(projection),
+      onDelete: projection == null ? null : () => _removeVisibleSelection(projection),
       child: Scaffold(
         backgroundColor: kAppCanvas,
         body: SafeArea(
@@ -759,6 +760,13 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       return;
     }
     _applySelection(visibleIds, _selectedId ?? visibleIds.first);
+  }
+
+  void _removeVisibleSelection(LibraryProjection projection) {
+    if (_isTextInputFocused || _selection.itemIds.isEmpty) {
+      return;
+    }
+    unawaited(bulkRemoveFlow(projection));
   }
 
   Set<String> _visibleSelectionItemIds(LibraryProjection projection) {
