@@ -13,9 +13,27 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 final _coverScanPreviewBytesProvider =
-    FutureProvider.autoDispose.family<Uint8List?, XFile>((ref, file) async {
-  return _readPreviewBytes(file);
+    FutureProvider.autoDispose.family<Uint8List?, _CoverScanPreviewSource>(
+  (ref, source) async {
+  return _readPreviewBytes(source.file);
 });
+
+@immutable
+class _CoverScanPreviewSource {
+  const _CoverScanPreviewSource(this.file);
+
+  final XFile file;
+
+  String get _identity => file.path.isNotEmpty ? file.path : file.name;
+
+  @override
+  bool operator ==(Object other) {
+    return other is _CoverScanPreviewSource && other._identity == _identity;
+  }
+
+  @override
+  int get hashCode => _identity.hashCode;
+}
 
 abstract class LibraryCoverScanService {
   const LibraryCoverScanService();
@@ -635,7 +653,9 @@ class _LibraryCoverScanReviewDialogState
   @override
   Widget build(BuildContext context) {
     final maxDialogHeight = MediaQuery.sizeOf(context).height * 0.84;
-    final previewBytes = ref.watch(_coverScanPreviewBytesProvider(widget.file));
+    final previewBytes = ref.watch(
+      _coverScanPreviewBytesProvider(_CoverScanPreviewSource(widget.file)),
+    );
     return Dialog(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 560, maxHeight: maxDialogHeight),
@@ -884,7 +904,11 @@ class _LibraryCoverScanReviewDialogState
     });
     try {
       final previewBytes =
-          await ref.read(_coverScanPreviewBytesProvider(widget.file).future);
+          await ref.read(
+            _coverScanPreviewBytesProvider(
+              _CoverScanPreviewSource(widget.file),
+            ).future,
+          );
       final reviewed = LibraryCoverReviewedImage.fromFile(
         widget.file,
         imageBytes: previewBytes,

@@ -397,11 +397,20 @@ _ResolvedVideoRelease _buildResolvedVideoRelease(
 
 bool _matchesReleaseAnchor(Object item, CatalogEdition edition) {
   final anchor = videoReleaseAnchorForEdition(edition);
-  final editionId = item is OwnedItem ? item.editionId : (item as WishlistItem).editionId;
-  final variantId = item is OwnedItem ? item.variantId : (item as WishlistItem).variantId;
-  final bundleReleaseId = item is OwnedItem
-      ? item.bundleReleaseId
-      : (item as WishlistItem).bundleReleaseId;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
+  if (item is OwnedItem) {
+    editionId = item.editionId;
+    variantId = item.variantId;
+    bundleReleaseId = item.bundleReleaseId;
+  } else if (item is WishlistItem) {
+    editionId = item.editionId;
+    variantId = item.variantId;
+    bundleReleaseId = item.bundleReleaseId;
+  } else {
+    return false;
+  }
   if (anchor.editionId != null && anchor.editionId == editionId) {
     return true;
   }

@@ -6,13 +6,14 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _collectionSchemaSnapshotProvider =
-    FutureProvider.autoDispose.family<_CollectionSchemaSnapshot, LocalDatabase>(
-  (ref, db) async {
+    FutureProvider.autoDispose<_CollectionSchemaSnapshot>((ref) async {
+  final db = ref.watch(localDatabaseProvider);
     final results = await Future.wait<Object>([
       LocationRepository(db).getAll(),
       CustomFieldRepository(db).listDefinitions(),
@@ -60,7 +61,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
       context: context,
       db: db,
     );
-    ref.invalidate(_collectionSchemaSnapshotProvider(db));
+    ref.invalidate(_collectionSchemaSnapshotProvider);
   }
 
   Future<void> _createRootLocation(BuildContext context, WidgetRef ref) async {
@@ -69,7 +70,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
       db: db,
       startCreating: true,
     );
-    ref.invalidate(_collectionSchemaSnapshotProvider(db));
+    ref.invalidate(_collectionSchemaSnapshotProvider);
   }
 
   Future<void> _openCustomFieldManager(BuildContext context, WidgetRef ref) async {
@@ -77,7 +78,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
       context: context,
       db: db,
     );
-    ref.invalidate(_collectionSchemaSnapshotProvider(db));
+    ref.invalidate(_collectionSchemaSnapshotProvider);
   }
 
   Future<void> _createCustomField(BuildContext context, WidgetRef ref) async {
@@ -86,7 +87,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
       db: db,
       startCreating: true,
     );
-    ref.invalidate(_collectionSchemaSnapshotProvider(db));
+    ref.invalidate(_collectionSchemaSnapshotProvider);
   }
 
   List<String> _customFieldKindStats(_CollectionSchemaSnapshot? data) {
@@ -107,7 +108,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final snapshot = ref.watch(_collectionSchemaSnapshotProvider(db));
+    final snapshot = ref.watch(_collectionSchemaSnapshotProvider);
     final data = snapshot.value;
     final loading = snapshot.isLoading;
     return Column(

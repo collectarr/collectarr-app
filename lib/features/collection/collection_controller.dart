@@ -45,7 +45,7 @@ final trackingEntriesByCatalogItemProvider =
       }
       return grouped;
     },
-    orElse: () => const {},
+    orElse: () => const <String, List<TrackingEntry>>{},
   );
 });
 
@@ -66,7 +66,7 @@ final wishlistByCatalogItemProvider =
       }
       return grouped;
     },
-    orElse: () => const {},
+    orElse: () => const <String, List<WishlistItem>>{},
   );
 });
 
