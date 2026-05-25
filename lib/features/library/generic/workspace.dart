@@ -314,6 +314,7 @@ class LibraryWorkspace extends StatelessWidget {
                   cellBuilder: _tableCell,
                   isSelected: _isSelected,
                   onEntryTap: (item) => _selectionTap(item)(),
+                    onEntryDoubleTap: onOpenItem,
                   onEntrySecondaryTapUp: onItemContextMenu == null
                       ? null
                       : (item, details) =>

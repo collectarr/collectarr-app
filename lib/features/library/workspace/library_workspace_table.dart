@@ -33,6 +33,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     required this.cellBuilder,
     required this.isSelected,
     required this.onEntryTap,
+    this.onEntryDoubleTap,
     this.onEntrySecondaryTapUp,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
@@ -67,6 +68,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final LibraryColumnCellBuilder<T> cellBuilder;
   final bool Function(T entry) isSelected;
   final ValueChanged<T> onEntryTap;
+  final ValueChanged<T>? onEntryDoubleTap;
   final void Function(T entry, TapUpDetails details)? onEntrySecondaryTapUp;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
@@ -140,6 +142,9 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                   selected: widget.isSelected(entry),
                   odd: index.isOdd,
                   onTap: () => widget.onEntryTap(entry),
+                    onDoubleTap: widget.onEntryDoubleTap == null
+                      ? null
+                      : () => widget.onEntryDoubleTap!(entry),
                   onSecondaryTapUp: widget.onEntrySecondaryTapUp == null
                       ? null
                       : (details) =>
@@ -521,6 +526,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
     required this.selected,
     required this.odd,
     required this.onTap,
+    this.onDoubleTap,
     this.onSecondaryTapUp,
     required this.columnWidthFor,
     required this.columnIsNumeric,
@@ -542,6 +548,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   final bool selected;
   final bool odd;
   final VoidCallback onTap;
+  final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
   final LibraryColumnWidthFor columnWidthFor;
   final LibraryColumnNumericFor columnIsNumeric;
@@ -563,6 +570,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
       selected: selected,
       odd: odd,
       onTap: onTap,
+      onDoubleTap: onDoubleTap,
       onSecondaryTapUp: onSecondaryTapUp,
       selectedColor: selectedColor,
       oddColor: oddColor,

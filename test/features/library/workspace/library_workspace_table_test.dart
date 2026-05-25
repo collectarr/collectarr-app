@@ -88,6 +88,56 @@ void main() {
     expect(find.byKey(const ValueKey('sort-priority-issue')), findsOneWidget);
   });
 
+  testWidgets('workspace table reports row double taps', (tester) async {
+    String? opened;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 420,
+            height: 180,
+            child: LibraryWorkspaceTable<String>(
+              entries: const ['Spider-Man', 'Batman'],
+              columns: const [
+                LibraryTableColumn.title,
+                LibraryTableColumn.issue,
+              ],
+              sortColumn: LibrarySortColumn.title,
+              sortAscending: true,
+              columnWidthFor: (column) =>
+                  column == LibraryTableColumn.title ? 180 : 80,
+              defaultColumnWidthFor: (column) =>
+                  column == LibraryTableColumn.title ? 180 : 80,
+              columnSortFor: (column) => switch (column) {
+                LibraryTableColumn.title => LibrarySortColumn.title,
+                LibraryTableColumn.issue => LibrarySortColumn.issue,
+                _ => null,
+              },
+              columnLabelFor: (column) => column.name,
+              columnIsNumeric: (column) => column == LibraryTableColumn.issue,
+              cellBuilder: (entry, column) => Text(
+                column == LibraryTableColumn.title ? entry : '#1',
+              ),
+              isSelected: (_) => false,
+              onEntryTap: (_) {},
+              onEntryDoubleTap: (entry) => opened = entry,
+              onSortChanged: (_) {},
+              onColumnWidthChanged: (_, __) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Batman'));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(find.text('Batman'));
+    await pumpUntilSettled(tester);
+
+    expect(opened, 'Batman');
+  });
+
   testWidgets('workspace table highlights selected row after tap',
       (tester) async {
     var selectedEntry = 'Spider-Man';
