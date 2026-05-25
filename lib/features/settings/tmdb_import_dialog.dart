@@ -341,6 +341,11 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
+              Text(
+                'TMDB file exports often omit poster data. Save an API key in Account sync if you want covers enriched during JSON / CSV imports.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
           );
         },
@@ -708,6 +713,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       preview: preview,
       sourceLabel: _lastPreviewSourceLabel,
       keepUnmatchedLocally: _keepUnmatchedLocally,
+      hasApiKey: _apiKeyController.text.trim().isNotEmpty,
       importButtonLabel: _importButtonLabel,
       onImport: ({required skipUnmatchedRows}) =>
           _importPreview(preview, skipUnmatchedRows: skipUnmatchedRows),

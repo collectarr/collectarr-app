@@ -56,6 +56,7 @@ void main() {
                     preview: preview,
                     sourceLabel: 'TMDB export file',
                     keepUnmatchedLocally: true,
+                    hasApiKey: true,
                     importButtonLabel: 'Import completed',
                     onImport: ({required skipUnmatchedRows}) async {
                       receivedSkipUnmatchedRows = skipUnmatchedRows;

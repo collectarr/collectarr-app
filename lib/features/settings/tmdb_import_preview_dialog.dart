@@ -13,6 +13,7 @@ Future<String?> showTmdbImportPreviewDialog({
   required TmdbImportPreview preview,
   required String sourceLabel,
   required bool keepUnmatchedLocally,
+  required bool hasApiKey,
   required String importButtonLabel,
   required Future<String> Function({required bool skipUnmatchedRows}) onImport,
   required String Function(Object error) mapImportError,
@@ -24,6 +25,7 @@ Future<String?> showTmdbImportPreviewDialog({
         preview: preview,
         sourceLabel: sourceLabel,
         keepUnmatchedLocally: keepUnmatchedLocally,
+        hasApiKey: hasApiKey,
         importButtonLabel: importButtonLabel,
         onImport: onImport,
         mapImportError: mapImportError,
@@ -37,6 +39,7 @@ class _TmdbImportPreviewDialog extends StatefulWidget {
     required this.preview,
     required this.sourceLabel,
     required this.keepUnmatchedLocally,
+    required this.hasApiKey,
     required this.importButtonLabel,
     required this.onImport,
     required this.mapImportError,
@@ -45,6 +48,7 @@ class _TmdbImportPreviewDialog extends StatefulWidget {
   final TmdbImportPreview preview;
   final String sourceLabel;
   final bool keepUnmatchedLocally;
+  final bool hasApiKey;
   final String importButtonLabel;
   final Future<String> Function({required bool skipUnmatchedRows}) onImport;
   final String Function(Object error) mapImportError;
@@ -81,6 +85,39 @@ class _TmdbImportPreviewDialogState extends State<_TmdbImportPreviewDialog> {
               widget.sourceLabel,
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            if (!widget.hasApiKey) ...[
+              const SizedBox(height: 10),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'No TMDB API key configured. Imported items will have minimal metadata '
+                          '(title and year only). Add an API key in the TMDB settings to get full '
+                          'details (synopsis, genres, poster, credits).',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             if (unmatchedCount > 0) ...[
               const SizedBox(height: 10),
               DecoratedBox(
