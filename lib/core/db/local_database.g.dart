@@ -5130,6 +5130,808 @@ class TrackingEntriesCacheCompanion
   }
 }
 
+class $TrackingUnitsCacheTable extends TrackingUnitsCache
+    with TableInfo<$TrackingUnitsCacheTable, TrackingUnitsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrackingUnitsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bundleReleaseIdMeta =
+      const VerificationMeta('bundleReleaseId');
+  @override
+  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
+      'bundle_release_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _unitTypeMeta =
+      const VerificationMeta('unitType');
+  @override
+  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
+      'unit_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _volumeNumberMeta =
+      const VerificationMeta('volumeNumber');
+  @override
+  late final GeneratedColumn<int> volumeNumber = GeneratedColumn<int>(
+      'volume_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _chapterNumberMeta =
+      const VerificationMeta('chapterNumber');
+  @override
+  late final GeneratedColumn<int> chapterNumber = GeneratedColumn<int>(
+      'chapter_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _issueNumberMeta =
+      const VerificationMeta('issueNumber');
+  @override
+  late final GeneratedColumn<String> issueNumber = GeneratedColumn<String>(
+      'issue_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+      'completed_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        trackingEntryId,
+        ownedItemId,
+        editionId,
+        variantId,
+        bundleReleaseId,
+        unitType,
+        seasonNumber,
+        episodeNumber,
+        volumeNumber,
+        chapterNumber,
+        issueNumber,
+        completedAt,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tracking_units_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<TrackingUnitsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('bundle_release_id')) {
+      context.handle(
+          _bundleReleaseIdMeta,
+          bundleReleaseId.isAcceptableOrUnknown(
+              data['bundle_release_id']!, _bundleReleaseIdMeta));
+    }
+    if (data.containsKey('unit_type')) {
+      context.handle(_unitTypeMeta,
+          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
+    } else if (isInserting) {
+      context.missing(_unitTypeMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('volume_number')) {
+      context.handle(
+          _volumeNumberMeta,
+          volumeNumber.isAcceptableOrUnknown(
+              data['volume_number']!, _volumeNumberMeta));
+    }
+    if (data.containsKey('chapter_number')) {
+      context.handle(
+          _chapterNumberMeta,
+          chapterNumber.isAcceptableOrUnknown(
+              data['chapter_number']!, _chapterNumberMeta));
+    }
+    if (data.containsKey('issue_number')) {
+      context.handle(
+          _issueNumberMeta,
+          issueNumber.isAcceptableOrUnknown(
+              data['issue_number']!, _issueNumberMeta));
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TrackingUnitsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrackingUnitsCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      bundleReleaseId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      unitType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      volumeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
+      chapterNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chapter_number']),
+      issueNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}issue_number']),
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $TrackingUnitsCacheTable createAlias(String alias) {
+    return $TrackingUnitsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class TrackingUnitsCacheData extends DataClass
+    implements Insertable<TrackingUnitsCacheData> {
+  final String id;
+  final String itemId;
+  final String? trackingEntryId;
+  final String? ownedItemId;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
+  final String unitType;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final int? volumeNumber;
+  final int? chapterNumber;
+  final String? issueNumber;
+  final DateTime completedAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const TrackingUnitsCacheData(
+      {required this.id,
+      required this.itemId,
+      this.trackingEntryId,
+      this.ownedItemId,
+      this.editionId,
+      this.variantId,
+      this.bundleReleaseId,
+      required this.unitType,
+      this.seasonNumber,
+      this.episodeNumber,
+      this.volumeNumber,
+      this.chapterNumber,
+      this.issueNumber,
+      required this.completedAt,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || bundleReleaseId != null) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    }
+    map['unit_type'] = Variable<String>(unitType);
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    if (!nullToAbsent || volumeNumber != null) {
+      map['volume_number'] = Variable<int>(volumeNumber);
+    }
+    if (!nullToAbsent || chapterNumber != null) {
+      map['chapter_number'] = Variable<int>(chapterNumber);
+    }
+    if (!nullToAbsent || issueNumber != null) {
+      map['issue_number'] = Variable<String>(issueNumber);
+    }
+    map['completed_at'] = Variable<DateTime>(completedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  TrackingUnitsCacheCompanion toCompanion(bool nullToAbsent) {
+    return TrackingUnitsCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      bundleReleaseId: bundleReleaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bundleReleaseId),
+      unitType: Value(unitType),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      volumeNumber: volumeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(volumeNumber),
+      chapterNumber: chapterNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chapterNumber),
+      issueNumber: issueNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(issueNumber),
+      completedAt: Value(completedAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory TrackingUnitsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrackingUnitsCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      unitType: serializer.fromJson<String>(json['unitType']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
+      chapterNumber: serializer.fromJson<int?>(json['chapterNumber']),
+      issueNumber: serializer.fromJson<String?>(json['issueNumber']),
+      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'unitType': serializer.toJson<String>(unitType),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'volumeNumber': serializer.toJson<int?>(volumeNumber),
+      'chapterNumber': serializer.toJson<int?>(chapterNumber),
+      'issueNumber': serializer.toJson<String?>(issueNumber),
+      'completedAt': serializer.toJson<DateTime>(completedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  TrackingUnitsCacheData copyWith(
+          {String? id,
+          String? itemId,
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          Value<String?> bundleReleaseId = const Value.absent(),
+          String? unitType,
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent(),
+          Value<int?> volumeNumber = const Value.absent(),
+          Value<int?> chapterNumber = const Value.absent(),
+          Value<String?> issueNumber = const Value.absent(),
+          DateTime? completedAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      TrackingUnitsCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        bundleReleaseId: bundleReleaseId.present
+            ? bundleReleaseId.value
+            : this.bundleReleaseId,
+        unitType: unitType ?? this.unitType,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        volumeNumber:
+            volumeNumber.present ? volumeNumber.value : this.volumeNumber,
+        chapterNumber:
+            chapterNumber.present ? chapterNumber.value : this.chapterNumber,
+        issueNumber: issueNumber.present ? issueNumber.value : this.issueNumber,
+        completedAt: completedAt ?? this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  TrackingUnitsCacheData copyWithCompanion(TrackingUnitsCacheCompanion data) {
+    return TrackingUnitsCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      bundleReleaseId: data.bundleReleaseId.present
+          ? data.bundleReleaseId.value
+          : this.bundleReleaseId,
+      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      volumeNumber: data.volumeNumber.present
+          ? data.volumeNumber.value
+          : this.volumeNumber,
+      chapterNumber: data.chapterNumber.present
+          ? data.chapterNumber.value
+          : this.chapterNumber,
+      issueNumber:
+          data.issueNumber.present ? data.issueNumber.value : this.issueNumber,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackingUnitsCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('unitType: $unitType, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('chapterNumber: $chapterNumber, ')
+          ..write('issueNumber: $issueNumber, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      trackingEntryId,
+      ownedItemId,
+      editionId,
+      variantId,
+      bundleReleaseId,
+      unitType,
+      seasonNumber,
+      episodeNumber,
+      volumeNumber,
+      chapterNumber,
+      issueNumber,
+      completedAt,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrackingUnitsCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.bundleReleaseId == this.bundleReleaseId &&
+          other.unitType == this.unitType &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.volumeNumber == this.volumeNumber &&
+          other.chapterNumber == this.chapterNumber &&
+          other.issueNumber == this.issueNumber &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class TrackingUnitsCacheCompanion
+    extends UpdateCompanion<TrackingUnitsCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String?> trackingEntryId;
+  final Value<String?> ownedItemId;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<String?> bundleReleaseId;
+  final Value<String> unitType;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<int?> volumeNumber;
+  final Value<int?> chapterNumber;
+  final Value<String?> issueNumber;
+  final Value<DateTime> completedAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const TrackingUnitsCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    this.unitType = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.volumeNumber = const Value.absent(),
+    this.chapterNumber = const Value.absent(),
+    this.issueNumber = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrackingUnitsCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    required String unitType,
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.volumeNumber = const Value.absent(),
+    this.chapterNumber = const Value.absent(),
+    this.issueNumber = const Value.absent(),
+    required DateTime completedAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        unitType = Value(unitType),
+        completedAt = Value(completedAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<TrackingUnitsCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? trackingEntryId,
+    Expression<String>? ownedItemId,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<String>? bundleReleaseId,
+    Expression<String>? unitType,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<int>? volumeNumber,
+    Expression<int>? chapterNumber,
+    Expression<String>? issueNumber,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (unitType != null) 'unit_type': unitType,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (volumeNumber != null) 'volume_number': volumeNumber,
+      if (chapterNumber != null) 'chapter_number': chapterNumber,
+      if (issueNumber != null) 'issue_number': issueNumber,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrackingUnitsCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<String?>? trackingEntryId,
+      Value<String?>? ownedItemId,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<String?>? bundleReleaseId,
+      Value<String>? unitType,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<int?>? volumeNumber,
+      Value<int?>? chapterNumber,
+      Value<String?>? issueNumber,
+      Value<DateTime>? completedAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return TrackingUnitsCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      unitType: unitType ?? this.unitType,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      volumeNumber: volumeNumber ?? this.volumeNumber,
+      chapterNumber: chapterNumber ?? this.chapterNumber,
+      issueNumber: issueNumber ?? this.issueNumber,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (bundleReleaseId.present) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    }
+    if (unitType.present) {
+      map['unit_type'] = Variable<String>(unitType.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (volumeNumber.present) {
+      map['volume_number'] = Variable<int>(volumeNumber.value);
+    }
+    if (chapterNumber.present) {
+      map['chapter_number'] = Variable<int>(chapterNumber.value);
+    }
+    if (issueNumber.present) {
+      map['issue_number'] = Variable<String>(issueNumber.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackingUnitsCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('unitType: $unitType, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('chapterNumber: $chapterNumber, ')
+          ..write('issueNumber: $issueNumber, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SyncQueueTable extends SyncQueue
     with TableInfo<$SyncQueueTable, SyncQueueData> {
   @override
@@ -8767,6 +9569,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $WishlistItemsCacheTable(this);
   late final $TrackingEntriesCacheTable trackingEntriesCache =
       $TrackingEntriesCacheTable(this);
+  late final $TrackingUnitsCacheTable trackingUnitsCache =
+      $TrackingUnitsCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   late final $CustomFieldDefinitionsCacheTable customFieldDefinitionsCache =
       $CustomFieldDefinitionsCacheTable(this);
@@ -8795,6 +9599,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         ownedItemsCache,
         wishlistItemsCache,
         trackingEntriesCache,
+        trackingUnitsCache,
         syncQueue,
         customFieldDefinitionsCache,
         customFieldValuesCache,
@@ -10919,6 +11724,356 @@ typedef $$TrackingEntriesCacheTableProcessedTableManager
         ),
         TrackingEntriesCacheData,
         PrefetchHooks Function()>;
+typedef $$TrackingUnitsCacheTableCreateCompanionBuilder
+    = TrackingUnitsCacheCompanion Function({
+  required String id,
+  required String itemId,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  required String unitType,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<int?> volumeNumber,
+  Value<int?> chapterNumber,
+  Value<String?> issueNumber,
+  required DateTime completedAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$TrackingUnitsCacheTableUpdateCompanionBuilder
+    = TrackingUnitsCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  Value<String> unitType,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<int?> volumeNumber,
+  Value<int?> chapterNumber,
+  Value<String?> issueNumber,
+  Value<DateTime> completedAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$TrackingUnitsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
+  $$TrackingUnitsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$TrackingUnitsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
+  $$TrackingUnitsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TrackingUnitsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
+  $$TrackingUnitsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get unitType =>
+      $composableBuilder(column: $table.unitType, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TrackingUnitsCacheTable,
+    TrackingUnitsCacheData,
+    $$TrackingUnitsCacheTableFilterComposer,
+    $$TrackingUnitsCacheTableOrderingComposer,
+    $$TrackingUnitsCacheTableAnnotationComposer,
+    $$TrackingUnitsCacheTableCreateCompanionBuilder,
+    $$TrackingUnitsCacheTableUpdateCompanionBuilder,
+    (
+      TrackingUnitsCacheData,
+      BaseReferences<_$LocalDatabase, $TrackingUnitsCacheTable,
+          TrackingUnitsCacheData>
+    ),
+    TrackingUnitsCacheData,
+    PrefetchHooks Function()> {
+  $$TrackingUnitsCacheTableTableManager(
+      _$LocalDatabase db, $TrackingUnitsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TrackingUnitsCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TrackingUnitsCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TrackingUnitsCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String> unitType = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> chapterNumber = const Value.absent(),
+            Value<String?> issueNumber = const Value.absent(),
+            Value<DateTime> completedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TrackingUnitsCacheCompanion(
+            id: id,
+            itemId: itemId,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            unitType: unitType,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            volumeNumber: volumeNumber,
+            chapterNumber: chapterNumber,
+            issueNumber: issueNumber,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            required String unitType,
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> chapterNumber = const Value.absent(),
+            Value<String?> issueNumber = const Value.absent(),
+            required DateTime completedAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TrackingUnitsCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            unitType: unitType,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            volumeNumber: volumeNumber,
+            chapterNumber: chapterNumber,
+            issueNumber: issueNumber,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TrackingUnitsCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TrackingUnitsCacheTable,
+    TrackingUnitsCacheData,
+    $$TrackingUnitsCacheTableFilterComposer,
+    $$TrackingUnitsCacheTableOrderingComposer,
+    $$TrackingUnitsCacheTableAnnotationComposer,
+    $$TrackingUnitsCacheTableCreateCompanionBuilder,
+    $$TrackingUnitsCacheTableUpdateCompanionBuilder,
+    (
+      TrackingUnitsCacheData,
+      BaseReferences<_$LocalDatabase, $TrackingUnitsCacheTable,
+          TrackingUnitsCacheData>
+    ),
+    TrackingUnitsCacheData,
+    PrefetchHooks Function()>;
 typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   required String id,
   required String entityType,
@@ -12936,6 +14091,8 @@ class $LocalDatabaseManager {
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
   $$TrackingEntriesCacheTableTableManager get trackingEntriesCache =>
       $$TrackingEntriesCacheTableTableManager(_db, _db.trackingEntriesCache);
+  $$TrackingUnitsCacheTableTableManager get trackingUnitsCache =>
+      $$TrackingUnitsCacheTableTableManager(_db, _db.trackingUnitsCache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
   $$CustomFieldDefinitionsCacheTableTableManager

@@ -175,6 +175,28 @@ class TrackingEntriesCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class TrackingUnitsCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  TextColumn get trackingEntryId => text().nullable()();
+  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get editionId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
+  TextColumn get unitType => text()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
+  IntColumn get volumeNumber => integer().nullable()();
+  IntColumn get chapterNumber => integer().nullable()();
+  TextColumn get issueNumber => text().nullable()();
+  DateTimeColumn get completedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class SyncQueue extends Table {
   TextColumn get id => text()();
   TextColumn get entityType => text()();
@@ -268,6 +290,7 @@ class PickListValuesCache extends Table {
   OwnedItemsCache,
   WishlistItemsCache,
   TrackingEntriesCache,
+  TrackingUnitsCache,
   SyncQueue,
   CustomFieldDefinitionsCache,
   CustomFieldValuesCache,
@@ -285,7 +308,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration {

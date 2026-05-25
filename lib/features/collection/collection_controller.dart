@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,6 +48,54 @@ final trackingEntriesByCatalogItemProvider =
       return grouped;
     },
     orElse: () => const <String, List<TrackingEntry>>{},
+  );
+});
+
+final trackingUnitsProvider = FutureProvider<List<TrackingUnit>>((ref) async {
+  final cache = TrackingUnitsCacheRepository(ref.watch(localDatabaseProvider));
+  return cache.listActive();
+});
+
+final trackingUnitsByCatalogItemProvider =
+    Provider<Map<String, List<TrackingUnit>>>((ref) {
+  final tracking = ref.watch(trackingUnitsProvider);
+  return tracking.maybeWhen(
+    data: (items) {
+      final grouped = <String, List<TrackingUnit>>{};
+      for (final item in items) {
+        if (item.isDeleted) {
+          continue;
+        }
+        grouped.putIfAbsent(item.itemId, () => <TrackingUnit>[]).add(item);
+      }
+      for (final entries in grouped.values) {
+        entries.sort((a, b) {
+          final seasonCompare =
+              (a.seasonNumber ?? 0).compareTo(b.seasonNumber ?? 0);
+          if (seasonCompare != 0) {
+            return seasonCompare;
+          }
+          final episodeCompare =
+              (a.episodeNumber ?? 0).compareTo(b.episodeNumber ?? 0);
+          if (episodeCompare != 0) {
+            return episodeCompare;
+          }
+          final volumeCompare =
+              (a.volumeNumber ?? 0).compareTo(b.volumeNumber ?? 0);
+          if (volumeCompare != 0) {
+            return volumeCompare;
+          }
+          final chapterCompare =
+              (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
+          if (chapterCompare != 0) {
+            return chapterCompare;
+          }
+          return a.updatedAt.compareTo(b.updatedAt);
+        });
+      }
+      return grouped;
+    },
+    orElse: () => const <String, List<TrackingUnit>>{},
   );
 });
 
