@@ -135,7 +135,7 @@ PersonalItemAnchorType? resolvePersonalItemAnchor({
         ? PersonalItemAnchorType.variant
         : hasEdition
         ? PersonalItemAnchorType.edition
-        : PersonalItemAnchorType.variant;
+      : PersonalItemAnchorType.item;
   }
   if (hasEdition || normalized == PersonalItemAnchorType.edition.apiValue) {
     return PersonalItemAnchorType.edition;

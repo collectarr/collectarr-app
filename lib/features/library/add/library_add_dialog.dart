@@ -1075,20 +1075,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       final hydratedItem = LibraryMetadataItem.fromCatalogItem(hydrated);
-      LibraryMetadataItem? originalItem;
-      for (final item in _results) {
-        if (item.id == itemId) {
-          originalItem = item;
-          break;
-        }
-      }
-      final mergedItem = originalItem == null ||
-              hydratedItem.displayCoverUrl != null
+      final mergedItem = hydratedItem.displayCoverUrl != null
           ? hydratedItem
           : hydratedItem.copyWith(
-              coverImageUrl: originalItem.coverImageUrl,
+              coverImageUrl: selected.coverImageUrl,
               thumbnailImageUrl:
-                  originalItem.thumbnailImageUrl ?? originalItem.coverImageUrl,
+                  selected.thumbnailImageUrl ?? selected.coverImageUrl,
             );
       setState(() {
         _hydratedResults[itemId] = mergedItem;

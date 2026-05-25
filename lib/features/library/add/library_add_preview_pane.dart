@@ -1268,7 +1268,7 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
 }
 
 class _PreviewTrackRow extends StatelessWidget {
-  static const double _durationColumnWidth = 42;
+  static const double _durationColumnWidth = 52;
 
   const _PreviewTrackRow({
     required this.index,
