@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
