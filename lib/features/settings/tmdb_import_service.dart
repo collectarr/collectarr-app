@@ -386,6 +386,81 @@ class TmdbImportService {
     );
   }
 
+  CatalogItem mergeMatchedCatalogItem(CatalogItem item, TmdbImportEntry entry) {
+    final aliases = <String>{
+      if (item.searchAliases case final currentAliases?) ...currentAliases,
+      if (item.title.trim().isNotEmpty) item.title.trim(),
+      if (item.displayTitle?.trim().isNotEmpty == true) item.displayTitle!.trim(),
+      if (item.localizedTitle?.trim().isNotEmpty == true)
+        item.localizedTitle!.trim(),
+      if (item.originalTitle?.trim().isNotEmpty == true)
+        item.originalTitle!.trim(),
+      if (entry.title.trim().isNotEmpty) entry.title.trim(),
+      if (entry.originalTitle?.trim().isNotEmpty == true)
+        entry.originalTitle!.trim(),
+    }.toList(growable: false);
+    final tmdbGenres = _distinctNonEmptyStrings([
+      ...?item.genres,
+      ..._tmdbNamedValues(entry.rawPayload['genres']),
+    ]);
+    final tmdbStudios = _tmdbNamedValues(entry.rawPayload['production_companies']);
+    final tmdbCountries = _distinctNonEmptyStrings([
+      ..._tmdbNamedValues(entry.rawPayload['production_countries']),
+      ..._tmdbStringValues(entry.rawPayload['origin_country']),
+    ]);
+    final tmdbLanguages = _distinctNonEmptyStrings([
+      ..._tmdbNamedValues(entry.rawPayload['spoken_languages']),
+      _normalizedText(entry.rawPayload['original_language'] as String?),
+    ]);
+    final runtimeMinutes = _runtimeMinutesFromPayload(entry.rawPayload);
+    final mergedVideo = runtimeMinutes == null && item.video == null
+        ? null
+        : VideoCatalogDetails(
+            runtimeMinutes: item.video?.runtimeMinutes ?? runtimeMinutes,
+          );
+    return CatalogItem(
+      id: item.id,
+      mediaKind: item.mediaKind,
+      title: item.title,
+      displayTitle: item.displayTitle ?? entry.title,
+      localizedTitle: item.localizedTitle ?? entry.title,
+      originalTitle: item.originalTitle ?? entry.originalTitle,
+      searchAliases: aliases,
+      sortKey: item.sortKey,
+      itemNumber: item.itemNumber,
+      synopsis: _firstNonEmptyText(item.synopsis, entry.overview),
+      coverImageUrl: _firstNonEmptyText(item.coverImageUrl, entry.posterUrl),
+      thumbnailImageUrl: _firstNonEmptyText(
+        item.thumbnailImageUrl,
+        item.coverImageUrl,
+        entry.posterUrl,
+      ),
+      coverImageData: item.coverImageData,
+      editionTitle: item.editionTitle,
+      physicalFormat: item.physicalFormat,
+      physicalFormatLabel: item.physicalFormatLabel,
+      publisher: _firstNonEmptyText(item.publisher, tmdbStudios.join(', ')),
+      releaseDate: item.releaseDate ?? entry.releaseDate,
+      releaseYear: item.releaseYear ?? entry.releaseYear,
+      barcode: item.barcode,
+      variant: item.variant,
+      series: item.series,
+      video: mergedVideo,
+      music: item.music,
+      game: item.game,
+      publishing: item.publishing,
+      creators: item.creators,
+      characters: item.characters,
+      storyArcs: item.storyArcs,
+      rawPlatforms: item.rawPlatforms,
+      genres: tmdbGenres.isEmpty ? item.genres : tmdbGenres,
+      editions: item.editions,
+      country: _firstNonEmptyText(item.country, tmdbCountries.join(', ')),
+      language: _firstNonEmptyText(item.language, tmdbLanguages.join(', ')),
+      ageRating: item.ageRating,
+    );
+  }
+
   Future<TmdbImportExecutionResult> importPreview({
     required TmdbImportPreview preview,
     required Future<void> Function(CatalogItem item, TmdbImportEntry entry)
@@ -433,6 +508,61 @@ class TmdbImportService {
       releaseDate: entry.releaseDate,
       releaseYear: entry.releaseYear,
     );
+  }
+
+  static String? _firstNonEmptyText(String? first, [String? second, String? third]) {
+    for (final candidate in [first, second, third]) {
+      final normalized = _normalizedText(candidate);
+      if (normalized != null) {
+        return normalized;
+      }
+    }
+    return null;
+  }
+
+  static String? _normalizedText(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  static List<String> _distinctNonEmptyStrings(Iterable<String?> values) {
+    final normalized = <String>{};
+    for (final value in values) {
+      final trimmed = _normalizedText(value);
+      if (trimmed != null) {
+        normalized.add(trimmed);
+      }
+    }
+    return normalized.toList(growable: false);
+  }
+
+  static List<String> _tmdbNamedValues(Object? value) {
+    if (value is! List) {
+      return const <String>[];
+    }
+    return _distinctNonEmptyStrings(
+      value.whereType<Map>().map(
+        (row) => _normalizedText(row['name'] as String?),
+      ),
+    );
+  }
+
+  static List<String> _tmdbStringValues(Object? value) {
+    if (value is! List) {
+      return const <String>[];
+    }
+    return _distinctNonEmptyStrings(value.whereType<String>());
+  }
+
+  static int? _runtimeMinutesFromPayload(Map<String, dynamic> payload) {
+    final runtime = payload['runtime'];
+    if (runtime is num) {
+      return runtime.round();
+    }
+    return null;
   }
 
   List<TmdbImportEntry> _parseEntries(

@@ -278,6 +278,53 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         isNotEmpty,
       );
     });
+
+    test('merges matched catalog items with richer TMDB details', () {
+      final item = CatalogItem(
+        id: 'movie-680',
+        kind: 'movie',
+        title: 'Pulp Fiction',
+        displayTitle: 'Pulp Fiction',
+      );
+      final entry = TmdbImportEntry(
+        tmdbId: 680,
+        collection: TmdbImportCollection.ratedMovies,
+        title: 'Pulp Fiction',
+        originalTitle: 'Pulp Fiction',
+        overview: 'A burger-loving hitman, his partner, and more.',
+        posterPath: '/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg',
+        releaseDate: DateTime.utc(1994, 9, 10),
+        rawPayload: const <String, dynamic>{
+          'runtime': 154,
+          'genres': [
+            {'name': 'Crime'},
+            {'name': 'Drama'},
+          ],
+          'production_companies': [
+            {'name': 'Miramax'},
+          ],
+          'production_countries': [
+            {'name': 'United States of America'},
+          ],
+          'spoken_languages': [
+            {'name': 'English'},
+          ],
+        },
+      );
+
+      final merged = service.mergeMatchedCatalogItem(item, entry);
+
+      expect(merged.coverImageUrl, entry.posterUrl);
+      expect(merged.thumbnailImageUrl, entry.posterUrl);
+      expect(merged.publisher, 'Miramax');
+      expect(merged.synopsis, contains('burger-loving hitman'));
+      expect(merged.releaseDate, DateTime.utc(1994, 9, 10));
+      expect(merged.releaseYear, 1994);
+      expect(merged.video?.runtimeMinutes, 154);
+      expect(merged.genres, containsAll(['Crime', 'Drama']));
+      expect(merged.country, 'United States of America');
+      expect(merged.language, 'English');
+    });
   });
 }
 

@@ -550,7 +550,11 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       for (final match in preview.matches) {
         final item = match.catalogItem;
         if (item != null) {
-          final mergedItem = _mergeMatchedTmdbMetadata(item, match.entry);
+          final enrichedEntry = await _enrichMatchedEntry(match.entry);
+          final mergedItem = _service.mergeMatchedCatalogItem(
+            item,
+            enrichedEntry,
+          );
           if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
             await mutations.updateCatalogSnapshot(mergedItem, notify: false);
           }
@@ -687,7 +691,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     TmdbImportMatch match, {
     required LibraryTypeConfig type,
   }) async {
-    final enrichedEntry = await _enrichUnmatchedEntry(match.entry);
+    final enrichedEntry = await _enrichMatchedEntry(match.entry);
     try {
       final response = await createAndRecordLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
@@ -788,9 +792,14 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
         if (item == null) {
           continue;
         }
+        final enrichedEntry = await _enrichMatchedEntry(result.record.entry);
+        final mergedItem = _service.mergeMatchedCatalogItem(item, enrichedEntry);
+        if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
+          await mutations.updateCatalogSnapshot(mergedItem, notify: false);
+        }
         final promoted = await mutations.promoteLocalOnlyItemToCatalog(
           result.record.localItemId,
-          item,
+          mergedItem,
           notify: false,
         );
         if (promoted > 0) {
@@ -856,7 +865,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     return rounded;
   }
 
-  Future<TmdbImportEntry> _enrichUnmatchedEntry(TmdbImportEntry entry) async {
+  Future<TmdbImportEntry> _enrichMatchedEntry(TmdbImportEntry entry) async {
     final apiKey = _apiKeyController.text.trim();
     if (apiKey.isEmpty) {
       return entry;
@@ -867,7 +876,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       logRecoverableError(
         source: 'tmdb_import',
         message:
-            'Failed to enrich unmatched TMDB entry ${entry.tmdbId}. Using export data only.',
+            'Failed to enrich TMDB entry ${entry.tmdbId}. Using export data only.',
         error: error,
         stackTrace: stackTrace,
       );
@@ -875,60 +884,21 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     }
   }
 
-  CatalogItem _mergeMatchedTmdbMetadata(CatalogItem item, TmdbImportEntry entry) {
-    final aliases = <String>{
-      if (item.searchAliases case final currentAliases?) ...currentAliases,
-      if (item.title.trim().isNotEmpty) item.title.trim(),
-      if (item.displayTitle?.trim().isNotEmpty == true) item.displayTitle!.trim(),
-      if (item.localizedTitle?.trim().isNotEmpty == true) item.localizedTitle!.trim(),
-      if (item.originalTitle?.trim().isNotEmpty == true) item.originalTitle!.trim(),
-      if (entry.title.trim().isNotEmpty) entry.title.trim(),
-      if (entry.originalTitle?.trim().isNotEmpty == true) entry.originalTitle!.trim(),
-    }.toList(growable: false);
-    return CatalogItem(
-      id: item.id,
-      mediaKind: item.mediaKind,
-      title: item.title,
-      displayTitle: item.displayTitle ?? entry.title,
-      localizedTitle: item.localizedTitle ?? entry.title,
-      originalTitle: item.originalTitle ?? entry.originalTitle,
-      searchAliases: aliases,
-      sortKey: item.sortKey,
-      itemNumber: item.itemNumber,
-      synopsis: item.synopsis,
-      coverImageUrl: item.coverImageUrl ?? entry.posterUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl ?? item.coverImageUrl ?? entry.posterUrl,
-      coverImageData: item.coverImageData,
-      editionTitle: item.editionTitle,
-      physicalFormat: item.physicalFormat,
-      physicalFormatLabel: item.physicalFormatLabel,
-      publisher: item.publisher,
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear,
-      barcode: item.barcode,
-      variant: item.variant,
-      series: item.series,
-      video: item.video,
-      music: item.music,
-      game: item.game,
-      publishing: item.publishing,
-      creators: item.creators,
-      characters: item.characters,
-      storyArcs: item.storyArcs,
-      rawPlatforms: item.rawPlatforms,
-      genres: item.genres,
-      editions: item.editions,
-      country: item.country,
-      language: item.language,
-      ageRating: item.ageRating,
-    );
-  }
-
   bool _shouldUpdateCatalogSnapshot(CatalogItem current, CatalogItem next) {
     return current.displayTitle != next.displayTitle ||
         current.localizedTitle != next.localizedTitle ||
         current.originalTitle != next.originalTitle ||
+        current.synopsis != next.synopsis ||
+        current.coverImageUrl != next.coverImageUrl ||
+        current.thumbnailImageUrl != next.thumbnailImageUrl ||
+        current.publisher != next.publisher ||
+        current.releaseDate != next.releaseDate ||
+        current.releaseYear != next.releaseYear ||
+        current.country != next.country ||
+        current.language != next.language ||
+        current.video?.runtimeMinutes != next.video?.runtimeMinutes ||
         current.displayCoverUrl != next.displayCoverUrl ||
+        !_sameStringLists(current.genres, next.genres) ||
         !_sameStringLists(current.searchAliases, next.searchAliases);
   }
 
