@@ -526,9 +526,7 @@ class TmdbImportService {
     final tmdbId = _parseTmdbId(_csvValue(index, values, 'id'));
     final title = _csvValue(index, values, 'title').trim();
     if (tmdbId == null || title.isEmpty) {
-      throw const FormatException(
-        'TMDB CSV rows must include a TMDB id column and a title column.',
-      );
+      return null;
     }
     final originalTitle = _csvOptionalValue(index, values, 'original_title');
     final overview = _csvOptionalValue(index, values, 'overview');

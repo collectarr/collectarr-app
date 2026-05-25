@@ -432,17 +432,16 @@ class CollectionMutations {
         ),
       );
     } else {
-      for (final episodeNumber in normalizedEpisodes) {
-        final unitId = _trackingUnitIdForEpisode(
-          itemId,
-          seasonNumber: seasonNumber,
-          episodeNumber: episodeNumber,
-        );
-        final existingUnit = await _trackingUnitsCache().findById(unitId);
-        if (existingUnit != null && !existingUnit.isDeleted) {
-          await _trackingUnitsCache().markDeleted(existingUnit, now);
-        }
-      }
+      await _trackingUnitsCache().markDeletedByIds(
+        normalizedEpisodes.map(
+          (episodeNumber) => _trackingUnitIdForEpisode(
+            itemId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+          ),
+        ),
+        now,
+      );
     }
     await _reconcileTrackingEntryFromUnits(itemId, changedAt: now);
     if (notify) {

@@ -112,6 +112,21 @@ tmdb_id,title,release_date,rating,overview,poster_url
       expect(entries.single.posterPath, '/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg');
     });
 
+    test('skips malformed TMDB CSV rows when valid rows exist', () {
+      final entries = service.parseCollectionPayload(
+        '''
+tmdb_id,title,release_date,rating
+,Missing id,2020-01-01,7
+603,The Matrix,1999-03-30,9
+''',
+        collection: TmdbImportCollection.ratedMovies,
+      );
+
+      expect(entries, hasLength(1));
+      expect(entries.single.tmdbId, 603);
+      expect(entries.single.title, 'The Matrix');
+    });
+
     test('parses TMDB exported ratings CSV and prefers Your Rating', () {
       final entries = service.parseCollectionPayload(
         '''

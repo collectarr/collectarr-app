@@ -50,6 +50,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
   late PageController _controller;
   final _focusNode = FocusNode(debugLabel: 'LibraryFlowCarousel');
   int _currentIndex = 0;
+  double _viewportFraction = 0.34;
+  double? _pendingViewportFraction;
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     _currentIndex = _resolvedIndex();
     _controller = PageController(
       initialPage: _currentIndex,
-      viewportFraction: 0.34,
+      viewportFraction: _viewportFraction,
     );
   }
 
@@ -260,14 +262,66 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
             : width >= 900
                 ? 0.34
                 : 0.54;
-    if ((_controller.viewportFraction - nextFraction).abs() < 0.001) {
+    if ((_viewportFraction - nextFraction).abs() < 0.001 ||
+        (_pendingViewportFraction != null &&
+            (_pendingViewportFraction! - nextFraction).abs() < 0.001)) {
       return;
     }
+    _pendingViewportFraction = nextFraction;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final pendingFraction = _pendingViewportFraction;
+      if (pendingFraction == null ||
+          (_viewportFraction - pendingFraction).abs() < 0.001) {
+        return;
+      }
+      if (_controller.hasClients && _controller.position.isScrollingNotifier.value) {
+        _syncViewportFractionForPendingFrame();
+        return;
+      }
+      _applyViewportFraction(pendingFraction);
+    });
+  }
+
+  void _syncViewportFractionForPendingFrame() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final pendingFraction = _pendingViewportFraction;
+      if (pendingFraction == null) {
+        return;
+      }
+      if (_controller.hasClients && _controller.position.isScrollingNotifier.value) {
+        _syncViewportFractionForPendingFrame();
+        return;
+      }
+      if ((_viewportFraction - pendingFraction).abs() < 0.001) {
+        _pendingViewportFraction = null;
+        return;
+      }
+      _applyViewportFraction(pendingFraction);
+    });
+  }
+
+  void _applyViewportFraction(double viewportFraction) {
     final previous = _controller;
+    final targetPage = previous.hasClients
+        ? (previous.page ?? _currentIndex.toDouble()).round()
+        : _currentIndex;
+    _viewportFraction = viewportFraction;
+    _pendingViewportFraction = null;
     _controller = PageController(
-      initialPage: _currentIndex,
-      viewportFraction: nextFraction,
+      initialPage: targetPage,
+      viewportFraction: viewportFraction,
     );
+    if (mounted) {
+      setState(() {
+        _currentIndex = targetPage.clamp(0, widget.items.length - 1);
+      });
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
   }
 
@@ -301,6 +355,15 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
 
   void _animateToPage(int index) {
     _focusNode.requestFocus();
+    if (!_controller.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_controller.hasClients) {
+          return;
+        }
+        _animateToPage(index);
+      });
+      return;
+    }
     _controller.animateToPage(
       index,
       duration: kAppAnimNormal,

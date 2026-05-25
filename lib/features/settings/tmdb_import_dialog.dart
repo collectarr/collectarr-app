@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
@@ -46,6 +47,7 @@ class TmdbImportWorkspace extends ConsumerStatefulWidget {
 }
 
 class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
+  static const _unmatchedImportConcurrency = 4;
   late final TextEditingController _apiKeyController;
   late final TextEditingController _accountIdController;
   late final TextEditingController _sessionIdController;
@@ -544,6 +546,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     try {
       final type = _resolvedMovieType();
       final mutations = ref.read(collectionMutationsProvider);
+      final unmatchedMatches = <TmdbImportMatch>[];
       for (final match in preview.matches) {
         final item = match.catalogItem;
         if (item != null) {
@@ -573,61 +576,46 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
           skippedCount += 1;
           continue;
         }
-
-        final enrichedEntry = await _enrichUnmatchedEntry(match.entry);
-        Map<String, dynamic>? response;
-        try {
-          response = await createAndRecordLibraryMetadataProposal(
-            api: ref.read(apiClientProvider),
-            type: type,
-            provider: 'tmdb',
-            providerItemId: enrichedEntry.tmdbId.toString(),
-            query: enrichedEntry.query,
-            title: enrichedEntry.title,
-            summary: enrichedEntry.overview,
-            imageUrl: enrichedEntry.posterUrl,
-            metadataPayload: enrichedEntry.rawPayload,
-            source: 'TMDB import',
-          );
-          proposedCount += 1;
-        } catch (error, stackTrace) {
-          logRecoverableError(
-            source: 'tmdb_import',
-            message:
-                'Failed to create metadata proposal for ${enrichedEntry.title}.',
-            error: error,
-            stackTrace: stackTrace,
-          );
+        unmatchedMatches.add(match);
+      }
+      final unmatchedResults = await _processUnmatchedMatches(
+        matches: unmatchedMatches,
+        type: type,
+      );
+      for (final result in unmatchedResults) {
+        if (!result.proposalCreated) {
           skippedCount += 1;
           continue;
         }
-
-        if (_keepUnmatchedLocally) {
-          final localItem = _service.localSyntheticCatalogItem(enrichedEntry);
-          switch (preview.collection) {
-            case TmdbImportCollection.ratedMovies:
-              await mutations.addLocalOnlyTrackingEntry(
-                localItem,
-                sourceType: TrackingSourceType.streaming,
-                status: MediaTrackingStatus.completed,
-                rating: _normalizedRating(enrichedEntry.rating),
-                timesCompleted: 1,
-              );
-              break;
-            case TmdbImportCollection.watchlistMovies:
-              await mutations.addLocalOnlyWishlistItem(localItem);
-              break;
-          }
-          await _pendingStore.upsert(
-            TmdbPendingImportRecord(
-              localItemId: localItem.id,
-              entry: enrichedEntry,
-              createdAt: DateTime.now().toUtc(),
-              proposalServerId: response['id']?.toString(),
-            ),
-          );
-          keptLocalCount += 1;
+        proposedCount += 1;
+        if (!_keepUnmatchedLocally) {
+          continue;
         }
+        final enrichedEntry = result.entry;
+        final localItem = _service.localSyntheticCatalogItem(enrichedEntry);
+        switch (preview.collection) {
+          case TmdbImportCollection.ratedMovies:
+            await mutations.addLocalOnlyTrackingEntry(
+              localItem,
+              sourceType: TrackingSourceType.streaming,
+              status: MediaTrackingStatus.completed,
+              rating: _normalizedRating(enrichedEntry.rating),
+              timesCompleted: 1,
+            );
+            break;
+          case TmdbImportCollection.watchlistMovies:
+            await mutations.addLocalOnlyWishlistItem(localItem);
+            break;
+        }
+        await _pendingStore.upsert(
+          TmdbPendingImportRecord(
+            localItemId: localItem.id,
+            entry: enrichedEntry,
+            createdAt: DateTime.now().toUtc(),
+            proposalServerId: result.proposalServerId,
+          ),
+        );
+        keptLocalCount += 1;
       }
       await _refreshPendingLocalCount();
       widget.onStateChanged?.call();
@@ -665,6 +653,70 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
           _isWorking = false;
         });
       }
+    }
+  }
+
+  Future<List<_UnmatchedTmdbImportResult>> _processUnmatchedMatches({
+    required List<TmdbImportMatch> matches,
+    required LibraryTypeConfig type,
+  }) async {
+    if (matches.isEmpty) {
+      return const <_UnmatchedTmdbImportResult>[];
+    }
+    final queue = List<TmdbImportMatch>.from(matches);
+    final results = <_UnmatchedTmdbImportResult>[];
+    Future<void> worker() async {
+      while (queue.isNotEmpty) {
+        final match = queue.removeLast();
+        results.add(await _processUnmatchedMatch(match, type: type));
+      }
+    }
+
+    await Future.wait([
+      for (
+        var index = 0;
+        index < math.min(_unmatchedImportConcurrency, queue.length);
+        index += 1
+      )
+        worker(),
+    ]);
+    return results;
+  }
+
+  Future<_UnmatchedTmdbImportResult> _processUnmatchedMatch(
+    TmdbImportMatch match, {
+    required LibraryTypeConfig type,
+  }) async {
+    final enrichedEntry = await _enrichUnmatchedEntry(match.entry);
+    try {
+      final response = await createAndRecordLibraryMetadataProposal(
+        api: ref.read(apiClientProvider),
+        type: type,
+        provider: 'tmdb',
+        providerItemId: enrichedEntry.tmdbId.toString(),
+        query: enrichedEntry.query,
+        title: enrichedEntry.title,
+        summary: enrichedEntry.overview,
+        imageUrl: enrichedEntry.posterUrl,
+        metadataPayload: enrichedEntry.rawPayload,
+        source: 'TMDB import',
+      );
+      return _UnmatchedTmdbImportResult(
+        entry: enrichedEntry,
+        proposalCreated: true,
+        proposalServerId: response['id']?.toString(),
+      );
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'tmdb_import',
+        message: 'Failed to create metadata proposal for ${enrichedEntry.title}.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return _UnmatchedTmdbImportResult(
+        entry: enrichedEntry,
+        proposalCreated: false,
+      );
     }
   }
 
@@ -991,6 +1043,18 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       });
     }
   }
+}
+
+class _UnmatchedTmdbImportResult {
+  const _UnmatchedTmdbImportResult({
+    required this.entry,
+    required this.proposalCreated,
+    this.proposalServerId,
+  });
+
+  final TmdbImportEntry entry;
+  final bool proposalCreated;
+  final String? proposalServerId;
 }
 
 class _PreviewCountChip extends StatelessWidget {

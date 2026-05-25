@@ -77,6 +77,27 @@ class TrackingUnitsCacheRepository {
     );
   }
 
+  Future<void> markDeletedByIds(
+    Iterable<String> ids,
+    DateTime deletedAt,
+  ) async {
+    final normalizedIds = ids
+        .where((value) => value.trim().isNotEmpty)
+        .toSet()
+        .toList(growable: false);
+    if (normalizedIds.isEmpty) {
+      return;
+    }
+    await (_db.update(_db.trackingUnitsCache)
+          ..where((tbl) => tbl.id.isIn(normalizedIds) & tbl.deletedAt.isNull()))
+        .write(
+      TrackingUnitsCacheCompanion(
+        deletedAt: Value(deletedAt),
+        updatedAt: Value(deletedAt),
+      ),
+    );
+  }
+
   TrackingUnitsCacheCompanion _toCompanion(TrackingUnit unit) {
     return TrackingUnitsCacheCompanion(
       id: Value(unit.id),
