@@ -58,9 +58,9 @@ class LibraryAlphaJumpBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           for (final letter in _letters) _buildLetterChip(letter),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
         ],
       ),
     );

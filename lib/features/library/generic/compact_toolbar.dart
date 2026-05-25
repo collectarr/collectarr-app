@@ -62,9 +62,20 @@ class CompactLibraryToolbar extends StatelessWidget {
       builder: (context, color, _) {
         final accent = color ?? targetAccent;
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       child: Row(
         children: [
+          Expanded(
+            child: SearchBar(
+              controller: searchController,
+              constraints: const BoxConstraints.tightFor(height: 32),
+              hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+              leading: const Icon(Icons.search),
+              onChanged: onSearchChanged,
+              onSubmitted: onSearchChanged,
+            ),
+          ),
+          const SizedBox(width: 8),
           Tooltip(
             message: 'Add ${type.pluralLabel}',
             child: IconButton.filled(
@@ -74,17 +85,6 @@ class CompactLibraryToolbar extends StatelessWidget {
               ),
               onPressed: onAdd,
               icon: const Icon(Icons.add),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: SearchBar(
-              controller: searchController,
-              constraints: const BoxConstraints.tightFor(height: 32),
-              hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-              leading: const Icon(Icons.search),
-              onChanged: onSearchChanged,
-              onSubmitted: onSearchChanged,
             ),
           ),
           const SizedBox(width: 8),
