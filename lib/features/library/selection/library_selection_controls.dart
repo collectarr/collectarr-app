@@ -22,6 +22,10 @@ class LibrarySelectionControls extends StatelessWidget {
   final int selectedCount;
   final LibrarySelectionCallbacks callbacks;
 
+  void _dispatchAfterMenuClose(VoidCallback action) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => action());
+  }
+
   @override
   Widget build(BuildContext context) {
     if (selectedCount == 0) {
@@ -37,18 +41,14 @@ class LibrarySelectionControls extends StatelessWidget {
           enabled: selectedCount > 0,
           icon: const Icon(Icons.more_vert),
           onSelected: (action) {
-            switch (action) {
-              case _BulkAction.edit:
-                callbacks.onBulkEdit();
-              case _BulkAction.owned:
-                callbacks.onBulkMoveToOwned();
-              case _BulkAction.wishlist:
-                callbacks.onBulkMoveToWishlist();
-              case _BulkAction.remove:
-                callbacks.onBulkRemove();
-              case _BulkAction.clear:
-                callbacks.onClearSelection();
-            }
+            final callback = switch (action) {
+              _BulkAction.edit => callbacks.onBulkEdit,
+              _BulkAction.owned => callbacks.onBulkMoveToOwned,
+              _BulkAction.wishlist => callbacks.onBulkMoveToWishlist,
+              _BulkAction.remove => callbacks.onBulkRemove,
+              _BulkAction.clear => callbacks.onClearSelection,
+            };
+            _dispatchAfterMenuClose(callback);
           },
           itemBuilder: (context) => const [
             PopupMenuItem(
