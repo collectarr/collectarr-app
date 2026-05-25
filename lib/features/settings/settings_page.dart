@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/collection/csv/import_export/import_expo
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
-import 'package:collectarr_app/features/settings/provider_imports_dialog.dart';
+import 'package:collectarr_app/features/settings/tmdb_import_dialog.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -40,6 +40,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -2361,145 +2362,250 @@ class _ImportSourcesGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth >= 600 ? 2 : 1;
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            mainAxisExtent: 150,
-          ),
-          itemCount: providerImportDescriptors.length,
-          itemBuilder: (context, index) {
-            final descriptor = providerImportDescriptors[index];
-            final isAvailable = descriptor.availability ==
-                ProviderImportAvailability.available;
-            return DecoratedBox(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: isAvailable
-                      ? theme.colorScheme.outline.withValues(alpha: 0.4)
-                      : theme.dividerColor,
+    final comingSoonDescriptors = providerImportDescriptors
+        .where(
+          (d) => d.availability == ProviderImportAvailability.comingSoon,
+        )
+        .toList(growable: false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _TmdbImportCard(tmdbSettings: tmdbSettings),
+        if (comingSoonDescriptors.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount =
+                  constraints.maxWidth >= 600 ? 2 : 1;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate:
+                    SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  mainAxisExtent: 120,
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          providerImportIcon(descriptor.id),
-                          size: 22,
-                          color: isAvailable
-                              ? theme.colorScheme.primary
-                              : theme.hintColor,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            descriptor.title,
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        if (!isAvailable)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  theme.colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              'Coming soon',
-                              style: theme.textTheme.labelSmall?.copyWith(
+                itemCount: comingSoonDescriptors.length,
+                itemBuilder: (context, index) {
+                  final descriptor = comingSoonDescriptors[index];
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: theme.dividerColor),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                providerImportIcon(descriptor.id),
+                                size: 22,
                                 color: theme.hintColor,
-                                fontSize: 10,
                               ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  descriptor.title,
+                                  style: theme.textTheme.titleSmall
+                                      ?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme
+                                      .surfaceContainerHighest,
+                                  borderRadius:
+                                      BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  'Coming soon',
+                                  style: theme.textTheme.labelSmall
+                                      ?.copyWith(
+                                    color: theme.hintColor,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            descriptor.summary,
+                            style:
+                                theme.textTheme.bodySmall?.copyWith(
+                              color: theme.hintColor,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      descriptor.summary,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.hintColor,
+                        ],
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    const Spacer(),
-                    if (isAvailable)
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: FilledButton.icon(
-                          onPressed: () => _openProvider(
-                            context,
-                            ref,
-                            descriptor.id,
-                          ),
-                          icon: const Icon(Icons.import_export_outlined,
-                              size: 18),
-                          label: const Text('Import'),
-                        ),
-                      )
-                    else if (descriptor.supportsFileImport)
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: FilledButton.icon(
-                          onPressed: null,
-                          icon: const Icon(Icons.upload_file_outlined,
-                              size: 18),
-                          label: const Text('Select CSV File'),
-                        ),
-                      )
-                    else
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: FilledButton.icon(
-                          onPressed: null,
-                          icon: const Icon(Icons.sync_outlined, size: 18),
-                          label: const Text('Import'),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _TmdbImportCard extends StatefulWidget {
+  const _TmdbImportCard({required this.tmdbSettings});
+
+  final TmdbImportSettings tmdbSettings;
+
+  @override
+  State<_TmdbImportCard> createState() => _TmdbImportCardState();
+}
+
+class _TmdbImportCardState extends State<_TmdbImportCard> {
+  TmdbImportSourceMode _mode = TmdbImportSourceMode.exportFile;
+
+  void _onImport() {
+    final autoStart = _mode == TmdbImportSourceMode.exportFile ||
+        widget.tmdbSettings.apiKey.isNotEmpty;
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        insetPadding: const EdgeInsets.all(24),
+        title: const Text('TMDB Import'),
+        content: SizedBox(
+          width: (MediaQuery.sizeOf(context).width - 48)
+              .clamp(360.0, 720.0),
+          height: (MediaQuery.sizeOf(context).height - 72)
+              .clamp(380.0, 560.0),
+          child: TmdbImportWorkspace(
+            initialSettings: widget.tmdbSettings,
+            initialSourceMode: _mode,
+            autoStart: autoStart,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 
-  void _openProvider(
-    BuildContext context,
-    WidgetRef ref,
-    ProviderImportId id,
-  ) {
-    switch (id) {
-      case ProviderImportId.tmdb:
-        showDialog<void>(
-          context: context,
-          builder: (_) => ProviderImportsDialog(
-            initialTmdbSettings: tmdbSettings,
-          ),
-        );
-      default:
-        break;
-    }
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: SvgPicture.asset(
+                    'assets/logos/tmdb_logo.svg',
+                    width: 36,
+                    height: 36,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'TMDB',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        'Import movies from your TMDB account or exported files.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.hintColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Radio<TmdbImportSourceMode>(
+                  value: TmdbImportSourceMode.accountSync,
+                  groupValue: _mode,
+                  visualDensity: VisualDensity.compact,
+                  onChanged: (v) {
+                    if (v != null) setState(() => _mode = v);
+                  },
+                ),
+                GestureDetector(
+                  onTap: () => setState(
+                    () => _mode = TmdbImportSourceMode.accountSync,
+                  ),
+                  child: Text(
+                    'API Key (account sync)',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Radio<TmdbImportSourceMode>(
+                  value: TmdbImportSourceMode.exportFile,
+                  groupValue: _mode,
+                  visualDensity: VisualDensity.compact,
+                  onChanged: (v) {
+                    if (v != null) setState(() => _mode = v);
+                  },
+                ),
+                GestureDetector(
+                  onTap: () => setState(
+                    () => _mode = TmdbImportSourceMode.exportFile,
+                  ),
+                  child: Text(
+                    'CSV / JSON file',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.icon(
+                onPressed: _onImport,
+                icon: const Icon(Icons.import_export_outlined, size: 18),
+                label: const Text('Import'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

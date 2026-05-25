@@ -24,7 +24,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum _TmdbImportSourceMode {
+enum TmdbImportSourceMode {
   accountSync,
   exportFile,
 }
@@ -33,11 +33,15 @@ class TmdbImportWorkspace extends ConsumerStatefulWidget {
   const TmdbImportWorkspace({
     super.key,
     required this.initialSettings,
+    this.initialSourceMode,
+    this.autoStart = false,
     this.onImportRecorded,
     this.onStateChanged,
   });
 
   final TmdbImportSettings initialSettings;
+  final TmdbImportSourceMode? initialSourceMode;
+  final bool autoStart;
   final VoidCallback? onImportRecorded;
   final VoidCallback? onStateChanged;
 
@@ -57,7 +61,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
   final ProviderImportHistoryStore _historyStore =
       const ProviderImportHistoryStore();
   TmdbImportCollection _collection = TmdbImportCollection.ratedMovies;
-  _TmdbImportSourceMode _sourceMode = _TmdbImportSourceMode.exportFile;
+  TmdbImportSourceMode _sourceMode = TmdbImportSourceMode.exportFile;
   bool _isWorking = false;
   bool _keepUnmatchedLocally = true;
   int _pendingLocalCount = 0;
@@ -72,7 +76,21 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
         TextEditingController(text: widget.initialSettings.accountId);
     _sessionIdController =
         TextEditingController(text: widget.initialSettings.sessionId);
+    if (widget.initialSourceMode != null) {
+      _sourceMode = widget.initialSourceMode!;
+    }
     unawaited(_refreshPendingLocalCount());
+    if (widget.autoStart) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        switch (_sourceMode) {
+          case TmdbImportSourceMode.accountSync:
+            _loadFromTmdb();
+          case TmdbImportSourceMode.exportFile:
+            _pickImportFile();
+        }
+      });
+    }
   }
 
   @override
@@ -128,16 +146,16 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
                           },
                   ),
                 ),
-                SegmentedButton<_TmdbImportSourceMode>(
+                SegmentedButton<TmdbImportSourceMode>(
                   showSelectedIcon: false,
                   segments: const [
-                    ButtonSegment<_TmdbImportSourceMode>(
-                      value: _TmdbImportSourceMode.accountSync,
+                    ButtonSegment<TmdbImportSourceMode>(
+                      value: TmdbImportSourceMode.accountSync,
                       icon: Icon(Icons.cloud_sync_outlined, size: 18),
                       label: Text('Account sync'),
                     ),
-                    ButtonSegment<_TmdbImportSourceMode>(
-                      value: _TmdbImportSourceMode.exportFile,
+                    ButtonSegment<TmdbImportSourceMode>(
+                      value: TmdbImportSourceMode.exportFile,
                       icon: Icon(Icons.upload_file_outlined, size: 18),
                       label: Text('JSON / CSV'),
                     ),
@@ -186,8 +204,8 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       children: [
         Expanded(
           child: switch (_sourceMode) {
-            _TmdbImportSourceMode.accountSync => _buildAccountSyncPane(context),
-            _TmdbImportSourceMode.exportFile => _buildExportPane(context),
+            TmdbImportSourceMode.accountSync => _buildAccountSyncPane(context),
+            TmdbImportSourceMode.exportFile => _buildExportPane(context),
           },
         ),
         const SizedBox(height: 10),
@@ -382,7 +400,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
 
   Future<void> _loadFromTmdb() async {
     await _runPreviewFlow(
-      sourceMode: _TmdbImportSourceMode.accountSync,
+      sourceMode: TmdbImportSourceMode.accountSync,
       mapError: _describeTmdbFetchError,
       preparePreview: () async {
         final credentials = TmdbImportCredentials(
@@ -411,7 +429,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       return;
     }
     await _runPreviewFlow(
-      sourceMode: _TmdbImportSourceMode.exportFile,
+      sourceMode: TmdbImportSourceMode.exportFile,
       mapError: _describeTmdbPayloadError,
       preparePreview: () async {
         final entries = _service.parseCollectionPayload(
@@ -428,7 +446,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
 
   Future<void> _pickImportFile() async {
     await _runPreviewFlow(
-      sourceMode: _TmdbImportSourceMode.exportFile,
+      sourceMode: TmdbImportSourceMode.exportFile,
       mapError: _describeTmdbFileError,
       preparePreview: () async {
         final file = await openFile(
@@ -457,7 +475,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
   }
 
   Future<void> _runPreviewFlow({
-    required _TmdbImportSourceMode sourceMode,
+    required TmdbImportSourceMode sourceMode,
     required Future<_TmdbPreviewRequest?> Function() preparePreview,
     required String Function(Object error) mapError,
   }) async {
