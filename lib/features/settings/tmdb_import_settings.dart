@@ -1,4 +1,6 @@
-import 'package:flutter_riverpod/legacy.dart';
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TmdbImportSettings {
@@ -66,21 +68,26 @@ class TmdbImportSettingsStore {
   }
 }
 
+final tmdbImportSettingsStoreProvider =
+    Provider<TmdbImportSettingsStore>((ref) => const TmdbImportSettingsStore());
+
 final tmdbImportSettingsProvider =
-    StateNotifierProvider<TmdbImportSettingsController, TmdbImportSettings>(
-  (ref) => TmdbImportSettingsController()..load(),
+    NotifierProvider<TmdbImportSettingsNotifier, TmdbImportSettings>(
+  TmdbImportSettingsNotifier.new,
 );
 
-class TmdbImportSettingsController extends StateNotifier<TmdbImportSettings> {
-  TmdbImportSettingsController({
-    TmdbImportSettingsStore store = const TmdbImportSettingsStore(),
-  })  : _store = store,
-        super(const TmdbImportSettings());
+class TmdbImportSettingsNotifier extends Notifier<TmdbImportSettings> {
+  @override
+  TmdbImportSettings build() {
+    unawaited(_loadInitial());
+    return const TmdbImportSettings();
+  }
 
-  final TmdbImportSettingsStore _store;
-
-  Future<void> load() async {
-    state = await _store.read();
+  Future<void> _loadInitial() async {
+    final next = await ref.read(tmdbImportSettingsStoreProvider).read();
+    if (!state.isLoaded) {
+      state = next;
+    }
   }
 
   Future<void> save({
@@ -95,11 +102,11 @@ class TmdbImportSettingsController extends StateNotifier<TmdbImportSettings> {
       isLoaded: true,
     );
     state = next;
-    await _store.write(next);
+    await ref.read(tmdbImportSettingsStoreProvider).write(next);
   }
 
   Future<void> reset() async {
-    await _store.reset();
+    await ref.read(tmdbImportSettingsStoreProvider).reset();
     state = const TmdbImportSettings(isLoaded: true);
   }
 }

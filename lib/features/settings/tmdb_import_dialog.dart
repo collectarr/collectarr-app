@@ -753,31 +753,48 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       final records = await _pendingStore.read();
       final mutations = ref.read(collectionMutationsProvider);
       final type = _resolvedMovieType();
+      final api = ref.read(apiClientProvider);
+      final resolved = await Future.wait<
+          ({TmdbPendingImportRecord record, CatalogItem? item})>(
+        records.map((record) async {
+          try {
+            final preview = await _service.previewImport(
+              collection: record.entry.collection,
+              entries: [record.entry],
+              searchCatalog: (entry) => searchLibraryMetadata(
+                api,
+                type,
+                query: entry.title,
+                year: entry.releaseYear,
+                limit: 10,
+              ),
+            );
+            return (record: record, item: preview.matches.single.catalogItem);
+          } catch (error, stackTrace) {
+            logRecoverableError(
+              source: 'tmdb_import',
+              message:
+                  'Failed to search catalog for pending import ${record.entry.title}.',
+              error: error,
+              stackTrace: stackTrace,
+            );
+            return (record: record, item: null);
+          }
+        }),
+      );
       var reconciled = 0;
-      for (final record in records) {
-        final preview = await _service.previewImport(
-          collection: record.entry.collection,
-          entries: [record.entry],
-          searchCatalog: (entry) => searchLibraryMetadata(
-            ref.read(apiClientProvider),
-            type,
-            query: entry.title,
-            year: entry.releaseYear,
-            limit: 10,
-          ),
-        );
-        final match = preview.matches.single;
-        final item = match.catalogItem;
+      for (final result in resolved) {
+        final item = result.item;
         if (item == null) {
           continue;
         }
         final promoted = await mutations.promoteLocalOnlyItemToCatalog(
-          record.localItemId,
+          result.record.localItemId,
           item,
           notify: false,
         );
         if (promoted > 0) {
-          await _pendingStore.remove(record.localItemId);
+          await _pendingStore.remove(result.record.localItemId);
           reconciled += 1;
         }
       }

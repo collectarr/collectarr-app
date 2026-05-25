@@ -6,9 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 /// Call [setUpSecureStorageMock] in a `setUp` block to register a
 /// method-channel handler that stores values in a simple [Map].
 final _store = <String, String>{};
+Object? _writeFailure;
 
 void setUpSecureStorageMock() {
   _store.clear();
+  _writeFailure = null;
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
     const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -18,6 +20,10 @@ void setUpSecureStorageMock() {
           final key = call.arguments['key'] as String;
           return _store[key];
         case 'write':
+          final failure = _writeFailure;
+          if (failure != null) {
+            throw failure;
+          }
           final key = call.arguments['key'] as String;
           final value = call.arguments['value'] as String;
           _store[key] = value;
@@ -34,4 +40,16 @@ void setUpSecureStorageMock() {
       }
     },
   );
+}
+
+void failSecureStorageWrites([Object? error]) {
+  _writeFailure = error ??
+      PlatformException(
+        code: 'write_failed',
+        message: 'Secure storage write failed.',
+      );
+}
+
+void clearSecureStorageFailures() {
+  _writeFailure = null;
 }

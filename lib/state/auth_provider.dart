@@ -184,8 +184,19 @@ class AuthController extends StateNotifier<AuthState> {
     final email = _stringFromJson(user?['email']) ?? fallbackEmail;
     final isAdmin = _boolFromJson(user?['is_admin']);
     final prefs = await SharedPreferences.getInstance();
-    await _authSecureStorage.write(key: _authTokenKey, value: token);
-    await prefs.remove(_authTokenKey);
+    try {
+      await _authSecureStorage.write(key: _authTokenKey, value: token);
+      await prefs.remove(_authTokenKey);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message:
+            'Failed to write secure token; falling back to shared preferences.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      await prefs.setString(_authTokenKey, token);
+    }
     await prefs.setString(_authEmailKey, email);
     await prefs.setBool(_authIsAdminKey, isAdmin);
     ref.read(apiAuthTokenProvider.notifier).set(token);
