@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -208,5 +209,56 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(reordered, (LibraryTableColumn.title, null));
+  });
+
+  testWidgets('workspace table scrollbar hover stays attached to its list view',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 420,
+            height: 180,
+            child: LibraryWorkspaceTable<String>(
+              entries: List.generate(20, (index) => 'Row $index'),
+              columns: const [
+                LibraryTableColumn.title,
+                LibraryTableColumn.issue,
+              ],
+              sortColumn: LibrarySortColumn.title,
+              sortAscending: true,
+              columnWidthFor: (column) =>
+                  column == LibraryTableColumn.title ? 180 : 80,
+              defaultColumnWidthFor: (column) =>
+                  column == LibraryTableColumn.title ? 180 : 80,
+              columnSortFor: (column) => switch (column) {
+                LibraryTableColumn.title => LibrarySortColumn.title,
+                LibraryTableColumn.issue => LibrarySortColumn.issue,
+                _ => null,
+              },
+              columnLabelFor: (column) => column.name,
+              columnIsNumeric: (column) => column == LibraryTableColumn.issue,
+              cellBuilder: (entry, column) => Text(
+                column == LibraryTableColumn.title ? entry : '#1',
+              ),
+              isSelected: (_) => false,
+              onEntryTap: (_) {},
+              onSortChanged: (_) {},
+              onColumnWidthChanged: (_, __) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(gesture.removePointer);
+    await gesture.addPointer(location: Offset.zero);
+    await gesture.moveTo(
+      tester.getTopRight(find.byType(Scrollbar).first) - const Offset(2, -24),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
   });
 }

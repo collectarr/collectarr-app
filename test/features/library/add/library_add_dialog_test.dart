@@ -619,8 +619,9 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
           body: Builder(
             builder: (context) => FilledButton(
               onPressed: () {
@@ -639,6 +640,7 @@ void main() {
             ),
           ),
         ),
+      ),
       ),
     );
 
@@ -766,19 +768,21 @@ void main() {
     LibraryCoverReviewedImage? reviewedImage;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () async {
-                reviewedImage = await const DialogLibraryCoverImageReview()
-                    .reviewImage(
-                  context: context,
-                  type: comicsLibraryConfig,
-                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
-                );
-              },
-              child: const Text('Open review'),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () async {
+                  reviewedImage = await const DialogLibraryCoverImageReview()
+                      .reviewImage(
+                    context: context,
+                    type: comicsLibraryConfig,
+                    file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                  );
+                },
+                child: const Text('Open review'),
+              ),
             ),
           ),
         ),
@@ -832,19 +836,21 @@ void main() {
     LibraryCoverReviewedImage? reviewedImage;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () async {
-                reviewedImage = await const DialogLibraryCoverImageReview()
-                    .reviewImage(
-                  context: context,
-                  type: comicsLibraryConfig,
-                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
-                );
-              },
-              child: const Text('Open review'),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () async {
+                  reviewedImage = await const DialogLibraryCoverImageReview()
+                      .reviewImage(
+                    context: context,
+                    type: comicsLibraryConfig,
+                    file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                  );
+                },
+                child: const Text('Open review'),
+              ),
             ),
           ),
         ),
@@ -889,19 +895,21 @@ void main() {
     LibraryCoverReviewedImage? reviewedImage;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () async {
-                reviewedImage = await const DialogLibraryCoverImageReview()
-                    .reviewImage(
-                  context: context,
-                  type: comicsLibraryConfig,
-                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
-                );
-              },
-              child: const Text('Open review'),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () async {
+                  reviewedImage = await const DialogLibraryCoverImageReview()
+                      .reviewImage(
+                    context: context,
+                    type: comicsLibraryConfig,
+                    file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                  );
+                },
+                child: const Text('Open review'),
+              ),
             ),
           ),
         ),

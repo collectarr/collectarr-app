@@ -55,7 +55,7 @@ class _SearchPane extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: Color(0xFF1D2022),
+        color: kAppSurfaceSubtle,
         border: Border(right: BorderSide(color: kAppDivider)),
       ),
       child: _SearchResultsList(
@@ -139,8 +139,8 @@ class _ErrorBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF4A2630),
-        border: Border.all(color: const Color(0xFF9D5D69)),
+        color: kAppBannerErrorBackground,
+        border: Border.all(color: kAppBannerErrorBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -149,14 +149,14 @@ class _ErrorBanner extends StatelessWidget {
             const Icon(
               Icons.info_outline,
               size: 18,
-              color: Color(0xFFFFB4C0),
+              color: kAppBannerErrorIcon,
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 message,
                 style: const TextStyle(
-                  color: Color(0xFFFFD9DF),
+                  color: kAppBannerErrorText,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -185,7 +185,7 @@ class _QueuedIngestNotice extends StatelessWidget {
     final jobLabel = count == 1 ? 'job' : 'jobs';
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF183246),
+        color: kAppBannerInfoBackground,
         border: Border.all(color: accent.withValues(alpha: 0.65)),
       ),
       child: Padding(
@@ -1298,7 +1298,7 @@ class _MangaVolumeNodeState extends State<_MangaVolumeNode> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border.all(color: kAppDivider),
-          color: const Color(0x1AFFFFFF),
+          color: Colors.white.withValues(alpha: 0.1),
         ),
         child: Column(
           children: [
@@ -1465,7 +1465,7 @@ class _SkeletonBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFF313B42),
+        color: kAppSurfaceBright,
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -1486,7 +1486,7 @@ class _ProviderFallbackNotice extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: const BoxDecoration(
-        color: Color(0xFF3F3A1A),
+        color: kAppBannerWarningBackground,
         border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Row(
@@ -1519,7 +1519,7 @@ class _ProviderMixedNotice extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: const BoxDecoration(
-        color: Color(0xFF183246),
+        color: kAppBannerInfoBackground,
         border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Row(

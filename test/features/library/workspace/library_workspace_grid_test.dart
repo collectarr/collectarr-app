@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -43,7 +44,7 @@ void main() {
     expect(find.byType(GridView), findsOneWidget);
   });
 
-  testWidgets('workspace grid supports drag box selection in selection mode',
+  testWidgets('workspace grid supports drag box selection without modifiers',
       (tester) async {
     Set<String> selected = const {};
 
@@ -56,7 +57,6 @@ void main() {
             items: const ['one', 'two', 'three', 'four'],
             maxCrossAxisExtent: 120,
             mainAxisExtent: 100,
-            selectionEnabled: true,
             itemIdOf: (item) => item,
             onSelectionChanged: (value) => selected = value,
             emptyBuilder: (_) => const Text('No items'),
@@ -73,5 +73,76 @@ void main() {
     await tester.pump();
 
     expect(selected, {'one', 'two'});
+  });
+
+  testWidgets('workspace grid adds to existing selection when ctrl-dragging',
+      (tester) async {
+    Set<String> selected = {'four'};
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox(
+          width: 250,
+          height: 240,
+          child: LibraryWorkspaceGrid<String>(
+            items: const ['one', 'two', 'three', 'four'],
+            maxCrossAxisExtent: 120,
+            mainAxisExtent: 100,
+            selectedIds: selected,
+            itemIdOf: (item) => item,
+            onSelectionChanged: (value) => selected = value,
+            emptyBuilder: (_) => const Text('No items'),
+            itemBuilder: (_, item) => Text(item),
+          ),
+        ),
+      ),
+    );
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    addTearDown(() => tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft));
+
+    final gridTopLeft = tester.getTopLeft(find.byType(GridView));
+    final gesture = await tester.startGesture(gridTopLeft + const Offset(16, 16));
+    await gesture.moveTo(gridTopLeft + const Offset(225, 95));
+    await gesture.up();
+    await tester.pump();
+
+    expect(selected, {'one', 'two', 'four'});
+  });
+
+  testWidgets('workspace grid lays out inside sliver adapters when shrink-wrapped',
+      (tester) async {
+    Set<String> selected = const {};
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: LibraryWorkspaceGrid<String>(
+                  items: const ['one', 'two', 'three', 'four'],
+                  maxCrossAxisExtent: 120,
+                  mainAxisExtent: 100,
+                  itemIdOf: (item) => item,
+                  onSelectionChanged: (value) => selected = value,
+                  shrinkWrap: true,
+                  scrollable: false,
+                  emptyBuilder: (_) => const Text('No items'),
+                  itemBuilder: (_, item) => Text(item),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('one'), findsOneWidget);
+    expect(find.byType(GridView), findsOneWidget);
+    expect(selected, isEmpty);
+    expect(tester.takeException(), isNull);
   });
 }

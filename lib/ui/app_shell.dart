@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -81,7 +82,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         child: AnimatedTheme(
           data: accentTheme,
           duration: uiPreferences.animationsEnabled
-              ? const Duration(milliseconds: 360)
+              ? kAppAnimNormal
               : Duration.zero,
           curve: Curves.easeOutCubic,
           child: widget.navigationShell,
@@ -156,7 +157,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final duration =
-        animationsEnabled ? const Duration(milliseconds: 360) : Duration.zero;
+        animationsEnabled ? kAppAnimNormal : Duration.zero;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
       duration: duration,

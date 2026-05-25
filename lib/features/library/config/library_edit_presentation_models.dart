@@ -49,6 +49,7 @@ class LibraryEditFooterSpec {
 class LibraryEditPresentationState {
   const LibraryEditPresentationState({
     required this.showsPhysicalFormatSelector,
+    required this.showsCatalogReleaseFields,
     required this.showsOwnershipReferenceSection,
     required this.showsOwnedGradingSection,
     required this.trackingSectionTitle,
@@ -62,6 +63,7 @@ class LibraryEditPresentationState {
   });
 
   final bool showsPhysicalFormatSelector;
+  final bool showsCatalogReleaseFields;
   final bool showsOwnershipReferenceSection;
   final bool showsOwnedGradingSection;
   final String trackingSectionTitle;

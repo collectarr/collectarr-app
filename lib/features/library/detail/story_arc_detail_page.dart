@@ -3,7 +3,26 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StoryArcDetailPage extends ConsumerStatefulWidget {
+final _storyArcDetailProvider = FutureProvider.autoDispose
+    .family<_StoryArcDetailData, String>((ref, storyArcName) async {
+  final api = ref.watch(apiClientProvider);
+  final results = await api.searchStoryArcs(
+    query: storyArcName,
+    limit: 12,
+  );
+  if (results.isEmpty) {
+    throw StateError('No story arc metadata found for $storyArcName.');
+  }
+  final storyArc = _pickBestStoryArc(results, storyArcName);
+  final items = await api.getStoryArcItems(storyArc['id'].toString());
+  return _StoryArcDetailData(
+    storyArc: storyArc,
+    items: items,
+    alternatives: results,
+  );
+});
+
+class StoryArcDetailPage extends ConsumerWidget {
   const StoryArcDetailPage({
     super.key,
     required this.storyArcName,
@@ -12,57 +31,19 @@ class StoryArcDetailPage extends ConsumerStatefulWidget {
   final String storyArcName;
 
   @override
-  ConsumerState<StoryArcDetailPage> createState() =>
-      _StoryArcDetailPageState();
-}
-
-class _StoryArcDetailPageState extends ConsumerState<StoryArcDetailPage> {
-  late Future<_StoryArcDetailData> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = _load();
-  }
-
-  Future<_StoryArcDetailData> _load() async {
-    final api = ref.read(apiClientProvider);
-    final results = await api.searchStoryArcs(
-      query: widget.storyArcName,
-      limit: 12,
-    );
-    if (results.isEmpty) {
-      throw StateError('No story arc metadata found for ${widget.storyArcName}.');
-    }
-    final storyArc = _pickBestStoryArc(results, widget.storyArcName);
-    final items = await api.getStoryArcItems(storyArc['id'].toString());
-    return _StoryArcDetailData(
-      storyArc: storyArc,
-      items: items,
-      alternatives: results,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detail = ref.watch(_storyArcDetailProvider(storyArcName));
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.storyArcName),
+        title: Text(storyArcName),
       ),
-      body: FutureBuilder<_StoryArcDetailData>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _StoryArcDetailError(
-              message: snapshot.error.toString(),
-              onRetry: () => setState(() => _future = _load()),
-            );
-          }
-          return _StoryArcDetailBody(data: snapshot.data!);
-        },
+      body: detail.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => _StoryArcDetailError(
+          message: error.toString(),
+          onRetry: () => ref.invalidate(_storyArcDetailProvider(storyArcName)),
+        ),
+        data: (data) => _StoryArcDetailBody(data: data),
       ),
     );
   }

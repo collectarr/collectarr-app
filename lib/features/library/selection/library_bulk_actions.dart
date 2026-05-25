@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
@@ -58,8 +59,16 @@ class LibraryBulkActions {
     final lastWishlistedIndex =
         entriesToOwn.lastIndexWhere((entry) => entry.isWishlisted);
     for (var index = 0; index < entriesToOwn.length; index++) {
+      final anchor = resolveLibraryMutationAnchor(
+        ownedItem: entriesToOwn[index].ownedItem,
+        wishlistItem: entriesToOwn[index].wishlistItem,
+      );
       await mutations.addItem(
         entriesToOwn[index].itemId,
+        anchorType: anchor.anchorType,
+        editionId: anchor.editionId,
+        variantId: anchor.variantId,
+        bundleReleaseId: anchor.bundleReleaseId,
         condition: defaultCondition,
         grade: defaultGrade,
         notify:
@@ -103,8 +112,17 @@ class LibraryBulkActions {
         if (entry.isWishlisted) entry,
     ];
     for (var index = 0; index < wishlistedEntries.length; index++) {
+      final anchor = resolveLibraryMutationAnchor(
+        ownedItem: wishlistedEntries[index].ownedItem,
+        wishlistItem: wishlistedEntries[index].wishlistItem,
+      );
       await mutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
+        wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
+        anchorType: anchor.anchorType,
+        editionId: anchor.editionId,
+        variantId: anchor.variantId,
+        bundleReleaseId: anchor.bundleReleaseId,
         notify: index == wishlistedEntries.length - 1,
       );
     }

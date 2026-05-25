@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 typedef LibraryGridItemBuilder<T> = Widget Function(
   BuildContext context,
@@ -50,8 +51,16 @@ class LibraryWorkspaceGrid<T> extends StatefulWidget {
 
 class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
   final _scrollController = ScrollController();
-  Rect? _selectionRect;
+  final _selectionRectNotifier = ValueNotifier<Rect?>(null);
   Offset? _dragStart;
+  Set<String> _dragBaseSelection = const {};
+
+  @override
+  void dispose() {
+    _selectionRectNotifier.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +78,13 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final tileWidth =
             (gridWidth - ((crossAxisCount - 1) * widget.crossAxisSpacing)) /
                 crossAxisCount;
+        final rowCount = (widget.items.length / crossAxisCount).ceil();
+        final nestedGridHeight = widget.shrinkWrap && !widget.scrollable
+          ? padding.top +
+            padding.bottom +
+            (rowCount * widget.mainAxisExtent) +
+            ((rowCount - 1) * widget.mainAxisSpacing)
+          : null;
         final grid = GridView.builder(
           controller: widget.scrollable ? _scrollController : null,
           shrinkWrap: widget.shrinkWrap,
@@ -88,60 +104,84 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
             widget.items[index],
           ),
         );
-        if (!widget.selectionEnabled ||
-            widget.itemIdOf == null ||
-            widget.onSelectionChanged == null) {
-          return ColoredBox(color: widget.backgroundColor, child: grid);
+        final boundedGrid = nestedGridHeight == null
+            ? grid
+            : SizedBox(height: nestedGridHeight, child: grid);
+        if (widget.itemIdOf == null || widget.onSelectionChanged == null) {
+          return ColoredBox(color: widget.backgroundColor, child: boundedGrid);
         }
+        final selectionLayer = Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (event) {
+            _dragStart = event.localPosition;
+            _dragBaseSelection = _selectionIsAdditive
+                ? Set<String>.from(widget.selectedIds)
+                : const {};
+            _selectionRectNotifier.value = Rect.fromPoints(
+              event.localPosition,
+              event.localPosition,
+            );
+          },
+          onPointerMove: (event) {
+            final start = _dragStart;
+            if (start == null) {
+              return;
+            }
+            final rect = Rect.fromPoints(start, event.localPosition);
+            final rectSelection = _selectedIdsForRect(
+              rect,
+              padding: padding,
+              crossAxisCount: crossAxisCount,
+              tileWidth: tileWidth,
+            );
+            _selectionRectNotifier.value = rect;
+            widget.onSelectionChanged!(
+              _selectionIsAdditive
+                  ? {..._dragBaseSelection, ...rectSelection}
+                  : rectSelection,
+            );
+          },
+          onPointerUp: (_) {
+            _dragStart = null;
+            _dragBaseSelection = const {};
+            _selectionRectNotifier.value = null;
+          },
+          onPointerCancel: (_) {
+            _dragStart = null;
+            _dragBaseSelection = const {};
+            _selectionRectNotifier.value = null;
+          },
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              boundedGrid,
+              ValueListenableBuilder<Rect?>(
+                valueListenable: _selectionRectNotifier,
+                builder: (context, rect, _) {
+                  if (rect == null) return const SizedBox.shrink();
+                  return IgnorePointer(
+                    child: CustomPaint(
+                      painter: _SelectionRectPainter(rect),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
         return ColoredBox(
           color: widget.backgroundColor,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onPanStart: (details) {
-              setState(() {
-                _dragStart = details.localPosition;
-                _selectionRect = Rect.fromPoints(
-                  details.localPosition,
-                  details.localPosition,
-                );
-              });
-            },
-            onPanUpdate: (details) {
-              final start = _dragStart;
-              if (start == null) {
-                return;
-              }
-              final rect = Rect.fromPoints(start, details.localPosition);
-              setState(() => _selectionRect = rect);
-              widget.onSelectionChanged!(
-                _selectedIdsForRect(
-                  rect,
-                  padding: padding,
-                  crossAxisCount: crossAxisCount,
-                  tileWidth: tileWidth,
-                ),
-              );
-            },
-            onPanEnd: (_) => setState(() {
-              _dragStart = null;
-              _selectionRect = null;
-            }),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                grid,
-                if (_selectionRect != null)
-                  IgnorePointer(
-                    child: CustomPaint(
-                      painter: _SelectionRectPainter(_selectionRect!),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          child: nestedGridHeight == null
+              ? selectionLayer
+              : SizedBox(height: nestedGridHeight, child: selectionLayer),
         );
       },
     );
+  }
+
+  bool get _selectionIsAdditive {
+    final keyboard = HardwareKeyboard.instance;
+    return keyboard.isControlPressed || keyboard.isMetaPressed;
   }
 
   Set<String> _selectedIdsForRect(

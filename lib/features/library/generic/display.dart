@@ -63,14 +63,14 @@ class LibraryItemPill extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: kAppRadiusSmall,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         child: Text(
           label,
           style: const TextStyle(
-            color: Color(0xFF151515),
+            color: kAppSurfaceDim,
             fontSize: 11,
             fontWeight: FontWeight.w900,
           ),

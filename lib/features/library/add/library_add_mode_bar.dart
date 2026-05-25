@@ -13,7 +13,7 @@ class _DialogHeader extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [kAppDivider, Color(0xFF1B1B1B)],
+            colors: [kAppDivider, kAppSurfaceDim],
           ),
           border: Border(bottom: BorderSide(color: accent)),
         ),
@@ -58,7 +58,7 @@ class _BarcodePrefillBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: Color(0xFF253744),
+        color: kAppBannerInfoBackground,
         border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Padding(
@@ -138,7 +138,7 @@ class _LibraryAddModeBar extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: kAppToolbar,
-        border: Border(bottom: BorderSide(color: Color(0xFF111111))),
+        border: Border(bottom: BorderSide(color: kAppField)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(7, 5, 7, 7),
@@ -294,7 +294,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
       height: 42,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: const Color(0xFF272A2C),
+        color: kAppSurfaceSubtle,
         border: Border.all(color: accent.withValues(alpha: 0.72)),
         borderRadius: BorderRadius.circular(3),
       ),
@@ -455,8 +455,8 @@ class _LibraryAddModeFieldFrame extends StatelessWidget {
       height: _kLibraryAddModeControlHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xFF111111),
-        border: Border.all(color: const Color(0xFF50565A)),
+        color: kAppField,
+        border: Border.all(color: kAppBorderSubtle),
         borderRadius: BorderRadius.circular(3),
       ),
       child: child,
@@ -540,13 +540,13 @@ class _AdvancedToggleButton extends StatelessWidget {
         ),
         tooltip: expanded ? 'Hide advanced fields' : 'Show advanced fields',
         style: IconButton.styleFrom(
-          foregroundColor: expanded ? accent : const Color(0xFF9EA9B0),
+          foregroundColor: expanded ? accent : kAppTextSecondary,
           backgroundColor:
               expanded ? accent.withValues(alpha: 0.15) : Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(3),
             side: BorderSide(
-              color: expanded ? accent.withValues(alpha: 0.5) : const Color(0xFF50565A),
+              color: expanded ? accent.withValues(alpha: 0.5) : kAppBorderSubtle,
             ),
           ),
           padding: EdgeInsets.zero,

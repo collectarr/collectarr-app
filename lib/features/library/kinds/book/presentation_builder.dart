@@ -112,9 +112,9 @@ class _BookAddPreviewPane extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF020202),
+            kAppCanvas,
             Color.alphaBlend(accent.withValues(alpha: 0.22), kAppCanvas),
-            const Color(0xFF050505),
+            kAppCanvas,
           ],
         ),
       ),

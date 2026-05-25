@@ -50,12 +50,21 @@ final trackingEntriesByCatalogItemProvider =
 });
 
 final wishlistByCatalogItemProvider =
-    Provider<Map<String, WishlistItem>>((ref) {
+    Provider<Map<String, List<WishlistItem>>>((ref) {
   final wishlist = ref.watch(wishlistProvider);
   return wishlist.maybeWhen(
-    data: (items) => {
-      for (final item in items)
-        if (!item.isDeleted) item.itemId: item,
+    data: (items) {
+      final grouped = <String, List<WishlistItem>>{};
+      for (final item in items) {
+        if (item.isDeleted) {
+          continue;
+        }
+        grouped.putIfAbsent(item.itemId, () => <WishlistItem>[]).add(item);
+      }
+      for (final entries in grouped.values) {
+        entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      }
+      return grouped;
     },
     orElse: () => const {},
   );

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:dio/dio.dart';
@@ -72,7 +73,13 @@ class CoverOfflineStorage {
         options: Options(responseType: ResponseType.bytes),
       );
       return response.data;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'cover_offline_storage',
+        message: 'Failed to download offline cover bytes from $url.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       return null;
     }
   }

@@ -24,6 +24,7 @@ class LibraryBody extends StatelessWidget {
     required this.projection,
     required this.viewState,
     required this.selectedId,
+    required this.selectedAnchorId,
     required this.selectedBucket,
     required this.groupMode,
     this.groupLoading = false,
@@ -33,7 +34,10 @@ class LibraryBody extends StatelessWidget {
     required this.onClearFilters,
     required this.selectionEnabled,
     required this.selectedItemIds,
-    required this.onSelectItem,
+    required this.onApplySelection,
+    required this.onActivateItem,
+    required this.onToggleSelectionItem,
+    required this.onOpenItem,
     this.onBoxSelectionChanged,
     required this.onBucketChanged,
     required this.onGroupModeChanged,
@@ -48,6 +52,7 @@ class LibraryBody extends StatelessWidget {
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEditItem,
+    this.workspaceOverride,
     this.onItemContextMenu,
     this.onFilterByValue,
     this.selectedLetter,
@@ -61,6 +66,7 @@ class LibraryBody extends StatelessWidget {
   final LibraryProjection projection;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
+  final String? selectedAnchorId;
   final String? selectedBucket;
   final LibraryGroupMode groupMode;
   final bool groupLoading;
@@ -70,7 +76,10 @@ class LibraryBody extends StatelessWidget {
   final VoidCallback onClearFilters;
   final bool selectionEnabled;
   final Set<String> selectedItemIds;
-  final ValueChanged<String> onSelectItem;
+  final void Function(Set<String> ids, String focusedId) onApplySelection;
+  final ValueChanged<String> onActivateItem;
+  final ValueChanged<String> onToggleSelectionItem;
+  final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String?> onBucketChanged;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
@@ -89,6 +98,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryProjectionItem> onRemoveWishlist;
   final void Function(LibraryProjectionItem item, OwnedItem? ownedItem)
       onEditItem;
+  final Widget? workspaceOverride;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<String>? onFilterByValue;
   final String? selectedLetter;
@@ -126,37 +136,42 @@ class LibraryBody extends StatelessWidget {
             ? projection.filteredItems
             : projection.filteredItems
                 .where((item) => LibraryAlphaJumpBar.matchesLetter(
-                      item.entry.title,
+                      item.entry.resolvedTitle,
                       selectedLetter!,
                     ))
                 .toList();
-        final workspace = LibraryCtrlScrollZoom(
-          coverSize: viewState.coverSize,
-          minCoverSize: adapter.viewProfile.minCoverSize,
-          maxCoverSize: adapter.viewProfile.maxCoverSize,
-          onCoverSizeChanged: onCoverSizeChanged,
-          child: LibraryWorkspace(
-            type: type,
-            adapter: adapter,
-            items: letterFilteredItems,
-            viewState: viewState,
-            selectedId: selectedId,
-            selectionEnabled: selectionEnabled,
-            selectedIds: selectedItemIds,
-            groupMode: groupMode,
-            selectedBucket: selectedBucket,
-            accent: accent,
-            hasActiveFilter: hasActiveFilter,
-            onAdd: onAdd,
-            onClearFilters: onClearFilters,
-            onSelectItem: onSelectItem,
-            onBoxSelectionChanged: onBoxSelectionChanged,
-            onSortChanged: onSortChanged,
-            onColumnWidthChanged: onColumnWidthChanged,
-            onColumnReordered: onColumnReordered,
-            onItemContextMenu: onItemContextMenu,
-          ),
-        );
+        final workspace = workspaceOverride ??
+            LibraryCtrlScrollZoom(
+              coverSize: viewState.coverSize,
+              minCoverSize: adapter.viewProfile.minCoverSize,
+              maxCoverSize: adapter.viewProfile.maxCoverSize,
+              onCoverSizeChanged: onCoverSizeChanged,
+              child: LibraryWorkspace(
+                type: type,
+                adapter: adapter,
+                items: letterFilteredItems,
+                viewState: viewState,
+                selectedId: selectedId,
+                selectionEnabled: selectionEnabled,
+                selectedIds: selectedItemIds,
+                groupMode: groupMode,
+                selectedBucket: selectedBucket,
+                accent: accent,
+                hasActiveFilter: hasActiveFilter,
+                onAdd: onAdd,
+                onClearFilters: onClearFilters,
+                selectedAnchorId: selectedAnchorId,
+                onApplySelection: onApplySelection,
+                onActivateItem: onActivateItem,
+                onToggleSelectionItem: onToggleSelectionItem,
+                onOpenItem: onOpenItem,
+                onBoxSelectionChanged: onBoxSelectionChanged,
+                onSortChanged: onSortChanged,
+                onColumnWidthChanged: onColumnWidthChanged,
+                onColumnReordered: onColumnReordered,
+                onItemContextMenu: onItemContextMenu,
+              ),
+            );
         final details = LibraryInspector(
           type: type,
           entry: selected?.entry,
@@ -180,7 +195,7 @@ class LibraryBody extends StatelessWidget {
 
         final workspaceContent = Column(
           children: [
-            if (!showSidebar && projection.buckets.length > 1)
+            if (workspaceOverride == null && !showSidebar && projection.buckets.length > 1)
               LibraryCompactBucketBar(
                 type: type,
                 accent: accent,
@@ -190,7 +205,7 @@ class LibraryBody extends StatelessWidget {
                   bucket == genericAllBucketLabel(type) ? null : bucket,
                 ),
               ),
-            if (onLetterSelected != null)
+            if (workspaceOverride == null && onLetterSelected != null)
               LibraryAlphaJumpBar(
                 availableLetters: availableLetters,
                 selectedLetter: selectedLetter,

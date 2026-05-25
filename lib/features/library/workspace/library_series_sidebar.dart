@@ -43,11 +43,11 @@ class LibrarySeriesSidebar extends StatelessWidget {
     this.icon = Icons.folder,
     this.trailing,
     this.backgroundColor = kAppPanel,
-    this.headerColor = const Color(0xFF303030),
+    this.headerColor = kAppSurface,
     this.dividerColor = kAppDivider,
     this.accentColor = kAppAccent,
     this.selectionColor = kAppSelection,
-    this.badgeColor = const Color(0xFF444444),
+    this.badgeColor = kAppBadgeBackground,
     this.selectedBadgeColor = kAppHighlight,
     this.mutedTextColor = kAppTextMuted,
   });
@@ -174,10 +174,10 @@ class _LibrarySeriesRow extends StatelessWidget {
                         imageUrl: bucket.coverUrl!,
                         fit: BoxFit.cover,
                         placeholder: (_, __) => const ColoredBox(
-                          color: Color(0xFF333333),
+                          color: kAppSurface,
                         ),
                         errorWidget: (_, __, ___) => const ColoredBox(
-                          color: Color(0xFF333333),
+                          color: kAppSurface,
                         ),
                       ),
                     ),
@@ -217,7 +217,7 @@ class _LibrarySeriesRow extends StatelessWidget {
                 Badge(
                   label: Text(bucket.count.toString()),
                   backgroundColor: selected ? selectedBadgeColor : badgeColor,
-                  textColor: selected ? const Color(0xFF171717) : Colors.white,
+                  textColor: selected ? kAppSurfaceDim : Colors.white,
                 ),
               ],
             ),

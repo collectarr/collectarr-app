@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -272,7 +273,7 @@ class _StatChip extends StatelessWidget {
         Text(value,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         Text(label,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            style: TextStyle(fontSize: 12, color: kAppTextSecondary)),
       ],
     );
   }

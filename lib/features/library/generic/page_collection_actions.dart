@@ -27,25 +27,61 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
   }
 
   Future<void> handleItemContextMenu(
+    LibraryProjection projection,
     LibraryProjectionItem item,
     Offset position,
   ) async {
-    _selectItem(item.entry.id);
+    final contextSelectionIds = contextMenuSelectionItemIds(
+      _selection.itemIds,
+      clickedId: item.entry.id,
+    );
+    final selectionChanged =
+        contextSelectionIds.length != _selection.itemIds.length ||
+        !contextSelectionIds.containsAll(_selection.itemIds);
+    if (selectionChanged ||
+        _selectedId != item.entry.id) {
+      _rebuild(() {
+        _selection = _selection.replace(contextSelectionIds);
+        _selectedId = item.entry.id;
+        if (_selectionAnchorId == null ||
+            !_selection.itemIds.contains(_selectionAnchorId)) {
+          _selectionAnchorId = item.entry.id;
+        }
+      });
+    }
+    final isBatchSelection = contextSelectionIds.length > 1;
     final result = await showLibraryItemContextMenu(
       context: context,
       position: position,
       entry: item.entry,
       accent: widget.accent,
+      selectedCount: contextSelectionIds.length,
     );
     if (result == null || !mounted) return;
     switch (result.action) {
       case LibraryItemContextAction.edit:
+        if (isBatchSelection) {
+          await bulkEditFlow(projection);
+          return;
+        }
         unawaited(showEditDialog(item, item.source.ownedItem));
       case LibraryItemContextAction.addToOwned:
+        if (isBatchSelection) {
+          await bulkMoveToOwnedFlow(projection);
+          return;
+        }
         await runCollectionAction((a) => a.addOwned(item));
       case LibraryItemContextAction.removeFromOwned:
+        if (isBatchSelection) {
+          await bulkRemoveFlow(projection);
+          return;
+        }
         await confirmAndRemoveOwned(item);
       case LibraryItemContextAction.addToWishlist:
+        if (isBatchSelection) {
+          await bulkMoveToWishlistFlow(projection);
+          return;
+        }
         await runCollectionAction((a) => a.addWishlist(item));
       case LibraryItemContextAction.removeFromWishlist:
         await runCollectionAction((a) => a.removeWishlist(item));

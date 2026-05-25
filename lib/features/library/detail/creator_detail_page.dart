@@ -3,7 +3,26 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CreatorDetailPage extends ConsumerStatefulWidget {
+final _creatorDetailProvider = FutureProvider.autoDispose
+    .family<_CreatorDetailData, String>((ref, creatorName) async {
+  final api = ref.watch(apiClientProvider);
+  final results = await api.searchCreators(
+    query: creatorName,
+    limit: 12,
+  );
+  if (results.isEmpty) {
+    throw StateError('No creator metadata found for $creatorName.');
+  }
+  final creator = _pickBestCreator(results, creatorName);
+  final credits = await api.getCreatorCredits(creator['id'].toString());
+  return _CreatorDetailData(
+    creator: creator,
+    credits: credits,
+    alternatives: results,
+  );
+});
+
+class CreatorDetailPage extends ConsumerWidget {
   const CreatorDetailPage({
     super.key,
     required this.creatorName,
@@ -12,56 +31,19 @@ class CreatorDetailPage extends ConsumerStatefulWidget {
   final String creatorName;
 
   @override
-  ConsumerState<CreatorDetailPage> createState() => _CreatorDetailPageState();
-}
-
-class _CreatorDetailPageState extends ConsumerState<CreatorDetailPage> {
-  late Future<_CreatorDetailData> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = _load();
-  }
-
-  Future<_CreatorDetailData> _load() async {
-    final api = ref.read(apiClientProvider);
-    final results = await api.searchCreators(
-      query: widget.creatorName,
-      limit: 12,
-    );
-    if (results.isEmpty) {
-      throw StateError('No creator metadata found for ${widget.creatorName}.');
-    }
-    final creator = _pickBestCreator(results, widget.creatorName);
-    final credits = await api.getCreatorCredits(creator['id'].toString());
-    return _CreatorDetailData(
-      creator: creator,
-      credits: credits,
-      alternatives: results,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detail = ref.watch(_creatorDetailProvider(creatorName));
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.creatorName),
+        title: Text(creatorName),
       ),
-      body: FutureBuilder<_CreatorDetailData>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _CreatorDetailError(
-              message: snapshot.error.toString(),
-              onRetry: () => setState(() => _future = _load()),
-            );
-          }
-          return _CreatorDetailBody(data: snapshot.data!);
-        },
+      body: detail.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => _CreatorDetailError(
+          message: error.toString(),
+          onRetry: () => ref.invalidate(_creatorDetailProvider(creatorName)),
+        ),
+        data: (data) => _CreatorDetailBody(data: data),
       ),
     );
   }

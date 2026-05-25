@@ -8,34 +8,14 @@ import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CollectionSchemaManagementPanel extends StatefulWidget {
-  const CollectionSchemaManagementPanel({
-    super.key,
-    required this.db,
-  });
-
-  final LocalDatabase db;
-
-  @override
-  State<CollectionSchemaManagementPanel> createState() =>
-      _CollectionSchemaManagementPanelState();
-}
-
-class _CollectionSchemaManagementPanelState
-    extends State<CollectionSchemaManagementPanel> {
-  Future<_CollectionSchemaSnapshot>? _snapshotFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _snapshotFuture = _loadSnapshot();
-  }
-
-  Future<_CollectionSchemaSnapshot> _loadSnapshot() async {
+final _collectionSchemaSnapshotProvider =
+    FutureProvider.autoDispose.family<_CollectionSchemaSnapshot, LocalDatabase>(
+  (ref, db) async {
     final results = await Future.wait<Object>([
-      LocationRepository(widget.db).getAll(),
-      CustomFieldRepository(widget.db).listDefinitions(),
+      LocationRepository(db).getAll(),
+      CustomFieldRepository(db).listDefinitions(),
     ]);
     final locations = results[0] as List<StorageLocation>;
     final definitions = results[1] as List<CustomFieldDefinition>;
@@ -64,58 +44,49 @@ class _CollectionSchemaManagementPanelState
       globalCustomFieldCount: globalCustomFieldCount,
       customFieldCountsByKind: customFieldCountsByKind,
     );
-  }
+  },
+);
 
-  Future<void> _refreshSnapshot() async {
-    final nextFuture = _loadSnapshot();
-    setState(() => _snapshotFuture = nextFuture);
-    await nextFuture;
-  }
+class CollectionSchemaManagementPanel extends ConsumerWidget {
+  const CollectionSchemaManagementPanel({
+    super.key,
+    required this.db,
+  });
 
-  Future<void> _openLocationManager() async {
+  final LocalDatabase db;
+
+  Future<void> _openLocationManager(BuildContext context, WidgetRef ref) async {
     await showLocationManagementDialog(
       context: context,
-      db: widget.db,
+      db: db,
     );
-    if (!mounted) {
-      return;
-    }
-    await _refreshSnapshot();
+    ref.invalidate(_collectionSchemaSnapshotProvider(db));
   }
 
-  Future<void> _createRootLocation() async {
+  Future<void> _createRootLocation(BuildContext context, WidgetRef ref) async {
     await showLocationManagementDialog(
       context: context,
-      db: widget.db,
+      db: db,
       startCreating: true,
     );
-    if (!mounted) {
-      return;
-    }
-    await _refreshSnapshot();
+    ref.invalidate(_collectionSchemaSnapshotProvider(db));
   }
 
-  Future<void> _openCustomFieldManager() async {
+  Future<void> _openCustomFieldManager(BuildContext context, WidgetRef ref) async {
     await showCustomFieldsManagementDialog(
       context: context,
-      db: widget.db,
+      db: db,
     );
-    if (!mounted) {
-      return;
-    }
-    await _refreshSnapshot();
+    ref.invalidate(_collectionSchemaSnapshotProvider(db));
   }
 
-  Future<void> _createCustomField() async {
+  Future<void> _createCustomField(BuildContext context, WidgetRef ref) async {
     await showCustomFieldsManagementDialog(
       context: context,
-      db: widget.db,
+      db: db,
       startCreating: true,
     );
-    if (!mounted) {
-      return;
-    }
-    await _refreshSnapshot();
+    ref.invalidate(_collectionSchemaSnapshotProvider(db));
   }
 
   List<String> _customFieldKindStats(_CollectionSchemaSnapshot? data) {
@@ -135,96 +106,92 @@ class _CollectionSchemaManagementPanelState
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<_CollectionSchemaSnapshot>(
-      future: _snapshotFuture,
-      builder: (context, snapshot) {
-        final data = snapshot.data;
-        final loading = snapshot.connectionState == ConnectionState.waiting;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Manage the reusable schema behind add defaults, inspector fields, bulk edit flows, and library-specific metadata capture.',
-            ),
-            const SizedBox(height: 12),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final cards = [
-                  Expanded(
-                    child: _CollectionSchemaCard(
-                      icon: Icons.place_outlined,
-                      title: 'Locations',
-                      description:
-                          'Create, rename, re-parent, and delete the shared hierarchy used for physical storage and default placement.',
-                      stats: [
-                        '${data?.locationCount ?? 0} total',
-                        '${data?.rootLocationCount ?? 0} roots',
-                      ],
-                      loading: loading,
-                      actions: [
-                        _CollectionSchemaAction(
-                          icon: Icons.add_circle_outline,
-                          label: 'New root location',
-                          onPressed: _createRootLocation,
-                        ),
-                        _CollectionSchemaAction(
-                          icon: Icons.open_in_new_outlined,
-                          label: 'Manage locations',
-                          onPressed: _openLocationManager,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: _CollectionSchemaCard(
-                      icon: Icons.tune_outlined,
-                      title: 'Custom fields',
-                      description:
-                          'Add, reorder, scope, and remove extra fields used in edit dialogs, inspectors, and exports.',
-                      stats: [
-                        '${data?.customFieldCount ?? 0} fields',
-                        '${data?.scopedCustomFieldCount ?? 0} scoped',
-                      ],
-                      loading: loading,
-                      footerStats: _customFieldKindStats(data),
-                      actions: [
-                        _CollectionSchemaAction(
-                          icon: Icons.add_circle_outline,
-                          label: 'New custom field',
-                          onPressed: _createCustomField,
-                        ),
-                        _CollectionSchemaAction(
-                          icon: Icons.open_in_new_outlined,
-                          label: 'Manage custom fields',
-                          onPressed: _openCustomFieldManager,
-                        ),
-                      ],
-                    ),
-                  ),
-                ];
-                if (constraints.maxWidth < 760) {
-                  return Column(
-                    children: [
-                      cards[0],
-                      const SizedBox(height: 12),
-                      cards[1],
-                    ],
-                  );
-                }
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    cards[0],
-                    const SizedBox(width: 12),
-                    cards[1],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final snapshot = ref.watch(_collectionSchemaSnapshotProvider(db));
+    final data = snapshot.value;
+    final loading = snapshot.isLoading;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Manage the reusable schema behind add defaults, inspector fields, bulk edit flows, and library-specific metadata capture.',
+        ),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final cards = [
+              Expanded(
+                child: _CollectionSchemaCard(
+                  icon: Icons.place_outlined,
+                  title: 'Locations',
+                  description:
+                      'Create, rename, re-parent, and delete the shared hierarchy used for physical storage and default placement.',
+                  stats: [
+                    '${data?.locationCount ?? 0} total',
+                    '${data?.rootLocationCount ?? 0} roots',
                   ],
-                );
-              },
-            ),
-          ],
-        );
-      },
+                  loading: loading,
+                  actions: [
+                    _CollectionSchemaAction(
+                      icon: Icons.add_circle_outline,
+                      label: 'New root location',
+                      onPressed: () => _createRootLocation(context, ref),
+                    ),
+                    _CollectionSchemaAction(
+                      icon: Icons.open_in_new_outlined,
+                      label: 'Manage locations',
+                      onPressed: () => _openLocationManager(context, ref),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: _CollectionSchemaCard(
+                  icon: Icons.tune_outlined,
+                  title: 'Custom fields',
+                  description:
+                      'Add, reorder, scope, and remove extra fields used in edit dialogs, inspectors, and exports.',
+                  stats: [
+                    '${data?.customFieldCount ?? 0} fields',
+                    '${data?.scopedCustomFieldCount ?? 0} scoped',
+                  ],
+                  loading: loading,
+                  footerStats: _customFieldKindStats(data),
+                  actions: [
+                    _CollectionSchemaAction(
+                      icon: Icons.add_circle_outline,
+                      label: 'New custom field',
+                      onPressed: () => _createCustomField(context, ref),
+                    ),
+                    _CollectionSchemaAction(
+                      icon: Icons.open_in_new_outlined,
+                      label: 'Manage custom fields',
+                      onPressed: () => _openCustomFieldManager(context, ref),
+                    ),
+                  ],
+                ),
+              ),
+            ];
+            if (constraints.maxWidth < 760) {
+              return Column(
+                children: [
+                  cards[0],
+                  const SizedBox(height: 12),
+                  cards[1],
+                ],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                cards[0],
+                const SizedBox(width: 12),
+                cards[1],
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }

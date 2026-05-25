@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryEditDialogScaffold extends StatelessWidget {
@@ -131,7 +132,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF343434), Color(0xFF161616)],
+          colors: [kAppSurface, kAppSurfaceDim],
         ),
         border: Border(bottom: BorderSide(color: accent)),
       ),

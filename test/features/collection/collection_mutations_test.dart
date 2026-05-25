@@ -383,6 +383,59 @@ void main() {
     expect(queued.where((row) => row.entityType == 'wishlist_item'), hasLength(1));
   });
 
+  test('wishlist allows multiple release anchors for the same item', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final mutations = container.read(collectionMutationsProvider);
+    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+
+    final rows = await db.select(db.wishlistItemsCache).get();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(rows.where((row) => row.deletedAt == null), hasLength(2));
+    expect(
+      rows
+          .where((row) => row.deletedAt == null)
+          .map((row) => row.editionId)
+          .toSet(),
+      {'edition-4k', 'edition-bluray'},
+    );
+    expect(queued.where((row) => row.entityType == 'wishlist_item'), hasLength(2));
+  });
+
+  test('wishlist removal can target a single release anchor', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final mutations = container.read(collectionMutationsProvider);
+    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+
+    await mutations.removeFromWishlist(
+      'movie-1',
+      editionId: 'edition-4k',
+    );
+
+    final rows = await db.select(db.wishlistItemsCache).get();
+    final activeRows = rows.where((row) => row.deletedAt == null).toList();
+    final deletedRows = rows.where((row) => row.deletedAt != null).toList();
+
+    expect(activeRows, hasLength(1));
+    expect(activeRows.single.editionId, 'edition-bluray');
+    expect(deletedRows, hasLength(1));
+    expect(deletedRows.single.editionId, 'edition-4k');
+  });
+
   test('collection import enqueues rows and refreshes pending count once',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());

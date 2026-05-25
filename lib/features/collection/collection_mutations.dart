@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -120,8 +121,14 @@ class CollectionMutations {
     await _enqueueCatalogSnapshotForItemId(itemId, now);
     // Download cover image bytes in the background.
     unawaited(_downloadCoverForOwnedItem(ownedItem.id, itemId));
-    final wishlistItem = await _wishlistCache().findActiveByItemId(itemId);
-    if (wishlistItem != null) {
+    final wishlistItems = await _wishlistItemsForMutation(
+      itemId,
+      anchorType: normalizedAnchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    for (final wishlistItem in wishlistItems) {
       await _wishlistCache().markDeleted(wishlistItem, now);
       await _enqueueWishlistItem(
         wishlistItem.copyWith(updatedAt: now, deletedAt: now),
@@ -130,7 +137,7 @@ class CollectionMutations {
       );
     }
     if (notify) {
-      await _notifyCollectionChanged(wishlistChanged: wishlistItem != null);
+      await _notifyCollectionChanged(wishlistChanged: wishlistItems.isNotEmpty);
     }
     return ownedItem;
   }
@@ -436,7 +443,13 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
-    final existing = await _wishlistCache().findActiveByItemId(itemId);
+    final existing = await _wishlistCache().findActiveByItemAnchor(
+      itemId,
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
     if (existing == null) {
       final normalizedAnchorType = _normalizedPersonalAnchorType(
         anchorType,
@@ -473,7 +486,13 @@ class CollectionMutations {
   }) async {
     final now = DateTime.now().toUtc();
     await _catalogCache().upsertAll([item]);
-    final existing = await _wishlistCache().findActiveByItemId(item.id);
+    final existing = await _wishlistCache().findActiveByItemAnchor(
+      item.id,
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
     if (existing == null) {
       final normalizedAnchorType = _normalizedPersonalAnchorType(
         anchorType,
@@ -515,7 +534,7 @@ class CollectionMutations {
 
     final targetTrackingEntries =
         await _trackingCache().findActiveByItemIds([item.id]);
-    final targetWishlistItem = await _wishlistCache().findActiveByItemId(item.id);
+    final targetWishlistItems = await _wishlistCache().findActiveByItemIds([item.id]);
     final trackingUpserts = <TrackingEntry>[];
     final trackingDeletes = <TrackingEntry>[];
     final wishlistUpserts = <WishlistItem>[];
@@ -555,6 +574,10 @@ class CollectionMutations {
     }
 
     for (final localWishlist in localWishlistItems) {
+      final targetWishlistItem = _findMatchingWishlistItem(
+        targetWishlistItems,
+        localWishlist,
+      );
       if (targetWishlistItem != null) {
         final merged = _mergeWishlistItemForPromotion(
           targetWishlistItem,
@@ -635,13 +658,28 @@ class CollectionMutations {
     return updated;
   }
 
-  Future<void> removeFromWishlist(String itemId, {bool notify = true}) async {
+  Future<void> removeFromWishlist(
+    String itemId, {
+    String? wishlistItemId,
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    bool notify = true,
+  }) async {
     final now = DateTime.now().toUtc();
-    final existing = await _wishlistCache().findActiveByItemId(itemId);
-    if (existing != null) {
-      await _wishlistCache().markDeleted(existing, now);
+    final existing = await _wishlistItemsForMutation(
+      itemId,
+      wishlistItemId: wishlistItemId,
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    for (final item in existing) {
+      await _wishlistCache().markDeleted(item, now);
       await _enqueueWishlistItem(
-        existing.copyWith(updatedAt: now, deletedAt: now),
+        item.copyWith(updatedAt: now, deletedAt: now),
         'delete',
         now,
       );
@@ -651,12 +689,36 @@ class CollectionMutations {
     }
   }
 
-  Future<void> toggleWishlist(String itemId) async {
-    final existing = await _wishlistCache().findActiveByItemId(itemId);
+  Future<void> toggleWishlist(
+    String itemId, {
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) async {
+    final existing = await _wishlistCache().findActiveByItemAnchor(
+      itemId,
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
     if (existing == null) {
-      await addToWishlist(itemId);
+      await addToWishlist(
+        itemId,
+        anchorType: anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      );
     } else {
-      await removeFromWishlist(itemId);
+      await removeFromWishlist(
+        itemId,
+        anchorType: anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      );
     }
   }
 
@@ -1183,8 +1245,14 @@ class CollectionMutations {
           return;
         }
       }
-    } catch (_) {
-      // Best-effort — never propagate errors from background image download.
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'collection',
+        message:
+            'Best-effort background cover download failed for owned item $ownedItemId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
     } finally {
       _pendingCoverDownloads.remove(ownedItemId);
     }
@@ -1414,6 +1482,96 @@ class CollectionMutations {
       updatedAt: changedAt,
       deletedAt: null,
     );
+  }
+
+  WishlistItem? _findMatchingWishlistItem(
+    Iterable<WishlistItem> items,
+    WishlistItem candidate,
+  ) {
+    for (final item in items) {
+      if (_wishlistAnchorsMatch(
+        item,
+        anchorType: candidate.anchorType,
+        editionId: candidate.editionId,
+        variantId: candidate.variantId,
+        bundleReleaseId: candidate.bundleReleaseId,
+      )) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  Future<List<WishlistItem>> _wishlistItemsForMutation(
+    String itemId, {
+    String? wishlistItemId,
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) async {
+    if (wishlistItemId != null && wishlistItemId.trim().isNotEmpty) {
+      final item = await _wishlistCache().findById(wishlistItemId);
+      if (item == null || item.isDeleted || item.itemId != itemId) {
+        return const <WishlistItem>[];
+      }
+      return [item];
+    }
+    final hasAnchor = _wishlistAnchorsRequested(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    if (hasAnchor) {
+      final item = await _wishlistCache().findActiveByItemAnchor(
+        itemId,
+        anchorType: anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      );
+      return item == null ? const <WishlistItem>[] : [item];
+    }
+    return _wishlistCache().listActiveByItemId(itemId);
+  }
+
+  bool _wishlistAnchorsRequested({
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) {
+    return PersonalItemAnchor.fromRaw(
+          anchorType: anchorType,
+          editionId: editionId,
+          variantId: variantId,
+          bundleReleaseId: bundleReleaseId,
+        ) !=
+        null;
+  }
+
+  bool _wishlistAnchorsMatch(
+    WishlistItem item, {
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) {
+    final itemAnchor = item.anchor;
+    final candidateAnchor = PersonalItemAnchor.fromRaw(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    if (itemAnchor == null || candidateAnchor == null) {
+      return itemAnchor == null && candidateAnchor == null;
+    }
+    return itemAnchor.apiValue == candidateAnchor.apiValue &&
+        itemAnchor.editionId == candidateAnchor.editionId &&
+        itemAnchor.variantId == candidateAnchor.variantId &&
+        itemAnchor.bundleReleaseId == candidateAnchor.bundleReleaseId;
   }
 }
 

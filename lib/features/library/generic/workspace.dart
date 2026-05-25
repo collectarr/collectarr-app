@@ -6,11 +6,12 @@ import 'package:collectarr_app/features/library/generic/empty_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
+import 'package:collectarr_app/features/library/workspace/library_flow_carousel.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
-import 'package:collectarr_app/features/library/workspace/library_card_flow_tile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -18,6 +19,7 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_grid
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 typedef LibraryItemContextMenuCallback = void Function(
   LibraryProjectionItem item,
@@ -32,6 +34,7 @@ class LibraryWorkspace extends StatelessWidget {
     required this.items,
     required this.viewState,
     required this.selectedId,
+    required this.selectedAnchorId,
     required this.selectionEnabled,
     required this.selectedIds,
     required this.groupMode,
@@ -40,7 +43,10 @@ class LibraryWorkspace extends StatelessWidget {
     required this.hasActiveFilter,
     required this.onAdd,
     required this.onClearFilters,
-    required this.onSelectItem,
+    required this.onApplySelection,
+    required this.onActivateItem,
+    required this.onToggleSelectionItem,
+    required this.onOpenItem,
     this.onBoxSelectionChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
@@ -53,6 +59,7 @@ class LibraryWorkspace extends StatelessWidget {
   final List<LibraryProjectionItem> items;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
+  final String? selectedAnchorId;
   final bool selectionEnabled;
   final Set<String> selectedIds;
   final LibraryGroupMode groupMode;
@@ -61,7 +68,10 @@ class LibraryWorkspace extends StatelessWidget {
   final bool hasActiveFilter;
   final VoidCallback onAdd;
   final VoidCallback onClearFilters;
-  final ValueChanged<String> onSelectItem;
+  final void Function(Set<String> ids, String focusedId) onApplySelection;
+  final ValueChanged<String> onActivateItem;
+  final ValueChanged<String> onToggleSelectionItem;
+  final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
@@ -72,6 +82,7 @@ class LibraryWorkspace extends StatelessWidget {
   final LibraryItemContextMenuCallback? onItemContextMenu;
 
   bool get _showGrouped =>
+      viewState.viewMode != LibraryViewMode.cardFlow &&
       selectedBucket == null &&
       groupMode != LibraryGroupMode.title &&
       groupMode != LibraryGroupMode.ownership;
@@ -85,10 +96,30 @@ class LibraryWorkspace extends StatelessWidget {
 
   VoidCallback _selectionTap(LibraryProjectionItem item) {
     return () {
+      final isRangeSelection = isLibraryRangeModifierPressed();
+      final isToggleSelection = isLibraryToggleModifierPressed();
+      if (isRangeSelection) {
+        final anchorId = selectedAnchorId ?? selectedId ?? item.entry.id;
+        final orderedIds = [for (final candidate in items) candidate.entry.id];
+        final rangeIds = selectionRangeItemIds(
+          orderedIds,
+          anchorId: anchorId,
+          targetId: item.entry.id,
+        );
+        onApplySelection(
+          isToggleSelection ? {...selectedIds, ...rangeIds} : rangeIds,
+          item.entry.id,
+        );
+        return;
+      }
+      if (isToggleSelection) {
+        onToggleSelectionItem(item.entry.id);
+        return;
+      }
       if (_isSelected(item)) {
         return;
       }
-      onSelectItem(item.entry.id);
+      onActivateItem(item.entry.id);
     };
   }
 
@@ -112,6 +143,7 @@ class LibraryWorkspace extends StatelessWidget {
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
+              onDoubleTap: () => onOpenItem(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -138,6 +170,7 @@ class LibraryWorkspace extends StatelessWidget {
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
+              onDoubleTap: () => onOpenItem(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -159,20 +192,7 @@ class LibraryWorkspace extends StatelessWidget {
             maxCrossAxisExtent: 560,
             mainAxisExtent: 204,
           onSelectionChanged: onBoxSelectionChanged,
-            itemBuilder: (context, item) => LibraryCardFlowTile(
-              key: ValueKey(item.entry.id),
-              entry: item.entry,
-              selected: _isSelected(item),
-              onTap: _selectionTap(item),
-              onSecondaryTapUp: onItemContextMenu == null
-                  ? null
-                  : (d) => onItemContextMenu!(item, d.globalPosition),
-              dateFormatter: formatDate,
-              moneyFormatter: formatMoney,
-              selectedColor: kAppSelection,
-              accentColor: accent,
-              mutedTextColor: kAppTextMuted,
-            ),
+            itemBuilder: (context, item) => const SizedBox.shrink(),
           ),
         LibraryViewMode.list => _buildTable(),
       };
@@ -193,6 +213,7 @@ class LibraryWorkspace extends StatelessWidget {
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
+            onDoubleTap: () => onOpenItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -218,6 +239,7 @@ class LibraryWorkspace extends StatelessWidget {
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
+            onDoubleTap: () => onOpenItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -228,30 +250,18 @@ class LibraryWorkspace extends StatelessWidget {
             mutedTextColor: kAppTextMuted,
           ),
         ),
-      LibraryViewMode.cardFlow => LibraryWorkspaceGrid<LibraryProjectionItem>(
+        LibraryViewMode.cardFlow => LibraryFlowCarousel(
           items: items,
-          emptyBuilder: _emptyBuilder,
-          maxCrossAxisExtent: 560,
-          mainAxisExtent: 204,
-          selectionEnabled: selectionEnabled,
+          selectedId: selectedId,
+          selectedAnchorId: selectedAnchorId,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.entry.id,
-          onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: kAppGridCanvas,
-          itemBuilder: (context, item) => LibraryCardFlowTile(
-            key: ValueKey(item.entry.id),
-            entry: item.entry,
-            selected: _isSelected(item),
-            onTap: _selectionTap(item),
-            onSecondaryTapUp: onItemContextMenu == null
-                ? null
-                : (d) => onItemContextMenu!(item, d.globalPosition),
-            dateFormatter: formatDate,
-            moneyFormatter: formatMoney,
-            selectedColor: kAppSelection,
-            accentColor: accent,
-            mutedTextColor: kAppTextMuted,
-          ),
+          accent: accent,
+          emptyBuilder: _emptyBuilder,
+          onApplySelection: onApplySelection,
+          onActivateItem: onActivateItem,
+          onToggleSelectionItem: onToggleSelectionItem,
+          onOpenItem: onOpenItem,
+          onItemContextMenu: onItemContextMenu,
         ),
       LibraryViewMode.list => _buildTable(),
     };
@@ -281,48 +291,45 @@ class LibraryWorkspace extends StatelessWidget {
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
         return ColoredBox(
           color: kAppCanvas,
-          child: Scrollbar(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: contentWidth,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: LibraryWorkspaceTable<LibraryProjectionItem>(
-                    entries: items,
-                    columns:
-                        adapter.orderedTableColumns(viewState.visibleColumns),
-                    sortColumn: viewState.sortColumn,
-                    sortAscending: viewState.sortAscending,
-                    sortRules: viewState.sortRules,
-                    columnWidthFor: (column) => adapter.tableColumnWidth(
-                      column,
-                      viewState.columnWidths,
-                    ),
-                    defaultColumnWidthFor: adapter.defaultTableColumnWidth,
-                    columnSortFor: adapter.columnSort,
-                    columnLabelFor: adapter.columnLabel,
-                    columnIsNumeric: adapter.columnIsNumeric,
-                    cellBuilder: _tableCell,
-                    isSelected: _isSelected,
-                    onEntryTap: (item) => _selectionTap(item)(),
-                    onEntrySecondaryTapUp: onItemContextMenu == null
-                        ? null
-                        : (item, details) =>
-                            onItemContextMenu!(item, details.globalPosition),
-                    onSortChanged: onSortChanged,
-                    onColumnWidthChanged: onColumnWidthChanged,
-                    onColumnReordered: onColumnReordered,
-                    headerColor: const Color(0xFF303030),
-                    dividerColor: kAppDivider,
-                    selectedColor: kAppSelection,
-                    oddColor: kAppTableOddRow,
-                    evenColor: kAppTableEvenRow,
-                    selectionRailColor: kAppHighlight,
-                    bottomBorderColor: kAppTableBottomBorder,
-                    hoverColor: kAppTableHover,
-                    accentColor: accent,
+          child: _LibraryHorizontalScrollbar(
+            child: SizedBox(
+              width: contentWidth,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: LibraryWorkspaceTable<LibraryProjectionItem>(
+                  entries: items,
+                  columns:
+                      adapter.orderedTableColumns(viewState.visibleColumns),
+                  sortColumn: viewState.sortColumn,
+                  sortAscending: viewState.sortAscending,
+                  sortRules: viewState.sortRules,
+                  columnWidthFor: (column) => adapter.tableColumnWidth(
+                    column,
+                    viewState.columnWidths,
                   ),
+                  defaultColumnWidthFor: adapter.defaultTableColumnWidth,
+                  columnSortFor: adapter.columnSort,
+                  columnLabelFor: adapter.columnLabel,
+                  columnIsNumeric: adapter.columnIsNumeric,
+                  cellBuilder: _tableCell,
+                  isSelected: _isSelected,
+                  onEntryTap: (item) => _selectionTap(item)(),
+                  onEntrySecondaryTapUp: onItemContextMenu == null
+                      ? null
+                      : (item, details) =>
+                          onItemContextMenu!(item, details.globalPosition),
+                  onSortChanged: onSortChanged,
+                  onColumnWidthChanged: onColumnWidthChanged,
+                  onColumnReordered: onColumnReordered,
+                  headerColor: kAppSurface,
+                  dividerColor: kAppDivider,
+                  selectedColor: kAppSelection,
+                  oddColor: kAppTableOddRow,
+                  evenColor: kAppTableEvenRow,
+                  selectionRailColor: kAppHighlight,
+                  bottomBorderColor: kAppTableBottomBorder,
+                  hoverColor: kAppTableHover,
+                  accentColor: accent,
                 ),
               ),
             ),
@@ -350,14 +357,14 @@ class LibraryWorkspace extends StatelessWidget {
           width: 28,
           height: 36,
           child: LibraryCoverImage(
-            title: entry.title,
+            title: entry.resolvedTitle,
             itemNumber: entry.itemNumber,
             imageUrl: entry.displayCoverUrl,
             ownedItemId: entry.ownedItemId,
           ),
         ),
       LibraryTableColumn.title => Text(
-          entry.title,
+          entry.resolvedTitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
@@ -396,6 +403,40 @@ class LibraryWorkspace extends StatelessWidget {
       LibraryTableColumn.imprint =>
         LibraryTableCellText(entry.publishing?.imprint),
     };
+  }
+}
+
+class _LibraryHorizontalScrollbar extends StatefulWidget {
+  const _LibraryHorizontalScrollbar({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_LibraryHorizontalScrollbar> createState() =>
+      _LibraryHorizontalScrollbarState();
+}
+
+class _LibraryHorizontalScrollbarState
+    extends State<_LibraryHorizontalScrollbar> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scrollbar(
+      controller: _scrollController,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        primary: false,
+        scrollDirection: Axis.horizontal,
+        child: widget.child,
+      ),
+    );
   }
 }
 
@@ -529,7 +570,7 @@ class _GroupedGridState extends State<_GroupedGrid> {
   }
 
   Widget _buildGrid(List<LibraryProjectionItem> items) {
-    if (widget.selectionEnabled && widget.onSelectionChanged != null) {
+    if (widget.onSelectionChanged != null) {
       return SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -539,7 +580,7 @@ class _GroupedGridState extends State<_GroupedGrid> {
             emptyBuilder: (_) => const SizedBox.shrink(),
             maxCrossAxisExtent: widget.maxCrossAxisExtent,
             mainAxisExtent: widget.mainAxisExtent,
-            selectionEnabled: true,
+            selectionEnabled: widget.selectionEnabled,
             selectedIds: widget.selectedIds,
             itemIdOf: (item) => item.entry.id,
             onSelectionChanged: widget.onSelectionChanged,
@@ -595,6 +636,15 @@ class _GroupedGridState extends State<_GroupedGrid> {
     final match = RegExp(r'(\d+)').firstMatch(key);
     return match == null ? null : int.tryParse(match.group(1)!);
   }
+}
+
+bool isLibraryRangeModifierPressed() {
+  return HardwareKeyboard.instance.isShiftPressed;
+}
+
+bool isLibraryToggleModifierPressed() {
+  final keyboard = HardwareKeyboard.instance;
+  return keyboard.isControlPressed || keyboard.isMetaPressed;
 }
 
 class _GroupHeader extends StatelessWidget {

@@ -23,27 +23,29 @@ class LibraryHomePage extends ConsumerStatefulWidget {
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   @override
   Widget build(BuildContext context) {
-    final catalog = ref.watch(mediaCatalogProvider).maybeWhen(
+    final catalogState = ref.watch(mediaCatalogProvider);
+    final catalog = catalogState.maybeWhen(
           data: (value) => value,
           orElse: () => fallbackMediaCatalog,
         );
+    final isCatalogOffline = catalogState.hasError;
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final selectedKind = ref.watch(selectedLibraryKindProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final animationDuration = uiPreferences.animationsEnabled
-        ? const Duration(milliseconds: 320)
+        ? kAppAnimNormal
         : Duration.zero;
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
     final visibleTypes = visibleLibraryHomeTypes(allTypes, navPreferences);
     final selected = selectedLibraryHomeType(visibleTypes, selectedKind);
-    final shelf = ref.watch(shelfProvider);
-    final counts = shelf.maybeWhen(
+    final counts = ref.watch(shelfProvider.select((shelf) => shelf.maybeWhen(
       data: libraryCountsByKind,
       orElse: () => const <String, LibraryKindCount>{},
-    );
+    )));
     final overdueLoanOwnedItemIds = ref.watch(overdueLoanOwnedItemIdsProvider)
         .maybeWhen(data: (value) => value, orElse: () => const <String>{});
-    final overdueCounts = shelf.maybeWhen(
+    final shelfForOverdue = ref.watch(shelfProvider);
+    final overdueCounts = shelfForOverdue.maybeWhen(
       data: (value) => overdueLoanCountsByKind(value, overdueLoanOwnedItemIds),
       orElse: () => const <String, int>{},
     );
@@ -60,7 +62,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       selectedKind: selected.kind,
       animationDuration: animationDuration,
       onSelected: (type) =>
-          ref.read(selectedLibraryKindProvider.notifier).state = type.kind,
+          ref.read(selectedLibraryKindProvider.notifier).select(type.kind),
     );
     final titleBar = MediaLibraryTitleBar(
       type: selected,
@@ -71,12 +73,38 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       animationDuration: animationDuration,
     );
     final selectedConfig = libraryConfigForCatalogType(selected, registry);
-    final content = LibraryPage(
+    final offlineBanner = isCatalogOffline
+        ? Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            color: kAppSurfaceSubtle,
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off, size: 14, color: kAppTextSecondary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Using offline catalog — server unreachable',
+                    style: TextStyle(fontSize: 12, color: kAppTextSecondary),
+                  ),
+                ),
+              ],
+            ),
+          )
+        : null;
+    final content = Column(
+      children: [
+        if (offlineBanner != null) offlineBanner,
+        Expanded(
+          child: LibraryPage(
       type: selectedConfig,
       topBar: navPreferences.placement == LibraryNavPlacement.top
           ? topBar
           : titleBar,
       accent: libraryAccentForKind(selected.kind),
+    ),
+        ),
+      ],
     );
 
     if (navPreferences.placement == LibraryNavPlacement.left) {
@@ -91,7 +119,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
               selectedKind: selected.kind,
               onSelected: (type) => ref
                   .read(selectedLibraryKindProvider.notifier)
-                  .state = type.kind,
+                  .select(type.kind),
             ),
             Expanded(child: content),
           ],

@@ -341,9 +341,9 @@ class _MusicAddPreviewPane extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF020202),
+            kAppCanvas,
             Color.alphaBlend(accent.withValues(alpha: 0.18), kAppCanvas),
-            const Color(0xFF060606),
+            kAppCanvas,
           ],
         ),
       ),

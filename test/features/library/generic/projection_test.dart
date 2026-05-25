@@ -3,8 +3,27 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+LibraryProjectionItem _projectionItem({
+  required ShelfEntry source,
+  required LibraryWorkspaceEntry entry,
+}) {
+  return LibraryProjectionItem(
+    source: source,
+    entry: entry,
+    node: LibraryBrowserNode(
+      id: entry.id,
+      scope: LibraryBrowserScope.title,
+      titleItemId: entry.id,
+      entry: entry,
+    ),
+  );
+}
 
 void main() {
   test('music grouping labels use artist and label terminology', () {
@@ -30,7 +49,7 @@ void main() {
   });
 
   test('music grouping fallbacks use unknown artist and label buckets', () {
-    final item = LibraryProjectionItem(
+    final item = _projectionItem(
       source: const ShelfEntry(itemId: 'music-1'),
       entry: LibraryWorkspaceEntry(
         id: 'music-1',
@@ -63,7 +82,7 @@ void main() {
   });
 
   test('location grouping uses structured location path when available', () {
-    final item = LibraryProjectionItem(
+    final item = _projectionItem(
       source: const ShelfEntry(itemId: 'comic-1'),
       entry: LibraryWorkspaceEntry(
         id: 'comic-1',
@@ -131,7 +150,7 @@ void main() {
 
   test('series buckets include owned completion percentages', () {
     final items = [
-      LibraryProjectionItem(
+      _projectionItem(
         source: const ShelfEntry(itemId: 'comic-1'),
         entry: LibraryWorkspaceEntry(
           id: 'comic-1',
@@ -142,7 +161,7 @@ void main() {
           updatedAt: DateTime(2026, 1, 1),
         ),
       ),
-      LibraryProjectionItem(
+      _projectionItem(
         source: const ShelfEntry(itemId: 'comic-2'),
         entry: LibraryWorkspaceEntry(
           id: 'comic-2',
@@ -152,7 +171,7 @@ void main() {
           updatedAt: DateTime(2026, 1, 2),
         ),
       ),
-      LibraryProjectionItem(
+      _projectionItem(
         source: const ShelfEntry(itemId: 'comic-3'),
         entry: LibraryWorkspaceEntry(
           id: 'comic-3',

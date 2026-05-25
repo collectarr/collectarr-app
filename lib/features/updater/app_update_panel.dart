@@ -50,7 +50,7 @@ class _VersionRow extends StatelessWidget {
               fontSize: 14,
               color: update.status == UpdateStatus.updateAvailable
                   ? Colors.amber
-                  : Colors.grey,
+                  : kAppTextSecondary,
             ),
           ),
         ],

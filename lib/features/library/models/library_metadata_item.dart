@@ -6,6 +6,10 @@ class LibraryMetadataItem {
         String? kind,
         CatalogMediaKind? mediaKind,
     required this.title,
+    this.displayTitle,
+    this.localizedTitle,
+    this.originalTitle,
+    this.searchAliases,
         this.sortKey,
     this.itemNumber,
     this.synopsis,
@@ -40,6 +44,10 @@ class LibraryMetadataItem {
   final String id;
     final CatalogMediaKind mediaKind;
   final String title;
+    final String? displayTitle;
+    final String? localizedTitle;
+    final String? originalTitle;
+    final List<String>? searchAliases;
     final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
@@ -75,6 +83,10 @@ class LibraryMetadataItem {
       id: item.id,
             mediaKind: item.mediaKind,
       title: item.title,
+    displayTitle: item.displayTitle,
+    localizedTitle: item.localizedTitle,
+    originalTitle: item.originalTitle,
+    searchAliases: item.searchAliases,
     sortKey: item.sortKey,
       itemNumber: item.itemNumber,
       synopsis: item.synopsis,
@@ -110,6 +122,10 @@ class LibraryMetadataItem {
     String? kind,
         CatalogMediaKind? mediaKind,
     String? title,
+    Object? displayTitle = _unset,
+    Object? localizedTitle = _unset,
+    Object? originalTitle = _unset,
+    Object? searchAliases = _unset,
     Object? sortKey = _unset,
     Object? itemNumber = _unset,
     Object? synopsis = _unset,
@@ -143,6 +159,18 @@ class LibraryMetadataItem {
         mediaKind: mediaKind ??
             (kind != null ? catalogMediaKindFromApiValue(kind) : this.mediaKind),
       title: title ?? this.title,
+      displayTitle: identical(displayTitle, _unset)
+          ? this.displayTitle
+          : displayTitle as String?,
+      localizedTitle: identical(localizedTitle, _unset)
+          ? this.localizedTitle
+          : localizedTitle as String?,
+      originalTitle: identical(originalTitle, _unset)
+          ? this.originalTitle
+          : originalTitle as String?,
+      searchAliases: identical(searchAliases, _unset)
+          ? this.searchAliases
+          : searchAliases as List<String>?,
       sortKey: identical(sortKey, _unset) ? this.sortKey : sortKey as String?,
       itemNumber: identical(itemNumber, _unset)
           ? this.itemNumber
@@ -231,6 +259,10 @@ class LibraryMetadataItem {
       id: id,
             mediaKind: mediaKind,
       title: title,
+    displayTitle: displayTitle,
+    localizedTitle: localizedTitle,
+    originalTitle: originalTitle,
+    searchAliases: searchAliases,
     sortKey: sortKey,
       itemNumber: itemNumber,
       synopsis: synopsis,

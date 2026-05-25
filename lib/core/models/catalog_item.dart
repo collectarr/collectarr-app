@@ -336,6 +336,10 @@ sealed class CatalogItem {
     required this.id,
     required this.mediaKind,
     required this.title,
+    this.displayTitle,
+    this.localizedTitle,
+    this.originalTitle,
+    this.searchAliases,
     this.sortKey,
     this.itemNumber,
     this.synopsis,
@@ -366,6 +370,10 @@ sealed class CatalogItem {
     String? kind,
     CatalogMediaKind? mediaKind,
     required String title,
+    String? displayTitle,
+    String? localizedTitle,
+    String? originalTitle,
+    List<String>? searchAliases,
     String? sortKey,
     String? itemNumber,
     String? synopsis,
@@ -400,6 +408,10 @@ sealed class CatalogItem {
       id: id,
       mediaKind: resolvedMediaKind,
       title: title,
+      displayTitle: displayTitle,
+      localizedTitle: localizedTitle,
+      originalTitle: originalTitle,
+      searchAliases: _normalizeStringList(searchAliases),
       sortKey: sortKey,
       itemNumber: itemNumber,
       synopsis: synopsis,
@@ -549,6 +561,12 @@ sealed class CatalogItem {
       id: json['id'] as String,
       kind: json['kind'] as String,
       title: json['title'] as String,
+      displayTitle: json['display_title'] as String?,
+      localizedTitle: json['localized_title'] as String?,
+      originalTitle: json['original_title'] as String?,
+      searchAliases: (json['search_aliases'] as List<dynamic>?)
+          ?.whereType<String>()
+          .toList(growable: false),
       sortKey: json['sort_key'] as String?,
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
@@ -591,6 +609,10 @@ sealed class CatalogItem {
   final String id;
   final CatalogMediaKind mediaKind;
   final String title;
+  final String? displayTitle;
+  final String? localizedTitle;
+  final String? originalTitle;
+  final List<String>? searchAliases;
   final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
@@ -617,6 +639,26 @@ sealed class CatalogItem {
 
   String get kind => mediaKind.apiValue;
 
+  String get resolvedDisplayTitle {
+    final display = displayTitle?.trim();
+    if (display != null && display.isNotEmpty) {
+      return display;
+    }
+    final localized = localizedTitle?.trim();
+    if (localized != null && localized.isNotEmpty) {
+      return localized;
+    }
+    final raw = title.trim();
+    if (raw.isNotEmpty) {
+      return raw;
+    }
+    final original = originalTitle?.trim();
+    if (original != null && original.isNotEmpty) {
+      return original;
+    }
+    return title;
+  }
+
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
   String? get displayEditionLabel =>
       physicalFormatLabel ?? variant ?? editionTitle;
@@ -639,6 +681,10 @@ sealed class CatalogItem {
       'snapshot_version': 1,
       'kind': kind,
       'title': title,
+      'display_title': displayTitle,
+      'localized_title': localizedTitle,
+      'original_title': originalTitle,
+      'search_aliases': searchAliases,
       'sort_key': sortKey,
       'item_number': itemNumber,
       'synopsis': synopsis,
@@ -697,6 +743,10 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           id: common.id,
       mediaKind: common.mediaKind,
           title: common.title,
+        displayTitle: common.displayTitle,
+        localizedTitle: common.localizedTitle,
+        originalTitle: common.originalTitle,
+        searchAliases: common.searchAliases,
           sortKey: common.sortKey,
           itemNumber: common.itemNumber,
           synopsis: common.synopsis,
@@ -887,6 +937,10 @@ class _CatalogItemCommon {
     required this.id,
     required this.mediaKind,
     required this.title,
+    this.displayTitle,
+    this.localizedTitle,
+    this.originalTitle,
+    this.searchAliases,
     this.sortKey,
     this.itemNumber,
     this.synopsis,
@@ -915,6 +969,10 @@ class _CatalogItemCommon {
   final String id;
   final CatalogMediaKind mediaKind;
   final String title;
+  final String? displayTitle;
+  final String? localizedTitle;
+  final String? originalTitle;
+  final List<String>? searchAliases;
   final String? sortKey;
   final String? itemNumber;
   final String? synopsis;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Severity levels for app log entries.
@@ -27,6 +29,8 @@ class AppLogEntry {
 /// In-memory ring-buffer log that keeps the most recent entries.
 class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   static const _maxEntries = 200;
+  final _pendingEntries = <AppLogEntry>[];
+  var _flushScheduled = false;
 
   @override
   List<AppLogEntry> build() => const [];
@@ -44,12 +48,11 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
       message: message,
       detail: detail,
     );
-    final next = [...state, entry];
-    if (next.length > _maxEntries) {
-      state = next.sublist(next.length - _maxEntries);
-    } else {
-      state = next;
+    if (_tryAppendEntries([entry])) {
+      return;
     }
+    _pendingEntries.add(entry);
+    _scheduleFlush();
   }
 
   void info(String source, String message, {String? detail}) =>
@@ -61,7 +64,53 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   void error(String source, String message, {String? detail}) =>
       log(AppLogLevel.error, source, message, detail: detail);
 
-  void clear() => state = const [];
+  void clear() {
+    _pendingEntries.clear();
+    state = const [];
+  }
+
+  bool _tryAppendEntries(List<AppLogEntry> entries) {
+    try {
+      _appendEntries(entries);
+      return true;
+    } on AssertionError {
+      return false;
+    }
+  }
+
+  void _appendEntries(List<AppLogEntry> entries) {
+    final next = [...state, ...entries];
+    if (next.length > _maxEntries) {
+      state = next.sublist(next.length - _maxEntries);
+    } else {
+      state = next;
+    }
+  }
+
+  void _scheduleFlush() {
+    if (_flushScheduled) {
+      return;
+    }
+    _flushScheduled = true;
+    scheduleMicrotask(_flushPending);
+  }
+
+  void _flushPending() {
+    _flushScheduled = false;
+    if (_pendingEntries.isEmpty) {
+      return;
+    }
+    final pending = List<AppLogEntry>.from(_pendingEntries);
+    _pendingEntries.clear();
+    if (_tryAppendEntries(pending)) {
+      return;
+    }
+    _pendingEntries.insertAll(0, pending);
+    if (!_flushScheduled) {
+      _flushScheduled = true;
+      Timer.run(_flushPending);
+    }
+  }
 }
 
 final appLogProvider =

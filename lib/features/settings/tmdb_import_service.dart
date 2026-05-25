@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
@@ -103,6 +105,30 @@ class TmdbImportEntry {
       return null;
     }
     return 'https://image.tmdb.org/t/p/w500$path';
+  }
+
+  TmdbImportEntry copyWith({
+    int? tmdbId,
+    TmdbImportCollection? collection,
+    String? title,
+    String? originalTitle,
+    String? overview,
+    String? posterPath,
+    DateTime? releaseDate,
+    num? rating,
+    Map<String, dynamic>? rawPayload,
+  }) {
+    return TmdbImportEntry(
+      tmdbId: tmdbId ?? this.tmdbId,
+      collection: collection ?? this.collection,
+      title: title ?? this.title,
+      originalTitle: originalTitle ?? this.originalTitle,
+      overview: overview ?? this.overview,
+      posterPath: posterPath ?? this.posterPath,
+      releaseDate: releaseDate ?? this.releaseDate,
+      rating: rating ?? this.rating,
+      rawPayload: rawPayload ?? this.rawPayload,
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -267,6 +293,31 @@ class TmdbImportService {
     return _parseCsvEntries(normalized, collection: collection);
   }
 
+  List<TmdbImportEntry> parseCollectionFileBytes(
+    Uint8List bytes, {
+    required String fileName,
+    required TmdbImportCollection collection,
+  }) {
+    final normalizedFileName = fileName.trim().toLowerCase();
+    if (normalizedFileName.endsWith('.zip')) {
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final csvFile = _selectCsvArchiveFile(
+        archive,
+        collection: collection,
+      );
+      if (csvFile == null) {
+        throw const FormatException(
+          'TMDB ZIP export does not contain a CSV file.',
+        );
+      }
+      final csvBytes = Uint8List.fromList(csvFile.content);
+      final text = utf8.decode(csvBytes, allowMalformed: true);
+      return _parseCsvEntries(text, collection: collection);
+    }
+    final text = utf8.decode(bytes, allowMalformed: true);
+    return parseCollectionPayload(text, collection: collection);
+  }
+
   Future<TmdbImportPreview> previewImport({
     required TmdbImportCollection collection,
     required List<TmdbImportEntry> entries,
@@ -279,6 +330,60 @@ class TmdbImportService {
       matches.add(_matchEntry(entry, candidates));
     }
     return TmdbImportPreview(collection: collection, matches: matches);
+  }
+
+  Future<TmdbImportEntry> enrichEntry({
+    required String apiKey,
+    required TmdbImportEntry entry,
+  }) async {
+    final normalizedApiKey = apiKey.trim();
+    if (normalizedApiKey.isEmpty) {
+      return entry;
+    }
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/3/movie/${entry.tmdbId}',
+      queryParameters: {
+        'api_key': normalizedApiKey,
+        'append_to_response': 'credits',
+        'language': 'en-US',
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('TMDB details response was empty for movie ${entry.tmdbId}.');
+    }
+    final detailedTitle = (data['title'] as String?)?.trim();
+    final detailedOriginalTitle = (data['original_title'] as String?)?.trim();
+    final detailedOverview = (data['overview'] as String?)?.trim();
+    final detailedPosterPath = (data['poster_path'] as String?)?.trim();
+    final detailedReleaseDate = _parseDate(data['release_date'] as String?);
+    final rawPayload = <String, dynamic>{
+      ...Map<String, dynamic>.from(data),
+      'id': entry.tmdbId,
+      'media_type': 'movie',
+      'tmdb_import': {
+        'collection': entry.collection.storageValue,
+        if (entry.rating != null) 'user_rating': entry.rating,
+      },
+      'source_export_payload': entry.rawPayload,
+    };
+    return entry.copyWith(
+      title: detailedTitle == null || detailedTitle.isEmpty
+          ? entry.title
+          : detailedTitle,
+      originalTitle: detailedOriginalTitle == null ||
+              detailedOriginalTitle.isEmpty
+          ? entry.originalTitle
+          : detailedOriginalTitle,
+      overview: detailedOverview == null || detailedOverview.isEmpty
+          ? entry.overview
+          : detailedOverview,
+      posterPath: detailedPosterPath == null || detailedPosterPath.isEmpty
+          ? entry.posterPath
+          : detailedPosterPath,
+      releaseDate: detailedReleaseDate ?? entry.releaseDate,
+      rawPayload: rawPayload,
+    );
   }
 
   Future<TmdbImportExecutionResult> importPreview({
@@ -314,6 +419,14 @@ class TmdbImportService {
       id: localSyntheticItemId(entry),
       kind: CatalogMediaKind.movie.apiValue,
       title: entry.title,
+      displayTitle: entry.title,
+      localizedTitle: entry.title,
+      originalTitle: entry.originalTitle,
+      searchAliases: [
+        entry.title,
+        if (entry.originalTitle?.trim().isNotEmpty == true)
+          entry.originalTitle!,
+      ],
       synopsis: entry.overview,
       coverImageUrl: entry.posterUrl,
       thumbnailImageUrl: entry.posterUrl,
@@ -385,19 +498,31 @@ class TmdbImportService {
       header[0] = header[0].replaceFirst('\ufeff', '');
     }
     final index = _csvHeaderIndex(header);
-    return rows
+    final entries = rows
         .skip(1)
         .map((row) => row.map(_stringCell).toList(growable: false))
         .where((row) => row.any((value) => value.trim().isNotEmpty))
         .map((row) => _entryFromCsvRow(index, row, collection: collection))
+        .whereType<TmdbImportEntry>()
         .toList(growable: false);
+    if (entries.isEmpty && rows.length > 1) {
+      throw const FormatException(
+        'TMDB CSV input did not contain any movie rows to import.',
+      );
+    }
+    return entries;
   }
 
-  TmdbImportEntry _entryFromCsvRow(
+  TmdbImportEntry? _entryFromCsvRow(
     Map<String, int> index,
     List<String> values, {
     required TmdbImportCollection collection,
   }) {
+    final mediaType =
+        _csvOptionalValue(index, values, 'media_type')?.trim().toLowerCase();
+    if (mediaType != null && mediaType.isNotEmpty && mediaType != 'movie') {
+      return null;
+    }
     final tmdbId = _parseTmdbId(_csvValue(index, values, 'id'));
     final title = _csvValue(index, values, 'title').trim();
     if (tmdbId == null || title.isEmpty) {
@@ -410,7 +535,10 @@ class TmdbImportService {
     final posterValue = _csvOptionalValue(index, values, 'poster_path');
     final releaseDate =
         _parseDate(_csvOptionalValue(index, values, 'release_date'));
-    final rating = _parseRating(_csvOptionalValue(index, values, 'rating'));
+    final rating = _parseRating(
+      _csvOptionalValue(index, values, 'user_rating') ??
+          _csvOptionalValue(index, values, 'rating'),
+    );
     final posterPath = _posterPathFromCsvValue(posterValue);
     return TmdbImportEntry(
       tmdbId: tmdbId,
@@ -429,9 +557,38 @@ class TmdbImportService {
         if (posterPath != null) 'poster_path': posterPath,
         if (releaseDate != null)
           'release_date': releaseDate.toUtc().toIso8601String(),
+        if (mediaType != null) 'type': mediaType,
         if (rating != null) 'rating': rating,
       },
     );
+  }
+
+  ArchiveFile? _selectCsvArchiveFile(
+    Archive archive, {
+    required TmdbImportCollection collection,
+  }) {
+    final csvFiles = archive.files
+        .where(
+          (file) =>
+              !file.isDirectory && file.name.toLowerCase().endsWith('.csv'),
+        )
+        .toList(growable: false);
+    if (csvFiles.isEmpty) {
+      return null;
+    }
+
+    final preferredKeywords = switch (collection) {
+      TmdbImportCollection.ratedMovies => ['rating', 'ratings', 'rated'],
+      TmdbImportCollection.watchlistMovies => ['watchlist'],
+    };
+    for (final keyword in preferredKeywords) {
+      for (final file in csvFiles) {
+        if (file.name.toLowerCase().contains(keyword)) {
+          return file;
+        }
+      }
+    }
+    return csvFiles.first;
   }
 
   TmdbImportMatch _matchEntry(
@@ -526,6 +683,7 @@ class TmdbImportService {
         value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
     return switch (normalized) {
       'tmdb_id' || 'movie_id' || 'movie_tmdb_id' || 'id' => 'id',
+      'type' || 'media_type' => 'media_type',
       'title' || 'movie_title' || 'name' => 'title',
       'original_title' || 'original_name' => 'original_title',
       'overview' || 'description' || 'summary' => 'overview',
@@ -535,7 +693,8 @@ class TmdbImportService {
       'poster_image' =>
         'poster_path',
       'release_date' || 'released' || 'first_air_date' => 'release_date',
-      'rating' || 'score' || 'vote' || 'your_rating' => 'rating',
+      'your_rating' || 'user_rating' => 'user_rating',
+      'rating' || 'score' || 'vote' => 'rating',
       _ => normalized,
     };
   }

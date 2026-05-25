@@ -108,7 +108,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         appBar: AppBar(
           backgroundColor: widget.accent,
           foregroundColor: Colors.white,
-          title: Text(widget.entry.title),
+          title: Text(widget.entry.resolvedTitle),
           actions: [
             IconButton(
               tooltip: 'Edit metadata and collection fields',
@@ -131,7 +131,10 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             if (isOwned)
               IconButton(
                 tooltip: 'Add another copy',
-                onPressed: () => _addOwnedCopy(widget.entry.id),
+                onPressed: () => _addOwnedCopy(
+                  widget.entry,
+                  ownedItem: activeOwnedItem,
+                ),
                 icon: const Icon(Icons.copy_all_outlined),
               ),
             IconButton(
@@ -175,7 +178,10 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     _selectNewestOwnedItem = false;
                   }),
               onAddOwned: isOwned
-                  ? () => _addOwnedCopy(widget.entry.id)
+                  ? () => _addOwnedCopy(
+                        widget.entry,
+                        ownedItem: activeOwnedItem,
+                      )
                   : widget.onAddOwned,
               onRemoveOwned: activeOwnedItem == null
                   ? widget.onRemoveOwned
@@ -261,8 +267,21 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     );
   }
 
-  Future<void> _addOwnedCopy(String itemId) async {
-    await ref.read(collectionMutationsProvider).addItem(itemId);
+  Future<void> _addOwnedCopy(
+    LibraryWorkspaceEntry entry, {
+    OwnedItem? ownedItem,
+  }) async {
+    final anchor = resolveLibraryMutationAnchor(
+      entry: entry,
+      ownedItem: ownedItem,
+    );
+    await ref.read(collectionMutationsProvider).addItem(
+          entry.id,
+          anchorType: anchor.anchorType,
+          editionId: anchor.editionId,
+          variantId: anchor.variantId,
+          bundleReleaseId: anchor.bundleReleaseId,
+        );
     if (!mounted) {
       return;
     }

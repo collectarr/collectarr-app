@@ -97,7 +97,7 @@ class LibraryToolbar extends StatelessWidget {
     final targetAccent = libraryAccentForKind(type.workspace.kind);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
-      duration: const Duration(milliseconds: 350),
+      duration: kAppAnimNormal,
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final accent = color ?? targetAccent;
@@ -155,11 +155,10 @@ class LibraryToolbar extends StatelessWidget {
                 const LibraryWorkspaceSeparator(color: kAppDivider),
                 if (selectionCallbacks != null)
                   LibrarySelectionControls(
-                    enabled: selectionEnabled,
                     selectedCount: selectedCount,
                     callbacks: selectionCallbacks!,
                   ),
-                if (selectionCallbacks != null)
+                if (selectionCallbacks != null && selectedCount > 0)
                   const LibraryWorkspaceSeparator(color: kAppDivider),
                 LibraryWorkspaceControlStrip(
                   children: [

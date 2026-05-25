@@ -1,4 +1,6 @@
 import 'dart:convert';
+
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +115,13 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
     if (def.options == null || def.options!.isEmpty) return const [];
     try {
       return (jsonDecode(def.options!) as List).cast<String>();
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'custom_fields',
+        message: 'Failed to parse custom field select options.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       return const [];
     }
   }

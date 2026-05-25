@@ -12,9 +12,9 @@ const Color kEditPanelRaised = kAppPanelRaised;
 const Color kEditToolbar = kAppToolbar;
 const Color kEditDivider = kAppDivider;
 const Color kEditTextMuted = kAppTextMuted;
-const Color kEditChartBar = Color(0xFF7EDAF3);
-const Color kEditValueChip = Color(0xFF1B1B1B);
-const Color kEditValueChipBorder = Color(0xFF3A3A3A);
+const Color kEditChartBar = kAppAccentLight;
+const Color kEditValueChip = kAppPanel;
+const Color kEditValueChipBorder = kAppSurfaceBright;
 const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 
 /// Dark theme preset for edit dialogs.
@@ -156,12 +156,12 @@ class EditSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: const Color(0xFF202426),
+        color: kAppGridCanvas,
         shape: Border(
           left: BorderSide(color: accent, width: 2),
-          top: const BorderSide(color: Color(0xFF3D3D3D)),
-          right: const BorderSide(color: Color(0xFF3D3D3D)),
-          bottom: const BorderSide(color: Color(0xFF3D3D3D)),
+          top: const BorderSide(color: kAppSurfaceBright),
+          right: const BorderSide(color: kAppSurfaceBright),
+          bottom: const BorderSide(color: kAppSurfaceBright),
         ),
         child: Padding(
           padding: const EdgeInsets.all(11),
@@ -258,7 +258,7 @@ class EditMiniBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: color ?? const Color(0xFF0E81A6),
+        color: color ?? kAppAccent,
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
@@ -449,8 +449,8 @@ class FooterReadonlyField extends StatelessWidget {
       height: 48,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: const Color(0xFF191919),
-          border: Border.all(color: const Color(0xFF3D3D3D)),
+          color: kAppPanel,
+          border: Border.all(color: kAppSurfaceBright),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -531,7 +531,7 @@ class EditSummaryPill extends StatelessWidget {
     final body = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF111315),
+        color: kAppField,
         border: Border.all(color: kEditDivider),
         borderRadius: BorderRadius.circular(4),
       ),
@@ -666,7 +666,7 @@ class _EditTokenListFieldState extends State<EditTokenListField> {
                   label: Text(token),
                   onDeleted: () => _removeToken(token),
                   visualDensity: VisualDensity.compact,
-                  backgroundColor: const Color(0xFF191B1C),
+                  backgroundColor: kAppPanel,
                   side: const BorderSide(color: kEditDivider),
                   deleteIconColor: kEditTextMuted,
                   labelStyle: const TextStyle(

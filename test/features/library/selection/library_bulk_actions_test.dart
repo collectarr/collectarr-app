@@ -146,4 +146,48 @@ void main() {
     expect(ownedRows.single.deletedAt, isNotNull);
     expect(wishlistRows.single.deletedAt, isNotNull);
   });
+
+  test('moveSelectedToOwned keeps unrelated release wishlists active', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final mutations = container.read(collectionMutationsProvider);
+    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+
+    final rows = await db.select(db.wishlistItemsCache).get();
+    final row4k = rows.firstWhere((row) => row.editionId == 'edition-4k');
+    final actions = LibraryBulkActions(mutations);
+
+    await actions.moveSelectedToOwned([
+      ShelfEntry(
+        itemId: 'movie-1',
+        wishlistItem: WishlistItem(
+          id: row4k.id,
+          itemId: row4k.itemId,
+          anchorType: row4k.anchorType,
+          editionId: row4k.editionId,
+          variantId: row4k.variantId,
+          bundleReleaseId: row4k.bundleReleaseId,
+          createdAt: row4k.createdAt,
+          updatedAt: row4k.updatedAt,
+        ),
+      ),
+    ]);
+
+    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final wishlistRows = await db.select(db.wishlistItemsCache).get();
+    final activeWishlistRows =
+        wishlistRows.where((row) => row.deletedAt == null).toList();
+
+    expect(ownedRows, hasLength(1));
+    expect(ownedRows.single.editionId, 'edition-4k');
+    expect(activeWishlistRows, hasLength(1));
+    expect(activeWishlistRows.single.editionId, 'edition-bluray');
+  });
 }

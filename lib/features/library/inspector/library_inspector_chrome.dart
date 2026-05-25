@@ -25,7 +25,7 @@ class InspectorBackdrop extends StatelessWidget {
         Opacity(
           opacity: 0.38,
           child: LibraryCoverImage(
-            title: entry.title,
+            title: entry.resolvedTitle,
             itemNumber: entry.itemNumber,
             imageUrl: entry.displayCoverUrl,
             ownedItemId: ownedItemId,
@@ -152,7 +152,7 @@ class InspectorActionBar extends StatelessWidget {
             const SizedBox(width: 6),
             DecoratedBox(
               decoration: BoxDecoration(
-                color: entry.isOwned ? kAppHighlight : const Color(0xFF2A2A2A),
+                color: entry.isOwned ? kAppHighlight : kAppSurfaceSubtle,
                 border: Border.all(
                   color: entry.isOwned ? kAppHighlight : kAppDivider,
                 ),

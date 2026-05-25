@@ -9,6 +9,7 @@ class LibraryCoverTile extends StatelessWidget {
     required this.entry,
     required this.selected,
     required this.onTap,
+    this.onDoubleTap,
     this.onSecondaryTapUp,
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
@@ -20,6 +21,7 @@ class LibraryCoverTile extends StatelessWidget {
   final LibraryWorkspaceEntry entry;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
   final Color selectedColor;
   final Color accentColor;
@@ -28,15 +30,16 @@ class LibraryCoverTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
+    return RepaintBoundary(
+      child: AnimatedContainer(
+      duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: selected ? selectedColor : const Color(0xFF111111),
-        borderRadius: BorderRadius.circular(2),
+        color: selected ? selectedColor : kAppField,
+        borderRadius: kAppRadiusSmall,
         border: Border.all(
-          color: selected ? accentColor : const Color(0xFF3C3C3C),
+          color: selected ? accentColor : kAppCardBorder,
           width: selected ? 2 : 1,
         ),
         boxShadow: const [
@@ -51,6 +54,7 @@ class LibraryCoverTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
+          onDoubleTap: onDoubleTap,
           onSecondaryTapUp: onSecondaryTapUp,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +64,7 @@ class LibraryCoverTile extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     LibraryInteractiveCover(
-                      title: entry.title,
+                      title: entry.resolvedTitle,
                       itemNumber: entry.itemNumber,
                       imageUrl: entry.displayCoverUrl,
                       ownedItemId: entry.ownedItemId,
@@ -103,8 +107,8 @@ class LibraryCoverTile extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 entry.itemNumber == null
-                    ? entry.title
-                    : '${entry.title} #${entry.itemNumber}',
+                    ? entry.resolvedTitle
+                    : '${entry.resolvedTitle} #${entry.itemNumber}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -112,6 +116,19 @@ class LibraryCoverTile extends StatelessWidget {
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     ),
               ),
+              if (entry.originalTitle?.trim().isNotEmpty == true &&
+                  entry.originalTitle!.trim() != entry.resolvedTitle.trim())
+                Text(
+                  entry.originalTitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: selected
+                            ? Colors.white70
+                            : mutedTextColor.withValues(alpha: 0.7),
+                        fontSize: 10,
+                      ),
+                ),
               if (entry.releaseYear != null)
                 Text(
                   entry.releaseYear.toString(),
@@ -127,6 +144,7 @@ class LibraryCoverTile extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

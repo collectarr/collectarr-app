@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -35,6 +40,25 @@ void main() {
         entries.single.posterUrl,
         'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
       );
+    });
+
+    test('builds local synthetic items with display and original titles', () {
+      final entry = TmdbImportEntry(
+        tmdbId: 603,
+        collection: TmdbImportCollection.ratedMovies,
+        title: 'The Matrix',
+        originalTitle: 'The Matrix',
+        posterPath: '/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
+        rawPayload: const <String, dynamic>{'id': 603, 'title': 'The Matrix'},
+      );
+
+      final item = service.localSyntheticCatalogItem(entry);
+
+      expect(item.displayTitle, 'The Matrix');
+      expect(item.localizedTitle, 'The Matrix');
+      expect(item.originalTitle, 'The Matrix');
+      expect(item.searchAliases, contains('The Matrix'));
+      expect(item.displayCoverUrl, isNotNull);
     });
 
     test('matches on exact title and year before falling back', () async {
@@ -88,6 +112,55 @@ tmdb_id,title,release_date,rating,overview,poster_url
       expect(entries.single.posterPath, '/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg');
     });
 
+    test('parses TMDB exported ratings CSV and prefers Your Rating', () {
+      final entries = service.parseCollectionPayload(
+        '''
+TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your Rating,Date Rated
+453395,tt9419884,movie,Doctor Strange in the Multiverse of Madness,2022-05-04T00:00:00Z,,,7.229,7.0,2022-09-20T00:00:00Z
+92749,tt10234724,tv,Moon Knight,2022-03-30T00:00:00Z,,,7.647,6.0,2022-09-20T00:00:00Z
+''',
+        collection: TmdbImportCollection.ratedMovies,
+      );
+
+      expect(entries, hasLength(1));
+      expect(entries.single.tmdbId, 453395);
+      expect(entries.single.title, 'Doctor Strange in the Multiverse of Madness');
+      expect(entries.single.rating, 7.0);
+      expect(entries.single.releaseYear, 2022);
+    });
+
+    test('parses TMDB watchlist export from zip archives', () {
+      final csvBytes = Uint8List.fromList(
+        utf8.encode(
+          '''
+TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your Rating,Date Rated
+438695,tt6467266,movie,Sing 2,2021-12-01T00:00:00Z,,,7.833,,2022-02-22T16:22:35Z
+63174,tt4052886,tv,Lucifer,2016-01-25T00:00:00Z,,,8.434,,2022-02-22T16:17:56Z
+''',
+        ),
+      );
+      final archive = Archive()
+        ..addFile(
+          ArchiveFile(
+            '618d1cf4d768fe00677dfdaf_watchlist_2026.05.25.csv',
+            csvBytes.length,
+            csvBytes,
+          ),
+        );
+      final zipBytes = Uint8List.fromList(ZipEncoder().encode(archive));
+
+      final entries = service.parseCollectionFileBytes(
+        zipBytes,
+        fileName: 'tmdb-watchlist-export.zip',
+        collection: TmdbImportCollection.watchlistMovies,
+      );
+
+      expect(entries, hasLength(1));
+      expect(entries.single.tmdbId, 438695);
+      expect(entries.single.title, 'Sing 2');
+      expect(entries.single.releaseYear, 2021);
+    });
+
     test('dispatches imports for matches and proposals for unmatched',
         () async {
       final matchedEntry = TmdbImportEntry(
@@ -133,5 +206,80 @@ tmdb_id,title,release_date,rating,overview,poster_url
       expect(result.importedCount, 1);
       expect(result.proposedCount, 1);
     });
+
+    test('enriches unmatched entries with TMDB movie details', () async {
+      final dio = Dio(
+        BaseOptions(baseUrl: 'https://api.themoviedb.org'),
+      )..httpClientAdapter = _FakeHttpClientAdapter((options) async {
+          expect(options.path, '/3/movie/680');
+          expect(options.queryParameters['api_key'], 'tmdb-key');
+          return ResponseBody.fromString(
+            jsonEncode({
+              'id': 680,
+              'title': 'Pulp Fiction',
+              'original_title': 'Pulp Fiction',
+              'overview': 'A burger-loving hitman, his partner, and more.',
+              'poster_path': '/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg',
+              'release_date': '1994-09-10',
+              'credits': {
+                'cast': [
+                  {'name': 'John Travolta'},
+                ],
+              },
+            }),
+            200,
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType],
+            },
+          );
+        });
+      final enrichedService = TmdbImportService(dio: dio);
+      final entry = TmdbImportEntry(
+        tmdbId: 680,
+        collection: TmdbImportCollection.ratedMovies,
+        title: 'Pulp Fiction',
+        rating: 8,
+        rawPayload: const <String, dynamic>{
+          'id': 680,
+          'title': 'Pulp Fiction',
+        },
+      );
+
+      final enriched = await enrichedService.enrichEntry(
+        apiKey: 'tmdb-key',
+        entry: entry,
+      );
+
+      expect(enriched.overview, contains('burger-loving hitman'));
+      expect(enriched.releaseYear, 1994);
+      expect(enriched.posterPath, '/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg');
+      expect(
+        enriched.rawPayload['tmdb_import'],
+        containsPair('user_rating', 8),
+      );
+      expect(enriched.rawPayload['source_export_payload'], entry.rawPayload);
+      expect(
+        (enriched.rawPayload['credits'] as Map<String, dynamic>)['cast'],
+        isNotEmpty,
+      );
+    });
   });
+}
+
+class _FakeHttpClientAdapter implements HttpClientAdapter {
+  _FakeHttpClientAdapter(this._handler);
+
+  final Future<ResponseBody> Function(RequestOptions options) _handler;
+
+  @override
+  void close({bool force = false}) {}
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<dynamic>? cancelFuture,
+  ) {
+    return _handler(options);
+  }
 }

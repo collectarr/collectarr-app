@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -18,9 +19,11 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
@@ -32,6 +35,7 @@ import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
+import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
@@ -42,12 +46,19 @@ import 'package:collectarr_app/features/library/config/library_media_adapter.dar
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_context_menu.dart';
 import 'package:collectarr_app/features/library/workspace/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/settings/pick_list_editor_dialog.dart';
@@ -90,11 +101,16 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   LibraryQuickView? _quickView;
   LibraryGroupMode? _groupMode;
   var _selection = LibrarySelectionState.empty();
+  String? _selectionAnchorId;
   var _filterSelection = LibraryFilterSelection.none;
   final _detailHydrationInFlight = <String>{};
   final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
   final _facetLoadsInFlight = <LibraryGroupMode>{};
   Set<String> _activeLoanOwnedItemIds = const {};
+  String? _videoShelfDrilldownTitleItemId;
+  String? _videoShelfDrilldownReleaseId;
+  int _viewStateLoadToken = 0;
+  int _viewPreferenceLoadToken = 0;
 
   LibraryMediaAdapter get _adapter =>
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
@@ -107,6 +123,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   void initState() {
     super.initState();
     _viewState = _adapter.viewProfile.defaults();
+    _primeCachedViewPreferences();
     unawaited(_loadViewState());
     unawaited(_loadViewPreferences());
     unawaited(
@@ -116,13 +133,33 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Future<void> _loadViewPreferences() async {
+    try {
+    final loadToken = ++_viewPreferenceLoadToken;
+    final expectedKind = widget.type.workspace.kind;
     final quickView = await _viewPrefs.readQuickView();
     final groupMode = await _viewPrefs.readGroupMode();
-    if (!mounted) return;
+    if (!mounted ||
+        loadToken != _viewPreferenceLoadToken ||
+        widget.type.workspace.kind != expectedKind) {
+      return;
+    }
     setState(() {
       _quickView = quickView;
       _groupMode = groupMode;
     });
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_page',
+        message: 'Failed to load view preferences.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  void _primeCachedViewPreferences() {
+    _quickView = _viewPrefs.cachedQuickView;
+    _groupMode = _viewPrefs.cachedGroupMode;
   }
 
   @override
@@ -133,11 +170,13 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedBucket = null;
       _selectedLetter = null;
       _linkedMetadataFilter = null;
-      _quickView = null;
-      _groupMode = null;
+      _selectionAnchorId = null;
+      _videoShelfDrilldownTitleItemId = null;
+      _videoShelfDrilldownReleaseId = null;
       _facetBucketsByMode.clear();
       _facetLoadsInFlight.clear();
       _searchController.clear();
+      _primeCachedViewPreferences();
       _viewState = _adapter.viewProfile.defaults().withChrome(
             _viewState?.toPreferenceSnapshot().chrome,
           );
@@ -151,6 +190,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Future<void> _loadActiveLoanIds() async {
+    try {
     final db = ref.read(localDatabaseProvider);
     final repo = LoanRepository(db);
     final activeLoans = await repo.getActiveLoans();
@@ -161,6 +201,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       return;
     }
     setState(() => _activeLoanOwnedItemIds = next);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_page',
+        message: 'Failed to load active loan IDs.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   @override
@@ -177,6 +225,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
+    final ownedCopiesValue = ref.watch(collectionProvider);
+    final wishlistValue = ref.watch(wishlistProvider);
     ref.listen<AsyncValue<ShelfState>>(shelfProvider, (_, next) {
       unawaited(
         loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue),
@@ -188,6 +238,14 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     });
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final shelfState = shelf.asData?.value;
+    final allOwnedCopies = ownedCopiesValue.maybeWhen(
+      data: (items) => items.where((item) => !item.isDeleted).toList(growable: false),
+      orElse: () => const <OwnedItem>[],
+    );
+    final allWishlistItems = wishlistValue.maybeWhen(
+      data: (items) => items.where((item) => !item.isDeleted).toList(growable: false),
+      orElse: () => const <WishlistItem>[],
+    );
     if (shelfState != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _ensureFacetBucketsLoaded(shelfState, _activeGroupMode);
@@ -274,10 +332,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 selectionEnabled: _selection.enabled,
                 selectedCount: _selection.selectedCount,
                 selectionCallbacks: (
-                  onSelectionModeChanged: (enabled) => setState(
-                      () => _selection = _selection.setEnabled(enabled)),
-                  onClearSelection: () =>
-                      setState(() => _selection = _selection.clear()),
+                  onClearSelection: () => setState(() {
+                    _selection = _selection.clear();
+                    _selectionAnchorId = null;
+                  }),
                   onBulkEdit: () => bulkEditFlow(projection),
                   onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
                   onBulkMoveToWishlist: () => bulkMoveToWishlistFlow(projection),
@@ -289,10 +347,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                   data: (state) => _buildBody(
                     projection ?? _projectionForShelf(state, viewState),
                     viewState,
+                    allOwnedCopies: allOwnedCopies,
+                    allWishlistItems: allWishlistItems,
                   ),
                   error: (error, _) => Center(child: Text(error.toString())),
                   loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                      const SkeletonGrid(),
                 ),
               ),
             ],
@@ -304,13 +364,24 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Widget _buildBody(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState,
+    {
+    required List<OwnedItem> allOwnedCopies,
+    required List<WishlistItem> allWishlistItems,
+  }
   ) {
+    final workspaceOverride = _buildVideoShelfDrilldown(
+      projection,
+      viewState,
+      allOwnedCopies: allOwnedCopies,
+      allWishlistItems: allWishlistItems,
+    );
     return LibraryBody(
       type: widget.type,
       adapter: _adapter,
       projection: projection,
       viewState: viewState,
       selectedId: _selectedId,
+      selectedAnchorId: _selectionAnchorId,
       selectedBucket: _selectedBucket,
       groupMode: _activeGroupMode,
       groupLoading: _facetLoadsInFlight.contains(_activeGroupMode),
@@ -320,16 +391,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onClearFilters: _clearFilters,
       selectionEnabled: _selection.enabled,
       selectedItemIds: _selection.itemIds,
-      onSelectItem: (id) {
-        if (_selection.enabled) {
-          setState(() => _selection = _selection.toggle(id));
+      onApplySelection: _applySelection,
+      onActivateItem: _activateItem,
+      onToggleSelectionItem: _toggleSelectionItem,
+      onOpenItem: showDetailPage,
+      onBoxSelectionChanged: (ids) => setState(() {
+        _selection = _selection.replace(ids);
+        if (ids.isEmpty) {
+          _selectionAnchorId = null;
         } else {
-          _selectItem(id);
+          _selectionAnchorId ??= ids.first;
+          _selectedId = ids.contains(_selectedId) ? _selectedId : ids.first;
         }
-      },
-      onBoxSelectionChanged: (ids) => setState(
-        () => _selection = _selection.replace(ids),
-      ),
+      }),
       onBucketChanged: (bucket) => setState(() => _selectedBucket = bucket),
       onGroupModeChanged: (mode) {
         setState(() {
@@ -378,7 +452,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         (actions) => actions.removeWishlist(item),
       ),
       onEditItem: (item, ownedItem) => unawaited(showEditDialog(item, ownedItem)),
-      onItemContextMenu: handleItemContextMenu,
+      workspaceOverride: workspaceOverride,
+        onItemContextMenu: (item, position) =>
+          handleItemContextMenu(projection, item, position),
       onFilterByValue: (value) => setState(() {
         _linkedMetadataFilter =
             _linkedMetadataFilter?.value == value
@@ -389,7 +465,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       }),
       selectedLetter: _selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
-        projection.filteredItems.map((i) => i.entry.title),
+        projection.filteredItems.map((i) => i.entry.resolvedTitle),
       ),
       onLetterSelected: (letter) => setState(() => _selectedLetter = letter),
       db: ref.read(localDatabaseProvider),
@@ -545,6 +621,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _quickView = null;
       _filterSelection = LibraryFilterSelection.none;
       _searchController.clear();
+      _selectionAnchorId = null;
     });
   }
 
@@ -559,9 +636,20 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   Future<void> _loadViewState() async {
+    try {
+    final token = ++_viewStateLoadToken;
+    final expectedKind = widget.type.workspace.kind;
     final state = await _adapter.viewProfile.load();
-    if (mounted) {
+    if (mounted && token == _viewStateLoadToken && widget.type.workspace.kind == expectedKind) {
       setState(() => _viewState = state);
+    }
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_page',
+        message: 'Failed to load view state.',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -612,10 +700,298 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   }
 
   void _selectItem(String id) {
-    setState(() => _selectedId = id);
+    setState(() {
+      _selectedId = id;
+      if (_videoShelfDrilldownTitleItemId != null &&
+          _videoShelfDrilldownTitleItemId != id) {
+        _videoShelfDrilldownTitleItemId = null;
+        _videoShelfDrilldownReleaseId = null;
+      }
+    });
     if (widget.type.capabilities.showsTrackData) {
       unawaited(_hydrateSelectedItem(id));
     }
+  }
+
+  void _activateItem(String id) {
+    if (_selection.enabled) {
+      setState(() => _selection = _selection.clear());
+    }
+    _selectionAnchorId = id;
+    _selectItem(id);
+  }
+
+  void _toggleSelectionItem(String id) {
+    setState(() {
+      _selection = _selection.toggle(id);
+      _selectedId = id;
+      _selectionAnchorId = id;
+    });
+  }
+
+  void _applySelection(Set<String> ids, String focusedId) {
+    setState(() {
+      _selection = _selection.replace(ids);
+      _selectedId = focusedId;
+      _selectionAnchorId ??= focusedId;
+    });
+  }
+
+  bool _canOpenVideoShelfDrilldown(LibraryProjectionItem item) {
+    if (item.entry.browseScope != LibraryBrowserScope.title) {
+      return false;
+    }
+    final mediaType = item.entry.mediaType.trim().toLowerCase();
+    return mediaType == 'movie' || mediaType == 'tv' || mediaType == 'anime';
+  }
+
+  void _openVideoShelfDrilldown(LibraryProjectionItem item) {
+    setState(() {
+      _selectedId = item.entry.id;
+      _videoShelfDrilldownTitleItemId = item.entry.id;
+      _videoShelfDrilldownReleaseId = null;
+    });
+  }
+
+  Future<void> _refreshVideoTitleFromCore(LibraryProjectionItem item) async {
+    final result = await showLibraryMetadataRefreshDialog(
+      context: context,
+      type: widget.type,
+      accent: widget.accent,
+      allEntries: [item.entry],
+      shownEntries: [item.entry],
+      selectedEntry: item.entry,
+    );
+    if (result == null || !mounted) {
+      return;
+    }
+    ref.invalidate(shelfProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
+        ),
+      ),
+    );
+  }
+
+  Widget? _buildVideoShelfDrilldown(
+    LibraryProjection projection,
+    LibraryWorkspaceViewState viewState, {
+    required List<OwnedItem> allOwnedCopies,
+    required List<WishlistItem> allWishlistItems,
+  }) {
+    final titleItemId = _videoShelfDrilldownTitleItemId;
+    if (titleItemId == null) {
+      return null;
+    }
+    LibraryProjectionItem? titleItem;
+    for (final item in projection.allItems) {
+      if (item.entry.id == titleItemId) {
+        titleItem = item;
+        break;
+      }
+    }
+    if (titleItem == null || !_canOpenVideoShelfDrilldown(titleItem)) {
+      if (_videoShelfDrilldownTitleItemId != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) {
+            return;
+          }
+          setState(() {
+            _videoShelfDrilldownTitleItemId = null;
+            _videoShelfDrilldownReleaseId = null;
+          });
+        });
+      }
+      return null;
+    }
+
+    final ownedCopies = allOwnedCopies
+        .where((item) => item.itemId == titleItemId)
+        .toList(growable: false);
+    final wishlistItems = allWishlistItems
+        .where((item) => item.itemId == titleItemId)
+        .toList(growable: false);
+    final drilldownItems = _videoShelfReleaseItemsFor(
+      titleItem,
+      ownedCopies: ownedCopies,
+      wishlistItems: wishlistItems,
+    );
+
+    if (_videoShelfDrilldownReleaseId == null && drilldownItems.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _videoShelfDrilldownReleaseId != null) {
+          return;
+        }
+        setState(() => _videoShelfDrilldownReleaseId = drilldownItems.first.entry.id);
+      });
+    }
+
+    return _VideoShelfReleaseDrilldown(
+      titleItem: titleItem,
+      items: drilldownItems,
+      selectedReleaseId: _videoShelfDrilldownReleaseId,
+      coverSize: viewState.coverSize,
+      accent: widget.accent,
+      onBack: () => setState(() {
+        _videoShelfDrilldownTitleItemId = null;
+        _videoShelfDrilldownReleaseId = null;
+      }),
+      onRefreshFromCore: () => _refreshVideoTitleFromCore(titleItem!),
+      onSelectRelease: (releaseId) =>
+          setState(() => _videoShelfDrilldownReleaseId = releaseId),
+      onOpenTitleDetails: () => showLibraryDetailPage(
+        context: context,
+        request: LibraryDetailPageRequest(
+          type: widget.type,
+          entry: titleItem!.entry,
+          ownedItem: titleItem.source.ownedItem,
+          accent: widget.accent,
+          onAddOwned: () => runCollectionAction(
+            (actions) => actions.addOwned(titleItem!),
+          ),
+          onRemoveOwned: titleItem.source.ownedItem == null
+              ? null
+              : () => confirmAndRemoveOwned(titleItem!),
+          onAddWishlist: () => runCollectionAction(
+            (actions) => actions.addWishlist(titleItem!),
+          ),
+          onRemoveWishlist: titleItem.source.isWishlisted
+              ? () => runCollectionAction(
+                    (actions) => actions.removeWishlist(titleItem!),
+                  )
+              : null,
+          onEdit: (ownedItem) => unawaited(showEditDialog(titleItem!, ownedItem)),
+          onFilterByValue: (value) => _rebuild(() {
+            _linkedMetadataFilter = _linkedMetadataFilter?.value == value
+                ? null
+                : LibraryLinkedMetadataFilter(value: value);
+            _selectedBucket = null;
+            _selectedLetter = null;
+          }),
+        ),
+      ),
+    );
+  }
+
+  List<_VideoShelfReleaseDrilldownItem> _videoShelfReleaseItemsFor(
+    LibraryProjectionItem titleItem, {
+    required List<OwnedItem> ownedCopies,
+    required List<WishlistItem> wishlistItems,
+  }) {
+    final editions = resolveVideoCatalogEditionsForEntry(
+      titleItem.entry,
+      ownedItems: ownedCopies,
+      wishlistItems: wishlistItems,
+    );
+    final releaseEditions = [
+      for (final edition in editions)
+        if (ownedCopies.any(
+              (item) => matchesVideoReleaseAnchor(
+                edition,
+                editionId: item.editionId,
+                variantId: item.variantId,
+                bundleReleaseId: item.bundleReleaseId,
+              ),
+            ) ||
+            wishlistItems.any(
+              (item) => matchesVideoReleaseAnchor(
+                edition,
+                editionId: item.editionId,
+                variantId: item.variantId,
+                bundleReleaseId: item.bundleReleaseId,
+              ),
+            ))
+          edition,
+    ];
+    return [
+      for (final edition in releaseEditions)
+        _buildVideoShelfReleaseDrilldownItem(
+          titleItem,
+          edition,
+          editions: releaseEditions,
+          ownedCopies: ownedCopies,
+          wishlistItems: wishlistItems,
+        ),
+    ];
+  }
+
+  _VideoShelfReleaseDrilldownItem _buildVideoShelfReleaseDrilldownItem(
+    LibraryProjectionItem titleItem,
+    CatalogEdition edition, {
+    required List<CatalogEdition> editions,
+    required List<OwnedItem> ownedCopies,
+    required List<WishlistItem> wishlistItems,
+  }) {
+    final matchedOwnedCopies = ownedCopies
+        .where(
+          (item) => matchesVideoReleaseAnchor(
+            edition,
+            editionId: item.editionId,
+            variantId: item.variantId,
+            bundleReleaseId: item.bundleReleaseId,
+          ),
+        )
+        .toList(growable: false);
+    final matchedWishlistItems = wishlistItems
+        .where(
+          (item) => matchesVideoReleaseAnchor(
+            edition,
+            editionId: item.editionId,
+            variantId: item.variantId,
+            bundleReleaseId: item.bundleReleaseId,
+          ),
+        )
+        .toList(growable: false);
+    final entry = LibraryWorkspaceEntry.releaseNode(
+      titleItemId: titleItem.entry.id,
+      mediaType: titleItem.entry.mediaType,
+      title: titleItem.entry.title,
+      edition: edition,
+      displayTitle: titleItem.entry.displayTitle,
+      localizedTitle: titleItem.entry.localizedTitle,
+      originalTitle: titleItem.entry.originalTitle,
+      searchAliases: titleItem.entry.searchAliases,
+      fallbackSynopsis: titleItem.entry.synopsis,
+      fallbackCoverImageUrl: titleItem.entry.coverImageUrl,
+      fallbackThumbnailImageUrl: titleItem.entry.thumbnailImageUrl,
+      fallbackPublisher: titleItem.entry.publisher,
+      fallbackReleaseYear: titleItem.entry.releaseYear,
+      fallbackSeries: titleItem.entry.series,
+      fallbackPublishing: titleItem.entry.publishing,
+      fallbackVideo: titleItem.entry.video,
+      fallbackMusic: titleItem.entry.music,
+      fallbackGame: titleItem.entry.game,
+      fallbackCreators: titleItem.entry.creators,
+      fallbackCharacters: titleItem.entry.characters,
+      fallbackStoryArcs: titleItem.entry.storyArcs,
+      fallbackGenres: titleItem.entry.genres,
+      fallbackCountry: titleItem.entry.country,
+      fallbackLanguage: titleItem.entry.language,
+      fallbackAgeRating: titleItem.entry.ageRating,
+      isOwned: matchedOwnedCopies.isNotEmpty,
+      isWishlisted: matchedWishlistItems.isNotEmpty,
+      referenceEditionId: edition.id,
+      referenceVariantId: preferredVideoEditionVariantId(edition),
+      editions: editions,
+      updatedAt: titleItem.entry.updatedAt,
+    );
+    return _VideoShelfReleaseDrilldownItem(
+      entry: entry,
+      sourceLabel: videoReleaseSourceLabel(edition),
+      ownedCount: matchedOwnedCopies.fold<int>(0, (sum, item) => sum + item.quantity),
+      wishlistCount: matchedWishlistItems.length,
+      node: LibraryBrowserNode(
+        id: entry.id,
+        scope: entry.browseScope,
+        entry: entry,
+        titleItemId: titleItem.entry.id,
+        releaseId: edition.id,
+        edition: edition,
+        source: titleItem.source,
+      ),
+    );
   }
 
   Future<void> _hydrateSelectedItem(String itemId) async {
@@ -630,8 +1006,13 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       await CatalogCacheRepository(ref.read(localDatabaseProvider)).upsertAll([
         item,
       ]);
-    } catch (_) {
-      // Keep the local snapshot when detail hydration is unavailable.
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_page',
+        message: 'Failed to hydrate selected library item $itemId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
     } finally {
       _detailHydrationInFlight.remove(itemId);
     }

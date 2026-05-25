@@ -323,9 +323,9 @@ class LibraryInspectorChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final chip = DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF183B44),
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: const Color(0x8837C7E8)),
+        color: kAppSelection,
+        borderRadius: kAppRadiusSmall,
+        border: Border.all(color: kAppAccent.withValues(alpha: 0.53)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),

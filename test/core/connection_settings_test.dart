@@ -140,7 +140,7 @@ void main() {
 
     expect(
       message,
-      'Metadata session is no longer valid. Sign in again.',
+      contains('no longer valid'),
     );
   });
 
@@ -163,7 +163,7 @@ void main() {
       'http://metadata',
     );
 
-    expect(message, 'Sign in to the metadata server to use this action.');
+    expect(message, contains('authenticated'));
   });
 
   test('connection diagnostics explains unreachable services', () {

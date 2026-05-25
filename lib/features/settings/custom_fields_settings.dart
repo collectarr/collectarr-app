@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
@@ -270,7 +271,13 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
     try {
       final list = jsonDecode(json) as List;
       return list.join(', ');
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'custom_fields',
+        message: 'Failed to decode custom field options JSON.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       return '';
     }
   }

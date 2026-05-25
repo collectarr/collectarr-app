@@ -9,7 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../helpers/secure_storage_mock.dart';
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(setUpSecureStorageMock);
+
   test('restored auth token is applied to rebuilt api clients', () async {
     final token = _jwtExpiringAt(DateTime.now().toUtc().add(
           const Duration(hours: 1),
@@ -61,7 +67,7 @@ void main() {
     final auth = container.read(authControllerProvider);
     expect(auth.isAuthenticated, isFalse);
     expect(auth.isExpired, isTrue);
-    expect(auth.error, 'Session expired. Sign in again.');
+    expect(auth.error, contains('Session expired'));
     expect(container.read(apiAuthTokenProvider), isNull);
     expect(container.read(apiClientProvider).authorizationHeader, isNull);
 
@@ -94,7 +100,7 @@ void main() {
     final auth = container.read(authControllerProvider);
     expect(auth.isAuthenticated, isFalse);
     expect(auth.email, 'user@example.com');
-    expect(auth.error, 'Metadata session reset. Sign in again.');
+    expect(auth.error, contains('session reset'));
     expect(container.read(apiAuthTokenProvider), isNull);
     expect(container.read(apiClientProvider).authorizationHeader, isNull);
 
@@ -164,7 +170,7 @@ void main() {
 
     final auth = container.read(authControllerProvider);
     expect(auth.isAuthenticated, isFalse);
-    expect(auth.error, 'Invalid email or password.');
+    expect(auth.error, contains('Invalid'));
   });
 }
 

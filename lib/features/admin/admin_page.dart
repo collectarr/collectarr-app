@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
@@ -1692,7 +1693,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       setState(() {
         _mediaTypes = mediaTypes;
       });
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'admin',
+        message: 'Failed to load media types for admin page.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted) {
         return;
       }

@@ -4,7 +4,20 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SeriesDetailPage extends ConsumerStatefulWidget {
+final _seriesDetailProvider =
+    FutureProvider.autoDispose.family<_SeriesDetailData, String>((ref, seriesId) async {
+  final api = ref.watch(apiClientProvider);
+  final series = await api.getSeries(seriesId);
+  final items = await api.getSeriesItems(seriesId);
+  final relations = await api.getSeriesRelations(seriesId);
+  return _SeriesDetailData(
+    series: series,
+    items: items,
+    relations: relations,
+  );
+});
+
+class SeriesDetailPage extends ConsumerWidget {
   const SeriesDetailPage({
     super.key,
     required this.seriesId,
@@ -15,50 +28,19 @@ class SeriesDetailPage extends ConsumerStatefulWidget {
   final String seriesTitle;
 
   @override
-  ConsumerState<SeriesDetailPage> createState() => _SeriesDetailPageState();
-}
-
-class _SeriesDetailPageState extends ConsumerState<SeriesDetailPage> {
-  late Future<_SeriesDetailData> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = _load();
-  }
-
-  Future<_SeriesDetailData> _load() async {
-    final api = ref.read(apiClientProvider);
-    final series = await api.getSeries(widget.seriesId);
-    final items = await api.getSeriesItems(widget.seriesId);
-    final relations = await api.getSeriesRelations(widget.seriesId);
-    return _SeriesDetailData(
-      series: series,
-      items: items,
-      relations: relations,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detail = ref.watch(_seriesDetailProvider(seriesId));
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.seriesTitle),
+        title: Text(seriesTitle),
       ),
-      body: FutureBuilder<_SeriesDetailData>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _SeriesDetailError(
-              message: snapshot.error.toString(),
-              onRetry: () => setState(() => _future = _load()),
-            );
-          }
-          return _SeriesDetailBody(data: snapshot.data!);
-        },
+      body: detail.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => _SeriesDetailError(
+          message: error.toString(),
+          onRetry: () => ref.invalidate(_seriesDetailProvider(seriesId)),
+        ),
+        data: (data) => _SeriesDetailBody(data: data),
       ),
     );
   }

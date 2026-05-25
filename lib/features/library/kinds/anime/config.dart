@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video_edit_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -37,8 +39,11 @@ const animeLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
-  editDialogBuilder: buildGenericLibraryEditDialog,
+  editDialogBuilder: buildVideoLibraryEditDialog,
+  detailPageBuilder: buildVideoLibraryDetailPage,
   presentation: animeLibraryMediaPresentation,
+  editPresentation: videoLibraryEditPresentation,
+  inspectorSectionsBuilder: buildVideoInspectorSections,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.seasons,

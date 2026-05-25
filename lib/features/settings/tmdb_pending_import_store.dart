@@ -48,7 +48,7 @@ class TmdbPendingImportStore {
 
   static const _key = 'collectarr.tmdb.pending_local_imports';
 
-  Future<List<TmdbPendingImportRecord>> read() async {
+  Future<List<TmdbPendingImportRecord>> read({int? limit}) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key);
     if (raw == null || raw.trim().isEmpty) {
@@ -58,13 +58,17 @@ class TmdbPendingImportStore {
     if (decoded is! List) {
       return const [];
     }
-    return [
+    final records = [
       for (final value in decoded)
         if (value is Map<String, dynamic>)
           TmdbPendingImportRecord.fromJson(value)
         else if (value is Map)
           TmdbPendingImportRecord.fromJson(Map<String, dynamic>.from(value)),
-    ];
+    ]..sort((left, right) => right.createdAt.compareTo(left.createdAt));
+    if (limit == null || records.length <= limit) {
+      return records;
+    }
+    return records.take(limit).toList(growable: false);
   }
 
   Future<void> upsert(TmdbPendingImportRecord record) async {

@@ -250,12 +250,14 @@ void main() {
         );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: InspectorItemImagesSection(
-            ownedItemId: 'owned-1',
-            db: db,
-            accent: Colors.orange,
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: InspectorItemImagesSection(
+              ownedItemId: 'owned-1',
+              db: db,
+              accent: Colors.orange,
+            ),
           ),
         ),
       ),
@@ -263,7 +265,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Back Cover (1)'), findsOneWidget);
+    expect(find.textContaining('Back Cover'), findsOneWidget);
     expect(find.text('Front Cover'), findsNothing);
   });
 

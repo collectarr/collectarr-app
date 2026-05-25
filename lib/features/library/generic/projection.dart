@@ -258,7 +258,7 @@ String genericBucketForItemMode(
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Catalog only',
-    LibraryGroupMode.title => _titleBucket(entry.title),
+    LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
     LibraryGroupMode.grade =>
       entry.grade?.trim().isNotEmpty == true ? entry.grade! : 'Ungraded',
     LibraryGroupMode.condition =>
@@ -281,7 +281,7 @@ String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
-  final title = entry.title.trim();
+  final title = entry.resolvedTitle.trim();
   return title.isEmpty ? unknownLabel : title;
 }
 
@@ -478,7 +478,10 @@ Iterable<String> _linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
   final publishing = entry.publishing;
   final game = entry.game;
   yield* _nonEmptyValues([
+    entry.resolvedTitle,
     entry.title,
+    entry.localizedTitle,
+    entry.originalTitle,
     series?.seriesTitle,
     entry.itemNumber,
     entry.publisher,
@@ -489,6 +492,7 @@ Iterable<String> _linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
     entry.language,
     entry.ageRating,
   ]);
+  yield* _nonEmptyValues(entry.searchAliases);
   if (entry.creators case final creators?) {
     for (final credit in creators) {
       final name = credit['name']?.toString();
@@ -525,7 +529,10 @@ bool _matchesQuery(
     return true;
   }
   final entry = item.entry;
-  if (_containsQuery(entry.title, query) ||
+  if (_containsQuery(entry.resolvedTitle, query) ||
+      _containsQuery(entry.title, query) ||
+      _containsQuery(entry.localizedTitle, query) ||
+      _containsQuery(entry.originalTitle, query) ||
       _containsQuery(entry.itemNumber, query) ||
       _containsQuery(entry.publisher, query) ||
       _containsQuery(entry.variant, query) ||
@@ -535,6 +542,13 @@ bool _matchesQuery(
       _containsQuery(entry.grade, query) ||
       _containsQuery(entry.storageBox, query)) {
     return true;
+  }
+  if (entry.searchAliases case final aliases?) {
+    for (final alias in aliases) {
+      if (_containsQuery(alias, query)) {
+        return true;
+      }
+    }
   }
   final ownedId = item.source.ownedItem?.id;
   if (ownedId != null) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
@@ -8,6 +9,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -45,6 +47,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -1037,7 +1040,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _pendingProviderPreviewIds.remove(candidateId);
       });
       _precacheProviderPreviewCovers([preview]);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message:
+            'Failed to load provider preview for ${candidate.provider}:${candidate.providerItemId}.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted || searchGeneration != _providerSearchGeneration) {
         return;
       }
@@ -1087,7 +1097,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _pendingHydratedResultIds.remove(itemId);
       });
       _precacheMetadataCovers([mergedItem]);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message: 'Failed to hydrate add-result metadata for item $itemId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -1129,7 +1145,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (bundleReleaseId != null) {
         await _ensureBundleReleaseDetailLoaded(bundleReleaseId);
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message: 'Failed to load bundle releases for item $itemId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -1158,7 +1180,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _bundleReleaseDetailsById[bundleReleaseId] = bundleRelease;
         _pendingBundleReleaseDetailIds.remove(bundleReleaseId);
       });
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message: 'Failed to load bundle release detail for $bundleReleaseId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -1242,8 +1270,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _isSearchingProvider = false;
       _isAdding = false;
       _isQueueingIngest = false;
-      _error = '$action needs a fresh metadata sign-in. '
-          'Open Settings and sign in again.';
+      _error = 'Saved metadata session was cleared after $action was rejected. '
+          'Retry the action. Sign in again only if you need authenticated tools.';
     });
     return true;
   }

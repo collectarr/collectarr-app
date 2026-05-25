@@ -111,6 +111,29 @@ typedef LibraryDetailPageBuilder = Widget Function(
   LibraryDetailPageRequest request,
 );
 
+class LibraryInspectorRequest {
+  const LibraryInspectorRequest({
+    required this.type,
+    required this.entry,
+    required this.ownedItem,
+    required this.trackingEntry,
+    required this.accent,
+    this.onFilterByValue,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceEntry entry;
+  final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
+  final Color accent;
+  final ValueChanged<String>? onFilterByValue;
+}
+
+typedef LibraryInspectorSectionsBuilder = List<Widget> Function(
+  BuildContext context,
+  LibraryInspectorRequest request,
+);
+
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
     required this.id,
@@ -193,6 +216,7 @@ class LibraryTypeConfig {
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
+    this.inspectorSectionsBuilder,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -211,6 +235,7 @@ class LibraryTypeConfig {
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
+  final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     if (workspace.kind == CatalogMediaKind.unknown) {

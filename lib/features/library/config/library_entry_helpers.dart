@@ -221,6 +221,40 @@ String? resolveLibraryOwnedItemId(
   return ownedItem?.id ?? entry.ownedItemId;
 }
 
+({
+  String? anchorType,
+  String? editionId,
+  String? variantId,
+  String? bundleReleaseId,
+}) resolveLibraryMutationAnchor({
+  LibraryWorkspaceEntry? entry,
+  OwnedItem? ownedItem,
+  WishlistItem? wishlistItem,
+}) {
+  final editionId = _normalizedEntryAnchorId(
+    ownedItem?.editionId ?? wishlistItem?.editionId ?? entry?.referenceEditionId,
+  );
+  final variantId = _normalizedEntryAnchorId(
+    ownedItem?.variantId ?? wishlistItem?.variantId ?? entry?.referenceVariantId,
+  );
+  final bundleReleaseId = _normalizedEntryAnchorId(
+    ownedItem?.bundleReleaseId ??
+        wishlistItem?.bundleReleaseId ??
+        entry?.referenceBundleReleaseId,
+  );
+  return (
+    anchorType: resolvePersonalItemAnchorType(
+      anchorType: ownedItem?.anchorType ?? wishlistItem?.anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    ),
+    editionId: editionId,
+    variantId: variantId,
+    bundleReleaseId: bundleReleaseId,
+  );
+}
+
 TrackingEntry? resolveActiveTrackingEntry(
   List<TrackingEntry> entries,
   OwnedItem? activeOwnedItem,
@@ -394,6 +428,11 @@ bool? resolveOwnedDigitalFlag(
     fallbackFormat,
     label: fallbackLabel,
   );
+}
+
+String? _normalizedEntryAnchorId(String? value) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
 
 String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {

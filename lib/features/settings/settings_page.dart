@@ -4,10 +4,12 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
@@ -16,7 +18,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
-import 'package:collectarr_app/features/settings/tmdb_import_dialog.dart';
+import 'package:collectarr_app/features/settings/provider_imports_dialog.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -32,11 +34,22 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+final _metadataProposalHistoryProvider =
+    FutureProvider.autoDispose<List<MetadataProposalRecord>>((ref) async {
+  return const MetadataProposalStore().read();
+});
+
+final _deviceIdentityProvider = FutureProvider.autoDispose<String>((ref) async {
+  return DeviceIdentity().getOrCreate();
+});
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({
@@ -54,7 +67,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   final _metadataController = TextEditingController();
   final _syncController = TextEditingController();
   final _syncKeyController = TextEditingController();
-  Future<String>? _deviceIdFuture;
   _DiagnosticState? _metadataDiagnostic;
   _DiagnosticState? _syncDiagnostic;
   Map<String, dynamic>? _syncStatusDetails;
@@ -65,7 +77,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    _deviceIdFuture = DeviceIdentity().getOrCreate();
   }
 
   @override
@@ -89,13 +100,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final tmdbImportSettings = ref.watch(tmdbImportSettingsProvider);
+    final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
+    final deviceId = ref.watch(_deviceIdentityProvider);
     final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
     final accentScope = LibraryAccentScope.maybeOf(context);
     final accent =
         accentScope?.accent ?? libraryAccentForKind(selectedLibraryKind);
     final animationDuration = accentScope?.animationDuration ??
         (uiPreferences.animationsEnabled
-            ? const Duration(milliseconds: 320)
+            ? kAppAnimNormal
             : Duration.zero);
     _syncTextControllers(settings);
 
@@ -354,7 +367,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       '${entry.rejected > 0 ? ', ${entry.rejected} rejected' : ''}',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.grey.shade600,
+                                        color: kAppTextSecondary,
                                       ),
                                     )
                                   else
@@ -526,12 +539,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                   _SettingsPanel(
                     icon: Icons.movie_outlined,
-                    title: 'TMDB import',
+                    title: 'Provider imports',
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Text(
-                          'Import TMDB rated movies into completed tracking, or TMDB watchlist movies into wishlist. TMDB personal endpoints require account id and session id in addition to your API key.',
+                          'Import personal activity from external providers. TMDB is available now for rated and watchlist movie imports, and the same shell can host more provider flows later.',
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -548,9 +561,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               isError: !tmdbImportSettings.isConfigured,
                             ),
                             OutlinedButton.icon(
-                              onPressed: _showTmdbImportDialog,
+                              onPressed: _showProviderImportsDialog,
                               icon: const Icon(Icons.import_export_outlined),
-                              label: const Text('Open TMDB import'),
+                              label: const Text('Open provider imports'),
                             ),
                           ],
                         ),
@@ -560,16 +573,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   _SettingsPanel(
                     icon: Icons.outbox_outlined,
                     title: 'Metadata proposals',
-                    child: FutureBuilder<List<MetadataProposalRecord>>(
-                      future: const MetadataProposalStore().read(),
-                      builder: (context, snapshot) {
-                        return _MetadataProposalHistory(
-                          records: snapshot.data ?? const [],
-                          isLoading: snapshot.connectionState ==
-                              ConnectionState.waiting,
-                          onClear: _clearProposalHistory,
-                        );
-                      },
+                    child: _MetadataProposalHistory(
+                      records: metadataProposalHistory.value ?? const [],
+                      isLoading: metadataProposalHistory.isLoading,
+                      onClear: _clearProposalHistory,
                     ),
                   ),
                 ],
@@ -579,29 +586,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   _SettingsPanel(
                     icon: Icons.devices_outlined,
                     title: 'Device identity',
-                    child: FutureBuilder<String>(
-                      future: _deviceIdFuture,
-                      builder: (context, snapshot) {
-                        final deviceId = snapshot.data;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            SelectableText(deviceId ?? 'Loading device id...'),
-                            const SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: OutlinedButton.icon(
-                                onPressed: snapshot.connectionState ==
-                                        ConnectionState.waiting
-                                    ? null
-                                    : _regenerateDeviceId,
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Regenerate device id'),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SelectableText(deviceId.value ?? 'Loading device id...'),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: deviceId.isLoading
+                                ? null
+                                : _regenerateDeviceId,
+                            icon: const Icon(Icons.refresh_outlined),
+                            label: const Text('Regenerate device id'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   _SettingsPanel(
@@ -610,7 +610,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        SelectableText(auth.email ?? 'Signed in'),
+                        SelectableText(auth.email ?? 'Not signed in'),
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 8,
@@ -635,33 +635,38 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ),
                           ],
                         ),
-                        if (auth.isAuthenticated) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            auth.isAdmin
-                                ? 'Admin tools are available in navigation and advanced metadata workflows.'
-                                : 'Admin-only tools are hidden for this account. Refresh permissions after a role change.',
-                          ),
-                        ],
+                        const SizedBox(height: 12),
+                        Text(
+                          auth.isAuthenticated
+                              ? auth.isAdmin
+                                  ? 'Admin tools are available in navigation and advanced metadata workflows.'
+                                  : 'Admin-only tools are hidden for this account. Refresh permissions after a role change.'
+                              : 'You can browse the app and send metadata proposals without signing in. Sign in is only needed for admin tools.',
+                        ),
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            OutlinedButton.icon(
-                              onPressed: auth.isAuthenticated
-                                  ? _refreshAccountPermissions
-                                  : null,
-                              icon: const Icon(Icons.manage_accounts_outlined),
-                              label: const Text('Refresh permissions'),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: () => ref
-                                  .read(authControllerProvider.notifier)
-                                  .logout(),
-                              icon: const Icon(Icons.logout),
-                              label: const Text('Sign out'),
-                            ),
+                            if (auth.isAuthenticated) ...[
+                              OutlinedButton.icon(
+                                onPressed: _refreshAccountPermissions,
+                                icon: const Icon(Icons.manage_accounts_outlined),
+                                label: const Text('Refresh permissions'),
+                              ),
+                              OutlinedButton.icon(
+                                onPressed: () => ref
+                                    .read(authControllerProvider.notifier)
+                                    .logout(),
+                                icon: const Icon(Icons.logout),
+                                label: const Text('Sign out'),
+                              ),
+                            ] else
+                              FilledButton.icon(
+                                onPressed: () => context.go(AppRoutes.auth),
+                                icon: const Icon(Icons.login),
+                                label: const Text('Sign in'),
+                              ),
                           ],
                         ),
                       ],
@@ -742,18 +747,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         );
     ref.read(syncControllerProvider.notifier).refreshPendingCount();
     if (mounted && notify != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(notify)),
-      );
+      _showToast(notify, tone: AppToastTone.success);
     }
   }
 
   Future<void> _resetAppearanceDefaults() async {
     await ref.read(uiPreferencesProvider.notifier).setAnimationsEnabled(true);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Appearance defaults restored')),
-      );
+      _showToast('Appearance defaults restored', tone: AppToastTone.success);
     }
   }
 
@@ -770,15 +771,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pairing code copied')),
-      );
+      _showToast('Pairing code copied', tone: AppToastTone.success);
     } catch (error) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not copy pairing code: $error')),
+      _showToast(
+        'Could not copy pairing code: ${_describeError(error)}',
+        tone: AppToastTone.error,
       );
     }
   }
@@ -845,13 +845,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _syncDevices = const [];
       });
       ref.read(syncControllerProvider.notifier).refreshPendingCount();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pairing settings applied')),
-      );
+      _showToast('Pairing settings applied', tone: AppToastTone.success);
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid pairing code: $error')),
+        _showToast(
+          'Invalid pairing code: ${_describeError(error)}',
+          tone: AppToastTone.error,
         );
       }
     }
@@ -867,9 +866,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     });
     ref.read(syncControllerProvider.notifier).refreshPendingCount();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Connection defaults restored')),
-      );
+      _showToast('Connection defaults restored', tone: AppToastTone.success);
     }
   }
 
@@ -953,11 +950,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return;
     }
     final sync = ref.read(syncControllerProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_syncResultMessage(sync)),
-      ),
-    );
+    _showToast(_syncResultMessage(sync), tone: _syncResultTone(sync));
   }
 
   Future<void> _refreshAccountPermissions() async {
@@ -967,21 +960,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return;
       }
       final auth = ref.read(authControllerProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            auth.isAdmin
-                ? 'Account permissions refreshed: admin'
-                : 'Account permissions refreshed: standard account',
-          ),
-        ),
+      _showToast(
+        auth.isAdmin
+            ? 'Account permissions refreshed: admin'
+            : 'Account permissions refreshed: standard account',
+        tone: AppToastTone.success,
       );
     } catch (error) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not refresh permissions: $error')),
+      _showToast(
+        'Could not refresh permissions: ${_describeError(error)}',
+        tone: AppToastTone.error,
       );
     }
   }
@@ -994,14 +985,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return;
     }
     final pendingCount = ref.read(syncControllerProvider).pendingCount;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          queued
-              ? 'Local version queued for the next sync. ${_pendingSyncLabel(pendingCount)} ready to upload.'
-              : 'Local version is no longer available for that conflict.',
-        ),
-      ),
+    _showToast(
+      queued
+          ? 'Local version queued for the next sync. ${_pendingSyncLabel(pendingCount)} ready to upload.'
+          : 'Local version is no longer available for that conflict.',
+      tone: queued ? AppToastTone.success : AppToastTone.error,
     );
   }
 
@@ -1041,14 +1029,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          clzFriendly
-              ? 'CLZ-friendly CSV backup copied'
-              : 'Collectarr CSV backup copied',
-        ),
-      ),
+    _showToast(
+      clzFriendly
+          ? 'CLZ-friendly CSV backup copied'
+          : 'Collectarr CSV backup copied',
+      tone: AppToastTone.success,
     );
   }
 
@@ -1071,8 +1056,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ),
     );
     if (imported != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported $imported rows into your collection')),
+      _showToast(
+        'Imported $imported rows into your collection',
+        tone: AppToastTone.success,
       );
     }
   }
@@ -1100,16 +1086,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sync backup guide copied')),
-    );
+    _showToast('Sync backup guide copied', tone: AppToastTone.success);
   }
 
-  Future<void> _showTmdbImportDialog() async {
+  Future<void> _showProviderImportsDialog() async {
     await showDialog<void>(
       context: context,
-      builder: (context) => TmdbImportDialog(
-        initialSettings: ref.read(tmdbImportSettingsProvider),
+      builder: (context) => ProviderImportsDialog(
+        initialTmdbSettings: ref.read(tmdbImportSettingsProvider),
       ),
     );
   }
@@ -1117,24 +1101,46 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<void> _clearProposalHistory() async {
     await const MetadataProposalStore().clear();
     if (mounted) {
+      ref.invalidate(_metadataProposalHistoryProvider);
       setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Local proposal history cleared')),
-      );
+      _showToast('Local proposal history cleared', tone: AppToastTone.success);
     }
   }
 
   Future<void> _regenerateDeviceId() async {
-    final future = DeviceIdentity().regenerate();
-    setState(() {
-      _deviceIdFuture = future;
-    });
-    await future;
+    await DeviceIdentity().regenerate();
+    ref.invalidate(_deviceIdentityProvider);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Device id regenerated')),
-      );
+      _showToast('Device id regenerated', tone: AppToastTone.success);
     }
+  }
+
+  void _showToast(String message, {AppToastTone tone = AppToastTone.info}) {
+    if (!mounted) {
+      return;
+    }
+    showAppToast(context, message, tone: tone);
+  }
+
+  String _describeError(Object error) {
+    final text = error.toString().trim();
+    if (text.startsWith('Exception: ')) {
+      return text.substring('Exception: '.length);
+    }
+    if (text.startsWith('StateError: ')) {
+      return text.substring('StateError: '.length);
+    }
+    return text;
+  }
+
+  AppToastTone _syncResultTone(SyncState sync) {
+    if (sync.errorMessage != null) {
+      return AppToastTone.error;
+    }
+    if (sync.warningMessage != null) {
+      return AppToastTone.info;
+    }
+    return AppToastTone.success;
   }
 
   String _formatSyncTime(DateTime value) {

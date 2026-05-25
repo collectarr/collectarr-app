@@ -59,13 +59,14 @@ class InspectorHero extends StatelessWidget {
             return SizedBox(
               width: wide ? 146 : 174,
               child: LibraryInteractiveCover(
-                title: entry.title,
+                title: entry.resolvedTitle,
                 itemNumber: entry.itemNumber,
                 imageUrl: entry.displayCoverUrl,
                 localBase64: localFront,
                 secondaryLocalBase64: localBack,
                 ownedItemId: ownedItemId,
                 accentColor: accent,
+                enableHoverCue: false,
                 onMissingSecondaryPressed: ownedItemId == null
                     ? null
                     : () async {
@@ -172,7 +173,7 @@ class _InspectorHeroInfo extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                entry.title,
+                entry.resolvedTitle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(

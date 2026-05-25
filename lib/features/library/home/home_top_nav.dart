@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
@@ -11,6 +12,7 @@ import 'package:collectarr_app/features/library/providers/library_nav_preference
 import 'package:collectarr_app/features/settings/sync_settings_dialog.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +28,7 @@ class MediaLibraryNav extends ConsumerWidget {
     required this.registry,
     required this.selectedKind,
     required this.onSelected,
-    this.animationDuration = const Duration(milliseconds: 320),
+    this.animationDuration = kAppAnimNormal,
   });
 
   final List<CatalogMediaType> types;
@@ -122,7 +124,7 @@ class MediaLibraryTitleBar extends ConsumerWidget {
     this.selectedOverdueLoanCount = 0,
     required this.selectedLabel,
     required this.registry,
-    this.animationDuration = const Duration(milliseconds: 320),
+    this.animationDuration = kAppAnimNormal,
   });
 
   final CatalogMediaType type;
@@ -248,6 +250,7 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
+    final auth = ref.watch(authControllerProvider);
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerRight,
@@ -325,24 +328,34 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               padding: EdgeInsets.zero,
               child: const SizedBox.expand(),
-              itemBuilder: (context) => const [
-                PopupMenuItem<_AccountMenuAction>(
-                  value: _AccountMenuAction.refreshAccount,
-                  child: ListTile(
-                    dense: true,
-                    leading: Icon(Icons.manage_accounts_outlined),
-                    title: Text('Refresh account'),
+              itemBuilder: (context) => [
+                if (auth.isAuthenticated) ...[
+                  const PopupMenuItem<_AccountMenuAction>(
+                    value: _AccountMenuAction.refreshAccount,
+                    child: ListTile(
+                      dense: true,
+                      leading: Icon(Icons.manage_accounts_outlined),
+                      title: Text('Refresh account'),
+                    ),
                   ),
-                ),
-                PopupMenuDivider(),
-                PopupMenuItem<_AccountMenuAction>(
-                  value: _AccountMenuAction.signOut,
-                  child: ListTile(
-                    dense: true,
-                    leading: Icon(Icons.logout),
-                    title: Text('Sign out'),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem<_AccountMenuAction>(
+                    value: _AccountMenuAction.signOut,
+                    child: ListTile(
+                      dense: true,
+                      leading: Icon(Icons.logout),
+                      title: Text('Sign out'),
+                    ),
                   ),
-                ),
+                ] else
+                  const PopupMenuItem<_AccountMenuAction>(
+                    value: _AccountMenuAction.signIn,
+                    child: ListTile(
+                      dense: true,
+                      leading: Icon(Icons.login),
+                      title: Text('Sign in'),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -370,6 +383,8 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
     _AccountMenuAction action,
   ) async {
     switch (action) {
+      case _AccountMenuAction.signIn:
+        context.go(AppRoutes.auth);
       case _AccountMenuAction.refreshAccount:
         try {
           await ref.read(authControllerProvider.notifier).refreshCurrentUser();
@@ -377,26 +392,37 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
             return;
           }
           final auth = ref.read(authControllerProvider);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                auth.isAdmin
-                    ? 'Account permissions refreshed: admin'
-                    : 'Account permissions refreshed: standard account',
-              ),
-            ),
+          showAppToast(
+            context,
+            auth.isAdmin
+                ? 'Account permissions refreshed: admin'
+                : 'Account permissions refreshed: standard account',
+            tone: AppToastTone.success,
           );
         } catch (error) {
           if (!context.mounted) {
             return;
           }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Account refresh failed: $error')),
+          showAppToast(
+            context,
+            'Account refresh failed: ${_describeAccountError(error)}',
+            tone: AppToastTone.error,
           );
         }
       case _AccountMenuAction.signOut:
         await ref.read(authControllerProvider.notifier).logout();
     }
+  }
+
+  String _describeAccountError(Object error) {
+    final text = error.toString().trim();
+    if (text.startsWith('Exception: ')) {
+      return text.substring('Exception: '.length);
+    }
+    if (text.startsWith('StateError: ')) {
+      return text.substring('StateError: '.length);
+    }
+    return text;
   }
 }
 
@@ -429,9 +455,9 @@ class _OverdueLoanChip extends StatelessWidget {
           onTap: onPressed,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: const Color(0xFF5A2100),
+              color: kAppOverdueBackground,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: const Color(0xFFFFA352)),
+              border: Border.all(color: kAppOverdueBorder),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -441,7 +467,7 @@ class _OverdueLoanChip extends StatelessWidget {
                   const Icon(
                     Icons.warning_amber_rounded,
                     size: 16,
-                    color: Color(0xFFFFC47A),
+                    color: kAppOverdueText,
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -553,7 +579,7 @@ class _HeaderMenuButton extends StatelessWidget {
 
 enum _LibraryNavMenuAction { topNav, leftRail }
 
-enum _AccountMenuAction { refreshAccount, signOut }
+enum _AccountMenuAction { signIn, refreshAccount, signOut }
 
 double _headerSideWidth({
   required Iterable<String> labels,
@@ -586,7 +612,7 @@ class MediaLibraryNavStrip extends StatelessWidget {
     required this.registry,
     required this.selectedKind,
     required this.onSelected,
-    this.animationDuration = const Duration(milliseconds: 320),
+    this.animationDuration = kAppAnimNormal,
   });
 
   final List<CatalogMediaType> types;

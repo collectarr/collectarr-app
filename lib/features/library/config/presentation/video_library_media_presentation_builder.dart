@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/presentation/default_libr
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 
 class VideoLibraryMediaPresentationBuilder
@@ -54,13 +55,15 @@ class VideoLibraryMediaPresentationBuilder
             'Volume',
             series!.volumeName ?? 'Vol. ${series.volumeNumber}',
           ),
-        if (entry.variant != null)
+        if (entry.browseScope != LibraryBrowserScope.title &&
+            entry.variant != null)
           LibraryInspectorFactData(
             labels.variant,
             entry.variant!,
             onTap: tapFor(entry.variant),
           ),
-        if (entry.barcode != null)
+        if (entry.browseScope != LibraryBrowserScope.title &&
+            entry.barcode != null)
           LibraryInspectorFactData(labels.barcode, entry.barcode!),
       ],
       contextFacts: [

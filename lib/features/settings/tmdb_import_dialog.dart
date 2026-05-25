@@ -1,46 +1,66 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
+import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/settings/tmdb_import_preview_dialog.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:dio/dio.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TmdbImportDialog extends ConsumerStatefulWidget {
-  const TmdbImportDialog({
+enum _TmdbImportSourceMode {
+  accountSync,
+  exportFile,
+}
+
+class TmdbImportWorkspace extends ConsumerStatefulWidget {
+  const TmdbImportWorkspace({
     super.key,
     required this.initialSettings,
+    this.onImportRecorded,
+    this.onStateChanged,
   });
 
   final TmdbImportSettings initialSettings;
+  final VoidCallback? onImportRecorded;
+  final VoidCallback? onStateChanged;
 
   @override
-  ConsumerState<TmdbImportDialog> createState() => _TmdbImportDialogState();
+  ConsumerState<TmdbImportWorkspace> createState() =>
+      _TmdbImportWorkspaceState();
 }
 
-class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
+class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
   late final TextEditingController _apiKeyController;
   late final TextEditingController _accountIdController;
   late final TextEditingController _sessionIdController;
   final TextEditingController _payloadController = TextEditingController();
   final TmdbImportService _service = TmdbImportService();
   final TmdbPendingImportStore _pendingStore = const TmdbPendingImportStore();
+  final ProviderImportHistoryStore _historyStore =
+      const ProviderImportHistoryStore();
   TmdbImportCollection _collection = TmdbImportCollection.ratedMovies;
-  TmdbImportPreview? _preview;
-  String? _statusMessage;
-  String? _error;
+  _TmdbImportSourceMode _sourceMode = _TmdbImportSourceMode.exportFile;
+  _TmdbPreviewSummary? _lastPreviewSummary;
   bool _isWorking = false;
-  bool _keepUnmatchedLocally = false;
+  bool _keepUnmatchedLocally = true;
   int _pendingLocalCount = 0;
+  String _lastPreviewSourceLabel = 'Pasted payload';
 
   @override
   void initState() {
@@ -65,190 +85,287 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('TMDB import'),
-      content: SizedBox(
-        width: 760,
-        child: SingleChildScrollView(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 760;
+        final controlsPane = _buildControlsPane(context);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                SizedBox(
+                  width: isWide ? 240 : double.infinity,
+                  child: DropdownButtonFormField<TmdbImportCollection>(
+                    initialValue: _collection,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'TMDB collection',
+                      isDense: true,
+                    ),
+                    items: TmdbImportCollection.values
+                        .map(
+                          (value) => DropdownMenuItem<TmdbImportCollection>(
+                            value: value,
+                            child: Text(value.label),
+                          ),
+                        )
+                        .toList(growable: false),
+                    onChanged: _isWorking
+                        ? null
+                        : (value) {
+                            if (value == null) {
+                              return;
+                            }
+                            setState(() {
+                              _collection = value;
+                              _lastPreviewSummary = null;
+                            });
+                          },
+                  ),
+                ),
+                SegmentedButton<_TmdbImportSourceMode>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment<_TmdbImportSourceMode>(
+                      value: _TmdbImportSourceMode.accountSync,
+                      icon: Icon(Icons.cloud_sync_outlined, size: 18),
+                      label: Text('Account sync'),
+                    ),
+                    ButtonSegment<_TmdbImportSourceMode>(
+                      value: _TmdbImportSourceMode.exportFile,
+                      icon: Icon(Icons.upload_file_outlined, size: 18),
+                      label: Text('Export file'),
+                    ),
+                  ],
+                  selected: {_sourceMode},
+                  onSelectionChanged: _isWorking
+                      ? null
+                      : (selection) {
+                          final nextMode = selection.firstOrNull;
+                          if (nextMode == null || nextMode == _sourceMode) {
+                            return;
+                          }
+                          setState(() {
+                            _sourceMode = nextMode;
+                          });
+                        },
+                ),
+                _PreviewCountChip(
+                  label: 'Pending',
+                  value: _pendingLocalCount,
+                ),
+                if (_lastPreviewSummary != null)
+                  _PreviewCountChip(
+                    label: 'Rows',
+                    value: _lastPreviewSummary!.rows,
+                  ),
+                if (_lastPreviewSummary != null)
+                  _PreviewCountChip(
+                    label: 'Matched',
+                    value: _lastPreviewSummary!.matched,
+                  ),
+                if (_lastPreviewSummary != null)
+                  _PreviewCountChip(
+                    label: 'Unmatched',
+                    value: _lastPreviewSummary!.unmatched,
+                  ),
+                if (_isWorking)
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: isWide
+                  ? Center(
+                      child: SizedBox(
+                        width: 720,
+                        child: controlsPane,
+                      ),
+                    )
+                  : controlsPane,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildControlsPane(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: switch (_sourceMode) {
+            _TmdbImportSourceMode.accountSync => _buildAccountSyncPane(context),
+            _TmdbImportSourceMode.exportFile => _buildExportPane(context),
+          },
+        ),
+        const SizedBox(height: 10),
+        _ImportSectionCard(
+          title: 'Options',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'TMDB personal imports need more than a plain API key. For direct account sync, provide your TMDB API key together with account id and session id. You can also paste TMDB JSON or CSV data from rated/watchlist exports or endpoint responses.',
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<TmdbImportCollection>(
-                value: _collection,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'TMDB collection',
-                ),
-                items: TmdbImportCollection.values
-                    .map(
-                      (value) => DropdownMenuItem<TmdbImportCollection>(
-                        value: value,
-                        child: Text(value.label),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: _isWorking
-                    ? null
-                    : (value) {
-                        if (value == null) {
-                          return;
-                        }
-                        setState(() {
-                          _collection = value;
-                          _preview = null;
-                          _statusMessage = null;
-                          _error = null;
-                        });
-                      },
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
+              Row(
                 children: [
-                  SizedBox(
-                    width: 220,
-                    child: TextField(
-                      controller: _apiKeyController,
-                      maxLines: 1,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'TMDB API key',
-                      ),
-                    ),
+                  Checkbox.adaptive(
+                    value: _keepUnmatchedLocally,
+                    visualDensity: VisualDensity.compact,
+                    onChanged: _isWorking
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _keepUnmatchedLocally = value ?? false;
+                            });
+                          },
                   ),
-                  SizedBox(
-                    width: 160,
-                    child: TextField(
-                      controller: _accountIdController,
-                      maxLines: 1,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Account id',
-                      ),
-                    ),
+                  const SizedBox(width: 4),
+                  const Expanded(
+                    child: Text('Keep unmatched locally'),
                   ),
-                  SizedBox(
-                    width: 220,
-                    child: TextField(
-                      controller: _sessionIdController,
-                      maxLines: 1,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Session id',
-                      ),
-                    ),
-                  ),
+                  if (_pendingLocalCount > 0)
+                    _PreviewCountChip(label: 'Pending', value: _pendingLocalCount),
                 ],
               ),
-              const SizedBox(height: 12),
+              Text(
+                'Unmatched rows stay on this device until reconciliation succeeds.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: _isWorking || _pendingLocalCount == 0
+                      ? null
+                      : _reconcilePendingImports,
+                  icon: const Icon(Icons.link_outlined),
+                  label: const Text('Reconcile pending'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAccountSyncPane(BuildContext context) {
+    return _ImportSectionCard(
+      title: 'Account sync',
+      expandChild: true,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          TextField(
+            controller: _apiKeyController,
+            maxLines: 1,
+            obscureText: true,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'TMDB API key',
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _accountIdController,
+            maxLines: 1,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Account id',
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _sessionIdController,
+            maxLines: 1,
+            obscureText: true,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Session id',
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: _isWorking ? null : _saveCredentials,
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Save'),
+              ),
+              FilledButton.tonalIcon(
+                onPressed: _isWorking ? null : _loadFromTmdb,
+                icon: const Icon(Icons.cloud_download_outlined),
+                label: const Text('Preview TMDB import'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExportPane(BuildContext context) {
+    return _ImportSectionCard(
+      title: 'Export file',
+      expandChild: true,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final editorHeight = constraints.maxHeight > 240
+              ? constraints.maxHeight - 52
+              : 180.0;
+          return ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              SizedBox(
+                height: editorHeight,
+                child: TextField(
+                  controller: _payloadController,
+                  expands: true,
+                  minLines: null,
+                  maxLines: null,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Paste TMDB JSON or CSV',
+                    alignLabelWithHint: true,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _PreviewCountChip(
-                    label: 'Pending local',
-                    value: _pendingLocalCount,
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _isWorking ? null : _saveCredentials,
-                    icon: const Icon(Icons.save_outlined),
-                    label: const Text('Save credentials'),
-                  ),
                   FilledButton.tonalIcon(
-                    onPressed: _isWorking ? null : _loadFromTmdb,
-                    icon: const Icon(Icons.cloud_download_outlined),
-                    label: const Text('Load from TMDB'),
+                    onPressed: _isWorking ? null : _previewPayload,
+                    icon: const Icon(Icons.preview_outlined),
+                    label: const Text('Preview JSON/CSV'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: _isWorking || _pendingLocalCount == 0
-                        ? null
-                        : _reconcilePendingImports,
-                    icon: const Icon(Icons.link_outlined),
-                    label: const Text('Reconcile pending local imports'),
+                    onPressed: _isWorking ? null : _pickImportFile,
+                    icon: const Icon(Icons.folder_open_outlined),
+                    label: const Text('Preview file'),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              CheckboxListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
-                value: _keepUnmatchedLocally,
-                onChanged: _isWorking
-                    ? null
-                    : (value) {
-                        setState(() {
-                          _keepUnmatchedLocally = value ?? false;
-                        });
-                      },
-                title: const Text('Keep unmatched items locally until Core ingest'),
-                subtitle: const Text(
-                  'These rows stay on this device only until they can be reconciled to a real Core item id. They are not pushed to personal sync before reconciliation.',
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _payloadController,
-                minLines: 8,
-                maxLines: 12,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Paste TMDB JSON or CSV',
-                  helperText:
-                      'CSV headers supported: tmdb_id or id, title, release_date, rating, overview, poster_path or poster_url.',
-                  alignLabelWithHint: true,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: FilledButton.tonalIcon(
-                  onPressed: _isWorking ? null : _previewPayload,
-                  icon: const Icon(Icons.preview_outlined),
-                  label: const Text('Preview pasted data'),
-                ),
-              ),
-              if (_statusMessage != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  _statusMessage!,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-              if (_error != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ],
-              if (_preview != null) ...[
-                const SizedBox(height: 16),
-                _TmdbImportPreviewPanel(
-                  preview: _preview!,
-                  keepUnmatchedLocally: _keepUnmatchedLocally,
-                ),
-              ],
             ],
-          ),
-        ),
+          );
+        },
       ),
-      actions: [
-        TextButton(
-          onPressed: _isWorking ? null : () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-        FilledButton.icon(
-          onPressed: _isWorking || _preview == null ? null : _importPreview,
-          icon: const Icon(Icons.download_done_outlined),
-          label: Text(_importButtonLabel),
-        ),
-      ],
     );
   }
 
@@ -259,97 +376,136 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
     };
   }
 
-  Future<void> _saveCredentials() async {
+  Future<void> _persistCredentials({bool showSuccessToast = false}) async {
     await ref.read(tmdbImportSettingsProvider.notifier).save(
           apiKey: _apiKeyController.text,
           accountId: _accountIdController.text,
           sessionId: _sessionIdController.text,
         );
-    if (!mounted) {
+    if (!showSuccessToast || !mounted) {
       return;
     }
-    setState(() {
-      _statusMessage = 'TMDB credentials saved locally on this device.';
-      _error = null;
-    });
+    showAppToast(
+      context,
+      'TMDB credentials saved on this device.',
+      tone: AppToastTone.success,
+    );
+  }
+
+  Future<void> _saveCredentials() {
+    return _persistCredentials(showSuccessToast: true);
   }
 
   Future<void> _loadFromTmdb() async {
-    final credentials = TmdbImportCredentials(
-      apiKey: _apiKeyController.text,
-      accountId: _accountIdController.text,
-      sessionId: _sessionIdController.text,
+    await _runPreviewFlow(
+      sourceMode: _TmdbImportSourceMode.accountSync,
+      mapError: _describeTmdbFetchError,
+      preparePreview: () async {
+        final credentials = TmdbImportCredentials(
+          apiKey: _apiKeyController.text,
+          accountId: _accountIdController.text,
+          sessionId: _sessionIdController.text,
+        );
+        final entries = await _service.fetchCollection(credentials, _collection);
+        await _persistCredentials();
+        return _TmdbPreviewRequest(
+          sourceLabel: 'TMDB account sync',
+          entries: entries,
+        );
+      },
     );
-    setState(() {
-      _isWorking = true;
-      _error = null;
-      _statusMessage = null;
-      _preview = null;
-    });
-    try {
-      final entries = await _service.fetchCollection(credentials, _collection);
-      await _saveCredentials();
-      final preview = await _buildPreview(entries);
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _preview = preview;
-        _statusMessage =
-            'Loaded ${entries.length} ${_collection.label.toLowerCase()} from TMDB.';
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _error = 'TMDB fetch failed: $error';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isWorking = false;
-        });
-      }
-    }
   }
 
   Future<void> _previewPayload() async {
     final rawText = _payloadController.text.trim();
     if (rawText.isEmpty) {
-      setState(() {
-        _error = 'Paste a TMDB JSON payload before previewing.';
-        _statusMessage = null;
-      });
+      showAppToast(
+        context,
+        'Paste a TMDB JSON or CSV export first.',
+        tone: AppToastTone.error,
+      );
       return;
     }
+    await _runPreviewFlow(
+      sourceMode: _TmdbImportSourceMode.exportFile,
+      mapError: _describeTmdbPayloadError,
+      preparePreview: () async {
+        final entries = _service.parseCollectionPayload(
+          rawText,
+          collection: _collection,
+        );
+        return _TmdbPreviewRequest(
+          sourceLabel: 'Pasted payload',
+          entries: entries,
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImportFile() async {
+    await _runPreviewFlow(
+      sourceMode: _TmdbImportSourceMode.exportFile,
+      mapError: _describeTmdbFileError,
+      preparePreview: () async {
+        final file = await openFile(
+          acceptedTypeGroups: const [
+            XTypeGroup(
+              label: 'TMDB exports',
+              extensions: ['csv', 'zip', 'json'],
+            ),
+          ],
+        );
+        if (file == null) {
+          return null;
+        }
+        final bytes = await file.readAsBytes();
+        final entries = _service.parseCollectionFileBytes(
+          bytes,
+          fileName: file.name,
+          collection: _collection,
+        );
+        return _TmdbPreviewRequest(
+          sourceLabel: file.name,
+          entries: entries,
+        );
+      },
+    );
+  }
+
+  Future<void> _runPreviewFlow({
+    required _TmdbImportSourceMode sourceMode,
+    required Future<_TmdbPreviewRequest?> Function() preparePreview,
+    required String Function(Object error) mapError,
+  }) async {
     setState(() {
+      _sourceMode = sourceMode;
       _isWorking = true;
-      _error = null;
-      _statusMessage = null;
-      _preview = null;
+      _lastPreviewSummary = null;
     });
     try {
-      final entries = _service.parseCollectionPayload(
-        rawText,
-        collection: _collection,
-      );
-      final preview = await _buildPreview(entries);
+      final request = await preparePreview();
+      if (request == null) {
+        return;
+      }
+      _lastPreviewSourceLabel = request.sourceLabel;
+      final preview = await _buildPreview(request.entries);
       if (!mounted) {
         return;
       }
       setState(() {
-        _preview = preview;
-        _statusMessage =
-            'Previewed ${entries.length} ${_collection.label.toLowerCase()} from pasted JSON.';
+        _lastPreviewSummary = _TmdbPreviewSummary.fromPreview(preview);
+        _isWorking = false;
       });
+      await _openPreviewDialog(preview);
     } catch (error) {
       if (!mounted) {
         return;
       }
-      setState(() {
-        _error = 'TMDB payload preview failed: $error';
-      });
+      showAppToast(
+        context,
+        mapError(error),
+        tone: AppToastTone.error,
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -374,25 +530,27 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
     );
   }
 
-  Future<void> _importPreview() async {
-    final preview = _preview;
-    if (preview == null) {
-      return;
-    }
+  Future<String> _importPreview(
+    TmdbImportPreview preview, {
+    required bool skipUnmatchedRows,
+  }) async {
     setState(() {
       _isWorking = true;
-      _error = null;
-      _statusMessage = null;
     });
+    var importedCount = 0;
+    var proposedCount = 0;
+    var keptLocalCount = 0;
+    var skippedCount = 0;
     try {
       final type = _resolvedMovieType();
       final mutations = ref.read(collectionMutationsProvider);
-      var importedCount = 0;
-      var proposedCount = 0;
-      var keptLocalCount = 0;
       for (final match in preview.matches) {
         final item = match.catalogItem;
         if (item != null) {
+          final mergedItem = _mergeMatchedTmdbMetadata(item, match.entry);
+          if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
+            await mutations.updateCatalogSnapshot(mergedItem, notify: false);
+          }
           switch (preview.collection) {
             case TmdbImportCollection.ratedMovies:
               await mutations.upsertTrackingEntry(
@@ -411,29 +569,35 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
           continue;
         }
 
+        if (skipUnmatchedRows) {
+          skippedCount += 1;
+          continue;
+        }
+
+        final enrichedEntry = await _enrichUnmatchedEntry(match.entry);
         final response = await createAndRecordLibraryMetadataProposal(
           api: ref.read(apiClientProvider),
           type: type,
           provider: 'tmdb',
-          providerItemId: match.entry.tmdbId.toString(),
-          query: match.entry.query,
-          title: match.entry.title,
-          summary: match.entry.overview,
-          imageUrl: match.entry.posterUrl,
-          metadataPayload: match.entry.rawPayload,
+          providerItemId: enrichedEntry.tmdbId.toString(),
+          query: enrichedEntry.query,
+          title: enrichedEntry.title,
+          summary: enrichedEntry.overview,
+          imageUrl: enrichedEntry.posterUrl,
+          metadataPayload: enrichedEntry.rawPayload,
           source: 'TMDB import',
         );
         proposedCount += 1;
 
         if (_keepUnmatchedLocally) {
-          final localItem = _service.localSyntheticCatalogItem(match.entry);
+          final localItem = _service.localSyntheticCatalogItem(enrichedEntry);
           switch (preview.collection) {
             case TmdbImportCollection.ratedMovies:
               await mutations.addLocalOnlyTrackingEntry(
                 localItem,
                 sourceType: TrackingSourceType.streaming,
                 status: MediaTrackingStatus.completed,
-                rating: _normalizedRating(match.entry.rating),
+                rating: _normalizedRating(enrichedEntry.rating),
                 timesCompleted: 1,
               );
               break;
@@ -444,7 +608,7 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
           await _pendingStore.upsert(
             TmdbPendingImportRecord(
               localItemId: localItem.id,
-              entry: match.entry,
+              entry: enrichedEntry,
               createdAt: DateTime.now().toUtc(),
               proposalServerId: response['id']?.toString(),
             ),
@@ -453,26 +617,35 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
         }
       }
       await _refreshPendingLocalCount();
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            keptLocalCount == 0
-                ? 'Imported $importedCount items and sent $proposedCount metadata proposals.'
-                : 'Imported $importedCount items, kept $keptLocalCount unmatched items locally, and sent $proposedCount metadata proposals.',
-          ),
-        ),
+      widget.onStateChanged?.call();
+      final resultMessage = _buildImportResultMessage(
+        importedCount: importedCount,
+        proposedCount: proposedCount,
+        keptLocalCount: keptLocalCount,
+        skippedCount: skippedCount,
       );
+      await _recordImportHistory(
+        status: ProviderImportHistoryStatus.success,
+        preview: preview,
+        message: resultMessage,
+        importedCount: importedCount,
+        proposedCount: proposedCount,
+        keptLocalCount: keptLocalCount,
+      );
+      return resultMessage;
     } catch (error) {
+      await _recordImportHistory(
+        status: ProviderImportHistoryStatus.failed,
+        preview: preview,
+        message: 'TMDB import failed: $error',
+        importedCount: importedCount,
+        proposedCount: proposedCount,
+        keptLocalCount: keptLocalCount,
+      );
       if (!mounted) {
-        return;
+        rethrow;
       }
-      setState(() {
-        _error = 'TMDB import failed: $error';
-      });
+      rethrow;
     } finally {
       if (mounted) {
         setState(() {
@@ -482,11 +655,34 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
     }
   }
 
+  Future<void> _openPreviewDialog(TmdbImportPreview preview) async {
+    if (!mounted) {
+      return;
+    }
+    final resultMessage = await showTmdbImportPreviewDialog(
+      context: context,
+      preview: preview,
+      sourceLabel: _lastPreviewSourceLabel,
+      keepUnmatchedLocally: _keepUnmatchedLocally,
+      importButtonLabel: _importButtonLabel,
+      onImport: ({required skipUnmatchedRows}) =>
+          _importPreview(preview, skipUnmatchedRows: skipUnmatchedRows),
+      mapImportError: _describeTmdbImportError,
+    );
+    if (!mounted || resultMessage == null) {
+      return;
+    }
+    Navigator.of(context).pop();
+    showAppToast(
+      context,
+      resultMessage,
+      tone: AppToastTone.success,
+    );
+  }
+
   Future<void> _reconcilePendingImports() async {
     setState(() {
       _isWorking = true;
-      _error = null;
-      _statusMessage = null;
     });
     try {
       final records = await _pendingStore.read();
@@ -521,21 +717,26 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
         }
       }
       await _refreshPendingLocalCount();
+      widget.onStateChanged?.call();
       if (!mounted) {
         return;
       }
-      setState(() {
-        _statusMessage = reconciled == 0
-            ? 'No pending local TMDB imports could be reconciled yet.'
-            : 'Reconciled $reconciled pending local TMDB imports to Core items.';
-      });
+      showAppToast(
+        context,
+        reconciled == 0
+            ? 'No pending TMDB imports could be reconciled yet.'
+            : 'Reconciled $reconciled pending TMDB imports.',
+        tone: reconciled == 0 ? AppToastTone.info : AppToastTone.success,
+      );
     } catch (error) {
       if (!mounted) {
         return;
       }
-      setState(() {
-        _error = 'TMDB reconciliation failed: $error';
-      });
+      showAppToast(
+        context,
+        _describeTmdbReconcileError(error),
+        tone: AppToastTone.error,
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -572,91 +773,296 @@ class _TmdbImportDialogState extends ConsumerState<TmdbImportDialog> {
     }
     return rounded;
   }
-}
 
-class _TmdbImportPreviewPanel extends StatelessWidget {
-  const _TmdbImportPreviewPanel({
-    required this.preview,
-    required this.keepUnmatchedLocally,
-  });
+  Future<TmdbImportEntry> _enrichUnmatchedEntry(TmdbImportEntry entry) async {
+    final apiKey = _apiKeyController.text.trim();
+    if (apiKey.isEmpty) {
+      return entry;
+    }
+    try {
+      return await _service.enrichEntry(apiKey: apiKey, entry: entry);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'tmdb_import',
+        message:
+            'Failed to enrich unmatched TMDB entry ${entry.tmdbId}. Using export data only.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return entry;
+    }
+  }
 
-  final TmdbImportPreview preview;
-  final bool keepUnmatchedLocally;
-
-  @override
-  Widget build(BuildContext context) {
-    final matched = preview.matched;
-    final unmatched = preview.unmatched;
-    final visibleRows = preview.matches.take(12).toList(growable: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _PreviewCountChip(label: 'Rows', value: preview.matches.length),
-            _PreviewCountChip(label: 'Matched', value: matched.length),
-            _PreviewCountChip(label: 'Unmatched', value: unmatched.length),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          preview.collection == TmdbImportCollection.ratedMovies
-              ? keepUnmatchedLocally
-                  ? 'Matched rows will be imported as streaming entries with status Completed. Unmatched rows will be kept locally on this device and also sent as TMDB metadata proposals until they can be reconciled to a Core item.'
-                  : 'Matched rows will be imported as streaming entries with status Completed. Unmatched rows stay proposal-only for now until Core ingest exists; no local synthetic catalog items are created.'
-              : keepUnmatchedLocally
-                  ? 'Matched rows will be added to wishlist. Unmatched rows will be kept locally on this device and also sent as TMDB metadata proposals until they can be reconciled to a Core item.'
-                  : 'Matched rows will be added to wishlist. Unmatched rows stay proposal-only for now until Core ingest exists; no local synthetic catalog items are created.',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        const SizedBox(height: 12),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).dividerColor),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: SizedBox(
-            height: 260,
-            child: ListView.separated(
-              itemCount: visibleRows.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final match = visibleRows[index];
-                final item = match.catalogItem;
-                final subtitle = item == null
-                    ? keepUnmatchedLocally
-                        ? 'No confident Core match. A metadata proposal will be sent and the item will stay local-only until reconciliation succeeds.'
-                        : 'No confident Core match. A metadata proposal will be sent.'
-                    : '${item.title}${item.releaseYear == null ? '' : ' (${item.releaseYear})'}';
-                return ListTile(
-                  dense: true,
-                  leading: Icon(
-                    item == null
-                        ? Icons.outbox_outlined
-                        : Icons.check_circle_outline,
-                  ),
-                  title: Text(match.entry.title),
-                  subtitle: Text(subtitle),
-                );
-              },
-            ),
-          ),
-        ),
-      ],
+  CatalogItem _mergeMatchedTmdbMetadata(CatalogItem item, TmdbImportEntry entry) {
+    final aliases = <String>{
+      if (item.searchAliases case final currentAliases?) ...currentAliases,
+      if (item.title.trim().isNotEmpty) item.title.trim(),
+      if (item.displayTitle?.trim().isNotEmpty == true) item.displayTitle!.trim(),
+      if (item.localizedTitle?.trim().isNotEmpty == true) item.localizedTitle!.trim(),
+      if (item.originalTitle?.trim().isNotEmpty == true) item.originalTitle!.trim(),
+      if (entry.title.trim().isNotEmpty) entry.title.trim(),
+      if (entry.originalTitle?.trim().isNotEmpty == true) entry.originalTitle!.trim(),
+    }.toList(growable: false);
+    return CatalogItem(
+      id: item.id,
+      mediaKind: item.mediaKind,
+      title: item.title,
+      displayTitle: item.displayTitle ?? entry.title,
+      localizedTitle: item.localizedTitle ?? entry.title,
+      originalTitle: item.originalTitle ?? entry.originalTitle,
+      searchAliases: aliases,
+      sortKey: item.sortKey,
+      itemNumber: item.itemNumber,
+      synopsis: item.synopsis,
+      coverImageUrl: item.coverImageUrl ?? entry.posterUrl,
+      thumbnailImageUrl: item.thumbnailImageUrl ?? item.coverImageUrl ?? entry.posterUrl,
+      coverImageData: item.coverImageData,
+      editionTitle: item.editionTitle,
+      physicalFormat: item.physicalFormat,
+      physicalFormatLabel: item.physicalFormatLabel,
+      publisher: item.publisher,
+      releaseDate: item.releaseDate,
+      releaseYear: item.releaseYear,
+      barcode: item.barcode,
+      variant: item.variant,
+      series: item.series,
+      video: item.video,
+      music: item.music,
+      game: item.game,
+      publishing: item.publishing,
+      creators: item.creators,
+      characters: item.characters,
+      storyArcs: item.storyArcs,
+      rawPlatforms: item.rawPlatforms,
+      genres: item.genres,
+      editions: item.editions,
+      country: item.country,
+      language: item.language,
+      ageRating: item.ageRating,
     );
+  }
+
+  bool _shouldUpdateCatalogSnapshot(CatalogItem current, CatalogItem next) {
+    return current.displayTitle != next.displayTitle ||
+        current.localizedTitle != next.localizedTitle ||
+        current.originalTitle != next.originalTitle ||
+        current.displayCoverUrl != next.displayCoverUrl ||
+        !_sameStringLists(current.searchAliases, next.searchAliases);
+  }
+
+  bool _sameStringLists(List<String>? left, List<String>? right) {
+    if (left == null || left.isEmpty) {
+      return right == null || right.isEmpty;
+    }
+    if (right == null || left.length != right.length) {
+      return false;
+    }
+    for (var index = 0; index < left.length; index += 1) {
+      if (left[index] != right[index]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  String _describeTmdbFetchError(Object error) {
+    if (error case DioException dioError) {
+      final statusCode = dioError.response?.statusCode;
+      if (statusCode == 401) {
+        return 'TMDB credentials were rejected. Check the API key, account ID, and session ID.';
+      }
+      if (statusCode != null) {
+        return 'TMDB request failed with status $statusCode.';
+      }
+      if (dioError.type == DioExceptionType.connectionTimeout ||
+          dioError.type == DioExceptionType.receiveTimeout ||
+          dioError.type == DioExceptionType.sendTimeout) {
+        return 'TMDB took too long to respond. Try again.';
+      }
+      return 'Couldn\'t reach TMDB right now. Try again.';
+    }
+    return 'TMDB import could not be loaded. ${_describeGenericError(error)}';
+  }
+
+  String _describeTmdbPayloadError(Object error) {
+    return 'Couldn\'t read the pasted TMDB data. Use a TMDB JSON or CSV export. ${_describeGenericError(error)}';
+  }
+
+  String _describeTmdbFileError(Object error) {
+    return 'Couldn\'t read that TMDB export file. Use a JSON, CSV, or ZIP export. ${_describeGenericError(error)}';
+  }
+
+  String _describeTmdbImportError(Object error) {
+    if (error case DioException dioError) {
+      final statusCode = dioError.response?.statusCode;
+      if (statusCode == 401) {
+        return 'The server rejected this import with status 401.';
+      }
+      if (statusCode != null) {
+        return 'Import failed with status $statusCode.';
+      }
+    }
+    return 'TMDB import failed. ${_describeGenericError(error)}';
+  }
+
+  String _describeTmdbReconcileError(Object error) {
+    return 'Couldn\'t reconcile pending TMDB imports. ${_describeGenericError(error)}';
+  }
+
+  String _describeGenericError(Object error) {
+    final text = error.toString().trim();
+    if (text.startsWith('StateError: ')) {
+      return text.substring('StateError: '.length);
+    }
+    if (text.startsWith('Exception: ')) {
+      return text.substring('Exception: '.length);
+    }
+    if (text.startsWith('Invalid argument')) {
+      return text;
+    }
+    return text;
+  }
+
+  String _buildImportResultMessage({
+    required int importedCount,
+    required int proposedCount,
+    required int keptLocalCount,
+    required int skippedCount,
+  }) {
+    if (keptLocalCount == 0 && proposedCount == 0 && skippedCount == 0) {
+      return 'Imported $importedCount items.';
+    }
+    final parts = <String>['Imported $importedCount items.'];
+    if (proposedCount > 0) {
+      parts.add('Sent $proposedCount metadata proposals.');
+    }
+    if (keptLocalCount > 0) {
+      parts.add('Kept $keptLocalCount unmatched locally.');
+    }
+    if (skippedCount > 0) {
+      parts.add('Skipped $skippedCount unmatched rows.');
+    }
+    return parts.join(' ');
+  }
+
+  Future<void> _recordImportHistory({
+    required ProviderImportHistoryStatus status,
+    required TmdbImportPreview preview,
+    required String message,
+    int importedCount = 0,
+    int proposedCount = 0,
+    int keptLocalCount = 0,
+  }) async {
+    await _historyStore.append(
+      ProviderImportHistoryEntry(
+        id: DateTime.now().toUtc().microsecondsSinceEpoch.toString(),
+        provider: ProviderImportId.tmdb,
+        status: status,
+        collectionLabel: preview.collection.label,
+        sourceLabel: _lastPreviewSourceLabel,
+        message: message,
+        createdAt: DateTime.now().toUtc(),
+        rows: preview.matches.length,
+        matched: preview.matched.length,
+        unmatched: preview.unmatched.length,
+        imported: importedCount,
+        proposed: proposedCount,
+        keptLocal: keptLocalCount,
+      ),
+    );
+    if (widget.onImportRecorded != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          widget.onImportRecorded?.call();
+        }
+      });
+    }
   }
 }
 
 class _PreviewCountChip extends StatelessWidget {
-  const _PreviewCountChip({required this.label, required this.value});
+  const _PreviewCountChip({
+    required this.label,
+    this.value,
+    this.valueText,
+  }) : assert(value != null || valueText != null);
 
   final String label;
-  final int value;
+  final int? value;
+  final String? valueText;
 
   @override
   Widget build(BuildContext context) {
-    return Chip(label: Text('$label: $value'));
+    final displayValue = valueText ?? '$value';
+    return Chip(
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      label: Text('$label: $displayValue'),
+    );
+  }
+}
+
+class _TmdbPreviewSummary {
+  const _TmdbPreviewSummary({
+    required this.rows,
+    required this.matched,
+    required this.unmatched,
+  });
+
+  final int rows;
+  final int matched;
+  final int unmatched;
+
+  factory _TmdbPreviewSummary.fromPreview(TmdbImportPreview preview) {
+    return _TmdbPreviewSummary(
+      rows: preview.matches.length,
+      matched: preview.matched.length,
+      unmatched: preview.unmatched.length,
+    );
+  }
+}
+
+class _TmdbPreviewRequest {
+  const _TmdbPreviewRequest({
+    required this.sourceLabel,
+    required this.entries,
+  });
+
+  final String sourceLabel;
+  final List<TmdbImportEntry> entries;
+}
+
+class _ImportSectionCard extends StatelessWidget {
+  const _ImportSectionCard({
+    required this.title,
+    required this.child,
+    this.expandChild = false,
+  });
+
+  final String title;
+  final Widget child;
+  final bool expandChild;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(title, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 10),
+            if (expandChild) Expanded(child: child) else child,
+          ],
+        ),
+      ),
+    );
   }
 }

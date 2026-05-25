@@ -40,7 +40,7 @@ class LibrarySidebar extends StatelessWidget {
       accentColor: accent,
       selectionColor: accent.withValues(alpha: 0.36),
       backgroundColor: kAppPanel,
-      headerColor: const Color(0xFF303030),
+      headerColor: kAppSurface,
       dividerColor: kAppDivider,
       selectedBadgeColor: kAppHighlight,
       mutedTextColor: kAppTextMuted,

@@ -41,6 +41,104 @@ class InspectorMetadataSection extends StatelessWidget {
   }
 }
 
+class InspectorVideoTitleMetadataSection extends StatelessWidget {
+  const InspectorVideoTitleMetadataSection({
+    super.key,
+    required this.type,
+    required this.entry,
+    required this.accent,
+    required this.ownedReleaseCount,
+    this.onFilterByValue,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceEntry entry;
+  final Color accent;
+  final int ownedReleaseCount;
+  final ValueChanged<String>? onFilterByValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final aliasValues = <String>{
+      if (entry.originalTitle?.trim().isNotEmpty == true)
+        entry.originalTitle!.trim(),
+      if (entry.localizedTitle?.trim().isNotEmpty == true &&
+          entry.localizedTitle!.trim() != entry.resolvedTitle.trim())
+        entry.localizedTitle!.trim(),
+      ...?entry.searchAliases,
+    }.toList(growable: false);
+    final creatorNames = <String>[
+      for (final credit in entry.creators ?? const <Map<String, dynamic>>[])
+        if (credit['name']?.toString().trim().isNotEmpty == true)
+          credit['name'].toString().trim(),
+    ];
+    return LibraryInspectorSection(
+      title: 'Title metadata',
+      accentColor: accent,
+      children: [
+        LibraryInspectorFactGrid(
+          facts: [
+            LibraryInspectorFactData('Display title', entry.resolvedTitle),
+            if (entry.originalTitle?.trim().isNotEmpty == true)
+              LibraryInspectorFactData('Original title', entry.originalTitle!),
+            if (entry.publisher?.trim().isNotEmpty == true)
+              LibraryInspectorFactData('Studio', entry.publisher!),
+            if (entry.video?.runtimeMinutes != null)
+              LibraryInspectorFactData(
+                'Runtime',
+                '${entry.video!.runtimeMinutes} min',
+              ),
+            LibraryInspectorFactData(
+              'Releases',
+              entry.editions.length.toString(),
+            ),
+            LibraryInspectorFactData(
+              'Owned releases',
+              ownedReleaseCount.toString(),
+            ),
+          ],
+        ),
+        if (entry.genres case final genres? when genres.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          LibraryInspectorChipWrap(label: 'Genres', values: genres),
+        ],
+        if (creatorNames.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          LibraryInspectorChipWrap(label: 'Cast / credits', values: creatorNames),
+        ],
+        if (aliasValues.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          LibraryInspectorChipWrap(label: 'Search aliases', values: aliasValues),
+        ],
+      ],
+    );
+  }
+}
+
+List<Widget> buildVideoInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  final ownedReleaseIds = <String>{};
+  for (final edition in request.entry.editions) {
+    for (final variant in edition.variants) {
+      if (variant.id == request.entry.referenceVariantId ||
+          edition.id == request.entry.referenceEditionId) {
+        ownedReleaseIds.add(edition.id);
+      }
+    }
+  }
+  return [
+    InspectorVideoTitleMetadataSection(
+      type: request.type,
+      entry: request.entry,
+      accent: request.accent,
+      ownedReleaseCount: ownedReleaseIds.length,
+      onFilterByValue: request.onFilterByValue,
+    ),
+  ];
+}
+
 class InspectorPersonalSection extends StatelessWidget {
   const InspectorPersonalSection({
     super.key,

@@ -178,4 +178,34 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Back cover'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'View back'), findsNothing);
   });
+
+  testWidgets('hover cue can be disabled for inspector covers', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 220,
+              height: 320,
+              child: LibraryInteractiveCover(
+                title: 'The Hobbit',
+                localBase64: 'AAECAw==',
+                enableHoverCue: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(gesture.removePointer);
+    await gesture.addPointer(location: Offset.zero);
+    await gesture.moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
+    await tester.pumpAndSettle();
+
+    final opacity = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+    expect(opacity.opacity, 0);
+    expect(tester.takeException(), isNull);
+  });
 }

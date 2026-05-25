@@ -522,13 +522,17 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               _responsiveFields([
                 _field(
                     controller: _publisherController, label: labels.publisher),
-                _field(
-                    controller: _editionTitleController,
-                    label: 'Edition title'),
-                _field(controller: _variantController, label: labels.variant),
-                _field(controller: _barcodeController, label: labels.barcode),
+                if (editPresentation.showsCatalogReleaseFields)
+                  _field(
+                      controller: _editionTitleController,
+                      label: 'Edition title'),
+                if (editPresentation.showsCatalogReleaseFields)
+                  _field(controller: _variantController, label: labels.variant),
+                if (editPresentation.showsCatalogReleaseFields)
+                  _field(controller: _barcodeController, label: labels.barcode),
               ]),
-              if (editPresentation.showsPhysicalFormatSelector) ...[
+              if (editPresentation.showsCatalogReleaseFields &&
+                  editPresentation.showsPhysicalFormatSelector) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   initialValue: _physicalFormatId,
