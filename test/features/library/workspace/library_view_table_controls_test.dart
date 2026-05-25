@@ -39,8 +39,8 @@ void main() {
     );
 
     expect(find.byTooltip('Select columns'), findsOneWidget);
-    expect(find.byTooltip('Cover view'), findsOneWidget);
-    expect(find.byTooltip('Card view'), findsOneWidget);
+    expect(find.byTooltip('Grid view'), findsOneWidget);
+    expect(find.byTooltip('Cards view'), findsOneWidget);
     expect(find.byTooltip('List view'), findsOneWidget);
     expect(find.byTooltip('Cover size'), findsOneWidget);
 

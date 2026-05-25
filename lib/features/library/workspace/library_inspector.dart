@@ -1,7 +1,8 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const Color _kDefaultAccent = Color(0xFF10A8D8);
-const Color _kDefaultMutedText = Color(0xFFB8B8B8);
+const Color _kDefaultAccent = kAppAccent;
+const Color _kDefaultMutedText = kAppTextMuted;
 const double _kTwoColumnBreakpoint = 420;
 
 class LibraryInspectorFactData {
@@ -12,19 +13,37 @@ class LibraryInspectorFactData {
   final VoidCallback? onTap;
 }
 
-class LibraryInspectorSection extends StatelessWidget {
+class LibraryInspectorSection extends StatefulWidget {
   const LibraryInspectorSection({
     super.key,
     required this.title,
     required this.children,
     this.accentColor = _kDefaultAccent,
     this.mutedTextColor = _kDefaultMutedText,
+    this.collapsible = true,
+    this.initiallyExpanded = true,
   });
 
   final String title;
   final List<Widget> children;
   final Color accentColor;
   final Color mutedTextColor;
+  final bool collapsible;
+  final bool initiallyExpanded;
+
+  @override
+  State<LibraryInspectorSection> createState() =>
+      _LibraryInspectorSectionState();
+}
+
+class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
+  late bool _expanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = widget.initiallyExpanded;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +53,14 @@ class LibraryInspectorSection extends StatelessWidget {
       colorScheme.surface,
     );
     final borderColor = colorScheme.outlineVariant.withValues(alpha: 0.42);
-    final accentBorderColor = accentColor.withValues(alpha: 0.28);
+    final accentBorderColor = widget.accentColor.withValues(alpha: 0.28);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: sectionColor,
           border: Border(
-            left: BorderSide(color: accentColor, width: 2),
+            left: BorderSide(color: widget.accentColor, width: 2),
             top: BorderSide(color: accentBorderColor),
             right: BorderSide(color: borderColor),
             bottom: BorderSide(color: borderColor),
@@ -59,38 +78,58 @@ class LibraryInspectorSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: accentColor.withValues(alpha: 0.14),
+              InkWell(
+                onTap: widget.collapsible
+                    ? () => setState(() => _expanded = !_expanded)
+                    : null,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: widget.accentColor.withValues(alpha: 0.14),
+                      ),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      children: [
+                        Text(
+                          widget.title,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                color: widget.accentColor,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13,
+                              ),
+                        ),
+                        const Spacer(),
+                        if (widget.collapsible)
+                          Icon(
+                            _expanded
+                                ? Icons.keyboard_arrow_down
+                                : Icons.keyboard_arrow_right,
+                            size: 16,
+                            color: widget.mutedTextColor,
+                          ),
+                      ],
                     ),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: accentColor,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 13,
-                            ),
-                      ),
-                      const Spacer(),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 16,
-                        color: mutedTextColor,
-                      ),
-                    ],
+              ),
+              AnimatedCrossFade(
+                firstChild: const SizedBox.shrink(),
+                secondChild: Padding(
+                  padding: const EdgeInsets.only(top: 7),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: widget.children,
                   ),
                 ),
+                crossFadeState: _expanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 180),
               ),
-              const SizedBox(height: 7),
-              ...children,
             ],
           ),
         ),

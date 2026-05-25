@@ -1,13 +1,16 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const comicsWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'comic',
+  kind: CatalogMediaKind.comic,
   title: 'Comics',
   icon: Icons.library_books,
   preferencePrefix: 'comics',
@@ -40,7 +43,9 @@ const comicsLibraryConfig = LibraryTypeConfig(
     comicVineMetadataProvider,
   ],
   trackingProfile: comicTrackingProfile,
+  editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: comicsLibraryMediaPresentation,
+  editPresentation: comicsLibraryEditPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
   ),

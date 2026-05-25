@@ -12,6 +12,7 @@ class SmartList {
     this.mediaKind,
     this.filterSelection = LibraryFilterSelection.none,
     this.quickView,
+    this.sortRules,
     this.sortColumn,
     this.sortAscending,
     this.searchQuery,
@@ -24,16 +25,42 @@ class SmartList {
   final String? mediaKind;
   final LibraryFilterSelection filterSelection;
   final LibraryQuickView? quickView;
+  final List<LibrarySortRule>? sortRules;
   final LibrarySortColumn? sortColumn;
   final bool? sortAscending;
   final String? searchQuery;
 
+  List<LibrarySortRule> get effectiveSortRules {
+    final configuredRules = sortRules;
+    if (configuredRules != null && configuredRules.isNotEmpty) {
+      return configuredRules;
+    }
+    if (sortColumn == null) {
+      return const [];
+    }
+    return [
+      LibrarySortRule(
+        column: sortColumn!,
+        ascending: sortAscending ?? true,
+      ),
+    ];
+  }
+
   Map<String, dynamic> toJson() {
+    final effectiveSortRules = this.effectiveSortRules;
     return {
       'name': name,
       if (mediaKind != null) 'media_kind': mediaKind,
       if (searchQuery != null) 'search_query': searchQuery,
       if (quickView != null) 'quick_view': quickView!.name,
+      if (effectiveSortRules.isNotEmpty)
+        'sort_rules': [
+          for (final rule in effectiveSortRules)
+            {
+              'column': rule.column.name,
+              'ascending': rule.ascending,
+            },
+        ],
       if (sortColumn != null) 'sort_column': sortColumn!.name,
       if (sortAscending != null) 'sort_ascending': sortAscending,
       'filter': _filterToJson(filterSelection),
@@ -42,6 +69,16 @@ class SmartList {
 
   factory SmartList.fromRow(String id, String name, String criteriaJson) {
     final json = jsonDecode(criteriaJson) as Map<String, dynamic>;
+    final decodedSortRules = _sortRulesFromJson(json['sort_rules']);
+    final primarySortColumn = decodedSortRules.isNotEmpty
+        ? decodedSortRules.first.column
+        : _enumByNameOrNull(
+            LibrarySortColumn.values.asNameMap(),
+            json['sort_column'],
+          );
+    final primarySortAscending = decodedSortRules.isNotEmpty
+        ? decodedSortRules.first.ascending
+        : json['sort_ascending'] as bool?;
     return SmartList(
       id: id,
       name: name,
@@ -51,11 +88,9 @@ class SmartList {
         LibraryQuickView.values.asNameMap(),
         json['quick_view'],
       ),
-      sortColumn: _enumByNameOrNull(
-        LibrarySortColumn.values.asNameMap(),
-        json['sort_column'],
-      ),
-      sortAscending: json['sort_ascending'] as bool?,
+      sortRules: decodedSortRules.isEmpty ? null : decodedSortRules,
+      sortColumn: primarySortColumn,
+      sortAscending: primarySortAscending,
       filterSelection: _filterFromJson(
           json['filter'] as Map<String, dynamic>? ?? {}),
     );
@@ -65,7 +100,20 @@ class SmartList {
     return {
       if (f.ownershipFilter != LibraryOwnershipFilter.all)
         'ownership': f.ownershipFilter.name,
+      if (f.trackingStatusFilter != LibraryTrackingStatusFilter.all)
+        'tracking_status': f.trackingStatusFilter.name,
+      if (f.loanStatusFilter != LibraryLoanStatusFilter.all)
+        'loan_status': f.loanStatusFilter.name,
+      if (f.hasActiveDateRange) 'date_field': f.dateRangeField.name,
+      if (f.dateFrom != null) 'date_from': f.dateFrom!.toIso8601String(),
+      if (f.dateTo != null) 'date_to': f.dateTo!.toIso8601String(),
+      if (f.customFieldDefinitionId != null)
+        'custom_field_definition_id': f.customFieldDefinitionId,
+      if (f.customFieldValue != null)
+        'custom_field_value': f.customFieldValue,
       if (f.series != null) 'series': f.series,
+      if (f.location != null) 'location': f.location,
+      if (f.tag != null) 'tag': f.tag,
       if (f.grade != null) 'grade': f.grade,
       if (f.condition != null) 'condition': f.condition,
       if (f.publisher != null) 'publisher': f.publisher,
@@ -84,7 +132,28 @@ class SmartList {
             json['ownership'],
           ) ??
           LibraryOwnershipFilter.all,
+      trackingStatusFilter: _enumByNameOrNull(
+            LibraryTrackingStatusFilter.values.asNameMap(),
+            json['tracking_status'],
+          ) ??
+          LibraryTrackingStatusFilter.all,
+      loanStatusFilter: _enumByNameOrNull(
+            LibraryLoanStatusFilter.values.asNameMap(),
+            json['loan_status'],
+          ) ??
+          LibraryLoanStatusFilter.all,
+      dateRangeField: _enumByNameOrNull(
+            LibraryDateRangeField.values.asNameMap(),
+            json['date_field'],
+          ) ??
+          LibraryDateRangeField.updated,
+      dateFrom: _dateFromJson(json['date_from']),
+      dateTo: _dateFromJson(json['date_to']),
+      customFieldDefinitionId: json['custom_field_definition_id'] as String?,
+      customFieldValue: json['custom_field_value'] as String?,
       series: json['series'] as String?,
+      location: json['location'] as String?,
+      tag: json['tag'] as String?,
       grade: json['grade'] as String?,
       condition: json['condition'] as String?,
       publisher: json['publisher'] as String?,
@@ -101,5 +170,38 @@ class SmartList {
       return null;
     }
     return values[rawValue];
+  }
+
+  static DateTime? _dateFromJson(Object? rawValue) {
+    if (rawValue is! String || rawValue.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(rawValue);
+  }
+
+  static List<LibrarySortRule> _sortRulesFromJson(Object? rawValue) {
+    if (rawValue is! List) {
+      return const [];
+    }
+    final rules = <LibrarySortRule>[];
+    for (final entry in rawValue) {
+      if (entry is! Map) {
+        continue;
+      }
+      final column = _enumByNameOrNull(
+        LibrarySortColumn.values.asNameMap(),
+        entry['column'],
+      );
+      if (column == null) {
+        continue;
+      }
+      rules.add(
+        LibrarySortRule(
+          column: column,
+          ascending: entry['ascending'] as bool? ?? true,
+        ),
+      );
+    }
+    return rules;
   }
 }

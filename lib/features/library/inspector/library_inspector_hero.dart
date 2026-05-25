@@ -1,11 +1,16 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
+import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class InspectorHero extends StatelessWidget {
   const InspectorHero({
@@ -23,21 +28,65 @@ class InspectorHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 560;
-        final cover = SizedBox(
-          width: wide ? 146 : 174,
-          child: AspectRatio(
-            aspectRatio: 2 / 3,
-            child: LibraryInteractiveCover(
-              title: entry.title,
-              itemNumber: entry.itemNumber,
-              imageUrl: entry.displayCoverUrl,
-              ownedItemId: entry.ownedItemId,
-              accentColor: accent,
-            ),
-          ),
+        final cover = Consumer(
+          builder: (context, ref, _) {
+            final ownedItemId = resolvedOwnedItemId;
+            final db = ref.watch(localDatabaseProvider);
+            final localFront = ownedItemId == null
+                ? null
+                : ref
+                    .watch(
+                      localItemImageProvider((
+                        ownedItemId: ownedItemId,
+                        imageType: 'front_cover',
+                      )),
+                    )
+                    .value;
+            final localBack = ownedItemId == null
+                ? null
+                : ref
+                    .watch(
+                      localItemImageProvider((
+                        ownedItemId: ownedItemId,
+                        imageType: 'back_cover',
+                      )),
+                    )
+                    .value;
+            return SizedBox(
+              width: wide ? 146 : 174,
+              child: LibraryInteractiveCover(
+                title: entry.title,
+                itemNumber: entry.itemNumber,
+                imageUrl: entry.displayCoverUrl,
+                localBase64: localFront,
+                secondaryLocalBase64: localBack,
+                ownedItemId: ownedItemId,
+                accentColor: accent,
+                onMissingSecondaryPressed: ownedItemId == null
+                    ? null
+                    : () async {
+                        final savedType = await pickAndStoreOwnedItemImage(
+                          context: context,
+                          db: db,
+                          ownedItemId: ownedItemId,
+                          imageType: 'back_cover',
+                        );
+                        if (savedType == 'back_cover') {
+                          ref.invalidate(
+                            localItemImageProvider((
+                              ownedItemId: ownedItemId,
+                              imageType: 'back_cover',
+                            )),
+                          );
+                        }
+                      },
+              ),
+            );
+          },
         );
         final info = _InspectorHeroInfo(
           type: type,
@@ -102,8 +151,19 @@ class _InspectorHeroInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final releaseLabel = formatNullableDate(entry.releaseDate) ??
-        entry.releaseYear?.toString();
+    final referenceLabel =
+        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+            entry.primaryReferenceLabel;
+    final referenceHierarchy = libraryReferenceHierarchySegments(
+      mediaType: entry.mediaType,
+      editions: entry.editions,
+      editionId: ownedItem?.editionId ?? entry.referenceEditionId,
+      variantId: ownedItem?.variantId ?? entry.referenceVariantId,
+      bundleReleaseId:
+          ownedItem?.bundleReleaseId ?? entry.referenceBundleReleaseId,
+    );
+    final releaseLabel =
+        formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -147,7 +207,22 @@ class _InspectorHeroInfo extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
         ),
+        if (entry.mediaType == 'book' &&
+            (entry.creators?.isNotEmpty ?? false)) ...[
+          const SizedBox(height: 10),
+          BookAuthorSpotlight(
+            creators: entry.creators!,
+            accent: accent,
+          ),
+        ],
         const SizedBox(height: 10),
+        if (referenceHierarchy.length > 1) ...[
+          _ReferenceHierarchyLine(
+            segments: referenceHierarchy,
+            accent: accent,
+          ),
+          const SizedBox(height: 10),
+        ],
         Wrap(
           spacing: 6,
           runSpacing: 6,
@@ -167,6 +242,18 @@ class _InspectorHeroInfo extends StatelessWidget {
               label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
               accent: accent,
             ),
+            if (referenceLabel != null)
+              LibraryMetaChip(
+                icon: Icons.link_outlined,
+                label: referenceLabel,
+                accent: accent,
+              ),
+            if (entry.referenceFormatLabel != null)
+              LibraryMetaChip(
+                icon: Icons.album_outlined,
+                label: 'Format: ${entry.referenceFormatLabel!}',
+                accent: accent,
+              ),
             LibraryMetaChip(
               icon: entry.hasMissingCover
                   ? Icons.image_not_supported_outlined
@@ -235,6 +322,55 @@ class _InspectorHeroInfo extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _ReferenceHierarchyLine extends StatelessWidget {
+  const _ReferenceHierarchyLine({
+    required this.segments,
+    required this.accent,
+  });
+
+  final List<String> segments;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x10000000),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: accent.withValues(alpha: 0.18)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            for (var i = 0; i < segments.length; i++) ...[
+              Text(
+                segments[i],
+                style: TextStyle(
+                  color:
+                      i == segments.length - 1 ? Colors.white : kAppTextMuted,
+                  fontWeight: i == segments.length - 1
+                      ? FontWeight.w800
+                      : FontWeight.w600,
+                ),
+              ),
+              if (i < segments.length - 1)
+                Icon(
+                  Icons.chevron_right,
+                  size: 16,
+                  color: accent.withValues(alpha: 0.8),
+                ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

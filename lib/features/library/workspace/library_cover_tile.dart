@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryCoverTile extends StatelessWidget {
@@ -9,10 +10,10 @@ class LibraryCoverTile extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.onSecondaryTapUp,
-    this.selectedColor = const Color(0xFF075F75),
-    this.accentColor = const Color(0xFF10A8D8),
-    this.selectionColor = const Color(0xFFFFD400),
-    this.mutedTextColor = const Color(0xFFB8B8B8),
+    this.selectedColor = kAppSelection,
+    this.accentColor = kAppAccent,
+    this.selectionColor = kAppHighlight,
+    this.mutedTextColor = kAppTextMuted,
     super.key,
   });
 
@@ -64,17 +65,20 @@ class LibraryCoverTile extends StatelessWidget {
                       imageUrl: entry.displayCoverUrl,
                       ownedItemId: entry.ownedItemId,
                       accentColor: accentColor,
+                      enableFullscreen: false,
+                      enableSecondaryControl: false,
                     ),
                     Positioned(
                       left: 4,
                       top: 4,
                       child: LibraryCoverBadges(
                         isOwned: entry.isOwned,
+                        isTracked: entry.isTracked,
                         isWishlisted: entry.isWishlisted,
                         hasMissingCover: entry.hasMissingCover,
                         hasMissingMetadata: entry.hasMissingMetadata,
-                        keyLabel:
-                            libraryKeyMarkerLabel(entry.keyComic, entry.keyReason),
+                        keyLabel: libraryKeyMarkerLabel(
+                            entry.keyComic, entry.keyReason),
                         slabLabel: librarySlabMarkerLabel(
                           entry.rawOrSlabbed,
                           entry.gradingCompany,

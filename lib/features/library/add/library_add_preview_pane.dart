@@ -38,6 +38,19 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
     required this.isFetchingPreview,
     required this.providerLabel,
     required this.searched,
+    required this.addTarget,
+    required this.referenceType,
+    required this.availableBundleReleases,
+    required this.selectedBundleReleaseId,
+    required this.selectedBundleReleaseDetail,
+    required this.selectedEditionId,
+    required this.selectedVariantId,
+    required this.isLoadingBundleReleases,
+    required this.isLoadingBundleReleaseDetail,
+    required this.onReferenceTypeChanged,
+    required this.onEditionSelected,
+    required this.onVariantSelected,
+    required this.onBundleReleaseSelected,
   });
 
   final LibraryTypeConfig type;
@@ -48,11 +61,28 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
   final bool isFetchingPreview;
   final String providerLabel;
   final bool searched;
+  final LibraryAddTarget addTarget;
+  final LibraryAddReferenceType referenceType;
+  final List<BundleReleaseSummary> availableBundleReleases;
+  final String? selectedBundleReleaseId;
+  final BundleReleaseDetail? selectedBundleReleaseDetail;
+  final String? selectedEditionId;
+  final String? selectedVariantId;
+  final bool isLoadingBundleReleases;
+  final bool isLoadingBundleReleaseDetail;
+  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onEditionSelected;
+  final ValueChanged<String> onVariantSelected;
+  final ValueChanged<String> onBundleReleaseSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedItem = item;
     final selectedCandidate = candidate;
+    final selectedBundle =
+      referenceType == LibraryAddReferenceType.bundleRelease
+        ? selectedBundleReleaseDetail
+        : null;
     if (selectedItem == null && selectedCandidate == null) {
       return ColoredBox(
         color: const Color(0xFF060606),
@@ -65,13 +95,14 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         ),
       );
     }
-    final title = selectedItem?.title ?? selectedCandidate!.title;
-    final itemNumber = selectedItem?.itemNumber;
+    final title = selectedBundle?.title ?? selectedItem?.title ?? selectedCandidate!.title;
+    final itemNumber = selectedBundle == null ? selectedItem?.itemNumber : null;
     final preview = candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
-    final coverUrl = selectedItem?.displayCoverUrl ??
+    final coverUrl = selectedBundle?.coverImageUrl ??
+      selectedItem?.displayCoverUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -79,18 +110,6 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         ? _metadataRowsForFullPreview(preview, type)
         : _metadataRowsForCandidate(selectedCandidate!, type))
         : _metadataRowsForItem(selectedItem, type);
-    final seriesTree = _seriesTreeDataForSelection(
-      type: type,
-      item: selectedItem,
-      candidate: selectedCandidate,
-      preview: preview,
-    );
-    final statusSummary = _previewStatusSummary(
-      item: selectedItem,
-      candidate: selectedCandidate,
-      preview: preview,
-      isFetchingPreview: isFetchingPreview,
-    );
     final discoverySections = _discoverySections(
       item: selectedItem,
       candidate: selectedCandidate,
@@ -130,7 +149,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -167,12 +186,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                 ),
               ],
             ),
-            Divider(height: 22, color: accent.withValues(alpha: 0.42)),
-            _LibraryAddPreviewStatusBanner(
-              accent: accent,
-              summary: statusSummary,
-            ),
-            const SizedBox(height: 14),
+            Divider(height: 18, color: accent.withValues(alpha: 0.42)),
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,6 +194,24 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                   Expanded(
                     child: ListView(
                       children: [
+                        if (selectedItem != null) ...[
+                          _LibraryAddReferenceSelector(
+                            accent: accent,
+                            addTarget: addTarget,
+                            referenceType: referenceType,
+                            item: selectedItem,
+                            bundleReleases: availableBundleReleases,
+                            selectedBundleReleaseId: selectedBundleReleaseId,
+                            selectedEditionId: selectedEditionId,
+                            selectedVariantId: selectedVariantId,
+                            isLoadingBundleReleases: isLoadingBundleReleases,
+                            onReferenceTypeChanged: onReferenceTypeChanged,
+                            onEditionSelected: onEditionSelected,
+                            onVariantSelected: onVariantSelected,
+                            onBundleReleaseSelected: onBundleReleaseSelected,
+                          ),
+                          const SizedBox(height: 10),
+                        ],
                         if (type.capabilities.showsSynopsis &&
                           synopsis != null &&
                             synopsis.trim().isNotEmpty) ...[
@@ -187,14 +219,6 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                           const SizedBox(height: 6),
                           Text(synopsis),
                           const SizedBox(height: 22),
-                        ],
-                        if (seriesTree != null) ...[
-                          Text('Series', style: TextStyle(color: accent)),
-                          const SizedBox(height: 8),
-                          _LibraryAddPreviewSeriesTree(
-                            data: seriesTree,
-                            accent: accent,
-                          ),
                         ],
                         if (discoverySections.isNotEmpty) ...[
                           const SizedBox(height: 22),
@@ -205,6 +229,40 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                               title: section.title,
                               values: section.values,
                               accent: accent,
+                            ),
+                        ],
+                        if (selectedItem != null &&
+                            referenceType ==
+                                LibraryAddReferenceType.bundleRelease) ...[
+                          const SizedBox(height: 22),
+                          Text('Bundle', style: TextStyle(color: accent)),
+                          const SizedBox(height: 8),
+                          if (selectedBundleReleaseId != null &&
+                              isLoadingBundleReleaseDetail)
+                            const Row(
+                              children: [
+                                SizedBox.square(
+                                  dimension: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Loading bundle contents...',
+                                  style: TextStyle(color: kAppTextMuted),
+                                ),
+                              ],
+                            )
+                          else if (selectedBundle != null)
+                            _BundleReleaseDetailCard(
+                              detail: selectedBundle,
+                              accent: accent,
+                            )
+                          else
+                            const Text(
+                              'Select a bundle release to preview its members.',
+                              style: TextStyle(color: kAppTextMuted),
                             ),
                         ],
                         const SizedBox(height: 22),
@@ -247,6 +305,13 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                               accent: accent,
                             ),
                         ],
+                        if (type.capabilities.usesSeasonHierarchy &&
+                            selectedCandidate != null)
+                          _PreviewSeasonsSection(
+                            provider: selectedCandidate.provider,
+                            providerItemId: selectedCandidate.providerItemId,
+                            accent: accent,
+                          ),
                       ],
                     ),
                   ),
@@ -281,6 +346,691 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _BundleReleaseDetailCard extends StatelessWidget {
+  const _BundleReleaseDetailCard({
+    required this.detail,
+    required this.accent,
+  });
+
+  final BundleReleaseDetail detail;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final groupedMembers = _groupBundleMembers(detail.members);
+    final summaryParts = <String>[
+      if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
+        detail.bundleType!,
+      if (detail.packagingType != null && detail.packagingType!.trim().isNotEmpty)
+        detail.packagingType!,
+      if (detail.publisher != null && detail.publisher!.trim().isNotEmpty)
+        detail.publisher!,
+      '${detail.contentSummary.totalItems} items',
+    ];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x12000000),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: accent.withValues(alpha: 0.24)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              detail.title,
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            if (summaryParts.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                summaryParts.join(' • '),
+                style: const TextStyle(
+                  color: kAppTextMuted,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+            if (detail.members.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              for (final group in groupedMembers) ...[
+                _BundleReleaseDiscSection(
+                  group: group,
+                  accent: accent,
+                ),
+                const SizedBox(height: 8),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _bundleMemberTitle(BundleReleaseMember member) {
+  final number = member.itemNumber;
+  if (number != null && number.trim().isNotEmpty) {
+    return '${member.title} #$number';
+  }
+  return member.title;
+}
+
+String _bundleMemberSubtitle(BundleReleaseMember member) {
+  final parts = <String>[
+    if (member.role.trim().isNotEmpty) member.role,
+    if (member.seriesTitle != null && member.seriesTitle!.trim().isNotEmpty)
+      member.seriesTitle!,
+    if (member.volumeName != null && member.volumeName!.trim().isNotEmpty)
+      member.volumeName!,
+    if (member.discNumber != null) 'Disc ${member.discNumber}',
+    if (member.quantity > 1) 'x${member.quantity}',
+  ];
+  return parts.join(' • ');
+}
+
+class _BundleReleaseDiscSection extends StatelessWidget {
+  const _BundleReleaseDiscSection({
+    required this.group,
+    required this.accent,
+  });
+
+  final _BundleReleaseDiscGroup group;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x10000000),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: accent.withValues(alpha: 0.16)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              group.label,
+              style: TextStyle(
+                color: accent,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            for (final member in group.members)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 28,
+                      child: Text(
+                        member.sequenceNumber?.toString() ?? '•',
+                        style: const TextStyle(
+                          color: kAppTextMuted,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      member.isPrimary
+                          ? Icons.radio_button_checked
+                          : Icons.subdirectory_arrow_right,
+                      size: 16,
+                      color: member.isPrimary
+                          ? accent
+                          : accent.withValues(alpha: 0.7),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _bundleMemberTitle(member),
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            _bundleMemberSubtitle(member),
+                            style: const TextStyle(
+                              color: kAppTextMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BundleReleaseDiscGroup {
+  const _BundleReleaseDiscGroup({
+    required this.label,
+    required this.members,
+  });
+
+  final String label;
+  final List<BundleReleaseMember> members;
+}
+
+List<_BundleReleaseDiscGroup> _groupBundleMembers(
+  List<BundleReleaseMember> members,
+) {
+  if (members.isEmpty) {
+    return const <_BundleReleaseDiscGroup>[];
+  }
+  final grouped = <String, List<BundleReleaseMember>>{};
+  final orderedKeys = <String>[];
+  for (final member in members) {
+    final key = member.discNumber != null
+        ? 'disc:${member.discNumber}'
+        : member.discLabel != null && member.discLabel!.trim().isNotEmpty
+            ? 'label:${member.discLabel!.trim()}'
+            : 'disc:none';
+    if (!grouped.containsKey(key)) {
+      grouped[key] = <BundleReleaseMember>[];
+      orderedKeys.add(key);
+    }
+    grouped[key]!.add(member);
+  }
+  return [
+    for (final key in orderedKeys)
+      _BundleReleaseDiscGroup(
+        label: _bundleDiscLabel(grouped[key]!.first),
+        members: [...grouped[key]!]..sort((left, right) {
+          final leftSequence = left.sequenceNumber ?? 999999;
+          final rightSequence = right.sequenceNumber ?? 999999;
+          return leftSequence.compareTo(rightSequence);
+        }),
+      ),
+  ];
+}
+
+String _bundleDiscLabel(BundleReleaseMember member) {
+  final discLabel = member.discLabel?.trim();
+  if (discLabel != null && discLabel.isNotEmpty) {
+    return discLabel;
+  }
+  final discNumber = member.discNumber;
+  if (discNumber != null) {
+    return 'Disc $discNumber';
+  }
+  return 'Main contents';
+}
+
+class _LibraryAddReferenceSelector extends StatelessWidget {
+  const _LibraryAddReferenceSelector({
+    required this.accent,
+    required this.addTarget,
+    required this.referenceType,
+    required this.item,
+    required this.bundleReleases,
+    required this.selectedBundleReleaseId,
+    required this.selectedEditionId,
+    required this.selectedVariantId,
+    required this.isLoadingBundleReleases,
+    required this.onReferenceTypeChanged,
+    required this.onEditionSelected,
+    required this.onVariantSelected,
+    required this.onBundleReleaseSelected,
+  });
+
+  final Color accent;
+  final LibraryAddTarget addTarget;
+  final LibraryAddReferenceType referenceType;
+  final LibraryMetadataItem item;
+  final List<BundleReleaseSummary> bundleReleases;
+  final String? selectedBundleReleaseId;
+  final String? selectedEditionId;
+  final String? selectedVariantId;
+  final bool isLoadingBundleReleases;
+  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
+  final ValueChanged<String> onEditionSelected;
+  final ValueChanged<String> onVariantSelected;
+  final ValueChanged<String> onBundleReleaseSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final editionAvailable = item.editions.isNotEmpty;
+    final bundleAvailable = bundleReleases.isNotEmpty;
+    final selectionLocked = addTarget == LibraryAddTarget.track;
+    final selectedEdition = _previewEditionForItem(item, selectedEditionId);
+    final selectedVariant = _selectedVariantForEdition(
+      selectedEdition,
+      selectedVariantId,
+    );
+    final selectionSummary = switch (addTarget) {
+      LibraryAddTarget.track => item.mediaKind == CatalogMediaKind.music
+          ? 'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.'
+          : 'Tracking stays item-centric here. Edition and bundle scope are only available for owned or wishlist entries.',
+      LibraryAddTarget.owned => referenceType.helperLabelForMediaKind(item.mediaKind),
+      LibraryAddTarget.wishlist => referenceType.helperLabelForMediaKind(item.mediaKind),
+    };
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x10000000),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: accent.withValues(alpha: 0.24)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Scope',
+                  style: TextStyle(
+                    color: accent,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                LibraryAddResultBadge(addTarget.destinationLabel),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _ReferenceChip(
+                  accent: accent,
+                  selected: true,
+                  enabled: !selectionLocked,
+                  label: LibraryAddReferenceType.media.labelForMediaKind(item.mediaKind),
+                  onPressed: () =>
+                      onReferenceTypeChanged(LibraryAddReferenceType.media),
+                ),
+                if (!selectionLocked) ...[
+                  _ReferenceChip(
+                    accent: accent,
+                    selected: referenceType == LibraryAddReferenceType.edition,
+                    enabled: editionAvailable,
+                    label: LibraryAddReferenceType.edition.labelForMediaKind(item.mediaKind),
+                    onPressed: () => onReferenceTypeChanged(
+                      LibraryAddReferenceType.edition,
+                    ),
+                  ),
+                  _ReferenceChip(
+                    accent: accent,
+                    selected:
+                        referenceType == LibraryAddReferenceType.bundleRelease,
+                    enabled: bundleAvailable || isLoadingBundleReleases,
+                    label: LibraryAddReferenceType.bundleRelease.labelForMediaKind(item.mediaKind),
+                    onPressed: () => onReferenceTypeChanged(
+                      LibraryAddReferenceType.bundleRelease,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              selectionSummary,
+              style: const TextStyle(
+                color: kAppTextMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (!selectionLocked &&
+                referenceType == LibraryAddReferenceType.edition) ...[
+              const SizedBox(height: 8),
+              Text(
+                _editionSummaryForSelection(
+                  selectedEdition,
+                  selectedVariant,
+                ),
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                key: const ValueKey('library-add-edition-field'),
+                isExpanded: true,
+                initialValue: selectedEdition?.id,
+                decoration: const InputDecoration(
+                  labelText: 'Edition',
+                  isDense: true,
+                ),
+                items: [
+                  for (final edition in item.editions)
+                    DropdownMenuItem<String>(
+                      value: edition.id,
+                      child: Text(
+                        _editionOptionLabel(edition),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: !editionAvailable
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          onEditionSelected(value);
+                        }
+                      },
+              ),
+              const SizedBox(height: 8),
+              if (selectedEdition == null)
+                const Text(
+                  'No canonical edition is attached to this item yet.',
+                  style: TextStyle(color: kAppTextMuted),
+                )
+              else if (selectedEdition.variants.isEmpty)
+                const Text(
+                  'This edition has no canonical variants yet, so the edition itself will be used.',
+                  style: TextStyle(color: kAppTextMuted),
+                )
+              else
+                DropdownButtonFormField<String>(
+                  key: const ValueKey('library-add-variant-field'),
+                  isExpanded: true,
+                  initialValue: selectedVariant?.id ?? '',
+                  decoration: const InputDecoration(
+                    labelText: 'Variant',
+                    isDense: true,
+                  ),
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: '',
+                      child: Text('Any / unspecified variant'),
+                    ),
+                    for (final variant in selectedEdition.variants)
+                      DropdownMenuItem<String>(
+                        value: variant.id,
+                        child: Text(
+                          _variantOptionLabel(variant),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    onVariantSelected(value ?? '');
+                  },
+                ),
+            ],
+            if (!selectionLocked &&
+                referenceType == LibraryAddReferenceType.bundleRelease) ...[
+              const SizedBox(height: 10),
+              if (isLoadingBundleReleases)
+                const Row(
+                  children: [
+                    SizedBox.square(
+                      dimension: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Loading bundle releases...',
+                      style: TextStyle(color: kAppTextMuted),
+                    ),
+                  ],
+                )
+              else if (bundleReleases.isEmpty)
+                const Text(
+                  'No bundle releases are linked to this item yet.',
+                  style: TextStyle(color: kAppTextMuted),
+                )
+              else
+                Column(
+                  children: [
+                    for (final bundle in bundleReleases)
+                      _BundleReleaseOptionCard(
+                        bundle: bundle,
+                        accent: accent,
+                        selected: bundle.id == selectedBundleReleaseId,
+                        onPressed: () => onBundleReleaseSelected(bundle.id),
+                      ),
+                  ],
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReferenceChip extends StatelessWidget {
+  const _ReferenceChip({
+    required this.accent,
+    required this.selected,
+    required this.enabled,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final Color accent;
+  final bool selected;
+  final bool enabled;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: enabled ? (_) => onPressed() : null,
+      selectedColor: accent.withValues(alpha: 0.2),
+      side: BorderSide(
+        color: selected
+            ? accent.withValues(alpha: 0.8)
+            : kAppDivider.withValues(alpha: enabled ? 1 : 0.5),
+      ),
+      labelStyle: TextStyle(
+        color: enabled ? null : kAppTextMuted,
+        fontWeight: FontWeight.w700,
+      ),
+      backgroundColor: const Color(0x12000000),
+    );
+  }
+}
+
+class _BundleReleaseOptionCard extends StatelessWidget {
+  const _BundleReleaseOptionCard({
+    required this.bundle,
+    required this.accent,
+    required this.selected,
+    required this.onPressed,
+  });
+
+  final BundleReleaseSummary bundle;
+  final Color accent;
+  final bool selected;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final releaseDate = bundle.releaseDate;
+    final subtitleParts = <String>[
+      if (bundle.bundleType != null && bundle.bundleType!.trim().isNotEmpty)
+        bundle.bundleType!,
+      if (bundle.packagingType != null && bundle.packagingType!.trim().isNotEmpty)
+        bundle.packagingType!,
+      if (releaseDate != null)
+        '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
+      '${bundle.contentSummary.totalItems} items',
+    ];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            color: selected
+                ? accent.withValues(alpha: 0.14)
+                : const Color(0x0E000000),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: selected
+                  ? accent.withValues(alpha: 0.85)
+                  : kAppDivider,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                  color: selected ? accent : kAppTextMuted,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        bundle.title,
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      if (subtitleParts.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitleParts.join(' • '),
+                          style: const TextStyle(
+                            color: kAppTextMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                      if (bundle.primaryItemTitle != null &&
+                          bundle.primaryItemTitle!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Primary: ${bundle.primaryItemTitle}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _editionSummaryForSelection(
+  CatalogEdition? edition,
+  CatalogVariant? variant,
+) {
+  if (edition == null) {
+    return 'No canonical edition is attached to this item yet.';
+  }
+  final parts = <String>[
+    edition.title,
+    if (variant?.name case final variantName? when variantName.trim().isNotEmpty)
+      'Physical: $variantName',
+    if (edition.physicalFormatLabel != null &&
+        edition.physicalFormatLabel!.trim().isNotEmpty)
+      edition.physicalFormatLabel!,
+    if (edition.region != null && edition.region!.trim().isNotEmpty) edition.region!,
+    if (edition.releaseDate != null)
+      '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
+  ];
+  return parts.join(' • ');
+}
+
+CatalogEdition? _previewEditionForItem(
+  LibraryMetadataItem item,
+  String? editionId,
+) {
+  final normalizedEditionId = editionId?.trim();
+  if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
+    for (final edition in item.editions) {
+      if (edition.id == normalizedEditionId) {
+        return edition;
+      }
+    }
+  }
+  return _previewPrimaryEditionForItem(item);
+}
+
+CatalogVariant? _selectedVariantForEdition(
+  CatalogEdition? edition,
+  String? variantId,
+) {
+  final normalizedVariantId = variantId?.trim();
+  if (edition != null && normalizedVariantId != null && normalizedVariantId.isNotEmpty) {
+    for (final variant in edition.variants) {
+      if (variant.id == normalizedVariantId) {
+        return variant;
+      }
+    }
+  }
+  return null;
+}
+
+String _editionOptionLabel(CatalogEdition edition) {
+  final parts = <String>[
+    edition.title,
+    if (edition.physicalFormatLabel != null &&
+        edition.physicalFormatLabel!.trim().isNotEmpty)
+      edition.physicalFormatLabel!,
+    if (edition.releaseDate != null)
+      '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
+  ];
+  return parts.join(' • ');
+}
+
+String _variantOptionLabel(CatalogVariant variant) {
+  final parts = <String>[
+    variant.name,
+    if (variant.variantType != null && variant.variantType!.trim().isNotEmpty)
+      variant.variantType!,
+    if (variant.physicalFormatLabel != null &&
+        variant.physicalFormatLabel!.trim().isNotEmpty)
+      variant.physicalFormatLabel!,
+  ];
+  return parts.join(' • ');
+}
+
+CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
+  if (item.editions.isEmpty) {
+    return null;
+  }
+  for (final edition in item.editions) {
+    if (_previewPrimaryVariantForEdition(edition) != null) {
+      return edition;
+    }
+  }
+  return item.editions.first;
+}
+
+CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
+  if (edition == null || edition.variants.isEmpty) {
+    return null;
+  }
+  for (final variant in edition.variants) {
+    if (variant.isPrimary) {
+      return variant;
+    }
+  }
+  return edition.variants.first;
 }
 
 List<(String, String?)> _metadataRowsForCandidate(
@@ -338,63 +1088,6 @@ List<(String, String?)> _metadataRowsForItem(
   ];
 }
 
-_PreviewSeriesTreeData? _seriesTreeDataForSelection({
-  required LibraryTypeConfig type,
-  required LibraryMetadataItem? item,
-  required ProviderCandidate? candidate,
-  required AdminProviderPreview? preview,
-}) {
-  final labels = libraryMediaFieldLabels(type);
-  final seriesTitle =
-      item?.series?.seriesTitle ??
-      preview?.series?.seriesTitle ??
-      candidate?.series?.seriesTitle;
-  if (seriesTitle == null || seriesTitle.trim().isEmpty) {
-    return null;
-  }
-  final issueNumber = item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
-  final selectedTitle = item?.title ?? preview?.title ?? candidate?.title;
-  final year =
-      preview?.series?.volumeStartYear ??
-      candidate?.series?.volumeStartYear ??
-      item?.releaseYear;
-  final issueCount = candidate?.issueCount;
-  final variantLabel =
-      item?.displayEditionLabel ?? preview?.variantName ?? candidate?.variantName;
-  final children = <_PreviewSeriesTreeChildData>[];
-
-  if (issueNumber != null && issueNumber.trim().isNotEmpty) {
-    final childTitle = '${labels.number}: $issueNumber';
-    final childSubtitle = selectedTitle != null &&
-            selectedTitle.trim().isNotEmpty &&
-            selectedTitle.trim() != seriesTitle.trim()
-        ? selectedTitle
-        : variantLabel;
-    children.add(
-      _PreviewSeriesTreeChildData(
-        title: childTitle,
-        subtitle: childSubtitle,
-      ),
-    );
-  } else if (selectedTitle != null &&
-      selectedTitle.trim().isNotEmpty &&
-      selectedTitle.trim() != seriesTitle.trim()) {
-    children.add(_PreviewSeriesTreeChildData(title: selectedTitle));
-  }
-
-  final badges = <String>[
-    if (year != null) '$year',
-    if (issueCount != null)
-      '$issueCount ${issueCount == 1 ? labels.number.toLowerCase() : '${labels.number.toLowerCase()}s'}',
-  ];
-
-  return _PreviewSeriesTreeData(
-    title: seriesTitle,
-    badges: badges,
-    children: children,
-  );
-}
-
 class _LibraryAddPreviewMetadataRow extends StatelessWidget {
   const _LibraryAddPreviewMetadataRow({
     required this.label,
@@ -428,167 +1121,6 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PreviewSeriesTreeData {
-  const _PreviewSeriesTreeData({
-    required this.title,
-    required this.badges,
-    required this.children,
-  });
-
-  final String title;
-  final List<String> badges;
-  final List<_PreviewSeriesTreeChildData> children;
-}
-
-class _PreviewSeriesTreeChildData {
-  const _PreviewSeriesTreeChildData({
-    required this.title,
-    this.subtitle,
-  });
-
-  final String title;
-  final String? subtitle;
-}
-
-class _LibraryAddPreviewSeriesTree extends StatelessWidget {
-  const _LibraryAddPreviewSeriesTree({
-    required this.data,
-    required this.accent,
-  });
-
-  final _PreviewSeriesTreeData data;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0x14000000),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: accent.withValues(alpha: 0.22)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.account_tree_outlined,
-                  size: 16,
-                  color: accent.withValues(alpha: 0.95),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      if (data.badges.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            for (final badge in data.badges)
-                              _LibraryAddPreviewSeriesBadge(
-                                label: badge,
-                                accent: accent,
-                              ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (data.children.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              for (final child in data.children)
-                Padding(
-                  padding: const EdgeInsets.only(left: 24, bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.subdirectory_arrow_right,
-                        size: 16,
-                        color: accent.withValues(alpha: 0.72),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              child.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            if (child.subtitle != null &&
-                                child.subtitle!.trim().isNotEmpty)
-                              Text(
-                                child.subtitle!,
-                                style: const TextStyle(
-                                  color: kAppTextMuted,
-                                  fontSize: 12,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LibraryAddPreviewSeriesBadge extends StatelessWidget {
-  const _LibraryAddPreviewSeriesBadge({
-    required this.label,
-    required this.accent,
-  });
-
-  final String label;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: accent.withValues(alpha: 0.3)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: accent.withValues(alpha: 0.95),
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
       ),
     );
   }
@@ -639,27 +1171,6 @@ List<(String, String?)> _metadataRowsForFullPreview(
   ];
 }
 
-String _previewStatusSummary({
-  required LibraryMetadataItem? item,
-  required ProviderCandidate? candidate,
-  required AdminProviderPreview? preview,
-  required bool isFetchingPreview,
-}) {
-  if (item != null) {
-    return 'Using cached Collectarr Core metadata already stored in the app.';
-  }
-  if (preview != null) {
-    return 'Provider metadata loaded directly from search results.';
-  }
-  if (candidate?.isStub ?? false) {
-    return 'Provider metadata is unavailable for this result.';
-  }
-  if (isFetchingPreview) {
-    return 'Loading provider metadata.';
-  }
-  return 'Provider metadata is unavailable for this result.';
-}
-
 List<_PreviewDiscoverySectionData> _discoverySections({
   required LibraryMetadataItem? item,
   required ProviderCandidate? candidate,
@@ -688,46 +1199,6 @@ List<_PreviewDiscoverySectionData> _discoverySections({
       _PreviewDiscoverySectionData('Story Arcs', storyArcs),
     if (genres.isNotEmpty) _PreviewDiscoverySectionData('Genres', genres),
   ];
-}
-
-class _LibraryAddPreviewStatusBanner extends StatelessWidget {
-  const _LibraryAddPreviewStatusBanner({
-    required this.accent,
-    required this.summary,
-  });
-
-  final Color accent;
-  final String summary;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: accent.withValues(alpha: 0.4)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.info_outline, size: 16, color: accent),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                summary,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _PreviewDiscoverySectionData {
@@ -797,6 +1268,8 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
 }
 
 class _PreviewTrackRow extends StatelessWidget {
+  static const double _durationColumnWidth = 52;
+
   const _PreviewTrackRow({
     required this.index,
     required this.track,
@@ -840,10 +1313,11 @@ class _PreviewTrackRow extends StatelessWidget {
             ),
           ),
           if (durationStr != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
+            SizedBox(
+              width: _durationColumnWidth,
               child: Text(
                 durationStr,
+                textAlign: TextAlign.right,
                 style: const TextStyle(
                   color: kAppTextMuted,
                   fontSize: 13,
@@ -895,6 +1369,192 @@ List<_PreviewTrackData> _previewTracksForSelection({
         durationSeconds: track.durationSeconds,
       ),
   ];
+}
+
+class _PreviewSeasonsSection extends ConsumerWidget {
+  const _PreviewSeasonsSection({
+    required this.provider,
+    required this.providerItemId,
+    required this.accent,
+  });
+
+  final String provider;
+  final String providerItemId;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final seasonsAsync = ref.watch(
+      seasonsProvider((provider: provider, providerItemId: providerItemId)),
+    );
+
+    return seasonsAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.only(top: 22),
+        child: Row(
+          children: [
+            SizedBox.square(
+              dimension: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Loading seasons...',
+              style: TextStyle(color: kAppTextMuted),
+            ),
+          ],
+        ),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (seasons) {
+        if (seasons.isEmpty) return const SizedBox.shrink();
+        final totalEpisodes = seasons.fold<int>(
+          0,
+          (sum, s) => sum + (s.episodeCount ?? s.episodes.length),
+        );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 22),
+            Text(
+              'Seasons (${seasons.length}) · $totalEpisodes episodes',
+              style: TextStyle(color: accent),
+            ),
+            const SizedBox(height: 8),
+            for (final season in seasons)
+              _PreviewSeasonNode(season: season, accent: accent),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _PreviewSeasonNode extends StatefulWidget {
+  const _PreviewSeasonNode({required this.season, required this.accent});
+
+  final Season season;
+  final Color accent;
+
+  @override
+  State<_PreviewSeasonNode> createState() => _PreviewSeasonNodeState();
+}
+
+class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final season = widget.season;
+    final episodeCount = season.episodeCount ?? season.episodes.length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(4),
+          onTap: season.episodes.isNotEmpty
+              ? () => setState(() => _expanded = !_expanded)
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                if (season.posterUrl != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: Image.network(
+                      season.posterUrl!,
+                      width: 28,
+                      height: 42,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        season.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        [
+                          '$episodeCount episodes',
+                          if (season.airDate != null) season.airDate!,
+                        ].join(' · '),
+                        style: const TextStyle(
+                          color: kAppTextMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (season.episodes.isNotEmpty)
+                  Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    size: 18,
+                    color: kAppTextMuted,
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (_expanded)
+          Padding(
+            padding: const EdgeInsets.only(left: 36, bottom: 4),
+            child: Column(
+              children: [
+                for (final ep in season.episodes)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 3),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 26,
+                          child: Text(
+                            '${ep.episodeNumber}',
+                            style: TextStyle(
+                              color: widget.accent.withValues(alpha: 0.7),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            ep.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        if (ep.runtimeMinutes != null)
+                          Text(
+                            '${ep.runtimeMinutes} min',
+                            style: const TextStyle(
+                              color: kAppTextMuted,
+                              fontSize: 13,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 /// A decorated dialog shell with resize handles on the right and bottom edges.

@@ -1,10 +1,12 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -44,12 +46,14 @@ class InspectorPersonalSection extends StatelessWidget {
     super.key,
     required this.entry,
     required this.ownedItem,
+    this.trackingEntry,
     required this.accent,
     this.kind,
   });
 
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
   final Color accent;
   final String? kind;
 
@@ -59,14 +63,31 @@ class InspectorPersonalSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final paid = formatMoney(entry.pricePaidCents, entry.currency);
     final profitLoss = _profitLossLabel(ownedItem);
+    final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
+      ownedItem,
+      entry.editions,
+      fallbackLabel: entry.variant,
+    );
+    final ownedIsDigital = resolveOwnedDigitalFlag(
+      ownedItem,
+      entry.editions,
+      fallbackLabel: entry.variant,
+    );
+    final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
+    final trackingStatus = trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
+      ? ownedItem?.readStatus
+      : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
+    final trackingStartedAt = trackingEntry?.startedAt ?? ownedItem?.startedAt;
+    final trackingFinishedAt =
+        trackingEntry?.finishedAt ?? ownedItem?.finishedAt;
     return LibraryInspectorSection(
       title: 'Personal',
       accentColor: accent,
       children: [
-        if (ownedItem?.rating != null && ownedItem!.rating! > 0) ...[
+        if (trackingRating != null && trackingRating > 0) ...[
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: MediaRatingDisplay(rating: ownedItem!.rating!),
+            child: MediaRatingDisplay(rating: trackingRating),
           ),
         ],
         LibraryInspectorFactGrid(
@@ -75,32 +96,36 @@ class InspectorPersonalSection extends StatelessWidget {
               'Status',
               genericLibraryStatusLabel(entry),
             ),
-            if (ownedItem?.readStatus != null &&
-                ownedItem!.readStatus!.trim().isNotEmpty)
-              LibraryInspectorFactData('Tracking', ownedItem!.readStatus!),
-            if (ownedItem?.startedAt != null)
+            if (ownedCopyTypeLabel != null)
+              LibraryInspectorFactData('Ownership', ownedCopyTypeLabel),
+            if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
+              LibraryInspectorFactData('Tracking', trackingStatus),
+            if (trackingStartedAt != null)
               LibraryInspectorFactData(
                 'Started',
-                formatNullableDate(ownedItem?.startedAt) ?? '-',
+                formatNullableDate(trackingStartedAt) ?? '-',
               ),
-            if (ownedItem?.finishedAt != null)
+            if (trackingFinishedAt != null)
               LibraryInspectorFactData(
                 'Finished',
-                formatNullableDate(ownedItem?.finishedAt) ?? '-',
+                formatNullableDate(trackingFinishedAt) ?? '-',
               ),
-            LibraryInspectorFactData(
-              'Condition',
-              genericLibraryDash(entry.condition),
-            ),
-            LibraryInspectorFactData('Grade', genericLibraryDash(entry.grade)),
+            if (ownedIsDigital != true)
+              LibraryInspectorFactData(
+                'Condition',
+                genericLibraryDash(entry.condition),
+              ),
+            if (ownedIsDigital != true)
+              LibraryInspectorFactData('Grade', genericLibraryDash(entry.grade)),
             LibraryInspectorFactData(
               'Quantity',
               ownedItem == null ? '-' : ownedItem!.quantity.toString(),
             ),
-            LibraryInspectorFactData(
-              'Storage',
-              genericLibraryDash(entry.storageBox),
-            ),
+            if (ownedIsDigital != true)
+              LibraryInspectorFactData(
+                'Storage',
+                genericLibraryDash(entry.storageBox),
+              ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
             LibraryInspectorFactData(
               'Purchased',
@@ -108,7 +133,7 @@ class InspectorPersonalSection extends StatelessWidget {
                 formatNullableDate(ownedItem?.purchaseDate),
               ),
             ),
-            if (ownedItem?.coverPriceCents != null)
+            if (ownedIsDigital != true && ownedItem?.coverPriceCents != null)
               LibraryInspectorFactData(
                 'Cover price',
                 formatMoney(ownedItem!.coverPriceCents, ownedItem!.currency),
@@ -136,7 +161,7 @@ class InspectorPersonalSection extends StatelessWidget {
               'Updated',
               formatNullableDate(entry.updatedAt) ?? '-',
             ),
-            if (_isComicKind && ownedItem != null) ...[
+            if (_isComicKind && ownedItem != null && ownedIsDigital != true) ...[
               if (ownedItem!.rawOrSlabbed != null &&
                   ownedItem!.rawOrSlabbed!.trim().isNotEmpty)
                 LibraryInspectorFactData(

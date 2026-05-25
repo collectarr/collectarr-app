@@ -21,6 +21,7 @@ const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 ThemeData editDialogTheme({Color seedColor = kEditAccent}) {
   return ThemeData.dark(useMaterial3: true).copyWith(
     visualDensity: VisualDensity.compact,
+    canvasColor: kEditPanelRaised,
     colorScheme: ColorScheme.fromSeed(
       seedColor: seedColor,
       brightness: Brightness.dark,
@@ -52,23 +53,9 @@ ThemeData editDialogTheme({Color seedColor = kEditAccent}) {
         ),
       ),
     ),
-    dropdownMenuTheme: const DropdownMenuThemeData(
-      textStyle: TextStyle(color: Colors.white),
-      menuStyle: MenuStyle(
-        backgroundColor: WidgetStatePropertyAll(kEditPanelRaised),
-        surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
-        elevation: WidgetStatePropertyAll(12),
-        shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: kAppMenuBorderRadius,
-            side: BorderSide(color: kEditDivider),
-          ),
-        ),
-      ),
-    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF101010),
+      fillColor: kAppField,
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       labelStyle: const TextStyle(color: kEditTextMuted),
@@ -117,7 +104,7 @@ class EditTabShell extends StatelessWidget {
               width: 204,
               padding: const EdgeInsets.all(14),
               decoration: const BoxDecoration(
-                color: Color(0xFF101010),
+                color: kAppField,
                 border: Border(right: BorderSide(color: kEditDivider)),
               ),
               child: Column(
@@ -376,7 +363,7 @@ class SoldSummaryPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFF101010),
+        color: kAppField,
         border: Border.all(color: kEditDivider),
       ),
       child: Row(
@@ -520,6 +507,201 @@ class FooterTextField extends StatelessWidget {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
         ),
+      ),
+    );
+  }
+}
+
+class EditSummaryPill extends StatelessWidget {
+  const EditSummaryPill({
+    super.key,
+    required this.label,
+    required this.value,
+    this.icon,
+    this.width,
+  });
+
+  final String label;
+  final String value;
+  final IconData? icon;
+  final double? width;
+
+  @override
+  Widget build(BuildContext context) {
+    final body = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111315),
+        border: Border.all(color: kEditDivider),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 14, color: kEditChartBar),
+            const SizedBox(width: 6),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: kEditTextMuted,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value.trim().isEmpty ? '-' : value.trim(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    if (width == null) {
+      return body;
+    }
+    return SizedBox(width: width, child: body);
+  }
+}
+
+class EditTokenListField extends StatefulWidget {
+  const EditTokenListField({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.hint,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final String? hint;
+
+  @override
+  State<EditTokenListField> createState() => _EditTokenListFieldState();
+}
+
+class _EditTokenListFieldState extends State<EditTokenListField> {
+  late final TextEditingController _entryController;
+
+  @override
+  void initState() {
+    super.initState();
+    _entryController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _entryController.dispose();
+    super.dispose();
+  }
+
+  List<String> get _tokens => widget.controller.text
+      .split(',')
+      .map((entry) => entry.trim())
+      .where((entry) => entry.isNotEmpty)
+      .toList(growable: false);
+
+  void _setTokens(List<String> values) {
+    widget.controller.text = values.join(', ');
+    setState(() {});
+  }
+
+  void _addCurrentToken() {
+    final token = _entryController.text.trim();
+    if (token.isEmpty) {
+      return;
+    }
+    final values = _tokens.toList(growable: true);
+    final exists = values.any(
+      (value) => value.toLowerCase() == token.toLowerCase(),
+    );
+    if (!exists) {
+      values.add(token);
+      _setTokens(values);
+    }
+    _entryController.clear();
+  }
+
+  void _removeToken(String token) {
+    final values = _tokens
+        .where((value) => value.toLowerCase() != token.toLowerCase())
+        .toList(growable: false);
+    _setTokens(values);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = _tokens;
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: widget.label,
+        alignLabelWithHint: true,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final token in tokens)
+                InputChip(
+                  label: Text(token),
+                  onDeleted: () => _removeToken(token),
+                  visualDensity: VisualDensity.compact,
+                  backgroundColor: const Color(0xFF191B1C),
+                  side: const BorderSide(color: kEditDivider),
+                  deleteIconColor: kEditTextMuted,
+                  labelStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              if (tokens.isEmpty)
+                const Text(
+                  'No values yet',
+                  style: TextStyle(color: kEditTextMuted, fontSize: 12),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _entryController,
+                  onSubmitted: (_) => _addCurrentToken(),
+                  decoration: InputDecoration(
+                    hintText: widget.hint ?? 'Add value',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilledButton.tonalIcon(
+                onPressed: _addCurrentToken,
+                icon: const Icon(Icons.add),
+                label: const Text('Add'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

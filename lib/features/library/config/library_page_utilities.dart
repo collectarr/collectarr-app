@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -26,20 +27,40 @@ class FacetBuckets {
 mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     on ConsumerState<T> {
   Map<String, List<String>> customFieldValuesByItem = const {};
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+      const {};
+  List<CustomFieldDefinition> customFieldDefinitions = const [];
 
-  Future<void> loadCustomFieldValues() async {
+  Future<void> loadCustomFieldValues({String? mediaKind}) async {
     final db = ref.read(localDatabaseProvider);
     final repo = CustomFieldRepository(db);
     final allValues = await repo.listAllValues();
+    final definitions = await repo.listDefinitions(mediaKind: mediaKind);
     final flat = <String, List<String>>{};
+    final structured = <String, Map<String, String>>{};
     for (final entry in allValues.entries) {
+      final valuesByDefinition = <String, String>{};
       flat[entry.key] = [
         for (final v in entry.value)
           if (v.value != null && v.value!.trim().isNotEmpty) v.value!,
       ];
+      for (final value in entry.value) {
+        final normalized = value.value?.trim();
+        if (normalized == null || normalized.isEmpty) {
+          continue;
+        }
+        valuesByDefinition[value.fieldDefinitionId] = normalized;
+      }
+      if (valuesByDefinition.isNotEmpty) {
+        structured[entry.key] = valuesByDefinition;
+      }
     }
     if (mounted) {
-      setState(() => customFieldValuesByItem = flat);
+      setState(() {
+        customFieldValuesByItem = flat;
+        customFieldValuesByDefinitionByItem = structured;
+        customFieldDefinitions = definitions;
+      });
     }
   }
 

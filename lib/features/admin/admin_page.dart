@@ -3,23 +3,32 @@ import 'dart:async';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+part 'admin_item_inspection.dart';
+part 'admin_metadata_correction_dialog.dart';
+part 'admin_duplicate_merge_dialog.dart';
+part 'admin_bundle_correction_dialog.dart';
+
 const _kAdminDropdownColor = kAppPanelRaised;
+const _kAdminDialogShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.all(Radius.circular(3)),
+);
 
 class AdminPage extends ConsumerStatefulWidget {
   const AdminPage({super.key});
@@ -41,9 +50,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   AdminSearchReindexResult? _lastReindex;
   var _searchHistory = const <AdminSearchHistoryEntry>[];
   var _auditLogs = const <AdminAuditLogEntry>[];
+  var _proposalHistory = const <AdminAuditLogEntry>[];
   var _ingestHistory = const <AdminProviderIngestHistoryEntry>[];
   var _ingestJobs = const <AdminProviderIngestJob>[];
+  var _proposals = const <AdminMetadataProposal>[];
   AdminProviderIngestJobSummary? _ingestJobSummary;
+  AdminMetadataProposalSummary? _dashboardProposalSummary;
+  AdminMetadataProposalSummary? _proposalSummary;
   static const _ingestPollInterval = Duration(seconds: 15);
   Timer? _ingestPollTimer;
   DateTime? _ingestJobsRefreshedAt;
@@ -55,6 +68,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   String? _selectedProviderKindFilter;
   String? _ingestJobStatusFilter;
   String? _ingestJobProviderFilter;
+  String _proposalStatusFilter = 'pending';
+  String? _proposalProviderFilter;
   AdminProviderIngestResult? _lastIngest;
   String? _statusMessage;
   String? _errorMessage;
@@ -64,20 +79,27 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   String? _inspectErrorMessage;
   String? _duplicateStatusMessage;
   String? _duplicateErrorMessage;
+  String? _proposalStatusMessage;
+  String? _proposalErrorMessage;
   bool _isLoadingDashboard = false;
   bool _isReindexing = false;
   bool _isLoadingProviders = false;
   bool _isSearchingCatalog = false;
+  bool _hasSearchedCatalog = false;
   bool _isRunningJobs = false;
   bool _isPollingIngestJobs = false;
   bool _autoRefreshIngestJobs = true;
   bool _isSearching = false;
   bool _isDirectIngesting = false;
+  bool _isLoadingProposals = false;
   String? _inspectingItemId;
   String? _updatingCatalogItemId;
   String? _duplicateActionItemId;
   String? _ingestingProviderItemId;
   String? _jobActionId;
+  String? _proposalActionId;
+  String? _activeProposalId;
+  String? _activeProposalTitle;
   int? _retryingHistoryId;
 
   @override
@@ -86,7 +108,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     _loadDashboard();
     _loadMediaTypes();
     _loadProviders();
-    _searchCatalog();
+    _loadProposalData();
     _restartIngestPolling();
   }
 
@@ -174,6 +196,16 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                     errorMessage: _dashboardErrorMessage,
                   ),
                 ),
+                const SizedBox(height: 12),
+                _AdminPanel(
+                  icon: Icons.pending_actions_outlined,
+                  title: 'Metadata proposal activity',
+                  child: _DashboardProposalActivity(
+                    summary: _dashboardProposalSummary,
+                    history: _proposalHistory,
+                    errorMessage: _dashboardErrorMessage,
+                  ),
+                ),
               ],
             ),
             // ─── Catalog ───
@@ -182,7 +214,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               children: [
                 _AdminPanel(
                   icon: Icons.inventory_2_outlined,
-                  title: 'Canonical catalog browser',
+                  title: 'Catalog search',
                   trailing: IconButton(
                     tooltip: 'Search catalog',
                     onPressed:
@@ -212,13 +244,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                                         ? null
                                         : value;
                               });
-                              _searchCatalog();
                             },
                           );
                           final queryField = TextField(
                             controller: _catalogQueryController,
                             decoration: const InputDecoration(
-                              labelText: 'Catalog search',
+                              labelText: 'Find catalog items',
+                              hintText: 'Search by title, number, or provider ID',
                               prefixIcon:
                                   Icon(Icons.manage_search_outlined),
                               border: OutlineInputBorder(),
@@ -284,6 +316,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                       const SizedBox(height: 12),
                       _CatalogItemList(
                         items: _catalogItems,
+                        hasSearched: _hasSearchedCatalog,
                         inspectingItemId: _inspectingItemId,
                         updatingItemId: _updatingCatalogItemId,
                         onInspect: _inspectCatalogItem,
@@ -363,155 +396,103 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 ),
                 const SizedBox(height: 12),
                 _AdminPanel(
+                  icon: Icons.pending_actions_outlined,
+                  title: 'Metadata proposals',
+                  trailing: IconButton(
+                    tooltip: 'Refresh proposals',
+                    onPressed: _isLoadingProposals ? null : _loadProposalData,
+                    icon: _isLoadingProposals
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh),
+                  ),
+                  child: _MetadataProposalPanel(
+                    summary: _proposalSummary,
+                    proposals: _proposals,
+                    statusFilter: _proposalStatusFilter,
+                    providerFilter: _proposalProviderFilter,
+                    providers: _providers,
+                    isLoading: _isLoadingProposals,
+                    actingProposalId: _proposalActionId,
+                    activeProposalTitle: _activeProposalTitle,
+                    statusMessage: _proposalStatusMessage,
+                    errorMessage: _proposalErrorMessage,
+                    onStatusChanged: _changeProposalStatusFilter,
+                    onProviderChanged: _changeProposalProviderFilter,
+                    onReview: _reviewProposal,
+                    onApprove: _approveProposal,
+                    onApproveLinked: _approveProposalWithLinkedItem,
+                    onReject: _rejectProposal,
+                    onClearReview: _clearActiveProposal,
+                    canApproveLinkedItem: _providerSupportsIngest,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
                   icon: Icons.travel_explore_outlined,
-                  title: 'Provider ingest',
+                  title: 'Add from provider',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isNarrow =
-                              constraints.maxWidth < 720;
-                          final kindField = _ProviderKindSelector(
-                            value: _selectedProviderKindFilter,
-                            kinds: _providerKindOptions(
-                                forSearch: true),
-                            kindLabels: _catalogKindLabels(),
-                            isLoading: _isLoadingProviders,
-                            onChanged: _changeProviderKindFilter,
-                          );
-                          final searchableProviders =
-                              _providerOptions();
-                          final providerField = _ProviderSelector(
-                            value: _selectedProvider,
-                            providers: searchableProviders,
-                            isLoading: _isLoadingProviders,
-                            onChanged: (value) {
-                              _changeSelectedProvider(value);
-                            },
-                          );
-                          final queryField = TextField(
-                            controller: _queryController,
-                            decoration: const InputDecoration(
-                              labelText: 'Provider query',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(),
-                            ),
-                            textInputAction:
-                                TextInputAction.search,
-                            onSubmitted: (_) =>
-                                _searchProvider(),
-                          );
-                          final providerItemIdField = TextField(
-                            controller:
-                                _providerItemIdController,
-                            decoration: const InputDecoration(
-                              labelText: 'Provider item ID',
-                              prefixIcon:
-                                  Icon(Icons.tag_outlined),
-                              border: OutlineInputBorder(),
-                            ),
-                            textInputAction:
-                                TextInputAction.done,
-                            onSubmitted: (_) =>
-                                _ingestProviderItemId(),
-                          );
-                          final searchButton =
-                              FilledButton.icon(
-                            onPressed: _isSearching
-                                ? null
-                                : _searchProvider,
-                            icon: _isSearching
-                                ? const SizedBox.square(
-                                    dimension: 18,
-                                    child:
-                                        CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                  )
-                                : const Icon(
-                                    Icons.manage_search),
-                            label: const Text('Search'),
-                          );
-                          final ingestIdButton =
-                              OutlinedButton.icon(
-                            onPressed: _isDirectIngesting ||
-                                    searchableProviders.isEmpty
-                                ? null
-                                : _ingestProviderItemId,
-                            icon: _isDirectIngesting
-                                ? const SizedBox.square(
-                                    dimension: 18,
-                                    child:
-                                        CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                  )
-                                : const Icon(Icons
-                                    .download_for_offline_outlined),
-                            label: const Text('Ingest ID'),
-                          );
-                          if (isNarrow) {
-                            return Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.stretch,
-                              children: [
-                                providerField,
-                                const SizedBox(height: 12),
-                                kindField,
-                                const SizedBox(height: 12),
-                                queryField,
-                                const SizedBox(height: 12),
-                                providerItemIdField,
-                                const SizedBox(height: 12),
-                                Align(
-                                  alignment:
-                                      Alignment.centerLeft,
-                                  child: Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      searchButton,
-                                      ingestIdButton
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-                          return Row(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                  width: 150,
-                                  child: kindField),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                  width: 220,
-                                  child: providerField),
-                              const SizedBox(width: 12),
-                              Expanded(child: queryField),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                  width: 220,
-                                  child:
-                                      providerItemIdField),
-                              const SizedBox(width: 12),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(
-                                        top: 4),
-                                child: Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: [
-                                    searchButton,
-                                    ingestIdButton
-                                  ],
-                                ),
+                      Text(
+                        'Choose a category first, then open the guided add dialog to search a provider or ingest a known provider ID. Search results and proposal review stay below.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (_selectedProviderKindFilter != null)
+                            _MiniChip(
+                              label: _providerKindLabel(
+                                _selectedProviderKindFilter!,
+                                _catalogKindLabels(),
                               ),
-                            ],
-                          );
-                        },
+                            ),
+                          if (_selectedProvider.isNotEmpty)
+                            _MiniChip(label: _selectedProviderLabel()),
+                          if (_activeProposalTitle != null)
+                            _MiniChip(label: 'Reviewing $_activeProposalTitle'),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          FilledButton.icon(
+                            onPressed: _isLoadingProviders ||
+                                    _isSearching ||
+                                    _isDirectIngesting
+                                ? null
+                                : _showProviderAddDialog,
+                            icon: _isSearching || _isDirectIngesting
+                                ? const SizedBox.square(
+                                    dimension: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.add_circle_outline),
+                            label: const Text('Open add dialog'),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: _results.isEmpty
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _results = const <ProviderCandidate>[];
+                                      _statusMessage = null;
+                                      _errorMessage = null;
+                                    });
+                                  },
+                            icon: const Icon(Icons.layers_clear_outlined),
+                            label: const Text('Clear results'),
+                          ),
+                        ],
                       ),
                       if (_statusMessage != null ||
                           _errorMessage != null) ...[
@@ -529,6 +510,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                             _ingestingProviderItemId,
                         canIngestProvider:
                             _providerSupportsIngest,
+                        activeProposalId: _activeProposalId,
+                        activeProposalTitle: _activeProposalTitle,
+                        onApproveProposal: _approveProposalWithCandidate,
                         onIngest: _ingestProviderItem,
                       ),
                     ],
@@ -624,6 +608,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               padding: const EdgeInsets.all(16),
               children: [
                 _AdminPanel(
+                  icon: Icons.account_tree_outlined,
+                  title: 'Collection schema',
+                  child: CollectionSchemaManagementPanel(
+                    db: ref.read(localDatabaseProvider),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _AdminPanel(
                   icon: Icons.people_outline,
                   title: 'User management',
                   child: const AdminUsersPanel(),
@@ -649,20 +641,34 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     });
     try {
       final api = ref.read(apiClientProvider);
-      final summary = await api.adminCatalogSummary();
-      final searchStatus = await api.adminSearchStatus();
-      final searchHistory = await api.adminSearchHistory();
-      final auditLogs = await api.adminAuditLogs(limit: 8);
-      final ingestHistory = await api.adminProviderIngestHistory();
-      final ingestJobSummary = await api.adminProviderIngestJobSummary();
       final ingestJobQuery = _ingestJobQueryController.text.trim();
-      final ingestJobs = await api.adminProviderIngestJobs(
-        status: _ingestJobStatusFilter,
-        provider: _ingestJobProviderFilter,
-        query: ingestJobQuery.isEmpty ? null : ingestJobQuery,
-        limit: 8,
-      );
-      final duplicates = await api.adminDuplicateCandidates(limit: 5);
+      final results = await Future.wait<Object>([
+        api.adminCatalogSummary(),
+        api.adminSearchStatus(),
+        api.adminSearchHistory(),
+        api.adminAuditLogs(limit: 8),
+        api.adminMetadataProposalSummary(),
+        api.adminAuditLogs(entityType: 'metadata_proposal', limit: 6),
+        api.adminProviderIngestHistory(),
+        api.adminProviderIngestJobSummary(),
+        api.adminProviderIngestJobs(
+          status: _ingestJobStatusFilter,
+          provider: _ingestJobProviderFilter,
+          query: ingestJobQuery.isEmpty ? null : ingestJobQuery,
+          limit: 8,
+        ),
+        api.adminDuplicateCandidates(limit: 5),
+      ]);
+      final summary = results[0] as AdminCatalogSummary;
+      final searchStatus = results[1] as AdminSearchStatus;
+      final searchHistory = results[2] as List<AdminSearchHistoryEntry>;
+      final auditLogs = results[3] as List<AdminAuditLogEntry>;
+      final proposalSummary = results[4] as AdminMetadataProposalSummary;
+      final proposalHistory = results[5] as List<AdminAuditLogEntry>;
+      final ingestHistory = results[6] as List<AdminProviderIngestHistoryEntry>;
+      final ingestJobSummary = results[7] as AdminProviderIngestJobSummary;
+      final ingestJobs = results[8] as List<AdminProviderIngestJob>;
+      final duplicates = results[9] as List<AdminDuplicateCandidate>;
       if (!mounted) {
         return;
       }
@@ -671,6 +677,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _searchStatus = searchStatus;
         _searchHistory = searchHistory;
         _auditLogs = auditLogs;
+        _dashboardProposalSummary = proposalSummary;
+        _proposalHistory = proposalHistory;
         _ingestHistory = ingestHistory;
         _ingestJobs = ingestJobs;
         _ingestJobSummary = ingestJobSummary;
@@ -734,6 +742,41 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         if (!silent) {
           _errorMessage = _adminErrorMessage(error);
         }
+      });
+    }
+  }
+
+  Future<void> _loadProposalData() async {
+    setState(() {
+      _isLoadingProposals = true;
+      _proposalErrorMessage = null;
+    });
+    try {
+      final api = ref.read(apiClientProvider);
+      final results = await Future.wait<Object>([
+        api.adminMetadataProposalSummary(),
+        api.adminMetadataProposals(
+          status: _proposalStatusFilter,
+          provider: _proposalProviderFilter,
+        ),
+      ]);
+      final summary = results[0] as AdminMetadataProposalSummary;
+      final proposals = results[1] as List<AdminMetadataProposal>;
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalSummary = summary;
+        _proposals = proposals;
+        _isLoadingProposals = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isLoadingProposals = false;
+        _proposalErrorMessage = _adminErrorMessage(error);
       });
     }
   }
@@ -807,15 +850,29 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _searchCatalog() async {
+    final query = _catalogQueryController.text.trim();
+    final kind = _catalogKindFilter;
+    if (query.isEmpty && (kind == null || kind.isEmpty)) {
+      setState(() {
+        _catalogItems = const <AdminMetadataItem>[];
+        _hasSearchedCatalog = false;
+        _isSearchingCatalog = false;
+        _catalogErrorMessage = null;
+        _catalogStatusMessage =
+            'Enter a title or choose a category before searching the catalog.';
+      });
+      return;
+    }
     setState(() {
       _isSearchingCatalog = true;
+      _hasSearchedCatalog = true;
       _catalogStatusMessage = null;
       _catalogErrorMessage = null;
     });
     try {
       final items = await ref.read(apiClientProvider).adminCatalogItems(
-            query: _catalogQueryController.text,
-            kind: _catalogKindFilter,
+            query: query,
+            kind: kind,
             limit: 12,
           );
       if (!mounted) {
@@ -825,8 +882,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _catalogItems = items;
         _isSearchingCatalog = false;
         _catalogStatusMessage = items.isEmpty
-            ? 'No catalog items found.'
-            : '${items.length} catalog items.';
+            ? 'No catalog items matched the current search.'
+            : '${items.length} catalog items found.';
       });
     } catch (error) {
       if (!mounted) {
@@ -845,15 +902,17 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _inspectErrorMessage = null;
     });
     try {
-      final fresh = await ref.read(apiClientProvider).adminGetMetadataItem(
-            kind: item.kind,
-            id: item.id,
-          );
-      final auditLogs = await ref.read(apiClientProvider).adminAuditLogs(
-            entityType: 'item',
-            entityId: item.id,
-            limit: 8,
-          );
+      final api = ref.read(apiClientProvider);
+      final fresh = await api.adminGetMetadataItem(
+        kind: item.kind,
+        id: item.id,
+      );
+      final auditLogs = await api.adminAuditLogs(
+        entityType: 'item',
+        entityId: item.id,
+        limit: 8,
+      );
+      final bundleReleases = await api.getItemBundleReleases(item.id);
       if (!mounted) {
         return;
       }
@@ -861,7 +920,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _lastIngest = null;
         _inspectingItemId = null;
       });
-      await _showCanonicalItemInspectionDialog(fresh, auditLogs);
+      await _showCanonicalItemInspectionDialog(fresh, auditLogs, bundleReleases);
     } catch (error) {
       if (!mounted) {
         return;
@@ -876,24 +935,72 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _showCanonicalItemInspectionDialog(
     AdminMetadataItem item,
     List<AdminAuditLogEntry> auditLogs,
+    List<BundleReleaseSummary> bundleReleases,
   ) async {
-    final action = await showDialog<_CanonicalInspectAction>(
+    final result = await showDialog<_CanonicalInspectResult>(
       context: context,
       builder: (context) => _CanonicalItemInspectionDialog(
         item: item,
         auditLogs: auditLogs,
+        bundleReleases: bundleReleases,
       ),
     );
-    if (action == null || !mounted) {
+    if (result == null || !mounted) {
       return;
     }
-    switch (action) {
+    if (result.bundleReleaseId != null) {
+      await _showBundleCorrectionDialog(result.bundleReleaseId!);
+      await _inspectCatalogItem(item);
+      return;
+    }
+    switch (result.action) {
       case _CanonicalInspectAction.edit:
         await _showMetadataCorrectionDialog(item);
         await _inspectCatalogItem(item);
       case _CanonicalInspectAction.covers:
         await _showCoverInspectionDialog(item);
         await _inspectCatalogItem(item);
+      case null:
+        return;
+    }
+  }
+
+  Future<void> _showBundleCorrectionDialog(String bundleReleaseId) async {
+    try {
+      final api = ref.read(apiClientProvider);
+      final bundle = await api.getBundleRelease(bundleReleaseId);
+      if (!mounted) {
+        return;
+      }
+      final correction = await showDialog<AdminBundleReleaseCorrection>(
+        context: context,
+        builder: (context) => _BundleReleaseCorrectionDialog(bundle: bundle),
+      );
+      if (correction == null || !mounted) {
+        return;
+      }
+      setState(() {
+        _catalogStatusMessage = null;
+        _catalogErrorMessage = null;
+      });
+      await api.adminUpdateBundleRelease(
+        bundleReleaseId: bundleReleaseId,
+        correction: correction,
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _catalogStatusMessage = 'Bundle release correction saved.';
+      });
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _catalogErrorMessage = _adminErrorMessage(error);
+      });
     }
   }
 
@@ -902,29 +1009,21 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
       item.kind,
     );
-    final type = collectarrLibraryTypes.byKind(item.kind);
-    if (type == null) {
-      setState(() {
-        _catalogErrorMessage = 'No shared editor is registered for ${item.kind}.';
-      });
-      return;
-    }
-    final result = await showLibraryEditDialog(
+    final correction = await showDialog<_CatalogCorrection>(
       context: context,
-      request: LibraryEditDialogRequest(
-        type: type,
-        item: _libraryMetadataItemFromAdminItem(item),
-        ownedItem: null,
-        accent: LibraryAccentScope.accentOf(context),
+      builder: (context) => _MetadataCorrectionDialog(
+        item: item,
         physicalFormats: physicalFormats,
       ),
     );
-    if (result == null || !mounted) {
+    if (correction == null || !mounted) {
       return;
     }
-    final correction = _catalogCorrectionFromEditedItem(item, result.item);
     final explicitFields = _catalogCorrectionExplicitFields(item, correction);
-    if (explicitFields.isEmpty) {
+    final originalSeriesTags = _normalizedAdminTags(item.series?.tags);
+    final editedSeriesTags = _normalizedAdminTags(correction.seriesTags);
+    final seriesTagsChanged = !listEquals(originalSeriesTags, editedSeriesTags);
+    if (explicitFields.isEmpty && !seriesTagsChanged) {
       setState(() {
         _catalogErrorMessage =
             'Change at least one persisted metadata field before saving.';
@@ -944,25 +1043,47 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _inspectErrorMessage = null;
     });
     try {
-      final updated = await ref.read(apiClientProvider).adminUpdateCatalogItem(
-            kind: item.kind,
-            id: item.id,
-            title: correction.title,
-            itemNumber: correction.itemNumber,
-            synopsis: correction.synopsis,
-            editionTitle: correction.editionTitle,
-            pageCount: correction.pageCount,
-            publisher: correction.publisher,
-            releaseDate: correction.releaseDate,
-            imprint: correction.imprint,
-            seriesGroup: correction.seriesGroup,
-            physicalFormat: correction.physicalFormat,
-            variantName: correction.variantName,
-            barcode: correction.barcode,
-            coverImageUrl: correction.coverImageUrl,
-            thumbnailImageUrl: correction.thumbnailImageUrl,
-            explicitFields: explicitFields,
+      AdminMetadataItem? updated;
+      if (explicitFields.isNotEmpty) {
+        updated = await ref.read(apiClientProvider).adminUpdateCatalogItem(
+              kind: item.kind,
+              id: item.id,
+              title: correction.title,
+              itemNumber: correction.itemNumber,
+              synopsis: correction.synopsis,
+              editionTitle: correction.editionTitle,
+              pageCount: correction.pageCount,
+              runtimeMinutes: correction.runtimeMinutes,
+              publisher: correction.publisher,
+              releaseDate: correction.releaseDate,
+              imprint: correction.imprint,
+              subtitle: correction.subtitle,
+              seriesGroup: correction.seriesGroup,
+              country: correction.country,
+              language: correction.language,
+              ageRating: correction.ageRating,
+              catalogNumber: correction.catalogNumber,
+              releaseStatus: correction.releaseStatus,
+              physicalFormat: correction.physicalFormat,
+              variantName: correction.variantName,
+              barcode: correction.barcode,
+              coverImageUrl: correction.coverImageUrl,
+              thumbnailImageUrl: correction.thumbnailImageUrl,
+              explicitFields: explicitFields,
+            );
+      }
+      if (seriesTagsChanged) {
+        final seriesId = item.series?.seriesId;
+        if (seriesId == null || seriesId.isEmpty) {
+          throw StateError(
+            'This item has no series id, so series tags cannot be saved.',
           );
+        }
+        await ref.read(apiClientProvider).adminUpdateSeriesTags(
+              seriesId: seriesId,
+              tags: editedSeriesTags,
+            );
+      }
       if (!mounted) {
         return;
       }
@@ -970,9 +1091,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _updatingCatalogItemId = null;
         _lastIngest = null;
         _catalogStatusMessage = 'Metadata correction saved.';
-        _catalogItems = [
-          for (final row in _catalogItems) row.id == updated.id ? updated : row,
-        ];
+        if (updated != null) {
+          _catalogItems = [
+            for (final row in _catalogItems)
+              row.id == updated.id ? updated : row,
+          ];
+        }
       });
       await _loadDashboard();
     } catch (error) {
@@ -984,53 +1108,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _catalogErrorMessage = _adminErrorMessage(error);
       });
     }
-  }
-
-  LibraryMetadataItem _libraryMetadataItemFromAdminItem(AdminMetadataItem item) {
-    final edition = item.primaryEdition;
-    final variant = item.primaryVariant;
-    final releaseDate = edition?.releaseDate ?? item.coverDate;
-    return LibraryMetadataItem(
-      id: item.id,
-      kind: item.kind,
-      title: item.title,
-      itemNumber: item.itemNumber,
-      synopsis: item.synopsis,
-      coverImageUrl: variant?.coverImageUrl ?? item.displayCoverUrl,
-      thumbnailImageUrl: variant?.thumbnailImageUrl ?? item.displayCoverUrl,
-      editionTitle: edition?.title,
-      physicalFormat: edition?.physicalFormat,
-      physicalFormatLabel: edition?.physicalFormatLabel,
-      publisher: edition?.publisher ?? item.publisher,
-      releaseDate: releaseDate,
-      releaseYear: releaseDate?.year ?? item.series?.volumeStartYear,
-      barcode: variant?.barcode ?? item.barcode,
-      variant: variant?.name,
-      series: item.series,
-      publishing: item.publishing,
-    );
-  }
-
-  _CatalogCorrection _catalogCorrectionFromEditedItem(
-    AdminMetadataItem original,
-    LibraryMetadataItem edited,
-  ) {
-    return _CatalogCorrection(
-      title: edited.title,
-      itemNumber: edited.itemNumber,
-      synopsis: edited.synopsis,
-      editionTitle: edited.editionTitle,
-      pageCount: edited.publishing?.pageCount,
-      publisher: edited.publisher,
-      releaseDate: edited.releaseDate,
-      imprint: edited.publishing?.imprint,
-      seriesGroup: edited.publishing?.seriesGroup,
-      physicalFormat: edited.physicalFormat,
-      variantName: edited.variant,
-      barcode: edited.barcode,
-      coverImageUrl: edited.coverImageUrl,
-      thumbnailImageUrl: edited.thumbnailImageUrl,
-    );
   }
 
   Set<String> _catalogCorrectionExplicitFields(
@@ -1051,6 +1128,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     addField('synopsis', item.synopsis, correction.synopsis);
     addField('edition_title', edition?.title, correction.editionTitle);
     addField('page_count', item.publishing?.pageCount, correction.pageCount);
+    addField('runtime_minutes', item.video?.runtimeMinutes, correction.runtimeMinutes);
     addField(
       'publisher',
       edition?.publisher ?? item.publisher,
@@ -1058,7 +1136,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     );
     addField('release_date', edition?.releaseDate ?? item.coverDate, correction.releaseDate);
     addField('imprint', item.publishing?.imprint, correction.imprint);
+    addField('subtitle', item.publishing?.subtitle, correction.subtitle);
     addField('series_group', item.publishing?.seriesGroup, correction.seriesGroup);
+    addField('country', item.country, correction.country);
+    addField('language', item.language, correction.language);
+    addField('age_rating', item.ageRating, correction.ageRating);
+    addField('catalog_number', item.music?.catalogNumber, correction.catalogNumber);
+    addField('release_status', item.music?.releaseStatus, correction.releaseStatus);
     if (correction.physicalFormat != null &&
         edition?.physicalFormat != correction.physicalFormat) {
       fields.add('physical_format');
@@ -1104,14 +1188,33 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     add('Barcode', variant?.barcode ?? item.barcode, correction.barcode);
     add('Primary variant', variant?.name, correction.variantName);
     add('Page count', item.publishing?.pageCount, correction.pageCount);
+    add('Runtime', item.video?.runtimeMinutes, correction.runtimeMinutes);
     add('Release date', edition?.releaseDate ?? item.coverDate, correction.releaseDate);
     add('Imprint', item.publishing?.imprint, correction.imprint);
+    add('Subtitle', item.publishing?.subtitle, correction.subtitle);
     add('Series group', item.publishing?.seriesGroup, correction.seriesGroup);
+    add('Country', item.country, correction.country);
+    add('Language', item.language, correction.language);
+    add('Age rating', item.ageRating, correction.ageRating);
+    add('Catalog number', item.music?.catalogNumber, correction.catalogNumber);
+    add('Release status', item.music?.releaseStatus, correction.releaseStatus);
     add('Physical format', edition?.physicalFormat, correction.physicalFormat);
     add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
     add('Thumbnail URL', variant?.thumbnailImageUrl, correction.thumbnailImageUrl);
     add('Synopsis', item.synopsis, correction.synopsis);
+    add(
+      'Series tags',
+      _normalizedAdminTags(item.series?.tags).join(', '),
+      _normalizedAdminTags(correction.seriesTags).join(', '),
+    );
     return changes;
+  }
+
+  List<String> _normalizedAdminTags(List<String>? tags) {
+    return (tags ?? const <String>[])
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
   }
 
   Future<bool> _confirmMetadataCorrectionPreview(
@@ -1399,6 +1502,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             entityId: itemId,
             limit: 8,
           );
+      final bundleReleases =
+          await ref.read(apiClientProvider).getItemBundleReleases(itemId);
       if (!mounted) {
         return;
       }
@@ -1406,7 +1511,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _lastIngest = null;
         _inspectingItemId = null;
       });
-      await _showCanonicalItemInspectionDialog(item, auditLogs);
+      await _showCanonicalItemInspectionDialog(item, auditLogs, bundleReleases);
     } catch (error) {
       if (!mounted) {
         return;
@@ -1658,6 +1763,153 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
+  Future<void> _approveProposal(AdminMetadataProposal proposal) async {
+    setState(() {
+      _proposalActionId = proposal.id;
+      _proposalErrorMessage = null;
+      _proposalStatusMessage = null;
+    });
+    try {
+      final result = await ref.read(apiClientProvider).adminApproveMetadataProposal(
+            proposalId: proposal.id,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _lastIngest = result;
+        _proposalStatusMessage = 'Proposal approved and ingested.';
+        if (_activeProposalId == proposal.id) {
+          _activeProposalId = null;
+          _activeProposalTitle = null;
+        }
+      });
+      await _loadProposalData();
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _proposalErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _approveProposalWithLinkedItem(
+    AdminMetadataProposal proposal,
+  ) async {
+    final providerItemId = proposal.providerItemId?.trim();
+    if (providerItemId == null || providerItemId.isEmpty) {
+      return;
+    }
+    await _approveProposalWithProviderItem(
+      proposalId: proposal.id,
+      provider: proposal.provider,
+      providerItemId: providerItemId,
+      successMessage: 'Proposal approved with linked provider item.',
+    );
+  }
+
+  Future<void> _approveProposalWithCandidate(ProviderCandidate candidate) async {
+    final proposalId = _activeProposalId;
+    if (proposalId == null || proposalId.isEmpty) {
+      return;
+    }
+    await _approveProposalWithProviderItem(
+      proposalId: proposalId,
+      provider: candidate.provider,
+      providerItemId: candidate.providerItemId,
+      kind: candidate.kind,
+      successMessage: 'Proposal approved with selected provider item.',
+    );
+  }
+
+  Future<void> _approveProposalWithProviderItem({
+    required String proposalId,
+    required String provider,
+    required String providerItemId,
+    String? kind,
+    required String successMessage,
+  }) async {
+    setState(() {
+      _proposalActionId = proposalId;
+      _ingestingProviderItemId = providerItemId;
+      _proposalErrorMessage = null;
+      _proposalStatusMessage = null;
+    });
+    try {
+      final result = await ref
+          .read(apiClientProvider)
+          .adminApproveMetadataProposalWithProviderItem(
+            proposalId: proposalId,
+            provider: provider,
+            providerItemId: providerItemId,
+            kind: kind,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _ingestingProviderItemId = null;
+        _lastIngest = result;
+        _proposalStatusMessage = successMessage;
+        if (_activeProposalId == proposalId) {
+          _activeProposalId = null;
+          _activeProposalTitle = null;
+        }
+      });
+      await _loadProposalData();
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _ingestingProviderItemId = null;
+        _proposalErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
+  Future<void> _rejectProposal(AdminMetadataProposal proposal) async {
+    setState(() {
+      _proposalActionId = proposal.id;
+      _proposalErrorMessage = null;
+      _proposalStatusMessage = null;
+    });
+    try {
+      await ref.read(apiClientProvider).adminRejectMetadataProposal(
+            proposalId: proposal.id,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _proposalStatusMessage = 'Proposal rejected.';
+        if (_activeProposalId == proposal.id) {
+          _activeProposalId = null;
+          _activeProposalTitle = null;
+        }
+      });
+      await _loadProposalData();
+      await _loadDashboard();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _proposalActionId = null;
+        _proposalErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
   Future<void> _ingestProviderItemId() async {
     final provider = _selectedProvider.trim();
     if (provider.isEmpty ||
@@ -1689,12 +1941,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     await _ingestProvider(
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
+      kind: candidate.kind,
     );
   }
 
   Future<void> _ingestProvider({
     required String provider,
     required String providerItemId,
+    String? kind,
     bool isDirect = false,
   }) async {
     setState(() {
@@ -1707,6 +1961,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final result = await ref.read(apiClientProvider).adminProviderIngest(
             provider: provider,
             providerItemId: providerItemId,
+            kind: kind ?? _selectedProviderKind(),
           );
       if (!mounted) {
         return;
@@ -1733,27 +1988,104 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
+  Future<void> _showProviderAddDialog() async {
+    final request = await showDialog<_ProviderAddRequest>(
+      context: context,
+      builder: (context) => _ProviderAddDialog(
+        providers: _providers,
+        kinds: _providerKindOptions(forSearch: true),
+        kindLabels: _catalogKindLabels(),
+        initialKind: _selectedProviderKindFilter,
+        initialProvider: _selectedProvider,
+        initialQuery: _queryController.text,
+        initialProviderItemId: _providerItemIdController.text,
+      ),
+    );
+    if (request == null || !mounted) {
+      return;
+    }
+    setState(() {
+      _selectedProviderKindFilter = request.kind;
+      _selectedProvider = request.provider;
+      _queryController.text = request.query ?? '';
+      _providerItemIdController.text = request.providerItemId ?? '';
+      _errorMessage = null;
+      _statusMessage = null;
+    });
+    switch (request.mode) {
+      case _ProviderAddMode.search:
+        await _searchProvider();
+      case _ProviderAddMode.direct:
+        await _ingestProviderItemId();
+    }
+  }
+
   int _configuredProviderCount() {
     return _providers.where((provider) => provider.isConfigured).length;
   }
 
-  void _changeProviderKindFilter(String? kind) {
-    final normalizedKind = kind?.trim();
-    final nextKind = normalizedKind == null || normalizedKind.isEmpty
-        ? null
-        : normalizedKind;
-    final options = _providerOptions(kind: nextKind);
+  void _reviewProposal(AdminMetadataProposal proposal) {
+    final searchableProviders = _providerOptions();
+    final canSearchWithProvider = searchableProviders.any(
+      (provider) => provider.name == proposal.provider,
+    );
     setState(() {
-      _selectedProviderKindFilter = nextKind;
-      _selectedProvider = _preferredProvider(
-        options,
-        current: _selectedProvider,
-      );
-      _results = const [];
-      _lastIngest = null;
+      if (canSearchWithProvider) {
+        _selectedProvider = proposal.provider;
+      }
+      _queryController.text = proposal.query.trim().isEmpty
+          ? proposal.displayTitle
+          : proposal.query;
+      _providerItemIdController.text = proposal.providerItemId ?? '';
+      _activeProposalId = proposal.id;
+      _activeProposalTitle = proposal.displayTitle;
+      _proposalStatusMessage = canSearchWithProvider
+          ? 'Provider search prepared from proposal.'
+          : 'Proposal pinned. Choose a searchable provider to continue review.';
+      _proposalErrorMessage = null;
       _statusMessage = null;
       _errorMessage = null;
     });
+    if (canSearchWithProvider) {
+      unawaited(_searchProvider());
+    }
+  }
+
+  void _clearActiveProposal() {
+    setState(() {
+      _activeProposalId = null;
+      _activeProposalTitle = null;
+      _proposalStatusMessage = 'Proposal review cleared.';
+      _proposalErrorMessage = null;
+    });
+  }
+
+  void _changeProposalStatusFilter(String? value) {
+    final nextValue = value?.trim();
+    if (nextValue == null ||
+        nextValue.isEmpty ||
+        nextValue == _proposalStatusFilter) {
+      return;
+    }
+    setState(() {
+      _proposalStatusFilter = nextValue;
+      _proposalStatusMessage = null;
+      _proposalErrorMessage = null;
+    });
+    unawaited(_loadProposalData());
+  }
+
+  void _changeProposalProviderFilter(String? value) {
+    final nextValue = value == null || value.trim().isEmpty ? null : value.trim();
+    if (nextValue == _proposalProviderFilter) {
+      return;
+    }
+    setState(() {
+      _proposalProviderFilter = nextValue;
+      _proposalStatusMessage = null;
+      _proposalErrorMessage = null;
+    });
+    unawaited(_loadProposalData());
   }
 
   void _changeSelectedProvider(String? value) {
@@ -2116,6 +2448,122 @@ class _DashboardSection extends StatelessWidget {
   }
 }
 
+class _DashboardProposalActivity extends StatelessWidget {
+  const _DashboardProposalActivity({
+    required this.summary,
+    required this.history,
+    required this.errorMessage,
+  });
+
+  final AdminMetadataProposalSummary? summary;
+  final List<AdminAuditLogEntry> history;
+  final String? errorMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    if (errorMessage != null && summary == null && history.isEmpty) {
+      return _MessageRow(message: errorMessage!, isError: true);
+    }
+    final recentApprovals = history
+        .where((entry) => entry.action.contains('metadata_proposal.approve'))
+        .length;
+    final recentRejections = history
+        .where((entry) => entry.action.contains('metadata_proposal.reject'))
+        .length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _DashboardSection(
+          title: 'Backlog',
+          children: [
+            _StatusChip(
+              icon: Icons.pending_actions_outlined,
+              label: '${summary?.pending ?? 0} pending',
+            ),
+            _StatusChip(
+              icon: Icons.task_alt_outlined,
+              label: '${summary?.approved ?? 0} approved',
+            ),
+            _StatusChip(
+              icon: Icons.block_outlined,
+              label: '${summary?.rejected ?? 0} rejected',
+            ),
+            _StatusChip(
+              icon: Icons.insights_outlined,
+              label: '${summary?.total ?? 0} total',
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _DashboardSection(
+          title: 'Recent trend',
+          children: [
+            _StatusChip(
+              icon: Icons.trending_up_outlined,
+              label: '$recentApprovals recent approve',
+            ),
+            _StatusChip(
+              icon: Icons.trending_down_outlined,
+              label: '$recentRejections recent reject',
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (history.isEmpty)
+          const _MessageRow(
+            message: 'No proposal review activity recorded yet.',
+            isError: false,
+          )
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final entry in history)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Icon(
+                            entry.action.contains('reject')
+                                ? Icons.block_outlined
+                                : Icons.task_alt_outlined,
+                          ),
+                          Text(
+                            _proposalAuditActionLabel(entry.action),
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          _MiniChip(label: entry.actorEmail ?? 'unknown actor'),
+                          _MiniChip(label: _formatDateTime(entry.createdAt)),
+                          if ((entry.entityId?.isNotEmpty ?? false))
+                            _MiniChip(label: _shortId(entry.entityId!)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
 class _ProviderSelector extends StatelessWidget {
   const _ProviderSelector({
     required this.value,
@@ -2229,6 +2677,7 @@ class _ProviderKindSelector extends StatelessWidget {
 class _CatalogItemList extends StatelessWidget {
   const _CatalogItemList({
     required this.items,
+    required this.hasSearched,
     required this.inspectingItemId,
     required this.updatingItemId,
     required this.onInspect,
@@ -2237,6 +2686,7 @@ class _CatalogItemList extends StatelessWidget {
   });
 
   final List<AdminMetadataItem> items;
+  final bool hasSearched;
   final String? inspectingItemId;
   final String? updatingItemId;
   final ValueChanged<AdminMetadataItem> onInspect;
@@ -2246,8 +2696,10 @@ class _CatalogItemList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return const _MessageRow(
-        message: 'No catalog results loaded.',
+      return _MessageRow(
+        message: hasSearched
+            ? 'No catalog items matched the current search.'
+            : 'Search by title or choose a category to load catalog results.',
         isError: false,
       );
     }
@@ -3534,13 +3986,19 @@ class _ProviderResultsList extends StatelessWidget {
     required this.results,
     required this.ingestingProviderItemId,
     required this.canIngestProvider,
+    required this.onApproveProposal,
     required this.onIngest,
+    this.activeProposalId,
+    this.activeProposalTitle,
   });
 
   final List<ProviderCandidate> results;
   final String? ingestingProviderItemId;
   final bool Function(String provider) canIngestProvider;
+  final ValueChanged<ProviderCandidate> onApproveProposal;
   final ValueChanged<ProviderCandidate> onIngest;
+  final String? activeProposalId;
+  final String? activeProposalTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -3559,6 +4017,9 @@ class _ProviderResultsList extends StatelessWidget {
           candidate: candidate,
           isIngesting: isIngesting,
           canIngest: canIngestProvider(candidate.provider),
+          activeProposalId: activeProposalId,
+          activeProposalTitle: activeProposalTitle,
+          onApproveProposal: () => onApproveProposal(candidate),
           onIngest: () => onIngest(candidate),
         );
       },
@@ -3571,13 +4032,19 @@ class _ProviderResultTile extends StatelessWidget {
     required this.candidate,
     required this.isIngesting,
     required this.canIngest,
+    required this.onApproveProposal,
     required this.onIngest,
+    this.activeProposalId,
+    this.activeProposalTitle,
   });
 
   final ProviderCandidate candidate;
   final bool isIngesting;
   final bool canIngest;
+  final VoidCallback onApproveProposal;
   final VoidCallback onIngest;
+  final String? activeProposalId;
+  final String? activeProposalTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -3609,8 +4076,14 @@ class _ProviderResultTile extends StatelessWidget {
               children: [
                 _MiniChip(label: candidate.provider),
                 _MiniChip(label: candidate.kind),
-                _MiniChip(label: 'ID ${candidate.providerItemId}'),
+                _MiniChip(label: 'Provider match'),
               ],
+            ),
+            const SizedBox(height: 4),
+            SelectableText(
+              candidate.providerItemId,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 1,
             ),
             if (candidate.summary != null &&
                 candidate.summary!.trim().isNotEmpty) ...[
@@ -3638,6 +4111,18 @@ class _ProviderResultTile extends StatelessWidget {
                 ),
           label: Text(canIngest ? 'Ingest' : 'Search only'),
         );
+        final proposalButton = activeProposalId == null
+            ? null
+            : FilledButton.icon(
+                onPressed: isIngesting || !canIngest ? null : onApproveProposal,
+                icon: isIngesting
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.task_alt_outlined),
+                label: const Text('Approve proposal'),
+              );
         return DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -3660,7 +4145,14 @@ class _ProviderResultTile extends StatelessWidget {
                       const SizedBox(height: 12),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: button,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (proposalButton != null) proposalButton,
+                            button,
+                          ],
+                        ),
                       ),
                     ],
                   )
@@ -3671,7 +4163,14 @@ class _ProviderResultTile extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(child: details),
                       const SizedBox(width: 12),
-                      button,
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (proposalButton != null) proposalButton,
+                          button,
+                        ],
+                      ),
                     ],
                   ),
           ),
@@ -3681,663 +4180,557 @@ class _ProviderResultTile extends StatelessWidget {
   }
 }
 
-enum _CanonicalInspectAction { edit, covers }
-
-class _CanonicalItemInspectionDialog extends StatelessWidget {
-  const _CanonicalItemInspectionDialog({
-    required this.item,
-    required this.auditLogs,
+class _MetadataProposalPanel extends StatelessWidget {
+  const _MetadataProposalPanel({
+    required this.summary,
+    required this.proposals,
+    required this.statusFilter,
+    required this.providerFilter,
+    required this.providers,
+    required this.isLoading,
+    required this.actingProposalId,
+    required this.activeProposalTitle,
+    required this.statusMessage,
+    required this.errorMessage,
+    required this.onStatusChanged,
+    required this.onProviderChanged,
+    required this.onReview,
+    required this.onApprove,
+    required this.onApproveLinked,
+    required this.onReject,
+    required this.onClearReview,
+    required this.canApproveLinkedItem,
   });
 
-  final AdminMetadataItem item;
-  final List<AdminAuditLogEntry> auditLogs;
+  final AdminMetadataProposalSummary? summary;
+  final List<AdminMetadataProposal> proposals;
+  final String statusFilter;
+  final String? providerFilter;
+  final List<AdminProviderStatus> providers;
+  final bool isLoading;
+  final String? actingProposalId;
+  final String? activeProposalTitle;
+  final String? statusMessage;
+  final String? errorMessage;
+  final ValueChanged<String?> onStatusChanged;
+  final ValueChanged<String?> onProviderChanged;
+  final ValueChanged<AdminMetadataProposal> onReview;
+  final ValueChanged<AdminMetadataProposal> onApprove;
+  final ValueChanged<AdminMetadataProposal> onApproveLinked;
+  final ValueChanged<AdminMetadataProposal> onReject;
+  final VoidCallback onClearReview;
+  final bool Function(String provider) canApproveLinkedItem;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final dialogWidth =
-        (MediaQuery.sizeOf(context).width - 96).clamp(280.0, 820.0).toDouble();
-    return AlertDialog(
-      title: Row(
-        children: [
-          Icon(Icons.fact_check_outlined, color: colorScheme.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Inspect: ${item.displayTitle}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    final providerOptions = [
+      const DropdownMenuItem<String>(value: '', child: Text('All providers')),
+      for (final provider in providers)
+        DropdownMenuItem<String>(
+          value: provider.name,
+          child: Text(provider.displayName),
+        ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _StatusChip(
+              icon: Icons.pending_actions_outlined,
+              label: '${summary?.pending ?? 0} pending',
+            ),
+            _StatusChip(
+              icon: Icons.task_alt_outlined,
+              label: '${summary?.approved ?? 0} approved',
+            ),
+            _StatusChip(
+              icon: Icons.block_outlined,
+              label: '${summary?.rejected ?? 0} rejected',
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 760;
+            final statusField = DropdownButtonFormField<String>(
+              initialValue: statusFilter,
+              decoration: const InputDecoration(
+                labelText: 'Status',
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'pending', child: Text('Pending')),
+                DropdownMenuItem(value: 'approved', child: Text('Approved')),
+                DropdownMenuItem(value: 'rejected', child: Text('Rejected')),
+              ],
+              onChanged: onStatusChanged,
+            );
+            final providerField = DropdownButtonFormField<String>(
+              initialValue: providerFilter ?? '',
+              decoration: const InputDecoration(
+                labelText: 'Provider',
+                border: OutlineInputBorder(),
+              ),
+              items: providerOptions,
+              onChanged: onProviderChanged,
+            );
+            if (isNarrow) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  statusField,
+                  const SizedBox(height: 12),
+                  providerField,
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: statusField),
+                const SizedBox(width: 12),
+                Expanded(child: providerField),
+              ],
+            );
+          },
+        ),
+        if (activeProposalTitle != null) ...[
+          const SizedBox(height: 12),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Icon(Icons.travel_explore_outlined),
+                  Text('Reviewing proposal: $activeProposalTitle'),
+                  OutlinedButton.icon(
+                    onPressed: onClearReview,
+                    icon: const Icon(Icons.close_outlined),
+                    label: const Text('Clear review'),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
-      ),
-      content: SizedBox(
-        width: dialogWidth,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
+        if (statusMessage != null || errorMessage != null) ...[
+          const SizedBox(height: 12),
+          _MessageRow(
+            message: errorMessage ?? statusMessage!,
+            isError: errorMessage != null,
+          ),
+        ],
+        const SizedBox(height: 12),
+        if (isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (proposals.isEmpty)
+          _MessageRow(
+            message: 'No ${statusFilter.toLowerCase()} proposals found.',
+            isError: false,
+          )
+        else
+          Column(
             children: [
-              _CanonicalItemSummary(item: item, auditLogs: auditLogs),
-              if (auditLogs.isEmpty) ...[
-                const SizedBox(height: 12),
-                const _MessageRow(
-                  message: 'No item audit history yet.',
-                  isError: false,
+              for (final proposal in proposals)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _MetadataProposalTile(
+                    proposal: proposal,
+                    isActing: actingProposalId == proposal.id,
+                    canApproveLinkedItem: canApproveLinkedItem(proposal.provider),
+                    onReview: () => onReview(proposal),
+                    onApprove: () => onApprove(proposal),
+                    onApproveLinked: () => onApproveLinked(proposal),
+                    onReject: () => onReject(proposal),
+                  ),
                 ),
-              ],
             ],
           ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-        OutlinedButton.icon(
-          onPressed: () =>
-              Navigator.of(context).pop(_CanonicalInspectAction.covers),
-          icon: const Icon(Icons.image_search_outlined),
-          label: const Text('Covers'),
-        ),
-        FilledButton.icon(
-          onPressed: () =>
-              Navigator.of(context).pop(_CanonicalInspectAction.edit),
-          icon: const Icon(Icons.edit_outlined),
-          label: const Text('Edit metadata'),
-        ),
       ],
     );
   }
 }
 
-class _CanonicalItemSummary extends StatelessWidget {
-  const _CanonicalItemSummary({
-    required this.item,
-    this.created,
-    this.auditLogs = const [],
+class _MetadataProposalTile extends StatelessWidget {
+  const _MetadataProposalTile({
+    required this.proposal,
+    required this.isActing,
+    required this.canApproveLinkedItem,
+    required this.onReview,
+    required this.onApprove,
+    required this.onApproveLinked,
+    required this.onReject,
   });
 
-  final AdminMetadataItem item;
-  final bool? created;
-  final List<AdminAuditLogEntry> auditLogs;
+  final AdminMetadataProposal proposal;
+  final bool isActing;
+  final bool canApproveLinkedItem;
+  final VoidCallback onReview;
+  final VoidCallback onApprove;
+  final VoidCallback onApproveLinked;
+  final VoidCallback onReject;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final variant = item.primaryVariant;
-    final edition = item.primaryEdition;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isNarrow = constraints.maxWidth < 620;
-            final cover = SizedBox(
-              width: 84,
-              height: 118,
-              child: LibraryCoverImage(
-                title: item.title,
-                itemNumber: item.itemNumber,
-                imageUrl: item.displayCoverUrl,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  proposal.displayTitle,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                _MiniChip(label: proposal.provider),
+                _MiniChip(label: proposal.status),
+                if (proposal.providerItemId != null &&
+                    proposal.providerItemId!.isNotEmpty)
+                  _MiniChip(label: 'ID ${proposal.providerItemId}'),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              proposal.query,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
+            ),
+            if (proposal.summary != null && proposal.summary!.trim().isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                proposal.summary!,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
-            );
-            final details = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      created == true
-                          ? Icons.add_circle_outline
-                          : Icons.fact_check_outlined,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        item.displayTitle,
-                        style: Theme.of(context).textTheme.titleSmall,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    _MiniChip(label: item.kind),
-                    _MiniChip(label: 'ID ${_shortId(item.id)}'),
-                    if (item.series?.seriesTitle != null)
-                      _MiniChip(label: item.series!.seriesTitle!),
-                    if (edition?.physicalFormatLabel != null)
-                      _MiniChip(label: edition!.physicalFormatLabel!),
-                    if (item.publisher != null)
-                      _MiniChip(label: item.publisher!),
-                    if (item.barcode != null) _MiniChip(label: item.barcode!),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _Fact(
-                        label: 'Editions',
-                        value: item.editions.length.toString()),
-                    _Fact(
-                      label: 'Variants',
-                      value: item.editions
-                          .fold<int>(
-                            0,
-                            (count, edition) => count + edition.variants.length,
-                          )
-                          .toString(),
-                    ),
-                    _Fact(
-                      label: 'Releases',
-                      value: item.editions
-                          .fold<int>(
-                            0,
-                            (count, edition) => count + edition.releases.length,
-                          )
-                          .toString(),
-                    ),
-                    if (item.publishing?.pageCount != null)
-                      _Fact(
-                        label: 'Pages',
-                        value: item.publishing!.pageCount.toString(),
-                      ),
-                    if (item.coverDate != null)
-                      _Fact(
-                          label: 'Cover', value: _formatDate(item.coverDate!)),
-                    if (item.storeDate != null)
-                      _Fact(
-                          label: 'Store', value: _formatDate(item.storeDate!)),
-                    if (variant?.coverPriceCents != null)
-                      _Fact(
-                        label: 'Cover price',
-                        value: _formatMoney(
-                          variant!.coverPriceCents!,
-                          variant.currency ?? item.publishing?.currency,
-                        ),
-                      ),
-                  ],
-                ),
-                if (item.providerLinks.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  _ProviderLinksList(links: item.providerLinks),
-                ],
-                if (item.editions.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _AdminItemVariantSummary(item: item),
-                ],
-                if (auditLogs.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _ItemAuditTimeline(logs: auditLogs),
-                ],
-              ],
-            );
-            if (isNarrow) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+            if (proposal.isPending) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
-                  cover,
-                  const SizedBox(height: 12),
-                  details,
+                  OutlinedButton.icon(
+                    onPressed: isActing ? null : onReview,
+                    icon: const Icon(Icons.travel_explore_outlined),
+                    label: const Text('Review in search'),
+                  ),
+                  if ((proposal.providerItemId?.isNotEmpty ?? false) &&
+                      canApproveLinkedItem)
+                    FilledButton.tonalIcon(
+                      onPressed: isActing ? null : onApproveLinked,
+                      icon: isActing
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.link_outlined),
+                      label: const Text('Approve linked ID'),
+                    ),
+                  FilledButton.icon(
+                    onPressed: isActing ? null : onApprove,
+                    icon: isActing
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.task_alt_outlined),
+                    label: const Text('Approve'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: isActing ? null : onReject,
+                    icon: const Icon(Icons.block_outlined),
+                    label: const Text('Reject'),
+                  ),
                 ],
-              );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                cover,
-                const SizedBox(width: 12),
-                Expanded(child: details),
-              ],
-            );
-          },
+              ),
+            ],
+          ],
         ),
       ),
     );
   }
 }
 
-class _CoverUpdate {
-  const _CoverUpdate({
-    required this.coverImageUrl,
-    this.thumbnailImageUrl,
+enum _ProviderAddMode { search, direct }
+
+class _ProviderAddRequest {
+  const _ProviderAddRequest({
+    required this.mode,
+    required this.kind,
+    required this.provider,
+    this.query,
+    this.providerItemId,
   });
 
-  final String coverImageUrl;
-  final String? thumbnailImageUrl;
+  final _ProviderAddMode mode;
+  final String? kind;
+  final String provider;
+  final String? query;
+  final String? providerItemId;
 }
 
-class _ProviderLinksList extends StatelessWidget {
-  const _ProviderLinksList({required this.links});
+class _ProviderAddDialog extends StatefulWidget {
+  const _ProviderAddDialog({
+    required this.providers,
+    required this.kinds,
+    required this.kindLabels,
+    this.initialKind,
+    this.initialProvider,
+    this.initialQuery,
+    this.initialProviderItemId,
+  });
 
-  final List<AdminProviderLink> links;
+  final List<AdminProviderStatus> providers;
+  final List<String> kinds;
+  final Map<String, String> kindLabels;
+  final String? initialKind;
+  final String? initialProvider;
+  final String? initialQuery;
+  final String? initialProviderItemId;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Provider links', style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        for (final link in links.take(6))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _MiniChip(label: link.provider),
-                _MiniChip(label: link.entityType),
-                _MiniChip(label: 'ID ${link.providerItemId}'),
-                if (link.siteUrl != null) const _MiniChip(label: 'site URL'),
-                if (link.apiUrl != null) const _MiniChip(label: 'api URL'),
-                if (link.siteUrl != null)
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: SelectableText(
-                      link.siteUrl!,
-                      maxLines: 1,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
+  State<_ProviderAddDialog> createState() => _ProviderAddDialogState();
 }
 
-class _CoverInspectionDialog extends StatefulWidget {
-  const _CoverInspectionDialog({required this.item});
-
-  final AdminMetadataItem item;
-
-  @override
-  State<_CoverInspectionDialog> createState() => _CoverInspectionDialogState();
-}
-
-class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
-  late final TextEditingController _coverController;
-  late final TextEditingController _thumbnailController;
-  String? _checkMessage;
-  bool _isChecking = false;
-
-  AdminMetadataItem get item => widget.item;
+class _ProviderAddDialogState extends State<_ProviderAddDialog> {
+  late _ProviderAddMode _mode;
+  late String? _selectedKind;
+  late String _selectedProvider;
+  late final TextEditingController _queryController;
+  late final TextEditingController _providerItemIdController;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _coverController =
-        TextEditingController(text: item.primaryVariant?.coverImageUrl ?? '');
-    _thumbnailController = TextEditingController(
-      text: item.primaryVariant?.thumbnailImageUrl ?? '',
+    _mode = _ProviderAddMode.search;
+    _selectedKind = widget.initialKind;
+    _selectedProvider = widget.initialProvider ?? '';
+    _queryController = TextEditingController(text: widget.initialQuery ?? '');
+    _providerItemIdController = TextEditingController(
+      text: widget.initialProviderItemId ?? '',
     );
-    _coverController.addListener(_urlFieldsChanged);
-    _thumbnailController.addListener(_urlFieldsChanged);
+    _syncSelectedProvider();
   }
 
   @override
   void dispose() {
-    _coverController.removeListener(_urlFieldsChanged);
-    _thumbnailController.removeListener(_urlFieldsChanged);
-    _coverController.dispose();
-    _thumbnailController.dispose();
+    _queryController.dispose();
+    _providerItemIdController.dispose();
     super.dispose();
+  }
+
+  List<AdminProviderStatus> get _availableProviders {
+    return [
+      for (final provider in widget.providers)
+        if ((_mode == _ProviderAddMode.search
+                ? provider.supportsSearch
+                : provider.supportsIngest) &&
+            (_selectedKind == null || provider.effectiveKinds.contains(_selectedKind)))
+          provider,
+    ];
+  }
+
+  void _syncSelectedProvider() {
+    final providers = _availableProviders;
+    if (providers.any((provider) => provider.name == _selectedProvider)) {
+      return;
+    }
+    _selectedProvider = providers.isEmpty ? '' : providers.first.name;
   }
 
   @override
   Widget build(BuildContext context) {
-    final variants = [
-      for (final edition in item.editions) ...edition.variants,
-    ];
+    final actionLabel = _mode == _ProviderAddMode.search
+        ? 'Search provider'
+        : 'Add to catalog';
     return AlertDialog(
-      title: Text('Covers: ${item.displayTitle}'),
+      shape: _kAdminDialogShape,
+      title: const Text('Add metadata from provider'),
       content: SizedBox(
-        width: 640,
+        width: 680,
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(
-                height: 180,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AspectRatio(
-                      aspectRatio: 2 / 3,
-                      child: LibraryCoverImage(
-                        title: item.title,
-                        itemNumber: item.itemNumber,
-                        imageUrl: item.displayCoverUrl,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    AspectRatio(
-                      aspectRatio: 2 / 3,
-                      child: LibraryCoverImage(
-                        title: item.title,
-                        itemNumber: item.itemNumber,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Generated fallback preview',
-                            style: Theme.of(context).textTheme.labelLarge,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Used by the client when the provider has no usable cover URL.',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _coverController,
-                decoration: const InputDecoration(
-                  labelText: 'Replacement cover URL',
-                  prefixIcon: Icon(Icons.link_outlined),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _thumbnailController,
-                decoration: const InputDecoration(
-                  labelText: 'Replacement thumbnail URL',
-                  prefixIcon: Icon(Icons.image_search_outlined),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              if (_checkMessage != null) ...[
-                const SizedBox(height: 10),
-                _MessageRow(
-                  message: _checkMessage!,
-                  isError: !_checkMessage!.startsWith('URL is reachable'),
-                ),
+              if (_error != null) ...[
+                _MessageRow(message: _error!, isError: true),
+                const SizedBox(height: 12),
               ],
-              const SizedBox(height: 12),
-              if (variants.isEmpty)
-                const Text('No variants attached to this item.')
-              else
-                for (final variant in variants)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          variant.name,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        SelectableText(
-                          [
-                            if (variant.physicalFormatLabel != null)
-                              'format: ${variant.physicalFormatLabel}',
-                            if (variant.coverImageUrl != null)
-                              'cover: ${variant.coverImageUrl}',
-                            if (variant.thumbnailImageUrl != null)
-                              'thumb: ${variant.thumbnailImageUrl}',
-                            if (variant.coverImageUrl == null &&
-                                variant.thumbnailImageUrl == null)
-                              'no cover URLs',
-                            'status: ${variant.coverStatus}',
-                            if (variant.coverStorage != null)
-                              'storage: ${variant.coverStorage}',
-                            if (variant.coverPolicy != null)
-                              'policy: ${variant.coverPolicy}',
-                          ].join('\n'),
-                        ),
-                      ],
-                    ),
+              SegmentedButton<_ProviderAddMode>(
+                segments: const [
+                  ButtonSegment<_ProviderAddMode>(
+                    value: _ProviderAddMode.search,
+                    icon: Icon(Icons.manage_search_outlined),
+                    label: Text('Search first'),
                   ),
+                  ButtonSegment<_ProviderAddMode>(
+                    value: _ProviderAddMode.direct,
+                    icon: Icon(Icons.download_for_offline_outlined),
+                    label: Text('Known ID'),
+                  ),
+                ],
+                selected: {_mode},
+                onSelectionChanged: (selection) {
+                  setState(() {
+                    _mode = selection.first;
+                    _error = null;
+                    _syncSelectedProvider();
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              _ProviderKindSelector(
+                value: _selectedKind,
+                kinds: widget.kinds,
+                kindLabels: widget.kindLabels,
+                isLoading: false,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedKind = value == null || value.isEmpty ? null : value;
+                    _error = null;
+                    _syncSelectedProvider();
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              _ProviderSelector(
+                value: _selectedProvider,
+                providers: _availableProviders,
+                isLoading: false,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedProvider = value?.trim() ?? '';
+                    _error = null;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _mode == _ProviderAddMode.search
+                    ? 'Search for candidates inside the selected category before creating anything in the canonical catalog.'
+                    : 'Use a known provider item ID when you already know the exact external record you want to ingest.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 12),
+              if (_mode == _ProviderAddMode.search)
+                TextField(
+                  controller: _queryController,
+                  decoration: const InputDecoration(
+                    labelText: 'Provider query',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (_) => _submit(),
+                )
+              else
+                TextField(
+                  controller: _providerItemIdController,
+                  decoration: const InputDecoration(
+                    labelText: 'Provider item ID',
+                    prefixIcon: Icon(Icons.tag_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _submit(),
+                ),
             ],
           ),
         ),
       ),
       actions: [
-        TextButton.icon(
-          onPressed: _isChecking ? null : _checkCoverUrl,
-          icon: _isChecking
-              ? const SizedBox.square(
-                  dimension: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.fact_check_outlined),
-          label: const Text('Check URL'),
-        ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+          child: const Text('Cancel'),
         ),
         FilledButton.icon(
-          onPressed: _coverController.text.trim().isEmpty
-              ? null
-              : () => Navigator.of(context).pop(
-                    _CoverUpdate(
-                      coverImageUrl: _coverController.text.trim(),
-                      thumbnailImageUrl:
-                          _emptyToNull(_thumbnailController.text),
-                    ),
-                  ),
-          icon: const Icon(Icons.save_outlined),
-          label: const Text('Replace URL'),
+          onPressed: _submit,
+          icon: Icon(
+            _mode == _ProviderAddMode.search
+                ? Icons.manage_search_outlined
+                : Icons.download_for_offline_outlined,
+          ),
+          label: Text(actionLabel),
         ),
       ],
     );
   }
 
-  Future<void> _checkCoverUrl() async {
-    final url = _coverController.text.trim();
-    if (url.isEmpty) {
-      setState(() => _checkMessage = 'Enter a cover URL first.');
+  void _submit() {
+    final kind = _selectedKind?.trim();
+    if (kind == null || kind.isEmpty) {
+      setState(() {
+        _error = 'Choose a media category first.';
+      });
       return;
     }
-    setState(() {
-      _isChecking = true;
-      _checkMessage = null;
-    });
-    try {
-      await precacheImage(NetworkImage(url), context);
-      if (mounted) {
-        setState(() => _checkMessage = 'URL is reachable in this client.');
-      }
-    } catch (error) {
-      if (mounted) {
-        setState(() => _checkMessage = 'URL check failed: $error');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isChecking = false);
-      }
+    if (_selectedProvider.trim().isEmpty) {
+      setState(() {
+        _error = 'Choose a provider.';
+      });
+      return;
     }
-  }
-
-  void _urlFieldsChanged() {
-    if (mounted) {
-      setState(() {});
+    if (_mode == _ProviderAddMode.search) {
+      final query = _queryController.text.trim();
+      if (query.isEmpty) {
+        setState(() {
+          _error = 'Enter a provider query.';
+        });
+        return;
+      }
+      Navigator.of(context).pop(
+        _ProviderAddRequest(
+          mode: _mode,
+          kind: kind,
+          provider: _selectedProvider,
+          query: query,
+        ),
+      );
+      return;
     }
-  }
-}
-
-class _AdminItemVariantSummary extends StatelessWidget {
-  const _AdminItemVariantSummary({required this.item});
-
-  final AdminMetadataItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final variants = [
-      for (final edition in item.editions)
-        for (final variant in edition.variants)
-          _EditionVariantPair(edition: edition, variant: variant),
-    ];
-    if (variants.isEmpty) {
-      return const SizedBox.shrink();
+    final providerItemId = _providerItemIdController.text.trim();
+    if (providerItemId.isEmpty) {
+      setState(() {
+        _error = 'Enter a provider item ID.';
+      });
+      return;
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Variants and cover status',
-            style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final pair in variants.take(6))
-              _VariantStatusCard(edition: pair.edition, variant: pair.variant),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _EditionVariantPair {
-  const _EditionVariantPair({required this.edition, required this.variant});
-
-  final AdminEdition edition;
-  final AdminVariant variant;
-}
-
-class _VariantStatusCard extends StatelessWidget {
-  const _VariantStatusCard({
-    required this.edition,
-    required this.variant,
-  });
-
-  final AdminEdition edition;
-  final AdminVariant variant;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final hasCover = variant.coverImageUrl != null ||
-        variant.thumbnailImageUrl != null ||
-        variant.coverStatus != 'missing';
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 360, minWidth: 240),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.surface.withValues(alpha: 0.72),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colorScheme.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    hasCover ? Icons.image_outlined : Icons.hide_image_outlined,
-                    size: 18,
-                    color: hasCover ? colorScheme.primary : colorScheme.error,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      variant.name.isEmpty ? edition.title : variant.name,
-                      style: Theme.of(context).textTheme.labelLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  _MiniChip(label: variant.coverStatus),
-                  if (variant.coverStorage != null)
-                    _MiniChip(label: variant.coverStorage!),
-                  if (variant.coverPolicy != null)
-                    _MiniChip(label: variant.coverPolicy!),
-                  if (variant.physicalFormatLabel != null)
-                    _MiniChip(label: variant.physicalFormatLabel!),
-                  if (variant.barcode != null)
-                    _MiniChip(label: variant.barcode!),
-                ],
-              ),
-              if (variant.coverSourceUrl != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  variant.coverSourceUrl!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ],
-          ),
-        ),
+    Navigator.of(context).pop(
+      _ProviderAddRequest(
+        mode: _mode,
+        kind: kind,
+        provider: _selectedProvider,
+        providerItemId: providerItemId,
       ),
-    );
-  }
-}
-
-class _ItemAuditTimeline extends StatelessWidget {
-  const _ItemAuditTimeline({required this.logs});
-
-  final List<AdminAuditLogEntry> logs;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Item audit history',
-            style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        for (final log in logs.take(5))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.manage_history_outlined, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '${_formatDateTime(log.createdAt)} - ${log.action} by ${log.displayActor} (${log.detailsSummary})',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
     );
   }
 }
@@ -4349,15 +4742,23 @@ class _CatalogCorrection {
     this.synopsis,
     this.editionTitle,
     this.pageCount,
+    this.runtimeMinutes,
     this.publisher,
     this.releaseDate,
     this.imprint,
+    this.subtitle,
     this.seriesGroup,
+    this.country,
+    this.language,
+    this.ageRating,
+    this.catalogNumber,
+    this.releaseStatus,
     this.physicalFormat,
     this.variantName,
     this.barcode,
     this.coverImageUrl,
     this.thumbnailImageUrl,
+    this.seriesTags,
   });
 
   final String? title;
@@ -4365,15 +4766,23 @@ class _CatalogCorrection {
   final String? synopsis;
   final String? editionTitle;
   final int? pageCount;
+  final int? runtimeMinutes;
   final String? publisher;
   final DateTime? releaseDate;
   final String? imprint;
+  final String? subtitle;
   final String? seriesGroup;
+  final String? country;
+  final String? language;
+  final String? ageRating;
+  final String? catalogNumber;
+  final String? releaseStatus;
   final String? physicalFormat;
   final String? variantName;
   final String? barcode;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final List<String>? seriesTags;
 }
 
 class _CorrectionPreviewEntry {
@@ -4388,504 +4797,6 @@ class _CorrectionPreviewEntry {
   final String after;
 }
 
-class _MetadataCorrectionDialog extends StatefulWidget {
-  const _MetadataCorrectionDialog({
-    required this.item,
-    required this.physicalFormats,
-  });
-
-  final AdminMetadataItem item;
-  final List<PhysicalMediaFormat> physicalFormats;
-
-  @override
-  State<_MetadataCorrectionDialog> createState() =>
-      _MetadataCorrectionDialogState();
-}
-
-class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
-  late final TextEditingController _titleController;
-  late final TextEditingController _itemNumberController;
-  late final TextEditingController _publisherController;
-  late final TextEditingController _barcodeController;
-  late final TextEditingController _variantController;
-  late final TextEditingController _pageCountController;
-  late final TextEditingController _releaseDateController;
-  late final TextEditingController _coverController;
-  late final TextEditingController _thumbnailController;
-  late final TextEditingController _synopsisController;
-  late String _physicalFormatId;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    final variant = widget.item.primaryVariant;
-    _titleController = TextEditingController(text: widget.item.title);
-    _itemNumberController =
-        TextEditingController(text: widget.item.itemNumber ?? '');
-    _publisherController =
-        TextEditingController(text: widget.item.publisher ?? '');
-    _barcodeController = TextEditingController(
-      text: widget.item.barcode ?? variant?.barcode ?? '',
-    );
-    _variantController = TextEditingController(text: variant?.name ?? '');
-    _pageCountController = TextEditingController(
-      text: widget.item.publishing?.pageCount?.toString() ?? '',
-    );
-    _releaseDateController = TextEditingController(
-      text: widget.item.coverDate == null
-          ? ''
-          : _formatDate(widget.item.coverDate!),
-    );
-    _coverController =
-        TextEditingController(text: variant?.coverImageUrl ?? '');
-    _thumbnailController =
-        TextEditingController(text: variant?.thumbnailImageUrl ?? '');
-    _synopsisController =
-        TextEditingController(text: widget.item.synopsis ?? '');
-    final edition = widget.item.primaryEdition;
-    _physicalFormatId = edition?.physicalFormat ??
-        physicalMediaFormatById(
-          edition?.physicalFormatLabel ?? '',
-          formats: widget.physicalFormats,
-        )?.id ??
-        '';
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _itemNumberController.dispose();
-    _publisherController.dispose();
-    _barcodeController.dispose();
-    _variantController.dispose();
-    _pageCountController.dispose();
-    _releaseDateController.dispose();
-    _coverController.dispose();
-    _thumbnailController.dispose();
-    _synopsisController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Edit metadata: ${widget.item.displayTitle}'),
-      content: SizedBox(
-        width: 680,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_error != null) ...[
-                _MessageRow(message: _error!, isError: true),
-                const SizedBox(height: 12),
-              ],
-              _correctionField(_titleController, 'Title'),
-              _correctionField(_itemNumberController, 'Item number'),
-              _correctionField(_publisherController, 'Publisher'),
-              _correctionField(_barcodeController, 'Barcode'),
-              _correctionField(_variantController, 'Primary variant'),
-              _correctionField(_pageCountController, 'Page count',
-                  keyboardType: TextInputType.number),
-              _correctionField(_releaseDateController, 'Release date'),
-              if (widget.physicalFormats.isNotEmpty) _physicalFormatField(),
-              _correctionField(_coverController, 'Cover URL'),
-              _correctionField(_thumbnailController, 'Thumbnail URL'),
-              _correctionField(
-                _synopsisController,
-                'Synopsis',
-                minLines: 3,
-                maxLines: 5,
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          child: const Text('Save correction'),
-        ),
-      ],
-    );
-  }
-
-  Widget _correctionField(
-    TextEditingController controller,
-    String label, {
-    TextInputType? keyboardType,
-    int minLines = 1,
-    int maxLines = 1,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        minLines: minLines,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
-      ),
-    );
-  }
-
-  Widget _physicalFormatField() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: DropdownButtonFormField<String>(
-        initialValue: _physicalFormatId,
-        dropdownColor: _kAdminDropdownColor,
-        borderRadius: kAppMenuBorderRadius,
-        decoration: const InputDecoration(
-          labelText: 'Physical format',
-          border: OutlineInputBorder(),
-        ),
-        items: [
-          const DropdownMenuItem(value: '', child: Text('No format selected')),
-          for (final format in widget.physicalFormats)
-            DropdownMenuItem(value: format.id, child: Text(format.label)),
-        ],
-        onChanged: (value) {
-          setState(() {
-            _physicalFormatId = value ?? '';
-          });
-        },
-      ),
-    );
-  }
-
-  Future<void> _submit() async {
-    if (_titleController.text.trim().isEmpty) {
-      setState(() {
-        _error = 'Title is required.';
-      });
-      return;
-    }
-    final currentVariantName = widget.item.primaryVariant?.name.trim();
-    if (currentVariantName != null &&
-        currentVariantName.isNotEmpty &&
-        _variantController.text.trim().isEmpty) {
-      setState(() {
-        _error = 'Primary variant cannot be cleared yet.';
-      });
-      return;
-    }
-    final pageCountText = _pageCountController.text.trim();
-    final pageCount =
-        pageCountText.isEmpty ? null : int.tryParse(pageCountText);
-    if (pageCountText.isNotEmpty && pageCount == null) {
-      setState(() {
-        _error = 'Page count must be a number.';
-      });
-      return;
-    }
-    final releaseDateText = _releaseDateController.text.trim();
-    final releaseDate =
-        releaseDateText.isEmpty ? null : DateTime.tryParse(releaseDateText);
-    if (releaseDateText.isNotEmpty && releaseDate == null) {
-      setState(() {
-        _error = 'Release date must use YYYY-MM-DD.';
-      });
-      return;
-    }
-    final correction = _CatalogCorrection(
-      title: _emptyToNull(_titleController.text),
-      itemNumber: _emptyToNull(_itemNumberController.text),
-      publisher: _emptyToNull(_publisherController.text),
-      barcode: _emptyToNull(_barcodeController.text),
-      physicalFormat: widget.physicalFormats.isNotEmpty
-          ? _emptyToNull(_physicalFormatId)
-          : null,
-      variantName: _emptyToNull(_variantController.text),
-      pageCount: pageCount,
-      releaseDate: releaseDate,
-      coverImageUrl: _emptyToNull(_coverController.text),
-      thumbnailImageUrl: _emptyToNull(_thumbnailController.text),
-      synopsis: _emptyToNull(_synopsisController.text),
-    );
-    final changes = _correctionPreview(correction);
-    if (changes.isEmpty) {
-      setState(() {
-        _error = 'Change at least one metadata field before saving.';
-      });
-      return;
-    }
-    final confirmed = await _confirmCorrectionPreview(changes);
-    if (!mounted || !confirmed) {
-      return;
-    }
-    Navigator.of(context).pop(correction);
-  }
-
-  Future<bool> _confirmCorrectionPreview(
-    List<_CorrectionPreviewEntry> changes,
-  ) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Preview metadata correction'),
-            content: SizedBox(
-              width: 620,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const _DestructiveWarning(
-                      icon: Icons.fact_check_outlined,
-                      message:
-                          'This edits canonical catalog metadata and affects every user who sees this item. Review the diff before saving.',
-                    ),
-                    const SizedBox(height: 12),
-                    for (final change in changes)
-                      _CorrectionPreviewRow(change: change),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Back to edit'),
-              ),
-              FilledButton.icon(
-                onPressed: () => Navigator.of(context).pop(true),
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Save correction'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-  }
-
-  List<_CorrectionPreviewEntry> _correctionPreview(
-    _CatalogCorrection correction,
-  ) {
-    final item = widget.item;
-    final variant = item.primaryVariant;
-    final edition = item.primaryEdition;
-    final changes = <_CorrectionPreviewEntry>[];
-    void add(String label, Object? before, Object? after) {
-      final beforeText = _previewValue(before);
-      final afterText = _previewValue(after);
-      if (beforeText == afterText) {
-        return;
-      }
-      changes.add(
-        _CorrectionPreviewEntry(
-          label: label,
-          before: beforeText,
-          after: afterText,
-        ),
-      );
-    }
-
-    add('Title', item.title, correction.title);
-    add('Item number', item.itemNumber, correction.itemNumber);
-    add('Publisher', item.publisher, correction.publisher);
-    add('Barcode', item.barcode ?? variant?.barcode, correction.barcode);
-    add('Primary variant', variant?.name, correction.variantName);
-    add('Page count', item.publishing?.pageCount, correction.pageCount);
-    add('Release date', item.coverDate, correction.releaseDate);
-    if (widget.physicalFormats.isNotEmpty) {
-      add('Physical format', edition?.physicalFormat,
-          correction.physicalFormat);
-    }
-    add('Cover URL', variant?.coverImageUrl, correction.coverImageUrl);
-    add(
-      'Thumbnail URL',
-      variant?.thumbnailImageUrl,
-      correction.thumbnailImageUrl,
-    );
-    add('Synopsis', item.synopsis, correction.synopsis);
-    return changes;
-  }
-
-  String _previewValue(Object? value) {
-    if (value == null) {
-      return '(empty)';
-    }
-    if (value is DateTime) {
-      return _formatDate(value);
-    }
-    final text = value.toString().trim();
-    return text.isEmpty ? '(empty)' : text;
-  }
-}
-
-class _DuplicateMergeSelection {
-  const _DuplicateMergeSelection({
-    required this.targetItemId,
-    required this.sourceItemIds,
-  });
-
-  final String targetItemId;
-  final List<String> sourceItemIds;
-}
-
-class _DuplicateMergeReviewDialog extends StatefulWidget {
-  const _DuplicateMergeReviewDialog({required this.candidate});
-
-  final AdminDuplicateCandidate candidate;
-
-  @override
-  State<_DuplicateMergeReviewDialog> createState() =>
-      _DuplicateMergeReviewDialogState();
-}
-
-class _DuplicateMergeReviewDialogState
-    extends State<_DuplicateMergeReviewDialog> {
-  late String _targetItemId;
-  late Set<String> _sourceItemIds;
-  late final TextEditingController _confirmController;
-  bool _typedConfirmationMatches = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _targetItemId =
-        widget.candidate.preferredTargetItemId ?? widget.candidate.itemIds.first;
-    _sourceItemIds = widget.candidate.itemIds
-        .where((itemId) => itemId != _targetItemId)
-        .toSet();
-    _confirmController = TextEditingController()
-      ..addListener(() {
-        final matches = _confirmController.text.trim() == 'MERGE';
-        if (matches != _typedConfirmationMatches) {
-          setState(() {
-            _typedConfirmationMatches = matches;
-          });
-        }
-      });
-  }
-
-  @override
-  void dispose() {
-    _confirmController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final candidate = widget.candidate;
-    return AlertDialog(
-      title: Text('Merge review: ${candidate.displayTitle}'),
-      content: SizedBox(
-        width: 560,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  _MiniChip(label: candidate.reason),
-                  _MiniChip(label: '${candidate.duplicateScore}% match'),
-                  if (candidate.hasProviderConflicts)
-                    const _MiniChip(label: 'provider conflict'),
-                  if (candidate.hasCoverConflicts)
-                    const _MiniChip(label: 'cover conflict'),
-                  if (candidate.preferredTargetItemId != null)
-                    _MiniChip(
-                      label:
-                          'target ${_shortId(candidate.preferredTargetItemId!)}',
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              const _DestructiveWarning(
-                icon: Icons.warning_amber_outlined,
-                message:
-                    'This moves provider links, editions, variants, relationships, and admin history onto the selected target. Source catalog records are removed after merge.',
-              ),
-              const SizedBox(height: 12),
-              for (final itemId in candidate.itemIds)
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: _sourceItemIds.contains(itemId),
-                  enabled: itemId != _targetItemId,
-                  title: Text('Source ${_shortId(itemId)}'),
-                    subtitle: itemId == _targetItemId
-                      ? Text(
-                        itemId == candidate.preferredTargetItemId
-                          ? 'Recommended merge target'
-                          : 'Merge target',
-                      )
-                      : itemId == candidate.preferredTargetItemId
-                        ? const Text('Recommended target')
-                        : null,
-                  secondary: IconButton(
-                    tooltip: 'Set merge target',
-                    onPressed: () {
-                      setState(() {
-                        _targetItemId = itemId;
-                        _sourceItemIds = candidate.itemIds
-                            .where((id) => id != itemId)
-                            .toSet();
-                      });
-                    },
-                    icon: Icon(
-                      itemId == _targetItemId
-                          ? Icons.radio_button_checked
-                          : Icons.radio_button_unchecked,
-                    ),
-                  ),
-                  onChanged: itemId == _targetItemId
-                      ? null
-                      : (value) {
-                          setState(() {
-                            if (value == true) {
-                              _sourceItemIds.add(itemId);
-                            } else {
-                              _sourceItemIds.remove(itemId);
-                            }
-                          });
-                        },
-                ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _confirmController,
-                decoration: const InputDecoration(
-                  labelText: 'Type MERGE to confirm',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton.icon(
-          onPressed: _sourceItemIds.isEmpty || !_typedConfirmationMatches
-              ? null
-              : () => Navigator.of(context).pop(
-                    _DuplicateMergeSelection(
-                      targetItemId: _targetItemId,
-                      sourceItemIds: _sourceItemIds.toList(growable: false),
-                    ),
-                  ),
-          icon: const Icon(Icons.merge_type_outlined),
-          label: const Text('Merge selected'),
-        ),
-      ],
-    );
-  }
-}
 
 class _Fact extends StatelessWidget {
   const _Fact({required this.label, required this.value});
@@ -5062,6 +4973,15 @@ String _adminErrorMessage(Object error) {
     }
   }
   return error.toString();
+}
+
+String _proposalAuditActionLabel(String action) {
+  return switch (action) {
+    'metadata_proposal.approve' => 'Approved proposal',
+    'metadata_proposal.approve_provider' => 'Approved via provider',
+    'metadata_proposal.reject' => 'Rejected proposal',
+    _ => action,
+  };
 }
 
 String _shortId(String id) {

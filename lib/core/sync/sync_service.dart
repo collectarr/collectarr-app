@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -10,6 +11,7 @@ import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:uuid/uuid.dart';
 
@@ -22,6 +24,7 @@ class SyncService {
     required this.queue,
     required this.catalog,
     required this.ownedItems,
+    required this.trackingEntries,
     required this.wishlistItems,
     LocationRepository? locations,
   }) : locations = locations ?? LocationRepository(db);
@@ -31,6 +34,7 @@ class SyncService {
   final SyncQueueRepository queue;
   final CatalogCacheRepository catalog;
   final OwnedItemsCacheRepository ownedItems;
+  final TrackingEntriesCacheRepository trackingEntries;
   final WishlistItemsCacheRepository wishlistItems;
   final LocationRepository locations;
 
@@ -65,6 +69,7 @@ class SyncService {
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
     final owned = <OwnedItem>[];
+    final tracking = <TrackingEntry>[];
     final wishlist = <WishlistItem>[];
     // Collect image data from snapshots keyed by item ID.
     final imageDataByItemId = <String, String>{};
@@ -87,6 +92,9 @@ class SyncService {
       if (type == 'owned_item') {
         owned.add(_ownedItemFromEntity(entity));
       }
+      if (type == 'tracking_entry') {
+        tracking.add(_trackingEntryFromEntity(entity));
+      }
       if (type == 'wishlist_item') {
         wishlist.add(_wishlistItemFromEntity(entity));
       }
@@ -97,6 +105,7 @@ class SyncService {
         await locations.applySyncedUpsert(location);
       }
       await ownedItems.upsertAll(owned);
+      await trackingEntries.upsertAll(tracking);
       await wishlistItems.upsertAll(wishlist);
       for (final locationId in locationDeletes) {
         await locations.applySyncedDelete(locationId);
@@ -165,6 +174,22 @@ class SyncService {
       ...payload,
       'id': entity['entity_id'],
       'created_at': payload['created_at'] ?? entity['client_changed_at'],
+      'updated_at': entity['client_changed_at'],
+      'deleted_at': deletedAt,
+    });
+  }
+
+  TrackingEntry _trackingEntryFromEntity(Map<String, dynamic> entity) {
+    final type = entity['entity_type'] as String;
+    final action = entity['action'] as String;
+    final payload = _payload(entity);
+    final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
+    if (type != 'tracking_entry') {
+      throw FormatException('Expected tracking_entry entity, got $type');
+    }
+    return TrackingEntry.fromJson({
+      ...payload,
+      'id': entity['entity_id'],
       'updated_at': entity['client_changed_at'],
       'deleted_at': deletedAt,
     });

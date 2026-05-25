@@ -1,8 +1,4 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/series_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
@@ -10,6 +6,7 @@ import 'package:collectarr_app/features/library/workspace/library_inspector.dart
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LibraryMediaFieldLabels {
   const LibraryMediaFieldLabels({
@@ -184,13 +181,8 @@ abstract class LibraryMediaPresentationBuilder {
         return LibraryInspectorFactData(
           fact.label,
           fact.value,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => SeriesDetailPage(
-                seriesId: series.seriesId!,
-                seriesTitle: series.seriesTitle!,
-              ),
-            ),
+          onTap: () => context.push(
+            '/series/${Uri.encodeComponent(series.seriesId!)}?title=${Uri.encodeQueryComponent(series.seriesTitle!)}',
           ),
         );
       }
@@ -263,10 +255,8 @@ abstract class LibraryMediaPresentationBuilder {
           LibraryMetadataCreditsList(
             title: 'Creators',
             credits: presentation.creators,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => CreatorDetailPage(creatorName: value),
-              ),
+            onValueTap: (value) => context.push(
+              '/creator/${Uri.encodeComponent(value)}',
             ),
           ),
         if (presentation.characters.isNotEmpty) ...[
@@ -274,10 +264,8 @@ abstract class LibraryMediaPresentationBuilder {
           LibraryInspectorChipWrap(
             label: 'Characters',
             values: presentation.characters,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => CharacterDetailPage(characterName: value),
-              ),
+            onValueTap: (value) => context.push(
+              '/character/${Uri.encodeComponent(value)}',
             ),
           ),
         ],
@@ -288,10 +276,8 @@ abstract class LibraryMediaPresentationBuilder {
           LibraryInspectorChipWrap(
             label: 'Story Arcs',
             values: presentation.storyArcs,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => StoryArcDetailPage(storyArcName: value),
-              ),
+            onValueTap: (value) => context.push(
+              '/story-arc/${Uri.encodeComponent(value)}',
             ),
           ),
         ],

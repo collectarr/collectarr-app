@@ -2,7 +2,9 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,13 +51,19 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   int? _rating;
   final _tagsController = TextEditingController();
   List<StorageLocation> _availableLocations = const [];
+  List<String> _conditionOptions = const [];
+  List<String> _gradeOptions = const [];
+  List<String> _tagOptions = const [];
   bool _applyLocation = false;
   String? _locationId;
 
   @override
   void initState() {
     super.initState();
+    _conditionOptions = widget.type.conditions;
+    _gradeOptions = widget.type.grades;
     _loadAvailableLocations();
+    _loadPickListOptions();
   }
 
   @override
@@ -67,8 +75,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   @override
   Widget build(BuildContext context) {
     final trackingOptions = widget.type.trackingProfile.options;
-    final conditions = widget.type.conditions;
-    final grades = widget.type.grades;
+    final conditions = _conditionOptions;
+    final grades = _gradeOptions;
     return AlertDialog(
       title: Text('Bulk edit (${widget.selectedCount} items)'),
       content: SizedBox(
@@ -127,13 +135,11 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             ],
             _locationField(),
             const SizedBox(height: 12),
-            TextField(
+            TagPickListField(
               controller: _tagsController,
-              decoration: const InputDecoration(
-                labelText: 'Tags',
-                hintText: 'Leave blank to keep current',
-                border: OutlineInputBorder(),
-              ),
+              options: _tagOptions,
+              label: 'Tags',
+              hint: 'Leave blank to keep current',
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
@@ -219,6 +225,30 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
       return;
     }
     setState(() => _availableLocations = locations);
+  }
+
+  Future<void> _loadPickListOptions() async {
+    final options = await loadConditionGradePickListOptions(
+      ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      builtInConditions: widget.type.conditions,
+      builtInGrades: widget.type.grades,
+      selectedCondition: _condition,
+      selectedGrade: _grade,
+    );
+    final tagOptions = await loadTagPickListOptions(
+      ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      selectedTags: splitPickListValues(_tagsController.text),
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _conditionOptions = options.conditions;
+      _gradeOptions = options.grades;
+      _tagOptions = tagOptions;
+    });
   }
 
   Widget _locationField() {

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -69,8 +70,8 @@ class LibraryMediaAdapterRegistry {
 
   final List<LibraryMediaAdapter> adapters;
 
-  LibraryMediaAdapter? byKind(String kind) {
-    final normalized = kind.trim().toLowerCase();
+  LibraryMediaAdapter? byKind(Object? kind) {
+    final normalized = catalogMediaKindFromValue(kind);
     for (final adapter in adapters) {
       if (adapter.type.workspace.kind == normalized) {
         return adapter;
@@ -81,7 +82,7 @@ class LibraryMediaAdapterRegistry {
 
   List<String> get supportedKinds {
     return {
-      for (final adapter in adapters) adapter.type.workspace.kind,
+      for (final adapter in adapters) adapter.type.workspace.kind.apiValue,
     }.toList(growable: false);
   }
 }

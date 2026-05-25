@@ -16,6 +16,7 @@ class _ManualPane extends StatelessWidget {
     required this.isAdding,
     required this.onAddOwned,
     required this.onAddWishlist,
+    required this.onAddTrack,
   });
 
   final LibraryTypeConfig type;
@@ -32,10 +33,17 @@ class _ManualPane extends StatelessWidget {
   final bool isAdding;
   final VoidCallback onAddOwned;
   final VoidCallback onAddWishlist;
+  final VoidCallback onAddTrack;
 
   @override
   Widget build(BuildContext context) {
     final labels = libraryMediaFieldLabels(type);
+    final copyTypeLabel = ownedCopyTypeLabel(
+      digitalPhysicalMediaFormatFlag(
+        physicalFormatId,
+        formats: physicalFormats,
+      ),
+    );
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: kAppPanelRaised,
@@ -184,9 +192,39 @@ class _ManualPane extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (copyTypeLabel != null) ...[
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Owned copies created from this draft will be saved as $copyTypeLabel.',
+                          style: const TextStyle(
+                            color: kAppTextMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Row(
                       children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: isAdding ? null : onAddTrack,
+                            style: _libraryAddOutlinedButtonStyle(),
+                            icon: const Icon(Icons.visibility_outlined, size: 18),
+                            label: Text(
+                              LibraryAddCopy.addToTargetLabel(
+                                count: 1,
+                                type: type,
+                                target: LibraryAddTarget.track,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: isAdding ? null : onAddWishlist,

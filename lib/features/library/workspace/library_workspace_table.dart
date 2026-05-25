@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryColumnWidthFor = double Function(LibraryTableColumn column);
@@ -23,6 +24,7 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
     required this.columns,
     required this.sortColumn,
     required this.sortAscending,
+    this.sortRules = const [],
     required this.columnWidthFor,
     required this.defaultColumnWidthFor,
     required this.columnSortFor,
@@ -41,14 +43,14 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
     this.horizontalMargin = 8,
     this.selectionRailWidth = 3,
     this.headerColor = const Color(0xFF303030),
-    this.dividerColor = const Color(0xFF4A4A4A),
-    this.selectedColor = const Color(0xFF075F75),
-    this.oddColor = const Color(0xFF202428),
-    this.evenColor = const Color(0xFF181B1E),
-    this.selectionRailColor = const Color(0xFFFFD400),
-    this.bottomBorderColor = const Color(0xFF2E2E2E),
-    this.hoverColor = const Color(0xFF263940),
-    this.accentColor = const Color(0xFF10A8D8),
+    this.dividerColor = kAppDivider,
+    this.selectedColor = kAppSelection,
+    this.oddColor = kAppTableOddRow,
+    this.evenColor = kAppTableEvenRow,
+    this.selectionRailColor = kAppHighlight,
+    this.bottomBorderColor = kAppTableBottomBorder,
+    this.hoverColor = kAppTableHover,
+    this.accentColor = kAppAccent,
     super.key,
   });
 
@@ -56,6 +58,7 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
   final List<LibraryTableColumn> columns;
   final LibrarySortColumn sortColumn;
   final bool sortAscending;
+  final List<LibrarySortRule> sortRules;
   final LibraryColumnWidthFor columnWidthFor;
   final LibraryColumnWidthFor defaultColumnWidthFor;
   final LibraryColumnSortFor columnSortFor;
@@ -92,6 +95,7 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
           columns: columns,
           sortColumn: sortColumn,
           sortAscending: sortAscending,
+          sortRules: sortRules,
           columnWidthFor: columnWidthFor,
           defaultColumnWidthFor: defaultColumnWidthFor,
           columnSortFor: columnSortFor,
@@ -151,6 +155,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     required this.columns,
     required this.sortColumn,
     required this.sortAscending,
+    required this.sortRules,
     required this.columnWidthFor,
     required this.defaultColumnWidthFor,
     required this.columnSortFor,
@@ -169,6 +174,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   final List<LibraryTableColumn> columns;
   final LibrarySortColumn sortColumn;
   final bool sortAscending;
+  final List<LibrarySortRule> sortRules;
   final LibraryColumnWidthFor columnWidthFor;
   final LibraryColumnWidthFor defaultColumnWidthFor;
   final LibraryColumnSortFor columnSortFor;
@@ -208,6 +214,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
                 sorted: columnSortFor(columns[index]) == sortColumn,
                 ascending: sortAscending,
                 sort: columnSortFor(columns[index]),
+                sortPriority: _sortPriorityFor(columnSortFor(columns[index])),
                 label: columnLabelFor(columns[index]),
                 onSortChanged: onSortChanged,
                 onColumnWidthChanged: onColumnWidthChanged,
@@ -224,6 +231,18 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
       ),
     );
   }
+
+  int? _sortPriorityFor(LibrarySortColumn? column) {
+    if (column == null) {
+      return null;
+    }
+    for (var index = 0; index < sortRules.length; index += 1) {
+      if (sortRules[index].column == column) {
+        return index + 1;
+      }
+    }
+    return null;
+  }
 }
 
 class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
@@ -235,6 +254,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     required this.sorted,
     required this.ascending,
     required this.sort,
+    required this.sortPriority,
     required this.label,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
@@ -252,6 +272,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
   final bool sorted;
   final bool ascending;
   final LibrarySortColumn? sort;
+  final int? sortPriority;
   final String label;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
@@ -323,6 +344,30 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                                 : Icons.arrow_drop_down,
                             size: 18,
                             color: accentColor,
+                          ),
+                        if (sortPriority != null)
+                          Container(
+                            key: ValueKey('sort-priority-${column.name}'),
+                            margin: const EdgeInsets.only(left: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: accentColor.withValues(alpha: 0.16),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: accentColor.withValues(alpha: 0.45),
+                              ),
+                            ),
+                            child: Text(
+                              sortPriority.toString(),
+                              style: TextStyle(
+                                color: accentColor,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 10,
+                              ),
+                            ),
                           ),
                       ],
                     ),

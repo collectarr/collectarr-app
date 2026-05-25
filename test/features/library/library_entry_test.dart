@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/library_entry.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:flutter_test/flutter_test.dart';
 

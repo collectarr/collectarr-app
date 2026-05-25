@@ -1,27 +1,31 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/library_entry.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final owned = await ref.watch(collectionProvider.future);
   final wishlist = await ref.watch(wishlistProvider.future);
+  final trackingEntries = await ref.watch(trackingEntriesProvider.future);
   final db = ref.watch(localDatabaseProvider);
   final ids = {
     for (final item in owned) item.itemId,
     for (final item in wishlist) item.itemId,
+    for (final item in trackingEntries) item.itemId,
   };
   final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
   final locations = await LocationRepository(db).getAll();
   return ShelfState.from(
     ownedItems: owned,
     wishlistItems: wishlist,
+    trackingEntries: trackingEntries,
     catalogItems: catalogItems,
     locations: locations,
   );
@@ -56,6 +60,7 @@ class ShelfState {
   factory ShelfState.from({
     required List<OwnedItem> ownedItems,
     required List<WishlistItem> wishlistItems,
+    List<TrackingEntry> trackingEntries = const [],
     required Map<String, CatalogItem> catalogItems,
     List<StorageLocation> locations = const [],
   }) {
@@ -70,9 +75,17 @@ class ShelfState {
       for (final item in wishlistItems)
         if (!item.isDeleted) item.itemId: item,
     };
+    final trackingByItemId = <String, TrackingEntry>{};
+    for (final entry in trackingEntries) {
+      if (entry.isDeleted || trackingByItemId.containsKey(entry.itemId)) {
+        continue;
+      }
+      trackingByItemId[entry.itemId] = entry;
+    }
     final ids = {
       ...ownedByItemId.keys,
       ...wishlistByItemId.keys,
+      ...trackingByItemId.keys,
     };
     final entries = [
       for (final id in ids)
@@ -80,6 +93,7 @@ class ShelfState {
           itemId: id,
           catalogItem: catalogItems[id],
           ownedItem: ownedByItemId[id],
+          trackingEntry: trackingByItemId[id],
           wishlistItem: wishlistByItemId[id],
           locationPath: locationPathsById[ownedByItemId[id]?.locationId],
         ),
@@ -127,7 +141,7 @@ class ShelfState {
         activeOwned.map((item) => item.condition ?? 'Unknown'),
       ),
       readStatusCounts: _counts(
-        activeOwned.map((item) => item.readStatus ?? 'Unknown'),
+        entries.map((entry) => entry.tracking.statusLabel),
       ),
       storageBoxCounts: _counts(
         entries
@@ -196,6 +210,7 @@ class ShelfEntry extends LibraryEntry {
     required super.itemId,
     super.catalogItem,
     super.ownedItem,
+    super.trackingEntry,
     super.wishlistItem,
     this.locationPath,
   });

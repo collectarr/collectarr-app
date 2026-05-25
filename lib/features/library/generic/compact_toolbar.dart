@@ -24,6 +24,10 @@ class CompactLibraryToolbar extends StatelessWidget {
     required this.onClearFilters,
     this.onRandomPick,
     this.onDownloadAllCovers,
+    this.onEditConditionPickList,
+    this.onEditGradePickList,
+    this.onEditTagPickList,
+    this.onEditSort,
   });
 
   final LibraryTypeConfig type;
@@ -42,6 +46,10 @@ class CompactLibraryToolbar extends StatelessWidget {
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
   final VoidCallback? onDownloadAllCovers;
+  final VoidCallback? onEditConditionPickList;
+  final VoidCallback? onEditGradePickList;
+  final VoidCallback? onEditTagPickList;
+  final VoidCallback? onEditSort;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +97,10 @@ class CompactLibraryToolbar extends StatelessWidget {
             onClearFilters: onClearFilters,
             onRandomPick: onRandomPick,
             onDownloadAllCovers: onDownloadAllCovers,
+            onEditConditionPickList: onEditConditionPickList,
+            onEditGradePickList: onEditGradePickList,
+            onEditTagPickList: onEditTagPickList,
+            onEditSort: onEditSort,
           ),
           Tooltip(
             message: 'Cover size',
@@ -136,7 +148,7 @@ void _showCompactCoverSizeSheet(
         children: [
           ListTile(
             leading: const Icon(Icons.grid_view),
-            title: const Text('Cover view'),
+            title: const Text('Grid view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.grid);
@@ -144,7 +156,7 @@ void _showCompactCoverSizeSheet(
           ),
           ListTile(
             leading: const Icon(Icons.view_module),
-            title: const Text('Card view'),
+            title: const Text('Cards view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.card);
@@ -152,7 +164,7 @@ void _showCompactCoverSizeSheet(
           ),
           ListTile(
             leading: const Icon(Icons.view_agenda),
-            title: const Text('Card flow'),
+            title: const Text('Flow view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.cardFlow);

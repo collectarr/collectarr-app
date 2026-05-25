@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -191,15 +192,12 @@ class _CorrectionField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      child: TextField(
+      child: MetadataCorrectionTextField(
         controller: controller,
+        label: label,
         keyboardType: keyboardType,
         maxLines: maxLines,
-        decoration: InputDecoration(
-          isDense: true,
-          border: const OutlineInputBorder(),
-          labelText: label,
-        ),
+        isDense: true,
       ),
     );
   }

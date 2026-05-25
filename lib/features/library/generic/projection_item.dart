@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 
@@ -33,6 +34,7 @@ class LibraryProjectionItem {
         barcode: item.barcode,
         variant: item.displayEditionLabel,
         isOwned: source.isOwned,
+        isTracked: source.isTracked,
         isWishlisted: source.isWishlisted,
         hasMissingCover: item.displayCoverUrl == null,
         hasMissingMetadata: genericHasMissingCoreMetadata(item),
@@ -43,6 +45,29 @@ class LibraryProjectionItem {
         keyComic: source.ownedItem?.keyComic ?? false,
         keyReason: source.ownedItem?.keyReason,
         notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
+        tags: source.ownedItem?.tags,
+        primaryReferenceLabel: libraryPrimaryReferenceLabel(
+          ownedItem: source.ownedItem,
+          wishlistItem: source.wishlistItem,
+          mediaType: item.kind,
+        ),
+        referenceScopeLabel: libraryReferenceScopeLabel(
+          ownedItem: source.ownedItem,
+          wishlistItem: source.wishlistItem,
+          mediaType: item.kind,
+        ),
+        referenceFormatLabel: libraryReferenceFormatLabel(
+          ownedItem: source.ownedItem,
+          wishlistItem: source.wishlistItem,
+          editions: item.editions,
+          fallbackFormatLabel: item.physicalFormatLabel,
+        ),
+        referenceEditionId:
+          source.ownedItem?.editionId ?? source.wishlistItem?.editionId,
+        referenceVariantId:
+          source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
+        referenceBundleReleaseId: source.ownedItem?.bundleReleaseId ??
+          source.wishlistItem?.bundleReleaseId,
         pricePaidCents: source.ownedItem?.pricePaidCents,
         currency: source.ownedItem?.currency,
         storageBox: source.locationPath ?? source.ownedItem?.storageBox,
@@ -58,6 +83,7 @@ class LibraryProjectionItem {
         country: item.country,
         language: item.language,
         ageRating: item.ageRating,
+        editions: item.editions,
         updatedAt: source.updatedAt,
       ),
     );
@@ -74,7 +100,7 @@ List<LibraryProjectionItem> libraryItemsForShelf(
   final kind = type.workspace.kind;
   return [
     for (final source in shelf.entries)
-      if (source.catalogItem != null && source.catalogItem!.kind == kind)
+      if (source.catalogItem != null && source.catalogItem!.kind == kind.apiValue)
         LibraryProjectionItem.fromShelf(source),
   ];
 }

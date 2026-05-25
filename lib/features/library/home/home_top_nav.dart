@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
@@ -6,13 +7,22 @@ import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_overflow_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/features/settings/sync_settings_dialog.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class MediaLibraryNav extends StatelessWidget {
+class MediaLibraryNav extends ConsumerWidget {
   const MediaLibraryNav({
     super.key,
     required this.types,
     required this.counts,
+    this.overdueLoanCount = 0,
+    this.selectedOverdueLoanCount = 0,
+    required this.selectedLabel,
     required this.registry,
     required this.selectedKind,
     required this.onSelected,
@@ -21,29 +31,20 @@ class MediaLibraryNav extends StatelessWidget {
 
   final List<CatalogMediaType> types;
   final Map<String, LibraryKindCount> counts;
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
   final LibraryTypeRegistry registry;
   final String selectedKind;
   final ValueChanged<CatalogMediaType> onSelected;
   final Duration animationDuration;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accent = libraryAccentForKind(selected.kind);
     final selectedIcon = registry.byKind(selected.kind)?.workspace.icon ??
         libraryIconForKind(selected.kind);
-
-    // Compute a fixed width for the title section based on the longest name.
-    // Use character count * approximate character width for the bold 16px font.
-    var maxLabelLength = 0;
-    for (final t in types) {
-      if (t.pluralLabel.length > maxLabelLength) {
-        maxLabelLength = t.pluralLabel.length;
-      }
-    }
-    // icon(20) + gap(7) + ~9px per char (bold 16px) + left(10) + right(8)
-    final titleSectionWidth = (20.0 + 7 + maxLabelLength * 9 + 10 + 8)
-        .clamp(120.0, 220.0);
 
     return AnimatedContainer(
       duration: animationDuration,
@@ -62,74 +63,77 @@ class MediaLibraryNav extends StatelessWidget {
           ),
         ),
       ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: titleSectionWidth,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 8),
-              child: Row(
-                children: [
-                  Icon(selectedIcon, size: 20, color: Colors.white),
-                  const SizedBox(width: 7),
-                  Flexible(
-                    child: Text(
-                      selected.pluralLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final sideWidth = _headerSideWidth(
+            labels: types.map((type) => type.pluralLabel),
+            maxWidth: constraints.maxWidth,
+          );
+          return Row(
+            children: [
+              SizedBox(
+                width: sideWidth,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: _MediaLibraryTitle(
+                      icon: selectedIcon,
+                      label: selected.pluralLabel,
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-          Container(width: 1, height: 24, color: Colors.white24),
-          Expanded(
-            child: MediaLibraryNavStrip(
-              types: types,
-              counts: counts,
-              registry: registry,
-              selectedKind: selected.kind,
-              onSelected: onSelected,
-              animationDuration: animationDuration,
-            ),
-          ),
-          const SizedBox(
-            width: 64,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.grid_view, size: 18, color: Colors.white),
-                SizedBox(width: 12),
-                Icon(Icons.person, size: 18, color: Colors.white),
-              ],
-            ),
-          ),
-        ],
+              Expanded(
+                child: MediaLibraryNavStrip(
+                  types: types,
+                  counts: counts,
+                  registry: registry,
+                  selectedKind: selected.kind,
+                  onSelected: onSelected,
+                  animationDuration: animationDuration,
+                ),
+              ),
+              SizedBox(
+                width: sideWidth,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: _MediaLibraryHeaderActions(
+                    accent: accent,
+                    overdueLoanCount: overdueLoanCount,
+                    selectedOverdueLoanCount: selectedOverdueLoanCount,
+                    selectedLabel: selectedLabel,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class MediaLibraryTitleBar extends StatelessWidget {
+class MediaLibraryTitleBar extends ConsumerWidget {
   const MediaLibraryTitleBar({
     super.key,
     required this.type,
+    this.overdueLoanCount = 0,
+    this.selectedOverdueLoanCount = 0,
+    required this.selectedLabel,
     required this.registry,
     this.animationDuration = const Duration(milliseconds: 320),
   });
 
   final CatalogMediaType type;
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
   final LibraryTypeRegistry registry;
   final Duration animationDuration;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final accent = libraryAccentForKind(type.kind);
     final icon = registry.byKind(type.kind)?.workspace.icon ??
         libraryIconForKind(type.kind);
@@ -152,30 +156,426 @@ class MediaLibraryTitleBar extends StatelessWidget {
           ),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.white),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              type.pluralLabel,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w900,
-              ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final sideWidth = _headerSideWidth(
+            labels: [type.pluralLabel],
+            maxWidth: constraints.maxWidth,
+          );
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: sideWidth,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: _MediaLibraryTitle(
+                      icon: icon,
+                      label: type.pluralLabel,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: sideWidth,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: _MediaLibraryHeaderActions(
+                      accent: accent,
+                      overdueLoanCount: overdueLoanCount,
+                      selectedOverdueLoanCount: selectedOverdueLoanCount,
+                      selectedLabel: selectedLabel,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _MediaLibraryTitle extends StatelessWidget {
+  const _MediaLibraryTitle({
+    required this.icon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Icon(icon, size: 20, color: Colors.white),
+        const SizedBox(width: 7),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
             ),
           ),
-          const Icon(Icons.grid_view, size: 18, color: Colors.white),
-          const SizedBox(width: 12),
-          const Icon(Icons.person, size: 18, color: Colors.white),
+        ),
+      ],
+    );
+  }
+}
+
+class _MediaLibraryHeaderActions extends ConsumerWidget {
+  const _MediaLibraryHeaderActions({
+    required this.accent,
+    required this.overdueLoanCount,
+    required this.selectedOverdueLoanCount,
+    required this.selectedLabel,
+  });
+
+  final Color accent;
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sync = ref.watch(syncControllerProvider);
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerRight,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (overdueLoanCount > 0) ...[
+            _OverdueLoanChip(
+              overdueLoanCount: overdueLoanCount,
+              selectedOverdueLoanCount: selectedOverdueLoanCount,
+              selectedLabel: selectedLabel,
+              onPressed: () => context.go('${AppRoutes.shelf}?filter=overdue'),
+            ),
+            const SizedBox(width: 6),
+          ],
+          _HeaderMenuButton(
+            tooltip: 'Choose library layout',
+            label: 'Layout',
+            icon: Icons.space_dashboard_outlined,
+            child: PopupMenuButton<_LibraryNavMenuAction>(
+              tooltip: 'Choose library layout',
+              onSelected: (action) => _handleNavMenuAction(ref, action),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              padding: EdgeInsets.zero,
+              child: const SizedBox.expand(),
+              itemBuilder: (context) {
+                final preferences = ref.read(libraryNavPreferencesProvider);
+                return [
+                  CheckedPopupMenuItem<_LibraryNavMenuAction>(
+                    value: _LibraryNavMenuAction.topNav,
+                    checked: preferences.placement == LibraryNavPlacement.top,
+                    child: const Text('Top bar'),
+                  ),
+                  CheckedPopupMenuItem<_LibraryNavMenuAction>(
+                    value: _LibraryNavMenuAction.leftRail,
+                    checked: preferences.placement == LibraryNavPlacement.left,
+                    child: const Text('Left rail'),
+                  ),
+                ];
+              },
+            ),
+          ),
+          const SizedBox(width: 6),
+          _HeaderActionButton(
+            tooltip: sync.isSyncing
+                ? 'Personal sync is running'
+                : 'Run personal sync now',
+            label: sync.isSyncing
+                ? 'Syncing'
+                : sync.pendingCount > 0
+                    ? 'Sync ${sync.pendingCount}'
+                    : 'Sync now',
+            icon: sync.isOffline
+                ? Icons.cloud_off_outlined
+                : Icons.sync_outlined,
+            onPressed: sync.isSyncing
+                ? null
+                : () => ref.read(syncControllerProvider.notifier).syncNow(),
+          ),
+          const SizedBox(width: 6),
+          _HeaderActionButton(
+            tooltip: 'Open personal sync settings',
+            label: 'Sync settings',
+            icon: Icons.tune,
+            onPressed: () => showSyncSettingsDialog(context: context, accent: accent),
+          ),
+          const SizedBox(width: 6),
+          _HeaderMenuButton(
+            tooltip: 'Open account actions',
+            label: 'Account',
+            icon: Icons.person_outline,
+            child: PopupMenuButton<_AccountMenuAction>(
+              tooltip: 'Open account actions',
+              onSelected: (action) => _handleAccountAction(context, ref, action),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              padding: EdgeInsets.zero,
+              child: const SizedBox.expand(),
+              itemBuilder: (context) => const [
+                PopupMenuItem<_AccountMenuAction>(
+                  value: _AccountMenuAction.refreshAccount,
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(Icons.manage_accounts_outlined),
+                    title: Text('Refresh account'),
+                  ),
+                ),
+                PopupMenuDivider(),
+                PopupMenuItem<_AccountMenuAction>(
+                  value: _AccountMenuAction.signOut,
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(Icons.logout),
+                    title: Text('Sign out'),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
+
+  Future<void> _handleNavMenuAction(
+    WidgetRef ref,
+    _LibraryNavMenuAction action,
+  ) async {
+    final controller = ref.read(libraryNavPreferencesProvider.notifier);
+    switch (action) {
+      case _LibraryNavMenuAction.topNav:
+        await controller.setPlacement(LibraryNavPlacement.top);
+      case _LibraryNavMenuAction.leftRail:
+        await controller.setPlacement(LibraryNavPlacement.left);
+    }
+  }
+
+  Future<void> _handleAccountAction(
+    BuildContext context,
+    WidgetRef ref,
+    _AccountMenuAction action,
+  ) async {
+    switch (action) {
+      case _AccountMenuAction.refreshAccount:
+        try {
+          await ref.read(authControllerProvider.notifier).refreshCurrentUser();
+          if (!context.mounted) {
+            return;
+          }
+          final auth = ref.read(authControllerProvider);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                auth.isAdmin
+                    ? 'Account permissions refreshed: admin'
+                    : 'Account permissions refreshed: standard account',
+              ),
+            ),
+          );
+        } catch (error) {
+          if (!context.mounted) {
+            return;
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Account refresh failed: $error')),
+          );
+        }
+      case _AccountMenuAction.signOut:
+        await ref.read(authControllerProvider.notifier).logout();
+    }
+  }
+}
+
+class _OverdueLoanChip extends StatelessWidget {
+  const _OverdueLoanChip({
+    required this.overdueLoanCount,
+    required this.selectedOverdueLoanCount,
+    required this.selectedLabel,
+    required this.onPressed,
+  });
+
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = '$overdueLoanCount overdue';
+    final tooltip = selectedOverdueLoanCount > 0
+        ? '$overdueLoanCount overdue loan${overdueLoanCount == 1 ? '' : 's'} · '
+            '$selectedOverdueLoanCount in $selectedLabel · Open Shelf'
+        : '$overdueLoanCount overdue loan${overdueLoanCount == 1 ? '' : 's'} · Open Shelf';
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: onPressed,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: const Color(0xFF5A2100),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: const Color(0xFFFFA352)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    size: 16,
+                    color: Color(0xFFFFC47A),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderActionButton extends StatelessWidget {
+  const _HeaderActionButton({
+    required this.tooltip,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          visualDensity: VisualDensity.compact,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          foregroundColor: Colors.white,
+          side: const BorderSide(color: Colors.white24),
+          backgroundColor: Colors.black.withValues(alpha: 0.12),
+          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+        ),
+        icon: Icon(icon, size: 16),
+        label: Text(label),
+      ),
+    );
+  }
+}
+
+class _HeaderMenuButton extends StatelessWidget {
+  const _HeaderMenuButton({
+    required this.tooltip,
+    required this.label,
+    required this.icon,
+    required this.child,
+  });
+
+  final String tooltip;
+  final String label;
+  final IconData icon;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: SizedBox(
+          height: 34,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 16, color: Colors.white),
+                    const SizedBox(width: 6),
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned.fill(child: child),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+enum _LibraryNavMenuAction { topNav, leftRail }
+
+enum _AccountMenuAction { refreshAccount, signOut }
+
+double _headerSideWidth({
+  required Iterable<String> labels,
+  required double maxWidth,
+}) {
+  var maxLabelLength = 0;
+  for (final label in labels) {
+    if (label.length > maxLabelLength) {
+      maxLabelLength = label.length;
+    }
+  }
+  final estimated = (20.0 + 7 + maxLabelLength * 9 + 18)
+      .clamp(132.0, 240.0)
+      .toDouble();
+  final available = maxWidth / 3;
+  if (available <= 0) {
+    return estimated;
+  }
+  if (available < 132) {
+    return available;
+  }
+  return estimated.clamp(132.0, available).toDouble();
 }
 
 class MediaLibraryNavStrip extends StatelessWidget {

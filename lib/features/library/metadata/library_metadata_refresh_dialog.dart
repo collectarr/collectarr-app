@@ -585,7 +585,7 @@ class _RefreshNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF202428),
+        color: kAppTableOddRow,
         border: Border.all(color: kAppDivider),
       ),
       child: Padding(

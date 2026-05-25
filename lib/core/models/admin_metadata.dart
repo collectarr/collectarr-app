@@ -110,15 +110,184 @@ class AdminProviderIngestResult {
   }
 }
 
+class AdminMetadataProposalSummary {
+  const AdminMetadataProposalSummary({
+    required this.pending,
+    required this.approved,
+    required this.rejected,
+    required this.total,
+  });
+
+  final int pending;
+  final int approved;
+  final int rejected;
+  final int total;
+
+  factory AdminMetadataProposalSummary.fromJson(Map<String, dynamic> json) {
+    return AdminMetadataProposalSummary(
+      pending: json['pending'] as int? ?? 0,
+      approved: json['approved'] as int? ?? 0,
+      rejected: json['rejected'] as int? ?? 0,
+      total: json['total'] as int? ?? 0,
+    );
+  }
+}
+
+class AdminMetadataProposal {
+  const AdminMetadataProposal({
+    required this.id,
+    required this.provider,
+    required this.query,
+    required this.status,
+    this.providerItemId,
+    this.title,
+    this.summary,
+    this.imageUrl,
+    this.metadataPayload,
+  });
+
+  final String id;
+  final String provider;
+  final String query;
+  final String status;
+  final String? providerItemId;
+  final String? title;
+  final String? summary;
+  final String? imageUrl;
+  final Map<String, dynamic>? metadataPayload;
+
+  String get displayTitle {
+    final title = this.title?.trim();
+    if (title != null && title.isNotEmpty) {
+      return title;
+    }
+    return query;
+  }
+
+  bool get isPending => status == 'pending';
+
+  factory AdminMetadataProposal.fromJson(Map<String, dynamic> json) {
+    final payload = json['metadata_payload'];
+    return AdminMetadataProposal(
+      id: json['id']?.toString() ?? '',
+      provider: json['provider']?.toString() ?? '',
+      providerItemId: json['provider_item_id']?.toString(),
+      query: json['query']?.toString() ?? '',
+      title: json['title'] as String?,
+      summary: json['summary'] as String?,
+      imageUrl: json['image_url'] as String?,
+      metadataPayload:
+          payload is Map<String, dynamic> ? payload : const <String, dynamic>{},
+      status: json['status']?.toString() ?? 'pending',
+    );
+  }
+}
+
+class AdminUser {
+  const AdminUser({
+    required this.id,
+    required this.email,
+    required this.isActive,
+    required this.isAdmin,
+    required this.role,
+    required this.createdAt,
+    required this.updatedAt,
+    this.displayName,
+  });
+
+  final String id;
+  final String email;
+  final String? displayName;
+  final bool isActive;
+  final bool isAdmin;
+  final String role;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  String get label {
+    final value = displayName?.trim();
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+    return email;
+  }
+
+  factory AdminUser.fromJson(Map<String, dynamic> json) {
+    return AdminUser(
+      id: json['id']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      displayName: json['display_name'] as String?,
+      isActive: json['is_active'] as bool? ?? true,
+      isAdmin: json['is_admin'] as bool? ?? false,
+      role: json['role']?.toString() ?? 'viewer',
+      createdAt: _adminDateTimeFromJson(json['created_at']),
+      updatedAt: _adminDateTimeFromJson(json['updated_at']),
+    );
+  }
+}
+
+class AdminImageCacheStats {
+  const AdminImageCacheStats({
+    required this.totalEntries,
+    required this.totalSizeBytes,
+    required this.maxSizeBytes,
+    required this.usagePercent,
+    required this.mirroringEnabled,
+    this.providers = const <String, int>{},
+  });
+
+  final int totalEntries;
+  final int totalSizeBytes;
+  final int maxSizeBytes;
+  final double usagePercent;
+  final bool mirroringEnabled;
+  final Map<String, int> providers;
+
+  factory AdminImageCacheStats.fromJson(Map<String, dynamic> json) {
+    final providerMap = json['providers'];
+    return AdminImageCacheStats(
+      totalEntries: (json['total_entries'] as num?)?.toInt() ?? 0,
+      totalSizeBytes: (json['total_size_bytes'] as num?)?.toInt() ?? 0,
+      maxSizeBytes: (json['max_size_bytes'] as num?)?.toInt() ?? 0,
+      usagePercent: (json['usage_percent'] as num?)?.toDouble() ?? 0,
+      mirroringEnabled: json['mirroring_enabled'] as bool? ?? false,
+      providers: providerMap is Map<String, dynamic>
+          ? providerMap.map(
+              (key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0),
+            )
+          : const <String, int>{},
+    );
+  }
+}
+
+class AdminImageCachePurgeResult {
+  const AdminImageCachePurgeResult({
+    required this.deletedEntries,
+    required this.freedBytes,
+  });
+
+  final int deletedEntries;
+  final int freedBytes;
+
+  factory AdminImageCachePurgeResult.fromJson(Map<String, dynamic> json) {
+    return AdminImageCachePurgeResult(
+      deletedEntries: (json['deleted_entries'] as num?)?.toInt() ?? 0,
+      freedBytes: (json['freed_bytes'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
 class ProviderPreviewCredit {
-  const ProviderPreviewCredit({required this.name, this.role});
+  const ProviderPreviewCredit({required this.name, this.role, this.imageUrl});
   final String name;
   final String? role;
+  final String? imageUrl;
 
   factory ProviderPreviewCredit.fromJson(Map<String, dynamic> json) {
     return ProviderPreviewCredit(
       name: json['name'] as String,
       role: json['role'] as String?,
+      imageUrl: json['image_url'] as String?,
     );
   }
 }
@@ -193,10 +362,17 @@ class AdminProviderPreview {
             .toList(growable: false) ??
         const <CatalogTrack>[];
     final series = CatalogSeriesDetails(
+      seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
       volumeNumber: json['volume_number'] as int?,
       volumeStartYear: json['volume_start_year'] as int?,
+      seasonNumber: json['season_number'] as int?,
+      episodeNumber: json['episode_number'] as int?,
+      tags: (json['tags'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
     );
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,
@@ -276,7 +452,6 @@ class AdminCatalogSummary {
     required this.volumes,
     required this.editions,
     required this.variants,
-    required this.releases,
     required this.providerLinks,
     required this.imageAssets,
     required this.imageCacheEntries,
@@ -293,7 +468,6 @@ class AdminCatalogSummary {
   final int volumes;
   final int editions;
   final int variants;
-  final int releases;
   final int providerLinks;
   final int imageAssets;
   final int imageCacheEntries;
@@ -322,7 +496,6 @@ class AdminCatalogSummary {
       volumes: json['volumes'] as int? ?? 0,
       editions: json['editions'] as int? ?? 0,
       variants: json['variants'] as int? ?? 0,
-      releases: json['releases'] as int? ?? 0,
       providerLinks: json['provider_links'] as int? ?? 0,
       imageAssets: json['image_assets'] as int? ?? 0,
       imageCacheEntries: json['image_cache_entries'] as int? ?? 0,
@@ -628,6 +801,13 @@ class AdminAuditLogEntry {
   }
 }
 
+DateTime _adminDateTimeFromJson(Object? value) {
+  if (value is String) {
+    return DateTime.tryParse(value) ?? DateTime.fromMillisecondsSinceEpoch(0);
+  }
+  return DateTime.fromMillisecondsSinceEpoch(0);
+}
+
 class AdminDuplicateActionResult {
   const AdminDuplicateActionResult({
     required this.ok,
@@ -723,6 +903,12 @@ class AdminMetadataItem {
     this.publishing,
     this.coverDate,
     this.storeDate,
+    this.video,
+    this.music,
+    this.genres = const [],
+    this.country,
+    this.language,
+    this.ageRating,
     this.providerLinks = const [],
     this.editions = const [],
   });
@@ -738,6 +924,12 @@ class AdminMetadataItem {
   final CatalogPublishingDetails? publishing;
   final DateTime? coverDate;
   final DateTime? storeDate;
+  final VideoCatalogDetails? video;
+  final MusicCatalogDetails? music;
+  final List<String> genres;
+  final String? country;
+  final String? language;
+  final String? ageRating;
   final List<AdminProviderLink> providerLinks;
   final List<AdminEdition> editions;
 
@@ -769,9 +961,17 @@ class AdminMetadataItem {
 
   factory AdminMetadataItem.fromJson(Map<String, dynamic> json) {
     final series = CatalogSeriesDetails(
+      seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
+      volumeNumber: json['volume_number'] as int?,
       volumeStartYear: json['volume_start_year'] as int?,
+      seasonNumber: json['season_number'] as int?,
+      episodeNumber: json['episode_number'] as int?,
+      tags: (json['tags'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
     );
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,
@@ -780,6 +980,19 @@ class AdminMetadataItem {
       imprint: json['imprint'] as String?,
       subtitle: json['subtitle'] as String?,
       seriesGroup: json['series_group'] as String?,
+    );
+    final video = VideoCatalogDetails(
+      runtimeMinutes: json['runtime_minutes'] as int?,
+    );
+    final music = MusicCatalogDetails(
+      trackCount: json['track_count'] as int?,
+      tracks: (json['tracks'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CatalogTrack.fromJson)
+              .toList(growable: false) ??
+          const <CatalogTrack>[],
+      catalogNumber: json['catalog_number'] as String?,
+      releaseStatus: json['release_status'] as String?,
     );
     return AdminMetadataItem(
       id: json['id']?.toString() ?? '',
@@ -793,6 +1006,15 @@ class AdminMetadataItem {
       publishing: publishing.hasData ? publishing : null,
       coverDate: _parseDate(json['cover_date'] as String?),
       storeDate: _parseDate(json['store_date'] as String?),
+      video: video.hasData ? video : null,
+      music: music.hasData ? music : null,
+      genres: (json['genres'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
+      country: json['country'] as String?,
+      language: json['language'] as String?,
+      ageRating: json['age_rating'] as String?,
       providerLinks: [
         for (final link in (json['provider_links'] as List<dynamic>? ?? []))
           AdminProviderLink.fromJson(link as Map<String, dynamic>),
@@ -814,7 +1036,6 @@ class AdminEdition {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.variants = const [],
-    this.releases = const [],
   });
 
   final String id;
@@ -824,7 +1045,6 @@ class AdminEdition {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final List<AdminVariant> variants;
-  final List<AdminRelease> releases;
 
   factory AdminEdition.fromJson(Map<String, dynamic> json) {
     return AdminEdition(
@@ -837,10 +1057,6 @@ class AdminEdition {
       variants: [
         for (final variant in (json['variants'] as List<dynamic>? ?? []))
           AdminVariant.fromJson(variant as Map<String, dynamic>),
-      ],
-      releases: [
-        for (final release in (json['releases'] as List<dynamic>? ?? []))
-          AdminRelease.fromJson(release as Map<String, dynamic>),
       ],
     );
   }
@@ -912,29 +1128,6 @@ class AdminVariant {
       physicalFormatLabel: json['physical_format_label'] as String?,
       metadataJson: (json['metadata_json'] as Map?)?.cast<String, dynamic>() ??
           const <String, dynamic>{},
-    );
-  }
-}
-
-class AdminRelease {
-  const AdminRelease({
-    required this.id,
-    required this.region,
-    this.releaseDate,
-    this.publisher,
-  });
-
-  final String id;
-  final String region;
-  final DateTime? releaseDate;
-  final String? publisher;
-
-  factory AdminRelease.fromJson(Map<String, dynamic> json) {
-    return AdminRelease(
-      id: json['id']?.toString() ?? '',
-      region: json['region'] as String? ?? '',
-      releaseDate: _parseDate(json['release_date'] as String?),
-      publisher: json['publisher'] as String?,
     );
   }
 }

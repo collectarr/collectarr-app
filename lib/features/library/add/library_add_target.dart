@@ -1,10 +1,11 @@
-enum LibraryAddTarget { owned, wishlist }
+enum LibraryAddTarget { owned, wishlist, track }
 
 extension LibraryAddTargetLabels on LibraryAddTarget {
   String get destinationLabel {
     return switch (this) {
       LibraryAddTarget.owned => 'Collection',
       LibraryAddTarget.wishlist => 'Wishlist',
+      LibraryAddTarget.track => 'Tracking',
     };
   }
 
@@ -12,6 +13,7 @@ extension LibraryAddTargetLabels on LibraryAddTarget {
     return switch (this) {
       LibraryAddTarget.owned => 'Add as owned',
       LibraryAddTarget.wishlist => 'Add to wishlist',
+      LibraryAddTarget.track => 'Track item',
     };
   }
 }

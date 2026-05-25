@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
@@ -58,7 +59,7 @@ void main() {
       const LibraryTypeRegistry([]),
     );
 
-    expect(config.workspace.kind, 'podcast');
+    expect(config.workspace.kind, CatalogMediaKind.unknown);
     expect(config.singularLabel, 'Podcast');
     expect(config.pluralLabel, 'Podcasts');
     expect(config.defaultMetadataProvider, 'podindex');
@@ -67,6 +68,7 @@ void main() {
       genericLibraryMediaPresentation.defaultVisibleColumns);
     expect(config.trackingProfile.name, readingTrackingProfile.name);
     expect(config.supportedMetadataProviders.single.id, 'podindex');
+    expect(config.supportedMetadataProviders.single.supportsKind(null), isFalse);
     expect(config.supportedMetadataProviders.single.supportsKind('podcast'),
         isTrue);
   });

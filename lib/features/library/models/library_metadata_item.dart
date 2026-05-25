@@ -1,10 +1,12 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 
 class LibraryMetadataItem {
-  const LibraryMetadataItem({
+    LibraryMetadataItem({
     required this.id,
-    required this.kind,
+        String? kind,
+        CatalogMediaKind? mediaKind,
     required this.title,
+        this.sortKey,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -26,17 +28,19 @@ class LibraryMetadataItem {
     this.creators,
     this.characters,
     this.storyArcs,
+    this.editions = const <CatalogEdition>[],
     this.genres,
     this.country,
     this.language,
     this.ageRating,
-  });
+    }) : mediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
 
   static const _unset = Object();
 
   final String id;
-  final String kind;
+    final CatalogMediaKind mediaKind;
   final String title;
+    final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -58,16 +62,20 @@ class LibraryMetadataItem {
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
+    final List<CatalogEdition> editions;
   final List<String>? genres;
   final String? country;
   final String? language;
   final String? ageRating;
 
+    String get kind => mediaKind.apiValue;
+
   factory LibraryMetadataItem.fromCatalogItem(CatalogItem item) {
     return LibraryMetadataItem(
       id: item.id,
-      kind: item.kind,
+            mediaKind: item.mediaKind,
       title: item.title,
+    sortKey: item.sortKey,
       itemNumber: item.itemNumber,
       synopsis: item.synopsis,
       coverImageUrl: item.coverImageUrl,
@@ -89,6 +97,7 @@ class LibraryMetadataItem {
       creators: item.creators,
       characters: item.characters,
       storyArcs: item.storyArcs,
+    editions: item.editions,
       genres: item.genres,
       country: item.country,
       language: item.language,
@@ -99,7 +108,9 @@ class LibraryMetadataItem {
   LibraryMetadataItem copyWith({
     String? id,
     String? kind,
+        CatalogMediaKind? mediaKind,
     String? title,
+    Object? sortKey = _unset,
     Object? itemNumber = _unset,
     Object? synopsis = _unset,
     Object? coverImageUrl = _unset,
@@ -121,6 +132,7 @@ class LibraryMetadataItem {
     Object? creators = _unset,
     Object? characters = _unset,
     Object? storyArcs = _unset,
+    Object? editions = _unset,
     Object? genres = _unset,
     Object? country = _unset,
     Object? language = _unset,
@@ -128,8 +140,10 @@ class LibraryMetadataItem {
   }) {
     return LibraryMetadataItem(
       id: id ?? this.id,
-      kind: kind ?? this.kind,
+        mediaKind: mediaKind ??
+            (kind != null ? catalogMediaKindFromApiValue(kind) : this.mediaKind),
       title: title ?? this.title,
+      sortKey: identical(sortKey, _unset) ? this.sortKey : sortKey as String?,
       itemNumber: identical(itemNumber, _unset)
           ? this.itemNumber
           : itemNumber as String?,
@@ -193,6 +207,9 @@ class LibraryMetadataItem {
       storyArcs: identical(storyArcs, _unset)
           ? this.storyArcs
           : storyArcs as List<String>?,
+      editions: identical(editions, _unset)
+          ? this.editions
+          : editions as List<CatalogEdition>,
       genres: identical(genres, _unset)
           ? this.genres
           : genres as List<String>?,
@@ -212,8 +229,9 @@ class LibraryMetadataItem {
         final platformList = game?.platforms;
     return CatalogItem(
       id: id,
-      kind: kind,
+            mediaKind: mediaKind,
       title: title,
+    sortKey: sortKey,
       itemNumber: itemNumber,
       synopsis: synopsis,
       coverImageUrl: coverImageUrl,
@@ -235,6 +253,7 @@ class LibraryMetadataItem {
       creators: creators,
       characters: characters,
       storyArcs: storyArcs,
+    editions: editions,
             rawPlatforms:
                     platformList != null && platformList.isNotEmpty ? platformList : null,
       genres: genres,

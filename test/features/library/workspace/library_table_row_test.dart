@@ -29,13 +29,15 @@ void main() {
     );
 
     await tester.tap(find.text('Row'));
+  await tester.pump();
     final paddingFinder = find.byWidgetPredicate(
       (widget) =>
           widget is Padding &&
           widget.padding == const EdgeInsets.fromLTRB(8, 2, 5, 2),
     );
-    final decoration =
-        tester.widget<Ink>(find.byType(Ink)).decoration! as BoxDecoration;
+  final decoration = tester
+    .widget<DecoratedBox>(find.byType(DecoratedBox))
+    .decoration as BoxDecoration;
     final border = decoration.border! as Border;
 
     expect(tapped, isTrue);

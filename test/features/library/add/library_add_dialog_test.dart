@@ -5,21 +5,24 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -29,6 +32,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'support/library_add_test_harness.dart';
 
 void main() {
   setUp(() {
@@ -51,6 +56,47 @@ void main() {
     expect(first, second);
     expect(first, startsWith('preview-manga-'));
     expect(first, isNot(contains('item:1/2')));
+  });
+
+  test('book provider add merge preserves preview creators', () {
+    final ingested = LibraryMetadataItem(
+      id: 'book-item-1',
+      kind: 'book',
+      title: 'The Hobbit',
+      publisher: 'Allen & Unwin',
+      publishing: const CatalogPublishingDetails(
+        pageCount: 310,
+      ),
+    );
+    final edited = LibraryMetadataItem(
+      id: 'book-item-1',
+      kind: 'book',
+      title: 'The Hobbit',
+      publisher: 'Allen & Unwin',
+      creators: const [
+        {
+          'name': 'J.R.R. Tolkien',
+          'role': 'Author',
+          'image_url': 'https://cdn.example/tolkien.jpg',
+        },
+      ],
+      genres: const ['Fantasy'],
+      publishing: const CatalogPublishingDetails(
+        pageCount: 310,
+      ),
+    );
+
+    final merged = mergeProviderAddResult(
+      ingested: ingested,
+      edited: edited,
+    );
+
+    expect(merged.creators, isNotNull);
+    expect(merged.creators, isNotEmpty);
+    expect(merged.creators!.first['name'], 'J.R.R. Tolkien');
+    expect(merged.creators!.first['role'], 'Author');
+    expect(merged.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
+    expect(merged.genres, contains('Fantasy'));
   });
 
   test('local cover image preprocessor applies crop and rotation transforms',
@@ -78,7 +124,7 @@ void main() {
 
   testWidgets('generic add dialog exposes scanned barcode in manual flow',
       (tester) async {
-    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.physicalSize = const Size(1440, 1080);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -957,6 +1003,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Blu-ray'), findsOneWidget);
     expect(find.text('4K UHD'), findsOneWidget);
+    expect(find.text('Digital'), findsOneWidget);
+    await tester.tap(find.text('Digital').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Owned copies created from this draft will be saved as Digital copy.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Studio'), findsOneWidget);
     expect(find.text('Format / Edition'), findsOneWidget);
     expect(find.text('UPC / Barcode'), findsOneWidget);
@@ -979,6 +1034,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1003,9 +1059,202 @@ void main() {
 
     expect(api.lastSearchKind, 'movie');
     expect(api.lastSearchQuery, 'Blade Runner');
-    expect(api.lastProvider, isNull);
+    expect(api.lastProvider, 'tmdb');
+    expect(api.lastProviderKind, 'movie');
+    expect(api.lastProviderQuery, 'Blade Runner');
     expect(find.text('Blade Runner 2049'), findsWidgets);
     expect(find.text('Matched on: Title'), findsOneWidget);
+  });
+
+  testWidgets('comic add dialog previews selected bundle release members', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Batman #423'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Bundle'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Batman Anniversary Box'), findsWidgets);
+    expect(find.text('Bundle'), findsWidgets);
+    expect(find.text('Batman #423'), findsOneWidget);
+  });
+
+  testWidgets('comic add dialog lets the user keep edition scope without picking a physical release', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Batman #423'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Edition'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('library-add-edition-field')),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('library-add-edition-field')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Collector Edition • Collector Issue').last);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Collector Edition'), findsWidgets);
+    expect(find.text('Any / unspecified variant'), findsOneWidget);
+    expect(find.textContaining('Physical: Sketch Cover'), findsNothing);
+  });
+
+  testWidgets('comic add dialog lets the user pick an explicit physical release', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith((ref) => TestAdminAuthController(ref)),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Batman #423'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Edition'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('library-add-edition-field')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('library-add-variant-field')),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('library-add-edition-field')),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('library-add-edition-field')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Collector Edition • Collector Issue').last);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('library-add-variant-field')),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('library-add-variant-field')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sketch Cover • sketch').last);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Collector Edition'), findsWidgets);
+    expect(find.textContaining('Sketch Cover'), findsWidgets);
   });
 
   testWidgets('barcode lookup falls back to provider search on Core miss',
@@ -1035,7 +1284,7 @@ void main() {
         child: const MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: booksLibraryConfig,
+              type: musicLibraryConfig,
               autoLookupInitialBarcode: false,
             ),
           ),
@@ -1048,64 +1297,18 @@ void main() {
 
     await tester.enterText(
       find.byKey(const ValueKey('library-add-barcode-field')),
-      '9780140328721',
+      '012345678905',
     );
+
     await tester.tap(find.text('Lookup barcode'));
     await tester.pumpAndSettle();
 
-    expect(api.lastLookupBarcode, '9780140328721');
-    expect(api.lastLookupKind, 'book');
-    expect(api.lastProvider, 'openlibrary');
-    expect(api.lastProviderKind, 'book');
-    expect(api.lastProviderQuery, '9780140328721');
-    expect(find.textContaining('openlibrary-1'), findsWidgets);
-  });
-
-  testWidgets('music add dialog uses artist-oriented advanced search copy',
-      (tester) async {
-    tester.view.physicalSize = const Size(1100, 760);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          mediaCatalogProvider
-              .overrideWith((ref) async => fallbackMediaCatalog),
-          metadataProviderStatusesProvider.overrideWith(
-            (ref) async => const <String, AdminProviderStatus>{},
-          ),
-        ],
-        child: const MaterialApp(
-          home: Scaffold(
-            body: LibraryAddDialog(
-              type: musicLibraryConfig,
-              autoLookupInitialBarcode: false,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    expect(find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
-    expect(find.text('Search Music'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Show advanced fields'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Artist...'), findsOneWidget);
-    expect(find.text('Album / Release...'), findsOneWidget);
-    expect(find.text('Label...'), findsOneWidget);
-    expect(find.text('Series...'), findsNothing);
-
-    await tester.tap(find.text('Search Music'));
-    await tester.pumpAndSettle();
-
-    expect(
-      find.text('Enter an album, artist, release, or label.'),
-      findsOneWidget,
-    );
+    expect(api.lastLookupBarcode, '012345678905');
+    expect(api.lastLookupKind, 'music');
+    expect(api.lastProvider, 'musicbrainz');
+    expect(api.lastProviderKind, 'music');
+    expect(api.lastProviderQuery, '012345678905');
+    expect(find.textContaining('A ninja candidate.'), findsWidgets);
   });
 
   testWidgets('music provider search works with artist-only advanced search',
@@ -1196,6 +1399,25 @@ class _FakeLibraryAddApiClient extends ApiClient {
     lastSearchQuery = query.query;
     lastSearchKind = query.kind;
     lastSearchSeries = query.series;
+    if (query.kind == 'comic' && query.query == 'Batman') {
+      return const [
+        {
+          'id': 'comic-423',
+          'kind': 'comic',
+          'title': 'Batman',
+          'item_number': '423',
+          'publisher': 'DC',
+          'release_year': 1988,
+          'series': {
+            'series_id': 'series-batman',
+            'series_title': 'Batman',
+            'volume_name': 'Vol. 2',
+            'volume_number': 2,
+            'volume_start_year': 1987,
+          },
+        },
+      ];
+    }
     if (query.kind == 'movie' && query.query == 'Blade Runner') {
       return const [
         {
@@ -1208,6 +1430,145 @@ class _FakeLibraryAddApiClient extends ApiClient {
       ];
     }
     return const [];
+  }
+
+  @override
+  Future<CatalogItem> getMetadataItem({
+    required String kind,
+    required String id,
+  }) async {
+    if (kind == 'comic' && id == 'comic-423') {
+      return CatalogItem(
+        id: 'comic-423',
+        kind: 'comic',
+        title: 'Batman',
+        itemNumber: '423',
+        publisher: 'DC',
+        releaseYear: 1988,
+        series: const CatalogSeriesDetails(
+          seriesId: 'series-batman',
+          seriesTitle: 'Batman',
+          volumeName: 'Vol. 2',
+          volumeNumber: 2,
+          volumeStartYear: 1987,
+        ),
+        editions: const [
+          CatalogEdition(
+            id: 'edition-comic-423',
+            title: 'Direct Edition',
+            physicalFormatLabel: 'Single Issue',
+            variants: [
+              CatalogVariant(
+                id: 'variant-comic-423-a',
+                name: 'Cover A',
+                isPrimary: true,
+              ),
+            ],
+          ),
+          CatalogEdition(
+            id: 'edition-comic-423-collector',
+            title: 'Collector Edition',
+            physicalFormatLabel: 'Collector Issue',
+            variants: [
+              CatalogVariant(
+                id: 'variant-comic-423-b',
+                name: 'Foil Cover',
+                variantType: 'foil',
+              ),
+              CatalogVariant(
+                id: 'variant-comic-423-c',
+                name: 'Sketch Cover',
+                variantType: 'sketch',
+                isPrimary: true,
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+    throw StateError('Unknown metadata item $kind/$id');
+  }
+
+  @override
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+    if (itemId == 'comic-423') {
+      return [
+        BundleReleaseSummary.fromJson(const {
+          'id': 'bundle-423',
+          'kind': 'comic',
+          'title': 'Batman Anniversary Box',
+          'bundle_type': 'box_set',
+          'packaging_type': 'slipcase',
+          'publisher': 'DC',
+          'primary_item_id': 'comic-423',
+          'primary_item_title': 'Batman',
+          'series_id': 'series-batman',
+          'series_title': 'Batman',
+          'volume_id': 'volume-batman-2',
+          'volume_name': 'Vol. 2',
+          'content_summary': {
+            'total_items': 2,
+            'primary_count': 1,
+            'bonus_count': 1,
+          },
+        }),
+      ];
+    }
+    return const [];
+  }
+
+  @override
+  Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
+    if (bundleReleaseId == 'bundle-423') {
+      return BundleReleaseDetail.fromJson(const {
+        'id': 'bundle-423',
+        'kind': 'comic',
+        'title': 'Batman Anniversary Box',
+        'bundle_type': 'box_set',
+        'packaging_type': 'slipcase',
+        'publisher': 'DC',
+        'primary_item_id': 'comic-423',
+        'primary_item_title': 'Batman',
+        'series_id': 'series-batman',
+        'series_title': 'Batman',
+        'volume_id': 'volume-batman-2',
+        'volume_name': 'Vol. 2',
+        'content_summary': {
+          'total_items': 2,
+          'primary_count': 1,
+          'bonus_count': 1,
+        },
+        'members': [
+          {
+            'item_id': 'comic-423',
+            'role': 'main',
+            'quantity': 1,
+            'is_primary': true,
+            'kind': 'comic',
+            'title': 'Batman',
+            'item_number': '423',
+            'series_id': 'series-batman',
+            'series_title': 'Batman',
+            'volume_name': 'Vol. 2',
+            'volume_number': 2,
+          },
+          {
+            'item_id': 'detective-590',
+            'role': 'bonus',
+            'quantity': 1,
+            'is_primary': false,
+            'kind': 'comic',
+            'title': 'Detective Comics',
+            'item_number': '590',
+            'series_id': 'series-detective',
+            'series_title': 'Detective Comics',
+            'volume_name': 'Vol. 1',
+            'volume_number': 1,
+          },
+        ],
+      });
+    }
+    throw StateError('Unknown bundle release $bundleReleaseId');
   }
 
   @override
@@ -1340,6 +1701,113 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required String providerItemId,
   }) async {
     providerPreviewCallCount += 1;
+    return _providerPreviewFor(provider: provider, providerItemId: providerItemId);
+  }
+
+  @override
+  Future<AdminProviderPreview> adminProviderPreview({
+    required String provider,
+    required String providerItemId,
+  }) async {
+    return _providerPreviewFor(provider: provider, providerItemId: providerItemId);
+  }
+
+  @override
+  Future<AdminProviderIngestResult> adminProviderIngest({
+    required String provider,
+    required String providerItemId,
+    String? kind,
+  }) async {
+    lastIngestProvider = provider;
+    lastIngestProviderItemId = providerItemId;
+    if (providerItemId == 'openlibrary-1') {
+      return const AdminProviderIngestResult(
+        itemId: 'book-item-1',
+        created: true,
+        item: AdminMetadataItem(
+          id: 'book-item-1',
+          kind: 'book',
+          title: 'The Hobbit',
+          series: CatalogSeriesDetails(seriesTitle: 'Middle-earth Tales'),
+          publisher: 'Allen & Unwin',
+          publishing: CatalogPublishingDetails(pageCount: 310),
+          providerLinks: [
+            AdminProviderLink(
+              provider: 'openlibrary',
+              entityType: 'item',
+              providerItemId: 'openlibrary-1',
+            ),
+          ],
+          editions: [
+            AdminEdition(
+              id: 'edition-book-1',
+              title: 'Standard Edition',
+              publisher: 'Allen & Unwin',
+              variants: [
+                AdminVariant(
+                  id: 'variant-book-1',
+                  name: 'Hardcover',
+                  isPrimary: true,
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+    return const AdminProviderIngestResult(
+      itemId: 'music-item-1',
+      created: true,
+      item: AdminMetadataItem(
+        id: 'music-item-1',
+        kind: 'music',
+        title: 'Provider result Discovery',
+      ),
+    );
+  }
+
+  @override
+  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
+    required String provider,
+    required String providerItemId,
+    int maxAttempts = 3,
+  }) async {
+    lastIngestProvider = provider;
+    lastIngestProviderItemId = providerItemId;
+    return AdminProviderIngestJob(
+      id: 'job-1',
+      provider: provider,
+      providerItemId: providerItemId,
+      status: 'queued',
+      attempts: 0,
+      maxAttempts: maxAttempts,
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    );
+  }
+
+  AdminProviderPreview _providerPreviewFor({
+    required String provider,
+    required String providerItemId,
+  }) {
+    if (providerItemId == 'openlibrary-1') {
+      return AdminProviderPreview.fromJson({
+        'provider': provider,
+        'provider_item_id': providerItemId,
+        'kind': 'book',
+        'title': 'The Hobbit',
+        'series_title': 'Middle-earth Tales',
+        'publisher': 'Allen & Unwin',
+        'release_date': '1937-09-21',
+        'page_count': 310,
+        'creators': [
+          {
+            'name': 'J.R.R. Tolkien',
+            'role': 'Author',
+          },
+        ],
+      });
+    }
     return AdminProviderPreview.fromJson({
       'provider': provider,
       'provider_item_id': providerItemId,
@@ -1361,26 +1829,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
         },
       ],
     });
-  }
-
-  @override
-  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
-    required String provider,
-    required String providerItemId,
-    int maxAttempts = 3,
-  }) async {
-    lastIngestProvider = provider;
-    lastIngestProviderItemId = providerItemId;
-    return AdminProviderIngestJob(
-      id: 'job-1',
-      provider: provider,
-      providerItemId: providerItemId,
-      status: 'queued',
-      attempts: 0,
-      maxAttempts: maxAttempts,
-      createdAt: DateTime.utc(2026),
-      updatedAt: DateTime.utc(2026),
-    );
   }
 }
 

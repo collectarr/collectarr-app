@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -72,22 +73,22 @@ const _catalogKindDefaults = <String, LibraryCatalogKindDefaults>{
   ),
 };
 
-LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(String kind) {
-  return _catalogKindDefaults[kind.trim().toLowerCase()];
+LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(Object? kind) {
+  return _catalogKindDefaults[catalogMediaKindFromValue(kind).apiValue];
 }
 
-String catalogMediaFamilyForKind(String kind) {
+String catalogMediaFamilyForKind(Object? kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.mediaFamily ?? 'video';
 }
 
-MediaTrackingProfile catalogTrackingProfileForKind(String kind) {
+MediaTrackingProfile catalogTrackingProfileForKind(Object? kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.trackingProfile ??
       readingTrackingProfile;
 }
 
 String catalogDisplayLabel(
   String value,
-  String fallback, {
+  Object? fallback, {
   bool plural = false,
   String emptyFallbackLabel = 'Library',
 }) {
@@ -96,7 +97,7 @@ String catalogDisplayLabel(
     return trimmed;
   }
   final label = catalogTitleFromToken(
-    fallback,
+    catalogMediaKindFromValue(fallback).apiValue,
     emptyLabel: emptyFallbackLabel,
   );
   return plural ? '${label}s' : label;
@@ -120,7 +121,7 @@ String catalogTitleFromToken(String value, {String emptyLabel = ''}) {
   ].join(' ');
 }
 
-List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(String kind) {
+List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(Object? kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.fallbackPhysicalFormats ??
       const [];
 }

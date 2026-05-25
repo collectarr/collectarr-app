@@ -36,6 +36,166 @@ class CatalogTrack {
   }
 }
 
+class CatalogVariant {
+  const CatalogVariant({
+    required this.id,
+    required this.name,
+    this.variantType,
+    this.sku,
+    this.barcode,
+    this.isbn,
+    this.region,
+    this.platform,
+    this.coverPriceCents,
+    this.currency,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.description,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.metadata,
+    this.isPrimary = false,
+  });
+
+  final String id;
+  final String name;
+  final String? variantType;
+  final String? sku;
+  final String? barcode;
+  final String? isbn;
+  final String? region;
+  final String? platform;
+  final int? coverPriceCents;
+  final String? currency;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? description;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final Map<String, dynamic>? metadata;
+  final bool isPrimary;
+
+  factory CatalogVariant.fromJson(Map<String, dynamic> json) {
+    return CatalogVariant(
+      id: json['id'] as String,
+      name: json['name'] as String? ?? 'Variant',
+      variantType: json['variant_type'] as String?,
+      sku: json['sku'] as String?,
+      barcode: json['barcode'] as String?,
+      isbn: json['isbn'] as String?,
+      region: json['region'] as String?,
+      platform: json['platform'] as String?,
+      coverPriceCents: json['cover_price_cents'] as int?,
+      currency: json['currency'] as String?,
+      coverImageUrl: json['cover_image_url'] as String?,
+      thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      description: json['description'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      metadata: (json['metadata_json'] as Map<String, dynamic>?)
+          ?.cast<String, dynamic>(),
+      isPrimary: json['is_primary'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      if (variantType != null) 'variant_type': variantType,
+      if (sku != null) 'sku': sku,
+      if (barcode != null) 'barcode': barcode,
+      if (isbn != null) 'isbn': isbn,
+      if (region != null) 'region': region,
+      if (platform != null) 'platform': platform,
+      if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
+      if (currency != null) 'currency': currency,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (description != null) 'description': description,
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (metadata != null) 'metadata_json': metadata,
+      'is_primary': isPrimary,
+    };
+  }
+}
+
+class CatalogEdition {
+  const CatalogEdition({
+    required this.id,
+    required this.title,
+    this.format,
+    this.publisher,
+    this.isbn,
+    this.upc,
+    this.language,
+    this.region,
+    this.releaseDate,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.metadata,
+    this.variants = const <CatalogVariant>[],
+  });
+
+  final String id;
+  final String title;
+  final String? format;
+  final String? publisher;
+  final String? isbn;
+  final String? upc;
+  final String? language;
+  final String? region;
+  final DateTime? releaseDate;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final Map<String, dynamic>? metadata;
+  final List<CatalogVariant> variants;
+
+  factory CatalogEdition.fromJson(Map<String, dynamic> json) {
+    return CatalogEdition(
+      id: json['id'] as String,
+      title: json['title'] as String? ?? 'Edition',
+      format: json['format'] as String?,
+      publisher: json['publisher'] as String?,
+      isbn: json['isbn'] as String?,
+      upc: json['upc'] as String?,
+      language: json['language'] as String?,
+      region: json['region'] as String?,
+      releaseDate: CatalogItem._parseDate(json['release_date'] as String?),
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      metadata: (json['metadata_json'] as Map<String, dynamic>?)
+          ?.cast<String, dynamic>(),
+      variants: (json['variants'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CatalogVariant.fromJson)
+              .toList(growable: false) ??
+          const <CatalogVariant>[],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      if (format != null) 'format': format,
+      if (publisher != null) 'publisher': publisher,
+      if (isbn != null) 'isbn': isbn,
+      if (upc != null) 'upc': upc,
+      if (language != null) 'language': language,
+      if (region != null) 'region': region,
+      if (releaseDate != null) 'release_date': releaseDate!.toUtc().toIso8601String(),
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (metadata != null) 'metadata_json': metadata,
+      'variants': variants.map((variant) => variant.toJson()).toList(growable: false),
+    };
+  }
+}
+
 class MusicCatalogDetails {
   const MusicCatalogDetails({
     this.trackCount,
@@ -65,6 +225,7 @@ class CatalogSeriesDetails {
     this.volumeStartYear,
     this.seasonNumber,
     this.episodeNumber,
+    this.tags = const <String>[],
   });
 
   final String? seriesId;
@@ -74,6 +235,7 @@ class CatalogSeriesDetails {
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
+  final List<String> tags;
 
   bool get hasData =>
       seriesId != null ||
@@ -82,7 +244,8 @@ class CatalogSeriesDetails {
       volumeNumber != null ||
       volumeStartYear != null ||
       seasonNumber != null ||
-      episodeNumber != null;
+      episodeNumber != null ||
+      tags.isNotEmpty;
 
   bool get hasVolume => volumeName != null || volumeNumber != null;
   bool get hasSeason => seasonNumber != null;
@@ -131,11 +294,49 @@ class GameCatalogDetails {
   bool get hasData => platforms.isNotEmpty;
 }
 
+enum CatalogMediaKind {
+  comic('comic'),
+  manga('manga'),
+  anime('anime'),
+  book('book'),
+  game('game'),
+  boardgame('boardgame'),
+  movie('movie'),
+  tv('tv'),
+  music('music'),
+  unknown('unknown');
+
+  const CatalogMediaKind(this.apiValue);
+
+  final String apiValue;
+}
+
+CatalogMediaKind catalogMediaKindFromValue(Object? value) {
+  if (value is CatalogMediaKind) {
+    return value;
+  }
+  if (value is String?) {
+    return catalogMediaKindFromApiValue(value);
+  }
+  return CatalogMediaKind.unknown;
+}
+
+CatalogMediaKind catalogMediaKindFromApiValue(String? value) {
+  final normalized = value?.trim().toLowerCase();
+  for (final kind in CatalogMediaKind.values) {
+    if (kind.apiValue == normalized) {
+      return kind;
+    }
+  }
+  return CatalogMediaKind.unknown;
+}
+
 sealed class CatalogItem {
   const CatalogItem._({
     required this.id,
-    required this.kind,
+    required this.mediaKind,
     required this.title,
+    this.sortKey,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -152,6 +353,7 @@ sealed class CatalogItem {
     this.creators,
     this.characters,
     this.storyArcs,
+    this.editions = const <CatalogEdition>[],
     this.genres,
     this.country,
     this.language,
@@ -161,8 +363,10 @@ sealed class CatalogItem {
 
   factory CatalogItem({
     required String id,
-    required String kind,
+    String? kind,
+    CatalogMediaKind? mediaKind,
     required String title,
+    String? sortKey,
     String? itemNumber,
     String? synopsis,
     String? coverImageUrl,
@@ -186,15 +390,17 @@ sealed class CatalogItem {
     List<String>? storyArcs,
     List<String>? rawPlatforms,
     List<String>? genres,
+    List<CatalogEdition>? editions,
     String? country,
     String? language,
     String? ageRating,
   }) {
-    final normalizedKind = _normalizeKind(kind);
+    final resolvedMediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
     final common = _CatalogItemCommon(
       id: id,
-      kind: normalizedKind,
+      mediaKind: resolvedMediaKind,
       title: title,
+      sortKey: sortKey,
       itemNumber: itemNumber,
       synopsis: synopsis,
       coverImageUrl: coverImageUrl,
@@ -211,6 +417,7 @@ sealed class CatalogItem {
       creators: _normalizeMapList(creators),
       characters: _normalizeStringList(characters),
       storyArcs: _normalizeStringList(storyArcs),
+      editions: _normalizeEditionList(editions),
       genres: _normalizeStringList(genres),
       country: country,
       language: language,
@@ -223,68 +430,68 @@ sealed class CatalogItem {
     music = music == null ? null : _musicOrNull(music);
     game = game == null ? null : _gameOrNull(game);
 
-    switch (normalizedKind) {
-      case 'comic':
+    switch (resolvedMediaKind) {
+      case CatalogMediaKind.comic:
         return ComicCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
         );
-      case 'manga':
+      case CatalogMediaKind.manga:
         return MangaCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
         );
-      case 'book':
+      case CatalogMediaKind.book:
         return BookCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
         );
-      case 'movie':
+      case CatalogMediaKind.movie:
         return MovieCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           video: video,
         );
-      case 'tv':
+      case CatalogMediaKind.tv:
         return TvCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           video: video,
         );
-      case 'anime':
+      case CatalogMediaKind.anime:
         return AnimeCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           video: video,
         );
-      case 'music':
+      case CatalogMediaKind.music:
         return MusicCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           music: music,
         );
-      case 'game':
+      case CatalogMediaKind.game:
         return GameCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           game: game,
         );
-      case 'boardgame':
+      case CatalogMediaKind.boardgame:
         return BoardGameCatalogItem._(
           common: common,
           series: series,
           publishing: publishing,
           game: game,
         );
-      default:
+      case CatalogMediaKind.unknown:
         return GenericCatalogItem._(
           common: common,
           series: series,
@@ -305,6 +512,10 @@ sealed class CatalogItem {
       volumeStartYear: json['volume_start_year'] as int?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
+      tags: (json['tags'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
     );
     final video = VideoCatalogDetails(
       runtimeMinutes: json['runtime_minutes'] as int?,
@@ -330,10 +541,15 @@ sealed class CatalogItem {
       subtitle: json['subtitle'] as String?,
       seriesGroup: json['series_group'] as String?,
     );
+    final editions = (json['editions'] as List<dynamic>?)
+        ?.whereType<Map<String, dynamic>>()
+        .map(CatalogEdition.fromJson)
+        .toList(growable: false);
     return CatalogItem(
       id: json['id'] as String,
       kind: json['kind'] as String,
       title: json['title'] as String,
+      sortKey: json['sort_key'] as String?,
       itemNumber: json['item_number'] as String?,
       synopsis: json['synopsis'] as String?,
       coverImageUrl: json['cover_image_url'] as String?,
@@ -361,6 +577,7 @@ sealed class CatalogItem {
       storyArcs: (json['story_arcs'] as List<dynamic>?)
           ?.whereType<String>()
           .toList(growable: false),
+      editions: editions,
         rawPlatforms: rawPlatforms,
       genres: (json['genres'] as List<dynamic>?)
           ?.whereType<String>()
@@ -372,8 +589,9 @@ sealed class CatalogItem {
   }
 
   final String id;
-  final String kind;
+  final CatalogMediaKind mediaKind;
   final String title;
+  final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -390,11 +608,14 @@ sealed class CatalogItem {
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
+  final List<CatalogEdition> editions;
   final List<String>? genres;
   final String? country;
   final String? language;
   final String? ageRating;
   final List<String>? rawPlatforms;
+
+  String get kind => mediaKind.apiValue;
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
   String? get displayEditionLabel =>
@@ -418,6 +639,7 @@ sealed class CatalogItem {
       'snapshot_version': 1,
       'kind': kind,
       'title': title,
+      'sort_key': sortKey,
       'item_number': itemNumber,
       'synopsis': synopsis,
       'cover_image_url': coverImageUrl,
@@ -438,10 +660,12 @@ sealed class CatalogItem {
       'volume_start_year': series?.volumeStartYear,
       'season_number': series?.seasonNumber,
       'episode_number': series?.episodeNumber,
+      'tags': series?.tags,
       'runtime_minutes': video?.runtimeMinutes,
       'track_count': music?.trackCount,
       'tracks': tracks?.map((track) => track.toJson()).toList(growable: false),
       'catalog_number': music?.catalogNumber,
+      'editions': editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
       'release_status': music?.releaseStatus,
       'page_count': publishing?.pageCount,
@@ -471,8 +695,9 @@ abstract base class _TypedCatalogItem extends CatalogItem {
     this.gameDetails,
   }) : super._(
           id: common.id,
-          kind: common.kind,
+      mediaKind: common.mediaKind,
           title: common.title,
+          sortKey: common.sortKey,
           itemNumber: common.itemNumber,
           synopsis: common.synopsis,
           coverImageUrl: common.coverImageUrl,
@@ -489,6 +714,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           creators: common.creators,
           characters: common.characters,
           storyArcs: common.storyArcs,
+          editions: common.editions ?? const <CatalogEdition>[],
           genres: common.genres,
           country: common.country,
           language: common.language,
@@ -659,8 +885,9 @@ final class GenericCatalogItem extends _TypedCatalogItem {
 class _CatalogItemCommon {
   const _CatalogItemCommon({
     required this.id,
-    required this.kind,
+    required this.mediaKind,
     required this.title,
+    this.sortKey,
     this.itemNumber,
     this.synopsis,
     this.coverImageUrl,
@@ -677,6 +904,7 @@ class _CatalogItemCommon {
     this.creators,
     this.characters,
     this.storyArcs,
+    this.editions,
     this.genres,
     this.country,
     this.language,
@@ -685,8 +913,9 @@ class _CatalogItemCommon {
   });
 
   final String id;
-  final String kind;
+  final CatalogMediaKind mediaKind;
   final String title;
+  final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -703,6 +932,7 @@ class _CatalogItemCommon {
   final List<Map<String, dynamic>>? creators;
   final List<String>? characters;
   final List<String>? storyArcs;
+  final List<CatalogEdition>? editions;
   final List<String>? genres;
   final String? country;
   final String? language;
@@ -730,11 +960,14 @@ GameCatalogDetails? _gameOrNull(GameCatalogDetails details) {
   return details.hasData ? details : null;
 }
 
-String _normalizeKind(String kind) {
-  return kind.trim().toLowerCase();
+List<String>? _normalizeStringList(List<String>? values) {
+  if (values == null || values.isEmpty) {
+    return null;
+  }
+  return values.toList(growable: false);
 }
 
-List<String>? _normalizeStringList(List<String>? values) {
+List<CatalogEdition>? _normalizeEditionList(List<CatalogEdition>? values) {
   if (values == null || values.isEmpty) {
     return null;
   }

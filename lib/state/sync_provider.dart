@@ -2,6 +2,8 @@ import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
+import 'package:collectarr_app/core/logging/app_log.dart';
+import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
@@ -13,6 +15,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -97,6 +100,7 @@ class SyncController extends StateNotifier<SyncState> {
   SyncController(this.ref) : super(const SyncState());
 
   final Ref ref;
+  bool _onlineFirstSyncQueued = false;
 
   Future<void> refreshPendingCount() async {
     final count = await _queue().pendingCount();
@@ -107,6 +111,9 @@ class SyncController extends StateNotifier<SyncState> {
   static const _maxLogEntries = 20;
 
   Future<void> syncNow() async {
+    if (state.isSyncing) {
+      return;
+    }
     final preSyncPending = state.pendingCount;
     state = state.copyWith(
       isSyncing: true,
@@ -130,10 +137,13 @@ class SyncController extends StateNotifier<SyncState> {
         queue: SyncQueueRepository(db),
         catalog: CatalogCacheRepository(db),
         ownedItems: OwnedItemsCacheRepository(db),
+        trackingEntries: TrackingEntriesCacheRepository(db),
         wishlistItems: WishlistItemsCacheRepository(db),
       ).syncNow(deviceId, since: since);
       await cursor.write(result.serverTime);
       ref.invalidate(collectionProvider);
+      ref.invalidate(trackingEntriesProvider);
+      ref.invalidate(trackingEntriesByCatalogItemProvider);
       ref.invalidate(wishlistIdsProvider);
       ref.invalidate(wishlistProvider);
       ref.invalidate(shelfProvider);
@@ -158,6 +168,11 @@ class SyncController extends StateNotifier<SyncState> {
         error: error,
         stackTrace: stackTrace,
       );
+      ref.read(appLogProvider.notifier).error(
+            'sync',
+            'Sync failed: $error',
+            detail: stackTrace.toString(),
+          );
       final count = await _queue().pendingCount();
       final log = _appendLog(SyncLogEntry(
         timestamp: DateTime.now().toUtc(),
@@ -173,6 +188,23 @@ class SyncController extends StateNotifier<SyncState> {
         rejectedChanges: state.rejectedChanges,
         syncLog: log,
       );
+    }
+  }
+
+  Future<void> syncOnlineFirstIfEnabled() async {
+    if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider))) {
+      return;
+    }
+    _onlineFirstSyncQueued = true;
+    if (state.isSyncing) {
+      return;
+    }
+    while (_onlineFirstSyncQueued) {
+      _onlineFirstSyncQueued = false;
+      await syncNow();
+      if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider))) {
+        _onlineFirstSyncQueued = false;
+      }
     }
   }
 
@@ -237,8 +269,21 @@ class SyncController extends StateNotifier<SyncState> {
         error: error,
         stackTrace: stackTrace,
       );
+      ref.read(appLogProvider.notifier).error(
+            'sync',
+            'Sync cursor read failed: $error',
+            detail: stackTrace.toString(),
+          );
       return state.lastSyncedAt;
     }
+  }
+
+  bool _shouldUseOnlineFirstSync(ConnectionSettings settings) {
+    if (!settings.preferOnlineFirstSync) {
+      return false;
+    }
+    return settings.syncBaseUrl.trim().isNotEmpty &&
+        settings.syncKey.trim().isNotEmpty;
   }
 }
 
@@ -286,6 +331,21 @@ extension on SyncQueueRepository {
         );
       case 'wishlist_item':
         final item = await WishlistItemsCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (item == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: item.id,
+          action: item.isDeleted ? 'delete' : 'upsert',
+          payload: item.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'tracking_entry':
+        final item = await TrackingEntriesCacheRepository(db).findById(
           change.entityId,
         );
         if (item == null) {

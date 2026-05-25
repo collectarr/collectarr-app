@@ -19,6 +19,7 @@ sealed class LibraryWorkspaceEntry {
     this.barcode,
     this.variant,
     this.isOwned = false,
+    this.isTracked = false,
     this.isWishlisted = false,
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
@@ -26,9 +27,16 @@ sealed class LibraryWorkspaceEntry {
     this.grade,
     this.rawOrSlabbed,
     this.gradingCompany,
+    this.primaryReferenceLabel,
+    this.referenceScopeLabel,
+    this.referenceFormatLabel,
+    this.referenceEditionId,
+    this.referenceVariantId,
+    this.referenceBundleReleaseId,
     this.keyComic = false,
     this.keyReason,
     this.notes,
+    this.tags,
     this.pricePaidCents,
     this.currency,
     this.storageBox,
@@ -39,6 +47,7 @@ sealed class LibraryWorkspaceEntry {
     this.country,
     this.language,
     this.ageRating,
+    this.editions = const <CatalogEdition>[],
     required this.updatedAt,
     this.rawPlatforms,
   });
@@ -58,6 +67,7 @@ sealed class LibraryWorkspaceEntry {
     String? barcode,
     String? variant,
     bool isOwned = false,
+    bool isTracked = false,
     bool isWishlisted = false,
     bool hasMissingCover = false,
     bool hasMissingMetadata = false,
@@ -65,9 +75,16 @@ sealed class LibraryWorkspaceEntry {
     String? grade,
     String? rawOrSlabbed,
     String? gradingCompany,
+    String? primaryReferenceLabel,
+    String? referenceScopeLabel,
+    String? referenceFormatLabel,
+    String? referenceEditionId,
+    String? referenceVariantId,
+    String? referenceBundleReleaseId,
     bool keyComic = false,
     String? keyReason,
     String? notes,
+    String? tags,
     int? pricePaidCents,
     String? currency,
     String? storageBox,
@@ -83,6 +100,7 @@ sealed class LibraryWorkspaceEntry {
     String? country,
     String? language,
     String? ageRating,
+    List<CatalogEdition> editions = const <CatalogEdition>[],
     required DateTime updatedAt,
   }) {
     final normalizedMediaType = mediaType.trim().toLowerCase();
@@ -101,6 +119,7 @@ sealed class LibraryWorkspaceEntry {
       barcode: barcode,
       variant: variant,
       isOwned: isOwned,
+      isTracked: isTracked,
       isWishlisted: isWishlisted,
       hasMissingCover: hasMissingCover,
       hasMissingMetadata: hasMissingMetadata,
@@ -108,9 +127,16 @@ sealed class LibraryWorkspaceEntry {
       grade: grade,
       rawOrSlabbed: rawOrSlabbed,
       gradingCompany: gradingCompany,
+      primaryReferenceLabel: primaryReferenceLabel,
+      referenceScopeLabel: referenceScopeLabel,
+      referenceFormatLabel: referenceFormatLabel,
+      referenceEditionId: referenceEditionId,
+      referenceVariantId: referenceVariantId,
+      referenceBundleReleaseId: referenceBundleReleaseId,
       keyComic: keyComic,
       keyReason: keyReason,
       notes: notes,
+      tags: tags,
       pricePaidCents: pricePaidCents,
       currency: currency,
       storageBox: storageBox,
@@ -121,6 +147,7 @@ sealed class LibraryWorkspaceEntry {
       country: country,
       language: language,
       ageRating: ageRating,
+      editions: _copyEditionList(editions),
       updatedAt: updatedAt,
       rawPlatforms: _copyStringList(game?.platforms),
     );
@@ -217,6 +244,7 @@ sealed class LibraryWorkspaceEntry {
   final String? barcode;
   final String? variant;
   final bool isOwned;
+  final bool isTracked;
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
@@ -224,9 +252,16 @@ sealed class LibraryWorkspaceEntry {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? primaryReferenceLabel;
+  final String? referenceScopeLabel;
+  final String? referenceFormatLabel;
+  final String? referenceEditionId;
+  final String? referenceVariantId;
+  final String? referenceBundleReleaseId;
   final bool keyComic;
   final String? keyReason;
   final String? notes;
+  final String? tags;
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;
@@ -237,6 +272,7 @@ sealed class LibraryWorkspaceEntry {
   final String? country;
   final String? language;
   final String? ageRating;
+  final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
 
@@ -273,6 +309,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           barcode: common.barcode,
           variant: common.variant,
           isOwned: common.isOwned,
+          isTracked: common.isTracked,
           isWishlisted: common.isWishlisted,
           hasMissingCover: common.hasMissingCover,
           hasMissingMetadata: common.hasMissingMetadata,
@@ -280,9 +317,16 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           grade: common.grade,
           rawOrSlabbed: common.rawOrSlabbed,
           gradingCompany: common.gradingCompany,
+          primaryReferenceLabel: common.primaryReferenceLabel,
+          referenceScopeLabel: common.referenceScopeLabel,
+          referenceFormatLabel: common.referenceFormatLabel,
+          referenceEditionId: common.referenceEditionId,
+          referenceVariantId: common.referenceVariantId,
+          referenceBundleReleaseId: common.referenceBundleReleaseId,
           keyComic: common.keyComic,
           keyReason: common.keyReason,
           notes: common.notes,
+          tags: common.tags,
           pricePaidCents: common.pricePaidCents,
           currency: common.currency,
           storageBox: common.storageBox,
@@ -293,6 +337,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           country: common.country,
           language: common.language,
           ageRating: common.ageRating,
+          editions: common.editions,
           updatedAt: common.updatedAt,
           rawPlatforms: common.rawPlatforms,
         );
@@ -473,6 +518,7 @@ class _LibraryWorkspaceCommon {
     required this.barcode,
     required this.variant,
     required this.isOwned,
+    required this.isTracked,
     required this.isWishlisted,
     required this.hasMissingCover,
     required this.hasMissingMetadata,
@@ -480,9 +526,16 @@ class _LibraryWorkspaceCommon {
     required this.grade,
     required this.rawOrSlabbed,
     required this.gradingCompany,
+    required this.primaryReferenceLabel,
+    required this.referenceScopeLabel,
+    required this.referenceFormatLabel,
+    required this.referenceEditionId,
+    required this.referenceVariantId,
+    required this.referenceBundleReleaseId,
     required this.keyComic,
     required this.keyReason,
     required this.notes,
+    required this.tags,
     required this.pricePaidCents,
     required this.currency,
     required this.storageBox,
@@ -493,6 +546,7 @@ class _LibraryWorkspaceCommon {
     required this.country,
     required this.language,
     required this.ageRating,
+    required this.editions,
     required this.updatedAt,
     required this.rawPlatforms,
   });
@@ -511,6 +565,7 @@ class _LibraryWorkspaceCommon {
   final String? barcode;
   final String? variant;
   final bool isOwned;
+  final bool isTracked;
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
@@ -518,9 +573,16 @@ class _LibraryWorkspaceCommon {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? primaryReferenceLabel;
+  final String? referenceScopeLabel;
+  final String? referenceFormatLabel;
+  final String? referenceEditionId;
+  final String? referenceVariantId;
+  final String? referenceBundleReleaseId;
   final bool keyComic;
   final String? keyReason;
   final String? notes;
+  final String? tags;
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;
@@ -531,6 +593,7 @@ class _LibraryWorkspaceCommon {
   final String? country;
   final String? language;
   final String? ageRating;
+  final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
 }
@@ -569,13 +632,50 @@ List<Map<String, dynamic>>? _copyMapList(List<Map<String, dynamic>>? values) {
   return values.toList(growable: false);
 }
 
+List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
+  if (values.isEmpty) {
+    return const <CatalogEdition>[];
+  }
+  return values.toList(growable: false);
+}
+
 int compareLibraryWorkspaceEntries(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
   bool ascending,
 ) {
-  final result = switch (column) {
+  return compareLibraryWorkspaceEntriesByRules(
+    left,
+    right,
+    [LibrarySortRule(column: column, ascending: ascending)],
+  );
+}
+
+int compareLibraryWorkspaceEntriesByRules(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  Iterable<LibrarySortRule> rules,
+) {
+  for (final rule in rules) {
+    final result = _compareLibraryWorkspaceEntriesByColumn(
+      left,
+      right,
+      rule.column,
+    );
+    if (result != 0) {
+      return rule.ascending ? result : -result;
+    }
+  }
+  return _compareNullableStrings(left.title, right.title);
+}
+
+int _compareLibraryWorkspaceEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) {
+  return switch (column) {
     LibrarySortColumn.status => _compareBools(left.isOwned, right.isOwned),
     LibrarySortColumn.title => _compareNullableStrings(left.title, right.title),
     LibrarySortColumn.issue =>
@@ -609,10 +709,6 @@ int compareLibraryWorkspaceEntries(
     LibrarySortColumn.imprint =>
       _compareNullableStrings(left.publishing?.imprint, right.publishing?.imprint),
   };
-  if (result != 0) {
-    return ascending ? result : -result;
-  }
-  return _compareNullableStrings(left.title, right.title);
 }
 
 int _compareIssueNumbers(String? left, String? right) {

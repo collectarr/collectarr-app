@@ -1,24 +1,37 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+part 'library_edit_dialog_anchor_widgets.dart';
 
 class LibraryEditDialog extends ConsumerStatefulWidget {
   const LibraryEditDialog({
@@ -26,7 +39,10 @@ class LibraryEditDialog extends ConsumerStatefulWidget {
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.wishlistItem,
+    this.trackingEntry,
     required this.accent,
+    this.availableBundleReleases = const [],
     this.physicalFormats = const [],
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
@@ -36,7 +52,10 @@ class LibraryEditDialog extends ConsumerStatefulWidget {
   final LibraryTypeConfig type;
   final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
+  final WishlistItem? wishlistItem;
+  final TrackingEntry? trackingEntry;
   final Color accent;
+  final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
@@ -79,11 +98,31 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   late final TextEditingController _currencyController;
   late final TextEditingController _quantityController;
   late final TextEditingController _notesController;
+  late final TextEditingController _wishlistPriceController;
+  late final TextEditingController _wishlistCurrencyController;
+  late final TextEditingController _wishlistNotesController;
   late final TextEditingController _ratingController;
   late final TextEditingController _trackingController;
+  late final TextEditingController _progressCurrentController;
+  late final TextEditingController _progressTotalController;
+  late final TextEditingController _timesCompletedController;
+  late final TextEditingController _seasonNumberController;
+  late final TextEditingController _episodeNumberController;
+  late final TextEditingController _trackingNotesController;
   late final TextEditingController _tagsController;
+  List<String> _tagOptions = const [];
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
+  String _selectedOwnedAnchorType = PersonalItemAnchorType.item.apiValue;
+  String? _selectedEditionId;
+  String? _selectedVariantId;
+  String? _selectedBundleReleaseId;
+  String? _selectedTrackingEditionId;
+  String? _selectedTrackingVariantId;
+  String _selectedWishlistAnchorType = PersonalItemAnchorType.item.apiValue;
+  String? _selectedWishlistEditionId;
+  String? _selectedWishlistVariantId;
+  String? _selectedWishlistBundleReleaseId;
   bool _locationChanged = false;
 
   // Sold fields
@@ -108,14 +147,81 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
 
-  static const _ownedTabCount = 8;
-  static const _catalogOnlyTabCount = 3;
-
   bool get _isOwned => widget.ownedItem != null;
 
-  bool get _isComicKind {
-    final kind = widget.type.workspace.kind;
-    return kind == 'comic' || kind == 'manga';
+  bool get _hasTrackingContext => _isOwned || widget.trackingEntry != null;
+
+  bool get _isTrackingOnly => !_isOwned && widget.trackingEntry != null;
+
+  bool get _hasWishlistContext => widget.wishlistItem != null;
+
+  LibraryEditPresentationContext get _editPresentationContext {
+    return LibraryEditPresentationContext(
+      isOwned: _isOwned,
+      isTrackingOnly: _isTrackingOnly,
+      hasTrackingContext: _hasTrackingContext,
+      hasWishlistContext: _hasWishlistContext,
+      isDigitalFormat: _isDigitalFormat,
+      hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
+      hasEditionAnchors: widget.item.editions.isNotEmpty,
+      hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
+      hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
+    );
+  }
+
+  LibraryEditPresentationContext get _initialEditPresentationContext {
+    return LibraryEditPresentationContext(
+      isOwned: _isOwned,
+      isTrackingOnly: _isTrackingOnly,
+      hasTrackingContext: _hasTrackingContext,
+      hasWishlistContext: _hasWishlistContext,
+      isDigitalFormat: false,
+      hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
+      hasEditionAnchors: widget.item.editions.isNotEmpty,
+      hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
+      hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
+    );
+  }
+
+  List<LibraryEditTabSpec> get _tabSpecs {
+    return widget.type.editPresentation.builder.buildTabs(
+      context: _editPresentationContext,
+    );
+  }
+
+  LibraryEditFooterSpec get _footerSpec {
+    return widget.type.editPresentation.builder.buildFooter(
+      context: _editPresentationContext,
+    );
+  }
+
+  LibraryEditPresentationState get _editPresentation {
+    return widget.type.editPresentation.builder.build(
+      context: _editPresentationContext,
+    );
+  }
+
+  bool get _isDigitalFormat {
+    return isDigitalPhysicalMediaFormat(
+      _physicalFormatId,
+      label: _physicalFormatForId(_physicalFormatId)?.label ??
+          widget.item.physicalFormatLabel ??
+          _variantController.text,
+      formats: widget.physicalFormats.isEmpty
+          ? allKnownPhysicalMediaFormats
+          : widget.physicalFormats,
+    );
+  }
+
+  bool get _showPhysicalOwnedFields => _isOwned && !_isDigitalFormat;
+
+  bool get _showsEpisodeTrackingFields {
+    final series = widget.item.series;
+    return widget.type.trackingProfile.name == videoTrackingProfile.name ||
+        series?.seasonNumber != null ||
+        series?.episodeNumber != null ||
+        _seasonNumberController.text.trim().isNotEmpty ||
+        _episodeNumberController.text.trim().isNotEmpty;
   }
 
   @override
@@ -123,8 +229,12 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     super.initState();
     final item = widget.item;
     final owned = widget.ownedItem;
+    final wishlist = widget.wishlistItem;
+    final tracking = widget.trackingEntry;
     _tabController = TabController(
-      length: _isOwned ? _ownedTabCount : _catalogOnlyTabCount,
+      length: widget.type.editPresentation.builder
+          .buildTabs(context: _initialEditPresentationContext)
+          .length,
       vsync: this,
     )..addListener(() {
         if (mounted) setState(() {});
@@ -154,8 +264,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _imprintController = TextEditingController(
       text: item.publishing?.imprint ?? '',
     );
-    _seriesGroupController =
-      TextEditingController(text: item.publishing?.seriesGroup ?? '');
+    _seriesGroupController = TextEditingController(
+      text: item.publishing?.seriesGroup ?? '',
+    );
 
     _conditionController = TextEditingController(text: owned?.condition ?? '');
     _gradeController = TextEditingController(text: owned?.grade ?? '');
@@ -172,10 +283,37 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       text: (owned?.quantity ?? 1).toString(),
     );
     _notesController = TextEditingController(text: owned?.personalNotes ?? '');
+    _wishlistPriceController = TextEditingController(
+      text: wishlist?.targetPriceCents == null
+          ? ''
+          : (wishlist!.targetPriceCents! / 100).toStringAsFixed(2),
+    );
+    _wishlistCurrencyController =
+        TextEditingController(text: wishlist?.currency ?? '');
+    _wishlistNotesController = TextEditingController(text: wishlist?.notes ?? '');
     _ratingController =
-        TextEditingController(text: owned?.rating?.toString() ?? '');
-    _trackingController = TextEditingController(text: owned?.readStatus ?? '');
+        TextEditingController(text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
+    _trackingController = TextEditingController(
+      text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
+    );
+    _progressCurrentController = TextEditingController(
+      text: tracking?.progressCurrent?.toString() ?? '',
+    );
+    _progressTotalController = TextEditingController(
+      text: tracking?.progressTotal?.toString() ?? '',
+    );
+    _timesCompletedController = TextEditingController(
+      text: tracking?.timesCompleted?.toString() ?? '',
+    );
+    _seasonNumberController = TextEditingController(
+      text: (tracking?.seasonNumber ?? item.series?.seasonNumber)?.toString() ?? '',
+    );
+    _episodeNumberController = TextEditingController(
+      text: (tracking?.episodeNumber ?? item.series?.episodeNumber)?.toString() ?? '',
+    );
+    _trackingNotesController = TextEditingController(text: tracking?.notes ?? '');
     _tagsController = TextEditingController(text: owned?.tags ?? '');
+    _tagOptions = splitPickListValues(owned?.tags);
     _selectedLocationId = owned?.locationId;
 
     _sellPriceController = TextEditingController(
@@ -185,8 +323,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
     _soldAt = owned?.soldAt;
-    _startedAt = owned?.startedAt;
-    _finishedAt = owned?.finishedAt;
+    _startedAt = tracking?.startedAt ?? owned?.startedAt;
+    _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
 
     _rawOrSlabbedController =
         TextEditingController(text: owned?.rawOrSlabbed ?? '');
@@ -202,6 +340,32 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
     _keyComic = owned?.keyComic ?? false;
     _keyReasonController = TextEditingController(text: owned?.keyReason ?? '');
+    final editionSelection = resolveLibraryEditionSelection(
+      item.editions,
+      editionId: owned?.editionId ?? tracking?.editionId,
+      editionTitle: item.editionTitle,
+      variantId: owned?.variantId ?? tracking?.variantId,
+      variantName: item.variant,
+    );
+    final wishlistEditionSelection = resolveLibraryEditionSelection(
+      item.editions,
+      editionId: wishlist?.editionId,
+      editionTitle: item.editionTitle,
+      variantId: wishlist?.variantId,
+      variantName: item.variant,
+    );
+    _selectedOwnedAnchorType =
+        owned?.personalAnchor?.apiValue ?? PersonalItemAnchorType.item.apiValue;
+    _selectedEditionId = editionSelection.edition?.id;
+    _selectedVariantId = editionSelection.variant?.id;
+    _selectedBundleReleaseId = _normalizedId(owned?.bundleReleaseId);
+    _selectedTrackingEditionId = tracking?.editionId ?? _selectedEditionId;
+    _selectedTrackingVariantId = tracking?.variantId ?? _selectedVariantId;
+    _selectedWishlistAnchorType =
+        wishlist?.personalAnchor?.apiValue ?? PersonalItemAnchorType.item.apiValue;
+    _selectedWishlistEditionId = wishlistEditionSelection.edition?.id;
+    _selectedWishlistVariantId = wishlistEditionSelection.variant?.id;
+    _selectedWishlistBundleReleaseId = _normalizedId(wishlist?.bundleReleaseId);
 
     _physicalFormatId = _initialPhysicalFormatId(item);
 
@@ -211,6 +375,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
     if (_isOwned) {
       unawaited(_loadAvailableLocations());
+      unawaited(_loadTagOptions());
     }
   }
 
@@ -238,8 +403,17 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _currencyController.dispose();
     _quantityController.dispose();
     _notesController.dispose();
+    _wishlistPriceController.dispose();
+    _wishlistCurrencyController.dispose();
+    _wishlistNotesController.dispose();
     _ratingController.dispose();
     _trackingController.dispose();
+    _progressCurrentController.dispose();
+    _progressTotalController.dispose();
+    _timesCompletedController.dispose();
+    _seasonNumberController.dispose();
+    _episodeNumberController.dispose();
+    _trackingNotesController.dispose();
     _tagsController.dispose();
     _sellPriceController.dispose();
     _soldToController.dispose();
@@ -254,226 +428,70 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      clipBehavior: Clip.antiAlias,
-      child: Theme(
-        data: editDialogTheme(seedColor: widget.accent),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: kEditPanel,
-              border: Border.all(color: kEditDivider),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0xCC000000),
-                  blurRadius: 22,
-                  offset: Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  _titleBar(context),
-                  _tabs(),
-                  Expanded(
-                    child: ColoredBox(
-                      color: kEditPanel,
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: _isOwned
-                            ? [
-                                _mainTab(),
-                                _valueTab(),
-                                _personalTab(),
-                                _soldTab(),
-                                _customFieldsTab(),
-                                _photosTab(),
-                                _coverTab(),
-                                _synopsisTab(),
-                              ]
-                            : [
-                                _mainTab(),
-                                _coverTab(),
-                                _synopsisTab(),
-                              ],
-                      ),
-                    ),
-                  ),
-                  _footer(context),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Title bar
-  // -------------------------------------------------------------------------
-
-  Widget _titleBar(BuildContext context) {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF343434), Color(0xFF161616)],
-        ),
-        border: Border(bottom: BorderSide(color: widget.accent)),
-      ),
-      child: Row(
-        children: [
-          Icon(widget.type.workspace.icon, color: widget.accent, size: 22),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w900, fontSize: 15),
-                ),
-                const SizedBox(height: 4),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: [
-                    if (_isOwned) const EditMiniBadge('Owned'),
-                    if (_soldAt != null) const EditMiniBadge('Sold'),
-                    if (_conditionController.text.trim().isNotEmpty)
-                      EditMiniBadge(_conditionController.text.trim()),
-                    if (_selectedLocationLabel != null)
-                      EditMiniBadge(_selectedLocationLabel!),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            tooltip: 'Close',
-            onPressed: () => Navigator.of(context).pop(),
-            visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.close),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Tab bar
-  // -------------------------------------------------------------------------
-
-  Widget _tabs() {
-    return ColoredBox(
-      color: kEditPanelRaised,
-      child: TabBar(
-        controller: _tabController,
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        labelColor: Colors.white,
-        unselectedLabelColor: kEditTextMuted,
-        indicatorColor: widget.accent,
-        dividerColor: kEditDivider,
-        labelPadding: const EdgeInsets.symmetric(horizontal: 11),
-        tabs: _isOwned
-            ? const [
-                EditTab(icon: Icons.article, label: 'Main'),
-                EditTab(icon: Icons.attach_money, label: 'Value'),
-                EditTab(icon: Icons.person, label: 'Personal'),
-                EditTab(icon: Icons.sell, label: 'Sold'),
-                EditTab(icon: Icons.tune, label: 'Custom'),
-                EditTab(icon: Icons.photo_library, label: 'Photos'),
-                EditTab(icon: Icons.image, label: 'Cover'),
-                EditTab(icon: Icons.notes, label: 'Synopsis'),
-              ]
-            : const [
-                EditTab(icon: Icons.article, label: 'Main'),
-                EditTab(icon: Icons.image, label: 'Cover'),
-                EditTab(icon: Icons.notes, label: 'Synopsis'),
-              ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Footer
-  // -------------------------------------------------------------------------
-
-  Widget _footer(BuildContext context) {
-    final currentTab = _tabController.index + 1;
-    final totalTabs = _tabController.length;
-    final actions = Wrap(
-      alignment: WrapAlignment.end,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        FooterReadonlyField(
-          label: 'Tab',
-          value: '$currentTab / $totalTabs',
-          width: 72,
-        ),
-        Tooltip(
-          message: 'Previous tab',
-          child: OutlinedButton.icon(
-            onPressed: _tabController.index == 0 ? null : _previousTab,
-            icon: const Icon(Icons.chevron_left),
-            label: const Text('Previous'),
-          ),
-        ),
-        Tooltip(
-          message: 'Next tab',
-          child: OutlinedButton.icon(
-            onPressed: _tabController.index == totalTabs - 1
-                ? null
-                : _nextTab,
-            icon: const Icon(Icons.chevron_right),
-            label: const Text('Next'),
-          ),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton.icon(
-          onPressed: _submit,
-          icon: const Icon(Icons.save_outlined),
-          label: const Text('Save'),
-        ),
+    return LibraryEditDialogScaffold(
+      formKey: _formKey,
+      accent: widget.accent,
+      icon: widget.type.workspace.icon,
+      title: 'Edit ${widget.type.singularLabel.toLowerCase()} — ${widget.item.title}',
+      badges: [
+        if (_isOwned) const EditMiniBadge('Owned'),
+        if (_isTrackingOnly) const EditMiniBadge('Tracked'),
+        if (_soldAt != null) const EditMiniBadge('Sold'),
+        if (_conditionController.text.trim().isNotEmpty)
+          EditMiniBadge(_conditionController.text.trim()),
+        if (_selectedLocationLabel != null)
+          EditMiniBadge(_selectedLocationLabel!),
       ],
+      tabController: _tabController,
+      tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
+      views: _tabViews(),
+      footerLabel: _footerSpec.label,
+      footerFields: [for (final fieldId in _footerSpec.fieldIds) _footerFieldFor(fieldId)],
+      onPrevious: _previousTab,
+      onNext: _nextTab,
+      onCancel: () => Navigator.of(context).pop(),
+      onSave: _submit,
     );
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: const BoxDecoration(
-        color: kEditToolbar,
-        border: Border(top: BorderSide(color: kEditDivider)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            _isOwned ? 'Catalog + collection' : 'Catalog snapshot only',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: kEditTextMuted,
-                  fontWeight: FontWeight.w800,
-                ),
-          ),
-          const Spacer(),
-          actions,
-        ],
-      ),
-    );
+  }
+
+  List<Widget> _tabViews() {
+    return [for (final tab in _tabSpecs) _tabViewFor(tab.id)];
+  }
+
+  Widget _tabViewFor(String id) {
+    switch (id) {
+      case 'main':
+        return _mainTab();
+      case 'value':
+        return _valueTab();
+      case 'personal':
+        return _personalTab();
+      case 'sold':
+        return _soldTab();
+      case 'custom':
+        return _customFieldsTab();
+      case 'photos':
+        return _photosTab();
+      case 'cover':
+        return _coverTab();
+      case 'synopsis':
+        return _synopsisTab();
+      default:
+        throw StateError('Unsupported generic edit tab: $id');
+    }
+  }
+
+  Widget _footerFieldFor(String id) {
+    switch (id) {
+      case 'user_tags':
+        return FooterTextField(
+          label: 'User tags',
+          controller: _tagsController,
+          width: 150,
+        );
+      default:
+        throw StateError('Unsupported generic footer field: $id');
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -482,6 +500,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   Widget _mainTab() {
     final labels = libraryMediaFieldLabels(widget.type);
+    final editPresentation = _editPresentation;
     return EditTabShell(
       children: [
         EditSection(
@@ -509,7 +528,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 _field(controller: _variantController, label: labels.variant),
                 _field(controller: _barcodeController, label: labels.barcode),
               ]),
-              if (widget.physicalFormats.isNotEmpty) ...[
+              if (editPresentation.showsPhysicalFormatSelector) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   initialValue: _physicalFormatId,
@@ -576,55 +595,120 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             ],
           ),
         ),
-        if (_isOwned)
+        if (_hasTrackingContext)
           EditSection(
-            title: 'Condition & Grade',
+            title: editPresentation.trackingSectionTitle,
             accent: widget.accent,
-            child: _responsiveFields([
-              _field(controller: _conditionController, label: 'Condition'),
-              _field(controller: _gradeController, label: 'Grade'),
-              _field(
-                controller: _quantityController,
-                label: 'Quantity',
-                validator: positiveIntValidator,
-              ),
-            ]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (editPresentation.trackingSectionHint != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      editPresentation.trackingSectionHint!,
+                      style: const TextStyle(color: kEditTextMuted),
+                    ),
+                  ),
+                _responsiveFields([
+                  if (_showPhysicalOwnedFields) ...[
+                    _field(controller: _conditionController, label: 'Condition'),
+                    _field(controller: _gradeController, label: 'Grade'),
+                  ],
+                  if (_isOwned)
+                    _field(
+                      controller: _quantityController,
+                      label: 'Quantity',
+                      validator: positiveIntValidator,
+                    )
+                  else ...[
+                    _trackingEditionSelectionField(),
+                    _trackingVariantSelectionField(),
+                  ],
+                ]),
+              ],
+            ),
           ),
-        if (_isOwned && _isComicKind) ...[
+        if (editPresentation.showsOwnershipReferenceSection)
           EditSection(
-            title: 'Grading details',
+            title: editPresentation.ownershipReferenceTitle,
             accent: widget.accent,
             child: Column(
               children: [
-                _responsiveFields([
-                  _field(
-                    controller: _rawOrSlabbedController,
-                    label: 'Raw / Slabbed',
+                _ownershipAnchorSelectionField(),
+                if (_selectedOwnedAnchorType ==
+                        PersonalItemAnchorType.edition.apiValue ||
+                    _selectedOwnedAnchorType ==
+                        PersonalItemAnchorType.variant.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _editionSelectionField(),
+                    if (_selectedOwnedAnchorType ==
+                        PersonalItemAnchorType.variant.apiValue)
+                      _variantSelectionField(),
+                  ]),
+                ],
+                if (_selectedOwnedAnchorType ==
+                    PersonalItemAnchorType.bundleRelease.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _bundleReleaseSelectionField(
+                    fieldKey: const Key('library-edit-owned-bundle-field'),
+                    label: editPresentation.ownedBundleLabel,
+                    selectedBundleReleaseId: _selectedBundleReleaseId,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedBundleReleaseId = _normalizedId(value);
+                      });
+                    },
                   ),
+                ],
+              ],
+            ),
+          ),
+        if (editPresentation.showsOwnedGradingSection) ...[
+          EditSection(
+            title: editPresentation.ownedGradingSectionTitle,
+            accent: widget.accent,
+            child: Column(
+              children: [
+                if (!_isDigitalFormat) ...[
+                  _responsiveFields([
+                    _field(
+                      controller: _rawOrSlabbedController,
+                      label: 'Raw / Slabbed',
+                    ),
+                    _field(
+                      controller: _gradingCompanyController,
+                      label: 'Grading company',
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
                   _field(
-                    controller: _gradingCompanyController,
-                    label: 'Grading company',
+                    controller: _graderNotesController,
+                    label: 'Grader notes',
                   ),
-                ]),
-                const SizedBox(height: 10),
-                _field(
-                  controller: _graderNotesController,
-                  label: 'Grader notes',
-                ),
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  _field(controller: _signedByController, label: 'Signed by'),
-                  _field(
-                    controller: _coverPriceController,
-                    label: 'Cover price',
-                    validator: optionalMoneyValidator,
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _field(controller: _signedByController, label: 'Signed by'),
+                    _field(
+                      controller: _coverPriceController,
+                      label: 'Cover price',
+                      validator: optionalMoneyValidator,
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                ] else if (editPresentation.ownedGradingSectionHint != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      editPresentation.ownedGradingSectionHint!,
+                      style: const TextStyle(color: kEditTextMuted),
+                    ),
                   ),
-                ]),
-                const SizedBox(height: 10),
                 SwitchListTile(
                   value: _keyComic,
                   onChanged: (value) => setState(() => _keyComic = value),
-                  title: const Text('Key comic'),
+                  title: Text(editPresentation.keyToggleLabel),
                   contentPadding: EdgeInsets.zero,
                   dense: true,
                 ),
@@ -632,7 +716,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   const SizedBox(height: 6),
                   _field(
                     controller: _keyReasonController,
-                    label: 'Key reason (first appearance, etc.)',
+                    label: editPresentation.keyReasonLabel,
                   ),
                 ],
               ],
@@ -719,12 +803,23 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Storage & Tracking',
+          title: _isOwned
+              ? 'Storage & Tracking'
+              : _hasWishlistContext
+                  ? 'Personal'
+                  : 'Tracking',
           accent: widget.accent,
           child: Column(
             children: [
+              if (_isTrackingOnly && widget.item.editions.isNotEmpty) ...[
+                _responsiveFields([
+                  _trackingEditionSelectionField(),
+                  _trackingVariantSelectionField(),
+                ]),
+                const SizedBox(height: 10),
+              ],
               _responsiveFields([
-                _locationField(),
+                if (_showPhysicalOwnedFields) _locationField(),
                 SizedBox(
                   width: 120,
                   child: MediaRatingField(controller: _ratingController),
@@ -742,8 +837,62 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 ),
               ]),
               const SizedBox(height: 10),
-              _field(controller: _tagsController, label: 'Tags'),
+              _responsiveFields(
+                buildTrackingProgressFieldWidgets(
+                  progressCurrentController: _progressCurrentController,
+                  progressTotalController: _progressTotalController,
+                  timesCompletedController: _timesCompletedController,
+                  buildField: (controller, label) => _field(
+                    controller: controller,
+                    label: label,
+                    validator: optionalIntValidator,
+                  ),
+                ),
+              ),
+              if (_showsEpisodeTrackingFields) ...[
+                const SizedBox(height: 10),
+                _responsiveFields(
+                  buildTrackingEpisodeFieldWidgets(
+                    seasonNumberController: _seasonNumberController,
+                    episodeNumberController: _episodeNumberController,
+                    buildField: (controller, label) => _field(
+                      controller: controller,
+                      label: label,
+                      validator: optionalIntValidator,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 10),
+              TextFormField(
+                controller: _trackingNotesController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Tracking notes',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              if (_isOwned && _isDigitalFormat) ...[
+                const SizedBox(height: 10),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Wishlist-only and digital copies do not expose storage location fields.',
+                    style: TextStyle(color: kEditTextMuted),
+                  ),
+                ),
+              ],
+              if (_isOwned) ...[
+                const SizedBox(height: 10),
+                TagPickListField(
+                  controller: _tagsController,
+                  options: _tagOptions,
+                  label: 'Tags',
+                  hint: 'Comma-separated tags',
+                ),
+                const SizedBox(height: 10),
+              ],
               _responsiveFields([
                 _datePickerField(
                   label: 'Started',
@@ -759,19 +908,87 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             ],
           ),
         ),
-        EditSection(
-          title: 'Notes',
-          accent: widget.accent,
-          child: TextFormField(
-            controller: _notesController,
-            minLines: 5,
-            maxLines: 8,
-            decoration: const InputDecoration(
-              labelText: 'Personal notes',
-              alignLabelWithHint: true,
+        if (_hasWishlistContext)
+          EditSection(
+            title: 'Wishlist reference',
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _wishlistAnchorSelectionField(),
+                if (_selectedWishlistAnchorType ==
+                        PersonalItemAnchorType.edition.apiValue ||
+                    _selectedWishlistAnchorType ==
+                        PersonalItemAnchorType.variant.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _wishlistEditionSelectionField(),
+                    if (_selectedWishlistAnchorType ==
+                        PersonalItemAnchorType.variant.apiValue)
+                      _wishlistVariantSelectionField(),
+                  ]),
+                ],
+                if (_selectedWishlistAnchorType ==
+                    PersonalItemAnchorType.bundleRelease.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _bundleReleaseSelectionField(
+                    fieldKey: const Key('library-edit-wishlist-bundle-field'),
+                    label: 'Wishlist bundle',
+                    selectedBundleReleaseId: _selectedWishlistBundleReleaseId,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedWishlistBundleReleaseId = _normalizedId(value);
+                      });
+                    },
+                  ),
+                ],
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  _field(
+                    controller: _wishlistPriceController,
+                    label: 'Target price',
+                    validator: optionalMoneyValidator,
+                  ),
+                  _field(
+                    controller: _wishlistCurrencyController,
+                    label: 'Currency',
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _wishlistNotesController,
+                  minLines: 3,
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    labelText: 'Wishlist notes',
+                    alignLabelWithHint: true,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
+        if (_isOwned)
+          EditSection(
+            title: 'Notes',
+            accent: widget.accent,
+            child: TextFormField(
+              controller: _notesController,
+              minLines: 5,
+              maxLines: 8,
+              decoration: const InputDecoration(
+                labelText: 'Personal notes',
+                alignLabelWithHint: true,
+              ),
+            ),
+          )
+        else if (!_hasWishlistContext)
+          EditSection(
+            title: 'Collection fields',
+            accent: widget.accent,
+            child: const Text(
+              'Storage, value, quantity and personal notes are only available once the item has an owned copy. Tracking progress stays editable here.',
+              style: TextStyle(color: kEditTextMuted),
+            ),
+          ),
       ],
     );
   }
@@ -916,6 +1133,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
   }
 
+
   // -------------------------------------------------------------------------
   // Helpers
   // -------------------------------------------------------------------------
@@ -960,6 +1178,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
   }
 
+
   Widget _locationField() {
     final label = _selectedLocationLabel;
     return InkWell(
@@ -1002,6 +1221,18 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       return;
     }
     setState(() => _availableLocations = locations);
+  }
+
+  Future<void> _loadTagOptions() async {
+    final tagOptions = await loadTagPickListOptions(
+      ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      selectedTags: splitPickListValues(_tagsController.text),
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() => _tagOptions = tagOptions);
   }
 
   Future<void> _pickLocation() async {
@@ -1133,30 +1364,85 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       personal: widget.ownedItem == null
           ? null
           : LibraryPersonalEditSelection(
-              condition: emptyToNull(_conditionController.text),
-              grade: emptyToNull(_gradeController.text),
+              anchorType: _selectedOwnedAnchorType,
+              editionId: _selectedOwnedAnchorType ==
+                      PersonalItemAnchorType.edition.apiValue ||
+                    _selectedOwnedAnchorType ==
+                      PersonalItemAnchorType.variant.apiValue
+                  ? _selectedEditionId
+                  : null,
+              variantId: _selectedOwnedAnchorType ==
+                      PersonalItemAnchorType.variant.apiValue
+                  ? _selectedVariantId
+                  : null,
+              bundleReleaseId: _selectedOwnedAnchorType ==
+                      PersonalItemAnchorType.bundleRelease.apiValue
+                  ? _selectedBundleReleaseId
+                  : null,
+              condition:
+                  _showPhysicalOwnedFields ? emptyToNull(_conditionController.text) : null,
+              grade: _showPhysicalOwnedFields ? emptyToNull(_gradeController.text) : null,
               purchaseDate: parseDate(_purchaseDateController.text),
               pricePaidCents: parseMoneyCents(_priceController.text),
               currency: emptyToNull(_currencyController.text),
               personalNotes: emptyToNull(_notesController.text),
               quantity: parseInt(_quantityController.text) ?? 1,
-              locationId: _selectedLocationId,
-              locationChanged: _locationChanged,
-              rating: parseInt(_ratingController.text),
-              readStatus: emptyToNull(_trackingController.text),
-              startedAt: _startedAt,
-              finishedAt: _finishedAt,
+              locationId: _showPhysicalOwnedFields ? _selectedLocationId : null,
+              locationChanged: _showPhysicalOwnedFields ? _locationChanged : false,
               tags: emptyToNull(_tagsController.text),
               soldAt: _soldAt,
               sellPriceCents: parseMoneyCents(_sellPriceController.text),
               soldTo: emptyToNull(_soldToController.text),
-              rawOrSlabbed: emptyToNull(_rawOrSlabbedController.text),
-              gradingCompany: emptyToNull(_gradingCompanyController.text),
-              graderNotes: emptyToNull(_graderNotesController.text),
-              signedBy: emptyToNull(_signedByController.text),
+              rawOrSlabbed:
+                  _isDigitalFormat ? null : emptyToNull(_rawOrSlabbedController.text),
+              gradingCompany:
+                  _isDigitalFormat ? null : emptyToNull(_gradingCompanyController.text),
+              graderNotes:
+                  _isDigitalFormat ? null : emptyToNull(_graderNotesController.text),
+              signedBy:
+                  _isDigitalFormat ? null : emptyToNull(_signedByController.text),
               keyComic: _keyComic,
               keyReason: emptyToNull(_keyReasonController.text),
-              coverPriceCents: parseMoneyCents(_coverPriceController.text),
+              coverPriceCents:
+                  _isDigitalFormat ? null : parseMoneyCents(_coverPriceController.text),
+            ),
+      wishlist: widget.wishlistItem == null
+          ? null
+          : LibraryWishlistEditSelection(
+              anchorType: _selectedWishlistAnchorType,
+              editionId: _selectedWishlistAnchorType ==
+                      PersonalItemAnchorType.edition.apiValue ||
+                    _selectedWishlistAnchorType ==
+                      PersonalItemAnchorType.variant.apiValue
+                  ? _selectedWishlistEditionId
+                  : null,
+              variantId: _selectedWishlistAnchorType ==
+                      PersonalItemAnchorType.variant.apiValue
+                  ? _selectedWishlistVariantId
+                  : null,
+              bundleReleaseId: _selectedWishlistAnchorType ==
+                      PersonalItemAnchorType.bundleRelease.apiValue
+                  ? _selectedWishlistBundleReleaseId
+                  : null,
+              targetPriceCents: parseMoneyCents(_wishlistPriceController.text),
+              currency: emptyToNull(_wishlistCurrencyController.text),
+              notes: emptyToNull(_wishlistNotesController.text),
+            ),
+      tracking: !_hasTrackingContext
+          ? null
+          : LibraryTrackingEditSelection(
+              editionId: _selectedTrackingEditionId,
+              variantId: _selectedTrackingVariantId,
+              rating: parseInt(_ratingController.text),
+              readStatus: emptyToNull(_trackingController.text),
+              startedAt: _startedAt,
+              finishedAt: _finishedAt,
+              progressCurrent: parseInt(_progressCurrentController.text),
+              progressTotal: parseInt(_progressTotalController.text),
+              timesCompleted: parseInt(_timesCompletedController.text),
+              notes: emptyToNull(_trackingNotesController.text),
+              seasonNumber: parseInt(_seasonNumberController.text),
+              episodeNumber: parseInt(_episodeNumberController.text),
             ),
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
@@ -1183,6 +1469,278 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             formats: widget.physicalFormats,
           );
   }
+
+  CatalogEdition? _selectedEditionById(String? selectedId) {
+    if (selectedId == null) {
+      return null;
+    }
+    for (final edition in widget.item.editions) {
+      if (edition.id == selectedId) {
+        return edition;
+      }
+    }
+    return null;
+  }
+
+  Widget _ownershipAnchorSelectionField() {
+    return _anchorSelectionField(
+      fieldKey: const Key('library-edit-owned-anchor-field'),
+      label: 'Ownership anchor',
+      value: _selectedOwnedAnchorType,
+      onChanged: _setOwnedAnchorType,
+    );
+  }
+
+  Widget _wishlistAnchorSelectionField() {
+    return _anchorSelectionField(
+      fieldKey: const Key('library-edit-wishlist-anchor-field'),
+      label: 'Wishlist anchor',
+      value: _selectedWishlistAnchorType,
+      onChanged: _setWishlistAnchorType,
+    );
+  }
+
+  Widget _anchorSelectionField({
+    required Key fieldKey,
+    required String label,
+    required String value,
+    required ValueChanged<String> onChanged,
+  }) {
+    return _LibraryEditAnchorSelector(
+      fieldKey: fieldKey,
+      label: label,
+      value: value,
+      editionAvailable: widget.item.editions.isNotEmpty,
+      bundleAvailable: widget.availableBundleReleases.isNotEmpty,
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _editionSelectionField() {
+    return _editionSelectionFieldFor(
+      label: 'Owned edition',
+      selectedEditionId: _selectedEditionId,
+      onChanged: (editionId) {
+        final edition = resolveLibraryEditionSelection(
+          widget.item.editions,
+          editionId: editionId,
+        ).edition;
+        setState(() {
+          _selectedEditionId = edition?.id;
+          _selectedVariantId = null;
+          _selectedTrackingEditionId = _selectedEditionId;
+          _selectedTrackingVariantId = null;
+        });
+      },
+    );
+  }
+
+  Widget _trackingEditionSelectionField() {
+    return _editionSelectionFieldFor(
+      label: 'Tracking edition',
+      selectedEditionId: _selectedTrackingEditionId,
+      onChanged: (editionId) {
+        final edition = resolveLibraryEditionSelection(
+          widget.item.editions,
+          editionId: editionId,
+        ).edition;
+        setState(() {
+          _selectedTrackingEditionId = edition?.id;
+          _selectedTrackingVariantId = null;
+        });
+      },
+    );
+  }
+
+  Widget _wishlistEditionSelectionField() {
+    return _editionSelectionFieldFor(
+      label: 'Wishlist edition',
+      selectedEditionId: _selectedWishlistEditionId,
+      onChanged: (editionId) {
+        final edition = resolveLibraryEditionSelection(
+          widget.item.editions,
+          editionId: editionId,
+        ).edition;
+        setState(() {
+          _selectedWishlistEditionId = edition?.id;
+          _selectedWishlistVariantId = null;
+        });
+      },
+    );
+  }
+
+  Widget _editionSelectionFieldFor({
+    required String label,
+    required String? selectedEditionId,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return _LibraryEditEditionSelector(
+      label: label,
+      selectedEditionId: selectedEditionId,
+      editions: widget.item.editions,
+      onChanged: (value) => onChanged(_normalizedId(value)),
+    );
+  }
+
+  Widget _variantSelectionField() {
+    return _variantSelectionFieldFor(
+      label: 'Owned variant',
+      selectedEditionId: _selectedEditionId,
+      selectedVariantId: _selectedVariantId,
+      onChanged: (value) {
+        setState(() {
+          _selectedVariantId = value;
+          _selectedTrackingEditionId = _selectedEditionId;
+          _selectedTrackingVariantId = value;
+        });
+      },
+    );
+  }
+
+  Widget _trackingVariantSelectionField() {
+    return _variantSelectionFieldFor(
+      label: 'Tracking variant',
+      selectedEditionId: _selectedTrackingEditionId,
+      selectedVariantId: _selectedTrackingVariantId,
+      onChanged: (value) {
+        setState(() {
+          _selectedTrackingVariantId = value;
+        });
+      },
+    );
+  }
+
+  Widget _wishlistVariantSelectionField() {
+    return _variantSelectionFieldFor(
+      label: 'Wishlist variant',
+      selectedEditionId: _selectedWishlistEditionId,
+      selectedVariantId: _selectedWishlistVariantId,
+      onChanged: (value) {
+        setState(() {
+          _selectedWishlistVariantId = value;
+        });
+      },
+    );
+  }
+
+  Widget _variantSelectionFieldFor({
+    required String label,
+    required String? selectedEditionId,
+    required String? selectedVariantId,
+    required ValueChanged<String?> onChanged,
+  }) {
+    final edition = _selectedEditionById(selectedEditionId);
+    final variants = edition?.variants ?? const <CatalogVariant>[];
+    return _LibraryEditVariantSelector(
+      label: label,
+      selectedVariantId: selectedVariantId,
+      variants: variants,
+      onChanged: variants.isEmpty ? (_) {} : (value) => onChanged(_normalizedId(value)),
+    );
+  }
+
+  Widget _bundleReleaseSelectionField({
+    Key? fieldKey,
+    required String label,
+    required String? selectedBundleReleaseId,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return _LibraryEditBundleReleaseSelector(
+      fieldKey: fieldKey,
+      label: label,
+      selectedBundleReleaseId: selectedBundleReleaseId,
+      bundleReleases: widget.availableBundleReleases,
+      onChanged: (value) => onChanged(_normalizedId(value)),
+    );
+  }
+
+  void _setOwnedAnchorType(String value) {
+    setState(() {
+      _selectedOwnedAnchorType = value;
+      if (value == PersonalItemAnchorType.variant.apiValue) {
+        final editionSelection = resolveLibraryEditionSelection(
+          widget.item.editions,
+          editionId: _selectedEditionId,
+          variantId: _selectedVariantId,
+          editionTitle: widget.item.editionTitle,
+          variantName: widget.item.variant,
+        );
+        _selectedEditionId = editionSelection.edition?.id;
+        _selectedVariantId = editionSelection.variant?.id;
+        _selectedBundleReleaseId = null;
+        _selectedTrackingEditionId = _selectedEditionId;
+        _selectedTrackingVariantId = _selectedVariantId;
+      } else if (value == PersonalItemAnchorType.edition.apiValue) {
+        final editionSelection = resolveLibraryEditionSelection(
+          widget.item.editions,
+          editionId: _selectedEditionId,
+          variantId: _selectedVariantId,
+          editionTitle: widget.item.editionTitle,
+          variantName: widget.item.variant,
+        );
+        _selectedEditionId = editionSelection.edition?.id;
+        _selectedVariantId = null;
+        _selectedBundleReleaseId = null;
+        _selectedTrackingEditionId = _selectedEditionId;
+        _selectedTrackingVariantId = null;
+      } else if (value == PersonalItemAnchorType.bundleRelease.apiValue) {
+        _selectedBundleReleaseId ??=
+            widget.availableBundleReleases.isEmpty ? null : widget.availableBundleReleases.first.id;
+        _selectedEditionId = null;
+        _selectedVariantId = null;
+        _selectedTrackingEditionId = null;
+        _selectedTrackingVariantId = null;
+      } else {
+        _selectedEditionId = null;
+        _selectedVariantId = null;
+        _selectedBundleReleaseId = null;
+        _selectedTrackingEditionId = null;
+        _selectedTrackingVariantId = null;
+      }
+    });
+  }
+
+  void _setWishlistAnchorType(String value) {
+    setState(() {
+      _selectedWishlistAnchorType = value;
+      if (value == PersonalItemAnchorType.variant.apiValue) {
+        final editionSelection = resolveLibraryEditionSelection(
+          widget.item.editions,
+          editionId: _selectedWishlistEditionId,
+          variantId: _selectedWishlistVariantId,
+          editionTitle: widget.item.editionTitle,
+          variantName: widget.item.variant,
+        );
+        _selectedWishlistEditionId = editionSelection.edition?.id;
+        _selectedWishlistVariantId = editionSelection.variant?.id;
+        _selectedWishlistBundleReleaseId = null;
+      } else if (value == PersonalItemAnchorType.edition.apiValue) {
+        final editionSelection = resolveLibraryEditionSelection(
+          widget.item.editions,
+          editionId: _selectedWishlistEditionId,
+          variantId: _selectedWishlistVariantId,
+          editionTitle: widget.item.editionTitle,
+          variantName: widget.item.variant,
+        );
+        _selectedWishlistEditionId = editionSelection.edition?.id;
+        _selectedWishlistVariantId = null;
+        _selectedWishlistBundleReleaseId = null;
+      } else if (value == PersonalItemAnchorType.bundleRelease.apiValue) {
+        _selectedWishlistBundleReleaseId ??=
+            widget.availableBundleReleases.isEmpty ? null : widget.availableBundleReleases.first.id;
+        _selectedWishlistEditionId = null;
+        _selectedWishlistVariantId = null;
+      } else {
+        _selectedWishlistEditionId = null;
+        _selectedWishlistVariantId = null;
+        _selectedWishlistBundleReleaseId = null;
+      }
+    });
+  }
+
+  String? _normalizedId(String? value) {
+    return emptyToNull(value ?? '');
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1193,18 +1751,26 @@ class LibraryEditSelection {
   const LibraryEditSelection({
     required this.item,
     required this.personal,
+    this.wishlist,
+    this.tracking,
     this.customFieldEdits = const {},
     this.itemImageEdits = const [],
   });
 
   final LibraryMetadataItem item;
   final LibraryPersonalEditSelection? personal;
+  final LibraryWishlistEditSelection? wishlist;
+  final LibraryTrackingEditSelection? tracking;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
 }
 
 class LibraryPersonalEditSelection {
   const LibraryPersonalEditSelection({
+    required this.anchorType,
+    required this.editionId,
+    required this.variantId,
+    required this.bundleReleaseId,
     required this.condition,
     required this.grade,
     required this.purchaseDate,
@@ -1214,10 +1780,6 @@ class LibraryPersonalEditSelection {
     required this.quantity,
     required this.locationId,
     required this.locationChanged,
-    required this.rating,
-    required this.readStatus,
-    this.startedAt,
-    this.finishedAt,
     required this.tags,
     this.soldAt,
     this.sellPriceCents,
@@ -1231,6 +1793,10 @@ class LibraryPersonalEditSelection {
     this.coverPriceCents,
   });
 
+  final String? anchorType;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -1240,10 +1806,6 @@ class LibraryPersonalEditSelection {
   final int quantity;
   final String? locationId;
   final bool locationChanged;
-  final int? rating;
-  final String? readStatus;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
   final String? tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
@@ -1255,4 +1817,54 @@ class LibraryPersonalEditSelection {
   final bool? keyComic;
   final String? keyReason;
   final int? coverPriceCents;
+}
+
+class LibraryWishlistEditSelection {
+  const LibraryWishlistEditSelection({
+    required this.anchorType,
+    required this.editionId,
+    required this.variantId,
+    required this.bundleReleaseId,
+    required this.targetPriceCents,
+    required this.currency,
+    required this.notes,
+  });
+
+  final String? anchorType;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
+  final int? targetPriceCents;
+  final String? currency;
+  final String? notes;
+}
+
+class LibraryTrackingEditSelection {
+  const LibraryTrackingEditSelection({
+    required this.editionId,
+    required this.variantId,
+    required this.rating,
+    required this.readStatus,
+    this.progressCurrent,
+    this.progressTotal,
+    this.timesCompleted,
+    this.notes,
+    this.seasonNumber,
+    this.episodeNumber,
+    this.startedAt,
+    this.finishedAt,
+  });
+
+  final String? editionId;
+  final String? variantId;
+  final int? rating;
+  final String? readStatus;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
 }

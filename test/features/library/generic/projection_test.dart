@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -126,5 +127,58 @@ void main() {
 
     expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Blade'), isFalse);
     expect(libraryEntryMatchesLinkedMetadataFilter(entry, 'Warner'), isFalse);
+  });
+
+  test('series buckets include owned completion percentages', () {
+    final items = [
+      LibraryProjectionItem(
+        source: const ShelfEntry(itemId: 'comic-1'),
+        entry: LibraryWorkspaceEntry(
+          id: 'comic-1',
+          mediaType: 'comic',
+          title: 'Saga #1',
+          isOwned: true,
+          series: const CatalogSeriesDetails(seriesTitle: 'Saga'),
+          updatedAt: DateTime(2026, 1, 1),
+        ),
+      ),
+      LibraryProjectionItem(
+        source: const ShelfEntry(itemId: 'comic-2'),
+        entry: LibraryWorkspaceEntry(
+          id: 'comic-2',
+          mediaType: 'comic',
+          title: 'Saga #2',
+          series: const CatalogSeriesDetails(seriesTitle: 'Saga'),
+          updatedAt: DateTime(2026, 1, 2),
+        ),
+      ),
+      LibraryProjectionItem(
+        source: const ShelfEntry(itemId: 'comic-3'),
+        entry: LibraryWorkspaceEntry(
+          id: 'comic-3',
+          mediaType: 'comic',
+          title: 'Paper Girls #1',
+          isOwned: true,
+          series: const CatalogSeriesDetails(seriesTitle: 'Paper Girls'),
+          updatedAt: DateTime(2026, 1, 3),
+        ),
+      ),
+    ];
+
+    final buckets = libraryBucketsForItems(
+      items,
+      comicsLibraryConfig,
+      LibraryGroupMode.series,
+    );
+
+    final allBucket = buckets.firstWhere(
+      (bucket) => bucket.title == genericAllBucketLabel(comicsLibraryConfig),
+    );
+    final sagaBucket = buckets.firstWhere((bucket) => bucket.title == 'Saga');
+
+    expect(allBucket.ownedCount, 2);
+    expect(allBucket.completionPercent, 67);
+    expect(sagaBucket.ownedCount, 1);
+    expect(sagaBucket.completionPercent, 50);
   });
 }

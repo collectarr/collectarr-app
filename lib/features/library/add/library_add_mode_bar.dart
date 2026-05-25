@@ -13,7 +13,7 @@ class _DialogHeader extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF4A4A4A), Color(0xFF1B1B1B)],
+            colors: [kAppDivider, Color(0xFF1B1B1B)],
           ),
           border: Border(bottom: BorderSide(color: accent)),
         ),
@@ -34,7 +34,7 @@ class _DialogHeader extends StatelessWidget {
             ),
             IconButton(
               tooltip: 'Close',
-              onPressed: () => Navigator.of(context).pop(false),
+              onPressed: () => Navigator.of(context).pop(),
               icon: const Icon(Icons.close, size: 18),
               visualDensity: VisualDensity.compact,
             ),

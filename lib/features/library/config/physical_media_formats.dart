@@ -210,6 +210,14 @@ const gamePhysicalMediaFormats = [
   ),
 ];
 
+const allKnownPhysicalMediaFormats = [
+  ...videoPhysicalMediaFormats,
+  ...musicPhysicalMediaFormats,
+  ...bookPhysicalMediaFormats,
+  ...comicPhysicalMediaFormats,
+  ...gamePhysicalMediaFormats,
+];
+
 List<PhysicalMediaFormat> physicalMediaFormatsFromCatalog(
   Iterable<CatalogMediaType> mediaTypes, {
   String? kind,
@@ -267,4 +275,40 @@ PhysicalMediaFormat? physicalMediaFormatByLabelOrId(
     }
   }
   return null;
+}
+
+bool isDigitalPhysicalMediaFormat(
+  String? id, {
+  String? label,
+  Iterable<PhysicalMediaFormat> formats = allKnownPhysicalMediaFormats,
+}) {
+  return digitalPhysicalMediaFormatFlag(
+        id,
+        label: label,
+        formats: formats,
+      ) ??
+      false;
+}
+
+bool? digitalPhysicalMediaFormatFlag(
+  String? id, {
+  String? label,
+  Iterable<PhysicalMediaFormat> formats = allKnownPhysicalMediaFormats,
+}) {
+  final format = physicalMediaFormatById(
+        id ?? '',
+        formats: formats,
+      ) ??
+      physicalMediaFormatByLabelOrId(
+        label,
+        formats: formats,
+      );
+  return format == null ? null : format.variantType == 'digital';
+}
+
+String? ownedCopyTypeLabel(bool? isDigital) {
+  if (isDigital == null) {
+    return null;
+  }
+  return isDigital ? 'Digital copy' : 'Physical copy';
 }

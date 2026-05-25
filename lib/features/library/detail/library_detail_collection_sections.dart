@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -11,19 +13,30 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     super.key,
     required this.entry,
     required this.ownedItem,
+    this.trackingEntry,
     required this.accent,
   });
 
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    final paid = formatMoney(entry.pricePaidCents, entry.currency);
+    final paid = formatMoney(
+      ownedItem?.pricePaidCents ?? entry.pricePaidCents,
+      ownedItem?.currency ?? entry.currency,
+    );
     final coverPrice = formatMoney(ownedItem?.coverPriceCents, ownedItem?.currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
     final profitLoss = _detailProfitLossLabel(ownedItem);
+    final trackingStatus = trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
+      ? ownedItem?.readStatus
+      : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
+    final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
+    final trackingProgress = _detailTrackingProgressLabel(trackingEntry);
+    final trackingEpisode = _detailTrackingEpisodeLabel(trackingEntry);
     return LibraryInspectorSection(
       title: 'Local collection',
       accentColor: accent,
@@ -40,16 +53,19 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ),
             LibraryInspectorFactData(
               'Condition',
-              genericLibraryDash(entry.condition),
+              genericLibraryDash(ownedItem?.condition ?? entry.condition),
             ),
-            LibraryInspectorFactData('Grade', genericLibraryDash(entry.grade)),
+            LibraryInspectorFactData(
+              'Grade',
+              genericLibraryDash(ownedItem?.grade ?? entry.grade),
+            ),
             LibraryInspectorFactData(
               'Quantity',
               ownedItem == null ? '-' : ownedItem!.quantity.toString(),
             ),
             LibraryInspectorFactData(
               'Storage',
-              genericLibraryDash(entry.storageBox),
+              genericLibraryDash(ownedItem?.storageBox ?? entry.storageBox),
             ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
             LibraryInspectorFactData(
@@ -76,15 +92,23 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ),
             LibraryInspectorFactData(
               'Updated',
-              formatNullableDate(entry.updatedAt) ?? '-',
+              formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
             ),
             LibraryInspectorFactData(
               'Read status',
-              genericLibraryDash(ownedItem?.readStatus),
+              genericLibraryDash(trackingStatus),
+            ),
+            LibraryInspectorFactData(
+              'Progress',
+              genericLibraryDash(trackingProgress),
+            ),
+            LibraryInspectorFactData(
+              'Episode',
+              genericLibraryDash(trackingEpisode),
             ),
             LibraryInspectorFactData(
               'Rating',
-              ownedItem?.rating?.toString() ?? '-',
+              trackingRating?.toString() ?? '-',
             ),
           ],
         ),
@@ -114,6 +138,33 @@ String? _detailProfitLossLabel(OwnedItem? ownedItem) {
     return null;
   }
   return formatMoney(sold - paid, ownedItem?.currency);
+}
+
+String? _detailTrackingProgressLabel(TrackingEntry? trackingEntry) {
+  final current = trackingEntry?.progressCurrent;
+  final total = trackingEntry?.progressTotal;
+  if (current == null && total == null) {
+    return null;
+  }
+  if (total != null && total > 0) {
+    return '${current ?? 0}/$total';
+  }
+  return '${current ?? 0}';
+}
+
+String? _detailTrackingEpisodeLabel(TrackingEntry? trackingEntry) {
+  final seasonNumber = trackingEntry?.seasonNumber;
+  final episodeNumber = trackingEntry?.episodeNumber;
+  if (seasonNumber == null && episodeNumber == null) {
+    return null;
+  }
+  if (seasonNumber != null && episodeNumber != null) {
+    return 'S$seasonNumber · Ep $episodeNumber';
+  }
+  if (seasonNumber != null) {
+    return 'S$seasonNumber';
+  }
+  return 'Ep ${episodeNumber!}';
 }
 
 class LibraryDetailLocalSnapshotSection extends StatelessWidget {

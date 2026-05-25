@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, cardFlow, list }
@@ -22,10 +23,10 @@ enum LibraryWorkspacePreset { cover, card, list, details }
 extension LibraryWorkspacePresetLabels on LibraryWorkspacePreset {
   String get label {
     return switch (this) {
-      LibraryWorkspacePreset.cover => 'Cover',
-      LibraryWorkspacePreset.card => 'Card',
+      LibraryWorkspacePreset.cover => 'Grid',
+      LibraryWorkspacePreset.card => 'Cards',
       LibraryWorkspacePreset.list => 'List',
-      LibraryWorkspacePreset.details => 'Details',
+      LibraryWorkspacePreset.details => 'Details panel',
     };
   }
 
@@ -58,6 +59,33 @@ enum LibrarySortColumn {
   pageCount,
   ageRating,
   imprint,
+}
+
+class LibrarySortRule {
+  const LibrarySortRule({required this.column, required this.ascending});
+
+  final LibrarySortColumn column;
+  final bool ascending;
+
+  LibrarySortRule copyWith({
+    LibrarySortColumn? column,
+    bool? ascending,
+  }) {
+    return LibrarySortRule(
+      column: column ?? this.column,
+      ascending: ascending ?? this.ascending,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LibrarySortRule &&
+        other.column == column &&
+        other.ascending == ascending;
+  }
+
+  @override
+  int get hashCode => Object.hash(column, ascending);
 }
 
 enum LibraryTableColumn {
@@ -108,7 +136,7 @@ class LibraryWorkspaceConfig {
     required this.defaultVisibleColumns,
   });
 
-  final String kind;
+  final CatalogMediaKind kind;
   final String title;
   final IconData icon;
   final String preferencePrefix;

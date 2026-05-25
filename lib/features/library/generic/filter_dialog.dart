@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -16,13 +21,106 @@ String libraryOwnershipFilterLabel(LibraryOwnershipFilter filter) {
   };
 }
 
+enum LibraryTrackingStatusFilter {
+  all,
+  notTracked,
+  planned,
+  inProgress,
+  completed,
+  paused,
+  dropped,
+  repeating,
+}
+
+String libraryTrackingStatusFilterLabel(LibraryTrackingStatusFilter filter) {
+  return switch (filter) {
+    LibraryTrackingStatusFilter.all => 'Any tracking status',
+    LibraryTrackingStatusFilter.notTracked => 'Not tracked',
+    LibraryTrackingStatusFilter.planned => MediaTrackingStatus.planned.label,
+    LibraryTrackingStatusFilter.inProgress =>
+      MediaTrackingStatus.inProgress.label,
+    LibraryTrackingStatusFilter.completed =>
+      MediaTrackingStatus.completed.label,
+    LibraryTrackingStatusFilter.paused => MediaTrackingStatus.paused.label,
+    LibraryTrackingStatusFilter.dropped => MediaTrackingStatus.dropped.label,
+    LibraryTrackingStatusFilter.repeating =>
+      MediaTrackingStatus.repeating.label,
+  };
+}
+
+bool libraryTrackingStatusMatchesFilter(
+  MediaTrackingStatus status,
+  LibraryTrackingStatusFilter filter,
+) {
+  return switch (filter) {
+    LibraryTrackingStatusFilter.all => true,
+    LibraryTrackingStatusFilter.notTracked =>
+      status == MediaTrackingStatus.none,
+    LibraryTrackingStatusFilter.planned =>
+      status == MediaTrackingStatus.planned,
+    LibraryTrackingStatusFilter.inProgress =>
+      status == MediaTrackingStatus.inProgress,
+    LibraryTrackingStatusFilter.completed =>
+      status == MediaTrackingStatus.completed,
+    LibraryTrackingStatusFilter.paused =>
+      status == MediaTrackingStatus.paused,
+    LibraryTrackingStatusFilter.dropped =>
+      status == MediaTrackingStatus.dropped,
+    LibraryTrackingStatusFilter.repeating =>
+      status == MediaTrackingStatus.repeating,
+  };
+}
+
+enum LibraryLoanStatusFilter { all, onLoan, available }
+
+String libraryLoanStatusFilterLabel(LibraryLoanStatusFilter filter) {
+  return switch (filter) {
+    LibraryLoanStatusFilter.all => 'Any loan status',
+    LibraryLoanStatusFilter.onLoan => 'Currently on loan',
+    LibraryLoanStatusFilter.available => 'Available locally',
+  };
+}
+
+enum LibraryDateRangeField { updated, purchased, started, finished }
+
+String libraryDateRangeFieldLabel(LibraryDateRangeField field) {
+  return switch (field) {
+    LibraryDateRangeField.updated => 'Updated',
+    LibraryDateRangeField.purchased => 'Purchased',
+    LibraryDateRangeField.started => 'Started',
+    LibraryDateRangeField.finished => 'Finished',
+  };
+}
+
+class LibraryCustomFieldFilterOption {
+  const LibraryCustomFieldFilterOption({
+    required this.definitionId,
+    required this.label,
+    required this.fieldType,
+    this.values = const [],
+  });
+
+  final String definitionId;
+  final String label;
+  final String fieldType;
+  final List<String> values;
+}
+
 /// A media-agnostic filter selection that can represent any set of active
 /// filters regardless of item kind.
 class LibraryFilterSelection {
   const LibraryFilterSelection({
     this.ownershipFilter = LibraryOwnershipFilter.all,
+    this.trackingStatusFilter = LibraryTrackingStatusFilter.all,
+    this.loanStatusFilter = LibraryLoanStatusFilter.all,
+    this.dateRangeField = LibraryDateRangeField.updated,
+    this.dateFrom,
+    this.dateTo,
+    this.customFieldDefinitionId,
+    this.customFieldValue,
     this.series,
     this.location,
+    this.tag,
     this.grade,
     this.condition,
     this.publisher,
@@ -36,8 +134,16 @@ class LibraryFilterSelection {
   static const none = LibraryFilterSelection();
 
   final LibraryOwnershipFilter ownershipFilter;
+  final LibraryTrackingStatusFilter trackingStatusFilter;
+  final LibraryLoanStatusFilter loanStatusFilter;
+  final LibraryDateRangeField dateRangeField;
+  final DateTime? dateFrom;
+  final DateTime? dateTo;
+  final String? customFieldDefinitionId;
+  final String? customFieldValue;
   final String? series;
   final String? location;
+  final String? tag;
   final String? grade;
   final String? condition;
   final String? publisher;
@@ -47,10 +153,18 @@ class LibraryFilterSelection {
   final bool missingCover;
   final bool missingMetadata;
 
+  bool get hasActiveDateRange => dateFrom != null || dateTo != null;
+
   bool get hasActiveFilters {
     return ownershipFilter != LibraryOwnershipFilter.all ||
+        trackingStatusFilter != LibraryTrackingStatusFilter.all ||
+        loanStatusFilter != LibraryLoanStatusFilter.all ||
+        hasActiveDateRange ||
+      customFieldDefinitionId != null ||
+      customFieldValue != null ||
         series != null ||
-      location != null ||
+        location != null ||
+        tag != null ||
         grade != null ||
         condition != null ||
         publisher != null ||
@@ -64,8 +178,13 @@ class LibraryFilterSelection {
   int get activeFilterCount {
     var count = 0;
     if (ownershipFilter != LibraryOwnershipFilter.all) count++;
+    if (trackingStatusFilter != LibraryTrackingStatusFilter.all) count++;
+    if (loanStatusFilter != LibraryLoanStatusFilter.all) count++;
+    if (hasActiveDateRange) count++;
+    if (customFieldDefinitionId != null || customFieldValue != null) count++;
     if (series != null) count++;
     if (location != null) count++;
+    if (tag != null) count++;
     if (grade != null) count++;
     if (condition != null) count++;
     if (publisher != null) count++;
@@ -82,8 +201,16 @@ class LibraryFilterSelection {
     return identical(this, other) ||
         other is LibraryFilterSelection &&
             other.ownershipFilter == ownershipFilter &&
+            other.trackingStatusFilter == trackingStatusFilter &&
+            other.loanStatusFilter == loanStatusFilter &&
+            other.dateRangeField == dateRangeField &&
+            other.dateFrom == dateFrom &&
+            other.dateTo == dateTo &&
+            other.customFieldDefinitionId == customFieldDefinitionId &&
+            other.customFieldValue == customFieldValue &&
             other.series == series &&
-          other.location == location &&
+            other.location == location &&
+            other.tag == tag &&
             other.grade == grade &&
             other.condition == condition &&
             other.publisher == publisher &&
@@ -97,8 +224,16 @@ class LibraryFilterSelection {
   @override
   int get hashCode => Object.hash(
         ownershipFilter,
+      trackingStatusFilter,
+      loanStatusFilter,
+      dateRangeField,
+      dateFrom,
+      dateTo,
+      customFieldDefinitionId,
+      customFieldValue,
         series,
         location,
+      tag,
         grade,
         condition,
         publisher,
@@ -115,34 +250,49 @@ class LibraryFilterOptions {
   const LibraryFilterOptions({
     this.series = const [],
     this.locations = const [],
+    this.tags = const [],
     this.grades = const [],
     this.conditions = const [],
     this.publishers = const [],
     this.releaseYears = const [],
     this.countries = const [],
     this.languages = const [],
+    this.customFields = const [],
   });
 
   final List<String> series;
   final List<String> locations;
+  final List<String> tags;
   final List<String> grades;
   final List<String> conditions;
   final List<String> publishers;
   final List<String> releaseYears;
   final List<String> countries;
   final List<String> languages;
+  final List<LibraryCustomFieldFilterOption> customFields;
 
   factory LibraryFilterOptions.fromEntries(
     List<LibraryWorkspaceEntry> entries,
+    {
+      List<CustomFieldDefinition> customFieldDefinitions = const [],
+      Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+          const {},
+    }
   ) {
     final series = <String>{};
     final locations = <String>{};
+    final tags = <String>[];
+    final normalizedTags = <String>{};
     final grades = <String>{};
     final conditions = <String>{};
     final publishers = <String>{};
     final years = <String>{};
     final countries = <String>{};
     final languages = <String>{};
+    final customFieldValues = <String, Set<String>>{
+      for (final definition in customFieldDefinitions)
+        definition.id: {..._customFieldPresetOptions(definition)},
+    };
 
     for (final entry in entries) {
       final seriesTitle = entry.series?.seriesTitle?.trim();
@@ -151,6 +301,13 @@ class LibraryFilterOptions {
       }
       if (entry.storageBox?.trim().isNotEmpty == true) {
         locations.add(entry.storageBox!.trim());
+      }
+      for (final tag in splitPickListValues(entry.tags)) {
+        final normalized = tag.trim().toLowerCase();
+        if (normalized.isEmpty || !normalizedTags.add(normalized)) {
+          continue;
+        }
+        tags.add(tag);
       }
       if (entry.grade?.trim().isNotEmpty == true) {
         grades.add(entry.grade!.trim());
@@ -170,18 +327,61 @@ class LibraryFilterOptions {
       if (entry.language?.trim().isNotEmpty == true) {
         languages.add(entry.language!.trim());
       }
+      final ownedItemId = entry.ownedItemId;
+      if (ownedItemId != null) {
+        final values = customFieldValuesByDefinitionByItem[ownedItemId];
+        if (values != null) {
+          for (final fieldEntry in values.entries) {
+            final normalized = fieldEntry.value.trim();
+            if (normalized.isEmpty) {
+              continue;
+            }
+            customFieldValues
+                .putIfAbsent(fieldEntry.key, () => <String>{})
+                .add(normalized);
+          }
+        }
+      }
     }
 
     return LibraryFilterOptions(
       series: series.toList()..sort(),
       locations: locations.toList()..sort(),
+      tags: tags..sort(),
       grades: grades.toList()..sort(),
       conditions: conditions.toList()..sort(),
       publishers: publishers.toList()..sort(),
       releaseYears: years.toList()..sort(),
       countries: countries.toList()..sort(),
       languages: languages.toList()..sort(),
+      customFields: [
+        for (final definition in customFieldDefinitions)
+          LibraryCustomFieldFilterOption(
+            definitionId: definition.id,
+            label: definition.name,
+            fieldType: definition.fieldType,
+            values: (customFieldValues[definition.id] ?? <String>{}).toList()
+              ..sort(),
+          ),
+      ],
     );
+  }
+}
+
+Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
+  if (definition.fieldType != 'select' ||
+      definition.options == null ||
+      definition.options!.isEmpty) {
+    return const <String>{};
+  }
+  try {
+    return (jsonDecode(definition.options!) as List)
+        .whereType<String>()
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toSet();
+  } catch (_) {
+    return const <String>{};
   }
 }
 
@@ -208,6 +408,10 @@ bool libraryFilterMatches(
     return false;
   }
   if (filters.location != null && entry.storageBox?.trim() != filters.location) {
+    return false;
+  }
+  if (filters.tag != null &&
+      !_entryHasTag(entry.tags, filters.tag!)) {
     return false;
   }
   if (filters.grade != null && entry.grade?.trim() != filters.grade) {
@@ -273,8 +477,16 @@ class _LibraryFilterDialog extends StatefulWidget {
 
 class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   late LibraryOwnershipFilter _ownership;
+  late LibraryTrackingStatusFilter _trackingStatus;
+  late LibraryLoanStatusFilter _loanStatus;
+  late LibraryDateRangeField _dateRangeField;
+  DateTime? _dateFrom;
+  DateTime? _dateTo;
+  String? _customFieldDefinitionId;
+  String? _customFieldValue;
   String? _series;
   String? _location;
+  String? _tag;
   String? _grade;
   String? _condition;
   String? _publisher;
@@ -289,8 +501,16 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     super.initState();
     final i = widget.initial;
     _ownership = i.ownershipFilter;
+    _trackingStatus = i.trackingStatusFilter;
+    _loanStatus = i.loanStatusFilter;
+    _dateRangeField = i.dateRangeField;
+    _dateFrom = i.dateFrom;
+    _dateTo = i.dateTo;
+    _customFieldDefinitionId = i.customFieldDefinitionId;
+    _customFieldValue = i.customFieldValue;
     _series = i.series;
     _location = i.location;
+    _tag = i.tag;
     _grade = i.grade;
     _condition = i.condition;
     _publisher = i.publisher;
@@ -306,6 +526,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     final hasGrades = widget.type.grades.isNotEmpty;
     final hasConditions = widget.type.conditions.isNotEmpty;
     final labels = libraryMediaFilterLabels(widget.type);
+    final selectedCustomField = _selectedCustomFieldOption();
     final ownershipValues = [
       LibraryOwnershipFilter.all,
       LibraryOwnershipFilter.owned,
@@ -340,6 +561,150 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
                   if (v != null) setState(() => _ownership = v);
                 },
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<LibraryTrackingStatusFilter>(
+                initialValue: _trackingStatus,
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
+                decoration: const InputDecoration(
+                  labelText: 'Tracking status',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  for (final filter in LibraryTrackingStatusFilter.values)
+                    DropdownMenuItem(
+                      value: filter,
+                      child: Text(libraryTrackingStatusFilterLabel(filter)),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _trackingStatus = value);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<LibraryLoanStatusFilter>(
+                initialValue: _loanStatus,
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
+                decoration: const InputDecoration(
+                  labelText: 'Loan status',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  for (final filter in LibraryLoanStatusFilter.values)
+                    DropdownMenuItem(
+                      value: filter,
+                      child: Text(libraryLoanStatusFilterLabel(filter)),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _loanStatus = value);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<LibraryDateRangeField>(
+                initialValue: _dateRangeField,
+                dropdownColor: kAppPanelRaised,
+                borderRadius: kAppMenuBorderRadius,
+                decoration: const InputDecoration(
+                  labelText: 'Date field',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  for (final field in LibraryDateRangeField.values)
+                    DropdownMenuItem(
+                      value: field,
+                      child: Text(libraryDateRangeFieldLabel(field)),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _dateRangeField = value);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _DateFilterButton(
+                      label: 'From',
+                      value: _dateFrom,
+                      onPick: () => _pickDate(isStart: true),
+                      onClear: _dateFrom == null
+                          ? null
+                          : () => setState(() => _dateFrom = null),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _DateFilterButton(
+                      label: 'To',
+                      value: _dateTo,
+                      onPick: () => _pickDate(isStart: false),
+                      onClear: _dateTo == null
+                          ? null
+                          : () => setState(() => _dateTo = null),
+                    ),
+                  ),
+                ],
+              ),
+              if (widget.options.customFields.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: widget.options.customFields.any(
+                    (field) => field.definitionId == _customFieldDefinitionId,
+                  )
+                      ? _customFieldDefinitionId
+                      : null,
+                  isExpanded: true,
+                  dropdownColor: kAppPanelRaised,
+                  borderRadius: kAppMenuBorderRadius,
+                  decoration: const InputDecoration(
+                    labelText: 'Custom field',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: '',
+                      child: Text('Any custom field'),
+                    ),
+                    for (final field in widget.options.customFields)
+                      DropdownMenuItem<String>(
+                        value: field.definitionId,
+                        child: Text(field.label),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    final nextDefinitionId =
+                        value == null || value.isEmpty ? null : value;
+                    setState(() {
+                      _customFieldDefinitionId = nextDefinitionId;
+                      final nextField = _selectedCustomFieldOption();
+                      if (_customFieldValue != null &&
+                          (nextField == null ||
+                              !nextField.values.contains(_customFieldValue))) {
+                        _customFieldValue = null;
+                      }
+                    });
+                  },
+                ),
+              ],
+              if (selectedCustomField != null &&
+                  selectedCustomField.values.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _FilterDropdown(
+                  label: '${selectedCustomField.label} value',
+                  empty: 'Any value',
+                  value: _customFieldValue,
+                  options: _customFieldValueOptions(selectedCustomField),
+                  onChanged: (value) => setState(() => _customFieldValue = value),
+                ),
+              ],
               if (widget.options.series.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _FilterDropdown(
@@ -358,6 +723,16 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
                   value: _location,
                   options: widget.options.locations,
                   onChanged: (v) => setState(() => _location = v),
+                ),
+              ],
+              if (widget.options.tags.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _AutocompleteFilterField(
+                  label: 'Tag',
+                  hint: 'Any tag',
+                  value: _tag,
+                  options: widget.options.tags,
+                  onChanged: (value) => setState(() => _tag = value),
                 ),
               ],
               if (widget.options.publishers.isNotEmpty) ...[
@@ -451,8 +826,16 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
           onPressed: () => Navigator.of(context).pop(
             LibraryFilterSelection(
               ownershipFilter: _ownership,
+              trackingStatusFilter: _trackingStatus,
+              loanStatusFilter: _loanStatus,
+              dateRangeField: _dateRangeField,
+              dateFrom: _dateFrom,
+              dateTo: _dateTo,
+              customFieldDefinitionId: _customFieldDefinitionId,
+              customFieldValue: _customFieldValue,
               series: _series,
               location: _location,
+              tag: _tag,
               grade: _grade,
               condition: _condition,
               publisher: _publisher,
@@ -468,6 +851,63 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
       ],
     );
   }
+
+  Future<void> _pickDate({required bool isStart}) async {
+    final currentValue = isStart ? _dateFrom : _dateTo;
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: currentValue ?? now,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(now.year + 20),
+    );
+    if (picked == null || !mounted) {
+      return;
+    }
+    setState(() {
+      if (isStart) {
+        _dateFrom = picked;
+      } else {
+        _dateTo = picked;
+      }
+    });
+  }
+
+  LibraryCustomFieldFilterOption? _selectedCustomFieldOption() {
+    for (final field in widget.options.customFields) {
+      if (field.definitionId == _customFieldDefinitionId) {
+        return field;
+      }
+    }
+    return null;
+  }
+
+  List<String> _customFieldValueOptions(
+    LibraryCustomFieldFilterOption option,
+  ) {
+    final values = option.values.toList(growable: true);
+    final currentValue = _customFieldValue;
+    if (currentValue != null &&
+        currentValue.isNotEmpty &&
+        !values.contains(currentValue)) {
+      values.add(currentValue);
+      values.sort();
+    }
+    return values;
+  }
+}
+
+bool _entryHasTag(String? rawTags, String filterTag) {
+  final normalizedFilter = filterTag.trim().toLowerCase();
+  if (normalizedFilter.isEmpty) {
+    return true;
+  }
+  for (final tag in splitPickListValues(rawTags)) {
+    if (tag.trim().toLowerCase() == normalizedFilter) {
+      return true;
+    }
+  }
+  return false;
 }
 
 class _FilterDropdown extends StatelessWidget {
@@ -502,6 +942,134 @@ class _FilterDropdown extends StatelessWidget {
           DropdownMenuItem(value: option, child: Text(option)),
       ],
       onChanged: (v) => onChanged(v == null || v.isEmpty ? null : v),
+    );
+  }
+}
+
+class _AutocompleteFilterField extends StatelessWidget {
+  const _AutocompleteFilterField({
+    required this.label,
+    required this.hint,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String hint;
+  final String? value;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Autocomplete<String>(
+      initialValue: TextEditingValue(text: value ?? ''),
+      optionsBuilder: (textEditingValue) {
+        final query = textEditingValue.text.trim().toLowerCase();
+        if (query.isEmpty) {
+          return options;
+        }
+        return options.where(
+          (option) => option.toLowerCase().contains(query),
+        );
+      },
+      onSelected: (selection) => onChanged(selection),
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+        return TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: hint,
+            border: const OutlineInputBorder(),
+            suffixIcon: controller.text.trim().isEmpty
+                ? null
+                : IconButton(
+                    onPressed: () {
+                      controller.clear();
+                      onChanged(null);
+                    },
+                    icon: const Icon(Icons.close),
+                    tooltip: 'Clear $label filter',
+                  ),
+          ),
+          onChanged: (text) {
+            final normalized = text.trim();
+            onChanged(normalized.isEmpty ? null : normalized);
+          },
+          onFieldSubmitted: (_) => onFieldSubmitted(),
+        );
+      },
+      optionsViewBuilder: (context, onSelected, displayedOptions) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            color: kAppPanelRaised,
+            elevation: 4,
+            borderRadius: kAppMenuBorderRadius,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 240, maxWidth: 420),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                children: [
+                  for (final option in displayedOptions)
+                    ListTile(
+                      dense: true,
+                      title: Text(option),
+                      onTap: () => onSelected(option),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _DateFilterButton extends StatelessWidget {
+  const _DateFilterButton({
+    required this.label,
+    required this.value,
+    required this.onPick,
+    this.onClear,
+  });
+
+  final String label;
+  final DateTime? value;
+  final VoidCallback onPick;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final formatted = value == null
+        ? label
+        : MaterialLocalizations.of(context).formatMediumDate(value!);
+    return OutlinedButton.icon(
+      onPressed: onPick,
+      icon: const Icon(Icons.calendar_today_outlined, size: 18),
+      label: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              formatted,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (onClear != null)
+            IconButton(
+              onPressed: onClear,
+              icon: const Icon(Icons.close, size: 16),
+              splashRadius: 14,
+              constraints: const BoxConstraints(),
+              padding: const EdgeInsets.only(left: 8),
+            ),
+        ],
+      ),
     );
   }
 }

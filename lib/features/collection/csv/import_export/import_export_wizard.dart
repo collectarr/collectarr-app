@@ -46,7 +46,7 @@ class _ImportExportWizardDialogState
       initialIndex: widget.initialIndex,
       length: 2,
       child: AlertDialog(
-        title: const Text('CSV / CLZ import-export'),
+        title: const Text('Import or export collection'),
         content: SizedBox(
           width: 860,
           height: 560,
@@ -54,9 +54,16 @@ class _ImportExportWizardDialogState
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const TabBar(
+                isScrollable: true,
                 tabs: [
-                  Tab(icon: Icon(Icons.download_outlined), text: 'Export'),
-                  Tab(icon: Icon(Icons.upload_file_outlined), text: 'Import'),
+                  Tab(
+                    icon: Icon(Icons.download_outlined),
+                    text: 'Export collection',
+                  ),
+                  Tab(
+                    icon: Icon(Icons.upload_file_outlined),
+                    text: 'Import collection',
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -241,19 +248,19 @@ class _ExportWizardPane extends StatelessWidget {
               onPressed: () =>
                   _copy(context, collectarr, 'Collectarr CSV copied'),
               icon: const Icon(Icons.copy_all_outlined),
-              label: const Text('Copy Collectarr'),
+              label: const Text('Copy Collectarr CSV'),
             ),
             OutlinedButton.icon(
               onPressed: () => _copy(context, clz, 'CLZ-friendly CSV copied'),
               icon: const Icon(Icons.table_view_outlined),
-              label: const Text('Copy CLZ'),
+              label: const Text('Copy CLZ-friendly CSV'),
             ),
             if (comicEntries.isNotEmpty)
               OutlinedButton.icon(
                 onPressed: () =>
                     _copy(context, comicInfoXml, 'ComicInfo.xml copied'),
                 icon: const Icon(Icons.code_outlined),
-                label: const Text('Copy ComicInfo'),
+                label: const Text('Copy ComicInfo.xml'),
               ),
           ],
         ),
@@ -309,66 +316,80 @@ class _ImportWizardPane extends StatelessWidget {
     final importable = preview == null
         ? 0
         : preview.resolvedRows.length + preview.conflictRows.length;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            const _WizardStat(icon: Icons.content_paste, label: 'Paste CSV'),
-            _WizardStat(
-              icon: Icons.fact_check_outlined,
-              label: preview == null
-                  ? 'Preview pending'
-                  : '${preview.totalRows} rows',
-            ),
-            _WizardStat(
-              icon: Icons.upload_file_outlined,
-              label: '$importable importable',
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: controller,
-          minLines: 7,
-          maxLines: 9,
-          decoration: const InputDecoration(
-            labelText: 'Collectarr CSV or CLZ-friendly CSV',
-            border: OutlineInputBorder(),
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  const _WizardStat(
+                    icon: Icons.content_paste,
+                    label: 'Paste import CSV',
+                  ),
+                  _WizardStat(
+                    icon: Icons.fact_check_outlined,
+                    label: preview == null
+                        ? 'Preview pending'
+                        : '${preview.totalRows} rows',
+                  ),
+                  _WizardStat(
+                    icon: Icons.upload_file_outlined,
+                    label: '$importable importable',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                minLines: 7,
+                maxLines: 9,
+                decoration: const InputDecoration(
+                  labelText: 'Paste Collectarr CSV or CLZ-friendly CSV',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              if (error != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ],
+              const SizedBox(height: 12),
+              if (preview != null) _ImportPreviewSummary(preview: preview),
+              SizedBox(height: preview == null ? 0 : 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: isWorking ? null : onPreview,
+                    icon: const Icon(Icons.fact_check_outlined),
+                    label: const Text('Preview import'),
+                  ),
+                  FilledButton.icon(
+                    onPressed: isWorking || importable == 0 ? null : onImport,
+                    icon: isWorking
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.upload_file_outlined),
+                    label: Text(
+                      'Import $importable row${importable == 1 ? '' : 's'}',
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        if (error != null) ...[
-          const SizedBox(height: 8),
-          Text(error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
-        ],
-        const SizedBox(height: 12),
-        if (preview != null) _ImportPreviewSummary(preview: preview),
-        const Spacer(),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            OutlinedButton.icon(
-              onPressed: isWorking ? null : onPreview,
-              icon: const Icon(Icons.fact_check_outlined),
-              label: const Text('Preview rows'),
-            ),
-            FilledButton.icon(
-              onPressed: isWorking || importable == 0 ? null : onImport,
-              icon: isWorking
-                  ? const SizedBox.square(
-                      dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.upload_file_outlined),
-              label: Text('Import $importable'),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }
@@ -414,7 +435,7 @@ class _ImportPreviewSummary extends StatelessWidget {
             if (preview.unresolvedRows.isNotEmpty) ...[
               const SizedBox(height: 10),
               Text(
-                'Unresolved rows stay out of this import. Use Shelf import for manual Core search and proposals.',
+                'Unresolved rows stay out of this import until you match them in a later pass.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

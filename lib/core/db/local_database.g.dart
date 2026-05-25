@@ -24,6 +24,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortKeyMeta =
+      const VerificationMeta('sortKey');
+  @override
+  late final GeneratedColumn<String> sortKey = GeneratedColumn<String>(
+      'sort_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _itemNumberMeta =
       const VerificationMeta('itemNumber');
   @override
@@ -156,6 +162,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> tracksJson = GeneratedColumn<String>(
       'tracks_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionsJsonMeta =
+      const VerificationMeta('editionsJson');
+  @override
+  late final GeneratedColumn<String> editionsJson = GeneratedColumn<String>(
+      'editions_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _creatorsJsonMeta =
       const VerificationMeta('creatorsJson');
   @override
@@ -173,6 +185,12 @@ class $CatalogCacheTable extends CatalogCache
   @override
   late final GeneratedColumn<String> storyArcsJson = GeneratedColumn<String>(
       'story_arcs_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seriesTagsJsonMeta =
+      const VerificationMeta('seriesTagsJson');
+  @override
+  late final GeneratedColumn<String> seriesTagsJson = GeneratedColumn<String>(
+      'series_tags_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _platformsJsonMeta =
       const VerificationMeta('platformsJson');
@@ -263,6 +281,7 @@ class $CatalogCacheTable extends CatalogCache
         id,
         kind,
         title,
+        sortKey,
         itemNumber,
         synopsis,
         coverImageUrl,
@@ -285,9 +304,11 @@ class $CatalogCacheTable extends CatalogCache
         runtimeMinutes,
         trackCount,
         tracksJson,
+        editionsJson,
         creatorsJson,
         charactersJson,
         storyArcsJson,
+        seriesTagsJson,
         platformsJson,
         genresJson,
         pageCount,
@@ -329,6 +350,10 @@ class $CatalogCacheTable extends CatalogCache
           _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
     } else if (isInserting) {
       context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_key')) {
+      context.handle(_sortKeyMeta,
+          sortKey.isAcceptableOrUnknown(data['sort_key']!, _sortKeyMeta));
     }
     if (data.containsKey('item_number')) {
       context.handle(
@@ -452,6 +477,12 @@ class $CatalogCacheTable extends CatalogCache
           tracksJson.isAcceptableOrUnknown(
               data['tracks_json']!, _tracksJsonMeta));
     }
+    if (data.containsKey('editions_json')) {
+      context.handle(
+          _editionsJsonMeta,
+          editionsJson.isAcceptableOrUnknown(
+              data['editions_json']!, _editionsJsonMeta));
+    }
     if (data.containsKey('creators_json')) {
       context.handle(
           _creatorsJsonMeta,
@@ -469,6 +500,12 @@ class $CatalogCacheTable extends CatalogCache
           _storyArcsJsonMeta,
           storyArcsJson.isAcceptableOrUnknown(
               data['story_arcs_json']!, _storyArcsJsonMeta));
+    }
+    if (data.containsKey('series_tags_json')) {
+      context.handle(
+          _seriesTagsJsonMeta,
+          seriesTagsJson.isAcceptableOrUnknown(
+              data['series_tags_json']!, _seriesTagsJsonMeta));
     }
     if (data.containsKey('platforms_json')) {
       context.handle(
@@ -557,6 +594,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_key']),
       itemNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_number']),
       synopsis: attachedDatabase.typeMapping
@@ -601,12 +640,16 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.int, data['${effectivePrefix}track_count']),
       tracksJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tracks_json']),
+      editionsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}editions_json']),
       creatorsJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}creators_json']),
       charactersJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}characters_json']),
       storyArcsJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}story_arcs_json']),
+      seriesTagsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}series_tags_json']),
       platformsJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}platforms_json']),
       genresJson: attachedDatabase.typeMapping
@@ -649,6 +692,7 @@ class CatalogCacheData extends DataClass
   final String id;
   final String kind;
   final String title;
+  final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -671,9 +715,11 @@ class CatalogCacheData extends DataClass
   final int? runtimeMinutes;
   final int? trackCount;
   final String? tracksJson;
+  final String? editionsJson;
   final String? creatorsJson;
   final String? charactersJson;
   final String? storyArcsJson;
+  final String? seriesTagsJson;
   final String? platformsJson;
   final String? genresJson;
   final int? pageCount;
@@ -692,6 +738,7 @@ class CatalogCacheData extends DataClass
       {required this.id,
       required this.kind,
       required this.title,
+      this.sortKey,
       this.itemNumber,
       this.synopsis,
       this.coverImageUrl,
@@ -714,9 +761,11 @@ class CatalogCacheData extends DataClass
       this.runtimeMinutes,
       this.trackCount,
       this.tracksJson,
+      this.editionsJson,
       this.creatorsJson,
       this.charactersJson,
       this.storyArcsJson,
+      this.seriesTagsJson,
       this.platformsJson,
       this.genresJson,
       this.pageCount,
@@ -737,6 +786,9 @@ class CatalogCacheData extends DataClass
     map['id'] = Variable<String>(id);
     map['kind'] = Variable<String>(kind);
     map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortKey != null) {
+      map['sort_key'] = Variable<String>(sortKey);
+    }
     if (!nullToAbsent || itemNumber != null) {
       map['item_number'] = Variable<String>(itemNumber);
     }
@@ -803,6 +855,9 @@ class CatalogCacheData extends DataClass
     if (!nullToAbsent || tracksJson != null) {
       map['tracks_json'] = Variable<String>(tracksJson);
     }
+    if (!nullToAbsent || editionsJson != null) {
+      map['editions_json'] = Variable<String>(editionsJson);
+    }
     if (!nullToAbsent || creatorsJson != null) {
       map['creators_json'] = Variable<String>(creatorsJson);
     }
@@ -811,6 +866,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || storyArcsJson != null) {
       map['story_arcs_json'] = Variable<String>(storyArcsJson);
+    }
+    if (!nullToAbsent || seriesTagsJson != null) {
+      map['series_tags_json'] = Variable<String>(seriesTagsJson);
     }
     if (!nullToAbsent || platformsJson != null) {
       map['platforms_json'] = Variable<String>(platformsJson);
@@ -860,6 +918,9 @@ class CatalogCacheData extends DataClass
       id: Value(id),
       kind: Value(kind),
       title: Value(title),
+      sortKey: sortKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortKey),
       itemNumber: itemNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(itemNumber),
@@ -926,6 +987,9 @@ class CatalogCacheData extends DataClass
       tracksJson: tracksJson == null && nullToAbsent
           ? const Value.absent()
           : Value(tracksJson),
+      editionsJson: editionsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionsJson),
       creatorsJson: creatorsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(creatorsJson),
@@ -935,6 +999,9 @@ class CatalogCacheData extends DataClass
       storyArcsJson: storyArcsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(storyArcsJson),
+      seriesTagsJson: seriesTagsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seriesTagsJson),
       platformsJson: platformsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(platformsJson),
@@ -985,6 +1052,7 @@ class CatalogCacheData extends DataClass
       id: serializer.fromJson<String>(json['id']),
       kind: serializer.fromJson<String>(json['kind']),
       title: serializer.fromJson<String>(json['title']),
+      sortKey: serializer.fromJson<String?>(json['sortKey']),
       itemNumber: serializer.fromJson<String?>(json['itemNumber']),
       synopsis: serializer.fromJson<String?>(json['synopsis']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
@@ -1009,9 +1077,11 @@ class CatalogCacheData extends DataClass
       runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
       trackCount: serializer.fromJson<int?>(json['trackCount']),
       tracksJson: serializer.fromJson<String?>(json['tracksJson']),
+      editionsJson: serializer.fromJson<String?>(json['editionsJson']),
       creatorsJson: serializer.fromJson<String?>(json['creatorsJson']),
       charactersJson: serializer.fromJson<String?>(json['charactersJson']),
       storyArcsJson: serializer.fromJson<String?>(json['storyArcsJson']),
+      seriesTagsJson: serializer.fromJson<String?>(json['seriesTagsJson']),
       platformsJson: serializer.fromJson<String?>(json['platformsJson']),
       genresJson: serializer.fromJson<String?>(json['genresJson']),
       pageCount: serializer.fromJson<int?>(json['pageCount']),
@@ -1035,6 +1105,7 @@ class CatalogCacheData extends DataClass
       'id': serializer.toJson<String>(id),
       'kind': serializer.toJson<String>(kind),
       'title': serializer.toJson<String>(title),
+      'sortKey': serializer.toJson<String?>(sortKey),
       'itemNumber': serializer.toJson<String?>(itemNumber),
       'synopsis': serializer.toJson<String?>(synopsis),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
@@ -1057,9 +1128,11 @@ class CatalogCacheData extends DataClass
       'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
       'trackCount': serializer.toJson<int?>(trackCount),
       'tracksJson': serializer.toJson<String?>(tracksJson),
+      'editionsJson': serializer.toJson<String?>(editionsJson),
       'creatorsJson': serializer.toJson<String?>(creatorsJson),
       'charactersJson': serializer.toJson<String?>(charactersJson),
       'storyArcsJson': serializer.toJson<String?>(storyArcsJson),
+      'seriesTagsJson': serializer.toJson<String?>(seriesTagsJson),
       'platformsJson': serializer.toJson<String?>(platformsJson),
       'genresJson': serializer.toJson<String?>(genresJson),
       'pageCount': serializer.toJson<int?>(pageCount),
@@ -1081,6 +1154,7 @@ class CatalogCacheData extends DataClass
           {String? id,
           String? kind,
           String? title,
+          Value<String?> sortKey = const Value.absent(),
           Value<String?> itemNumber = const Value.absent(),
           Value<String?> synopsis = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
@@ -1103,9 +1177,11 @@ class CatalogCacheData extends DataClass
           Value<int?> runtimeMinutes = const Value.absent(),
           Value<int?> trackCount = const Value.absent(),
           Value<String?> tracksJson = const Value.absent(),
+          Value<String?> editionsJson = const Value.absent(),
           Value<String?> creatorsJson = const Value.absent(),
           Value<String?> charactersJson = const Value.absent(),
           Value<String?> storyArcsJson = const Value.absent(),
+          Value<String?> seriesTagsJson = const Value.absent(),
           Value<String?> platformsJson = const Value.absent(),
           Value<String?> genresJson = const Value.absent(),
           Value<int?> pageCount = const Value.absent(),
@@ -1124,6 +1200,7 @@ class CatalogCacheData extends DataClass
         id: id ?? this.id,
         kind: kind ?? this.kind,
         title: title ?? this.title,
+        sortKey: sortKey.present ? sortKey.value : this.sortKey,
         itemNumber: itemNumber.present ? itemNumber.value : this.itemNumber,
         synopsis: synopsis.present ? synopsis.value : this.synopsis,
         coverImageUrl:
@@ -1159,12 +1236,16 @@ class CatalogCacheData extends DataClass
             runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
         trackCount: trackCount.present ? trackCount.value : this.trackCount,
         tracksJson: tracksJson.present ? tracksJson.value : this.tracksJson,
+        editionsJson:
+            editionsJson.present ? editionsJson.value : this.editionsJson,
         creatorsJson:
             creatorsJson.present ? creatorsJson.value : this.creatorsJson,
         charactersJson:
             charactersJson.present ? charactersJson.value : this.charactersJson,
         storyArcsJson:
             storyArcsJson.present ? storyArcsJson.value : this.storyArcsJson,
+        seriesTagsJson:
+            seriesTagsJson.present ? seriesTagsJson.value : this.seriesTagsJson,
         platformsJson:
             platformsJson.present ? platformsJson.value : this.platformsJson,
         genresJson: genresJson.present ? genresJson.value : this.genresJson,
@@ -1192,6 +1273,7 @@ class CatalogCacheData extends DataClass
       id: data.id.present ? data.id.value : this.id,
       kind: data.kind.present ? data.kind.value : this.kind,
       title: data.title.present ? data.title.value : this.title,
+      sortKey: data.sortKey.present ? data.sortKey.value : this.sortKey,
       itemNumber:
           data.itemNumber.present ? data.itemNumber.value : this.itemNumber,
       synopsis: data.synopsis.present ? data.synopsis.value : this.synopsis,
@@ -1241,6 +1323,9 @@ class CatalogCacheData extends DataClass
           data.trackCount.present ? data.trackCount.value : this.trackCount,
       tracksJson:
           data.tracksJson.present ? data.tracksJson.value : this.tracksJson,
+      editionsJson: data.editionsJson.present
+          ? data.editionsJson.value
+          : this.editionsJson,
       creatorsJson: data.creatorsJson.present
           ? data.creatorsJson.value
           : this.creatorsJson,
@@ -1250,6 +1335,9 @@ class CatalogCacheData extends DataClass
       storyArcsJson: data.storyArcsJson.present
           ? data.storyArcsJson.value
           : this.storyArcsJson,
+      seriesTagsJson: data.seriesTagsJson.present
+          ? data.seriesTagsJson.value
+          : this.seriesTagsJson,
       platformsJson: data.platformsJson.present
           ? data.platformsJson.value
           : this.platformsJson,
@@ -1285,6 +1373,7 @@ class CatalogCacheData extends DataClass
           ..write('id: $id, ')
           ..write('kind: $kind, ')
           ..write('title: $title, ')
+          ..write('sortKey: $sortKey, ')
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
@@ -1307,9 +1396,11 @@ class CatalogCacheData extends DataClass
           ..write('runtimeMinutes: $runtimeMinutes, ')
           ..write('trackCount: $trackCount, ')
           ..write('tracksJson: $tracksJson, ')
+          ..write('editionsJson: $editionsJson, ')
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
           ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('seriesTagsJson: $seriesTagsJson, ')
           ..write('platformsJson: $platformsJson, ')
           ..write('genresJson: $genresJson, ')
           ..write('pageCount: $pageCount, ')
@@ -1333,6 +1424,7 @@ class CatalogCacheData extends DataClass
         id,
         kind,
         title,
+        sortKey,
         itemNumber,
         synopsis,
         coverImageUrl,
@@ -1355,9 +1447,11 @@ class CatalogCacheData extends DataClass
         runtimeMinutes,
         trackCount,
         tracksJson,
+        editionsJson,
         creatorsJson,
         charactersJson,
         storyArcsJson,
+        seriesTagsJson,
         platformsJson,
         genresJson,
         pageCount,
@@ -1380,6 +1474,7 @@ class CatalogCacheData extends DataClass
           other.id == this.id &&
           other.kind == this.kind &&
           other.title == this.title &&
+          other.sortKey == this.sortKey &&
           other.itemNumber == this.itemNumber &&
           other.synopsis == this.synopsis &&
           other.coverImageUrl == this.coverImageUrl &&
@@ -1402,9 +1497,11 @@ class CatalogCacheData extends DataClass
           other.runtimeMinutes == this.runtimeMinutes &&
           other.trackCount == this.trackCount &&
           other.tracksJson == this.tracksJson &&
+          other.editionsJson == this.editionsJson &&
           other.creatorsJson == this.creatorsJson &&
           other.charactersJson == this.charactersJson &&
           other.storyArcsJson == this.storyArcsJson &&
+          other.seriesTagsJson == this.seriesTagsJson &&
           other.platformsJson == this.platformsJson &&
           other.genresJson == this.genresJson &&
           other.pageCount == this.pageCount &&
@@ -1425,6 +1522,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String> id;
   final Value<String> kind;
   final Value<String> title;
+  final Value<String?> sortKey;
   final Value<String?> itemNumber;
   final Value<String?> synopsis;
   final Value<String?> coverImageUrl;
@@ -1447,9 +1545,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<int?> runtimeMinutes;
   final Value<int?> trackCount;
   final Value<String?> tracksJson;
+  final Value<String?> editionsJson;
   final Value<String?> creatorsJson;
   final Value<String?> charactersJson;
   final Value<String?> storyArcsJson;
+  final Value<String?> seriesTagsJson;
   final Value<String?> platformsJson;
   final Value<String?> genresJson;
   final Value<int?> pageCount;
@@ -1469,6 +1569,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.id = const Value.absent(),
     this.kind = const Value.absent(),
     this.title = const Value.absent(),
+    this.sortKey = const Value.absent(),
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
@@ -1491,9 +1592,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.runtimeMinutes = const Value.absent(),
     this.trackCount = const Value.absent(),
     this.tracksJson = const Value.absent(),
+    this.editionsJson = const Value.absent(),
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
     this.storyArcsJson = const Value.absent(),
+    this.seriesTagsJson = const Value.absent(),
     this.platformsJson = const Value.absent(),
     this.genresJson = const Value.absent(),
     this.pageCount = const Value.absent(),
@@ -1514,6 +1617,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     required String id,
     required String kind,
     required String title,
+    this.sortKey = const Value.absent(),
     this.itemNumber = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
@@ -1536,9 +1640,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.runtimeMinutes = const Value.absent(),
     this.trackCount = const Value.absent(),
     this.tracksJson = const Value.absent(),
+    this.editionsJson = const Value.absent(),
     this.creatorsJson = const Value.absent(),
     this.charactersJson = const Value.absent(),
     this.storyArcsJson = const Value.absent(),
+    this.seriesTagsJson = const Value.absent(),
     this.platformsJson = const Value.absent(),
     this.genresJson = const Value.absent(),
     this.pageCount = const Value.absent(),
@@ -1562,6 +1668,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? id,
     Expression<String>? kind,
     Expression<String>? title,
+    Expression<String>? sortKey,
     Expression<String>? itemNumber,
     Expression<String>? synopsis,
     Expression<String>? coverImageUrl,
@@ -1584,9 +1691,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<int>? runtimeMinutes,
     Expression<int>? trackCount,
     Expression<String>? tracksJson,
+    Expression<String>? editionsJson,
     Expression<String>? creatorsJson,
     Expression<String>? charactersJson,
     Expression<String>? storyArcsJson,
+    Expression<String>? seriesTagsJson,
     Expression<String>? platformsJson,
     Expression<String>? genresJson,
     Expression<int>? pageCount,
@@ -1607,6 +1716,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (id != null) 'id': id,
       if (kind != null) 'kind': kind,
       if (title != null) 'title': title,
+      if (sortKey != null) 'sort_key': sortKey,
       if (itemNumber != null) 'item_number': itemNumber,
       if (synopsis != null) 'synopsis': synopsis,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
@@ -1630,9 +1740,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
       if (trackCount != null) 'track_count': trackCount,
       if (tracksJson != null) 'tracks_json': tracksJson,
+      if (editionsJson != null) 'editions_json': editionsJson,
       if (creatorsJson != null) 'creators_json': creatorsJson,
       if (charactersJson != null) 'characters_json': charactersJson,
       if (storyArcsJson != null) 'story_arcs_json': storyArcsJson,
+      if (seriesTagsJson != null) 'series_tags_json': seriesTagsJson,
       if (platformsJson != null) 'platforms_json': platformsJson,
       if (genresJson != null) 'genres_json': genresJson,
       if (pageCount != null) 'page_count': pageCount,
@@ -1655,6 +1767,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       {Value<String>? id,
       Value<String>? kind,
       Value<String>? title,
+      Value<String?>? sortKey,
       Value<String?>? itemNumber,
       Value<String?>? synopsis,
       Value<String?>? coverImageUrl,
@@ -1677,9 +1790,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<int?>? runtimeMinutes,
       Value<int?>? trackCount,
       Value<String?>? tracksJson,
+      Value<String?>? editionsJson,
       Value<String?>? creatorsJson,
       Value<String?>? charactersJson,
       Value<String?>? storyArcsJson,
+      Value<String?>? seriesTagsJson,
       Value<String?>? platformsJson,
       Value<String?>? genresJson,
       Value<int?>? pageCount,
@@ -1699,6 +1814,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       id: id ?? this.id,
       kind: kind ?? this.kind,
       title: title ?? this.title,
+      sortKey: sortKey ?? this.sortKey,
       itemNumber: itemNumber ?? this.itemNumber,
       synopsis: synopsis ?? this.synopsis,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
@@ -1721,9 +1837,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
       trackCount: trackCount ?? this.trackCount,
       tracksJson: tracksJson ?? this.tracksJson,
+      editionsJson: editionsJson ?? this.editionsJson,
       creatorsJson: creatorsJson ?? this.creatorsJson,
       charactersJson: charactersJson ?? this.charactersJson,
       storyArcsJson: storyArcsJson ?? this.storyArcsJson,
+      seriesTagsJson: seriesTagsJson ?? this.seriesTagsJson,
       platformsJson: platformsJson ?? this.platformsJson,
       genresJson: genresJson ?? this.genresJson,
       pageCount: pageCount ?? this.pageCount,
@@ -1753,6 +1871,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
+    }
+    if (sortKey.present) {
+      map['sort_key'] = Variable<String>(sortKey.value);
     }
     if (itemNumber.present) {
       map['item_number'] = Variable<String>(itemNumber.value);
@@ -1821,6 +1942,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (tracksJson.present) {
       map['tracks_json'] = Variable<String>(tracksJson.value);
     }
+    if (editionsJson.present) {
+      map['editions_json'] = Variable<String>(editionsJson.value);
+    }
     if (creatorsJson.present) {
       map['creators_json'] = Variable<String>(creatorsJson.value);
     }
@@ -1829,6 +1953,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     }
     if (storyArcsJson.present) {
       map['story_arcs_json'] = Variable<String>(storyArcsJson.value);
+    }
+    if (seriesTagsJson.present) {
+      map['series_tags_json'] = Variable<String>(seriesTagsJson.value);
     }
     if (platformsJson.present) {
       map['platforms_json'] = Variable<String>(platformsJson.value);
@@ -1884,6 +2011,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('id: $id, ')
           ..write('kind: $kind, ')
           ..write('title: $title, ')
+          ..write('sortKey: $sortKey, ')
           ..write('itemNumber: $itemNumber, ')
           ..write('synopsis: $synopsis, ')
           ..write('coverImageUrl: $coverImageUrl, ')
@@ -1906,9 +2034,11 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('runtimeMinutes: $runtimeMinutes, ')
           ..write('trackCount: $trackCount, ')
           ..write('tracksJson: $tracksJson, ')
+          ..write('editionsJson: $editionsJson, ')
           ..write('creatorsJson: $creatorsJson, ')
           ..write('charactersJson: $charactersJson, ')
           ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('seriesTagsJson: $seriesTagsJson, ')
           ..write('platformsJson: $platformsJson, ')
           ..write('genresJson: $genresJson, ')
           ..write('pageCount: $pageCount, ')
@@ -1945,6 +2075,21 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDigitalMeta =
+      const VerificationMeta('isDigital');
+  @override
+  late final GeneratedColumn<bool> isDigital = GeneratedColumn<bool>(
+      'is_digital', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
+  static const VerificationMeta _anchorTypeMeta =
+      const VerificationMeta('anchorType');
+  @override
+  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
+      'anchor_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _editionIdMeta =
       const VerificationMeta('editionId');
   @override
@@ -1956,6 +2101,12 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   @override
   late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
       'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bundleReleaseIdMeta =
+      const VerificationMeta('bundleReleaseId');
+  @override
+  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
+      'bundle_release_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -2124,8 +2275,11 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   List<GeneratedColumn> get $columns => [
         id,
         itemId,
+        isDigital,
+        anchorType,
         editionId,
         variantId,
+        bundleReleaseId,
         condition,
         grade,
         purchaseDate,
@@ -2176,6 +2330,16 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
     } else if (isInserting) {
       context.missing(_itemIdMeta);
     }
+    if (data.containsKey('is_digital')) {
+      context.handle(_isDigitalMeta,
+          isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
+    }
+    if (data.containsKey('anchor_type')) {
+      context.handle(
+          _anchorTypeMeta,
+          anchorType.isAcceptableOrUnknown(
+              data['anchor_type']!, _anchorTypeMeta));
+    }
     if (data.containsKey('edition_id')) {
       context.handle(_editionIdMeta,
           editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
@@ -2183,6 +2347,12 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
     if (data.containsKey('variant_id')) {
       context.handle(_variantIdMeta,
           variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('bundle_release_id')) {
+      context.handle(
+          _bundleReleaseIdMeta,
+          bundleReleaseId.isAcceptableOrUnknown(
+              data['bundle_release_id']!, _bundleReleaseIdMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -2333,10 +2503,16 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      isDigital: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
+      anchorType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
       editionId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
       variantId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      bundleReleaseId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -2404,8 +2580,11 @@ class OwnedItemsCacheData extends DataClass
     implements Insertable<OwnedItemsCacheData> {
   final String id;
   final String itemId;
+  final bool? isDigital;
+  final String? anchorType;
   final String? editionId;
   final String? variantId;
+  final String? bundleReleaseId;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -2436,8 +2615,11 @@ class OwnedItemsCacheData extends DataClass
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
+      this.isDigital,
+      this.anchorType,
       this.editionId,
       this.variantId,
+      this.bundleReleaseId,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -2470,11 +2652,20 @@ class OwnedItemsCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || isDigital != null) {
+      map['is_digital'] = Variable<bool>(isDigital);
+    }
+    if (!nullToAbsent || anchorType != null) {
+      map['anchor_type'] = Variable<String>(anchorType);
+    }
     if (!nullToAbsent || editionId != null) {
       map['edition_id'] = Variable<String>(editionId);
     }
     if (!nullToAbsent || variantId != null) {
       map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || bundleReleaseId != null) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -2558,12 +2749,21 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
+      isDigital: isDigital == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isDigital),
+      anchorType: anchorType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(anchorType),
       editionId: editionId == null && nullToAbsent
           ? const Value.absent()
           : Value(editionId),
       variantId: variantId == null && nullToAbsent
           ? const Value.absent()
           : Value(variantId),
+      bundleReleaseId: bundleReleaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bundleReleaseId),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -2642,8 +2842,11 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
+      isDigital: serializer.fromJson<bool?>(json['isDigital']),
+      anchorType: serializer.fromJson<String?>(json['anchorType']),
       editionId: serializer.fromJson<String?>(json['editionId']),
       variantId: serializer.fromJson<String?>(json['variantId']),
+      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -2679,8 +2882,11 @@ class OwnedItemsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
+      'isDigital': serializer.toJson<bool?>(isDigital),
+      'anchorType': serializer.toJson<String?>(anchorType),
       'editionId': serializer.toJson<String?>(editionId),
       'variantId': serializer.toJson<String?>(variantId),
+      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -2714,8 +2920,11 @@ class OwnedItemsCacheData extends DataClass
   OwnedItemsCacheData copyWith(
           {String? id,
           String? itemId,
+          Value<bool?> isDigital = const Value.absent(),
+          Value<String?> anchorType = const Value.absent(),
           Value<String?> editionId = const Value.absent(),
           Value<String?> variantId = const Value.absent(),
+          Value<String?> bundleReleaseId = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -2746,8 +2955,13 @@ class OwnedItemsCacheData extends DataClass
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
+        isDigital: isDigital.present ? isDigital.value : this.isDigital,
+        anchorType: anchorType.present ? anchorType.value : this.anchorType,
         editionId: editionId.present ? editionId.value : this.editionId,
         variantId: variantId.present ? variantId.value : this.variantId,
+        bundleReleaseId: bundleReleaseId.present
+            ? bundleReleaseId.value
+            : this.bundleReleaseId,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -2788,8 +3002,14 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
+      anchorType:
+          data.anchorType.present ? data.anchorType.value : this.anchorType,
       editionId: data.editionId.present ? data.editionId.value : this.editionId,
       variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      bundleReleaseId: data.bundleReleaseId.present
+          ? data.bundleReleaseId.value
+          : this.bundleReleaseId,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -2845,8 +3065,11 @@ class OwnedItemsCacheData extends DataClass
     return (StringBuffer('OwnedItemsCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('isDigital: $isDigital, ')
+          ..write('anchorType: $anchorType, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -2882,8 +3105,11 @@ class OwnedItemsCacheData extends DataClass
   int get hashCode => Object.hashAll([
         id,
         itemId,
+        isDigital,
+        anchorType,
         editionId,
         variantId,
+        bundleReleaseId,
         condition,
         grade,
         purchaseDate,
@@ -2918,8 +3144,11 @@ class OwnedItemsCacheData extends DataClass
       (other is OwnedItemsCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
+          other.isDigital == this.isDigital &&
+          other.anchorType == this.anchorType &&
           other.editionId == this.editionId &&
           other.variantId == this.variantId &&
+          other.bundleReleaseId == this.bundleReleaseId &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -2952,8 +3181,11 @@ class OwnedItemsCacheData extends DataClass
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String> id;
   final Value<String> itemId;
+  final Value<bool?> isDigital;
+  final Value<String?> anchorType;
   final Value<String?> editionId;
   final Value<String?> variantId;
+  final Value<String?> bundleReleaseId;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -2985,8 +3217,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
+    this.isDigital = const Value.absent(),
+    this.anchorType = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -3019,8 +3254,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   OwnedItemsCacheCompanion.insert({
     required String id,
     required String itemId,
+    this.isDigital = const Value.absent(),
+    this.anchorType = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -3055,8 +3293,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   static Insertable<OwnedItemsCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
+    Expression<bool>? isDigital,
+    Expression<String>? anchorType,
     Expression<String>? editionId,
     Expression<String>? variantId,
+    Expression<String>? bundleReleaseId,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -3089,8 +3330,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
+      if (isDigital != null) 'is_digital': isDigital,
+      if (anchorType != null) 'anchor_type': anchorType,
       if (editionId != null) 'edition_id': editionId,
       if (variantId != null) 'variant_id': variantId,
+      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -3125,8 +3369,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   OwnedItemsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
+      Value<bool?>? isDigital,
+      Value<String?>? anchorType,
       Value<String?>? editionId,
       Value<String?>? variantId,
+      Value<String?>? bundleReleaseId,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -3158,8 +3405,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      isDigital: isDigital ?? this.isDigital,
+      anchorType: anchorType ?? this.anchorType,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -3200,11 +3450,20 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
     }
+    if (isDigital.present) {
+      map['is_digital'] = Variable<bool>(isDigital.value);
+    }
+    if (anchorType.present) {
+      map['anchor_type'] = Variable<String>(anchorType.value);
+    }
     if (editionId.present) {
       map['edition_id'] = Variable<String>(editionId.value);
     }
     if (variantId.present) {
       map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (bundleReleaseId.present) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -3298,8 +3557,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return (StringBuffer('OwnedItemsCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('isDigital: $isDigital, ')
+          ..write('anchorType: $anchorType, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -3349,6 +3611,12 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _anchorTypeMeta =
+      const VerificationMeta('anchorType');
+  @override
+  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
+      'anchor_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _editionIdMeta =
       const VerificationMeta('editionId');
   @override
@@ -3360,6 +3628,12 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
   @override
   late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
       'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bundleReleaseIdMeta =
+      const VerificationMeta('bundleReleaseId');
+  @override
+  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
+      'bundle_release_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _targetPriceCentsMeta =
       const VerificationMeta('targetPriceCents');
@@ -3400,8 +3674,10 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
   List<GeneratedColumn> get $columns => [
         id,
         itemId,
+        anchorType,
         editionId,
         variantId,
+        bundleReleaseId,
         targetPriceCents,
         currency,
         notes,
@@ -3431,6 +3707,12 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
     } else if (isInserting) {
       context.missing(_itemIdMeta);
     }
+    if (data.containsKey('anchor_type')) {
+      context.handle(
+          _anchorTypeMeta,
+          anchorType.isAcceptableOrUnknown(
+              data['anchor_type']!, _anchorTypeMeta));
+    }
     if (data.containsKey('edition_id')) {
       context.handle(_editionIdMeta,
           editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
@@ -3438,6 +3720,12 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
     if (data.containsKey('variant_id')) {
       context.handle(_variantIdMeta,
           variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('bundle_release_id')) {
+      context.handle(
+          _bundleReleaseIdMeta,
+          bundleReleaseId.isAcceptableOrUnknown(
+              data['bundle_release_id']!, _bundleReleaseIdMeta));
     }
     if (data.containsKey('target_price_cents')) {
       context.handle(
@@ -3482,10 +3770,14 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      anchorType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
       editionId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
       variantId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      bundleReleaseId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
       targetPriceCents: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}target_price_cents']),
       currency: attachedDatabase.typeMapping
@@ -3511,8 +3803,10 @@ class WishlistItemsCacheData extends DataClass
     implements Insertable<WishlistItemsCacheData> {
   final String id;
   final String itemId;
+  final String? anchorType;
   final String? editionId;
   final String? variantId;
+  final String? bundleReleaseId;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;
@@ -3522,8 +3816,10 @@ class WishlistItemsCacheData extends DataClass
   const WishlistItemsCacheData(
       {required this.id,
       required this.itemId,
+      this.anchorType,
       this.editionId,
       this.variantId,
+      this.bundleReleaseId,
       this.targetPriceCents,
       this.currency,
       this.notes,
@@ -3535,11 +3831,17 @@ class WishlistItemsCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || anchorType != null) {
+      map['anchor_type'] = Variable<String>(anchorType);
+    }
     if (!nullToAbsent || editionId != null) {
       map['edition_id'] = Variable<String>(editionId);
     }
     if (!nullToAbsent || variantId != null) {
       map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || bundleReleaseId != null) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
     }
     if (!nullToAbsent || targetPriceCents != null) {
       map['target_price_cents'] = Variable<int>(targetPriceCents);
@@ -3562,12 +3864,18 @@ class WishlistItemsCacheData extends DataClass
     return WishlistItemsCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
+      anchorType: anchorType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(anchorType),
       editionId: editionId == null && nullToAbsent
           ? const Value.absent()
           : Value(editionId),
       variantId: variantId == null && nullToAbsent
           ? const Value.absent()
           : Value(variantId),
+      bundleReleaseId: bundleReleaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bundleReleaseId),
       targetPriceCents: targetPriceCents == null && nullToAbsent
           ? const Value.absent()
           : Value(targetPriceCents),
@@ -3590,8 +3898,10 @@ class WishlistItemsCacheData extends DataClass
     return WishlistItemsCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
+      anchorType: serializer.fromJson<String?>(json['anchorType']),
       editionId: serializer.fromJson<String?>(json['editionId']),
       variantId: serializer.fromJson<String?>(json['variantId']),
+      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
       targetPriceCents: serializer.fromJson<int?>(json['targetPriceCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -3606,8 +3916,10 @@ class WishlistItemsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
+      'anchorType': serializer.toJson<String?>(anchorType),
       'editionId': serializer.toJson<String?>(editionId),
       'variantId': serializer.toJson<String?>(variantId),
+      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
       'targetPriceCents': serializer.toJson<int?>(targetPriceCents),
       'currency': serializer.toJson<String?>(currency),
       'notes': serializer.toJson<String?>(notes),
@@ -3620,8 +3932,10 @@ class WishlistItemsCacheData extends DataClass
   WishlistItemsCacheData copyWith(
           {String? id,
           String? itemId,
+          Value<String?> anchorType = const Value.absent(),
           Value<String?> editionId = const Value.absent(),
           Value<String?> variantId = const Value.absent(),
+          Value<String?> bundleReleaseId = const Value.absent(),
           Value<int?> targetPriceCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> notes = const Value.absent(),
@@ -3631,8 +3945,12 @@ class WishlistItemsCacheData extends DataClass
       WishlistItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
+        anchorType: anchorType.present ? anchorType.value : this.anchorType,
         editionId: editionId.present ? editionId.value : this.editionId,
         variantId: variantId.present ? variantId.value : this.variantId,
+        bundleReleaseId: bundleReleaseId.present
+            ? bundleReleaseId.value
+            : this.bundleReleaseId,
         targetPriceCents: targetPriceCents.present
             ? targetPriceCents.value
             : this.targetPriceCents,
@@ -3646,8 +3964,13 @@ class WishlistItemsCacheData extends DataClass
     return WishlistItemsCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      anchorType:
+          data.anchorType.present ? data.anchorType.value : this.anchorType,
       editionId: data.editionId.present ? data.editionId.value : this.editionId,
       variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      bundleReleaseId: data.bundleReleaseId.present
+          ? data.bundleReleaseId.value
+          : this.bundleReleaseId,
       targetPriceCents: data.targetPriceCents.present
           ? data.targetPriceCents.value
           : this.targetPriceCents,
@@ -3664,8 +3987,10 @@ class WishlistItemsCacheData extends DataClass
     return (StringBuffer('WishlistItemsCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('anchorType: $anchorType, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
           ..write('targetPriceCents: $targetPriceCents, ')
           ..write('currency: $currency, ')
           ..write('notes: $notes, ')
@@ -3677,16 +4002,29 @@ class WishlistItemsCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, itemId, editionId, variantId,
-      targetPriceCents, currency, notes, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      anchorType,
+      editionId,
+      variantId,
+      bundleReleaseId,
+      targetPriceCents,
+      currency,
+      notes,
+      createdAt,
+      updatedAt,
+      deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WishlistItemsCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
+          other.anchorType == this.anchorType &&
           other.editionId == this.editionId &&
           other.variantId == this.variantId &&
+          other.bundleReleaseId == this.bundleReleaseId &&
           other.targetPriceCents == this.targetPriceCents &&
           other.currency == this.currency &&
           other.notes == this.notes &&
@@ -3699,8 +4037,10 @@ class WishlistItemsCacheCompanion
     extends UpdateCompanion<WishlistItemsCacheData> {
   final Value<String> id;
   final Value<String> itemId;
+  final Value<String?> anchorType;
   final Value<String?> editionId;
   final Value<String?> variantId;
+  final Value<String?> bundleReleaseId;
   final Value<int?> targetPriceCents;
   final Value<String?> currency;
   final Value<String?> notes;
@@ -3711,8 +4051,10 @@ class WishlistItemsCacheCompanion
   const WishlistItemsCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
+    this.anchorType = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
     this.targetPriceCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.notes = const Value.absent(),
@@ -3724,8 +4066,10 @@ class WishlistItemsCacheCompanion
   WishlistItemsCacheCompanion.insert({
     required String id,
     required String itemId,
+    this.anchorType = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
     this.targetPriceCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.notes = const Value.absent(),
@@ -3740,8 +4084,10 @@ class WishlistItemsCacheCompanion
   static Insertable<WishlistItemsCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
+    Expression<String>? anchorType,
     Expression<String>? editionId,
     Expression<String>? variantId,
+    Expression<String>? bundleReleaseId,
     Expression<int>? targetPriceCents,
     Expression<String>? currency,
     Expression<String>? notes,
@@ -3753,8 +4099,10 @@ class WishlistItemsCacheCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
+      if (anchorType != null) 'anchor_type': anchorType,
       if (editionId != null) 'edition_id': editionId,
       if (variantId != null) 'variant_id': variantId,
+      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
       if (targetPriceCents != null) 'target_price_cents': targetPriceCents,
       if (currency != null) 'currency': currency,
       if (notes != null) 'notes': notes,
@@ -3768,8 +4116,10 @@ class WishlistItemsCacheCompanion
   WishlistItemsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
+      Value<String?>? anchorType,
       Value<String?>? editionId,
       Value<String?>? variantId,
+      Value<String?>? bundleReleaseId,
       Value<int?>? targetPriceCents,
       Value<String?>? currency,
       Value<String?>? notes,
@@ -3780,8 +4130,10 @@ class WishlistItemsCacheCompanion
     return WishlistItemsCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      anchorType: anchorType ?? this.anchorType,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
       targetPriceCents: targetPriceCents ?? this.targetPriceCents,
       currency: currency ?? this.currency,
       notes: notes ?? this.notes,
@@ -3801,11 +4153,17 @@ class WishlistItemsCacheCompanion
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
     }
+    if (anchorType.present) {
+      map['anchor_type'] = Variable<String>(anchorType.value);
+    }
     if (editionId.present) {
       map['edition_id'] = Variable<String>(editionId.value);
     }
     if (variantId.present) {
       map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (bundleReleaseId.present) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
     }
     if (targetPriceCents.present) {
       map['target_price_cents'] = Variable<int>(targetPriceCents.value);
@@ -3836,12 +4194,934 @@ class WishlistItemsCacheCompanion
     return (StringBuffer('WishlistItemsCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('anchorType: $anchorType, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
           ..write('targetPriceCents: $targetPriceCents, ')
           ..write('currency: $currency, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TrackingEntriesCacheTable extends TrackingEntriesCache
+    with TableInfo<$TrackingEntriesCacheTable, TrackingEntriesCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrackingEntriesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bundleReleaseIdMeta =
+      const VerificationMeta('bundleReleaseId');
+  @override
+  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
+      'bundle_release_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        ownedItemId,
+        editionId,
+        variantId,
+        bundleReleaseId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        seasonNumber,
+        episodeNumber,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tracking_entries_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<TrackingEntriesCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('bundle_release_id')) {
+      context.handle(
+          _bundleReleaseIdMeta,
+          bundleReleaseId.isAcceptableOrUnknown(
+              data['bundle_release_id']!, _bundleReleaseIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TrackingEntriesCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrackingEntriesCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      bundleReleaseId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $TrackingEntriesCacheTable createAlias(String alias) {
+    return $TrackingEntriesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class TrackingEntriesCacheData extends DataClass
+    implements Insertable<TrackingEntriesCacheData> {
+  final String id;
+  final String itemId;
+  final String? ownedItemId;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const TrackingEntriesCacheData(
+      {required this.id,
+      required this.itemId,
+      this.ownedItemId,
+      this.editionId,
+      this.variantId,
+      this.bundleReleaseId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      this.seasonNumber,
+      this.episodeNumber,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || bundleReleaseId != null) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  TrackingEntriesCacheCompanion toCompanion(bool nullToAbsent) {
+    return TrackingEntriesCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      bundleReleaseId: bundleReleaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bundleReleaseId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory TrackingEntriesCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrackingEntriesCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  TrackingEntriesCacheData copyWith(
+          {String? id,
+          String? itemId,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      TrackingEntriesCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        bundleReleaseId: bundleReleaseId.present
+            ? bundleReleaseId.value
+            : this.bundleReleaseId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  TrackingEntriesCacheData copyWithCompanion(
+      TrackingEntriesCacheCompanion data) {
+    return TrackingEntriesCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      bundleReleaseId: data.bundleReleaseId.present
+          ? data.bundleReleaseId.value
+          : this.bundleReleaseId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackingEntriesCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      ownedItemId,
+      editionId,
+      variantId,
+      bundleReleaseId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      seasonNumber,
+      episodeNumber,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrackingEntriesCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.bundleReleaseId == this.bundleReleaseId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class TrackingEntriesCacheCompanion
+    extends UpdateCompanion<TrackingEntriesCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String?> ownedItemId;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<String?> bundleReleaseId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const TrackingEntriesCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrackingEntriesCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    this.ownedItemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        updatedAt = Value(updatedAt);
+  static Insertable<TrackingEntriesCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? ownedItemId,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<String>? bundleReleaseId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrackingEntriesCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<String?>? ownedItemId,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<String?>? bundleReleaseId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return TrackingEntriesCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (bundleReleaseId.present) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackingEntriesCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
@@ -7485,6 +8765,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $OwnedItemsCacheTable(this);
   late final $WishlistItemsCacheTable wishlistItemsCache =
       $WishlistItemsCacheTable(this);
+  late final $TrackingEntriesCacheTable trackingEntriesCache =
+      $TrackingEntriesCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   late final $CustomFieldDefinitionsCacheTable customFieldDefinitionsCache =
       $CustomFieldDefinitionsCacheTable(this);
@@ -7512,6 +8794,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         catalogCache,
         ownedItemsCache,
         wishlistItemsCache,
+        trackingEntriesCache,
         syncQueue,
         customFieldDefinitionsCache,
         customFieldValuesCache,
@@ -7531,6 +8814,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   required String id,
   required String kind,
   required String title,
+  Value<String?> sortKey,
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
@@ -7553,9 +8837,11 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<int?> runtimeMinutes,
   Value<int?> trackCount,
   Value<String?> tracksJson,
+  Value<String?> editionsJson,
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
   Value<String?> storyArcsJson,
+  Value<String?> seriesTagsJson,
   Value<String?> platformsJson,
   Value<String?> genresJson,
   Value<int?> pageCount,
@@ -7577,6 +8863,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String> id,
   Value<String> kind,
   Value<String> title,
+  Value<String?> sortKey,
   Value<String?> itemNumber,
   Value<String?> synopsis,
   Value<String?> coverImageUrl,
@@ -7599,9 +8886,11 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<int?> runtimeMinutes,
   Value<int?> trackCount,
   Value<String?> tracksJson,
+  Value<String?> editionsJson,
   Value<String?> creatorsJson,
   Value<String?> charactersJson,
   Value<String?> storyArcsJson,
+  Value<String?> seriesTagsJson,
   Value<String?> platformsJson,
   Value<String?> genresJson,
   Value<int?> pageCount,
@@ -7636,6 +8925,9 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortKey => $composableBuilder(
+      column: $table.sortKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get itemNumber => $composableBuilder(
       column: $table.itemNumber, builder: (column) => ColumnFilters(column));
@@ -7708,6 +9000,9 @@ class $$CatalogCacheTableFilterComposer
   ColumnFilters<String> get tracksJson => $composableBuilder(
       column: $table.tracksJson, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get editionsJson => $composableBuilder(
+      column: $table.editionsJson, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get creatorsJson => $composableBuilder(
       column: $table.creatorsJson, builder: (column) => ColumnFilters(column));
 
@@ -7717,6 +9012,10 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get storyArcsJson => $composableBuilder(
       column: $table.storyArcsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesTagsJson => $composableBuilder(
+      column: $table.seriesTagsJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get platformsJson => $composableBuilder(
       column: $table.platformsJson, builder: (column) => ColumnFilters(column));
@@ -7780,6 +9079,9 @@ class $$CatalogCacheTableOrderingComposer
 
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortKey => $composableBuilder(
+      column: $table.sortKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get itemNumber => $composableBuilder(
       column: $table.itemNumber, builder: (column) => ColumnOrderings(column));
@@ -7857,6 +9159,10 @@ class $$CatalogCacheTableOrderingComposer
   ColumnOrderings<String> get tracksJson => $composableBuilder(
       column: $table.tracksJson, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get editionsJson => $composableBuilder(
+      column: $table.editionsJson,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get creatorsJson => $composableBuilder(
       column: $table.creatorsJson,
       builder: (column) => ColumnOrderings(column));
@@ -7867,6 +9173,10 @@ class $$CatalogCacheTableOrderingComposer
 
   ColumnOrderings<String> get storyArcsJson => $composableBuilder(
       column: $table.storyArcsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesTagsJson => $composableBuilder(
+      column: $table.seriesTagsJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get platformsJson => $composableBuilder(
@@ -7935,6 +9245,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
+  GeneratedColumn<String> get sortKey =>
+      $composableBuilder(column: $table.sortKey, builder: (column) => column);
+
   GeneratedColumn<String> get itemNumber => $composableBuilder(
       column: $table.itemNumber, builder: (column) => column);
 
@@ -8001,6 +9314,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get tracksJson => $composableBuilder(
       column: $table.tracksJson, builder: (column) => column);
 
+  GeneratedColumn<String> get editionsJson => $composableBuilder(
+      column: $table.editionsJson, builder: (column) => column);
+
   GeneratedColumn<String> get creatorsJson => $composableBuilder(
       column: $table.creatorsJson, builder: (column) => column);
 
@@ -8009,6 +9325,9 @@ class $$CatalogCacheTableAnnotationComposer
 
   GeneratedColumn<String> get storyArcsJson => $composableBuilder(
       column: $table.storyArcsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesTagsJson => $composableBuilder(
+      column: $table.seriesTagsJson, builder: (column) => column);
 
   GeneratedColumn<String> get platformsJson => $composableBuilder(
       column: $table.platformsJson, builder: (column) => column);
@@ -8082,6 +9401,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> kind = const Value.absent(),
             Value<String> title = const Value.absent(),
+            Value<String?> sortKey = const Value.absent(),
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
@@ -8104,9 +9424,11 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> runtimeMinutes = const Value.absent(),
             Value<int?> trackCount = const Value.absent(),
             Value<String?> tracksJson = const Value.absent(),
+            Value<String?> editionsJson = const Value.absent(),
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
             Value<String?> storyArcsJson = const Value.absent(),
+            Value<String?> seriesTagsJson = const Value.absent(),
             Value<String?> platformsJson = const Value.absent(),
             Value<String?> genresJson = const Value.absent(),
             Value<int?> pageCount = const Value.absent(),
@@ -8127,6 +9449,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             id: id,
             kind: kind,
             title: title,
+            sortKey: sortKey,
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
@@ -8149,9 +9472,11 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             runtimeMinutes: runtimeMinutes,
             trackCount: trackCount,
             tracksJson: tracksJson,
+            editionsJson: editionsJson,
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
             storyArcsJson: storyArcsJson,
+            seriesTagsJson: seriesTagsJson,
             platformsJson: platformsJson,
             genresJson: genresJson,
             pageCount: pageCount,
@@ -8172,6 +9497,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             required String id,
             required String kind,
             required String title,
+            Value<String?> sortKey = const Value.absent(),
             Value<String?> itemNumber = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
@@ -8194,9 +9520,11 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<int?> runtimeMinutes = const Value.absent(),
             Value<int?> trackCount = const Value.absent(),
             Value<String?> tracksJson = const Value.absent(),
+            Value<String?> editionsJson = const Value.absent(),
             Value<String?> creatorsJson = const Value.absent(),
             Value<String?> charactersJson = const Value.absent(),
             Value<String?> storyArcsJson = const Value.absent(),
+            Value<String?> seriesTagsJson = const Value.absent(),
             Value<String?> platformsJson = const Value.absent(),
             Value<String?> genresJson = const Value.absent(),
             Value<int?> pageCount = const Value.absent(),
@@ -8217,6 +9545,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             id: id,
             kind: kind,
             title: title,
+            sortKey: sortKey,
             itemNumber: itemNumber,
             synopsis: synopsis,
             coverImageUrl: coverImageUrl,
@@ -8239,9 +9568,11 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             runtimeMinutes: runtimeMinutes,
             trackCount: trackCount,
             tracksJson: tracksJson,
+            editionsJson: editionsJson,
             creatorsJson: creatorsJson,
             charactersJson: charactersJson,
             storyArcsJson: storyArcsJson,
+            seriesTagsJson: seriesTagsJson,
             platformsJson: platformsJson,
             genresJson: genresJson,
             pageCount: pageCount,
@@ -8284,8 +9615,11 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
     Function({
   required String id,
   required String itemId,
+  Value<bool?> isDigital,
+  Value<String?> anchorType,
   Value<String?> editionId,
   Value<String?> variantId,
+  Value<String?> bundleReleaseId,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -8319,8 +9653,11 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
     Function({
   Value<String> id,
   Value<String> itemId,
+  Value<bool?> isDigital,
+  Value<String?> anchorType,
   Value<String?> editionId,
   Value<String?> variantId,
+  Value<String?> bundleReleaseId,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -8366,11 +9703,21 @@ class $$OwnedItemsCacheTableFilterComposer
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<bool> get isDigital => $composableBuilder(
+      column: $table.isDigital, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get editionId => $composableBuilder(
       column: $table.editionId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get variantId => $composableBuilder(
       column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -8473,11 +9820,21 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get isDigital => $composableBuilder(
+      column: $table.isDigital, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get editionId => $composableBuilder(
       column: $table.editionId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get variantId => $composableBuilder(
       column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnOrderings(column));
@@ -8583,11 +9940,20 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
 
+  GeneratedColumn<bool> get isDigital =>
+      $composableBuilder(column: $table.isDigital, builder: (column) => column);
+
+  GeneratedColumn<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => column);
+
   GeneratedColumn<String> get editionId =>
       $composableBuilder(column: $table.editionId, builder: (column) => column);
 
   GeneratedColumn<String> get variantId =>
       $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -8701,8 +10067,11 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
+            Value<bool?> isDigital = const Value.absent(),
+            Value<String?> anchorType = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -8735,8 +10104,11 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
               OwnedItemsCacheCompanion(
             id: id,
             itemId: itemId,
+            isDigital: isDigital,
+            anchorType: anchorType,
             editionId: editionId,
             variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -8769,8 +10141,11 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String itemId,
+            Value<bool?> isDigital = const Value.absent(),
+            Value<String?> anchorType = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -8803,8 +10178,11 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
               OwnedItemsCacheCompanion.insert(
             id: id,
             itemId: itemId,
+            isDigital: isDigital,
+            anchorType: anchorType,
             editionId: editionId,
             variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -8861,8 +10239,10 @@ typedef $$WishlistItemsCacheTableCreateCompanionBuilder
     = WishlistItemsCacheCompanion Function({
   required String id,
   required String itemId,
+  Value<String?> anchorType,
   Value<String?> editionId,
   Value<String?> variantId,
+  Value<String?> bundleReleaseId,
   Value<int?> targetPriceCents,
   Value<String?> currency,
   Value<String?> notes,
@@ -8875,8 +10255,10 @@ typedef $$WishlistItemsCacheTableUpdateCompanionBuilder
     = WishlistItemsCacheCompanion Function({
   Value<String> id,
   Value<String> itemId,
+  Value<String?> anchorType,
   Value<String?> editionId,
   Value<String?> variantId,
+  Value<String?> bundleReleaseId,
   Value<int?> targetPriceCents,
   Value<String?> currency,
   Value<String?> notes,
@@ -8901,11 +10283,18 @@ class $$WishlistItemsCacheTableFilterComposer
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get editionId => $composableBuilder(
       column: $table.editionId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get variantId => $composableBuilder(
       column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents,
@@ -8942,11 +10331,18 @@ class $$WishlistItemsCacheTableOrderingComposer
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get editionId => $composableBuilder(
       column: $table.editionId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get variantId => $composableBuilder(
       column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents,
@@ -8983,11 +10379,17 @@ class $$WishlistItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
 
+  GeneratedColumn<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => column);
+
   GeneratedColumn<String> get editionId =>
       $composableBuilder(column: $table.editionId, builder: (column) => column);
 
   GeneratedColumn<String> get variantId =>
       $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId, builder: (column) => column);
 
   GeneratedColumn<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents, builder: (column) => column);
@@ -9039,8 +10441,10 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
+            Value<String?> anchorType = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
             Value<int?> targetPriceCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -9052,8 +10456,10 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
               WishlistItemsCacheCompanion(
             id: id,
             itemId: itemId,
+            anchorType: anchorType,
             editionId: editionId,
             variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
             targetPriceCents: targetPriceCents,
             currency: currency,
             notes: notes,
@@ -9065,8 +10471,10 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String itemId,
+            Value<String?> anchorType = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
             Value<int?> targetPriceCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -9078,8 +10486,10 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
               WishlistItemsCacheCompanion.insert(
             id: id,
             itemId: itemId,
+            anchorType: anchorType,
             editionId: editionId,
             variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
             targetPriceCents: targetPriceCents,
             currency: currency,
             notes: notes,
@@ -9111,6 +10521,404 @@ typedef $$WishlistItemsCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     WishlistItemsCacheData,
     PrefetchHooks Function()>;
+typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
+    = TrackingEntriesCacheCompanion Function({
+  required String id,
+  required String itemId,
+  Value<String?> ownedItemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
+    = TrackingEntriesCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<String?> ownedItemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$TrackingEntriesCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
+  $$TrackingEntriesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$TrackingEntriesCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
+  $$TrackingEntriesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TrackingEntriesCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
+  $$TrackingEntriesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TrackingEntriesCacheTable,
+    TrackingEntriesCacheData,
+    $$TrackingEntriesCacheTableFilterComposer,
+    $$TrackingEntriesCacheTableOrderingComposer,
+    $$TrackingEntriesCacheTableAnnotationComposer,
+    $$TrackingEntriesCacheTableCreateCompanionBuilder,
+    $$TrackingEntriesCacheTableUpdateCompanionBuilder,
+    (
+      TrackingEntriesCacheData,
+      BaseReferences<_$LocalDatabase, $TrackingEntriesCacheTable,
+          TrackingEntriesCacheData>
+    ),
+    TrackingEntriesCacheData,
+    PrefetchHooks Function()> {
+  $$TrackingEntriesCacheTableTableManager(
+      _$LocalDatabase db, $TrackingEntriesCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TrackingEntriesCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TrackingEntriesCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TrackingEntriesCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TrackingEntriesCacheCompanion(
+            id: id,
+            itemId: itemId,
+            ownedItemId: ownedItemId,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TrackingEntriesCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            ownedItemId: ownedItemId,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TrackingEntriesCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $TrackingEntriesCacheTable,
+        TrackingEntriesCacheData,
+        $$TrackingEntriesCacheTableFilterComposer,
+        $$TrackingEntriesCacheTableOrderingComposer,
+        $$TrackingEntriesCacheTableAnnotationComposer,
+        $$TrackingEntriesCacheTableCreateCompanionBuilder,
+        $$TrackingEntriesCacheTableUpdateCompanionBuilder,
+        (
+          TrackingEntriesCacheData,
+          BaseReferences<_$LocalDatabase, $TrackingEntriesCacheTable,
+              TrackingEntriesCacheData>
+        ),
+        TrackingEntriesCacheData,
+        PrefetchHooks Function()>;
 typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   required String id,
   required String entityType,
@@ -11126,6 +12934,8 @@ class $LocalDatabaseManager {
       $$OwnedItemsCacheTableTableManager(_db, _db.ownedItemsCache);
   $$WishlistItemsCacheTableTableManager get wishlistItemsCache =>
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
+  $$TrackingEntriesCacheTableTableManager get trackingEntriesCache =>
+      $$TrackingEntriesCacheTableTableManager(_db, _db.trackingEntriesCache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
   $$CustomFieldDefinitionsCacheTableTableManager

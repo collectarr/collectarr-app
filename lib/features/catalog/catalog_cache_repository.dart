@@ -33,6 +33,7 @@ class CatalogCacheRepository {
                 id: item.id,
                 kind: item.kind,
                 title: item.title,
+                sortKey: Value(item.sortKey),
                 itemNumber: Value(item.itemNumber),
                 synopsis: Value(item.synopsis),
                 coverImageUrl: Value(item.coverImageUrl),
@@ -63,6 +64,15 @@ class CatalogCacheRepository {
                         )
                       : null,
                 ),
+                editionsJson: Value(
+                  item.editions.isNotEmpty
+                      ? jsonEncode(
+                          item.editions
+                              .map((edition) => edition.toJson())
+                              .toList(growable: false),
+                        )
+                      : null,
+                ),
                 creatorsJson: Value(
                   item.creators != null && item.creators!.isNotEmpty
                       ? jsonEncode(item.creators)
@@ -76,6 +86,11 @@ class CatalogCacheRepository {
                 storyArcsJson: Value(
                   item.storyArcs != null && item.storyArcs!.isNotEmpty
                       ? jsonEncode(item.storyArcs)
+                      : null,
+                ),
+                seriesTagsJson: Value(
+                  series != null && series.tags.isNotEmpty
+                      ? jsonEncode(series.tags)
                       : null,
                 ),
                 platformsJson: Value(
@@ -197,9 +212,11 @@ class CatalogCacheRepository {
       volumeStartYear: row.volumeStartYear,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
+      tags: _decodeStringList(row.seriesTagsJson) ?? const <String>[],
     );
     final video = VideoCatalogDetails(runtimeMinutes: row.runtimeMinutes);
     final tracks = _decodeTracks(row.tracksJson);
+    final editions = _decodeEditions(row.editionsJson);
     final rawPlatforms = _decodeStringList(row.platformsJson);
     final music = MusicCatalogDetails(
       trackCount: row.trackCount,
@@ -220,6 +237,7 @@ class CatalogCacheRepository {
       id: row.id,
       kind: row.kind,
       title: row.title,
+      sortKey: row.sortKey,
       itemNumber: row.itemNumber,
       synopsis: row.synopsis,
       coverImageUrl: row.coverImageUrl,
@@ -237,6 +255,7 @@ class CatalogCacheRepository {
       music: music.hasData ? music : null,
       game: game.hasData ? game : null,
       publishing: publishing.hasData ? publishing : null,
+      editions: editions ?? const <CatalogEdition>[],
       creators: _decodeListOfMaps(row.creatorsJson),
       characters: _decodeStringList(row.charactersJson),
       storyArcs: _decodeStringList(row.storyArcsJson),
@@ -255,6 +274,16 @@ class CatalogCacheRepository {
     }
     return decoded
         .map((track) => CatalogTrack.fromJson(track))
+        .toList(growable: false);
+  }
+
+  static List<CatalogEdition>? _decodeEditions(String? json) {
+    final decoded = _decodeListOfMaps(json);
+    if (decoded == null) {
+      return null;
+    }
+    return decoded
+        .map((edition) => CatalogEdition.fromJson(edition))
         .toList(growable: false);
   }
 

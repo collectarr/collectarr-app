@@ -21,6 +21,7 @@
 - Provider candidates consume Core's typed comic identity fields (`candidate_type`, `series_title`, `variant_name`)
 - Provider results require explicit user selection; the dialog no longer auto-focuses the first candidate
 - Provider previews load only for the selected candidate, with neutral messaging for mixed-provider result sets
+- Generic add flow supports explicit media/edition/variant/bundle-release reference selection, including bundle member preview before ingest
 - Generic add dialog and workspaces for manga, anime, books, games, board games, movies, TV, music
 - Queue Ingest button hidden for non-admin users
 
@@ -47,6 +48,7 @@
 - Item images shown in inspector and editable in edit dialogs
 - Drift DB schema v2 with `CustomFieldDefinitionsCache`, `CustomFieldValuesCache`, `ItemImagesCache` tables
 - Purchase/sell tracking fields (`soldAt`, `sellPriceCents`, `soldTo`) on owned items
+- Generic edit dialogs support media-, edition-, variant-, and bundle-release-level personal anchors for owned/tracking/wishlist state
 
 ### 🎨 UI Polish
 - Distinctive library icons: comics (`style`), anime (`smart_display`), to avoid confusion with books (`menu_book_outlined`)
@@ -85,6 +87,7 @@
 - [x] Key-issue / key-release markers, richer slab / grading-company details, and collector-facing notes are now surfaced in workspace badges/cards/detail views
 - [x] Run-completeness tools: stats now surface missing comic issues, missing volumes, and missing seasons in dedicated gap cards
 - [x] Richer physical-media presentation for music, movies/TV, and games using fields already available from provider previews
+- [x] Bundle-aware add/edit flows now treat collected editions, season packs, and other provider bundle releases as first-class references instead of media-only fallbacks
 - [x] Ship an app-local cover-photo recognition / scan-to-identify prototype for comics
 	- Local flow now covers photo import, review/crop/rotate, extracted-text preview, safe fallback into normal search, and local reranking of search/provider candidates.
 	- OCR is local-first: Android/iOS use on-device ML Kit where supported, while unsupported platforms fall back to reviewed text without sending images to the server.

@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -13,8 +17,10 @@ import 'package:collectarr_app/features/collection/repositories/item_images_cach
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,10 +33,13 @@ class CollectionMutations {
   final Uuid _uuid = const Uuid();
   final Set<String> _pendingCoverDownloads = <String>{};
 
-  Future<void> addItem(
+  Future<OwnedItem> addItem(
     String itemId, {
+    bool? isDigital,
+    String? anchorType,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -56,14 +65,26 @@ class CollectionMutations {
     DateTime? soldAt,
     int? sellPriceCents,
     String? soldTo,
+    bool syncTracking = true,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final resolvedIsDigital =
+        isDigital ?? await _resolveOwnedDigitalFlag(itemId: itemId);
+    final normalizedAnchorType = _normalizedPersonalAnchorType(
+      anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
     final ownedItem = OwnedItem(
       id: _uuid.v4(),
       itemId: itemId,
+      isDigital: resolvedIsDigital,
+      anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
       condition: condition,
       grade: grade,
       purchaseDate: purchaseDate,
@@ -93,6 +114,9 @@ class CollectionMutations {
     );
     await _ownedCache().upsert(ownedItem);
     await _enqueueOwnedItem(ownedItem, 'upsert', now);
+    if (syncTracking) {
+      await _syncTrackingForOwnedItem(ownedItem, now);
+    }
     await _enqueueCatalogSnapshotForItemId(itemId, now);
     // Download cover image bytes in the background.
     unawaited(_downloadCoverForOwnedItem(ownedItem.id, itemId));
@@ -108,10 +132,16 @@ class CollectionMutations {
     if (notify) {
       await _notifyCollectionChanged(wishlistChanged: wishlistItem != null);
     }
+    return ownedItem;
   }
 
-  Future<void> updateItem(
+  Future<OwnedItem> updateItem(
     OwnedItem item, {
+    bool? isDigital,
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -137,14 +167,30 @@ class CollectionMutations {
     DateTime? soldAt,
     int? sellPriceCents,
     String? soldTo,
+    bool syncTracking = true,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
+    final resolvedIsDigital = isDigital ??
+        item.isDigital ??
+        await _resolveOwnedDigitalFlag(itemId: item.itemId);
+    final normalizedAnchorType = _normalizedPersonalAnchorType(
+      anchorType ?? item.anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+      fallbackEditionId: item.editionId,
+      fallbackVariantId: item.variantId,
+      fallbackBundleReleaseId: item.bundleReleaseId,
+    );
     final updated = OwnedItem(
       id: item.id,
       itemId: item.itemId,
-      editionId: item.editionId,
-      variantId: item.variantId,
+      isDigital: resolvedIsDigital,
+      anchorType: normalizedAnchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
       condition: condition,
       grade: grade,
       purchaseDate: purchaseDate,
@@ -175,6 +221,119 @@ class CollectionMutations {
     );
     await _ownedCache().upsert(updated);
     await _enqueueOwnedItem(updated, 'upsert', now);
+    if (syncTracking) {
+      await _syncTrackingForOwnedItem(updated, now);
+    }
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
+    return updated;
+  }
+
+  Future<void> syncOwnedTrackingEntry(
+    OwnedItem ownedItem, {
+    String? editionId,
+    String? variantId,
+    Object? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    int? seasonNumber,
+    int? episodeNumber,
+    bool notify = true,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final entry = TrackingEntry(
+      id: _trackingEntryIdForOwnedItem(ownedItem.id),
+      itemId: ownedItem.itemId,
+      ownedItemId: ownedItem.id,
+      editionId: editionId ?? ownedItem.editionId,
+      variantId: variantId ?? ownedItem.variantId,
+      sourceType: TrackingSourceType.physical,
+      status: _normalizeTrackingStatusValue(status),
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: _normalizeTrackingValue(notes),
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      updatedAt: now,
+    );
+    await _syncTrackingEntry(entry, now);
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
+  }
+
+  Future<void> upsertTrackingEntry(
+    String itemId, {
+    String? ownedItemId,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    Object? sourceType,
+    Object? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    int? seasonNumber,
+    int? episodeNumber,
+    bool allowEmpty = false,
+    bool notify = true,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final normalizedSourceType = _normalizeTrackingSourceTypeValue(sourceType);
+    String entryId;
+    if (ownedItemId != null) {
+      entryId = _trackingEntryIdForOwnedItem(ownedItemId);
+    } else {
+      TrackingEntry? existingEntry;
+      final existingEntries = await _trackingCache().findActiveByItemIds([itemId]);
+      for (final candidate in existingEntries) {
+        if (candidate.ownedItemId != null) {
+          continue;
+        }
+        if (candidate.sourceTypeApiValue == normalizedSourceType) {
+          existingEntry = candidate;
+          break;
+        }
+      }
+      entryId = existingEntry?.id ??
+          _trackingEntryIdForItem(itemId, sourceType: normalizedSourceType);
+    }
+    final entry = TrackingEntry(
+      id: entryId,
+      itemId: itemId,
+      ownedItemId: ownedItemId,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+      sourceType: normalizedSourceType,
+      status: _normalizeTrackingStatusValue(status),
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: _normalizeTrackingValue(notes),
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      updatedAt: now,
+    );
+    await _syncTrackingEntry(entry, now, allowEmpty: allowEmpty);
+    await _enqueueCatalogSnapshotForItemId(itemId, now);
     if (notify) {
       await _notifyCollectionChanged();
     }
@@ -202,20 +361,40 @@ class CollectionMutations {
     }
   }
 
+  Future<void> removeTrackingEntry(TrackingEntry entry, {bool notify = true}) async {
+    final now = DateTime.now().toUtc();
+    final deleted = _trackingDeletion(entry, now);
+    await _trackingCache().markDeleted(entry, now);
+    await _enqueueTrackingEntry(deleted, 'delete', now);
+    if (notify) {
+      await _notifyCollectionChanged();
+    }
+  }
+
   Future<void> addToWishlist(
     String itemId, {
+    String? anchorType,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
     final existing = await _wishlistCache().findActiveByItemId(itemId);
     if (existing == null) {
+      final normalizedAnchorType = _normalizedPersonalAnchorType(
+        anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      );
       final item = WishlistItem(
         id: _uuid.v4(),
         itemId: itemId,
+        anchorType: normalizedAnchorType,
         editionId: editionId,
         variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
         createdAt: now,
         updatedAt: now,
       );
@@ -226,6 +405,50 @@ class CollectionMutations {
     if (notify) {
       await _notifyWishlistChanged();
     }
+  }
+
+  Future<WishlistItem> updateWishlistItem(
+    WishlistItem item, {
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    int? targetPriceCents,
+    String? currency,
+    String? notes,
+    bool notify = true,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final normalizedAnchorType = _normalizedPersonalAnchorType(
+      anchorType ?? item.anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+      fallbackEditionId: item.editionId,
+      fallbackVariantId: item.variantId,
+      fallbackBundleReleaseId: item.bundleReleaseId,
+    );
+    final updated = WishlistItem(
+      id: item.id,
+      itemId: item.itemId,
+      anchorType: normalizedAnchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+      targetPriceCents: targetPriceCents,
+      currency: currency,
+      notes: notes,
+      createdAt: item.createdAt,
+      updatedAt: now,
+      deletedAt: item.deletedAt,
+    );
+    await _wishlistCache().upsert(updated);
+    await _enqueueWishlistItem(updated, 'upsert', now);
+    await _enqueueCatalogSnapshotForItemId(item.itemId, now);
+    if (notify) {
+      await _notifyWishlistChanged();
+    }
+    return updated;
   }
 
   Future<void> removeFromWishlist(String itemId, {bool notify = true}) async {
@@ -264,6 +487,7 @@ class CollectionMutations {
     }
     final db = ref.read(localDatabaseProvider);
     final ownedCache = _ownedCache();
+    final trackingCache = _trackingCache();
     final wishlistCache = _wishlistCache();
     final catalogCache = _catalogCache();
     final syncQueue = _syncQueue();
@@ -294,8 +518,16 @@ class CollectionMutations {
       ))
         item.itemId: item,
     };
+    final existingTrackingByOwnedItemId = {
+      for (final entry in await trackingCache.findActiveByItemIds(
+        resolvedRows.map((row) => row.itemId),
+      ))
+        if (entry.ownedItemId != null) entry.ownedItemId!: entry,
+    };
     final activeWishlistItemIds = existingWishlist.keys.toSet();
     final ownedItems = <OwnedItem>[];
+    final trackingUpserts = <TrackingEntry>[];
+    final trackingDeletes = <TrackingEntry>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
@@ -322,6 +554,18 @@ class CollectionMutations {
         );
         ownedItems.add(ownedItem);
         syncChanges.add(_syncChangeForOwnedItem(ownedItem, 'upsert', now));
+        final trackingEntry = _trackingEntryFromOwnedItem(ownedItem, now);
+        final existingTracking = existingTrackingByOwnedItemId[ownedItem.id];
+        if (trackingEntry != null) {
+          trackingUpserts.add(trackingEntry);
+          syncChanges.add(
+            _syncChangeForTrackingEntry(trackingEntry, 'upsert', now),
+          );
+        } else if (existingTracking != null) {
+          final deleted = _trackingDeletion(existingTracking, now);
+          trackingDeletes.add(deleted);
+          syncChanges.add(_syncChangeForTrackingEntry(deleted, 'delete', now));
+        }
         if (existingWishlistItem != null &&
             activeWishlistItemIds.contains(row.itemId)) {
           final deleted = existingWishlistItem.copyWith(
@@ -337,6 +581,7 @@ class CollectionMutations {
         final wishlistItem = WishlistItem(
           id: _uuid.v4(),
           itemId: row.itemId,
+          anchorType: PersonalItemAnchorType.item.apiValue,
           createdAt: now,
           updatedAt: now,
         );
@@ -353,6 +598,10 @@ class CollectionMutations {
     await db.transaction(() async {
       await catalogCache.upsertAll(importedCatalogItems);
       await ownedCache.upsertAll(ownedItems);
+      await trackingCache.upsertAll(trackingUpserts);
+      for (final entry in trackingDeletes) {
+        await trackingCache.markDeleted(entry, now);
+      }
       await wishlistCache.markDeletedAll(wishlistDeletes, now);
       await wishlistCache.upsertAll(wishlistUpserts);
       await syncQueue.enqueueAll(syncChanges);
@@ -478,8 +727,11 @@ class CollectionMutations {
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
       itemId: row.itemId,
+      isDigital: _csvOwnedItemIsDigital(row, existing: existing),
+      anchorType: existing?.anchorType,
       editionId: existing?.editionId,
       variantId: existing?.variantId,
+      bundleReleaseId: existing?.bundleReleaseId,
       condition: row.condition ?? existing?.condition,
       grade: row.grade ?? existing?.grade,
       purchaseDate: row.purchaseDate ?? existing?.purchaseDate,
@@ -592,6 +844,21 @@ class CollectionMutations {
     );
   }
 
+  SyncChange _syncChangeForTrackingEntry(
+    TrackingEntry item,
+    String action,
+    DateTime changedAt,
+  ) {
+    return SyncChange(
+      id: _uuid.v4(),
+      entityType: 'tracking_entry',
+      entityId: item.id,
+      action: action,
+      payload: item.toSyncPayload(),
+      clientChangedAt: changedAt,
+    );
+  }
+
   SyncChange _syncChangeForCatalogItem(CatalogItem item, DateTime changedAt) {
     return SyncChange(
       id: _uuid.v4(),
@@ -618,11 +885,14 @@ class CollectionMutations {
   Future<void> _notifyCollectionChanged({bool wishlistChanged = false}) async {
     await ref.read(syncControllerProvider.notifier).refreshPendingCount();
     ref.invalidate(collectionProvider);
+    ref.invalidate(trackingEntriesProvider);
+    ref.invalidate(trackingEntriesByCatalogItemProvider);
     if (wishlistChanged) {
       ref.invalidate(wishlistIdsProvider);
       ref.invalidate(wishlistProvider);
     }
     ref.invalidate(shelfProvider);
+    unawaited(ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled());
   }
 
   Future<void> _notifyWishlistChanged() async {
@@ -630,6 +900,7 @@ class CollectionMutations {
     ref.invalidate(wishlistIdsProvider);
     ref.invalidate(wishlistProvider);
     ref.invalidate(shelfProvider);
+    unawaited(ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled());
   }
 
   OwnedItemsCacheRepository _ownedCache() {
@@ -642,6 +913,10 @@ class CollectionMutations {
 
   CatalogCacheRepository _catalogCache() {
     return CatalogCacheRepository(ref.read(localDatabaseProvider));
+  }
+
+  TrackingEntriesCacheRepository _trackingCache() {
+    return TrackingEntriesCacheRepository(ref.read(localDatabaseProvider));
   }
 
   SyncQueueRepository _syncQueue() {
@@ -673,6 +948,16 @@ class CollectionMutations {
         payload: item.toSyncPayload(),
         clientChangedAt: changedAt,
       ),
+    );
+  }
+
+  Future<void> _enqueueTrackingEntry(
+    TrackingEntry item,
+    String action,
+    DateTime changedAt,
+  ) {
+    return _syncQueue().enqueue(
+      _syncChangeForTrackingEntry(item, action, changedAt),
     );
   }
 
@@ -723,6 +1008,189 @@ class CollectionMutations {
 
   ItemImagesCacheRepository _imagesCache() =>
       ItemImagesCacheRepository(ref.read(localDatabaseProvider));
+
+  Future<void> _syncTrackingForOwnedItem(
+    OwnedItem ownedItem,
+    DateTime changedAt,
+  ) async {
+    final entry = _trackingEntryFromOwnedItem(ownedItem, changedAt);
+    final existing = await _trackingCache().findById(
+      _trackingEntryIdForOwnedItem(ownedItem.id),
+    );
+    if (entry == null) {
+      if (existing != null && !existing.isDeleted) {
+        final deleted = _trackingDeletion(existing, changedAt);
+        await _trackingCache().markDeleted(existing, changedAt);
+        await _enqueueTrackingEntry(deleted, 'delete', changedAt);
+      }
+      return;
+    }
+    await _trackingCache().upsert(entry);
+    await _enqueueTrackingEntry(entry, 'upsert', changedAt);
+  }
+
+  Future<void> _syncTrackingEntry(
+    TrackingEntry entry,
+    DateTime changedAt,
+    {
+      bool allowEmpty = false,
+    }
+  ) async {
+    final existing = await _trackingCache().findById(entry.id);
+    if (!_hasTrackingData(entry) && !allowEmpty) {
+      if (existing != null && !existing.isDeleted) {
+        final deleted = _trackingDeletion(existing, changedAt);
+        await _trackingCache().markDeleted(existing, changedAt);
+        await _enqueueTrackingEntry(deleted, 'delete', changedAt);
+      }
+      return;
+    }
+    await _trackingCache().upsert(entry);
+    await _enqueueTrackingEntry(entry, 'upsert', changedAt);
+  }
+
+  TrackingEntry? _trackingEntryFromOwnedItem(
+    OwnedItem ownedItem,
+    DateTime changedAt,
+  ) {
+    final normalizedStatus = _normalizeTrackingValue(ownedItem.readStatus);
+    if (normalizedStatus == null &&
+        ownedItem.rating == null &&
+        ownedItem.startedAt == null &&
+        ownedItem.finishedAt == null) {
+      return null;
+    }
+    return TrackingEntry(
+      id: _trackingEntryIdForOwnedItem(ownedItem.id),
+      itemId: ownedItem.itemId,
+      ownedItemId: ownedItem.id,
+      editionId: ownedItem.editionId,
+      variantId: ownedItem.variantId,
+      sourceType: ownedItem.isDigital == true
+          ? TrackingSourceType.digital
+          : TrackingSourceType.physical,
+      status: normalizedStatus,
+      rating: ownedItem.rating,
+      startedAt: ownedItem.startedAt,
+      finishedAt: ownedItem.finishedAt,
+      updatedAt: changedAt,
+    );
+  }
+
+  TrackingEntry _trackingDeletion(TrackingEntry entry, DateTime changedAt) {
+    return TrackingEntry(
+      id: entry.id,
+      itemId: entry.itemId,
+      ownedItemId: entry.ownedItemId,
+      editionId: entry.editionId,
+      variantId: entry.variantId,
+      sourceType: entry.sourceType,
+      status: entry.status,
+      rating: entry.rating,
+      startedAt: entry.startedAt,
+      finishedAt: entry.finishedAt,
+      progressCurrent: entry.progressCurrent,
+      progressTotal: entry.progressTotal,
+      timesCompleted: entry.timesCompleted,
+      notes: entry.notes,
+      seasonNumber: entry.seasonNumber,
+      episodeNumber: entry.episodeNumber,
+      updatedAt: changedAt,
+      deletedAt: changedAt,
+    );
+  }
+
+  String _trackingEntryIdForOwnedItem(String ownedItemId) {
+    return _uuid.v5(Namespace.url.value, 'tracking-entry:owned:$ownedItemId');
+  }
+
+  Future<bool?> _resolveOwnedDigitalFlag({
+    required String itemId,
+  }) async {
+    final catalogItem = await _catalogCache().findById(itemId);
+    if (catalogItem == null) {
+      return null;
+    }
+    return digitalPhysicalMediaFormatFlag(
+      catalogItem.physicalFormat,
+      label: catalogItem.physicalFormatLabel ?? catalogItem.variant,
+    );
+  }
+
+  bool? _csvOwnedItemIsDigital(
+    CollectionCsvRow row, {
+    OwnedItem? existing,
+  }) {
+    if ((row.physicalFormat?.trim().isNotEmpty ?? false) ||
+        (row.physicalFormatLabel?.trim().isNotEmpty ?? false)) {
+      return digitalPhysicalMediaFormatFlag(
+        row.physicalFormat,
+        label: row.physicalFormatLabel,
+      );
+    }
+    return existing?.isDigital;
+  }
+
+  String _trackingEntryIdForItem(String itemId, {String? sourceType}) {
+    final normalizedSource =
+      normalizeTrackingSourceType(sourceType) ?? _normalizeTrackingValue(sourceType) ?? 'item';
+    return _uuid.v5(
+      Namespace.url.value,
+      'tracking-entry:item:$itemId:$normalizedSource',
+    );
+  }
+
+  String? _normalizeTrackingValue(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  String? _normalizeTrackingSourceTypeValue(Object? value) {
+    return trackingSourceTypeApiValue(value) ??
+        (value is String? ? normalizeTrackingSourceType(value) : null);
+  }
+
+  String? _normalizeTrackingStatusValue(Object? value) {
+    final normalizedStatus = mediaTrackingStatusFromValue(value);
+    if (normalizedStatus != null) {
+      return mediaTrackingStatusToStorageValue(normalizedStatus);
+    }
+    return value is String? ? _normalizeTrackingValue(value) : null;
+  }
+
+  String? _normalizedPersonalAnchorType(
+    String? anchorType, {
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    String? fallbackEditionId,
+    String? fallbackVariantId,
+    String? fallbackBundleReleaseId,
+  }) {
+    return resolvePersonalItemAnchorType(
+          anchorType: anchorType,
+          editionId: editionId ?? fallbackEditionId,
+          variantId: variantId ?? fallbackVariantId,
+          bundleReleaseId: bundleReleaseId ?? fallbackBundleReleaseId,
+        ) ??
+        PersonalItemAnchorType.item.apiValue;
+  }
+
+  bool _hasTrackingData(TrackingEntry entry) {
+    return entry.statusStorageValue != null ||
+        entry.rating != null ||
+        entry.startedAt != null ||
+        entry.finishedAt != null ||
+        entry.progressCurrent != null ||
+        entry.progressTotal != null ||
+        entry.timesCompleted != null ||
+        _normalizeTrackingValue(entry.notes) != null ||
+        entry.seasonNumber != null ||
+        entry.episodeNumber != null;
+  }
 }
 
 class CollectionImportPreview {

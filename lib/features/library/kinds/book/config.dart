@@ -1,13 +1,16 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const booksWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'book',
+  kind: CatalogMediaKind.book,
   title: 'Books',
   icon: Icons.menu_book_outlined,
   preferencePrefix: 'books',
@@ -38,6 +41,8 @@ const booksLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: readingTrackingProfile,
   presentation: booksLibraryMediaPresentation,
+  editPresentation: booksLibraryEditPresentation,
+  editDialogBuilder: buildBookLibraryEditDialog,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.volumes,

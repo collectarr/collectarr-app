@@ -1,4 +1,6 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -6,7 +8,7 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:flutter/material.dart';
 
 const tvWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'tv',
+  kind: CatalogMediaKind.tv,
   title: 'TV Shows',
   icon: Icons.tv,
   preferencePrefix: 'tv',
@@ -35,6 +37,7 @@ const tvLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
+  editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: tvLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,

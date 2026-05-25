@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibrarySeriesBucket {
@@ -7,12 +8,29 @@ class LibrarySeriesBucket {
     required this.count,
     this.coverUrl,
     this.startYear,
+    this.ownedCount,
   });
 
   final String title;
   final int count;
   final String? coverUrl;
   final int? startYear;
+  final int? ownedCount;
+
+  int? get completionPercent {
+    final owned = ownedCount;
+    if (owned == null || count <= 0) {
+      return null;
+    }
+    final percent = ((owned / count) * 100).round();
+    if (percent < 0) {
+      return 0;
+    }
+    if (percent > 100) {
+      return 100;
+    }
+    return percent;
+  }
 }
 
 class LibrarySeriesSidebar extends StatelessWidget {
@@ -24,14 +42,14 @@ class LibrarySeriesSidebar extends StatelessWidget {
     this.title = 'Series',
     this.icon = Icons.folder,
     this.trailing,
-    this.backgroundColor = const Color(0xFF1D1D1D),
+    this.backgroundColor = kAppPanel,
     this.headerColor = const Color(0xFF303030),
-    this.dividerColor = const Color(0xFF4A4A4A),
-    this.accentColor = const Color(0xFF10A8D8),
-    this.selectionColor = const Color(0xFF075F75),
+    this.dividerColor = kAppDivider,
+    this.accentColor = kAppAccent,
+    this.selectionColor = kAppSelection,
     this.badgeColor = const Color(0xFF444444),
-    this.selectedBadgeColor = const Color(0xFFFFD400),
-    this.mutedTextColor = const Color(0xFFB8B8B8),
+    this.selectedBadgeColor = kAppHighlight,
+    this.mutedTextColor = kAppTextMuted,
   });
 
   final List<LibrarySeriesBucket> series;
@@ -128,7 +146,11 @@ class _LibrarySeriesRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasCover = bucket.coverUrl != null && bucket.coverUrl!.isNotEmpty;
-    final hasSubtitle = bucket.startYear != null;
+    final subtitleParts = <String>[
+      if (bucket.startYear != null) bucket.startYear.toString(),
+      if (bucket.completionPercent != null) '${bucket.completionPercent}% complete',
+    ];
+    final hasSubtitle = subtitleParts.isNotEmpty;
     return Material(
       color: selected ? selectionColor : Colors.transparent,
       child: InkWell(
@@ -177,9 +199,9 @@ class _LibrarySeriesRow extends StatelessWidget {
                                   selected ? FontWeight.w800 : FontWeight.w500,
                             ),
                       ),
-                      if (bucket.startYear != null)
+                      if (hasSubtitle)
                         Text(
-                          bucket.startYear.toString(),
+                          subtitleParts.join(' | '),
                           maxLines: 1,
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: selected
@@ -204,4 +226,12 @@ class _LibrarySeriesRow extends StatelessWidget {
       ),
     );
   }
+}
+
+String libraryBucketLabel(LibrarySeriesBucket bucket) {
+  final completionPercent = bucket.completionPercent;
+  if (completionPercent == null) {
+    return '${bucket.title} ${bucket.count}';
+  }
+  return '${bucket.title} ${bucket.count} ($completionPercent%)';
 }

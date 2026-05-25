@@ -108,6 +108,7 @@ class LibraryWorkspace extends StatelessWidget {
             mainAxisExtent: viewState.coverSize * 1.53,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCoverTile(
+              key: ValueKey(item.entry.id),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -133,6 +134,7 @@ class LibraryWorkspace extends StatelessWidget {
                 (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryWorkspaceCard(
+              key: ValueKey(item.entry.id),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -158,6 +160,7 @@ class LibraryWorkspace extends StatelessWidget {
             mainAxisExtent: 204,
           onSelectionChanged: onBoxSelectionChanged,
             itemBuilder: (context, item) => LibraryCardFlowTile(
+              key: ValueKey(item.entry.id),
               entry: item.entry,
               selected: _isSelected(item),
               onTap: _selectionTap(item),
@@ -186,6 +189,7 @@ class LibraryWorkspace extends StatelessWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
+            key: ValueKey(item.entry.id),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
@@ -210,6 +214,7 @@ class LibraryWorkspace extends StatelessWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
+            key: ValueKey(item.entry.id),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
@@ -234,6 +239,7 @@ class LibraryWorkspace extends StatelessWidget {
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: kAppGridCanvas,
           itemBuilder: (context, item) => LibraryCardFlowTile(
+            key: ValueKey(item.entry.id),
             entry: item.entry,
             selected: _isSelected(item),
             onTap: _selectionTap(item),
@@ -288,6 +294,7 @@ class LibraryWorkspace extends StatelessWidget {
                         adapter.orderedTableColumns(viewState.visibleColumns),
                     sortColumn: viewState.sortColumn,
                     sortAscending: viewState.sortAscending,
+                    sortRules: viewState.sortRules,
                     columnWidthFor: (column) => adapter.tableColumnWidth(
                       column,
                       viewState.columnWidths,
@@ -330,6 +337,7 @@ class LibraryWorkspace extends StatelessWidget {
     return switch (column) {
       LibraryTableColumn.status => LibraryItemStatusIcons(
           isOwned: entry.isOwned,
+          isTracked: entry.isTracked,
           isWishlisted: entry.isWishlisted,
           hasMissingCover: entry.hasMissingCover,
           hasMissingMetadata: entry.hasMissingMetadata,
@@ -355,7 +363,16 @@ class LibraryWorkspace extends StatelessWidget {
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
         ),
       LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
-      LibraryTableColumn.variant => LibraryTableCellText(entry.variant),
+      LibraryTableColumn.variant => LibraryTableCellText(
+          [
+            if (entry.variant != null && entry.variant!.trim().isNotEmpty)
+              entry.variant,
+            if (entry.referenceScopeLabel != null)
+              'Scope: ${entry.referenceScopeLabel!}',
+            if (entry.referenceFormatLabel != null)
+              'Format: ${entry.referenceFormatLabel!}',
+          ].join('  ·  '),
+        ),
       LibraryTableColumn.publisher => LibraryTableCellText(entry.publisher),
       LibraryTableColumn.releaseDate =>
         LibraryTableCellText(formatNullableDate(entry.releaseDate)),

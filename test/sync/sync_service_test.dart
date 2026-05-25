@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,10 +24,12 @@ void main() {
       queue: SyncQueueRepository(db),
       catalog: CatalogCacheRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
 
     final row = await db.select(db.ownedItemsCache).getSingle();
+    final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final catalogRow = await db.select(db.catalogCache).getSingle();
     final locations = await LocationRepository(db).getAll();
@@ -34,6 +37,8 @@ void main() {
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
     expect(row.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
+    expect(trackingRow.status, 'Completed');
+    expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
     expect(catalogRow.title, 'Absolute Batman');
     expect(catalogRow.coverImageUrl, 'https://cdn.example/absolute.jpg');
@@ -65,6 +70,7 @@ void main() {
       queue: queue,
       catalog: CatalogCacheRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
@@ -74,6 +80,78 @@ void main() {
     expect(await queue.pendingCount(), 0);
     expect(row.grade, '9.8');
     expect(row.updatedAt.toUtc(), DateTime.utc(2026, 5, 12, 9));
+  });
+
+  test('sync push preserves tracking entry wire payload shape', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final queue = SyncQueueRepository(db);
+    final client = _CapturingSyncClient();
+    await queue.enqueue(
+      SyncChange(
+        id: 'sync-tracking-1',
+        entityType: 'tracking_entry',
+        entityId: 'tracking-1',
+        action: 'upsert',
+        payload: const {
+          'item_id': 'movie-1',
+          'owned_item_id': 'owned-1',
+          'edition_id': 'edition-stream',
+          'variant_id': 'variant-4k',
+          'source_type': 'digital',
+          'status': 'Watching',
+          'rating': 8,
+          'progress_current': 45,
+          'progress_total': 100,
+          'times_completed': 2,
+          'notes': 'Second rewatch',
+          'season_number': 1,
+          'episode_number': 3,
+        },
+        clientChangedAt: DateTime.utc(2026, 5, 12, 8),
+      ),
+    );
+
+    final result = await SyncService(
+      client: client,
+      db: db,
+      queue: queue,
+      catalog: CatalogCacheRepository(db),
+      ownedItems: OwnedItemsCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(db),
+      wishlistItems: WishlistItemsCacheRepository(db),
+    ).syncNow('desktop');
+
+    expect(result.rejectedCount, 0);
+    expect(client.lastDeviceId, 'desktop');
+    expect(client.lastPushedChanges, hasLength(1));
+    final pushed = client.lastPushedChanges.single.toWireJson();
+    expect(pushed['entity_type'], 'tracking_entry');
+    expect(pushed['entity_id'], 'tracking-1');
+    expect(pushed['action'], 'upsert');
+    expect(
+      pushed['client_changed_at'],
+      DateTime.utc(2026, 5, 12, 8).toIso8601String(),
+    );
+    expect(
+      pushed['payload'],
+      {
+        'item_id': 'movie-1',
+        'owned_item_id': 'owned-1',
+        'edition_id': 'edition-stream',
+        'variant_id': 'variant-4k',
+        'source_type': 'digital',
+        'status': 'Watching',
+        'rating': 8,
+        'progress_current': 45,
+        'progress_total': 100,
+        'times_completed': 2,
+        'notes': 'Second rewatch',
+        'season_number': 1,
+        'episode_number': 3,
+      },
+    );
+    expect(await queue.pendingCount(), 0);
   });
 }
 
@@ -146,6 +224,21 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'payload': {'item_id': 'comic-1'},
         },
         {
+          'entity_type': 'tracking_entry',
+          'entity_id': 'tracking-1',
+          'action': 'upsert',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T08:10:00.000Z',
+          'changed_at': '2026-05-12T09:00:00.000Z',
+          'payload': {
+            'item_id': 'comic-1',
+            'owned_item_id': 'owned-1',
+            'source_type': 'physical',
+            'status': 'Completed',
+            'rating': 9,
+          },
+        },
+        {
           'entity_type': 'location',
           'entity_id': 'closet',
           'action': 'delete',
@@ -210,6 +303,42 @@ class _RejectedSyncClient extends CollectarrSyncClient {
         },
       ],
       'changes': [],
+    };
+  }
+}
+
+class _CapturingSyncClient extends CollectarrSyncClient {
+  _CapturingSyncClient() : super(baseUrl: 'http://unused', syncKey: 'test');
+
+  String? lastDeviceId;
+  List<SyncChange> lastPushedChanges = const [];
+
+  @override
+  Future<Map<String, dynamic>> push({
+    required String deviceId,
+    required List<SyncChange> changes,
+  }) async {
+    lastDeviceId = deviceId;
+    lastPushedChanges = List<SyncChange>.from(changes);
+    return {
+      'server_time': '2026-05-12T09:00:00.000Z',
+      'accepted': [
+        for (final change in changes)
+          {
+            'entity_type': change.entityType,
+            'entity_id': change.entityId,
+          },
+      ],
+      'rejected': [],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> pull({DateTime? since}) async {
+    return {
+      'server_time': '2026-05-12T09:00:00.000Z',
+      'entities': const [],
+      'changes': const [],
     };
   }
 }

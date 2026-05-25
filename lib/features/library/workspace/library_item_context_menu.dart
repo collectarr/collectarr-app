@@ -12,6 +12,7 @@ enum LibraryItemContextAction {
   removeFromOwned,
   addToWishlist,
   removeFromWishlist,
+  removeTracking,
   copyTitle,
   copyBarcode,
 }
@@ -53,13 +54,15 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
         _item(
           LibraryItemContextAction.addToOwned,
           Icons.add_circle_outline,
-          'Add to owned',
+          entry.isWishlisted
+              ? 'Convert wishlist to collection'
+              : 'Add to collection',
         )
       else
         _item(
           LibraryItemContextAction.removeFromOwned,
           Icons.remove_circle_outline,
-          'Remove from owned',
+          'Remove from collection',
           destructive: true,
         ),
       if (!entry.isWishlisted)
@@ -73,6 +76,13 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
           LibraryItemContextAction.removeFromWishlist,
           Icons.star_outline,
           'Remove from wishlist',
+        ),
+      if (entry.isTracked && !entry.isOwned)
+        _item(
+          LibraryItemContextAction.removeTracking,
+          Icons.playlist_remove,
+          'Stop tracking',
+          destructive: true,
         ),
       const PopupMenuDivider(),
       _header('Copy', accent),

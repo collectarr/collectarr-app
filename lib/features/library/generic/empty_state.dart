@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:flutter/material.dart';
 
@@ -106,7 +107,8 @@ String _emptyStateSummary(LibraryTypeConfig type) {
   }
   final providers =
       type.supportedMetadataProviders.map((p) => p.label).join(', ');
-  final suffix = type.workspace.kind == 'movie' || type.workspace.kind == 'tv'
+    final suffix = type.workspace.kind == CatalogMediaKind.movie ||
+      type.workspace.kind == CatalogMediaKind.tv
       ? ' Physical formats are tracked as editions.'
       : '';
   return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';

@@ -1,14 +1,8 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 
-enum MediaTrackingStatus {
-  none,
-  planned,
-  inProgress,
-  completed,
-  paused,
-  dropped,
-  repeating
-}
+export 'package:collectarr_app/core/models/tracking_status.dart';
 
 class MediaTracking {
   const MediaTracking({
@@ -57,52 +51,29 @@ class MediaTracking {
 extension OwnedItemTracking on OwnedItem {
   MediaTracking get mediaTracking {
     return MediaTracking(
-      status: mediaTrackingStatusFromString(readStatus),
+      status: mediaTrackingStatusFromString(readStatus) ??
+          MediaTrackingStatus.none,
       rating: rating,
-      completedAt: purchaseDate,
+      startedAt: startedAt,
+      completedAt: finishedAt ?? purchaseDate,
       lastActivityAt: updatedAt,
       notes: personalNotes,
     );
   }
 }
 
-MediaTrackingStatus mediaTrackingStatusFromString(String? value) {
-  return switch (value?.trim().toLowerCase()) {
-    'planned' ||
-    'plan to read' ||
-    'plan to watch' ||
-    'backlog' =>
-      MediaTrackingStatus.planned,
-    'reading' ||
-    'watching' ||
-    'playing' ||
-    'in progress' =>
-      MediaTrackingStatus.inProgress,
-    'read' ||
-    'watched' ||
-    'played' ||
-    'completed' ||
-    'finished' =>
-      MediaTrackingStatus.completed,
-    'paused' || 'on hold' => MediaTrackingStatus.paused,
-    'dropped' || 'abandoned' => MediaTrackingStatus.dropped,
-    'rereading' ||
-    'rewatching' ||
-    'replaying' ||
-    'repeating' =>
-      MediaTrackingStatus.repeating,
-    _ => MediaTrackingStatus.none,
-  };
-}
-
-String mediaTrackingStatusToStorageValue(MediaTrackingStatus status) {
-  return switch (status) {
-    MediaTrackingStatus.none => '',
-    MediaTrackingStatus.planned => 'Planned',
-    MediaTrackingStatus.inProgress => 'In progress',
-    MediaTrackingStatus.completed => 'Completed',
-    MediaTrackingStatus.paused => 'Paused',
-    MediaTrackingStatus.dropped => 'Dropped',
-    MediaTrackingStatus.repeating => 'Repeating',
-  };
+extension TrackingEntryMediaTracking on TrackingEntry {
+  MediaTracking get mediaTracking {
+    return MediaTracking(
+      status: status ?? MediaTrackingStatus.none,
+      rating: rating,
+      startedAt: startedAt,
+      completedAt: finishedAt,
+      lastActivityAt: updatedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: notes,
+    );
+  }
 }

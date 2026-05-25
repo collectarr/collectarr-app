@@ -7,5 +7,7 @@ void main() {
     expect(LibraryAddTarget.owned.destinationLabel, 'Collection');
     expect(LibraryAddTarget.wishlist.actionLabel, 'Add to wishlist');
     expect(LibraryAddTarget.wishlist.destinationLabel, 'Wishlist');
+    expect(LibraryAddTarget.track.actionLabel, 'Track item');
+    expect(LibraryAddTarget.track.destinationLabel, 'Tracking');
   });
 }

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -86,7 +87,8 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryProjectionItem> onRemoveOwned;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
   final ValueChanged<LibraryProjectionItem> onRemoveWishlist;
-  final ValueChanged<LibraryProjectionItem> onEditItem;
+  final void Function(LibraryProjectionItem item, OwnedItem? ownedItem)
+      onEditItem;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<String>? onFilterByValue;
   final String? selectedLetter;
@@ -169,7 +171,9 @@ class LibraryBody extends StatelessWidget {
           onRemoveWishlist: selected?.source.isWishlisted != true
               ? null
               : () => onRemoveWishlist(selected!),
-          onEdit: selected == null ? null : () => onEditItem(selected),
+          onEdit: selected == null
+              ? null
+              : (ownedItem) => onEditItem(selected, ownedItem),
           onFilterByValue: onFilterByValue,
           db: db,
         );

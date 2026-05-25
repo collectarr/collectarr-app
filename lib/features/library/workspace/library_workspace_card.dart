@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryDateFormatter = String Function(DateTime value);
@@ -14,9 +16,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     this.onSecondaryTapUp,
     required this.dateFormatter,
     required this.moneyFormatter,
-    this.selectedColor = const Color(0xFF075F75),
-    this.accentColor = const Color(0xFF10A8D8),
-    this.mutedTextColor = const Color(0xFFB8B8B8),
+    this.selectedColor = kAppSelection,
+    this.accentColor = kAppAccent,
+    this.mutedTextColor = kAppTextMuted,
     super.key,
   });
 
@@ -32,6 +34,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final referenceHierarchy = libraryReferenceHierarchySegments(
+      mediaType: entry.mediaType,
+      editions: entry.editions,
+      editionId: entry.referenceEditionId,
+      variantId: entry.referenceVariantId,
+      bundleReleaseId: entry.referenceBundleReleaseId,
+    );
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       clipBehavior: Clip.antiAlias,
@@ -63,12 +72,15 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         imageUrl: entry.displayCoverUrl,
                         ownedItemId: entry.ownedItemId,
                         accentColor: accentColor,
+                        enableFullscreen: false,
+                        enableSecondaryControl: false,
                       ),
                       Positioned(
                         left: 4,
                         top: 4,
                         child: LibraryCoverBadges(
                           isOwned: entry.isOwned,
+                          isTracked: entry.isTracked,
                           isWishlisted: entry.isWishlisted,
                           hasMissingCover: entry.hasMissingCover,
                           hasMissingMetadata: entry.hasMissingMetadata,
@@ -132,10 +144,35 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             ),
                       ),
                       const SizedBox(height: 8),
+                      if (referenceHierarchy.length > 1) ...[
+                        Text(
+                          referenceHierarchy.join('  ->  '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: accentColor.withValues(alpha: 0.88),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       Wrap(
                         spacing: 6,
                         runSpacing: 6,
                         children: [
+                          if (entry.referenceScopeLabel != null)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.link_outlined,
+                              label: 'Scope: ${entry.referenceScopeLabel!}',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.referenceFormatLabel != null)
+                            _LibraryCompactMetaPill(
+                              icon: Icons.album_outlined,
+                              label: 'Format: ${entry.referenceFormatLabel!}',
+                              accentColor: accentColor,
+                            ),
                           if (entry.grade != null)
                             _LibraryCompactMetaPill(
                               icon: Icons.workspace_premium,
@@ -166,13 +203,15 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               label: entry.music!.releaseStatus!,
                               accentColor: accentColor,
                             ),
-                          if (_compactPlatformLabel(entry.rawPlatforms) case final platformLabel?)
+                          if (_compactPlatformLabel(entry.rawPlatforms)
+                              case final platformLabel?)
                             _LibraryCompactMetaPill(
                               icon: Icons.sports_esports,
                               label: platformLabel,
                               accentColor: accentColor,
                             ),
-                          if (_compactNotesLabel(entry.notes) case final noteLabel?)
+                          if (_compactNotesLabel(entry.notes)
+                              case final noteLabel?)
                             _LibraryCompactMetaPill(
                               icon: Icons.sticky_note_2_outlined,
                               label: noteLabel,
@@ -249,7 +288,8 @@ String? _compactPlatformLabel(List<String>? platforms) {
   if (first.isEmpty) {
     return null;
   }
-  final extra = platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
+  final extra =
+      platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
   return extra == 0 ? first : '$first +$extra';
 }
 
@@ -273,7 +313,7 @@ class _LibraryIssuePill extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFD400),
+        color: kAppHighlight,
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
@@ -306,7 +346,7 @@ class _LibraryCompactMetaPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF2E2E2E),
+        color: kAppTableBottomBorder,
         borderRadius: BorderRadius.circular(3),
         border: Border.all(color: const Color(0xFF4B4B4B)),
       ),

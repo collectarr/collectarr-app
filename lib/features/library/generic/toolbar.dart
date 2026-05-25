@@ -27,6 +27,7 @@ class LibraryToolbar extends StatelessWidget {
     required this.onSearchChanged,
     required this.onEditColumns,
     required this.onSortChanged,
+    this.onEditSort,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
@@ -46,6 +47,10 @@ class LibraryToolbar extends StatelessWidget {
     this.selectionCallbacks,
     this.shelfState,
     this.onSmartLists,
+    this.onReadingQueue,
+    this.onEditConditionPickList,
+    this.onEditGradePickList,
+    this.onEditTagPickList,
     this.onPrintReport,
     this.onShareCollection,
   });
@@ -60,6 +65,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onEditColumns;
   final ValueChanged<LibrarySortColumn> onSortChanged;
+  final VoidCallback? onEditSort;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
@@ -79,6 +85,10 @@ class LibraryToolbar extends StatelessWidget {
   final int selectedCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onReadingQueue;
+  final VoidCallback? onEditConditionPickList;
+  final VoidCallback? onEditGradePickList;
+  final VoidCallback? onEditTagPickList;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
 
@@ -114,6 +124,10 @@ class LibraryToolbar extends StatelessWidget {
               onClearFilters: onClearFilters,
               onRandomPick: onRandomPick,
               onDownloadAllCovers: onDownloadAllCovers,
+              onEditConditionPickList: onEditConditionPickList,
+              onEditGradePickList: onEditGradePickList,
+              onEditTagPickList: onEditTagPickList,
+              onEditSort: onEditSort,
             );
           }
           return Padding(
@@ -161,6 +175,11 @@ class LibraryToolbar extends StatelessWidget {
                       onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
                       onSmartLists: onSmartLists,
+                      onReadingQueue: onReadingQueue,
+                      onEditConditionPickList: onEditConditionPickList,
+                      onEditGradePickList: onEditGradePickList,
+                      onEditTagPickList: onEditTagPickList,
+                      onEditSort: onEditSort,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
                     ),

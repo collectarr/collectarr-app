@@ -1,8 +1,10 @@
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// A tall card showing a large cover beside rich metadata, used in "card flow"
@@ -15,9 +17,9 @@ class LibraryCardFlowTile extends StatelessWidget {
     this.onSecondaryTapUp,
     required this.dateFormatter,
     required this.moneyFormatter,
-    this.selectedColor = const Color(0xFF075F75),
-    this.accentColor = const Color(0xFF10A8D8),
-    this.mutedTextColor = const Color(0xFFB8B8B8),
+    this.selectedColor = kAppSelection,
+    this.accentColor = kAppAccent,
+    this.mutedTextColor = kAppTextMuted,
     super.key,
   });
 
@@ -37,6 +39,13 @@ class LibraryCardFlowTile extends StatelessWidget {
       entry.mediaType,
     );
     final theme = Theme.of(context);
+    final referenceHierarchy = libraryReferenceHierarchySegments(
+      mediaType: entry.mediaType,
+      editions: entry.editions,
+      editionId: entry.referenceEditionId,
+      variantId: entry.referenceVariantId,
+      bundleReleaseId: entry.referenceBundleReleaseId,
+    );
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       clipBehavior: Clip.antiAlias,
@@ -73,6 +82,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                           imageUrl: entry.displayCoverUrl,
                           ownedItemId: entry.ownedItemId,
                           accentColor: accentColor,
+                          enableFullscreen: false,
+                          enableSecondaryControl: false,
                         ),
                       ),
                       Positioned(
@@ -80,6 +91,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                         top: 4,
                         child: LibraryCoverBadges(
                           isOwned: entry.isOwned,
+                          isTracked: entry.isTracked,
                           isWishlisted: entry.isWishlisted,
                           hasMissingCover: entry.hasMissingCover,
                           hasMissingMetadata: entry.hasMissingMetadata,
@@ -162,11 +174,36 @@ class LibraryCardFlowTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      if (referenceHierarchy.length > 1) ...[
+                        Text(
+                          referenceHierarchy.join('  ->  '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: accentColor.withValues(alpha: 0.88),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       // Meta pills
                       Wrap(
                         spacing: 6,
                         runSpacing: 6,
                         children: [
+                          if (entry.referenceScopeLabel != null)
+                            _MetaPill(
+                              icon: Icons.link_outlined,
+                              label: 'Scope: ${entry.referenceScopeLabel!}',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.referenceFormatLabel != null)
+                            _MetaPill(
+                              icon: Icons.album_outlined,
+                              label: 'Format: ${entry.referenceFormatLabel!}',
+                              accentColor: accentColor,
+                            ),
                           if (entry.grade != null)
                             _MetaPill(
                               icon: Icons.workspace_premium,
@@ -236,7 +273,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: entry.music!.releaseStatus!,
                               accentColor: accentColor,
                             ),
-                          if (_platformLabel(entry.rawPlatforms) case final platformLabel?)
+                          if (_platformLabel(entry.rawPlatforms)
+                              case final platformLabel?)
                             _MetaPill(
                               icon: Icons.sports_esports,
                               label: platformLabel,
@@ -321,7 +359,7 @@ class _IssuePill extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFD400),
+        color: kAppHighlight,
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(

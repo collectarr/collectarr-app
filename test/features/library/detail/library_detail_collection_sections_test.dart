@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,15 @@ void main() {
               currency: 'USD',
               updatedAt: DateTime.utc(2026, 5, 22),
             ),
+            trackingEntry: TrackingEntry(
+              id: 'tracking-1',
+              itemId: 'movie-1',
+              progressCurrent: 5,
+              progressTotal: 12,
+              seasonNumber: 1,
+              episodeNumber: 5,
+              updatedAt: DateTime.utc(2026, 5, 22),
+            ),
             accent: Colors.cyan,
           ),
         ),
@@ -45,5 +55,9 @@ void main() {
     expect(find.text('USD 6.00'), findsOneWidget);
     expect(find.text('Sold to'), findsOneWidget);
     expect(find.text('Local shop'), findsOneWidget);
+    expect(find.text('Progress'), findsOneWidget);
+    expect(find.text('5/12'), findsOneWidget);
+    expect(find.text('Episode'), findsOneWidget);
+    expect(find.text('S1 · Ep 5'), findsOneWidget);
   });
 }

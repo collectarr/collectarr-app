@@ -1,9 +1,17 @@
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+
+const Object _ownedItemUnset = Object();
+
 class OwnedItem {
-  const OwnedItem({
+  OwnedItem({
     required this.id,
     required this.itemId,
-    this.editionId,
-    this.variantId,
+    this.isDigital,
+    PersonalItemAnchor? anchor,
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -31,12 +39,18 @@ class OwnedItem {
     this.sellPriceCents,
     this.soldTo,
     this.locationId,
-  });
+  }) : anchor = anchor ??
+            PersonalItemAnchor.fromRaw(
+              anchorType: anchorType,
+              editionId: editionId,
+              variantId: variantId,
+              bundleReleaseId: bundleReleaseId,
+            );
 
   final String id;
   final String itemId;
-  final String? editionId;
-  final String? variantId;
+  final bool? isDigital;
+  final PersonalItemAnchor? anchor;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -65,14 +79,22 @@ class OwnedItem {
   final String? soldTo;
   final String? locationId;
 
+  String? get anchorType => anchor?.apiValue;
+  String? get editionId => anchor?.editionId;
+  String? get variantId => anchor?.variantId;
+  String? get bundleReleaseId => anchor?.bundleReleaseId;
+
+  PersonalItemAnchorType? get personalAnchor =>
+      anchor?.type;
+
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
-      'edition_id': editionId,
-      'variant_id': variantId,
+      if (isDigital != null) 'is_digital': isDigital,
+      ...?anchor?.toSyncPayload(),
       'condition': condition,
       'grade': grade,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -105,8 +127,13 @@ class OwnedItem {
     return OwnedItem(
       id: json['id'] as String,
       itemId: json['item_id'] as String,
-      editionId: json['edition_id'] as String?,
-      variantId: json['variant_id'] as String?,
+      isDigital: json['is_digital'] as bool?,
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: json['anchor_type'] as String?,
+        editionId: json['edition_id'] as String?,
+        variantId: json['variant_id'] as String?,
+        bundleReleaseId: json['bundle_release_id'] as String?,
+      ),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: json['purchase_date'] == null
@@ -150,8 +177,12 @@ class OwnedItem {
   OwnedItem copyWith({
     String? id,
     String? itemId,
+    bool? isDigital,
+    Object? anchor = _ownedItemUnset,
+    String? anchorType,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -180,11 +211,20 @@ class OwnedItem {
     String? soldTo,
     String? locationId,
   }) {
+    final resolvedAnchor = identical(anchor, _ownedItemUnset)
+        ? PersonalItemAnchor.fromRaw(
+            anchorType: anchorType ?? this.anchorType,
+            editionId: editionId ?? this.editionId,
+            variantId: variantId ?? this.variantId,
+            bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+          )
+        : anchor as PersonalItemAnchor?;
+
     return OwnedItem(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
+      isDigital: isDigital ?? this.isDigital,
+      anchor: resolvedAnchor,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,

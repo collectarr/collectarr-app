@@ -1,12 +1,17 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
+import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryDetailHero extends StatelessWidget {
   const LibraryDetailHero({
@@ -15,17 +20,24 @@ class LibraryDetailHero extends StatelessWidget {
     required this.entry,
     required this.ownedItem,
     required this.accent,
+    this.isOwned,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
   final Color accent;
+  final bool? isOwned;
 
   @override
   Widget build(BuildContext context) {
-    final releaseLabel = formatNullableDate(entry.releaseDate) ??
-        entry.releaseYear?.toString();
+    final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
+    final resolvedIsOwned = isOwned ?? ownedItem != null || entry.isOwned;
+    final referenceLabel =
+        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+            entry.primaryReferenceLabel;
+    final releaseLabel =
+        formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: accent.withValues(alpha: 0.6)),
@@ -33,12 +45,12 @@ class LibraryDetailHero extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF101010),
+            kAppField,
             Color.alphaBlend(
               accent.withValues(alpha: 0.18),
               const Color(0xFF18242A),
             ),
-            const Color(0xFF101010),
+            kAppField,
           ],
         ),
       ),
@@ -47,18 +59,61 @@ class LibraryDetailHero extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 680;
-            final cover = SizedBox(
-              width: wide ? 180 : 150,
-              child: AspectRatio(
-                aspectRatio: 2 / 3,
-                child: LibraryInteractiveCover(
-                  title: entry.title,
-                  itemNumber: entry.itemNumber,
-                  imageUrl: entry.displayCoverUrl,
-                  ownedItemId: entry.ownedItemId,
-                  accentColor: accent,
-                ),
-              ),
+            final cover = Consumer(
+              builder: (context, ref, _) {
+                final ownedItemId = resolvedOwnedItemId;
+                final db = ref.watch(localDatabaseProvider);
+                final localFront = ownedItemId == null
+                    ? null
+                    : ref
+                        .watch(
+                          localItemImageProvider((
+                            ownedItemId: ownedItemId,
+                            imageType: 'front_cover',
+                          )),
+                        )
+                        .value;
+                final localBack = ownedItemId == null
+                    ? null
+                    : ref
+                        .watch(
+                          localItemImageProvider((
+                            ownedItemId: ownedItemId,
+                            imageType: 'back_cover',
+                          )),
+                        )
+                        .value;
+                return SizedBox(
+                  width: wide ? 180 : 150,
+                  child: LibraryInteractiveCover(
+                    title: entry.title,
+                    itemNumber: entry.itemNumber,
+                    imageUrl: entry.displayCoverUrl,
+                    localBase64: localFront,
+                    secondaryLocalBase64: localBack,
+                    ownedItemId: ownedItemId,
+                    accentColor: accent,
+                    onMissingSecondaryPressed: ownedItemId == null
+                        ? null
+                        : () async {
+                            final savedType = await pickAndStoreOwnedItemImage(
+                              context: context,
+                              db: db,
+                              ownedItemId: ownedItemId,
+                              imageType: 'back_cover',
+                            );
+                            if (savedType == 'back_cover') {
+                              ref.invalidate(
+                                localItemImageProvider((
+                                  ownedItemId: ownedItemId,
+                                  imageType: 'back_cover',
+                                )),
+                              );
+                            }
+                          },
+                  ),
+                );
+              },
             );
             final info = Column(
               crossAxisAlignment:
@@ -92,6 +147,15 @@ class LibraryDetailHero extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                 ),
+                if (entry.mediaType == 'book' &&
+                    (entry.creators?.isNotEmpty ?? false)) ...[
+                  const SizedBox(height: 12),
+                  BookAuthorSpotlight(
+                    creators: entry.creators!,
+                    accent: accent,
+                    centered: !wide,
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 6,
@@ -100,7 +164,7 @@ class LibraryDetailHero extends StatelessWidget {
                   children: [
                     _DetailHeaderChip(
                       icon: Icons.inventory_2,
-                      label: entry.isOwned ? 'Owned' : 'Not owned',
+                      label: resolvedIsOwned ? 'Owned' : 'Not owned',
                       accent: accent,
                     ),
                     _DetailHeaderChip(
@@ -108,6 +172,18 @@ class LibraryDetailHero extends StatelessWidget {
                       label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
                       accent: accent,
                     ),
+                    if (referenceLabel != null)
+                      _DetailHeaderChip(
+                        icon: Icons.link_outlined,
+                        label: referenceLabel,
+                        accent: accent,
+                      ),
+                    if (entry.referenceFormatLabel != null)
+                      _DetailHeaderChip(
+                        icon: Icons.album_outlined,
+                        label: 'Format: ${entry.referenceFormatLabel!}',
+                        accent: accent,
+                      ),
                     _DetailHeaderChip(
                       icon: entry.hasMissingCover
                           ? Icons.image_not_supported_outlined
@@ -156,7 +232,8 @@ class LibraryDetailHero extends StatelessWidget {
                         label: entry.music!.releaseStatus!,
                         accent: accent,
                       ),
-                    if (_detailPlatformLabel(entry.rawPlatforms) case final platformLabel?)
+                    if (_detailPlatformLabel(entry.rawPlatforms)
+                        case final platformLabel?)
                       _DetailHeaderChip(
                         icon: Icons.sports_esports,
                         label: platformLabel,

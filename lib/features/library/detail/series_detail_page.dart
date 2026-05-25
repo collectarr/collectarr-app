@@ -90,6 +90,10 @@ class _SeriesDetailBody extends StatelessWidget {
     final status = series['status']?.toString();
     final country = series['country']?.toString();
     final language = series['language']?.toString();
+    final tags = (series['tags'] as List<dynamic>? ?? const <dynamic>[])
+      .whereType<String>()
+      .where((value) => value.trim().isNotEmpty)
+      .toList(growable: false);
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -138,6 +142,25 @@ class _SeriesDetailBody extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(description),
+        ],
+        if (tags.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text(
+            'Tags',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final tag in tags)
+                Chip(
+                  label: Text(tag),
+                  visualDensity: VisualDensity.compact,
+                ),
+            ],
+          ),
         ],
         if (data.relations.isNotEmpty) ...[
           const SizedBox(height: 20),

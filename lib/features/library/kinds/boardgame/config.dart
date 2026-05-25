@@ -1,4 +1,6 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -6,7 +8,7 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:flutter/material.dart';
 
 const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'boardgame',
+  kind: CatalogMediaKind.boardgame,
   title: 'Board Games',
   icon: Icons.casino_outlined,
   preferencePrefix: 'boardgames',
@@ -35,5 +37,6 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
     bggMetadataProvider,
   ],
   trackingProfile: gameTrackingProfile,
+  editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: boardGamesLibraryMediaPresentation,
 );
