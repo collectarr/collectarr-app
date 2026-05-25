@@ -158,3 +158,9 @@ desktop client can install directly.
 ## Roadmap
 
 See [docs/implementation-plan.md](docs/implementation-plan.md) for the full roadmap.
+
+---
+
+## Support
+
+If Collectarr is useful to you, you can support ongoing development on [Ko-fi](https://ko-fi.com/saitatter).
