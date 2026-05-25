@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -66,6 +67,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
   bool _keepUnmatchedLocally = true;
   int _pendingLocalCount = 0;
   String _lastPreviewSourceLabel = 'Pasted payload';
+  Map<String, TmdbImportEntry> _enrichmentCache = const {};
 
   @override
   void initState() {
@@ -372,10 +374,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
   }
 
   String get _importButtonLabel {
-    return switch (_collection) {
-      TmdbImportCollection.ratedMovies => 'Import as completed',
-      TmdbImportCollection.watchlistMovies => 'Import as wishlist',
-    };
+    return _collection.isRated ? 'Import as completed' : 'Import as wishlist';
   }
 
   Future<void> _persistCredentials({bool showSuccessToast = false}) async {
@@ -516,17 +515,19 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
   }
 
   Future<TmdbImportPreview> _buildPreview(List<TmdbImportEntry> entries) async {
-    final type = _resolvedMovieType();
     return _service.previewImport(
       collection: _collection,
       entries: entries,
-      searchCatalog: (entry) => searchLibraryMetadata(
-        ref.read(apiClientProvider),
-        type,
-        query: entry.title,
-        year: entry.releaseYear,
-        limit: 10,
-      ),
+      searchCatalog: (entry) {
+        final type = _resolvedTypeForMediaType(entry.mediaType);
+        return searchLibraryMetadata(
+          ref.read(apiClientProvider),
+          type,
+          query: entry.title,
+          year: entry.releaseYear,
+          limit: 10,
+        );
+      },
     );
   }
 
@@ -542,7 +543,8 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     var keptLocalCount = 0;
     var skippedCount = 0;
     try {
-      final type = _resolvedMovieType();
+      final allEntries = preview.matches.map((m) => m.entry).toList();
+      await _batchPreloadEnrichment(allEntries);
       final mutations = ref.read(collectionMutationsProvider);
       final unmatchedMatches = <TmdbImportMatch>[];
       for (final match in preview.matches) {
@@ -556,19 +558,16 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
           if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
             await mutations.updateCatalogSnapshot(mergedItem, notify: false);
           }
-          switch (preview.collection) {
-            case TmdbImportCollection.ratedMovies:
-              await mutations.upsertTrackingEntry(
-                item.id,
-                sourceType: TrackingSourceType.streaming,
-                status: MediaTrackingStatus.completed,
-                rating: _normalizedRating(match.entry.rating),
-                timesCompleted: 1,
-              );
-              break;
-            case TmdbImportCollection.watchlistMovies:
-              await mutations.addToWishlist(item.id);
-              break;
+          if (match.entry.collection.isRated) {
+            await mutations.upsertTrackingEntry(
+              item.id,
+              sourceType: TrackingSourceType.streaming,
+              status: MediaTrackingStatus.completed,
+              rating: _normalizedRating(match.entry.rating),
+              timesCompleted: 1,
+            );
+          } else {
+            await mutations.addToWishlist(item.id);
           }
           importedCount += 1;
           continue;
@@ -582,7 +581,6 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
       }
       final unmatchedResults = await _processUnmatchedMatches(
         matches: unmatchedMatches,
-        type: type,
       );
       for (final result in unmatchedResults) {
         if (!result.proposalCreated) {
@@ -595,19 +593,16 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
         }
         final enrichedEntry = result.entry;
         final localItem = _service.localSyntheticCatalogItem(enrichedEntry);
-        switch (preview.collection) {
-          case TmdbImportCollection.ratedMovies:
-            await mutations.addLocalOnlyTrackingEntry(
-              localItem,
-              sourceType: TrackingSourceType.streaming,
-              status: MediaTrackingStatus.completed,
-              rating: _normalizedRating(enrichedEntry.rating),
-              timesCompleted: 1,
-            );
-            break;
-          case TmdbImportCollection.watchlistMovies:
-            await mutations.addLocalOnlyWishlistItem(localItem);
-            break;
+        if (enrichedEntry.collection.isRated) {
+          await mutations.addLocalOnlyTrackingEntry(
+            localItem,
+            sourceType: TrackingSourceType.streaming,
+            status: MediaTrackingStatus.completed,
+            rating: _normalizedRating(enrichedEntry.rating),
+            timesCompleted: 1,
+          );
+        } else {
+          await mutations.addLocalOnlyWishlistItem(localItem);
         }
         await _pendingStore.upsert(
           TmdbPendingImportRecord(
@@ -660,7 +655,6 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
 
   Future<List<_UnmatchedTmdbImportResult>> _processUnmatchedMatches({
     required List<TmdbImportMatch> matches,
-    required LibraryTypeConfig type,
   }) async {
     if (matches.isEmpty) {
       return const <_UnmatchedTmdbImportResult>[];
@@ -670,6 +664,7 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     Future<void> worker() async {
       while (queue.isNotEmpty) {
         final match = queue.removeLast();
+        final type = _resolvedTypeForMediaType(match.entry.mediaType);
         results.add(await _processUnmatchedMatch(match, type: type));
       }
     }
@@ -755,12 +750,12 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     try {
       final records = await _pendingStore.read();
       final mutations = ref.read(collectionMutationsProvider);
-      final type = _resolvedMovieType();
       final api = ref.read(apiClientProvider);
       final resolved = await Future.wait<
           ({TmdbPendingImportRecord record, CatalogItem? item})>(
         records.map((record) async {
           try {
+            final type = _resolvedTypeForMediaType(record.entry.mediaType);
             final preview = await _service.previewImport(
               collection: record.entry.collection,
               entries: [record.entry],
@@ -786,6 +781,11 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
         }),
       );
       var reconciled = 0;
+      final entriesToEnrich = resolved
+          .where((r) => r.item != null)
+          .map((r) => r.record.entry)
+          .toList();
+      await _batchPreloadEnrichment(entriesToEnrich);
       for (final result in resolved) {
         final item = result.item;
         if (item == null) {
@@ -846,8 +846,12 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     });
   }
 
-  LibraryTypeConfig _resolvedMovieType() {
-    return ref.read(resolvedLibraryTypeProvider(moviesLibraryConfig));
+  LibraryTypeConfig _resolvedTypeForMediaType(TmdbMediaType mediaType) {
+    final config = switch (mediaType) {
+      TmdbMediaType.movie => moviesLibraryConfig,
+      TmdbMediaType.tv => tvLibraryConfig,
+    };
+    return ref.read(resolvedLibraryTypeProvider(config));
   }
 
   int? _normalizedRating(num? value) {
@@ -864,7 +868,34 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
     return rounded;
   }
 
+  Future<void> _batchPreloadEnrichment(List<TmdbImportEntry> entries) async {
+    if (entries.isEmpty) {
+      return;
+    }
+    try {
+      final api = ref.read(apiClientProvider);
+      _enrichmentCache = await _service.batchEnrichEntries(
+        api: api,
+        entries: entries,
+      );
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'tmdb_import',
+        message:
+            'Server-side batch enrichment failed. Falling back to direct TMDB API.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      _enrichmentCache = const {};
+    }
+  }
+
   Future<TmdbImportEntry> _enrichMatchedEntry(TmdbImportEntry entry) async {
+    final pid = entry.mediaType.providerItemId(entry.tmdbId);
+    final cached = _enrichmentCache[pid];
+    if (cached != null) {
+      return cached;
+    }
     final apiKey = _apiKeyController.text.trim();
     if (apiKey.isEmpty) {
       return entry;

@@ -2,18 +2,43 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
 
+/// The TMDB media type for import entries.
+enum TmdbMediaType {
+  movie,
+  tv;
+
+  String get label {
+    return switch (this) {
+      TmdbMediaType.movie => 'Movie',
+      TmdbMediaType.tv => 'TV / Anime',
+    };
+  }
+
+  /// The TMDB API path segment (e.g. `movie` or `tv`).
+  String get tmdbPathSegment => name;
+
+  /// The provider item ID prefix used by collectarr-core (e.g. `movie:603`).
+  String providerItemId(int tmdbId) => '$name:$tmdbId';
+}
+
 enum TmdbImportCollection {
   ratedMovies,
-  watchlistMovies;
+  watchlistMovies,
+  ratedTv,
+  watchlistTv;
 
   String get label {
     return switch (this) {
       TmdbImportCollection.ratedMovies => 'Rated movies',
       TmdbImportCollection.watchlistMovies => 'Watchlist movies',
+      TmdbImportCollection.ratedTv => 'Rated TV shows',
+      TmdbImportCollection.watchlistTv => 'Watchlist TV shows',
     };
   }
 
@@ -21,6 +46,8 @@ enum TmdbImportCollection {
     return switch (this) {
       TmdbImportCollection.ratedMovies => 'rated/movies',
       TmdbImportCollection.watchlistMovies => 'watchlist/movies',
+      TmdbImportCollection.ratedTv => 'rated/tv',
+      TmdbImportCollection.watchlistTv => 'watchlist/tv',
     };
   }
 
@@ -28,14 +55,45 @@ enum TmdbImportCollection {
     return switch (this) {
       TmdbImportCollection.ratedMovies => 'rated_movies',
       TmdbImportCollection.watchlistMovies => 'watchlist_movies',
+      TmdbImportCollection.ratedTv => 'rated_tv',
+      TmdbImportCollection.watchlistTv => 'watchlist_tv',
     };
   }
+
+  TmdbMediaType get mediaType {
+    return switch (this) {
+      TmdbImportCollection.ratedMovies ||
+      TmdbImportCollection.watchlistMovies =>
+        TmdbMediaType.movie,
+      TmdbImportCollection.ratedTv ||
+      TmdbImportCollection.watchlistTv =>
+        TmdbMediaType.tv,
+    };
+  }
+
+  bool get isRated {
+    return switch (this) {
+      TmdbImportCollection.ratedMovies ||
+      TmdbImportCollection.ratedTv =>
+        true,
+      _ => false,
+    };
+  }
+
+  bool get isWatchlist => !isRated;
 
   static TmdbImportCollection fromStorageValue(String value) {
     return switch (value.trim().toLowerCase()) {
       'watchlist_movies' => TmdbImportCollection.watchlistMovies,
+      'rated_tv' => TmdbImportCollection.ratedTv,
+      'watchlist_tv' => TmdbImportCollection.watchlistTv,
       _ => TmdbImportCollection.ratedMovies,
     };
+  }
+
+  /// Collections available for a given media type.
+  static List<TmdbImportCollection> forMediaType(TmdbMediaType type) {
+    return values.where((c) => c.mediaType == type).toList(growable: false);
   }
 }
 
@@ -69,6 +127,7 @@ class TmdbImportCredentials {
 class TmdbImportEntry {
   const TmdbImportEntry({
     required this.tmdbId,
+    required this.mediaType,
     required this.collection,
     required this.title,
     required this.rawPayload,
@@ -80,6 +139,7 @@ class TmdbImportEntry {
   });
 
   final int tmdbId;
+  final TmdbMediaType mediaType;
   final TmdbImportCollection collection;
   final String title;
   final String? originalTitle;
@@ -109,6 +169,7 @@ class TmdbImportEntry {
 
   TmdbImportEntry copyWith({
     int? tmdbId,
+    TmdbMediaType? mediaType,
     TmdbImportCollection? collection,
     String? title,
     String? originalTitle,
@@ -120,6 +181,7 @@ class TmdbImportEntry {
   }) {
     return TmdbImportEntry(
       tmdbId: tmdbId ?? this.tmdbId,
+      mediaType: mediaType ?? this.mediaType,
       collection: collection ?? this.collection,
       title: title ?? this.title,
       originalTitle: originalTitle ?? this.originalTitle,
@@ -134,6 +196,7 @@ class TmdbImportEntry {
   Map<String, dynamic> toJson() {
     return {
       'tmdb_id': tmdbId,
+      'media_type': mediaType.name,
       'collection': collection.storageValue,
       'title': title,
       if (originalTitle != null) 'original_title': originalTitle,
@@ -148,8 +211,13 @@ class TmdbImportEntry {
 
   factory TmdbImportEntry.fromJson(Map<String, dynamic> json) {
     final rawPayload = json['raw_payload'];
+    final mediaTypeValue = json['media_type'] as String?;
+    final mediaType = mediaTypeValue == 'tv'
+        ? TmdbMediaType.tv
+        : TmdbMediaType.movie;
     return TmdbImportEntry(
       tmdbId: (json['tmdb_id'] as num?)?.toInt() ?? 0,
+      mediaType: mediaType,
       collection: TmdbImportCollection.fromStorageValue(
         json['collection'] as String? ?? 'rated_movies',
       ),
@@ -340,8 +408,9 @@ class TmdbImportService {
     if (normalizedApiKey.isEmpty) {
       return entry;
     }
+    final tmdbType = entry.mediaType.tmdbPathSegment;
     final response = await _dio.get<Map<String, dynamic>>(
-      '/3/movie/${entry.tmdbId}',
+      '/3/$tmdbType/${entry.tmdbId}',
       queryParameters: {
         'api_key': normalizedApiKey,
         'append_to_response': 'credits',
@@ -350,17 +419,21 @@ class TmdbImportService {
     );
     final data = response.data;
     if (data == null) {
-      throw StateError('TMDB details response was empty for movie ${entry.tmdbId}.');
+      throw StateError('TMDB details response was empty for ${entry.mediaType.name} ${entry.tmdbId}.');
     }
-    final detailedTitle = (data['title'] as String?)?.trim();
-    final detailedOriginalTitle = (data['original_title'] as String?)?.trim();
+    final isMovie = entry.mediaType == TmdbMediaType.movie;
+    final detailedTitle = ((data[isMovie ? 'title' : 'name']) as String?)?.trim();
+    final detailedOriginalTitle =
+        ((data[isMovie ? 'original_title' : 'original_name']) as String?)?.trim();
     final detailedOverview = (data['overview'] as String?)?.trim();
     final detailedPosterPath = (data['poster_path'] as String?)?.trim();
-    final detailedReleaseDate = _parseDate(data['release_date'] as String?);
+    final detailedReleaseDate = _parseDate(
+      (data[isMovie ? 'release_date' : 'first_air_date']) as String?,
+    );
     final rawPayload = <String, dynamic>{
       ...Map<String, dynamic>.from(data),
       'id': entry.tmdbId,
-      'media_type': 'movie',
+      'media_type': entry.mediaType.name,
       'tmdb_import': {
         'collection': entry.collection.storageValue,
         if (entry.rating != null) 'user_rating': entry.rating,
@@ -384,6 +457,104 @@ class TmdbImportService {
       releaseDate: detailedReleaseDate ?? entry.releaseDate,
       rawPayload: rawPayload,
     );
+  }
+
+  /// Batch-enrich entries using the backend provider system instead of the
+  /// TMDB API directly. Returns a map keyed by provider item ID (e.g.
+  /// `movie:603`) to the enriched entry.
+  Future<Map<String, TmdbImportEntry>> batchEnrichEntries({
+    required ApiClient api,
+    required List<TmdbImportEntry> entries,
+  }) async {
+    if (entries.isEmpty) {
+      return const <String, TmdbImportEntry>{};
+    }
+    final providerIds = <String>[];
+    final entryByProviderId = <String, TmdbImportEntry>{};
+    for (final entry in entries) {
+      final pid = entry.mediaType.providerItemId(entry.tmdbId);
+      providerIds.add(pid);
+      entryByProviderId[pid] = entry;
+    }
+    final result = await api.adminProviderBatchHydrate(
+      provider: 'tmdb',
+      providerItemIds: providerIds,
+    );
+    final enriched = <String, TmdbImportEntry>{};
+    for (final item in result.results) {
+      final entry = entryByProviderId[item.providerItemId];
+      if (entry == null || !item.success || item.preview == null) {
+        continue;
+      }
+      enriched[item.providerItemId] =
+          enrichEntryFromPreview(entry, item.preview!);
+    }
+    return enriched;
+  }
+
+  /// Enrich a single entry using structured data from the backend provider
+  /// preview, building a rawPayload compatible with [mergeMatchedCatalogItem].
+  TmdbImportEntry enrichEntryFromPreview(
+    TmdbImportEntry entry,
+    AdminProviderPreview preview,
+  ) {
+    final posterPath = _extractPosterPath(preview.coverImageUrl);
+    final rawPayload = <String, dynamic>{
+      'id': entry.tmdbId,
+      'media_type': entry.mediaType.name,
+      'genres': preview.genres.map((g) => <String, dynamic>{'name': g}).toList(),
+      'production_companies': preview.publisher?.isNotEmpty == true
+          ? preview.publisher!
+                .split(', ')
+                .map((s) => <String, dynamic>{'name': s})
+                .toList()
+          : <Map<String, dynamic>>[],
+      'production_countries': preview.country?.isNotEmpty == true
+          ? preview.country!
+                .split(', ')
+                .map((c) => <String, dynamic>{'name': c})
+                .toList()
+          : <Map<String, dynamic>>[],
+      'spoken_languages': preview.language?.isNotEmpty == true
+          ? preview.language!
+                .split(', ')
+                .map((l) => <String, dynamic>{'name': l})
+                .toList()
+          : <Map<String, dynamic>>[],
+      if (preview.video?.runtimeMinutes != null)
+        'runtime': preview.video!.runtimeMinutes,
+      'overview': preview.synopsis ?? '',
+      if (posterPath != null) 'poster_path': posterPath,
+      'tmdb_import': {
+        'collection': entry.collection.storageValue,
+        if (entry.rating != null) 'user_rating': entry.rating,
+      },
+    };
+    return entry.copyWith(
+      title: preview.title.isNotEmpty ? preview.title : entry.title,
+      overview: preview.synopsis?.isNotEmpty == true
+          ? preview.synopsis
+          : entry.overview,
+      posterPath: posterPath ?? entry.posterPath,
+      releaseDate: preview.releaseDate ?? entry.releaseDate,
+      rawPayload: rawPayload,
+    );
+  }
+
+  /// Extract the TMDB poster path from a full image URL.
+  static String? _extractPosterPath(String? url) {
+    if (url == null || url.isEmpty) {
+      return null;
+    }
+    const tmdbPrefix = 'https://image.tmdb.org/t/p/';
+    if (url.startsWith(tmdbPrefix)) {
+      final afterPrefix = url.substring(tmdbPrefix.length);
+      final slashIndex = afterPrefix.indexOf('/');
+      if (slashIndex >= 0) {
+        return afterPrefix.substring(slashIndex);
+      }
+    }
+    return null;
   }
 
   CatalogItem mergeMatchedCatalogItem(CatalogItem item, TmdbImportEntry entry) {
@@ -486,13 +657,16 @@ class TmdbImportService {
   }
 
   String localSyntheticItemId(TmdbImportEntry entry) {
-    return 'tmdb-local:movie:${entry.tmdbId}';
+    return 'tmdb-local:${entry.mediaType.name}:${entry.tmdbId}';
   }
 
   CatalogItem localSyntheticCatalogItem(TmdbImportEntry entry) {
+    final kind = entry.mediaType == TmdbMediaType.movie
+        ? CatalogMediaKind.movie
+        : CatalogMediaKind.tv;
     return CatalogItem(
       id: localSyntheticItemId(entry),
-      kind: CatalogMediaKind.movie.apiValue,
+      kind: kind.apiValue,
       title: entry.title,
       displayTitle: entry.title,
       localizedTitle: entry.title,
@@ -593,20 +767,23 @@ class TmdbImportService {
     required TmdbImportCollection collection,
   }) {
     final id = (json['id'] as num?)?.toInt();
-    final title = (json['title'] as String?)?.trim();
+    final title = ((json['title'] ?? json['name']) as String?)?.trim();
     if (id == null || title == null || title.isEmpty) {
       throw const FormatException(
-        'Each TMDB import entry must include id and title.',
+        'Each TMDB import entry must include id and title/name.',
       );
     }
     return TmdbImportEntry(
       tmdbId: id,
+      mediaType: collection.mediaType,
       collection: collection,
       title: title,
-      originalTitle: (json['original_title'] as String?)?.trim(),
+      originalTitle: ((json['original_title'] ?? json['original_name']) as String?)?.trim(),
       overview: (json['overview'] as String?)?.trim(),
       posterPath: (json['poster_path'] as String?)?.trim(),
-      releaseDate: _parseDate(json['release_date'] as String?),
+      releaseDate: _parseDate(
+        (json['release_date'] ?? json['first_air_date']) as String?,
+      ),
       rating: json['rating'] as num?,
       rawPayload: Map<String, dynamic>.from(json),
     );
@@ -637,7 +814,7 @@ class TmdbImportService {
         .toList(growable: false);
     if (entries.isEmpty && rows.length > 1) {
       throw const FormatException(
-        'TMDB CSV input did not contain any movie rows to import.',
+        'TMDB CSV input did not contain any importable rows.',
       );
     }
     return entries;
@@ -648,11 +825,32 @@ class TmdbImportService {
     List<String> values, {
     required TmdbImportCollection collection,
   }) {
-    final mediaType =
+    final mediaTypeRaw =
         _csvOptionalValue(index, values, 'media_type')?.trim().toLowerCase();
-    if (mediaType != null && mediaType.isNotEmpty && mediaType != 'movie') {
+    // Determine media type from CSV column (if present) or fall back to
+    // the collection's own media type.
+    final TmdbMediaType rowMediaType;
+    if (mediaTypeRaw == null || mediaTypeRaw.isEmpty) {
+      rowMediaType = collection.mediaType;
+    } else if (mediaTypeRaw == 'movie') {
+      rowMediaType = TmdbMediaType.movie;
+    } else if (mediaTypeRaw == 'tv') {
+      rowMediaType = TmdbMediaType.tv;
+    } else {
+      // Unknown media type — skip row.
       return null;
     }
+    // Resolve the effective collection for this row (e.g. a TV row in a
+    // rated-movies collection should become ratedTv).
+    final effectiveCollection = rowMediaType == collection.mediaType
+        ? collection
+        : collection.isRated
+            ? (rowMediaType == TmdbMediaType.tv
+                ? TmdbImportCollection.ratedTv
+                : TmdbImportCollection.ratedMovies)
+            : (rowMediaType == TmdbMediaType.tv
+                ? TmdbImportCollection.watchlistTv
+                : TmdbImportCollection.watchlistMovies);
     final tmdbId = _parseTmdbId(_csvValue(index, values, 'id'));
     final title = _csvValue(index, values, 'title').trim();
     if (tmdbId == null || title.isEmpty) {
@@ -670,7 +868,8 @@ class TmdbImportService {
     final posterPath = _posterPathFromCsvValue(posterValue);
     return TmdbImportEntry(
       tmdbId: tmdbId,
-      collection: collection,
+      mediaType: rowMediaType,
+      collection: effectiveCollection,
       title: title,
       originalTitle: originalTitle,
       overview: overview,
@@ -685,7 +884,7 @@ class TmdbImportService {
         if (posterPath != null) 'poster_path': posterPath,
         if (releaseDate != null)
           'release_date': releaseDate.toUtc().toIso8601String(),
-        if (mediaType != null) 'type': mediaType,
+        'media_type': rowMediaType.name,
         if (rating != null) 'rating': rating,
       },
     );
@@ -706,8 +905,12 @@ class TmdbImportService {
     }
 
     final preferredKeywords = switch (collection) {
-      TmdbImportCollection.ratedMovies => ['rating', 'ratings', 'rated'],
-      TmdbImportCollection.watchlistMovies => ['watchlist'],
+      TmdbImportCollection.ratedMovies ||
+      TmdbImportCollection.ratedTv =>
+        ['rating', 'ratings', 'rated'],
+      TmdbImportCollection.watchlistMovies ||
+      TmdbImportCollection.watchlistTv =>
+        ['watchlist'],
     };
     for (final keyword in preferredKeywords) {
       for (final file in csvFiles) {

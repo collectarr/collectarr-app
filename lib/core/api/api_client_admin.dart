@@ -318,6 +318,27 @@ class _AdminApiClient {
     );
   }
 
+  /// Batch-hydrate provider item IDs into normalized previews.
+  Future<AdminBatchHydrateResult> adminProviderBatchHydrate({
+    required String provider,
+    required List<String> providerItemIds,
+  }) async {
+    final response = await _client._dio.post<Map<String, dynamic>>(
+      '/admin/providers/batch-hydrate',
+      data: {
+        'provider': provider,
+        'items': [
+          for (final id in providerItemIds) {'provider_item_id': id},
+        ],
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('batch-hydrate returned an empty response body');
+    }
+    return AdminBatchHydrateResult.fromJson(data);
+  }
+
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,

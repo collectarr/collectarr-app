@@ -16,6 +16,7 @@ void main() {
         TmdbImportMatch(
           entry: const TmdbImportEntry(
             tmdbId: 603,
+            mediaType: TmdbMediaType.movie,
             collection: TmdbImportCollection.ratedMovies,
             title: 'The Matrix',
             rating: 9,
@@ -32,6 +33,7 @@ void main() {
         TmdbImportMatch(
           entry: const TmdbImportEntry(
             tmdbId: 680,
+            mediaType: TmdbMediaType.movie,
             collection: TmdbImportCollection.ratedMovies,
             title: 'Pulp Fiction',
             rawPayload: <String, dynamic>{'id': 680, 'title': 'Pulp Fiction'},

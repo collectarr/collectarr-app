@@ -40,6 +40,7 @@ void main() {
           localItemId: 'tmdb-local:movie:604',
           entry: const TmdbImportEntry(
             tmdbId: 604,
+            mediaType: TmdbMediaType.movie,
             collection: TmdbImportCollection.watchlistMovies,
             title: 'The Matrix Reloaded',
             rawPayload: <String, dynamic>{'id': 604, 'title': 'The Matrix Reloaded'},

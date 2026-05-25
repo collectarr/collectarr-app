@@ -45,6 +45,7 @@ void main() {
     test('builds local synthetic items with display and original titles', () {
       final entry = TmdbImportEntry(
         tmdbId: 603,
+        mediaType: TmdbMediaType.movie,
         collection: TmdbImportCollection.ratedMovies,
         title: 'The Matrix',
         originalTitle: 'The Matrix',
@@ -64,6 +65,7 @@ void main() {
     test('matches on exact title and year before falling back', () async {
       final entry = TmdbImportEntry(
         tmdbId: 11,
+        mediaType: TmdbMediaType.movie,
         collection: TmdbImportCollection.ratedMovies,
         title: 'Dune',
         releaseDate: DateTime.utc(2021, 10, 22),
@@ -137,11 +139,16 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         collection: TmdbImportCollection.ratedMovies,
       );
 
-      expect(entries, hasLength(1));
-      expect(entries.single.tmdbId, 453395);
-      expect(entries.single.title, 'Doctor Strange in the Multiverse of Madness');
-      expect(entries.single.rating, 7.0);
-      expect(entries.single.releaseYear, 2022);
+      expect(entries, hasLength(2));
+      expect(entries[0].tmdbId, 453395);
+      expect(entries[0].title, 'Doctor Strange in the Multiverse of Madness');
+      expect(entries[0].rating, 7.0);
+      expect(entries[0].releaseYear, 2022);
+      expect(entries[0].mediaType, TmdbMediaType.movie);
+      expect(entries[1].tmdbId, 92749);
+      expect(entries[1].title, 'Moon Knight');
+      expect(entries[1].mediaType, TmdbMediaType.tv);
+      expect(entries[1].collection, TmdbImportCollection.ratedTv);
     });
 
     test('parses TMDB watchlist export from zip archives', () {
@@ -170,22 +177,29 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         collection: TmdbImportCollection.watchlistMovies,
       );
 
-      expect(entries, hasLength(1));
-      expect(entries.single.tmdbId, 438695);
-      expect(entries.single.title, 'Sing 2');
-      expect(entries.single.releaseYear, 2021);
+      expect(entries, hasLength(2));
+      expect(entries[0].tmdbId, 438695);
+      expect(entries[0].title, 'Sing 2');
+      expect(entries[0].releaseYear, 2021);
+      expect(entries[0].mediaType, TmdbMediaType.movie);
+      expect(entries[1].tmdbId, 63174);
+      expect(entries[1].title, 'Lucifer');
+      expect(entries[1].mediaType, TmdbMediaType.tv);
+      expect(entries[1].collection, TmdbImportCollection.watchlistTv);
     });
 
     test('dispatches imports for matches and proposals for unmatched',
         () async {
       final matchedEntry = TmdbImportEntry(
         tmdbId: 603,
+        mediaType: TmdbMediaType.movie,
         collection: TmdbImportCollection.ratedMovies,
         title: 'The Matrix',
         rawPayload: const <String, dynamic>{'id': 603, 'title': 'The Matrix'},
       );
       final unmatchedEntry = TmdbImportEntry(
         tmdbId: 680,
+        mediaType: TmdbMediaType.movie,
         collection: TmdbImportCollection.watchlistMovies,
         title: 'Pulp Fiction',
         rawPayload: const <String, dynamic>{'id': 680, 'title': 'Pulp Fiction'},
@@ -251,6 +265,7 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
       final enrichedService = TmdbImportService(dio: dio);
       final entry = TmdbImportEntry(
         tmdbId: 680,
+        mediaType: TmdbMediaType.movie,
         collection: TmdbImportCollection.ratedMovies,
         title: 'Pulp Fiction',
         rating: 8,
@@ -288,6 +303,7 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
       );
       final entry = TmdbImportEntry(
         tmdbId: 680,
+        mediaType: TmdbMediaType.movie,
         collection: TmdbImportCollection.ratedMovies,
         title: 'Pulp Fiction',
         originalTitle: 'Pulp Fiction',

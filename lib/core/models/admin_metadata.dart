@@ -445,6 +445,58 @@ class AdminProviderPreview {
   }
 }
 
+class AdminBatchHydrateResultItem {
+  const AdminBatchHydrateResultItem({
+    required this.providerItemId,
+    required this.success,
+    this.preview,
+    this.error,
+  });
+
+  final String providerItemId;
+  final bool success;
+  final AdminProviderPreview? preview;
+  final String? error;
+
+  factory AdminBatchHydrateResultItem.fromJson(Map<String, dynamic> json) {
+    final previewData = json['preview'] as Map<String, dynamic>?;
+    return AdminBatchHydrateResultItem(
+      providerItemId: json['provider_item_id'] as String,
+      success: json['success'] as bool,
+      preview: previewData != null
+          ? AdminProviderPreview.fromJson(previewData)
+          : null,
+      error: json['error'] as String?,
+    );
+  }
+}
+
+class AdminBatchHydrateResult {
+  const AdminBatchHydrateResult({
+    required this.results,
+    required this.total,
+    required this.succeeded,
+    required this.failed,
+  });
+
+  final List<AdminBatchHydrateResultItem> results;
+  final int total;
+  final int succeeded;
+  final int failed;
+
+  factory AdminBatchHydrateResult.fromJson(Map<String, dynamic> json) {
+    return AdminBatchHydrateResult(
+      results: (json['results'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(AdminBatchHydrateResultItem.fromJson)
+          .toList(growable: false),
+      total: json['total'] as int,
+      succeeded: json['succeeded'] as int,
+      failed: json['failed'] as int,
+    );
+  }
+}
+
 class AdminCatalogSummary {
   const AdminCatalogSummary({
     required this.items,
