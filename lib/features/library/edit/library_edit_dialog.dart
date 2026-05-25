@@ -1365,7 +1365,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
           ? null
           : LibraryPersonalEditSelection(
               anchorType: _selectedOwnedAnchorType,
-                editionId: _selectedOwnedAnchorType ==
+              editionId: _selectedOwnedAnchorType ==
                       PersonalItemAnchorType.edition.apiValue ||
                     _selectedOwnedAnchorType ==
                       PersonalItemAnchorType.variant.apiValue
@@ -1379,38 +1379,38 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                       PersonalItemAnchorType.bundleRelease.apiValue
                   ? _selectedBundleReleaseId
                   : null,
-                condition:
+              condition:
                   _showPhysicalOwnedFields ? emptyToNull(_conditionController.text) : null,
-                grade: _showPhysicalOwnedFields ? emptyToNull(_gradeController.text) : null,
+              grade: _showPhysicalOwnedFields ? emptyToNull(_gradeController.text) : null,
               purchaseDate: parseDate(_purchaseDateController.text),
               pricePaidCents: parseMoneyCents(_priceController.text),
               currency: emptyToNull(_currencyController.text),
               personalNotes: emptyToNull(_notesController.text),
               quantity: parseInt(_quantityController.text) ?? 1,
-                locationId: _showPhysicalOwnedFields ? _selectedLocationId : null,
-                locationChanged: _showPhysicalOwnedFields ? _locationChanged : false,
+              locationId: _showPhysicalOwnedFields ? _selectedLocationId : null,
+              locationChanged: _showPhysicalOwnedFields ? _locationChanged : false,
               tags: emptyToNull(_tagsController.text),
               soldAt: _soldAt,
               sellPriceCents: parseMoneyCents(_sellPriceController.text),
               soldTo: emptyToNull(_soldToController.text),
-                rawOrSlabbed:
+              rawOrSlabbed:
                   _isDigitalFormat ? null : emptyToNull(_rawOrSlabbedController.text),
-                gradingCompany:
+              gradingCompany:
                   _isDigitalFormat ? null : emptyToNull(_gradingCompanyController.text),
-                graderNotes:
+              graderNotes:
                   _isDigitalFormat ? null : emptyToNull(_graderNotesController.text),
-                signedBy:
+              signedBy:
                   _isDigitalFormat ? null : emptyToNull(_signedByController.text),
               keyComic: _keyComic,
               keyReason: emptyToNull(_keyReasonController.text),
-                coverPriceCents:
+              coverPriceCents:
                   _isDigitalFormat ? null : parseMoneyCents(_coverPriceController.text),
             ),
       wishlist: widget.wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
               anchorType: _selectedWishlistAnchorType,
-                editionId: _selectedWishlistAnchorType ==
+              editionId: _selectedWishlistAnchorType ==
                       PersonalItemAnchorType.edition.apiValue ||
                     _selectedWishlistAnchorType ==
                       PersonalItemAnchorType.variant.apiValue
