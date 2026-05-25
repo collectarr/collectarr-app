@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../helpers/test_constants.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -31,7 +33,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('3 entries'), findsOneWidget);
     expect(find.text('catalog warmed'), findsOneWidget);
@@ -39,7 +41,7 @@ void main() {
     expect(find.text('retry scheduled'), findsOneWidget);
 
     await tester.tap(find.text('Errors'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('1 entries'), findsOneWidget);
     expect(find.text('sync failed'), findsOneWidget);
@@ -47,9 +49,9 @@ void main() {
     expect(find.text('retry scheduled'), findsNothing);
 
     await tester.tap(find.byType(DropdownButton<String?>));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('api').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('No entries match the current filter'), findsOneWidget);
   });
@@ -95,20 +97,20 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('stack trace line'), findsNothing);
 
     await tester.tap(find.text('sync failed'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('stack trace line'), findsOneWidget);
 
     await tester.tap(find.text('sync failed'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('stack trace line'), findsNothing);
 
     await tester.tap(find.byTooltip('Copy all to clipboard'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final clipboardData = await Clipboard.getData('text/plain');
     expect(clipboardData?.text, contains('[INFO]'));

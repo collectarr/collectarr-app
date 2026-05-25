@@ -9,6 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/library_add_test_harness.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('manual add flow surfaces digital ownership type', (tester) async {
     configureLibraryAddDesktopViewport(tester);
@@ -33,12 +35,12 @@ void main() {
     );
 
     await tester.tap(find.text('Manual'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Digital').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(
       find.text(

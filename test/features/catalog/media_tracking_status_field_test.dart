@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_status_f
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('renders profile labels and reports storage values',
       (tester) async {
@@ -24,9 +26,9 @@ void main() {
     expect(find.text('Reading'), findsOneWidget);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Read').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selected, 'Read');
   });

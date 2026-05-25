@@ -46,7 +46,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         ),
         inputDecorationTheme: const InputDecorationTheme(
           filled: true,
-          fillColor: Color(0xFF111111),
+          fillColor: kAppFieldDark,
           isDense: true,
           border: OutlineInputBorder(
             borderSide: BorderSide(color: _authDivider),
@@ -403,7 +403,7 @@ class _AuthModeStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF181818),
+        color: kAppCardBackground,
         border: Border.all(color: _authDivider),
       ),
       child: const Padding(
@@ -504,7 +504,7 @@ class _AlphaTab extends StatelessWidget {
       margin: const EdgeInsets.only(right: 4),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: selected ? _authAccent : const Color(0xFF111111),
+        color: selected ? _authAccent : kAppFieldDark,
         border: Border.all(color: _authDivider),
       ),
       child: Text(label, style: const TextStyle(fontSize: 10)),
@@ -562,7 +562,7 @@ class _PreviewSeriesList extends StatelessWidget {
                   Container(
                     width: 22,
                     alignment: Alignment.center,
-                    color: const Color(0xFF303030),
+                    color: kAppSurface,
                     child: Text(row.$2, style: const TextStyle(fontSize: 10)),
                   ),
                 ],

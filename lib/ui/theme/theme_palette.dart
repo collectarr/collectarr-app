@@ -124,6 +124,16 @@ const kAppAnimFast = Duration(milliseconds: 150);
 const kAppAnimNormal = Duration(milliseconds: 300);
 const kAppAnimSlow = Duration(milliseconds: 450);
 
+// ── Responsive layout breakpoints ───────────────────────────────────────────
+/// Below this width the sidebar is hidden and layout enters compact mode.
+const double kAppCompactBreakpoint = 640;
+
+/// Below this width the details pane moves from right to bottom.
+const double kAppSpacedBreakpoint = 860;
+
+/// Below this width inspector and edit dialogs stack vertically.
+const double kAppStackedBreakpoint = 560;
+
 // ── Semantic status banner colors ───────────────────────────────────────────
 const kAppBannerErrorBackground = Color(0xFF4A2630);
 const kAppBannerErrorBorder = Color(0xFF9D5D69);
@@ -131,6 +141,11 @@ const kAppBannerErrorIcon = Color(0xFFFFB4C0);
 const kAppBannerErrorText = Color(0xFFFFD9DF);
 const kAppBannerInfoBackground = Color(0xFF183246);
 const kAppBannerWarningBackground = Color(0xFF3F3A1A);
+
+// ── Add-dialog & mode-bar tokens ────────────────────────────────────────────
+const kAppTextBright = Color(0xFFEDEDED);
+const kAppTextHint = Color(0xFF9EA9B0);
+const kAppFieldDark = Color(0xFF111111);
 
 const kDefaultAppThemePalette = AppThemePalette(
   topBar: kAppTopBar,

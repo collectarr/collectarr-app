@@ -111,8 +111,8 @@ class LibraryBody extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final selected = projection.selectedItem;
-        final compact = constraints.maxWidth < 860;
-        final showSidebar = constraints.maxWidth >= 640;
+        final compact = constraints.maxWidth < kAppSpacedBreakpoint;
+        final showSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
         final detailsLayout =
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom

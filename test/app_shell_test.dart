@@ -84,7 +84,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(syncController.onlineFirstRequests, 1);
 
     await tester.pump();
@@ -132,7 +132,7 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
@@ -164,7 +164,7 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
@@ -193,7 +193,7 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
@@ -223,11 +223,11 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final context = tester.element(find.byType(AppShell));
     GoRouter.of(context).go(AppRoutes.detail);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.byType(LibraryHomePage), findsOneWidget);
     expect(find.byType(AppShell), findsOneWidget);

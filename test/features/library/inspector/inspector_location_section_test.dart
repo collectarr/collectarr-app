@@ -5,6 +5,8 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('cancel keeps the current location assignment', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -37,16 +39,16 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Office Shelf'), findsOneWidget);
 
     await tester.tap(find.text('Office Shelf'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Assign Location'), findsOneWidget);
     await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final owned = await (db.select(db.ownedItemsCache)
           ..where((t) => t.id.equals('owned-1')))

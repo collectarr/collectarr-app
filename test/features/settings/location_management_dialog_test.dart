@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
+
+import '../../helpers/test_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -45,10 +47,10 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Shelf').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Location name'),
@@ -64,14 +66,14 @@ void main() {
     );
     await tester.ensureVisible(parentDropdown);
     await tester.tap(parentDropdown);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Closet').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final saveButton = find.widgetWithText(FilledButton, 'Save changes');
     await tester.ensureVisible(saveButton);
     await tester.tap(saveButton);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final updated = await LocationRepository(db).getById('shelf');
     expect(updated, isNotNull);
@@ -113,14 +115,14 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Room').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Delete location'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final repo = LocationRepository(db);
     final deleted = await repo.getById('room');

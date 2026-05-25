@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('edit scaffold footer shows context fields and tab navigation', (
     tester,
@@ -23,7 +25,7 @@ void main() {
     expect(nextBefore.onPressed, isNotNull);
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Next'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('2 / 2'), findsOneWidget);
 

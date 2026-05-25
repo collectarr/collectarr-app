@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
+import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/shelf_volumes_provider.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -123,7 +124,9 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
             ],
           );
         },
-        error: (error, stackTrace) => Center(child: Text(error.toString())),
+        error: (error, stackTrace) => AppErrorCard(
+          message: error.toString(),
+        ),
         loading: () => const SkeletonGrid(),
       ),
     );

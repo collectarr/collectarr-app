@@ -16,6 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('inspector section renders title and children', (tester) async {
     await tester.pumpWidget(
@@ -176,7 +178,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
     expect(find.text('OWNED'), findsOneWidget);
@@ -219,7 +221,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.byType(InspectorItemImagesSection), findsNothing);
   });
@@ -263,7 +265,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.textContaining('Back Cover'), findsOneWidget);
     expect(find.text('Front Cover'), findsNothing);
@@ -325,7 +327,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('2 copies in collection'), findsOneWidget);
     expect(find.text('Add copy'), findsOneWidget);
@@ -388,12 +390,12 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>).first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Very Fine').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byTooltip('Edit metadata and collection fields'));
     await tester.pump();
@@ -470,15 +472,15 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'Back cover'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'View back'), findsNothing);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>).first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Very Fine').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'View back'), findsOneWidget);
   });

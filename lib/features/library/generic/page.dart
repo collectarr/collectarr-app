@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -61,8 +62,8 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_entr
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/settings/pick_list_editor_dialog.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -350,7 +351,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     allOwnedCopies: allOwnedCopies,
                     allWishlistItems: allWishlistItems,
                   ),
-                  error: (error, _) => Center(child: Text(error.toString())),
+                  error: (error, _) => AppErrorCard(
+                    message: error.toString(),
+                  ),
                   loading: () =>
                       const SkeletonGrid(),
                 ),
@@ -598,7 +601,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         }
       });
     } catch (e, st) {
-      debugPrint('Facet load failed for $mode: $e\n$st');
+      logRecoverableError(
+        source: 'LibraryPage',
+        message: 'Facet load failed for $mode',
+        error: e,
+        stackTrace: st,
+      );
     } finally {
       _facetLoadsInFlight.remove(mode);
       if (mounted) {

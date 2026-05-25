@@ -31,7 +31,7 @@ class InspectorHero extends StatelessWidget {
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 560;
+        final wide = constraints.maxWidth >= kAppStackedBreakpoint;
         final cover = Consumer(
           builder: (context, ref, _) {
             final ownedItemId = resolvedOwnedItemId;

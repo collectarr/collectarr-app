@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('loads bundle contents lazily and renders grouped members', (
     tester,
@@ -18,7 +20,7 @@ void main() {
     expect(find.text('Expand to load bundle members'), findsOneWidget);
 
     await tester.tap(find.text('Bundle contents'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.calls, 1);
     expect(find.text('3 items • 2 primary • 1 bonus'), findsOneWidget);
@@ -42,14 +44,14 @@ void main() {
     await tester.pumpWidget(_buildTestApp(api));
 
     await tester.tap(find.text('Bundle contents'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.calls, 1);
     expect(find.textContaining('Could not load bundle contents'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
 
     await tester.tap(find.text('Retry'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.calls, 2);
     expect(find.text('Recovered Box'), findsOneWidget);

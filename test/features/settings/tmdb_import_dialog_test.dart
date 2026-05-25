@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/test_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -28,14 +30,14 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Preview JSON/CSV'), findsOneWidget);
     expect(find.text('Preview file'), findsOneWidget);
     expect(find.text('Preview TMDB import'), findsNothing);
 
     await tester.tap(find.text('Account sync'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Preview TMDB import'), findsOneWidget);
     expect(find.text('Save'), findsOneWidget);

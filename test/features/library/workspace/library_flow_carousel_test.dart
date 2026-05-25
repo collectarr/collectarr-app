@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('flow carousel navigates between items with arrow controls',
       (tester) async {
@@ -46,7 +48,7 @@ void main() {
     expect(find.text('Arrival'), findsWidgets);
 
     await tester.tap(find.byKey(const ValueKey('flow-carousel-next')));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(activatedId, 'movie-2');
     expect(find.text('Blade Runner 2049'), findsWidgets);
@@ -85,13 +87,13 @@ void main() {
 
     await tester.pump();
     await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowRight);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(activatedId, 'movie-2');
     expect(find.byKey(const ValueKey('flow-carousel-backdrop-movie-2')), findsOneWidget);
 
     await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowLeft);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(activatedId, 'movie-1');
     expect(find.byKey(const ValueKey('flow-carousel-backdrop-movie-1')), findsOneWidget);

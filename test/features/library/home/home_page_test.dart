@@ -15,6 +15,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('non-comic libraries use the generic workspace', (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -60,10 +62,10 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Games'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     // Core workspace layout renders with game data.
     expect(find.text('Add Games'), findsOneWidget);
@@ -77,39 +79,39 @@ void main() {
     expect(find.byTooltip('Clear group filter'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Group by'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(ListTile, 'Year'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Years'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Library tools'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Quick views'), findsOneWidget);
     expect(find.text('Statistics'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(ListTile, 'Statistics'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Games Statistics'), findsOneWidget);
     expect(find.text('Total'), findsOneWidget);
     await tester.tap(find.byTooltip('Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byTooltip('Library tools'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(ListTile, 'Wishlist'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('No matching games'), findsOneWidget);
     expect(find.text('Hades'), findsNothing);
     await tester.tap(find.text('Clear filter'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Hades'), findsWidgets);
 
     await tester.tap(find.byTooltip('Refresh metadata'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Refresh games metadata'), findsOneWidget);
     expect(find.text('Source: Collectarr Core search'), findsOneWidget);
@@ -153,7 +155,7 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final overflowButton = tester.widget<PopupMenuButton<CatalogMediaType>>(
       find.byType(PopupMenuButton<CatalogMediaType>),
@@ -163,13 +165,13 @@ void main() {
     expect(overflowButton.position, PopupMenuPosition.under);
 
     await tester.tap(find.byTooltip('More libraries'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     final gameItem = tester.widget<PopupMenuItem<CatalogMediaType>>(
       find.byKey(const ValueKey('library-overflow-item-game')),
     );
     expect(gameItem.height, 38);
     await tester.tap(find.text('Games'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('[All Games] 1'), findsOneWidget);
     expect(find.text('Hades'), findsWidgets);
@@ -221,12 +223,12 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byTooltip('More libraries'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Podcasts'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Add Podcasts'), findsOneWidget);
     expect(find.byTooltip('Scan barcode'), findsOneWidget);
@@ -279,7 +281,7 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Add Games'), findsOneWidget);
     expect(find.text('Celeste'), findsWidgets);
@@ -341,7 +343,7 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('1 overdue'), findsOneWidget);
     expect(

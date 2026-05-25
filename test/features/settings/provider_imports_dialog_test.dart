@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:collectarr_app/features/settings/provider_imports_dialog.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+
+import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +62,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('TMDB overview'), findsOneWidget);
     expect(find.text('Recent activity'), findsOneWidget);
@@ -70,7 +72,7 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).last,
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Pending reconciliation'), findsOneWidget);
     expect(find.text('The Matrix Reloaded'), findsOneWidget);

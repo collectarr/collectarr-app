@@ -13,6 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('double tap on a video card opens the release browser',
       (tester) async {
@@ -109,11 +111,11 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
   await tester.tap(find.byType(LibraryWorkspaceCard));
   await tester.pump(const Duration(milliseconds: 40));
   await tester.tap(find.byType(LibraryWorkspaceCard));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Releases'), findsWidgets);
     expect(find.text('4K Steelbook'), findsWidgets);
@@ -219,11 +221,11 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.byType(LibraryWorkspaceCard));
     await tester.pump(const Duration(milliseconds: 40));
     await tester.tap(find.byType(LibraryWorkspaceCard));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Remove wishlist'), findsOneWidget);
     expect(find.text('Move to wishlist'), findsNothing);
@@ -295,11 +297,11 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.byType(LibraryWorkspaceCard));
     await tester.pump(const Duration(milliseconds: 40));
     await tester.tap(find.byType(LibraryWorkspaceCard));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(
       find.textContaining(

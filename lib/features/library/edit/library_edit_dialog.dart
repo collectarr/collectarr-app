@@ -15,6 +15,8 @@ import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -25,7 +27,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
@@ -1745,130 +1747,4 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   String? _normalizedId(String? value) {
     return emptyToNull(value ?? '');
   }
-}
-
-// ---------------------------------------------------------------------------
-// Selection data classes
-// ---------------------------------------------------------------------------
-
-class LibraryEditSelection {
-  const LibraryEditSelection({
-    required this.item,
-    required this.personal,
-    this.wishlist,
-    this.tracking,
-    this.customFieldEdits = const {},
-    this.itemImageEdits = const [],
-  });
-
-  final LibraryMetadataItem item;
-  final LibraryPersonalEditSelection? personal;
-  final LibraryWishlistEditSelection? wishlist;
-  final LibraryTrackingEditSelection? tracking;
-  final Map<String, String?> customFieldEdits;
-  final List<ItemImageEdit> itemImageEdits;
-}
-
-class LibraryPersonalEditSelection {
-  const LibraryPersonalEditSelection({
-    required this.anchorType,
-    required this.editionId,
-    required this.variantId,
-    required this.bundleReleaseId,
-    required this.condition,
-    required this.grade,
-    required this.purchaseDate,
-    required this.pricePaidCents,
-    required this.currency,
-    required this.personalNotes,
-    required this.quantity,
-    required this.locationId,
-    required this.locationChanged,
-    required this.tags,
-    this.soldAt,
-    this.sellPriceCents,
-    this.soldTo,
-    this.rawOrSlabbed,
-    this.gradingCompany,
-    this.graderNotes,
-    this.signedBy,
-    this.keyComic,
-    this.keyReason,
-    this.coverPriceCents,
-  });
-
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
-  final String? condition;
-  final String? grade;
-  final DateTime? purchaseDate;
-  final int? pricePaidCents;
-  final String? currency;
-  final String? personalNotes;
-  final int quantity;
-  final String? locationId;
-  final bool locationChanged;
-  final String? tags;
-  final DateTime? soldAt;
-  final int? sellPriceCents;
-  final String? soldTo;
-  final String? rawOrSlabbed;
-  final String? gradingCompany;
-  final String? graderNotes;
-  final String? signedBy;
-  final bool? keyComic;
-  final String? keyReason;
-  final int? coverPriceCents;
-}
-
-class LibraryWishlistEditSelection {
-  const LibraryWishlistEditSelection({
-    required this.anchorType,
-    required this.editionId,
-    required this.variantId,
-    required this.bundleReleaseId,
-    required this.targetPriceCents,
-    required this.currency,
-    required this.notes,
-  });
-
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
-  final int? targetPriceCents;
-  final String? currency;
-  final String? notes;
-}
-
-class LibraryTrackingEditSelection {
-  const LibraryTrackingEditSelection({
-    required this.editionId,
-    required this.variantId,
-    required this.rating,
-    required this.readStatus,
-    this.progressCurrent,
-    this.progressTotal,
-    this.timesCompleted,
-    this.notes,
-    this.seasonNumber,
-    this.episodeNumber,
-    this.startedAt,
-    this.finishedAt,
-  });
-
-  final String? editionId;
-  final String? variantId;
-  final int? rating;
-  final String? readStatus;
-  final int? progressCurrent;
-  final int? progressTotal;
-  final int? timesCompleted;
-  final String? notes;
-  final int? seasonNumber;
-  final int? episodeNumber;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
 }

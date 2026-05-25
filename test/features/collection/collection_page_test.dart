@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('shelf page shows local collection stats and filters',
       (tester) async {
@@ -58,7 +60,7 @@ void main() {
         child: const MaterialApp(home: CollectionPage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Shelf'), findsOneWidget);
     expect(find.text('Owned'), findsWidgets);
@@ -76,7 +78,7 @@ void main() {
     expect(find.text('Signed copy'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Export collection'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Import or export collection'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
@@ -86,10 +88,10 @@ void main() {
     expect(find.text('1 wishlist'), findsOneWidget);
 
     await tester.tap(find.text('Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byKey(const ValueKey('shelf-filter-wishlist')));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Superman, Vol. 4 #8A'), findsNothing);
     expect(find.textContaining('Catalog item'), findsOneWidget);

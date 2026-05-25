@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/error_card.dart';
+import 'package:collectarr_app/ui/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,8 +37,8 @@ class SeriesDetailPage extends ConsumerWidget {
         title: Text(seriesTitle),
       ),
       body: detail.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => _SeriesDetailError(
+        loading: () => const AppLoadingIndicator(),
+        error: (error, _) => AppErrorCard(
           message: error.toString(),
           onRetry: () => ref.invalidate(_seriesDetailProvider(seriesId)),
         ),
@@ -308,37 +310,3 @@ class _SeriesStatChip extends StatelessWidget {
   }
 }
 
-class _SeriesDetailError extends StatelessWidget {
-  const _SeriesDetailError({
-    required this.message,
-    required this.onRetry,
-  });
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 36),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

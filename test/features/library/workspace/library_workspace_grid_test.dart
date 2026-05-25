@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('workspace grid renders empty state when there are no items',
       (tester) async {
@@ -147,7 +149,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('one'), findsOneWidget);
     expect(find.byType(GridView), findsOneWidget);

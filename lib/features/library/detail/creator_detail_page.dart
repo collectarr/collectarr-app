@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/error_card.dart';
+import 'package:collectarr_app/ui/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,8 +40,8 @@ class CreatorDetailPage extends ConsumerWidget {
         title: Text(creatorName),
       ),
       body: detail.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => _CreatorDetailError(
+        loading: () => const AppLoadingIndicator(),
+        error: (error, _) => AppErrorCard(
           message: error.toString(),
           onRetry: () => ref.invalidate(_creatorDetailProvider(creatorName)),
         ),
@@ -250,41 +252,6 @@ class _CreatorStatChip extends StatelessWidget {
     return Chip(
       avatar: Icon(icon, size: 16),
       label: Text(label),
-    );
-  }
-}
-
-class _CreatorDetailError extends StatelessWidget {
-  const _CreatorDetailError({
-    required this.message,
-    required this.onRetry,
-  });
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 36),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

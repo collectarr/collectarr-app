@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 class LibraryAddModeTab extends StatelessWidget {
@@ -54,7 +55,7 @@ class LibraryAddModeTab extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(
-                color: Color(0xFFEDEDED),
+                color: kAppTextBright,
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
               ),

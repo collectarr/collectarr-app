@@ -122,49 +122,10 @@ class _SearchPaneNoticeStack extends StatelessWidget {
             padding: EdgeInsets.only(
               top: queuedProviderIngests.isNotEmpty ? 6 : 0,
             ),
-            child: _ErrorBanner(error!),
+            child: AppErrorBanner(error!),
           ),
         const Divider(height: 1, thickness: 1, color: kAppDivider),
       ],
-    );
-  }
-}
-
-class _ErrorBanner extends StatelessWidget {
-  const _ErrorBanner(this.message);
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: kAppBannerErrorBackground,
-        border: Border.all(color: kAppBannerErrorBorder),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.info_outline,
-              size: 18,
-              color: kAppBannerErrorIcon,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: kAppBannerErrorText,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

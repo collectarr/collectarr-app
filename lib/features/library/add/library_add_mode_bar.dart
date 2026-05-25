@@ -304,7 +304,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
             'Search by',
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: Color(0xFFEDEDED),
+              color: kAppTextBright,
             ),
           ),
           const SizedBox(width: 8),
@@ -345,7 +345,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
             onPressed: onScan,
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.menu, size: 26, color: Color(0xFFEDEDED)),
+          const Icon(Icons.menu, size: 26, color: kAppTextBright),
         ],
       ),
     );
@@ -423,7 +423,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
-            color: Color(0xFFEDEDED),
+            color: kAppTextBright,
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
@@ -434,7 +434,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
             border: InputBorder.none,
             semanticCounterText: label,
             hintText: hintText,
-            hintStyle: const TextStyle(color: Color(0xFF9EA9B0)),
+            hintStyle: const TextStyle(color: kAppTextHint),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
@@ -651,7 +651,7 @@ class _AdvancedField extends StatelessWidget {
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
-            color: Color(0xFFEDEDED),
+            color: kAppTextBright,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -661,7 +661,7 @@ class _AdvancedField extends StatelessWidget {
             border: InputBorder.none,
             hintText: hint,
             hintStyle: const TextStyle(
-              color: Color(0xFF9EA9B0),
+              color: kAppTextHint,
               fontSize: 13,
             ),
             contentPadding:

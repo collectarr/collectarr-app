@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
+
+import '../../helpers/test_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,17 +39,17 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.byIcon(Icons.place));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Assign Location'), findsOneWidget);
     await tester.tap(find.text('Short Box 1').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final defaults = await PrefillDefaults.load();
     expect(defaults.locationId, 'loc-1');

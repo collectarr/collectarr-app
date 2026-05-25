@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
@@ -12,7 +13,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -897,7 +898,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       builder: (context, constraints) {
         final columns = constraints.maxWidth >= 780
             ? ultraWideColumns
-            : constraints.maxWidth >= 560
+            : constraints.maxWidth >= kAppStackedBreakpoint
                 ? wideColumns
                 : 1;
         final fieldWidth = columns == 1
@@ -1101,6 +1102,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           labelText: label,
           suffixIcon: value != null
               ? IconButton(
+                  tooltip: 'Clear date',
                   icon: const Icon(Icons.clear, size: 18),
                   onPressed: () => onChanged(null),
                 )

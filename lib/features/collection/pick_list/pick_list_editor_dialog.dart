@@ -118,6 +118,7 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
                       ),
                       const SizedBox(width: 8),
                       IconButton(
+                        tooltip: 'Add',
                         icon: const Icon(Icons.add),
                         onPressed: _addValue,
                       ),
@@ -142,6 +143,7 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
                                   visualDensity: VisualDensity.compact,
                                 )
                               : IconButton(
+                                  tooltip: 'Remove',
                                   icon: const Icon(Icons.delete_outline,
                                       size: 18),
                                   onPressed: () => _removeValue(value),

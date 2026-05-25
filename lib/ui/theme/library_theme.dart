@@ -22,7 +22,7 @@ ThemeData buildLibraryDialogTheme({
   return kLibraryTheme.copyWith(
     inputDecorationTheme: buildAppInputDecorationTheme(
       palette,
-      fillColor: const Color(0xFF111111),
+      fillColor: kAppFieldDark,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
     ),
   );

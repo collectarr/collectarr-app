@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -1032,7 +1032,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               runSpacing: 8,
               children: [
                 for (final value in values)
-                  EditMiniBadge(value, color: const Color(0xFF3A3A3A)),
+                  EditMiniBadge(value, color: kAppSurfaceBright),
               ],
             ),
     );
@@ -1199,6 +1199,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           labelText: label,
           suffixIcon: value != null
               ? IconButton(
+                  tooltip: 'Clear date',
                   icon: const Icon(Icons.clear, size: 18),
                   onPressed: () => onChanged(null),
                 )

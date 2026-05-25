@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('music stats dashboard uses artist and label metadata alerts', (
     tester,
@@ -54,7 +56,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open stats'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Top Artists'), findsOneWidget);
     expect(find.text('Top Labels'), findsOneWidget);
@@ -144,7 +146,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open stats'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Key items'), findsOneWidget);
     expect(find.text('1'), findsWidgets);
@@ -210,7 +212,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open stats'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Gaps: Saga'), findsOneWidget);
     expect(find.text('#3'), findsOneWidget);
@@ -267,7 +269,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open stats'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Missing volumes: Vinland Saga'), findsOneWidget);
     expect(find.text('Vol. 2'), findsOneWidget);
@@ -324,7 +326,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open stats'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Missing seasons: The Mandalorian'), findsOneWidget);
     expect(find.text('Season 2'), findsOneWidget);

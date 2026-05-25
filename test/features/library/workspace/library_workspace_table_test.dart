@@ -4,6 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
   return tester.widget<DecoratedBox>(
     find.ancestor(
@@ -77,7 +79,7 @@ void main() {
       find.byIcon(Icons.drag_indicator).last,
       const Offset(-140, 0),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(sortedBy, LibrarySortColumn.title);
     expect(tapped, 'Batman');
@@ -138,7 +140,7 @@ void main() {
     expect(beforeTapBox.boxShadow, isNull);
 
     await tester.tap(find.text('Batman'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final afterTapDecoration = _rowDecorationForText(tester, 'Batman');
     final afterTapBox = afterTapDecoration.decoration as BoxDecoration;
@@ -206,7 +208,7 @@ void main() {
       start,
       Offset(issueHeader.dx - start.dx + 30, 0),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(reordered, (LibraryTableColumn.title, null));
   });
@@ -257,7 +259,7 @@ void main() {
     await gesture.moveTo(
       tester.getTopRight(find.byType(Scrollbar).first) - const Offset(2, -24),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
   });

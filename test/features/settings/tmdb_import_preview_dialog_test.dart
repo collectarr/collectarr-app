@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('preview dialog can skip unmatched rows on import', (
     tester,
@@ -71,7 +73,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open preview'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(
       find.text('1 unmatched rows will create metadata proposals.'),
@@ -80,9 +82,9 @@ void main() {
     expect(find.text('Skip unmatched rows'), findsOneWidget);
 
     await tester.tap(find.text('Skip unmatched rows'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Import completed'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(receivedSkipUnmatchedRows, isTrue);
     expect(dialogResult, 'Imported 1 items. Skipped 1 unmatched rows.');

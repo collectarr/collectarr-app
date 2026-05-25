@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('detail hero keeps a back cover affordance when the back image is missing', (
     tester,
@@ -57,7 +59,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'Back cover'), findsOneWidget);
   });
@@ -116,12 +118,12 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'View back'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'View back'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'View front'), findsOneWidget);
   });
@@ -157,7 +159,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Author view'), findsOneWidget);
     expect(find.text('J.R.R. Tolkien'), findsOneWidget);
@@ -195,7 +197,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Owned as bundle'), findsOneWidget);
   });

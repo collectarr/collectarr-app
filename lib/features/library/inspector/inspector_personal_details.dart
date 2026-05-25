@@ -801,6 +801,7 @@ class _InspectorTrackingDetailsEditorState
           border: const OutlineInputBorder(),
           suffixIcon: value != null
               ? IconButton(
+                  tooltip: 'Clear date',
                   icon: const Icon(Icons.clear, size: 18),
                   onPressed: () => onChanged(null),
                 )

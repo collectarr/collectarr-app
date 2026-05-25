@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('import export wizard exposes collectarr and CLZ flows', (
     tester,
@@ -44,7 +46,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Import or export collection'), findsOneWidget);
     expect(find.text('Collectarr CSV'), findsOneWidget);
@@ -54,7 +56,7 @@ void main() {
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
 
     await tester.tap(find.text('Import collection'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Paste Collectarr CSV or CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('Preview import'), findsOneWidget);
