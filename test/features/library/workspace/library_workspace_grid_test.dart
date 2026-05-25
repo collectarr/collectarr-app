@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -67,7 +68,11 @@ void main() {
     );
 
     final gridTopLeft = tester.getTopLeft(find.byType(GridView));
-    final gesture = await tester.startGesture(gridTopLeft + const Offset(16, 16));
+  final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+  addTearDown(gesture.removePointer);
+  await gesture.addPointer(location: gridTopLeft + const Offset(16, 16));
+  await tester.pump();
+  await gesture.down(gridTopLeft + const Offset(16, 16));
     await gesture.moveTo(gridTopLeft + const Offset(225, 95));
     await gesture.up();
     await tester.pump();
@@ -102,7 +107,11 @@ void main() {
     addTearDown(() => tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft));
 
     final gridTopLeft = tester.getTopLeft(find.byType(GridView));
-    final gesture = await tester.startGesture(gridTopLeft + const Offset(16, 16));
+  final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+  addTearDown(gesture.removePointer);
+  await gesture.addPointer(location: gridTopLeft + const Offset(16, 16));
+  await tester.pump();
+  await gesture.down(gridTopLeft + const Offset(16, 16));
     await gesture.moveTo(gridTopLeft + const Offset(225, 95));
     await gesture.up();
     await tester.pump();

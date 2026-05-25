@@ -740,7 +740,12 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
             if (release.ownedCopies.isNotEmpty) ...[
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                initialValue: selectedOwnedItemId ?? release.ownedCopies.first.id,
+                initialValue:
+                    release.ownedCopies.any(
+                      (copy) => copy.id == selectedOwnedItemId,
+                    )
+                    ? selectedOwnedItemId
+                    : release.ownedCopies.first.id,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Selected copy',

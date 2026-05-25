@@ -45,8 +45,9 @@ class LibraryCoverImage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-        final cacheWidth = constraints.hasBoundedWidth
-            ? (constraints.maxWidth * pixelRatio).toInt()
+      final cacheWidth = constraints.hasBoundedWidth &&
+        constraints.maxWidth > 0
+          ? (constraints.maxWidth * pixelRatio).ceil()
             : null;
 
     // Prefer local offline bytes when available

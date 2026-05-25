@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -113,6 +114,9 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final selectionLayer = Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (event) {
+            if (event.kind != PointerDeviceKind.mouse) {
+              return;
+            }
             _dragStart = event.localPosition;
             _dragBaseSelection = _selectionIsAdditive
                 ? Set<String>.from(widget.selectedIds)

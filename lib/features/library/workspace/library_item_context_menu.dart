@@ -164,7 +164,8 @@ PopupMenuItem<LibraryItemContextMenuResult> _item(
           color: destructive ? Colors.red[300] : Colors.white70,
         ),
         const SizedBox(width: 10),
-        Expanded(
+        SizedBox(
+          width: 160,
           child: Text(
             label,
             maxLines: 1,

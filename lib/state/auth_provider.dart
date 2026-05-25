@@ -204,7 +204,16 @@ class AuthController extends StateNotifier<AuthState> {
     DateTime? expiresAt,
   }) async {
     final email = prefs.getString(_authEmailKey) ?? state.email;
-    await _authSecureStorage.delete(key: _authTokenKey);
+    try {
+      await _authSecureStorage.delete(key: _authTokenKey);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message: 'Failed to delete secure token during session clear.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
     await prefs.remove(_authTokenKey);
     await prefs.remove(_authIsAdminKey);
     ref.read(apiAuthTokenProvider.notifier).set(null);
