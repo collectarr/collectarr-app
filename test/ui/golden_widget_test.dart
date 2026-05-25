@@ -12,14 +12,14 @@ import '../helpers/test_constants.dart';
 void main() {
   setUp(setUpSecureStorageMock);
 
-  Widget _wrap(Widget child, {Size size = const Size(400, 300)}) {
+  Widget wrapWidget(Widget child, {Size size = const Size(400, 300)}) {
     return MaterialApp(
       theme: buildLibraryTheme(),
       home: Scaffold(body: Center(child: child)),
     );
   }
 
-  void _setView(WidgetTester tester, {Size size = const Size(400, 300)}) {
+  void setView(WidgetTester tester, {Size size = const Size(400, 300)}) {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
@@ -28,8 +28,8 @@ void main() {
 
   group('AppErrorCard golden', () {
     testWidgets('renders with message only', (tester) async {
-      _setView(tester);
-      await tester.pumpWidget(_wrap(
+      setView(tester);
+      await tester.pumpWidget(wrapWidget(
         const AppErrorCard(message: 'Something went wrong'),
       ));
       await pumpUntilSettled(tester);
@@ -41,8 +41,8 @@ void main() {
     });
 
     testWidgets('renders with retry button', (tester) async {
-      _setView(tester);
-      await tester.pumpWidget(_wrap(
+      setView(tester);
+      await tester.pumpWidget(wrapWidget(
         AppErrorCard(message: 'Connection lost', onRetry: () {}),
       ));
       await pumpUntilSettled(tester);
@@ -56,8 +56,8 @@ void main() {
 
   group('AppErrorBanner golden', () {
     testWidgets('renders inline error', (tester) async {
-      _setView(tester, size: const Size(400, 100));
-      await tester.pumpWidget(_wrap(
+      setView(tester, size: const Size(400, 100));
+      await tester.pumpWidget(wrapWidget(
         const AppErrorBanner('Failed to load metadata'),
         size: const Size(400, 100),
       ));
@@ -72,8 +72,8 @@ void main() {
 
   group('LibraryCoverBadges golden', () {
     testWidgets('renders all badges', (tester) async {
-      _setView(tester, size: const Size(500, 80));
-      await tester.pumpWidget(_wrap(
+      setView(tester, size: const Size(500, 80));
+      await tester.pumpWidget(wrapWidget(
         const LibraryCoverBadges(
           isOwned: true,
           isTracked: true,
@@ -95,8 +95,8 @@ void main() {
     });
 
     testWidgets('renders owned only', (tester) async {
-      _setView(tester, size: const Size(200, 60));
-      await tester.pumpWidget(_wrap(
+      setView(tester, size: const Size(200, 60));
+      await tester.pumpWidget(wrapWidget(
         const LibraryCoverBadges(
           isOwned: true,
           isTracked: false,
@@ -115,8 +115,8 @@ void main() {
 
   group('LibraryItemStatusIcons golden', () {
     testWidgets('renders all status icons', (tester) async {
-      _setView(tester, size: const Size(300, 60));
-      await tester.pumpWidget(_wrap(
+      setView(tester, size: const Size(300, 60));
+      await tester.pumpWidget(wrapWidget(
         const LibraryItemStatusIcons(
           isOwned: true,
           isTracked: true,
@@ -138,8 +138,8 @@ void main() {
     });
 
     testWidgets('renders unowned no flags', (tester) async {
-      _setView(tester, size: const Size(200, 60));
-      await tester.pumpWidget(_wrap(
+      setView(tester, size: const Size(200, 60));
+      await tester.pumpWidget(wrapWidget(
         const LibraryItemStatusIcons(
           isOwned: false,
           isTracked: false,
@@ -158,11 +158,11 @@ void main() {
 
   group('TagPickListField golden', () {
     testWidgets('renders with quick tags', (tester) async {
-      _setView(tester, size: const Size(400, 250));
+      setView(tester, size: const Size(400, 250));
       final controller = TextEditingController(text: 'Action');
       addTearDown(controller.dispose);
 
-      await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(wrapWidget(
         TagPickListField(
           controller: controller,
           options: const ['Action', 'Horror', 'Sci-Fi', 'Fantasy'],

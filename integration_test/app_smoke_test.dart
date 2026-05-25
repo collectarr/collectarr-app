@@ -12,9 +12,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
@@ -48,10 +46,7 @@ class _NoOpSyncController extends SyncController {
   _NoOpSyncController(super.ref);
 
   @override
-  Future<void> syncOnlineFirst() async {}
-
-  @override
-  Future<void> fullSync() async {}
+  Future<void> syncOnlineFirstIfEnabled() async {}
 }
 
 // ---------------------------------------------------------------------------
