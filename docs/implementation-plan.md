@@ -136,9 +136,9 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [x] **Resizable panels** — Drag handles on sidebar and inspector with remembered widths
 
 ### 🟡 CLZ Web Parity — Tools & Features
-- [ ] **Sidebar favorites** — Pin frequently-used group modes to top of dropdown
-- [ ] **Sidebar search** — Text input to filter sidebar bucket names
-- [ ] **Sidebar sort toggle** — Switch between alphabetical and by-count ordering
+- [x] **Sidebar favorites** — Pin frequently-used group modes to top of dropdown
+- [x] **Sidebar search** — Text input to filter sidebar bucket names
+- [x] **Sidebar sort toggle** — Switch between alphabetical and by-count ordering
 - [x] **Statistics page** — Charts by genre, year, watch counts, total runtime, value totals
 - [x] **Find Duplicates** — Detect duplicates by title, barcode, title+format
 - [x] **Loan Manager** — Track loaned items with due dates and return tracking
