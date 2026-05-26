@@ -150,7 +150,7 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [ ] **Transfer Field Data** — Move data between fields across items
 - [ ] **Multiple collections per library** — Separate tabs within one library type
 - [x] **Shelf view** — 3D shelf rendering with visual skin options
-- [ ] **Themes/skins** — Light, Dark, Blue templates
+- [x] **Themes/skins** — Dark and Light mode with palette-based ThemeExtension toggle in Settings
 - [x] **Watch/Read/Play history** — Full consumption tracking: dates, location, count
 - [x] **Value tracking** — Purchase price, current value, currency totals, charts
 - [x] **Item count display** — "42 movies" always visible in toolbar
