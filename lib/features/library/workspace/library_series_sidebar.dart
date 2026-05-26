@@ -207,9 +207,9 @@ class _SidebarSearchAndSort extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: 'Filter…',
                   hintStyle:
-                      TextStyle(fontSize: 12, color: appPalette(context).textMuted),
+                      const TextStyle(fontSize: 12, color: kAppTextMuted),
                   prefixIcon:
-                      Icon(Icons.search, size: 14, color: appPalette(context).textMuted),
+                      const Icon(Icons.search, size: 14, color: kAppTextMuted),
                   prefixIconConstraints:
                       const BoxConstraints(minWidth: 28, maxHeight: 26),
                   suffixIcon: controller.text.isNotEmpty
@@ -218,8 +218,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
                             controller.clear();
                             onChanged();
                           },
-                          child: Icon(Icons.close, size: 14,
-                              color: appPalette(context).textMuted),
+                          child: const Icon(Icons.close, size: 14,
+                              color: kAppTextMuted),
                         )
                       : null,
                   suffixIconConstraints:

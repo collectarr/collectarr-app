@@ -215,7 +215,6 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     final modes = libraryGroupModesForType(type);
     final categories = _categorizeGroupModes(modes);
     final pinned = modes.where(pinnedGroupModes.contains).toList();
-    final localPinned = Set<LibraryGroupMode>.from(pinned);
     final box = context.findRenderObject() as RenderBox;
     final offset = box.localToGlobal(Offset(0, box.size.height));
     showMenu<LibraryGroupMode>(
@@ -235,7 +234,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             child: Text(
               'Favorites',
               style: TextStyle(
-                color: appPalette(context).highlight,
+                color: kAppHighlight,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
@@ -243,7 +242,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             ),
           ),
           for (final mode in pinned)
-            _buildGroupModeItem(mode, menuContext: context, localPinned: localPinned),
+            _buildGroupModeItem(mode),
           const PopupMenuDivider(height: 8),
         ],
         for (final category in categories) ...[
@@ -261,7 +260,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             ),
           ),
           for (final mode in category.modes)
-            _buildGroupModeItem(mode, menuContext: context, localPinned: localPinned),
+            _buildGroupModeItem(mode),
         ],
       ],
     ).then((value) {
@@ -269,70 +268,47 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     });
   }
 
-  PopupMenuItem<LibraryGroupMode> _buildGroupModeItem(
-    LibraryGroupMode mode, {
-    BuildContext? menuContext,
-    Set<LibraryGroupMode>? localPinned,
-  }) {
+  PopupMenuItem<LibraryGroupMode> _buildGroupModeItem(LibraryGroupMode mode) {
+    final isPinned = pinnedGroupModes.contains(mode);
     return PopupMenuItem<LibraryGroupMode>(
       value: mode,
       height: 36,
-      child: StatefulBuilder(
-        builder: (context, setMenuState) {
-          final isPinned = localPinned?.contains(mode) ?? pinnedGroupModes.contains(mode);
-          return Row(
-            children: [
-              Icon(
-                genericGroupModeIcon(mode),
-                size: 16,
-                color: mode == groupMode ? accent : kAppTextSecondary,
+      child: Row(
+        children: [
+          Icon(
+            genericGroupModeIcon(mode),
+            size: 16,
+            color: mode == groupMode ? accent : kAppTextSecondary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              genericGroupModeLabel(mode, type),
+              style: TextStyle(
+                fontWeight:
+                    mode == groupMode ? FontWeight.w800 : FontWeight.w500,
+                color: mode == groupMode ? accent : null,
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  genericGroupModeLabel(mode, type),
-                  style: TextStyle(
-                    fontWeight:
-                        mode == groupMode ? FontWeight.w800 : FontWeight.w500,
-                    color: mode == groupMode ? accent : null,
-                  ),
+            ),
+          ),
+          if (mode == groupMode)
+            Icon(Icons.check, size: 16, color: accent),
+          if (onTogglePin != null) ...[
+            const SizedBox(width: 4),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onTogglePin!(mode),
+              child: Padding(
+                padding: const EdgeInsets.all(2),
+                child: Icon(
+                  isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                  size: 14,
+                  color: isPinned ? kAppHighlight : kAppTextMuted,
                 ),
               ),
-              if (mode == groupMode)
-                Icon(Icons.check, size: 16, color: accent),
-              if (onTogglePin != null) ...[
-                const SizedBox(width: 4),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    onTogglePin!(mode);
-                    setMenuState(() {
-                      if (isPinned) {
-                        localPinned?.remove(mode);
-                      } else {
-                        localPinned?.add(mode);
-                      }
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: Icon(
-                      isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                      size: 14,
-                      color: isPinned
-                          ? (menuContext != null
-                              ? appPalette(menuContext).highlight
-                              : kAppHighlight)
-                          : (menuContext != null
-                              ? appPalette(menuContext).textMuted
-                              : kAppTextMuted),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          );
-        },
+            ),
+          ],
+        ],
       ),
     );
   }
