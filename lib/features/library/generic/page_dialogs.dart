@@ -218,4 +218,42 @@ extension _LibraryPageDialogs on _LibraryPageState {
     final db = ref.read(localDatabaseProvider);
     await showUserFoldersDialog(context: context, db: db);
   }
+
+  Future<void> showTransferFieldDataFlow(
+    LibraryProjection? projection,
+  ) async {
+    if (projection == null) return;
+    final db = ref.read(localDatabaseProvider);
+    final ownedItems = await ref.read(collectionProvider.future);
+    // Intersect with currently visible items.
+    final visibleIds = <String>{
+      for (final item in projection.filteredItems)
+        if (item.entry.ownedItemId != null) item.entry.ownedItemId!,
+    };
+    final items = ownedItems
+        .where((o) => !o.isDeleted && visibleIds.contains(o.id))
+        .toList(growable: false);
+    if (items.isEmpty || !mounted) return;
+
+    final mutations = ref.read(collectionMutationsProvider);
+    final result = await showTransferFieldDataDialog(
+      context: context,
+      db: db,
+      items: items,
+      mutations: mutations,
+      customFieldDefinitions: customFieldDefinitions,
+    );
+    if (result != null && mounted) {
+      ref.invalidate(shelfProvider);
+      loadCustomFieldValues(mediaKind: widget.type.workspace.kind.apiValue);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Transfer complete: ${result.transferred} transferred, '
+            '${result.skipped} skipped out of ${result.total}.',
+          ),
+        ),
+      );
+    }
+  }
 }

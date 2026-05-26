@@ -52,6 +52,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onEditConditionPickList,
     this.onEditGradePickList,
     this.onEditTagPickList,
+    this.onTransferFieldData,
     this.onPrintReport,
     this.onShareCollection,
   });
@@ -91,6 +92,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditTagPickList;
+  final VoidCallback? onTransferFieldData;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
 
@@ -188,6 +190,7 @@ class LibraryToolbar extends StatelessWidget {
                       onEditGradePickList: onEditGradePickList,
                       onEditTagPickList: onEditTagPickList,
                       onEditSort: onEditSort,
+                      onTransferFieldData: onTransferFieldData,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
                     ),
