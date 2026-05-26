@@ -44,7 +44,6 @@ import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
-import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';

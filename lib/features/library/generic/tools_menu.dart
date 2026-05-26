@@ -171,18 +171,6 @@ class LibraryToolsButton extends StatelessWidget {
             label: 'Folders...',
             onSelected: onFolders!,
           ),
-        if (onTransferFieldData != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.swap_horiz,
-            label: 'Transfer field data...',
-            onSelected: onTransferFieldData!,
-          ),
-        if (onReassignIndex != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.format_list_numbered,
-            label: 'Re-assign index values...',
-            onSelected: onReassignIndex!,
-          ),
         if (onReadingQueue != null)
           LibraryUtilityMenuAction(
             icon: Icons.bookmarks_outlined,
