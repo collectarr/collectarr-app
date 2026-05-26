@@ -27,7 +27,6 @@ class LibraryToolsButton extends StatelessWidget {
     this.onEditGradePickList,
     this.onEditTagPickList,
     this.onEditSort,
-    this.onReassignIndex,
     this.onTransferFieldData,
     this.onPrintReport,
     this.onShareCollection,
@@ -50,7 +49,6 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditTagPickList;
   final VoidCallback? onEditSort;
-  final VoidCallback? onReassignIndex;
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
@@ -170,6 +168,12 @@ class LibraryToolsButton extends StatelessWidget {
             icon: Icons.folder_outlined,
             label: 'Folders...',
             onSelected: onFolders!,
+          ),
+        if (onTransferFieldData != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.swap_horiz,
+            label: 'Transfer field data...',
+            onSelected: onTransferFieldData!,
           ),
         if (onReadingQueue != null)
           LibraryUtilityMenuAction(
