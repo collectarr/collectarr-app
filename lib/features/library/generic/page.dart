@@ -110,6 +110,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
   final _facetLoadsInFlight = <LibraryGroupMode>{};
   Set<String> _activeLoanOwnedItemIds = const {};
+  Set<LibraryGroupMode> _pinnedGroupModes = const {};
   String? _videoShelfDrilldownTitleItemId;
   String? _videoShelfDrilldownReleaseId;
   int _viewStateLoadToken = 0;
@@ -141,6 +142,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final expectedKind = widget.type.workspace.kind;
     final quickView = await _viewPrefs.readQuickView();
     final groupMode = await _viewPrefs.readGroupMode();
+    final pinnedModes = await _viewPrefs.readPinnedGroupModes();
     if (!mounted ||
         loadToken != _viewPreferenceLoadToken ||
         widget.type.workspace.kind != expectedKind) {
@@ -149,6 +151,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     setState(() {
       _quickView = quickView;
       _groupMode = groupMode;
+      _pinnedGroupModes = pinnedModes;
     });
     } catch (error, stackTrace) {
       logRecoverableError(
@@ -163,6 +166,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   void _primeCachedViewPreferences() {
     _quickView = _viewPrefs.cachedQuickView;
     _groupMode = _viewPrefs.cachedGroupMode;
+    _pinnedGroupModes = _viewPrefs.cachedPinnedGroupModes;
   }
 
   @override
@@ -478,6 +482,17 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       ),
       onLetterSelected: (letter) => setState(() => _selectedLetter = letter),
       db: ref.read(localDatabaseProvider),
+      pinnedGroupModes: _pinnedGroupModes,
+      onTogglePinGroupMode: (mode) {
+        final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
+        if (updated.contains(mode)) {
+          updated.remove(mode);
+        } else {
+          updated.add(mode);
+        }
+        setState(() => _pinnedGroupModes = updated);
+        unawaited(_viewPrefs.writePinnedGroupModes(updated));
+      },
     );
   }
 

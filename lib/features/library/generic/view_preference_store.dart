@@ -2,12 +2,14 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Persists the quick-view filter and group mode for each generic library type.
+/// Persists the quick-view filter, group mode, and pinned group modes
+/// for each generic library type.
 class LibraryViewPreferenceStore {
   const LibraryViewPreferenceStore(this.kind);
 
   static final _cachedQuickViews = <String, LibraryQuickView>{};
   static final _cachedGroupModes = <String, LibraryGroupMode>{};
+  static final _cachedPinnedGroupModes = <String, Set<LibraryGroupMode>>{};
 
   final Object? kind;
 
@@ -23,6 +25,7 @@ class LibraryViewPreferenceStore {
   static void resetCachedPreferencesForTesting() {
     _cachedQuickViews.clear();
     _cachedGroupModes.clear();
+    _cachedPinnedGroupModes.clear();
   }
 
   Future<LibraryQuickView?> readQuickView() async {
@@ -84,6 +87,42 @@ class LibraryViewPreferenceStore {
       await prefs.remove(_key('groupMode'));
     } else {
       await prefs.setString(_key('groupMode'), mode.name);
+    }
+  }
+
+  Set<LibraryGroupMode> get cachedPinnedGroupModes =>
+      _cachedPinnedGroupModes[_cacheKey] ?? const {};
+
+  Future<Set<LibraryGroupMode>> readPinnedGroupModes() async {
+    final prefs = await SharedPreferences.getInstance();
+    final names = prefs.getStringList(_key('pinnedGroupModes'));
+    if (names == null) {
+      _cachedPinnedGroupModes.remove(_cacheKey);
+      return const {};
+    }
+    final modes = <LibraryGroupMode>{};
+    for (final name in names) {
+      for (final mode in LibraryGroupMode.values) {
+        if (mode.name == name) {
+          modes.add(mode);
+          break;
+        }
+      }
+    }
+    _cachedPinnedGroupModes[_cacheKey] = modes;
+    return modes;
+  }
+
+  Future<void> writePinnedGroupModes(Set<LibraryGroupMode> modes) async {
+    _cachedPinnedGroupModes[_cacheKey] = modes;
+    final prefs = await SharedPreferences.getInstance();
+    if (modes.isEmpty) {
+      await prefs.remove(_key('pinnedGroupModes'));
+    } else {
+      await prefs.setStringList(
+        _key('pinnedGroupModes'),
+        modes.map((m) => m.name).toList(),
+      );
     }
   }
 }
