@@ -3,6 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 const _tinyPngBase64 =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX9kAAAAASUVORK5CYII=';
 
@@ -32,7 +34,7 @@ void main() {
     await gesture.addPointer(location: Offset.zero);
     await gesture
         .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Open cover'), findsNothing);
     expect(find.byIcon(Icons.open_in_full), findsOneWidget);
@@ -64,7 +66,7 @@ void main() {
     await gesture.addPointer(location: Offset.zero);
     await gesture
         .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Open cover'), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -95,7 +97,7 @@ void main() {
     await gesture.addPointer(location: Offset.zero);
     await gesture
         .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
   });
@@ -140,12 +142,12 @@ void main() {
     );
 
     await tester.tap(find.byType(LibraryInteractiveCover));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.byType(InteractiveViewer), findsOneWidget);
 
     await tester.tapAt(const Offset(10, 10));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.byType(InteractiveViewer), findsNothing);
   });
@@ -173,9 +175,39 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'Back cover'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'View back'), findsNothing);
+  });
+
+  testWidgets('hover cue can be disabled for inspector covers', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 220,
+              height: 320,
+              child: LibraryInteractiveCover(
+                title: 'The Hobbit',
+                localBase64: 'AAECAw==',
+                enableHoverCue: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(gesture.removePointer);
+    await gesture.addPointer(location: Offset.zero);
+    await gesture.moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
+    await pumpUntilSettled(tester);
+
+    final opacity = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+    expect(opacity.opacity, 0);
+    expect(tester.takeException(), isNull);
   });
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
@@ -12,7 +13,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
@@ -83,6 +84,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   late final TextEditingController _tagsController;
   late final TextEditingController _sellPriceController;
   late final TextEditingController _soldToController;
+  late final TextEditingController _wishlistPriceController;
+  late final TextEditingController _wishlistCurrencyController;
+  late final TextEditingController _wishlistNotesController;
 
   List<String> _tagOptions = const [];
   List<StorageLocation> _availableLocations = const [];
@@ -102,6 +106,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   bool get _isTrackingOnly => !_isOwned && widget.request.trackingEntry != null;
 
+  bool get _hasWishlistContext => widget.request.wishlistItem != null;
+
   LibraryTypeConfig get _type => widget.request.type;
 
   Color get _accent => widget.request.accent;
@@ -111,7 +117,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       isOwned: _isOwned,
       isTrackingOnly: _isTrackingOnly,
       hasTrackingContext: _hasTrackingContext,
-      hasWishlistContext: false,
+      hasWishlistContext: _hasWishlistContext,
       isDigitalFormat: false,
       hasPhysicalFormats: false,
       hasEditionAnchors: widget.request.item.editions.isNotEmpty,
@@ -122,12 +128,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   List<LibraryEditTabSpec> get _tabSpecs {
     return _type.editPresentation.builder.buildTabs(
-      context: _tabPresentationContext,
-    );
-  }
-
-  LibraryEditFooterSpec get _footerSpec {
-    return _type.editPresentation.builder.buildFooter(
       context: _tabPresentationContext,
     );
   }
@@ -222,6 +222,16 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           : (owned!.sellPriceCents! / 100).toStringAsFixed(2),
     );
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
+    final wishlist = widget.request.wishlistItem;
+    _wishlistPriceController = TextEditingController(
+      text: wishlist?.targetPriceCents == null
+          ? ''
+          : (wishlist!.targetPriceCents! / 100).toStringAsFixed(2),
+    );
+    _wishlistCurrencyController =
+        TextEditingController(text: wishlist?.currency ?? '');
+    _wishlistNotesController =
+        TextEditingController(text: wishlist?.notes ?? '');
     _selectedLocationId = owned?.locationId;
     _startedAt = tracking?.startedAt ?? owned?.startedAt;
     _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
@@ -305,6 +315,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _tagsController.dispose();
     _sellPriceController.dispose();
     _soldToController.dispose();
+    _wishlistPriceController.dispose();
+    _wishlistCurrencyController.dispose();
+    _wishlistNotesController.dispose();
     super.dispose();
   }
 
@@ -327,11 +340,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       tabController: _tabController,
       tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
       views: _tabViews(),
-      footerLabel: _footerSpec.label,
-      footerFields: [for (final fieldId in _footerSpec.fieldIds) _footerFieldFor(fieldId)],
-      onPrevious: _previousTab,
-      onNext: _nextTab,
-      onCancel: () => Navigator.of(context).pop(),
+      onClose: () => Navigator.of(context).pop(),
       onSave: _submit,
     );
   }
@@ -367,47 +376,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         return _photosTab();
       default:
         throw StateError('Unsupported book edit tab: $id');
-    }
-  }
-
-  Widget _footerFieldFor(String id) {
-    switch (id) {
-      case 'book_title':
-        return FooterReadonlyField(
-          label: 'Book',
-          value: _bookTitleLabel,
-          width: 180,
-        );
-      case 'book_volume':
-        return FooterReadonlyField(
-          label: 'Volume',
-          value: _volumeNumberController.text,
-          width: 74,
-        );
-      case 'title_sort':
-        return FooterTextField(
-          label: 'Title sort',
-          controller: _sortKeyController,
-          width: 160,
-        );
-      case 'series_tags':
-        return FooterTextField(
-          label: 'Series tags',
-          controller: _seriesTagsController,
-          width: 170,
-        );
-      case 'user_tags':
-        return SizedBox(
-          width: 280,
-          child: TagPickListField(
-            controller: _tagsController,
-            options: _tagOptions,
-            label: 'User tags',
-            hint: 'Comma-separated tags',
-          ),
-        );
-      default:
-        throw StateError('Unsupported book footer field: $id');
     }
   }
 
@@ -560,9 +528,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 ),
                 _field(controller: _sortKeyController, label: 'Title sort'),
                 _field(controller: _subtitleController, label: 'Subtitle'),
-                _field(controller: _numberController, label: 'Book number'),
-                _field(controller: _publisherController, label: 'Publisher'),
-                _field(controller: _editionTitleController, label: 'Edition'),
+                _field(controller: _numberController, label: _type.mediaFields.numberLabel),
+                _field(controller: _publisherController, label: _type.mediaFields.publisherLabel),
+                _field(controller: _editionTitleController, label: _type.releaseFields.editionTitleLabel),
                 _field(controller: _countryController, label: 'Country'),
                 _field(controller: _languageController, label: 'Language'),
                 _field(controller: _imprintController, label: 'Imprint'),
@@ -702,8 +670,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           child: Column(
             children: [
               _responsiveFields([
-                _field(controller: _barcodeController, label: 'Barcode'),
-                _field(controller: _variantController, label: 'Format / variant'),
+                _field(controller: _barcodeController, label: _type.releaseFields.barcodeLabel),
+                _field(controller: _variantController, label: _type.releaseFields.variantLabel),
               ]),
             ],
           ),
@@ -850,6 +818,36 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
             style: TextStyle(color: kEditTextMuted),
           ),
         );
+      case 'book_wishlist_reference':
+        return EditSection(
+          title: 'Wishlist',
+          accent: _accent,
+          child: Column(
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _wishlistPriceController,
+                  label: 'Target price',
+                  validator: optionalMoneyValidator,
+                ),
+                _field(
+                  controller: _wishlistCurrencyController,
+                  label: 'Currency',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _wishlistNotesController,
+                minLines: 3,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  labelText: 'Wishlist notes',
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ],
+          ),
+        );
       case 'book_photos':
         return ItemImagesEditSection(
           images: widget.request.itemImages,
@@ -897,7 +895,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       builder: (context, constraints) {
         final columns = constraints.maxWidth >= 780
             ? ultraWideColumns
-            : constraints.maxWidth >= 560
+            : constraints.maxWidth >= kAppStackedBreakpoint
                 ? wideColumns
                 : 1;
         final fieldWidth = columns == 1
@@ -1036,18 +1034,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     });
   }
 
-  void _previousTab() {
-    if (_tabController.index > 0) {
-      _tabController.animateTo(_tabController.index - 1);
-    }
-  }
-
-  void _nextTab() {
-    if (_tabController.index < _tabController.length - 1) {
-      _tabController.animateTo(_tabController.index + 1);
-    }
-  }
-
   Future<void> _pickPurchaseDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -1101,6 +1087,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           labelText: label,
           suffixIcon: value != null
               ? IconButton(
+                  tooltip: 'Clear date',
                   icon: const Icon(Icons.clear, size: 18),
                   onPressed: () => onChanged(null),
                 )
@@ -1235,6 +1222,20 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
+        wishlist: !_hasWishlistContext
+            ? null
+            : LibraryWishlistEditSelection(
+                anchorType: (_selectedEditionId != null || _selectedVariantId != null)
+                    ? 'variant'
+                    : 'item',
+                editionId: _selectedEditionId,
+                variantId: _selectedVariantId,
+                bundleReleaseId: null,
+                targetPriceCents:
+                    parseMoneyCents(_wishlistPriceController.text),
+                currency: emptyToNull(_wishlistCurrencyController.text),
+                notes: emptyToNull(_wishlistNotesController.text),
+              ),
       ),
     );
   }

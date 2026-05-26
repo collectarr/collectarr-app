@@ -54,14 +54,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (!auth.isAuthenticated) {
         return location == AppRoutes.auth ? null : AppRoutes.auth;
       }
-      // Authenticated — redirect away from auth/restoring screens.
-      if (location == AppRoutes.auth || location == AppRoutes.restoring) {
+      if (location == AppRoutes.restoring) {
         return AppRoutes.libraries;
       }
-      // Non-admin trying to reach admin page.
-      if (location == AppRoutes.admin && !auth.isAdmin) {
+      if (location == AppRoutes.auth) {
         return AppRoutes.libraries;
       }
+      // Non-admin trying to reach admin-only system pages.
+      // The /admin page itself is accessible to all authenticated
+      // users for catalog search, proposals, and corrections.
       return null;
     },
     routes: [

@@ -99,6 +99,54 @@ const kAppTableHover = Color(0xFF263940);
 const kAppField = Color(0xFF101010);
 const kAppMenuBorderRadius = BorderRadius.all(Radius.circular(6));
 
+// ── Extended surface & card tokens ──────────────────────────────────────────
+const kAppCardBackground = Color(0xFF181818);
+const kAppCardBorder = Color(0xFF363636);
+const kAppSurface = Color(0xFF303030);
+const kAppSurfaceDim = Color(0xFF151515);
+const kAppSurfaceBright = Color(0xFF3A3A3A);
+const kAppSurfaceSubtle = Color(0xFF2A2A2A);
+const kAppAccentLight = Color(0xFF82DDF2);
+const kAppTextSecondary = Color(0xFF9A9A9A);
+const kAppBorderSubtle = Color(0xFF4B4B4B);
+const kAppBadgeBackground = Color(0xFF444444);
+const kAppOverdueBackground = Color(0xFF5A2100);
+const kAppOverdueBorder = Color(0xFFFFA352);
+const kAppOverdueText = Color(0xFFFFC47A);
+
+// ── Standard radii ──────────────────────────────────────────────────────────
+const kAppRadiusSmall = BorderRadius.all(Radius.circular(4));
+const kAppRadiusMedium = BorderRadius.all(Radius.circular(8));
+const kAppRadiusLarge = BorderRadius.all(Radius.circular(12));
+
+// ── Standard animation durations ────────────────────────────────────────────
+const kAppAnimFast = Duration(milliseconds: 150);
+const kAppAnimNormal = Duration(milliseconds: 300);
+const kAppAnimSlow = Duration(milliseconds: 450);
+
+// ── Responsive layout breakpoints ───────────────────────────────────────────
+/// Below this width the sidebar is hidden and layout enters compact mode.
+const double kAppCompactBreakpoint = 640;
+
+/// Below this width the details pane moves from right to bottom.
+const double kAppSpacedBreakpoint = 860;
+
+/// Below this width inspector and edit dialogs stack vertically.
+const double kAppStackedBreakpoint = 560;
+
+// ── Semantic status banner colors ───────────────────────────────────────────
+const kAppBannerErrorBackground = Color(0xFF4A2630);
+const kAppBannerErrorBorder = Color(0xFF9D5D69);
+const kAppBannerErrorIcon = Color(0xFFFFB4C0);
+const kAppBannerErrorText = Color(0xFFFFD9DF);
+const kAppBannerInfoBackground = Color(0xFF183246);
+const kAppBannerWarningBackground = Color(0xFF3F3A1A);
+
+// ── Add-dialog & mode-bar tokens ────────────────────────────────────────────
+const kAppTextBright = Color(0xFFEDEDED);
+const kAppTextHint = Color(0xFF9EA9B0);
+const kAppFieldDark = Color(0xFF111111);
+
 const kDefaultAppThemePalette = AppThemePalette(
   topBar: kAppTopBar,
   toolbar: kAppToolbar,

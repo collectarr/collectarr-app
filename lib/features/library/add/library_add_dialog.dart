@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
@@ -8,6 +9,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -18,10 +20,13 @@ import 'package:collectarr_app/features/library/add/library_add_collection_workf
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
+export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -37,14 +42,16 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/providers/volumes_provider.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -52,6 +59,8 @@ import 'package:uuid/uuid.dart';
 
 part 'library_add_mode_bar.dart';
 part 'library_add_search_pane.dart';
+part 'library_add_search_comic.dart';
+part 'library_add_search_manga.dart';
 part 'library_add_preview_pane.dart';
 part 'library_add_bottom_bar.dart';
 part 'library_add_manual_pane.dart';
@@ -175,6 +184,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   static const _minDialogHeight = 560.0;
   static const _maxDialogHeight = 1200.0;
 
+  // ── Autocomplete ──
+  Timer? _autocompleteTimer;
+  List<LibraryMetadataItem> _suggestions = const [];
+  bool _showSuggestions = false;
+  static const _autocompleteDebounce = Duration(milliseconds: 350);
+  static const _autocompleteLimit = 8;
+
   @override
   void initState() {
     super.initState();
@@ -197,6 +213,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   @override
   void dispose() {
+    _autocompleteTimer?.cancel();
     _queryController.dispose();
     _barcodeController.dispose();
     _titleController.dispose();
@@ -277,7 +294,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   isSearching: _isSearching,
                   isSearchingProvider: _isSearchingProvider,
                   onModeChanged: (mode) => setState(() => _mode = mode),
-                  onSearch: _search,
+                  onSearch: () {
+                    _dismissSuggestions();
+                    _search();
+                  },
+                  onQueryChanged: _onQueryChanged,
+                  suggestions: _suggestions,
+                  showSuggestions: _showSuggestions,
+                  onSelectSuggestion: _selectSuggestion,
+                  onDismissSuggestions: _dismissSuggestions,
                   canScanCover:
                       widget.type.workspace.kind == CatalogMediaKind.comic,
                   isScanningCover: _isScanningCover,
@@ -664,6 +689,70 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
   }
 
+  void _onQueryChanged(String value) {
+    final query = value.trim();
+    if (query.length < 2) {
+      _autocompleteTimer?.cancel();
+      if (_showSuggestions) {
+        setState(() {
+          _suggestions = const [];
+          _showSuggestions = false;
+        });
+      }
+      return;
+    }
+    _autocompleteTimer?.cancel();
+    _autocompleteTimer = Timer(_autocompleteDebounce, () {
+      _fetchSuggestions(query);
+    });
+  }
+
+  Future<void> _fetchSuggestions(String query) async {
+    try {
+      final api = ref.read(apiClientProvider);
+      final items = await searchAndCacheLibraryMetadata(
+        api: api,
+        type: widget.type,
+        catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+        input: LibraryMetadataSearchInput(
+          query: query,
+          limit: _autocompleteLimit,
+        ),
+      ).timeout(const Duration(seconds: 5));
+      if (!mounted) return;
+      final mapped = [
+        for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
+      ];
+      setState(() {
+        _suggestions = mapped;
+        _showSuggestions = mapped.isNotEmpty;
+      });
+    } catch (_) {
+      // Silently ignore autocomplete failures — the user can still press Search.
+    }
+  }
+
+  void _selectSuggestion(LibraryMetadataItem item) {
+    _queryController.text = item.title;
+    setState(() {
+      _showSuggestions = false;
+      _suggestions = const [];
+      _results = [item];
+      _selectedResultId = item.id;
+      _selectedProviderCandidateId = null;
+      _resetReferenceSelection();
+      _clearSelectionCaches();
+    });
+    _ensureSelectedResultLoaded(item.id);
+    _ensureBundleReleasesLoaded(item.id);
+  }
+
+  void _dismissSuggestions() {
+    if (_showSuggestions) {
+      setState(() => _showSuggestions = false);
+    }
+  }
+
   Future<void> _scanCover() async {
     if (_isScanningCover) {
       return;
@@ -1037,7 +1126,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _pendingProviderPreviewIds.remove(candidateId);
       });
       _precacheProviderPreviewCovers([preview]);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message:
+            'Failed to load provider preview for ${candidate.provider}:${candidate.providerItemId}.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted || searchGeneration != _providerSearchGeneration) {
         return;
       }
@@ -1087,7 +1183,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _pendingHydratedResultIds.remove(itemId);
       });
       _precacheMetadataCovers([mergedItem]);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message: 'Failed to hydrate add-result metadata for item $itemId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -1129,7 +1231,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (bundleReleaseId != null) {
         await _ensureBundleReleaseDetailLoaded(bundleReleaseId);
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message: 'Failed to load bundle releases for item $itemId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -1158,7 +1266,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _bundleReleaseDetailsById[bundleReleaseId] = bundleRelease;
         _pendingBundleReleaseDetailIds.remove(bundleReleaseId);
       });
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_add',
+        message: 'Failed to load bundle release detail for $bundleReleaseId.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -1242,8 +1356,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _isSearchingProvider = false;
       _isAdding = false;
       _isQueueingIngest = false;
-      _error = '$action needs a fresh metadata sign-in. '
-          'Open Settings and sign in again.';
+      _error = 'Saved metadata session was cleared after $action was rejected. '
+          'Retry the action. Sign in again only if you need authenticated tools.';
     });
     return true;
   }
@@ -1579,201 +1693,6 @@ class _QueuedProviderIngest {
 }
 
 enum _LibraryAddDialogMode { search, barcode, manual }
-
-class LibraryAddLocalRerankHints {
-  const LibraryAddLocalRerankHints({
-    this.query = '',
-    this.series = '',
-    this.issueNumber = '',
-    this.publisher = '',
-    this.year,
-  });
-
-  final String query;
-  final String series;
-  final String issueNumber;
-  final String publisher;
-  final int? year;
-
-  bool get hasAnyHint {
-    return query.trim().isNotEmpty ||
-        series.trim().isNotEmpty ||
-        issueNumber.trim().isNotEmpty ||
-        publisher.trim().isNotEmpty ||
-        year != null;
-  }
-}
-
-List<LibraryMetadataItem> rerankLibraryMetadataItems(
-  List<LibraryMetadataItem> items,
-  LibraryAddLocalRerankHints hints,
-) {
-  if (items.length < 2 || !hints.hasAnyHint) {
-    return items;
-  }
-  final indexed = items.indexed.toList(growable: false);
-  indexed.sort((left, right) {
-    final leftScore = _scoreMetadataItem(left.$2, hints);
-    final rightScore = _scoreMetadataItem(right.$2, hints);
-    if (leftScore != rightScore) {
-      return rightScore.compareTo(leftScore);
-    }
-    return left.$1.compareTo(right.$1);
-  });
-  return indexed.map((entry) => entry.$2).toList(growable: false);
-}
-
-List<ProviderCandidate> rerankProviderCandidates(
-  List<ProviderCandidate> items,
-  LibraryAddLocalRerankHints hints,
-) {
-  if (items.length < 2 || !hints.hasAnyHint) {
-    return items;
-  }
-  final indexed = items.indexed.toList(growable: false);
-  indexed.sort((left, right) {
-    final leftScore = _scoreProviderCandidate(left.$2, hints);
-    final rightScore = _scoreProviderCandidate(right.$2, hints);
-    if (leftScore != rightScore) {
-      return rightScore.compareTo(leftScore);
-    }
-    return left.$1.compareTo(right.$1);
-  });
-  return indexed.map((entry) => entry.$2).toList(growable: false);
-}
-
-const libraryAddProviderFallbackConfidenceThreshold = 0.72;
-
-bool shouldSearchProviderForCoreResults(
-  List<LibraryMetadataItem> items,
-  LibraryAddLocalRerankHints hints, {
-  double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
-}) {
-  if (items.isEmpty) {
-    return true;
-  }
-  return _topMetadataMatchConfidence(items, hints) < confidenceThreshold;
-}
-
-double _topMetadataMatchConfidence(
-  List<LibraryMetadataItem> items,
-  LibraryAddLocalRerankHints hints,
-) {
-  if (items.isEmpty || !hints.hasAnyHint) {
-    return 0;
-  }
-  final maxScore = _maxPossibleMatchScore(hints);
-  if (maxScore <= 0) {
-    return 0;
-  }
-  final topScore = _scoreMetadataItem(items.first, hints);
-  return (topScore / maxScore).clamp(0, 1).toDouble();
-}
-
-int _scoreMetadataItem(LibraryMetadataItem item, LibraryAddLocalRerankHints hints) {
-  return _scoreMatchFields(
-    title: item.title,
-    series: item.series?.seriesTitle,
-    issueNumber: item.itemNumber,
-    publisher: item.publisher,
-    year: item.releaseYear ?? item.series?.volumeStartYear,
-    hints: hints,
-  );
-}
-
-int _scoreProviderCandidate(ProviderCandidate item, LibraryAddLocalRerankHints hints) {
-  return _scoreMatchFields(
-    title: item.title,
-    series: item.series?.seriesTitle,
-    issueNumber: item.issueNumber,
-    publisher: item.publisher,
-    year: item.series?.volumeStartYear,
-    hints: hints,
-  );
-}
-
-int _maxPossibleMatchScore(LibraryAddLocalRerankHints hints) {
-  var score = 0;
-  if (_normalizeHint(hints.query).isNotEmpty) {
-    score += 100;
-  }
-  if (_normalizeHint(hints.series).isNotEmpty) {
-    score += 120;
-  }
-  if (_normalizeHint(hints.publisher).isNotEmpty) {
-    score += 60;
-  }
-  if (_normalizeHint(hints.issueNumber).isNotEmpty) {
-    score += 75;
-  }
-  if (hints.year != null) {
-    score += 55;
-  }
-  return score;
-}
-
-int _scoreMatchFields({
-  required String title,
-  required String? series,
-  required String? issueNumber,
-  required String? publisher,
-  required int? year,
-  required LibraryAddLocalRerankHints hints,
-}) {
-  var score = 0;
-  score += _scoreTextHint(title, hints.query, exactWeight: 100, containsWeight: 36);
-  score += _scoreTextHint(
-    series ?? title,
-    hints.series,
-    exactWeight: 120,
-    containsWeight: 48,
-  );
-  score += _scoreTextHint(
-    publisher,
-    hints.publisher,
-    exactWeight: 60,
-    containsWeight: 24,
-  );
-  if (_normalizeHint(issueNumber).isNotEmpty &&
-      _normalizeHint(issueNumber) == _normalizeHint(hints.issueNumber)) {
-    score += 75;
-  }
-  if (hints.year != null && year == hints.year) {
-    score += 55;
-  }
-  return score;
-}
-
-int _scoreTextHint(
-  String? candidate,
-  String? hint, {
-  required int exactWeight,
-  required int containsWeight,
-}) {
-  final normalizedCandidate = _normalizeHint(candidate);
-  final normalizedHint = _normalizeHint(hint);
-  if (normalizedCandidate.isEmpty || normalizedHint.isEmpty) {
-    return 0;
-  }
-  if (normalizedCandidate == normalizedHint) {
-    return exactWeight;
-  }
-  if (normalizedCandidate.contains(normalizedHint) ||
-      normalizedHint.contains(normalizedCandidate)) {
-    return containsWeight;
-  }
-  return 0;
-}
-
-String _normalizeHint(String? value) {
-  return value
-          ?.trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
-          .replaceAll(RegExp(r'\s+'), ' ')
-          .trim() ??
-      '';
-}
 
 class _CoverScanPrefillBanner extends StatelessWidget {
   const _CoverScanPrefillBanner({required this.result});

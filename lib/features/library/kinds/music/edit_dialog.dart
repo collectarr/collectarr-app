@@ -15,13 +15,11 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -80,8 +78,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _tagsController;
   late final TextEditingController _sellPriceController;
   late final TextEditingController _soldToController;
+  late final TextEditingController _progressCurrentController;
+  late final TextEditingController _progressTotalController;
+  late final TextEditingController _timesCompletedController;
+  late final TextEditingController _trackingNotesController;
+  late final TextEditingController _wishlistPriceController;
+  late final TextEditingController _wishlistCurrencyController;
+  late final TextEditingController _wishlistNotesController;
 
-  List<String> _tagOptions = const [];
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
   String? _selectedEditionId;
@@ -100,6 +104,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   bool get _isTrackingOnly => !_isOwned && widget.request.trackingEntry != null;
 
+  bool get _hasWishlistContext => widget.request.wishlistItem != null;
+
   LibraryMetadataItem get _item => widget.request.item;
   OwnedItem? get _owned => widget.request.ownedItem;
   Color get _accent => widget.request.accent;
@@ -109,7 +115,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       isOwned: _isOwned,
       isTrackingOnly: _isTrackingOnly,
       hasTrackingContext: _hasTrackingContext,
-      hasWishlistContext: false,
+      hasWishlistContext: _hasWishlistContext,
       isDigitalFormat: false,
       hasPhysicalFormats: widget.request.physicalFormats.isNotEmpty,
       hasEditionAnchors: widget.request.item.editions.isNotEmpty,
@@ -120,18 +126,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   List<LibraryEditTabSpec> get _tabSpecs {
     return widget.request.type.editPresentation.builder.buildTabs(
-      context: _editPresentationContext,
-    );
-  }
-
-  LibraryEditPresentationState get _editPresentation {
-    return widget.request.type.editPresentation.builder.build(
-      context: _editPresentationContext,
-    );
-  }
-
-  LibraryEditFooterSpec get _footerSpec {
-    return widget.request.type.editPresentation.builder.buildFooter(
       context: _editPresentationContext,
     );
   }
@@ -205,13 +199,35 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
       );
     _tagsController = TextEditingController(text: owned?.tags ?? '');
-    _tagOptions = splitPickListValues(owned?.tags);
     _sellPriceController = TextEditingController(
       text: owned?.sellPriceCents == null
           ? ''
           : (owned!.sellPriceCents! / 100).toStringAsFixed(2),
     );
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
+
+    _progressCurrentController = TextEditingController(
+      text: tracking?.progressCurrent?.toString() ?? '',
+    );
+    _progressTotalController = TextEditingController(
+      text: tracking?.progressTotal?.toString() ?? '',
+    );
+    _timesCompletedController = TextEditingController(
+      text: tracking?.timesCompleted?.toString() ?? '',
+    );
+    _trackingNotesController = TextEditingController(
+      text: tracking?.notes ?? '',
+    );
+    final wishlist = widget.request.wishlistItem;
+    _wishlistPriceController = TextEditingController(
+      text: wishlist?.targetPriceCents == null
+          ? ''
+          : (wishlist!.targetPriceCents! / 100).toStringAsFixed(2),
+    );
+    _wishlistCurrencyController =
+        TextEditingController(text: wishlist?.currency ?? '');
+    _wishlistNotesController =
+        TextEditingController(text: wishlist?.notes ?? '');
 
     _selectedLocationId = owned?.locationId;
     _startedAt = tracking?.startedAt ?? owned?.startedAt;
@@ -233,7 +249,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     };
 
     unawaited(_loadAvailableLocations());
-    unawaited(_loadTagOptions());
   }
 
   @override
@@ -270,6 +285,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _tagsController.dispose();
     _sellPriceController.dispose();
     _soldToController.dispose();
+    _progressCurrentController.dispose();
+    _progressTotalController.dispose();
+    _timesCompletedController.dispose();
+    _trackingNotesController.dispose();
+    _wishlistPriceController.dispose();
+    _wishlistCurrencyController.dispose();
+    _wishlistNotesController.dispose();
     super.dispose();
   }
 
@@ -292,11 +314,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         tabController: _tabController,
         tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
         views: _tabViews(),
-        footerLabel: _footerSpec.label,
-        footerFields: [for (final fieldId in _footerSpec.fieldIds) _footerFieldFor(fieldId)],
-        onPrevious: _previousTab,
-        onNext: _nextTab,
-        onCancel: () => Navigator.of(context).pop(),
+        onClose: () => Navigator.of(context).pop(),
         onSave: _submit,
     );
   }
@@ -332,29 +350,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         return _linksTab();
       default:
         throw StateError('Unsupported music edit tab: $id');
-    }
-  }
-
-  Widget _footerFieldFor(String id) {
-    switch (id) {
-      case 'title_sort':
-        return FooterTextField(
-          label: 'Title sort',
-          controller: _sortKeyController,
-          width: 180,
-        );
-      case 'user_tags':
-        return SizedBox(
-          width: 280,
-          child: TagPickListField(
-            controller: _tagsController,
-            options: _tagOptions,
-            label: 'User tags',
-            hint: 'Comma-separated tags',
-          ),
-        );
-      default:
-        throw StateError('Unsupported music footer field: $id');
     }
   }
 
@@ -490,12 +485,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               const SizedBox(height: 10),
               _denseFields([
                 _field(controller: _subtitleController, label: 'Subtitle'),
-                _field(controller: _publisherController, label: 'Label'),
+                _field(controller: _publisherController, label: widget.request.type.mediaFields.publisherLabel),
                 _field(
                   controller: _editionTitleController,
-                  label: 'Edition / Packaging',
+                  label: widget.request.type.releaseFields.editionTitleLabel,
                 ),
-                _field(controller: _variantController, label: 'Variant'),
+                _field(controller: _variantController, label: widget.request.type.releaseFields.variantLabel),
               ]),
             ],
           ),
@@ -507,7 +502,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           child: Column(
             children: [
               _denseFields([
-                _field(controller: _barcodeController, label: 'UPC / Barcode'),
+                _field(controller: _barcodeController, label: widget.request.type.releaseFields.barcodeLabel),
                 _field(controller: _catalogNumberController, label: 'Catalog number'),
                 _field(
                   controller: _releaseDateController,
@@ -521,7 +516,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   validator: optionalIntValidator,
                 ),
               ]),
-              if (_editPresentation.showsPhysicalFormatSelector) ...[
+              if (widget.request.type.releaseFields.showPhysicalFormat &&
+                  widget.request.physicalFormats.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   initialValue: _physicalFormatId,
@@ -750,6 +746,34 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     onChanged: (value) => setState(() => _finishedAt = value),
                   ),
                 ]),
+                const SizedBox(height: 10),
+                _denseFields([
+                  _field(
+                    controller: _timesCompletedController,
+                    label: 'Times listened',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressCurrentController,
+                    label: 'Tracks heard',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressTotalController,
+                    label: 'Total tracks',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _trackingNotesController,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Tracking notes',
+                    alignLabelWithHint: true,
+                  ),
+                ),
               ],
             ),
           );
@@ -797,6 +821,34 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     onChanged: (value) => setState(() => _finishedAt = value),
                   ),
                 ]),
+                const SizedBox(height: 10),
+                _denseFields([
+                  _field(
+                    controller: _timesCompletedController,
+                    label: 'Times listened',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressCurrentController,
+                    label: 'Tracks heard',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressTotalController,
+                    label: 'Total tracks',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _trackingNotesController,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Tracking notes',
+                    alignLabelWithHint: true,
+                  ),
+                ),
               ],
             ),
           );
@@ -807,6 +859,36 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           child: const Text(
             'Open the edit dialog from an owned copy to populate collection-specific music fields like condition, rating, location and listening status.',
             style: TextStyle(color: kEditTextMuted),
+          ),
+        );
+      case 'music_wishlist_reference':
+        return EditSection(
+          title: 'Wishlist',
+          accent: _accent,
+          child: Column(
+            children: [
+              _denseFields([
+                _field(
+                  controller: _wishlistPriceController,
+                  label: 'Target price',
+                  validator: optionalMoneyValidator,
+                ),
+                _field(
+                  controller: _wishlistCurrencyController,
+                  label: 'Currency',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _wishlistNotesController,
+                minLines: 3,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  labelText: 'Wishlist notes',
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ],
           ),
         );
       case 'music_purchase_value':
@@ -944,7 +1026,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           title: 'Identifiers',
           accent: _accent,
           child: _denseFields([
-            _field(controller: _barcodeController, label: 'UPC / Barcode'),
+            _field(controller: _barcodeController, label: widget.request.type.releaseFields.barcodeLabel),
             _field(controller: _catalogNumberController, label: 'Catalog number'),
             _field(controller: _coverController, label: 'Front cover URL'),
             _field(controller: _thumbnailController, label: 'Thumbnail URL'),
@@ -1032,7 +1114,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               runSpacing: 8,
               children: [
                 for (final value in values)
-                  EditMiniBadge(value, color: const Color(0xFF3A3A3A)),
+                  EditMiniBadge(value, color: kAppSurfaceBright),
               ],
             ),
     );
@@ -1114,18 +1196,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     setState(() => _availableLocations = locations);
   }
 
-  Future<void> _loadTagOptions() async {
-    final tagOptions = await loadTagPickListOptions(
-      ref.read(localDatabaseProvider),
-      mediaKind: widget.request.type.workspace.kind.apiValue,
-      selectedTags: splitPickListValues(_tagsController.text),
-    );
-    if (!mounted) {
-      return;
-    }
-    setState(() => _tagOptions = tagOptions);
-  }
-
   Future<void> _pickLocation() async {
     final result = await showLocationPickerDialog(
       context: context,
@@ -1145,18 +1215,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       _selectedLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
-  }
-
-  void _previousTab() {
-    if (_tabController.index > 0) {
-      _tabController.animateTo(_tabController.index - 1);
-    }
-  }
-
-  void _nextTab() {
-    if (_tabController.index < _tabController.length - 1) {
-      _tabController.animateTo(_tabController.index + 1);
-    }
   }
 
   Future<void> _pickPurchaseDate() async {
@@ -1199,6 +1257,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           labelText: label,
           suffixIcon: value != null
               ? IconButton(
+                  tooltip: 'Clear date',
                   icon: const Icon(Icons.clear, size: 18),
                   onPressed: () => onChanged(null),
                 )
@@ -1406,15 +1465,29 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 readStatus: emptyToNull(_trackingController.text),
                 startedAt: _startedAt,
                 finishedAt: _finishedAt,
-                progressCurrent: widget.request.trackingEntry?.progressCurrent,
-                progressTotal: widget.request.trackingEntry?.progressTotal,
-                timesCompleted: widget.request.trackingEntry?.timesCompleted,
-                notes: widget.request.trackingEntry?.notes,
+                progressCurrent: parseInt(_progressCurrentController.text),
+                progressTotal: parseInt(_progressTotalController.text),
+                timesCompleted: parseInt(_timesCompletedController.text),
+                notes: emptyToNull(_trackingNotesController.text),
                 seasonNumber: widget.request.trackingEntry?.seasonNumber ?? _item.series?.seasonNumber,
                 episodeNumber: widget.request.trackingEntry?.episodeNumber ?? _item.series?.episodeNumber,
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
+        wishlist: !_hasWishlistContext
+            ? null
+            : LibraryWishlistEditSelection(
+                anchorType: (_selectedEditionId != null || _selectedVariantId != null)
+                    ? 'variant'
+                    : 'item',
+                editionId: _selectedEditionId,
+                variantId: _selectedVariantId,
+                bundleReleaseId: null,
+                targetPriceCents:
+                    parseMoneyCents(_wishlistPriceController.text),
+                currency: emptyToNull(_wishlistCurrencyController.text),
+                notes: emptyToNull(_wishlistNotesController.text),
+              ),
       ),
     );
   }

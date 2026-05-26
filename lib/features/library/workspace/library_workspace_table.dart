@@ -18,7 +18,7 @@ typedef LibraryColumnReordered = void Function(
   LibraryTableColumn? beforeColumn,
 );
 
-class LibraryWorkspaceTable<T> extends StatelessWidget {
+class LibraryWorkspaceTable<T> extends StatefulWidget {
   const LibraryWorkspaceTable({
     required this.entries,
     required this.columns,
@@ -33,6 +33,7 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
     required this.cellBuilder,
     required this.isSelected,
     required this.onEntryTap,
+    this.onEntryDoubleTap,
     this.onEntrySecondaryTapUp,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
@@ -42,7 +43,7 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
     this.columnSpacing = 10,
     this.horizontalMargin = 8,
     this.selectionRailWidth = 3,
-    this.headerColor = const Color(0xFF303030),
+    this.headerColor = kAppSurface,
     this.dividerColor = kAppDivider,
     this.selectedColor = kAppSelection,
     this.oddColor = kAppTableOddRow,
@@ -67,6 +68,7 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
   final LibraryColumnCellBuilder<T> cellBuilder;
   final bool Function(T entry) isSelected;
   final ValueChanged<T> onEntryTap;
+  final ValueChanged<T>? onEntryDoubleTap;
   final void Function(T entry, TapUpDetails details)? onEntrySecondaryTapUp;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
@@ -88,58 +90,78 @@ class LibraryWorkspaceTable<T> extends StatelessWidget {
   final Color accentColor;
 
   @override
+  State<LibraryWorkspaceTable<T>> createState() =>
+      _LibraryWorkspaceTableState<T>();
+}
+
+class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         _LibraryWorkspaceTableHeader(
-          columns: columns,
-          sortColumn: sortColumn,
-          sortAscending: sortAscending,
-          sortRules: sortRules,
-          columnWidthFor: columnWidthFor,
-          defaultColumnWidthFor: defaultColumnWidthFor,
-          columnSortFor: columnSortFor,
-          columnLabelFor: columnLabelFor,
-          onSortChanged: onSortChanged,
-          onColumnWidthChanged: onColumnWidthChanged,
-          onColumnReordered: onColumnReordered,
-          headerHeight: headerHeight,
-          columnSpacing: columnSpacing,
-          horizontalMargin: horizontalMargin,
-          headerColor: headerColor,
-          dividerColor: dividerColor,
-          accentColor: accentColor,
+          columns: widget.columns,
+          sortColumn: widget.sortColumn,
+          sortAscending: widget.sortAscending,
+          sortRules: widget.sortRules,
+          columnWidthFor: widget.columnWidthFor,
+          defaultColumnWidthFor: widget.defaultColumnWidthFor,
+          columnSortFor: widget.columnSortFor,
+          columnLabelFor: widget.columnLabelFor,
+          onSortChanged: widget.onSortChanged,
+          onColumnWidthChanged: widget.onColumnWidthChanged,
+          onColumnReordered: widget.onColumnReordered,
+          headerHeight: widget.headerHeight,
+          columnSpacing: widget.columnSpacing,
+          horizontalMargin: widget.horizontalMargin,
+          headerColor: widget.headerColor,
+          dividerColor: widget.dividerColor,
+          accentColor: widget.accentColor,
         ),
         Expanded(
           child: Scrollbar(
+            controller: _scrollController,
             child: ListView.builder(
+              controller: _scrollController,
               primary: false,
-              itemCount: entries.length,
+              itemCount: widget.entries.length,
+              itemExtent: widget.rowHeight,
               itemBuilder: (context, index) {
-                final entry = entries[index];
+                final entry = widget.entries[index];
                 return _LibraryWorkspaceTableRow<T>(
                   entry: entry,
-                  columns: columns,
-                  selected: isSelected(entry),
+                  columns: widget.columns,
+                  selected: widget.isSelected(entry),
                   odd: index.isOdd,
-                  onTap: () => onEntryTap(entry),
-                  onSecondaryTapUp: onEntrySecondaryTapUp == null
+                  onTap: () => widget.onEntryTap(entry),
+                    onDoubleTap: widget.onEntryDoubleTap == null
+                      ? null
+                      : () => widget.onEntryDoubleTap!(entry),
+                  onSecondaryTapUp: widget.onEntrySecondaryTapUp == null
                       ? null
                       : (details) =>
-                          onEntrySecondaryTapUp!(entry, details),
-                  columnWidthFor: columnWidthFor,
-                  columnIsNumeric: columnIsNumeric,
-                  cellBuilder: cellBuilder,
-                  rowHeight: rowHeight,
-                  columnSpacing: columnSpacing,
-                  horizontalMargin: horizontalMargin,
-                  selectionRailWidth: selectionRailWidth,
-                  selectedColor: selectedColor,
-                  oddColor: oddColor,
-                  evenColor: evenColor,
-                  selectionRailColor: selectionRailColor,
-                  bottomBorderColor: bottomBorderColor,
-                  hoverColor: hoverColor,
+                          widget.onEntrySecondaryTapUp!(entry, details),
+                  columnWidthFor: widget.columnWidthFor,
+                  columnIsNumeric: widget.columnIsNumeric,
+                  cellBuilder: widget.cellBuilder,
+                  rowHeight: widget.rowHeight,
+                  columnSpacing: widget.columnSpacing,
+                  horizontalMargin: widget.horizontalMargin,
+                  selectionRailWidth: widget.selectionRailWidth,
+                  selectedColor: widget.selectedColor,
+                  oddColor: widget.oddColor,
+                  evenColor: widget.evenColor,
+                  selectionRailColor: widget.selectionRailColor,
+                  bottomBorderColor: widget.bottomBorderColor,
+                  hoverColor: widget.hoverColor,
                 );
               },
             ),
@@ -504,6 +526,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
     required this.selected,
     required this.odd,
     required this.onTap,
+    this.onDoubleTap,
     this.onSecondaryTapUp,
     required this.columnWidthFor,
     required this.columnIsNumeric,
@@ -525,6 +548,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   final bool selected;
   final bool odd;
   final VoidCallback onTap;
+  final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
   final LibraryColumnWidthFor columnWidthFor;
   final LibraryColumnNumericFor columnIsNumeric;
@@ -546,6 +570,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
       selected: selected,
       odd: odd,
       onTap: onTap,
+      onDoubleTap: onDoubleTap,
       onSecondaryTapUp: onSecondaryTapUp,
       selectedColor: selectedColor,
       oddColor: oddColor,

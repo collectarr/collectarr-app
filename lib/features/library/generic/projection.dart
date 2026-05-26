@@ -35,10 +35,18 @@ String genericGroupModeLabel(
     LibraryGroupMode.title => 'Title',
     LibraryGroupMode.publisher => labels.publisher,
     LibraryGroupMode.year => 'Year',
+    LibraryGroupMode.genre => 'Genre',
+    LibraryGroupMode.country => 'Country',
+    LibraryGroupMode.language => 'Language',
+    LibraryGroupMode.ageRating => 'Age Rating',
+    LibraryGroupMode.format => 'Format',
+    LibraryGroupMode.director => 'Director',
+    LibraryGroupMode.creator => 'Creator',
     LibraryGroupMode.location => 'Location',
     LibraryGroupMode.ownership => 'Ownership',
     LibraryGroupMode.grade => 'Grade',
     LibraryGroupMode.condition => 'Condition',
+    LibraryGroupMode.tags => 'Tags',
   };
 }
 
@@ -54,10 +62,18 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.title => 'Titles',
     LibraryGroupMode.publisher => labels.publisherPlural,
     LibraryGroupMode.year => 'Years',
+    LibraryGroupMode.genre => 'Genres',
+    LibraryGroupMode.country => 'Countries',
+    LibraryGroupMode.language => 'Languages',
+    LibraryGroupMode.ageRating => 'Age Ratings',
+    LibraryGroupMode.format => 'Formats',
+    LibraryGroupMode.director => 'Directors',
+    LibraryGroupMode.creator => 'Creators',
     LibraryGroupMode.location => 'Locations',
     LibraryGroupMode.ownership => 'Ownership',
     LibraryGroupMode.grade => 'Grades',
     LibraryGroupMode.condition => 'Conditions',
+    LibraryGroupMode.tags => 'Tags',
   };
 }
 
@@ -69,10 +85,18 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.title => Icons.sort_by_alpha,
     LibraryGroupMode.publisher => Icons.business_outlined,
     LibraryGroupMode.year => Icons.calendar_today_outlined,
+    LibraryGroupMode.genre => Icons.theater_comedy_outlined,
+    LibraryGroupMode.country => Icons.flag_outlined,
+    LibraryGroupMode.language => Icons.translate_outlined,
+    LibraryGroupMode.ageRating => Icons.shield_outlined,
+    LibraryGroupMode.format => Icons.album_outlined,
+    LibraryGroupMode.director => Icons.movie_creation_outlined,
+    LibraryGroupMode.creator => Icons.person_outlined,
     LibraryGroupMode.location => Icons.place_outlined,
     LibraryGroupMode.ownership => Icons.inventory_2_outlined,
     LibraryGroupMode.grade => Icons.workspace_premium_outlined,
     LibraryGroupMode.condition => Icons.fact_check_outlined,
+    LibraryGroupMode.tags => Icons.label_outlined,
   };
 }
 
@@ -252,19 +276,36 @@ String genericBucketForItemMode(
     LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
+    LibraryGroupMode.genre => _firstOrDefault(entry.genres, 'No genre'),
+    LibraryGroupMode.country => entry.country?.trim().isNotEmpty == true
+        ? entry.country!
+        : 'Unknown country',
+    LibraryGroupMode.language => entry.language?.trim().isNotEmpty == true
+        ? entry.language!
+        : 'Unknown language',
+    LibraryGroupMode.ageRating => entry.ageRating?.trim().isNotEmpty == true
+        ? entry.ageRating!
+        : 'Unrated',
+    LibraryGroupMode.format => _editionFormatBucket(entry),
+    LibraryGroupMode.director => _creatorBucketByRole(entry, 'director'),
+    LibraryGroupMode.creator => _creatorBucketByRole(entry, null),
     LibraryGroupMode.location => _locationBucket(entry.storageBox),
     LibraryGroupMode.ownership => entry.isOwned
         ? 'Owned'
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Catalog only',
-    LibraryGroupMode.title => _titleBucket(entry.title),
+    LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
     LibraryGroupMode.grade =>
       entry.grade?.trim().isNotEmpty == true ? entry.grade! : 'Ungraded',
     LibraryGroupMode.condition =>
       entry.condition?.trim().isNotEmpty == true
           ? entry.condition!
           : 'No condition',
+    LibraryGroupMode.tags => _firstOrDefault(
+        entry.tags?.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList(),
+        'No tags',
+      ),
   };
 }
 
@@ -276,12 +317,37 @@ String _locationBucket(String? location) {
   return normalized;
 }
 
+String _firstOrDefault(List<String>? values, String fallback) {
+  if (values == null || values.isEmpty) return fallback;
+  final first = values.first.trim();
+  return first.isEmpty ? fallback : first;
+}
+
+String _editionFormatBucket(LibraryWorkspaceEntry entry) {
+  for (final edition in entry.editions) {
+    final label = edition.physicalFormatLabel ?? edition.physicalFormat;
+    if (label != null && label.trim().isNotEmpty) return label.trim();
+  }
+  return 'Unknown format';
+}
+
+String _creatorBucketByRole(LibraryWorkspaceEntry entry, String? role) {
+  for (final credit in entry.creators ?? const <Map<String, dynamic>>[]) {
+    final name = credit['name']?.toString().trim();
+    if (name == null || name.isEmpty) continue;
+    if (role == null) return name;
+    final creditRole = credit['role']?.toString().toLowerCase().trim();
+    if (creditRole != null && creditRole.contains(role)) return name;
+  }
+  return role != null ? 'Unknown $role' : 'Unknown creator';
+}
+
 String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
   final seriesTitle = entry.series?.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
-  final title = entry.title.trim();
+  final title = entry.resolvedTitle.trim();
   return title.isEmpty ? unknownLabel : title;
 }
 
@@ -478,7 +544,10 @@ Iterable<String> _linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
   final publishing = entry.publishing;
   final game = entry.game;
   yield* _nonEmptyValues([
+    entry.resolvedTitle,
     entry.title,
+    entry.localizedTitle,
+    entry.originalTitle,
     series?.seriesTitle,
     entry.itemNumber,
     entry.publisher,
@@ -489,6 +558,7 @@ Iterable<String> _linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
     entry.language,
     entry.ageRating,
   ]);
+  yield* _nonEmptyValues(entry.searchAliases);
   if (entry.creators case final creators?) {
     for (final credit in creators) {
       final name = credit['name']?.toString();
@@ -525,7 +595,10 @@ bool _matchesQuery(
     return true;
   }
   final entry = item.entry;
-  if (_containsQuery(entry.title, query) ||
+  if (_containsQuery(entry.resolvedTitle, query) ||
+      _containsQuery(entry.title, query) ||
+      _containsQuery(entry.localizedTitle, query) ||
+      _containsQuery(entry.originalTitle, query) ||
       _containsQuery(entry.itemNumber, query) ||
       _containsQuery(entry.publisher, query) ||
       _containsQuery(entry.variant, query) ||
@@ -535,6 +608,13 @@ bool _matchesQuery(
       _containsQuery(entry.grade, query) ||
       _containsQuery(entry.storageBox, query)) {
     return true;
+  }
+  if (entry.searchAliases case final aliases?) {
+    for (final alias in aliases) {
+      if (_containsQuery(alias, query)) {
+        return true;
+      }
+    }
   }
   final ownedId = item.source.ownedItem?.id;
   if (ownedId != null) {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:drift/drift.dart';
@@ -92,6 +94,7 @@ class TrackingEntriesCacheRepository {
       notes: row.notes,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
+      episodeRatings: _decodeEpisodeRatings(row.episodeRatings),
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
@@ -116,8 +119,25 @@ class TrackingEntriesCacheRepository {
       notes: Value(item.notes),
       seasonNumber: Value(item.seasonNumber),
       episodeNumber: Value(item.episodeNumber),
+      episodeRatings: Value(_encodeEpisodeRatings(item.episodeRatings)),
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
     );
+  }
+
+  static Map<String, int>? _decodeEpisodeRatings(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        return decoded.map((k, v) => MapEntry(k as String, (v as num).toInt()));
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static String? _encodeEpisodeRatings(Map<String, int> ratings) {
+    if (ratings.isEmpty) return null;
+    return jsonEncode(ratings);
   }
 }

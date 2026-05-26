@@ -48,7 +48,7 @@ class LibraryDetailHero extends StatelessWidget {
             kAppField,
             Color.alphaBlend(
               accent.withValues(alpha: 0.18),
-              const Color(0xFF18242A),
+              kAppSurfaceSubtle,
             ),
             kAppField,
           ],
@@ -86,7 +86,7 @@ class LibraryDetailHero extends StatelessWidget {
                 return SizedBox(
                   width: wide ? 180 : 150,
                   child: LibraryInteractiveCover(
-                    title: entry.title,
+                    title: entry.resolvedTitle,
                     itemNumber: entry.itemNumber,
                     imageUrl: entry.displayCoverUrl,
                     localBase64: localFront,
@@ -120,7 +120,7 @@ class LibraryDetailHero extends StatelessWidget {
                   wide ? CrossAxisAlignment.start : CrossAxisAlignment.center,
               children: [
                 Text(
-                  entry.title,
+                  entry.resolvedTitle,
                   textAlign: wide ? TextAlign.start : TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: accent,

@@ -5,7 +5,6 @@ class Episode {
   final String? airDate;
   final int? runtimeMinutes;
   final int? pageCount;
-  final String? stillUrl;
 
   Episode({
     required this.episodeNumber,
@@ -14,7 +13,6 @@ class Episode {
     this.airDate,
     this.runtimeMinutes,
     this.pageCount,
-    this.stillUrl,
   });
 
   factory Episode.fromJson(Map<String, dynamic> json) {
@@ -25,7 +23,6 @@ class Episode {
       airDate: json['air_date'] as String?,
       runtimeMinutes: json['runtime_minutes'] as int?,
       pageCount: json['page_count'] as int?,
-      stillUrl: json['still_url'] as String?,
     );
   }
 }

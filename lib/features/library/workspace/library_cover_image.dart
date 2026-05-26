@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +16,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.localBase64,
     this.ownedItemId,
     this.borderRadius = 4,
+    this.fit = BoxFit.contain,
     super.key,
   });
 
@@ -23,6 +26,7 @@ class LibraryCoverImage extends ConsumerWidget {
   final String? localBase64;
   final String? ownedItemId;
   final double borderRadius;
+  final BoxFit fit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,6 +41,15 @@ class LibraryCoverImage extends ConsumerWidget {
       itemNumber: itemNumber,
       borderRadius: borderRadius,
     );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final pixelRatio = MediaQuery.devicePixelRatioOf(context);
+      final cacheWidth = constraints.hasBoundedWidth &&
+        constraints.maxWidth > 0
+          ? (constraints.maxWidth * pixelRatio).ceil()
+            : null;
+
     // Prefer local offline bytes when available
     if (local != null && local.isNotEmpty) {
       try {
@@ -45,13 +58,20 @@ class LibraryCoverImage extends ConsumerWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           child: Image.memory(
             bytes,
-            fit: BoxFit.contain,
+            fit: fit,
+            cacheWidth: cacheWidth,
             filterQuality: FilterQuality.medium,
             errorBuilder: (_, __, ___) => placeholder,
           ),
         );
-      } catch (_) {
-        // fall through to network
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'library_cover_image',
+          message:
+              'Failed to decode local cover image; falling back to network image.',
+          error: error,
+          stackTrace: stackTrace,
+        );
       }
     }
     final url = _normalizedImageUrl(imageUrl);
@@ -64,7 +84,8 @@ class LibraryCoverImage extends ConsumerWidget {
         child: Image.network(
           url,
           key: ValueKey(url),
-          fit: BoxFit.contain,
+          fit: fit,
+          cacheWidth: cacheWidth,
           filterQuality: FilterQuality.medium,
           webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
           loadingBuilder: (context, child, loadingProgress) {
@@ -79,11 +100,14 @@ class LibraryCoverImage extends ConsumerWidget {
       child: CachedNetworkImage(
         key: ValueKey(url),
         imageUrl: url,
-        fit: BoxFit.contain,
+        fit: fit,
+        memCacheWidth: cacheWidth,
         filterQuality: FilterQuality.medium,
         placeholder: (_, __) => placeholder,
         errorWidget: (_, __, ___) => placeholder,
       ),
+    );
+      },
     );
   }
 

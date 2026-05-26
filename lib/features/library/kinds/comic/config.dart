@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
@@ -46,6 +47,14 @@ const comicsLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: comicsLibraryMediaPresentation,
   editPresentation: comicsLibraryEditPresentation,
+  mediaFields: MediaEditFields.print(
+    numberLabel: 'No. / Vol.',
+    publisherLabel: 'Publisher / Studio / Creator',
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Edition / Variant / Format',
+    barcodeLabel: 'Barcode / UPC / ISBN',
+  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
   ),

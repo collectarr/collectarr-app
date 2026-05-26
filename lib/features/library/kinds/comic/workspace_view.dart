@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -241,49 +242,15 @@ double clampComicTableColumnWidth(
 
 String comicTableColumnLabel(LibraryTableColumn column) {
   return switch (column) {
-    LibraryTableColumn.status => '',
-    LibraryTableColumn.cover => '',
     LibraryTableColumn.title => 'Series',
-    LibraryTableColumn.issue => 'Issue',
-    LibraryTableColumn.variant => 'Variant',
-    LibraryTableColumn.publisher => 'Publisher',
-    LibraryTableColumn.releaseDate => 'Release Date',
-    LibraryTableColumn.barcode => 'Barcode',
-    LibraryTableColumn.grade => 'Grade',
-    LibraryTableColumn.condition => 'Condition',
-    LibraryTableColumn.price => 'Price',
-    LibraryTableColumn.storageBox => 'Location',
-    LibraryTableColumn.wishlist => 'Wishlist',
-    LibraryTableColumn.updated => 'Updated',
-    LibraryTableColumn.country => 'Country',
-    LibraryTableColumn.language => 'Language',
-    LibraryTableColumn.pageCount => 'Pages',
-    LibraryTableColumn.ageRating => 'Age Rating',
-    LibraryTableColumn.imprint => 'Imprint',
+    _ => plannedMediaTableColumnLabelForType(comicsLibraryConfig, column),
   };
 }
 
 String comicTableColumnDisplayName(LibraryTableColumn column) {
   return switch (column) {
-    LibraryTableColumn.status => 'Status',
-    LibraryTableColumn.cover => 'Cover',
     LibraryTableColumn.title => 'Series',
-    LibraryTableColumn.issue => 'Issue',
-    LibraryTableColumn.variant => 'Variant',
-    LibraryTableColumn.publisher => 'Publisher',
-    LibraryTableColumn.releaseDate => 'Release Date',
-    LibraryTableColumn.barcode => 'Barcode',
-    LibraryTableColumn.grade => 'Grade',
-    LibraryTableColumn.condition => 'Condition',
-    LibraryTableColumn.price => 'Price',
-    LibraryTableColumn.storageBox => 'Location',
-    LibraryTableColumn.wishlist => 'Wishlist',
-    LibraryTableColumn.updated => 'Updated',
-    LibraryTableColumn.country => 'Country',
-    LibraryTableColumn.language => 'Language',
-    LibraryTableColumn.pageCount => 'Pages',
-    LibraryTableColumn.ageRating => 'Age Rating',
-    LibraryTableColumn.imprint => 'Imprint',
+    _ => plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column),
   };
 }
 

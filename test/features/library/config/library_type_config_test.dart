@@ -202,7 +202,7 @@ void main() {
     expect(collectarrLibraryTypes.providersForKind('bluray'), isEmpty);
     expect(collectarrLibraryTypes.byKind('movie')?.addDialogLauncher, isNull);
     expect(collectarrLibraryTypes.byKind('movie')?.editDialogBuilder, isNotNull);
-    expect(collectarrLibraryTypes.byKind('movie')?.detailPageBuilder, isNull);
+    expect(collectarrLibraryTypes.byKind('movie')?.detailPageBuilder, isNotNull);
   });
 
   test('all registered kinds declare an explicit edit dialog builder', () {

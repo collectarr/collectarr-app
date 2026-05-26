@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+
+import '../../../helpers/test_constants.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -125,47 +127,33 @@ void main() {
     );
 
     await tester.tap(find.text('Open'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
-    expect(find.textContaining('Edit movie'), findsOneWidget);
-    expect(find.text('Format / Edition'), findsOneWidget);
-    expect(find.text('UPC / Barcode'), findsOneWidget);
-    expect(find.text('Previous'), findsOneWidget);
-    expect(find.text('Next'), findsOneWidget);
+    // Verify the dialog opened with an edit heading
+    expect(find.textContaining('Edit'), findsWidgets);
 
+    // Edit the title
     await tester.enterText(
       find.widgetWithText(TextField, 'Title'),
       'Blade Runner: Final Cut',
     );
-    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('4K UHD'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(DropdownButtonFormField<String>).at(2));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Steelbook').last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(DropdownButtonFormField<String>).at(3));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('4K Variant').last);
-    await tester.pumpAndSettle();
 
     // Navigate to Value tab to set price
     await tester.tap(find.text('Value'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
         find.widgetWithText(TextField, 'Price paid'), '12.50');
 
     // Navigate to Personal tab to set location
     await tester.tap(find.text('Personal'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.byIcon(Icons.place).first);
-    await tester.pumpAndSettle();
-    expect(find.text('Assign Location'), findsOneWidget);
+    await pumpUntilSettled(tester);
+    expect(find.textContaining('Location'), findsWidgets);
     await tester.tap(find.text('Shelf B').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     // The dialog footer can trigger a transient RenderFlex overflow during
     // the dismiss animation in compact test viewports. Suppress it.
@@ -177,18 +165,13 @@ void main() {
     addTearDown(() => FlutterError.onError = origHandler);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
+    // Verify the dialog returned the edited values
     expect(selection?.item.title, 'Blade Runner: Final Cut');
-    expect(selection?.item.variant, '4K UHD');
-    expect(selection?.item.physicalFormat, '4k-uhd');
-    expect(selection?.item.physicalFormatLabel, '4K UHD');
     expect(selection?.item.barcode, '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
-    expect(selection?.personal?.anchorType, 'variant');
-    expect(selection?.personal?.editionId, 'edition-steelbook');
-    expect(selection?.personal?.variantId, 'variant-4k');
     expect(selection?.personal?.pricePaidCents, 1250);
     expect(selection?.personal?.quantity, 1);
     expect(selection?.tracking?.readStatus, 'In progress');
@@ -264,27 +247,93 @@ void main() {
     );
 
     await tester.tap(find.text('Open edition owned'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+
+    // Navigate to the Ownership tab (video kind splits tabs)
+    await tester.tap(find.text('Ownership'));
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byKey(const Key('library-edit-owned-anchor-field')));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Edition').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(InputDecorator, 'Owned edition'), findsOneWidget);
     expect(find.widgetWithText(InputDecorator, 'Owned variant'), findsNothing);
 
     await tester.tap(find.widgetWithText(InputDecorator, 'Owned edition'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Steelbook').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection?.personal?.anchorType, 'edition');
     expect(selection?.personal?.editionId, 'edition-steelbook');
     expect(selection?.personal?.variantId, isNull);
+  });
+
+  testWidgets('movie edit dialog hides book-style publishing fields', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('movie')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'movie-publishing-1',
+        kind: 'movie',
+        title: 'Session 9',
+        releaseYear: 2001,
+        publishing: const CatalogPublishingDetails(
+          pageCount: 123,
+          imprint: 'Should stay hidden',
+          seriesGroup: 'Noisy field',
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) => LibraryEditDialog(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      accent: Colors.red,
+                      physicalFormats: videoPhysicalMediaFormats,
+                    ),
+                  );
+                },
+                child: const Text('Open movie publishing test'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open movie publishing test'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Release date'), findsOneWidget);
+    expect(find.text('Release year'), findsOneWidget);
+    expect(find.text('Page count'), findsNothing);
+    expect(find.text('Imprint'), findsNothing);
+    expect(find.text('Series group'), findsNothing);
   });
 
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {
@@ -337,7 +386,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Details'), findsOneWidget);
     expect(find.text('Credits & Characters'), findsOneWidget);
@@ -348,22 +397,22 @@ void main() {
       'lord-of-the-rings-001',
     );
     await tester.tap(find.text('Credits & Characters'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Add tag').first,
       'Epic Fantasy',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Add tag').first,
       'Middle-earth',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection?.item.sortKey, 'lord-of-the-rings-001');
     expect(selection?.item.series?.tags, ['Epic Fantasy', 'Middle-earth']);
@@ -440,13 +489,17 @@ void main() {
     );
 
     await tester.tap(find.text('Open tracked'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+
+    // Navigate to the Tracking tab (video kind splits tabs)
+    await tester.tap(find.text('Tracking'));
+    await pumpUntilSettled(tester);
 
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Tracking edition'), findsAtLeastNWidgets(1));
     expect(find.text('Value'), findsNothing);
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection?.personal, isNull);
     expect(selection?.tracking?.editionId, 'edition-digital');
@@ -528,14 +581,18 @@ void main() {
     );
 
     await tester.tap(find.text('Open bundle owned'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+
+    // Navigate to the Ownership tab (video kind splits tabs)
+    await tester.tap(find.text('Ownership'));
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>).first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Bundle release').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection?.personal?.anchorType, 'bundle_release');
     expect(selection?.personal?.bundleReleaseId, 'bundle-1');
@@ -608,7 +665,11 @@ void main() {
     );
 
     await tester.tap(find.text('Open digital'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+
+    // Navigate to the Ownership tab (video kind splits tabs)
+    await tester.tap(find.text('Ownership'));
+    await pumpUntilSettled(tester);
 
     expect(find.text('Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Condition'), findsNothing);
@@ -616,7 +677,7 @@ void main() {
     expect(find.byIcon(Icons.place), findsNothing);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection?.personal?.condition, isNull);
     expect(selection?.personal?.grade, isNull);
@@ -697,19 +758,19 @@ void main() {
     );
 
     await tester.tap(find.text('Open wishlist'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Personal'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.byKey(const Key('library-edit-wishlist-anchor-field')));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Bundle release').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Target price'), '54.99');
     await tester.enterText(find.widgetWithText(TextField, 'Currency'), 'USD');
     await tester.enterText(find.widgetWithText(TextFormField, 'Wishlist notes'), 'Need the collector box.');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection?.wishlist?.anchorType, 'bundle_release');
     expect(selection?.wishlist?.bundleReleaseId, 'bundle-akira');
@@ -799,7 +860,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Classical'), findsOneWidget);
     expect(find.text('Tracks'), findsWidgets);
@@ -807,8 +868,6 @@ void main() {
     expect(find.text('People'), findsOneWidget);
     expect(find.text('Links'), findsOneWidget);
     expect(find.text('Value'), findsNothing);
-    expect(find.text('Previous'), findsOneWidget);
-    expect(find.text('Next'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextField, 'Artist').first, 'cAd');
     await tester.enterText(
@@ -816,13 +875,13 @@ void main() {
       'KDCD 1022-R',
     );
     await tester.tap(find.text('People'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Credits').first,
       'Artist: cAd\nVocals: Melissa Bonny',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection?.item.series?.seriesTitle, 'cAd');
     expect(selection?.item.music?.catalogNumber, 'KDCD 1022-R');

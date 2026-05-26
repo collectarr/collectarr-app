@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:drift/drift.dart';
@@ -121,6 +123,11 @@ class OwnedItemsCacheRepository {
       sellPriceCents: row.sellPriceCents,
       soldTo: row.soldTo,
       locationId: row.locationId,
+      features: row.features,
+      hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
+      purchaseStore: row.purchaseStore,
+      boxSetId: row.boxSetId,
+      boxSetName: row.boxSetName,
     );
   }
 
@@ -160,6 +167,24 @@ class OwnedItemsCacheRepository {
       sellPriceCents: Value(item.sellPriceCents),
       soldTo: Value(item.soldTo),
       locationId: Value(item.locationId),
+      features: Value(item.features),
+      hdrFormatsJson: Value(
+        item.hdrFormats.isNotEmpty ? jsonEncode(item.hdrFormats) : null,
+      ),
+      purchaseStore: Value(item.purchaseStore),
+      boxSetId: Value(item.boxSetId),
+      boxSetName: Value(item.boxSetName),
     );
+  }
+
+  static List<String>? _decodeStringList(String? json) {
+    if (json == null || json.isEmpty) {
+      return null;
+    }
+    final decoded = jsonDecode(json);
+    if (decoded is! List) {
+      return null;
+    }
+    return decoded.cast<String>().toList(growable: false);
   }
 }

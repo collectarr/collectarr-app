@@ -17,6 +17,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'helpers/secure_storage_mock.dart';
+import 'helpers/test_constants.dart';
+
 /// Builds a [MaterialApp.router] backed by the real [appRouterProvider] so the
 /// [AppShell] receives a proper [StatefulNavigationShell].
 Widget _shellTestApp({List<Override> overrides = const []}) {
@@ -31,7 +34,16 @@ Widget _shellTestApp({List<Override> overrides = const []}) {
   );
 }
 
+void _setDesktopViewport(WidgetTester tester) {
+  tester.view.physicalSize = kDesktopTestSize;
+  tester.view.devicePixelRatio = kDesktopTestDPR;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
+
 void main() {
+  setUp(setUpSecureStorageMock);
+
   testWidgets('app shell requests online-first sync once on startup',
       (tester) async {
     SharedPreferences.setMockInitialValues({
@@ -41,10 +53,7 @@ void main() {
       'collectarr.auth.email': 'test@example.com',
       'collectarr.auth.is_admin': false,
     });
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    _setDesktopViewport(tester);
 
     late _SpySyncController syncController;
     await tester.pumpWidget(
@@ -75,7 +84,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(syncController.onlineFirstRequests, 1);
 
     await tester.pump();
@@ -91,10 +100,7 @@ void main() {
       'collectarr.auth.email': 'test@example.com',
       'collectarr.auth.is_admin': false,
     });
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    _setDesktopViewport(tester);
 
     await tester.pumpWidget(
       _shellTestApp(
@@ -102,7 +108,7 @@ void main() {
           authControllerProvider.overrideWith(
             (ref) => _AuthenticatedAuthController(ref),
           ),
-          selectedLibraryKindProvider.overrideWith((ref) => 'manga'),
+          selectedLibraryKindProvider.overrideWith(() => _FixedLibraryKind('manga')),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           syncControllerProvider.overrideWith(
@@ -126,7 +132,7 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
@@ -137,7 +143,7 @@ void main() {
     );
   });
 
-  testWidgets('app shell hides admin destination for standard accounts',
+  testWidgets('app shell shows Manage destination for standard accounts',
       (tester) async {
     SharedPreferences.setMockInitialValues({
       'collectarr.auth.token': _jwtExpiringAt(
@@ -146,10 +152,7 @@ void main() {
       'collectarr.auth.email': 'test@example.com',
       'collectarr.auth.is_admin': false,
     });
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    _setDesktopViewport(tester);
 
     await tester.pumpWidget(
       _shellTestApp(
@@ -161,12 +164,14 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    expect(navigationBar.destinations.length, 3);
+    // All users see 4 destinations (Libraries, Shelf, Manage, Settings).
+    expect(navigationBar.destinations.length, 4);
+    expect(find.text('Manage'), findsOneWidget);
     expect(find.text('Admin'), findsNothing);
   });
 
@@ -179,10 +184,7 @@ void main() {
       'collectarr.auth.email': 'admin@example.com',
       'collectarr.auth.is_admin': true,
     });
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    _setDesktopViewport(tester);
 
     await tester.pumpWidget(
       _shellTestApp(
@@ -194,13 +196,15 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
+    // Admin accounts see 4 destinations with 'Admin' label.
     expect(navigationBar.destinations.length, 4);
     expect(find.text('Admin'), findsOneWidget);
+    expect(find.text('Manage'), findsNothing);
   });
 
   testWidgets('detail route without request payload redirects to libraries',
@@ -212,10 +216,7 @@ void main() {
       'collectarr.auth.email': 'test@example.com',
       'collectarr.auth.is_admin': false,
     });
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    _setDesktopViewport(tester);
 
     await tester.pumpWidget(
       _shellTestApp(
@@ -227,11 +228,11 @@ void main() {
         ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final context = tester.element(find.byType(AppShell));
     GoRouter.of(context).go(AppRoutes.detail);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.byType(LibraryHomePage), findsOneWidget);
     expect(find.byType(AppShell), findsOneWidget);
@@ -302,4 +303,12 @@ class _SpySyncController extends _StaticSyncController {
 /// [_restoreSession] reads the mocked prefs and transitions to authenticated.
 class _AuthenticatedAuthController extends AuthController {
   _AuthenticatedAuthController(super.ref);
+}
+
+class _FixedLibraryKind extends SelectedLibraryKind {
+  _FixedLibraryKind(this._kind);
+  final String _kind;
+
+  @override
+  String build() => _kind;
 }

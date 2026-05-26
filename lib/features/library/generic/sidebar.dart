@@ -40,32 +40,18 @@ class LibrarySidebar extends StatelessWidget {
       accentColor: accent,
       selectionColor: accent.withValues(alpha: 0.36),
       backgroundColor: kAppPanel,
-      headerColor: const Color(0xFF303030),
+      headerColor: kAppSurface,
       dividerColor: kAppDivider,
       selectedBadgeColor: kAppHighlight,
       mutedTextColor: kAppTextMuted,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (groupLoading) ...[
-            const SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            const SizedBox(width: 8),
-          ],
-          _GenericGroupingMenu(
-            type: type,
-            groupMode: groupMode,
-            onChanged: onGroupModeChanged,
-          ),
-          IconButton(
-            tooltip: 'Clear group filter',
-            onPressed: onClearFilter,
-            icon: const Icon(Icons.filter_alt_off, size: 18),
-          ),
-        ],
+      headerOverride: _SidebarGroupDropdownHeader(
+        type: type,
+        groupMode: groupMode,
+        accent: accent,
+        icon: genericGroupModeIcon(groupMode),
+        onChanged: onGroupModeChanged,
+        groupLoading: groupLoading,
+        onClearFilter: onClearFilter,
       ),
     );
   }
@@ -130,37 +116,193 @@ IconData genericLibrarySidebarIcon(LibraryTypeConfig type) {
   };
 }
 
-class _GenericGroupingMenu extends StatelessWidget {
-  const _GenericGroupingMenu({
+class _SidebarGroupDropdownHeader extends StatelessWidget {
+  const _SidebarGroupDropdownHeader({
     required this.type,
     required this.groupMode,
+    required this.accent,
+    required this.icon,
     required this.onChanged,
+    this.groupLoading = false,
+    this.onClearFilter,
   });
 
   final LibraryTypeConfig type;
   final LibraryGroupMode groupMode;
+  final Color accent;
+  final IconData icon;
   final ValueChanged<LibraryGroupMode> onChanged;
+  final bool groupLoading;
+  final VoidCallback? onClearFilter;
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<LibraryGroupMode>(
-      tooltip: 'Group by',
-      icon: const Icon(Icons.tune, size: 18),
-      initialValue: groupMode,
-      onSelected: onChanged,
-      itemBuilder: (context) => [
-        for (final mode in libraryGroupModesForType(type))
-          PopupMenuItem(
-            value: mode,
-            child: ListTile(
-              dense: true,
-              leading: Icon(genericGroupModeIcon(mode)),
-              title: Text(genericGroupModeLabel(mode, type)),
-              trailing:
-                  mode == groupMode ? const Icon(Icons.check, size: 18) : null,
+    final label = genericGroupModeSidebarTitle(groupMode, type);
+    return Container(
+      height: 42,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: const BoxDecoration(
+        color: kAppSurface,
+        border: Border(bottom: BorderSide(color: kAppDivider)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => _showGroupModeMenu(context),
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 16, color: accent),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: accent,
+                            ),
+                      ),
+                    ),
+                    Icon(Icons.arrow_drop_down, size: 18, color: accent),
+                  ],
+                ),
+              ),
             ),
           ),
-      ],
+          if (groupLoading) ...[
+            const SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 4),
+          ],
+          IconButton(
+            tooltip: 'Clear group filter',
+            onPressed: onClearFilter,
+            icon: const Icon(Icons.filter_alt_off, size: 16),
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+          ),
+        ],
+      ),
     );
   }
+
+  void _showGroupModeMenu(BuildContext context) {
+    final modes = libraryGroupModesForType(type);
+    final categories = _categorizeGroupModes(modes);
+    final box = context.findRenderObject() as RenderBox;
+    final offset = box.localToGlobal(Offset(0, box.size.height));
+    showMenu<LibraryGroupMode>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy,
+        offset.dx + box.size.width,
+        offset.dy,
+      ),
+      constraints: const BoxConstraints(maxWidth: 220),
+      items: [
+        for (final category in categories) ...[
+          PopupMenuItem<LibraryGroupMode>(
+            enabled: false,
+            height: 28,
+            child: Text(
+              category.label,
+              style: TextStyle(
+                color: kAppTextMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          for (final mode in category.modes)
+            PopupMenuItem<LibraryGroupMode>(
+              value: mode,
+              height: 36,
+              child: Row(
+                children: [
+                  Icon(
+                    genericGroupModeIcon(mode),
+                    size: 16,
+                    color: mode == groupMode ? accent : kAppTextSecondary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      genericGroupModeLabel(mode, type),
+                      style: TextStyle(
+                        fontWeight: mode == groupMode
+                            ? FontWeight.w800
+                            : FontWeight.w500,
+                        color: mode == groupMode ? accent : null,
+                      ),
+                    ),
+                  ),
+                  if (mode == groupMode)
+                    Icon(Icons.check, size: 16, color: accent),
+                ],
+              ),
+            ),
+        ],
+      ],
+    ).then((value) {
+      if (value != null) onChanged(value);
+    });
+  }
+
+  static List<_GroupModeCategory> _categorizeGroupModes(
+    List<LibraryGroupMode> modes,
+  ) {
+    const mainModes = {
+      LibraryGroupMode.series,
+      LibraryGroupMode.storyArc,
+      LibraryGroupMode.character,
+      LibraryGroupMode.title,
+      LibraryGroupMode.publisher,
+      LibraryGroupMode.year,
+      LibraryGroupMode.genre,
+      LibraryGroupMode.country,
+      LibraryGroupMode.language,
+      LibraryGroupMode.ageRating,
+    };
+    const editionModes = {
+      LibraryGroupMode.format,
+    };
+    const crewModes = {
+      LibraryGroupMode.director,
+      LibraryGroupMode.creator,
+    };
+    // Everything else is personal.
+    final main = modes.where(mainModes.contains).toList();
+    final edition = modes.where(editionModes.contains).toList();
+    final crew = modes.where(crewModes.contains).toList();
+    final personal = modes
+        .where((m) =>
+            !mainModes.contains(m) &&
+            !editionModes.contains(m) &&
+            !crewModes.contains(m))
+        .toList();
+    return [
+      if (main.isNotEmpty) _GroupModeCategory('Main', main),
+      if (edition.isNotEmpty) _GroupModeCategory('Edition', edition),
+      if (crew.isNotEmpty) _GroupModeCategory('Cast & Crew', crew),
+      if (personal.isNotEmpty) _GroupModeCategory('Personal', personal),
+    ];
+  }
+}
+
+class _GroupModeCategory {
+  const _GroupModeCategory(this.label, this.modes);
+  final String label;
+  final List<LibraryGroupMode> modes;
 }

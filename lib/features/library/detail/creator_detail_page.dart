@@ -1,9 +1,30 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/error_card.dart';
+import 'package:collectarr_app/ui/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CreatorDetailPage extends ConsumerStatefulWidget {
+final _creatorDetailProvider = FutureProvider.autoDispose
+    .family<_CreatorDetailData, String>((ref, creatorName) async {
+  final api = ref.watch(apiClientProvider);
+  final results = await api.searchCreators(
+    query: creatorName,
+    limit: 12,
+  );
+  if (results.isEmpty) {
+    throw StateError('No creator metadata found for $creatorName.');
+  }
+  final creator = _pickBestCreator(results, creatorName);
+  final credits = await api.getCreatorCredits(creator['id'].toString());
+  return _CreatorDetailData(
+    creator: creator,
+    credits: credits,
+    alternatives: results,
+  );
+});
+
+class CreatorDetailPage extends ConsumerWidget {
   const CreatorDetailPage({
     super.key,
     required this.creatorName,
@@ -12,56 +33,19 @@ class CreatorDetailPage extends ConsumerStatefulWidget {
   final String creatorName;
 
   @override
-  ConsumerState<CreatorDetailPage> createState() => _CreatorDetailPageState();
-}
-
-class _CreatorDetailPageState extends ConsumerState<CreatorDetailPage> {
-  late Future<_CreatorDetailData> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = _load();
-  }
-
-  Future<_CreatorDetailData> _load() async {
-    final api = ref.read(apiClientProvider);
-    final results = await api.searchCreators(
-      query: widget.creatorName,
-      limit: 12,
-    );
-    if (results.isEmpty) {
-      throw StateError('No creator metadata found for ${widget.creatorName}.');
-    }
-    final creator = _pickBestCreator(results, widget.creatorName);
-    final credits = await api.getCreatorCredits(creator['id'].toString());
-    return _CreatorDetailData(
-      creator: creator,
-      credits: credits,
-      alternatives: results,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detail = ref.watch(_creatorDetailProvider(creatorName));
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.creatorName),
+        title: Text(creatorName),
       ),
-      body: FutureBuilder<_CreatorDetailData>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _CreatorDetailError(
-              message: snapshot.error.toString(),
-              onRetry: () => setState(() => _future = _load()),
-            );
-          }
-          return _CreatorDetailBody(data: snapshot.data!);
-        },
+      body: detail.when(
+        loading: () => const AppLoadingIndicator(),
+        error: (error, _) => AppErrorCard(
+          message: error.toString(),
+          onRetry: () => ref.invalidate(_creatorDetailProvider(creatorName)),
+        ),
+        data: (data) => _CreatorDetailBody(data: data),
       ),
     );
   }
@@ -268,41 +252,6 @@ class _CreatorStatChip extends StatelessWidget {
     return Chip(
       avatar: Icon(icon, size: 16),
       label: Text(label),
-    );
-  }
-}
-
-class _CreatorDetailError extends StatelessWidget {
-  const _CreatorDetailError({
-    required this.message,
-    required this.onRetry,
-  });
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 36),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

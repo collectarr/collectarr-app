@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -100,8 +100,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
 
   Future<void> _load() async {
     final defaults = await PrefillDefaults.load();
-    final locations =
-        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    final locations = await ref.read(allLocationsProvider.future);
     final locationId = defaults.locationId ??
         _matchLegacyLocationId(defaults.legacyStorageBox, locations);
     if (!mounted) return;
@@ -297,8 +296,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     if (result == null) {
       return;
     }
-    final locations =
-        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    ref.invalidate(allLocationsProvider);
+    final locations = await ref.read(allLocationsProvider.future);
     if (!mounted) {
       return;
     }

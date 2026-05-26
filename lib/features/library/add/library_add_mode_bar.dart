@@ -13,7 +13,7 @@ class _DialogHeader extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [kAppDivider, Color(0xFF1B1B1B)],
+            colors: [kAppDivider, kAppSurfaceDim],
           ),
           border: Border(bottom: BorderSide(color: accent)),
         ),
@@ -58,7 +58,7 @@ class _BarcodePrefillBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: Color(0xFF253744),
+        color: kAppBannerInfoBackground,
         border: Border(bottom: _kLibraryAddBorder),
       ),
       child: Padding(
@@ -97,6 +97,11 @@ class _LibraryAddModeBar extends StatelessWidget {
     required this.isSearchingProvider,
     required this.onModeChanged,
     required this.onSearch,
+    required this.onQueryChanged,
+    required this.suggestions,
+    required this.showSuggestions,
+    required this.onSelectSuggestion,
+    required this.onDismissSuggestions,
     required this.canScanCover,
     required this.isScanningCover,
     required this.onScanCover,
@@ -119,6 +124,11 @@ class _LibraryAddModeBar extends StatelessWidget {
   final bool isSearchingProvider;
   final ValueChanged<_LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
+  final ValueChanged<String> onQueryChanged;
+  final List<LibraryMetadataItem> suggestions;
+  final bool showSuggestions;
+  final ValueChanged<LibraryMetadataItem> onSelectSuggestion;
+  final VoidCallback onDismissSuggestions;
   final bool canScanCover;
   final bool isScanningCover;
   final VoidCallback onScanCover;
@@ -138,7 +148,7 @@ class _LibraryAddModeBar extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: kAppToolbar,
-        border: Border(bottom: BorderSide(color: Color(0xFF111111))),
+        border: Border(bottom: BorderSide(color: kAppField)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(7, 5, 7, 7),
@@ -167,6 +177,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                             label: 'Search Collectarr Core',
                             hintText: searchLabels.queryHint,
                             onSubmitted: onSearch,
+                            onChanged: onQueryChanged,
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -209,6 +220,13 @@ class _LibraryAddModeBar extends StatelessWidget {
                         onSubmitted: onSearch,
                       ),
                     ],
+                    if (showSuggestions && suggestions.isNotEmpty)
+                      _SuggestionDropdown(
+                        suggestions: suggestions,
+                        accent: accent,
+                        onSelect: onSelectSuggestion,
+                        onDismiss: onDismissSuggestions,
+                      ),
                   ],
                 ),
               _LibraryAddDialogMode.barcode => Row(
@@ -294,7 +312,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
       height: 42,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: const Color(0xFF272A2C),
+        color: kAppSurfaceSubtle,
         border: Border.all(color: accent.withValues(alpha: 0.72)),
         borderRadius: BorderRadius.circular(3),
       ),
@@ -304,7 +322,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
             'Search by',
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              color: Color(0xFFEDEDED),
+              color: kAppTextBright,
             ),
           ),
           const SizedBox(width: 8),
@@ -345,7 +363,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
             onPressed: onScan,
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.menu, size: 26, color: Color(0xFFEDEDED)),
+          const Icon(Icons.menu, size: 26, color: kAppTextBright),
         ],
       ),
     );
@@ -396,6 +414,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
     required this.label,
     required this.hintText,
     required this.onSubmitted,
+    this.onChanged,
     this.keyboardType,
   });
 
@@ -404,6 +423,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
   final String label;
   final String hintText;
   final VoidCallback onSubmitted;
+  final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
 
   @override
@@ -421,9 +441,10 @@ class _LibraryAddModeTextField extends StatelessWidget {
           maxLines: null,
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
+          onChanged: onChanged,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
-            color: Color(0xFFEDEDED),
+            color: kAppTextBright,
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
@@ -434,7 +455,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
             border: InputBorder.none,
             semanticCounterText: label,
             hintText: hintText,
-            hintStyle: const TextStyle(color: Color(0xFF9EA9B0)),
+            hintStyle: const TextStyle(color: kAppTextHint),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
@@ -455,8 +476,8 @@ class _LibraryAddModeFieldFrame extends StatelessWidget {
       height: _kLibraryAddModeControlHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xFF111111),
-        border: Border.all(color: const Color(0xFF50565A)),
+        color: kAppField,
+        border: Border.all(color: kAppBorderSubtle),
         borderRadius: BorderRadius.circular(3),
       ),
       child: child,
@@ -540,13 +561,13 @@ class _AdvancedToggleButton extends StatelessWidget {
         ),
         tooltip: expanded ? 'Hide advanced fields' : 'Show advanced fields',
         style: IconButton.styleFrom(
-          foregroundColor: expanded ? accent : const Color(0xFF9EA9B0),
+          foregroundColor: expanded ? accent : kAppTextSecondary,
           backgroundColor:
               expanded ? accent.withValues(alpha: 0.15) : Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(3),
             side: BorderSide(
-              color: expanded ? accent.withValues(alpha: 0.5) : const Color(0xFF50565A),
+              color: expanded ? accent.withValues(alpha: 0.5) : kAppBorderSubtle,
             ),
           ),
           padding: EdgeInsets.zero,
@@ -651,7 +672,7 @@ class _AdvancedField extends StatelessWidget {
           textAlignVertical: TextAlignVertical.center,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
-            color: Color(0xFFEDEDED),
+            color: kAppTextBright,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -661,12 +682,128 @@ class _AdvancedField extends StatelessWidget {
             border: InputBorder.none,
             hintText: hint,
             hintStyle: const TextStyle(
-              color: Color(0xFF9EA9B0),
+              color: kAppTextHint,
               fontSize: 13,
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SuggestionDropdown extends StatelessWidget {
+  const _SuggestionDropdown({
+    required this.suggestions,
+    required this.accent,
+    required this.onSelect,
+    required this.onDismiss,
+  });
+
+  final List<LibraryMetadataItem> suggestions;
+  final Color accent;
+  final ValueChanged<LibraryMetadataItem> onSelect;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      constraints: const BoxConstraints(maxHeight: 260),
+      decoration: BoxDecoration(
+        color: kAppField,
+        border: Border.all(color: accent.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: ListView.separated(
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        itemCount: suggestions.length,
+        separatorBuilder: (_, __) =>
+            const Divider(height: 1, color: kAppBorderSubtle),
+        itemBuilder: (context, index) {
+          final item = suggestions[index];
+          return _SuggestionTile(
+            item: item,
+            accent: accent,
+            onTap: () => onSelect(item),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SuggestionTile extends StatelessWidget {
+  const _SuggestionTile({
+    required this.item,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final LibraryMetadataItem item;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final year = item.releaseDate?.year;
+    final subtitle = [
+      if (year != null) year.toString(),
+      item.mediaKind.apiValue,
+    ].join(' · ');
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          children: [
+            if (item.coverImageUrl != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: Image.network(
+                  item.coverImageUrl!,
+                  width: 28,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) =>
+                      const SizedBox(width: 28, height: 40),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: kAppTextBright,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty)
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: kAppTextMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 12, color: accent),
+          ],
         ),
       ),
     );

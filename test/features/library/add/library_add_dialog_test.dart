@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
+
+import '../../../helpers/test_constants.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
@@ -208,7 +210,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Very Fine'), findsOneWidget);
     expect(find.text('9.6'), findsOneWidget);
@@ -263,7 +265,7 @@ void main() {
       'Naruto',
     );
     await tester.tap(find.text('Search Manga'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastProvider, 'anilist');
     expect(api.lastProviderKind, 'manga');
@@ -279,7 +281,7 @@ void main() {
     );
     await tester.ensureVisible(providerCandidate);
     await tester.tap(providerCandidate);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.providerPreviewCallCount, 1);
     expect(find.text('Add as owned'), findsOneWidget);
@@ -287,7 +289,7 @@ void main() {
     expect(find.byTooltip('Propose metadata to Core'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Queue Core ingest'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastIngestProvider, 'anilist');
     expect(api.lastIngestProviderItemId, 'anilist-1');
@@ -296,11 +298,11 @@ void main() {
     expect(find.textContaining('job-1'), findsWidgets);
 
     await tester.ensureVisible(find.byTooltip('Propose metadata to Core'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.byTooltip('Propose metadata to Core'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastProposalProvider, 'anilist');
     expect(api.lastProposalProviderItemId, 'anilist-1');
@@ -619,8 +621,9 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
           body: Builder(
             builder: (context) => FilledButton(
               onPressed: () {
@@ -639,6 +642,7 @@ void main() {
             ),
           ),
         ),
+      ),
       ),
     );
 
@@ -766,19 +770,21 @@ void main() {
     LibraryCoverReviewedImage? reviewedImage;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () async {
-                reviewedImage = await const DialogLibraryCoverImageReview()
-                    .reviewImage(
-                  context: context,
-                  type: comicsLibraryConfig,
-                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
-                );
-              },
-              child: const Text('Open review'),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () async {
+                  reviewedImage = await const DialogLibraryCoverImageReview()
+                      .reviewImage(
+                    context: context,
+                    type: comicsLibraryConfig,
+                    file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                  );
+                },
+                child: const Text('Open review'),
+              ),
             ),
           ),
         ),
@@ -832,19 +838,21 @@ void main() {
     LibraryCoverReviewedImage? reviewedImage;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () async {
-                reviewedImage = await const DialogLibraryCoverImageReview()
-                    .reviewImage(
-                  context: context,
-                  type: comicsLibraryConfig,
-                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
-                );
-              },
-              child: const Text('Open review'),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () async {
+                  reviewedImage = await const DialogLibraryCoverImageReview()
+                      .reviewImage(
+                    context: context,
+                    type: comicsLibraryConfig,
+                    file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                  );
+                },
+                child: const Text('Open review'),
+              ),
             ),
           ),
         ),
@@ -889,19 +897,21 @@ void main() {
     LibraryCoverReviewedImage? reviewedImage;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () async {
-                reviewedImage = await const DialogLibraryCoverImageReview()
-                    .reviewImage(
-                  context: context,
-                  type: comicsLibraryConfig,
-                  file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
-                );
-              },
-              child: const Text('Open review'),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => FilledButton(
+                onPressed: () async {
+                  reviewedImage = await const DialogLibraryCoverImageReview()
+                      .reviewImage(
+                    context: context,
+                    type: comicsLibraryConfig,
+                    file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
+                  );
+                },
+                child: const Text('Open review'),
+              ),
             ),
           ),
         ),
@@ -958,7 +968,7 @@ void main() {
       'Over the Garden Wall',
     );
     await tester.tap(find.text('Search Comics'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
     expect(find.text('Provider candidates'), findsOneWidget);
@@ -996,16 +1006,16 @@ void main() {
     );
 
     await tester.tap(find.text('Manual'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Physical format'), findsOneWidget);
     await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Blu-ray'), findsOneWidget);
     expect(find.text('4K UHD'), findsOneWidget);
     expect(find.text('Digital'), findsOneWidget);
     await tester.tap(find.text('Digital').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(
       find.text(
         'Owned copies created from this draft will be saved as Digital copy.',
@@ -1055,7 +1065,7 @@ void main() {
       'Blade Runner',
     );
     await tester.tap(find.text('Search Movies'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastSearchKind, 'movie');
     expect(api.lastSearchQuery, 'Blade Runner');
@@ -1104,13 +1114,13 @@ void main() {
       'Batman',
     );
     await tester.tap(find.text('Search Comics'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Batman #423'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Bundle'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Batman Anniversary Box'), findsWidgets);
     expect(find.text('Bundle'), findsWidgets);
@@ -1155,13 +1165,13 @@ void main() {
       'Batman',
     );
     await tester.tap(find.text('Search Comics'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Batman #423'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Edition'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.ensureVisible(
       find.byKey(const ValueKey('library-add-edition-field')),
@@ -1169,9 +1179,9 @@ void main() {
     await tester.tap(
       find.byKey(const ValueKey('library-add-edition-field')),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Collector Edition • Collector Issue').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.textContaining('Collector Edition'), findsWidgets);
     expect(find.text('Any / unspecified variant'), findsOneWidget);
@@ -1216,13 +1226,13 @@ void main() {
       'Batman',
     );
     await tester.tap(find.text('Search Comics'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Batman #423'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Edition'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(
       find.byKey(const ValueKey('library-add-edition-field')),
@@ -1239,9 +1249,9 @@ void main() {
     await tester.tap(
       find.byKey(const ValueKey('library-add-edition-field')),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Collector Edition • Collector Issue').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.ensureVisible(
       find.byKey(const ValueKey('library-add-variant-field')),
@@ -1249,9 +1259,9 @@ void main() {
     await tester.tap(
       find.byKey(const ValueKey('library-add-variant-field')),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Sketch Cover • sketch').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.textContaining('Collector Edition'), findsWidgets);
     expect(find.textContaining('Sketch Cover'), findsWidgets);
@@ -1293,7 +1303,7 @@ void main() {
     );
 
     await tester.tap(find.text('Barcode'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.enterText(
       find.byKey(const ValueKey('library-add-barcode-field')),
@@ -1301,7 +1311,7 @@ void main() {
     );
 
     await tester.tap(find.text('Lookup barcode'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastLookupBarcode, '012345678905');
     expect(api.lastLookupKind, 'music');
@@ -1347,14 +1357,14 @@ void main() {
     );
 
     await tester.tap(find.byTooltip('Show advanced fields'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.enterText(
       find.byKey(const ValueKey('library-add-series-field')),
       'Daft Punk',
     );
     await tester.tap(find.text('Search Music'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastSearchKind, 'music');
     expect(api.lastSearchSeries, 'Daft Punk');

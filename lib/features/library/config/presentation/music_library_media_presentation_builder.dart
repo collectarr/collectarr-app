@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -23,7 +24,8 @@ class MusicLibraryMediaPresentationBuilder
     required BuildContext context,
     required Color accent,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryMediaPreviewLabels previewLabels,
     required LibraryMetadataItem? item,
     required ProviderCandidate? candidate,
@@ -84,7 +86,8 @@ class MusicLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -111,17 +114,17 @@ class MusicLibraryMediaPresentationBuilder
           ),
         if (entry.variant != null)
           LibraryInspectorFactData(
-            labels.variant,
+            releaseFields.variantLabel,
             entry.variant!,
             onTap: tapFor(entry.variant),
           ),
         if (entry.barcode != null)
-          LibraryInspectorFactData(labels.barcode, entry.barcode!),
+          LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
       ],
       contextFacts: [
         if (entry.publisher != null)
           LibraryInspectorFactData(
-            labels.publisher,
+            mediaFields.publisherLabel,
             entry.publisher!,
             onTap: tapFor(entry.publisher),
           ),
@@ -341,9 +344,9 @@ class _MusicAddPreviewPane extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF020202),
+            kAppCanvas,
             Color.alphaBlend(accent.withValues(alpha: 0.18), kAppCanvas),
-            const Color(0xFF060606),
+            kAppCanvas,
           ],
         ),
       ),

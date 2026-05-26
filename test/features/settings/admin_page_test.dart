@@ -9,11 +9,14 @@ import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('admin page searches provider metadata and ingests a result',
@@ -41,12 +44,15 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => _AdminAuthController(ref),
+          ),
         ],
         child: const MaterialApp(home: AdminPage()),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     // ─── Dashboard tab (default) ───
     expect(find.text('Metadata dashboard'), findsOneWidget);
@@ -67,14 +73,14 @@ void main() {
     expect(find.text('Rejected proposal'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Reindex search'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.reindexCount, 1);
     expect(find.text('Reindexed 12'), findsOneWidget);
 
     // ─── Logs tab ───
     await tester.tap(find.text('Logs'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Search index history'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
@@ -85,7 +91,7 @@ void main() {
 
     // ─── Catalog tab ───
     await tester.tap(find.text('Catalog').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Catalog search'), findsOneWidget);
     await tester.enterText(
@@ -93,7 +99,7 @@ void main() {
       'Batman',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Search'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await _scrollUntilVisible(
       tester,
@@ -101,10 +107,10 @@ void main() {
       delta: -500,
     );
     await tester.tap(find.widgetWithText(OutlinedButton, 'Covers').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.textContaining('cover:'), findsOneWidget);
     await tester.tap(find.text('Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await _scrollUntilVisible(
       tester,
@@ -112,17 +118,17 @@ void main() {
       delta: -500,
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Edit').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
         find.widgetWithText(TextField, 'Title'), 'Absolute Batman Deluxe');
     await tester.tap(find.widgetWithText(FilledButton, 'Save correction').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Preview metadata correction'), findsOneWidget);
     await tester.tap(find.text('Save correction').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Preview metadata correction'), findsOneWidget);
     await tester.tap(find.text('Save correction').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastCatalogUpdateTitle, 'Absolute Batman Deluxe');
     expect(find.text('Metadata correction saved.'), findsOneWidget);
@@ -130,10 +136,10 @@ void main() {
     // Inspect + duplicates (also on Catalog tab)
     await tester.ensureVisible(
         find.widgetWithText(OutlinedButton, 'Inspect').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Absolute Batman #1A'), findsWidgets);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Inspect').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastInspectKind, 'comic');
     expect(api.lastInspectId, 'item-1');
@@ -145,7 +151,7 @@ void main() {
     expect(find.text('Absolute Batman Collector Bundle'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Edit bundle'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Edit bundle: Absolute Batman Collector Bundle'), findsOneWidget);
     await tester.enterText(
@@ -153,10 +159,10 @@ void main() {
       'Absolute Batman Collector Box',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Save correction'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Preview bundle correction'), findsOneWidget);
     await tester.tap(find.text('Save correction').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastBundleUpdateId, 'bundle-1');
     expect(api.lastBundleUpdateTitle, 'Absolute Batman Collector Box');
@@ -164,20 +170,20 @@ void main() {
     expect(find.text('Absolute Batman Collector Box'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.ensureVisible(find.text('Merge into first'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Merge into first'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.textContaining('Merge review:'), findsOneWidget);
     await tester.enterText(
       find.widgetWithText(TextField, 'Type MERGE to confirm'),
       'MERGE',
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Merge selected'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastMergeTargetItemId, 'item-1');
     expect(api.lastMergeSourceItemIds, ['item-2']);
@@ -185,11 +191,11 @@ void main() {
     expect(find.text('No duplicate candidates detected.'), findsOneWidget);
     expect(find.text('Inspect: Absolute Batman #1B'), findsOneWidget);
     await tester.tap(find.widgetWithText(TextButton, 'Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     // ─── Providers tab ───
     await tester.tap(find.text('Providers'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Metadata proposals'), findsOneWidget);
     expect(find.text('2 pending'), findsOneWidget);
@@ -198,7 +204,7 @@ void main() {
     expect(find.text('Manual GCD correction'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Review in search').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.textContaining('Reviewing proposal:'), findsOneWidget);
     await _scrollUntilVisible(
@@ -207,7 +213,7 @@ void main() {
       delta: -400,
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Approve proposal').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastApprovedProposalId, 'proposal-1');
     expect(api.lastApprovedProposalProviderItemId, '12345');
@@ -217,7 +223,7 @@ void main() {
     );
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Reject').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastRejectedProposalId, 'proposal-2');
     expect(find.text('Proposal rejected.'), findsOneWidget);
@@ -232,7 +238,7 @@ void main() {
     expect(find.textContaining('Last refreshed'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Details').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Ingest job: gcd queued-123'), findsOneWidget);
     expect(find.text('Job ID'), findsOneWidget);
@@ -243,22 +249,22 @@ void main() {
     expect(find.widgetWithText(OutlinedButton, 'Refresh list'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester
         .ensureVisible(find.widgetWithText(OutlinedButton, 'Queue current ID'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Job provider item ID'),
       'queued-direct',
     );
     await tester.tap(find.widgetWithText(OutlinedButton, 'Queue current ID'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastQueuedProviderItemId, 'queued-direct');
 
     await tester.tap(find.widgetWithText(FilledButton, 'Run queued'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.runPendingCount, 1);
 
@@ -271,15 +277,15 @@ void main() {
     expect(find.text('gcd failed-123'), findsOneWidget);
 
     await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Retry'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Retry'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastRetryHistoryId, 7);
 
     // Provider ingest by ID
     await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(
       find.byWidgetPredicate(
         (widget) =>
@@ -287,23 +293,23 @@ void main() {
             widget.decoration.labelText == 'Media kind',
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Comic').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Known ID'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Provider item ID'),
       'direct-123',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Add to catalog'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, 'direct-123');
 
     await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(
       find.byWidgetPredicate(
         (widget) =>
@@ -311,9 +317,9 @@ void main() {
             widget.decoration.labelText == 'Media kind',
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Comic').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Provider query'),
       'Batman #1',
@@ -321,7 +327,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Search provider'));
     await tester.pump();
     await tester.pump();
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastSearchProvider, 'gcd');
     expect(api.lastSearchQuery, 'Batman #1');
@@ -336,13 +342,13 @@ void main() {
     expect(find.text('12345'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Ingest').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, '12345');
 
     await tester.tap(find.text('System'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Collection schema'), findsOneWidget);
     expect(find.text('New root location'), findsOneWidget);
@@ -360,26 +366,26 @@ void main() {
     expect(find.widgetWithText(OutlinedButton, 'Purge gcd'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Edit user').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Display name'),
       'Alice Curator',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastUpdatedUserId, 'user-1');
     expect(api.lastUpdatedUserDisplayName, 'Alice Curator');
     expect(find.text('Updated alice@example.com.'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Deactivate').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastUpdatedUserIsActive, isFalse);
     expect(find.text('Deactivated alice@example.com.'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Purge gcd'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastPurgedImageProvider, 'gcd');
     expect(find.textContaining('Purged 12 gcd entries'), findsOneWidget);
@@ -400,20 +406,23 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => _AdminAuthController(ref),
+          ),
         ],
         child: const MaterialApp(home: AdminPage()),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(Tab, 'Catalog'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Find catalog items'),
       'Lord of the Rings',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Search'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await _scrollUntilVisible(
       tester,
@@ -421,7 +430,7 @@ void main() {
       delta: -500,
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Edit').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.ensureVisible(find.widgetWithText(TextField, 'Series tags'));
     await tester.enterText(
@@ -430,15 +439,15 @@ void main() {
     );
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save correction').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Preview metadata correction'), findsOneWidget);
     expect(find.text('Series tags'), findsWidgets);
 
     await tester.tap(find.text('Save correction').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Preview metadata correction'), findsOneWidget);
     await tester.tap(find.text('Save correction').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastSeriesTagsSeriesId, 'series-book-1');
     expect(api.lastSeriesTags, ['Fantasy', 'Epic Fantasy', 'Fellowship']);
@@ -459,7 +468,17 @@ Future<void> _scrollUntilVisible(
     ).first,
     maxScrolls: 50,
   );
-  await tester.pumpAndSettle();
+  await pumpUntilSettled(tester);
+}
+
+class _AdminAuthController extends AuthController {
+  _AdminAuthController(super.ref) {
+    state = const AuthState(
+      token: 'test-token',
+      email: 'admin@example.com',
+      isAdmin: true,
+    );
+  }
 }
 
 class _FakeAdminApiClient extends ApiClient {

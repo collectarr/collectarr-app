@@ -33,11 +33,11 @@ class ConnectionDiagnostics {
       final responseCode = _responseCode(error.response?.data);
       if (statusCode == 401) {
         if (responseCode == 'missing_bearer_token') {
-          return 'Sign in to the metadata server to use this action.';
+          return 'This action requires an authenticated metadata session.';
         }
         if (responseCode == 'invalid_bearer_token' ||
             responseCode == 'user_not_found') {
-          return 'Metadata session is no longer valid. Sign in again.';
+          return 'Saved metadata session is no longer valid. Sign in again only if you need authenticated tools.';
         }
       }
       final responseDetail = _responseDetail(error.response?.data);

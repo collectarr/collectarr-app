@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
@@ -111,6 +112,29 @@ typedef LibraryDetailPageBuilder = Widget Function(
   LibraryDetailPageRequest request,
 );
 
+class LibraryInspectorRequest {
+  const LibraryInspectorRequest({
+    required this.type,
+    required this.entry,
+    required this.ownedItem,
+    required this.trackingEntry,
+    required this.accent,
+    this.onFilterByValue,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceEntry entry;
+  final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
+  final Color accent;
+  final ValueChanged<String>? onFilterByValue;
+}
+
+typedef LibraryInspectorSectionsBuilder = List<Widget> Function(
+  BuildContext context,
+  LibraryInspectorRequest request,
+);
+
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
     required this.id,
@@ -190,9 +214,12 @@ class LibraryTypeConfig {
     this.presentation = genericLibraryMediaPresentation,
     this.editPresentation =
       const LibraryEditPresentation(builder: DefaultLibraryEditPresentationBuilder()),
+    this.mediaFields = const MediaEditFields(),
+    this.releaseFields = const ReleaseEditFields(),
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
+    this.inspectorSectionsBuilder,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -208,9 +235,12 @@ class LibraryTypeConfig {
   final LibraryTypeCapabilities capabilities;
   final LibraryMediaPresentation presentation;
   final LibraryEditPresentation editPresentation;
+  final MediaEditFields mediaFields;
+  final ReleaseEditFields releaseFields;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
+  final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     if (workspace.kind == CatalogMediaKind.unknown) {

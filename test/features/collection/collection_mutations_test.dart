@@ -383,6 +383,59 @@ void main() {
     expect(queued.where((row) => row.entityType == 'wishlist_item'), hasLength(1));
   });
 
+  test('wishlist allows multiple release anchors for the same item', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final mutations = container.read(collectionMutationsProvider);
+    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+
+    final rows = await db.select(db.wishlistItemsCache).get();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(rows.where((row) => row.deletedAt == null), hasLength(2));
+    expect(
+      rows
+          .where((row) => row.deletedAt == null)
+          .map((row) => row.editionId)
+          .toSet(),
+      {'edition-4k', 'edition-bluray'},
+    );
+    expect(queued.where((row) => row.entityType == 'wishlist_item'), hasLength(2));
+  });
+
+  test('wishlist removal can target a single release anchor', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final mutations = container.read(collectionMutationsProvider);
+    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+
+    await mutations.removeFromWishlist(
+      'movie-1',
+      editionId: 'edition-4k',
+    );
+
+    final rows = await db.select(db.wishlistItemsCache).get();
+    final activeRows = rows.where((row) => row.deletedAt == null).toList();
+    final deletedRows = rows.where((row) => row.deletedAt != null).toList();
+
+    expect(activeRows, hasLength(1));
+    expect(activeRows.single.editionId, 'edition-bluray');
+    expect(deletedRows, hasLength(1));
+    expect(deletedRows.single.editionId, 'edition-4k');
+  });
+
   test('collection import enqueues rows and refreshes pending count once',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -734,6 +787,106 @@ void main() {
     expect(imported, 1);
     expect(owned.single.locationId, 'loc-short-box-6');
     expect(owned.single.storageBox, isNull);
+  });
+
+  test('collection mutations can keep unmatched tmdb items local-only',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final snapshot = CatalogItem(
+      id: 'tmdb-local:movie:603',
+      kind: 'movie',
+      title: 'The Matrix',
+      releaseYear: 1999,
+    );
+
+    await container.read(collectionMutationsProvider).addLocalOnlyTrackingEntry(
+          snapshot,
+          sourceType: 'streaming',
+          status: 'Completed',
+          rating: 9,
+          timesCompleted: 1,
+        );
+    await container.read(collectionMutationsProvider).addLocalOnlyWishlistItem(
+          snapshot,
+        );
+
+    final catalog = await db.select(db.catalogCache).get();
+    final tracking = await db.select(db.trackingEntriesCache).get();
+    final wishlist = await db.select(db.wishlistItemsCache).get();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(catalog.single.id, 'tmdb-local:movie:603');
+    expect(tracking.single.itemId, 'tmdb-local:movie:603');
+    expect(wishlist.single.itemId, 'tmdb-local:movie:603');
+    expect(queued, isEmpty);
+  });
+
+  test('collection mutations can promote local-only tmdb items to core ids',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    final mutations = container.read(collectionMutationsProvider);
+
+    final localSnapshot = CatalogItem(
+      id: 'tmdb-local:movie:603',
+      kind: 'movie',
+      title: 'The Matrix',
+      releaseYear: 1999,
+    );
+    await mutations.addLocalOnlyTrackingEntry(
+      localSnapshot,
+      sourceType: 'streaming',
+      status: 'Completed',
+      rating: 9,
+      timesCompleted: 1,
+    );
+    await mutations.addLocalOnlyWishlistItem(localSnapshot);
+
+    final promotedCount = await mutations.promoteLocalOnlyItemToCatalog(
+      'tmdb-local:movie:603',
+      CatalogItem(
+        id: 'movie-603',
+        kind: 'movie',
+        title: 'The Matrix',
+        releaseYear: 1999,
+      ),
+    );
+
+    final tracking = await db.select(db.trackingEntriesCache).get();
+    final wishlist = await db.select(db.wishlistItemsCache).get();
+    final queued = await db.select(db.syncQueue).get();
+
+    expect(promotedCount, 2);
+    expect(
+      tracking.where((row) => row.deletedAt == null).single.itemId,
+      'movie-603',
+    );
+    expect(
+      wishlist.where((row) => row.deletedAt == null).single.itemId,
+      'movie-603',
+    );
+    expect(
+      queued.where((row) => row.entityType == 'tracking_entry'),
+      hasLength(1),
+    );
+    expect(
+      queued.where((row) => row.entityType == 'wishlist_item'),
+      hasLength(1),
+    );
+    expect(
+      queued.where((row) => row.entityType == 'library_item_snapshot'),
+      hasLength(1),
+    );
   });
 }
 

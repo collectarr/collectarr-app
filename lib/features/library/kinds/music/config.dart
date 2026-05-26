@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
@@ -41,6 +42,14 @@ const musicLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildMusicLibraryEditDialog,
   presentation: musicLibraryMediaPresentation,
   editPresentation: musicLibraryEditPresentation,
+  mediaFields: MediaEditFields(
+    numberLabel: 'Disc / Volume',
+    publisherLabel: 'Label / Artist',
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Format / Edition',
+    barcodeLabel: 'Barcode / Catalog no.',
+  ),
   capabilities: LibraryTypeCapabilities(
     showsTrackData: true,
   ),

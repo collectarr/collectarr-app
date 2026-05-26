@@ -3,12 +3,6 @@ import 'package:collectarr_app/features/library/kinds/shared/presentation_suppor
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 const moviesLibraryMediaPresentation = LibraryMediaPresentation(
-  fieldLabels: LibraryMediaFieldLabels(
-    number: 'Edition no.',
-    publisher: 'Studio',
-    variant: 'Format / Edition',
-    barcode: 'UPC / Barcode',
-  ),
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
@@ -37,8 +31,16 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.year,
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
+    LibraryGroupMode.genre,
+    LibraryGroupMode.country,
+    LibraryGroupMode.language,
+    LibraryGroupMode.ageRating,
+    LibraryGroupMode.format,
+    LibraryGroupMode.director,
+    LibraryGroupMode.creator,
     LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,
+    LibraryGroupMode.tags,
   ],
 );

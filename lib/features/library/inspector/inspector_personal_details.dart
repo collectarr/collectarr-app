@@ -125,6 +125,8 @@ class _InspectorPersonalDetailsEditorState
   late final TextEditingController _priceController;
   late final TextEditingController _currencyController;
   late final TextEditingController _notesController;
+  late final TextEditingController _purchaseStoreController;
+  late final TextEditingController _boxSetNameController;
   DateTime? _purchaseDate;
   String? _priceError;
   List<StorageLocation> _availableLocations = const [];
@@ -137,6 +139,8 @@ class _InspectorPersonalDetailsEditorState
     _priceController = TextEditingController();
     _currencyController = TextEditingController();
     _notesController = TextEditingController();
+    _purchaseStoreController = TextEditingController();
+    _boxSetNameController = TextEditingController();
     _syncFromItem(widget.ownedItem);
     unawaited(_loadAvailableLocations());
   }
@@ -155,6 +159,8 @@ class _InspectorPersonalDetailsEditorState
     _priceController.dispose();
     _currencyController.dispose();
     _notesController.dispose();
+    _purchaseStoreController.dispose();
+    _boxSetNameController.dispose();
     super.dispose();
   }
 
@@ -276,6 +282,24 @@ class _InspectorPersonalDetailsEditorState
               ),
             ),
             const SizedBox(height: 9),
+            TextField(
+              controller: _purchaseStoreController,
+              decoration: const InputDecoration(
+                labelText: 'Purchase store',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.store),
+              ),
+            ),
+            const SizedBox(height: 9),
+            TextField(
+              controller: _boxSetNameController,
+              decoration: const InputDecoration(
+                labelText: 'Box set name',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.inventory_2_outlined),
+              ),
+            ),
+            const SizedBox(height: 9),
             if (_priceError != null) ...[
               Text(
                 _priceError!,
@@ -304,6 +328,8 @@ class _InspectorPersonalDetailsEditorState
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     _currencyController.text = item.currency ?? 'USD';
     _notesController.text = item.personalNotes ?? '';
+    _purchaseStoreController.text = item.purchaseStore ?? '';
+    _boxSetNameController.text = item.boxSetName ?? '';
     _selectedLocationId = item.locationId;
     _locationChanged = false;
   }
@@ -384,6 +410,8 @@ class _InspectorPersonalDetailsEditorState
           pricePaidCents: price,
           currency: currency.isEmpty ? null : currency,
           personalNotes: _emptyToNull(_notesController.text),
+          purchaseStore: _emptyToNull(_purchaseStoreController.text),
+          boxSetName: _emptyToNull(_boxSetNameController.text),
           quantity: widget.ownedItem.quantity,
             storageBox: _locationChanged ? null : widget.ownedItem.storageBox,
             locationId:
@@ -801,6 +829,7 @@ class _InspectorTrackingDetailsEditorState
           border: const OutlineInputBorder(),
           suffixIcon: value != null
               ? IconButton(
+                  tooltip: 'Clear date',
                   icon: const Icon(Icons.clear, size: 18),
                   onPressed: () => onChanged(null),
                 )

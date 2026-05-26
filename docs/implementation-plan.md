@@ -49,6 +49,7 @@
 - Drift DB schema v2 with `CustomFieldDefinitionsCache`, `CustomFieldValuesCache`, `ItemImagesCache` tables
 - Purchase/sell tracking fields (`soldAt`, `sellPriceCents`, `soldTo`) on owned items
 - Generic edit dialogs support media-, edition-, variant-, and bundle-release-level personal anchors for owned/tracking/wishlist state
+- Edit dialog footer simplified to Save-only; tab navigation uses the tab bar, close uses the title bar X button
 
 ### 🎨 UI Polish
 - Distinctive library icons: comics (`style`), anime (`smart_display`), to avoid confusion with books (`menu_book_outlined`)
@@ -70,6 +71,20 @@
 - Bulk action menu: edit, move to owned, move to wishlist, remove selected
 - Bulk edit dialog with tracking status and star rating fields
 - Selection state management with auto-enable/disable
+
+### 🎬 Trailer Links & Physical Media Enrichment
+- TrailerLink model with url, title, source, isAutomatic fields
+- Trailer URLs stored as JSON in CatalogCache, projected into LibraryWorkspaceEntry
+- Detail page trailer section with YouTube detection and url_launcher
+- HDR formats multi-value field on OwnedItem (Drift schema, edit UI FilterChips, sync settings)
+- Physical features text field on OwnedItem (edit UI, sync settings)
+
+### 🔄 Sync & Data Integrity Improvements
+- Sync freshness indicator: relative time subtitle + stale/offline warning icon on sync button
+- Data-first sync: image storage moved outside DB transaction so catalog/owned data commits first
+- Read-only metadata endpoints no longer require authentication (22 GET endpoints made public)
+- Non-UUID item ID guards on all API call sites (seasons, volumes, bundle releases) to prevent 400/422 from synthetic TMDB-local or composite release IDs
+- Friendly error messages for 401/403/connection errors during CSV import resolution
 
 ## 🎯 Current Priorities
 
@@ -109,7 +124,8 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [x] Location definitions sync as first-class personal metadata alongside `location_id` assignments
 
 ### 🧭 Yamtrack-Inspired Gaps Worth Evaluating
-- [ ] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry
+- [x] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry
+	- TMDB import landed first (CSV/JSON file import with batch hydration via Core). Settings page shows all import sources in a compact 2-column grid; TMDB is functional, others show "Coming soon".
 	- Prioritize import-only flows before any bidirectional sync; App mostly needs credential entry, import previews, and duplicate-resolution UX.
 	- Keep provider/source adapters modular so TV/anime imports can land before the full matrix of tracker ecosystems is supported.
 - [ ] Per-item tracking history / activity timeline

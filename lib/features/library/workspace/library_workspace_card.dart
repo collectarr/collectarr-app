@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -13,6 +14,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required this.entry,
     required this.selected,
     required this.onTap,
+    this.onDoubleTap,
     this.onSecondaryTapUp,
     required this.dateFormatter,
     required this.moneyFormatter,
@@ -25,6 +27,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final LibraryWorkspaceEntry entry;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
   final LibraryDateFormatter dateFormatter;
   final LibraryMoneyFormatter moneyFormatter;
@@ -41,21 +44,23 @@ class LibraryWorkspaceCard extends StatelessWidget {
       variantId: entry.referenceVariantId,
       bundleReleaseId: entry.referenceBundleReleaseId,
     );
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
+    return RepaintBoundary(
+      child: AnimatedContainer(
+      duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: selected ? selectedColor : const Color(0xFF181818),
+        color: selected ? selectedColor : kAppCardBackground,
         border: Border.all(
-          color: selected ? accentColor : const Color(0xFF363636),
+          color: selected ? accentColor : kAppCardBorder,
           width: selected ? 2 : 1,
         ),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: kAppRadiusSmall,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
+          onDoubleTap: onDoubleTap,
           onSecondaryTapUp: onSecondaryTapUp,
           child: Padding(
             padding: const EdgeInsets.all(8),
@@ -67,7 +72,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       LibraryInteractiveCover(
-                        title: entry.title,
+                        title: entry.resolvedTitle,
                         itemNumber: entry.itemNumber,
                         imageUrl: entry.displayCoverUrl,
                         ownedItemId: entry.ownedItemId,
@@ -107,7 +112,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              entry.title,
+                              entry.resolvedTitle,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
@@ -116,7 +121,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   ?.copyWith(
                                     color: selected
                                         ? Colors.white
-                                        : const Color(0xFF82DDF2),
+                                        : kAppAccentLight,
                                     fontWeight: FontWeight.w900,
                                   ),
                             ),
@@ -128,7 +133,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         [
-                          if (entry.variant != null &&
+                          if (entry.browseScope != LibraryBrowserScope.title &&
+                              entry.variant != null &&
                               entry.variant!.isNotEmpty)
                             entry.variant,
                           if (entry.releaseDate != null)
@@ -167,7 +173,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               label: 'Scope: ${entry.referenceScopeLabel!}',
                               accentColor: accentColor,
                             ),
-                          if (entry.referenceFormatLabel != null)
+                          if (entry.browseScope != LibraryBrowserScope.title &&
+                              entry.referenceFormatLabel != null)
                             _LibraryCompactMetaPill(
                               icon: Icons.album_outlined,
                               label: 'Format: ${entry.referenceFormatLabel!}',
@@ -258,16 +265,17 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         ],
                       ),
                       const Spacer(),
-                      Text(
-                        entry.barcode == null || entry.barcode!.isEmpty
-                            ? 'No barcode'
-                            : entry.barcode!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: const Color(0xFF9A9A9A),
-                            ),
-                      ),
+                      if (entry.browseScope != LibraryBrowserScope.title)
+                        Text(
+                          entry.barcode == null || entry.barcode!.isEmpty
+                              ? 'No barcode'
+                              : entry.barcode!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: kAppTextSecondary,
+                              ),
+                        ),
                     ],
                   ),
                 ),
@@ -276,6 +284,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
@@ -314,14 +323,14 @@ class _LibraryIssuePill extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: kAppHighlight,
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: kAppRadiusSmall,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         child: Text(
           label,
           style: const TextStyle(
-            color: Color(0xFF151515),
+            color: kAppSurfaceDim,
             fontSize: 11,
             fontWeight: FontWeight.w900,
           ),
@@ -347,8 +356,8 @@ class _LibraryCompactMetaPill extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: kAppTableBottomBorder,
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: const Color(0xFF4B4B4B)),
+        borderRadius: kAppRadiusSmall,
+        border: Border.all(color: kAppBorderSubtle),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),

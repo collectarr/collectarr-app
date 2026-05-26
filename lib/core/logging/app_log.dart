@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Severity levels for app log entries.
@@ -27,9 +29,20 @@ class AppLogEntry {
 /// In-memory ring-buffer log that keeps the most recent entries.
 class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   static const _maxEntries = 200;
+  final _entries = <AppLogEntry>[];
+  Timer? _flushTimer;
+  var _disposed = false;
 
   @override
-  List<AppLogEntry> build() => const [];
+  List<AppLogEntry> build() {
+    _disposed = false;
+    ref.onDispose(() {
+      _disposed = true;
+      _flushTimer?.cancel();
+      _flushTimer = null;
+    });
+    return List.unmodifiable(_entries);
+  }
 
   void log(
     AppLogLevel level,
@@ -44,12 +57,11 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
       message: message,
       detail: detail,
     );
-    final next = [...state, entry];
-    if (next.length > _maxEntries) {
-      state = next.sublist(next.length - _maxEntries);
-    } else {
-      state = next;
+    _entries.add(entry);
+    if (_entries.length > _maxEntries) {
+      _entries.removeRange(0, _entries.length - _maxEntries);
     }
+    _scheduleFlush();
   }
 
   void info(String source, String message, {String? detail}) =>
@@ -61,7 +73,32 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   void error(String source, String message, {String? detail}) =>
       log(AppLogLevel.error, source, message, detail: detail);
 
-  void clear() => state = const [];
+  void clear() {
+    _entries.clear();
+    state = List.unmodifiable(_entries);
+  }
+
+  void _publishEntries() {
+    if (_disposed || !ref.mounted) {
+      return;
+    }
+    state = List.unmodifiable(_entries);
+  }
+
+  void _scheduleFlush() {
+    if (_flushTimer != null) {
+      return;
+    }
+    _flushTimer = Timer(Duration.zero, _flushPending);
+  }
+
+  void _flushPending() {
+    _flushTimer = null;
+    if (_entries.isEmpty) {
+      return;
+    }
+    _publishEntries();
+  }
 }
 
 final appLogProvider =

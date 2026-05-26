@@ -33,9 +33,12 @@ web wrapper.
 - **Smart add / search** — structured series, issue, barcode, candidate tree, and whole-series handling
 - **Manga volumes** — volume/chapter data from Core providers (MangaDex)
 - **TV seasons** — season/episode data for TV and anime
+- **Trailer links** — YouTube-detected trailers on detail pages for movies, TV, and games
+- **HDR & physical media** — HDR format multi-select and features text for physical media tracking
 - **CSV import / export** — Collectarr/CLZ-friendly with media-aware headers + custom field columns
+- **TMDB import** — import movies and TV from TMDB CSV/JSON exports with batch hydration and duplicate detection
 - **Barcode scanning** — camera scanner where available + manual fallback everywhere
-- **Sync support** — optional multi-device sync via `collectarr-sync` with conflict review and retry queue
+- **Sync support** — optional multi-device sync via `collectarr-sync` with conflict review, retry queue, and freshness indicator
 - **Admin panel** — user management, image cache controls, provider health (admin-only)
 - **Sync history** — timestamped log with push/pull/reject counts
 - **Custom fields** — user-defined fields per media type with search/filter and CSV support

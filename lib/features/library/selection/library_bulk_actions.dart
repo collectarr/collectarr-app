@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
@@ -58,8 +59,16 @@ class LibraryBulkActions {
     final lastWishlistedIndex =
         entriesToOwn.lastIndexWhere((entry) => entry.isWishlisted);
     for (var index = 0; index < entriesToOwn.length; index++) {
+      final anchor = resolveLibraryMutationAnchor(
+        ownedItem: entriesToOwn[index].ownedItem,
+        wishlistItem: entriesToOwn[index].wishlistItem,
+      );
       await mutations.addItem(
         entriesToOwn[index].itemId,
+        anchorType: anchor.anchorType,
+        editionId: anchor.editionId,
+        variantId: anchor.variantId,
+        bundleReleaseId: anchor.bundleReleaseId,
         condition: defaultCondition,
         grade: defaultGrade,
         notify:
@@ -92,20 +101,45 @@ class LibraryBulkActions {
       for (final entry in entries)
         if (entry.ownedItem != null) entry,
     ];
-    for (var index = 0; index < ownedEntries.length; index++) {
-      await mutations.removeItem(
-        ownedEntries[index].ownedItem!,
-        notify: index == ownedEntries.length - 1,
-      );
-    }
     final wishlistedEntries = [
       for (final entry in entries)
         if (entry.isWishlisted) entry,
     ];
+    final trackedEntries = [
+      for (final entry in entries)
+        if (entry.trackingEntry != null && entry.ownedItem == null) entry,
+    ];
+    final totalRemovals =
+        ownedEntries.length + wishlistedEntries.length + trackedEntries.length;
+    var completedRemovals = 0;
+    for (var index = 0; index < ownedEntries.length; index++) {
+      completedRemovals += 1;
+      await mutations.removeItem(
+        ownedEntries[index].ownedItem!,
+        notify: completedRemovals == totalRemovals,
+      );
+    }
     for (var index = 0; index < wishlistedEntries.length; index++) {
+      final anchor = resolveLibraryMutationAnchor(
+        ownedItem: wishlistedEntries[index].ownedItem,
+        wishlistItem: wishlistedEntries[index].wishlistItem,
+      );
+      completedRemovals += 1;
       await mutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
-        notify: index == wishlistedEntries.length - 1,
+        wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
+        anchorType: anchor.anchorType,
+        editionId: anchor.editionId,
+        variantId: anchor.variantId,
+        bundleReleaseId: anchor.bundleReleaseId,
+        notify: completedRemovals == totalRemovals,
+      );
+    }
+    for (var index = 0; index < trackedEntries.length; index++) {
+      completedRemovals += 1;
+      await mutations.removeTrackingEntry(
+        trackedEntries[index].trackingEntry!,
+        notify: completedRemovals == totalRemovals,
       );
     }
   }

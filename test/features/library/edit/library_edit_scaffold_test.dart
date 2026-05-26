@@ -4,37 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('edit scaffold footer shows context fields and tab navigation', (
-    tester,
-  ) async {
+  testWidgets('edit scaffold footer shows only Save button', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: _EditScaffoldHarness()));
 
-    expect(find.text('Footer context'), findsOneWidget);
-    expect(find.text('Draft'), findsOneWidget);
-    expect(find.text('1 / 2'), findsOneWidget);
-
-    final previousBefore = tester.widget<OutlinedButton>(
-      find.widgetWithText(OutlinedButton, 'Previous'),
-    );
-    final nextBefore = tester.widget<OutlinedButton>(
-      find.widgetWithText(OutlinedButton, 'Next'),
-    );
-    expect(previousBefore.onPressed, isNull);
-    expect(nextBefore.onPressed, isNotNull);
-
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Next'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('2 / 2'), findsOneWidget);
-
-    final previousAfter = tester.widget<OutlinedButton>(
-      find.widgetWithText(OutlinedButton, 'Previous'),
-    );
-    final nextAfter = tester.widget<OutlinedButton>(
-      find.widgetWithText(OutlinedButton, 'Next'),
-    );
-    expect(previousAfter.onPressed, isNotNull);
-    expect(nextAfter.onPressed, isNull);
+    expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
+    expect(find.text('Previous'), findsNothing);
+    expect(find.text('Next'), findsNothing);
+    expect(find.text('Cancel'), findsNothing);
   });
 }
 
@@ -75,13 +51,7 @@ class _EditScaffoldHarnessState extends State<_EditScaffoldHarness>
             SizedBox.expand(child: Text('Main tab')),
             SizedBox.expand(child: Text('Details tab')),
           ],
-          footerLabel: 'Footer context',
-          footerFields: const [
-            FooterReadonlyField(label: 'State', value: 'Draft', width: 96),
-          ],
-          onPrevious: () => _tabController.animateTo(_tabController.index - 1),
-          onNext: () => _tabController.animateTo(_tabController.index + 1),
-          onCancel: () {},
+          onClose: () {},
           onSave: () {},
         ),
       ),

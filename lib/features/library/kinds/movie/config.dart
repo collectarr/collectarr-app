@@ -1,7 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video_edit_support.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -19,10 +22,9 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
     LibraryTableColumn.title,
     LibraryTableColumn.publisher,
     LibraryTableColumn.releaseDate,
-    LibraryTableColumn.barcode,
-    LibraryTableColumn.condition,
-    LibraryTableColumn.price,
-    LibraryTableColumn.storageBox,
+    LibraryTableColumn.country,
+    LibraryTableColumn.language,
+    LibraryTableColumn.ageRating,
     LibraryTableColumn.wishlist,
     LibraryTableColumn.updated,
   },
@@ -37,8 +39,19 @@ const moviesLibraryConfig = LibraryTypeConfig(
     tmdbMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
-  editDialogBuilder: buildGenericLibraryEditDialog,
+  editDialogBuilder: buildVideoLibraryEditDialog,
+  detailPageBuilder: buildVideoLibraryDetailPage,
   presentation: moviesLibraryMediaPresentation,
+  editPresentation: videoLibraryEditPresentation,
+  inspectorSectionsBuilder: buildVideoInspectorSections,
+  mediaFields: MediaEditFields(
+    numberLabel: 'Edition no.',
+    publisherLabel: 'Studio',
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Format / Edition',
+    barcodeLabel: 'UPC / Barcode',
+  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
   ),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/music_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -14,11 +15,13 @@ void main() {
       context: _TestBuildContext(),
       accent: const Color(0xFF0E81A6),
       singularLabel: 'Music',
-      labels: const LibraryMediaFieldLabels(
-        number: 'Disc / Volume',
-        publisher: 'Label / Artist',
-        variant: 'Format / Edition',
-        barcode: 'Barcode / Catalog no.',
+      mediaFields: const MediaEditFields(
+        numberLabel: 'Disc / Volume',
+        publisherLabel: 'Label / Artist',
+      ),
+      releaseFields: const ReleaseEditFields(
+        variantLabel: 'Format / Edition',
+        barcodeLabel: 'Barcode / Catalog no.',
       ),
       previewLabels: const LibraryMediaPreviewLabels(
         series: 'Artist',
@@ -83,11 +86,13 @@ void main() {
       context: _TestBuildContext(),
       accent: const Color(0xFF0E81A6),
       singularLabel: 'Music',
-      labels: const LibraryMediaFieldLabels(
-        number: 'Disc / Volume',
-        publisher: 'Label / Artist',
-        variant: 'Format / Edition',
-        barcode: 'Barcode / Catalog no.',
+      mediaFields: const MediaEditFields(
+        numberLabel: 'Disc / Volume',
+        publisherLabel: 'Label / Artist',
+      ),
+      releaseFields: const ReleaseEditFields(
+        variantLabel: 'Format / Edition',
+        barcodeLabel: 'Barcode / Catalog no.',
       ),
       previewLabels: const LibraryMediaPreviewLabels(
         series: 'Artist',

@@ -125,7 +125,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       context: context,
       accent: accent,
       singularLabel: type.singularLabel,
-      labels: type.presentation.fieldLabels,
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
       previewLabels: type.presentation.previewLabels,
       item: selectedItem,
       candidate: selectedCandidate,
@@ -178,6 +179,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                             : 'Collectarr Core metadata',
                         style: const TextStyle(fontSize: 16),
                       ),
+                      _buildPreviewFormatBadges(selectedItem),
                     ],
                   ),
                 ),
@@ -699,31 +701,11 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                key: const ValueKey('library-add-edition-field'),
-                isExpanded: true,
-                initialValue: selectedEdition?.id,
-                decoration: const InputDecoration(
-                  labelText: 'Edition',
-                  isDense: true,
-                ),
-                items: [
-                  for (final edition in item.editions)
-                    DropdownMenuItem<String>(
-                      value: edition.id,
-                      child: Text(
-                        _editionOptionLabel(edition),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                ],
-                onChanged: !editionAvailable
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          onEditionSelected(value);
-                        }
-                      },
+              _EditionGrid(
+                editions: item.editions,
+                selectedEditionId: selectedEditionId,
+                accent: accent,
+                onEditionSelected: onEditionSelected,
               ),
               const SizedBox(height: 8),
               if (selectedEdition == null)
@@ -737,31 +719,11 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                   style: TextStyle(color: kAppTextMuted),
                 )
               else
-                DropdownButtonFormField<String>(
-                  key: const ValueKey('library-add-variant-field'),
-                  isExpanded: true,
-                  initialValue: selectedVariant?.id ?? '',
-                  decoration: const InputDecoration(
-                    labelText: 'Variant',
-                    isDense: true,
-                  ),
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: '',
-                      child: Text('Any / unspecified variant'),
-                    ),
-                    for (final variant in selectedEdition.variants)
-                      DropdownMenuItem<String>(
-                        value: variant.id,
-                        child: Text(
-                          _variantOptionLabel(variant),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    onVariantSelected(value ?? '');
-                  },
+                _VariantGrid(
+                  variants: selectedEdition.variants,
+                  selectedVariantId: selectedVariantId,
+                  accent: accent,
+                  onVariantSelected: onVariantSelected,
                 ),
             ],
             if (!selectionLocked &&
@@ -985,30 +947,6 @@ CatalogVariant? _selectedVariantForEdition(
   return null;
 }
 
-String _editionOptionLabel(CatalogEdition edition) {
-  final parts = <String>[
-    edition.title,
-    if (edition.physicalFormatLabel != null &&
-        edition.physicalFormatLabel!.trim().isNotEmpty)
-      edition.physicalFormatLabel!,
-    if (edition.releaseDate != null)
-      '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
-  ];
-  return parts.join(' • ');
-}
-
-String _variantOptionLabel(CatalogVariant variant) {
-  final parts = <String>[
-    variant.name,
-    if (variant.variantType != null && variant.variantType!.trim().isNotEmpty)
-      variant.variantType!,
-    if (variant.physicalFormatLabel != null &&
-        variant.physicalFormatLabel!.trim().isNotEmpty)
-      variant.physicalFormatLabel!,
-  ];
-  return parts.join(' • ');
-}
-
 CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
   if (item.editions.isEmpty) {
     return null;
@@ -1033,20 +971,42 @@ CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
   return edition.variants.first;
 }
 
+Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
+  if (item == null || item.editions.isEmpty) return const SizedBox.shrink();
+  final seen = <String>{};
+  final badges = <Widget>[];
+  for (final edition in item.editions) {
+    final id = edition.physicalFormat;
+    if (id == null || !seen.add(id)) continue;
+    badges.add(
+      FormatBadge.fromFormat(
+        id: id,
+        label: edition.physicalFormatLabel ?? id,
+      ),
+    );
+  }
+  if (badges.isEmpty) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.only(top: 6),
+    child: Wrap(spacing: 4, runSpacing: 4, children: badges),
+  );
+}
+
 List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
   LibraryTypeConfig type,
 ) {
-  final labels = libraryMediaFieldLabels(type);
+  final media = type.mediaFields;
+  final release = type.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   return [
     if (candidate.series?.seriesTitle != null)
       (previewLabels.series, candidate.series!.seriesTitle),
-    if (candidate.issueNumber != null) (labels.number, candidate.issueNumber),
-    if (candidate.publisher != null) (labels.publisher, candidate.publisher),
+    if (candidate.issueNumber != null) (media.numberLabel, candidate.issueNumber),
+    if (candidate.publisher != null) (media.publisherLabel, candidate.publisher),
     if (candidate.series?.volumeStartYear != null)
       ('Year', candidate.series!.volumeStartYear.toString()),
-    if (candidate.variantName != null) (labels.variant, candidate.variantName),
+    if (candidate.variantName != null) (release.variantLabel, candidate.variantName),
     if (candidate.issueCount != null)
       (previewLabels.itemCount, candidate.issueCount.toString()),
   ];
@@ -1056,7 +1016,8 @@ List<(String, String?)> _metadataRowsForItem(
   LibraryMetadataItem item,
   LibraryTypeConfig type,
 ) {
-  final labels = libraryMediaFieldLabels(type);
+  final media = type.mediaFields;
+  final release = type.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final series = item.series;
   final video = item.video;
@@ -1065,15 +1026,15 @@ List<(String, String?)> _metadataRowsForItem(
   final publishing = item.publishing;
   return [
     if (series?.seriesTitle != null) (previewLabels.series, series!.seriesTitle),
-    (labels.publisher, item.publisher),
+    (media.publisherLabel, item.publisher),
     ('Released', item.releaseDate != null
         ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
         : item.releaseYear?.toString()),
     if (video?.runtimeMinutes != null) ('Runtime', '${video!.runtimeMinutes} min'),
-    if (item.itemNumber != null) (labels.number, item.itemNumber),
+    if (item.itemNumber != null) (media.numberLabel, item.itemNumber),
     if (item.displayEditionLabel != null)
-      (labels.variant, item.displayEditionLabel),
-    (labels.barcode, item.barcode),
+      (release.variantLabel, item.displayEditionLabel),
+    (release.barcodeLabel, item.barcode),
     if (type.capabilities.showsTrackData &&
       music?.trackCount != null)
       ('Tracks', music!.trackCount.toString()),
@@ -1130,7 +1091,8 @@ List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
   LibraryTypeConfig type,
 ) {
-  final labels = libraryMediaFieldLabels(type);
+  final media = type.mediaFields;
+  final release = type.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final series = preview.series;
   final publishing = preview.publishing;
@@ -1142,19 +1104,19 @@ List<(String, String?)> _metadataRowsForFullPreview(
       : null;
   return [
     if (series?.seriesTitle != null) (previewLabels.series, series!.seriesTitle),
-    if (preview.publisher != null) (labels.publisher, preview.publisher),
+    if (preview.publisher != null) (media.publisherLabel, preview.publisher),
     if (publishing?.imprint != null) ('Imprint', publishing!.imprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
     if (series?.volumeStartYear != null)
       ('Year', series!.volumeStartYear.toString()),
-    if (preview.itemNumber != null) (labels.number, preview.itemNumber),
-    if (preview.barcode != null) (labels.barcode, preview.barcode),
+    if (preview.itemNumber != null) (media.numberLabel, preview.itemNumber),
+    if (preview.barcode != null) (release.barcodeLabel, preview.barcode),
     if (preview.isbn != null) ('ISBN', preview.isbn),
     if (preview.country != null) ('Country', preview.country),
     if (preview.language != null) ('Language', preview.language),
     if (preview.physicalFormatLabel != null)
       ('Format', preview.physicalFormatLabel),
-    if (preview.variantName != null) (labels.variant, preview.variantName),
+    if (preview.variantName != null) (release.variantLabel, preview.variantName),
     if (collectarrLibraryTypes.capabilitiesForKind(preview.kind).showsTrackData &&
       music?.trackCount != null)
       ('Tracks', music!.trackCount.toString()),
@@ -1634,6 +1596,307 @@ class _ResizableDialogShell extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _EditionGrid extends StatelessWidget {
+  const _EditionGrid({
+    required this.editions,
+    required this.selectedEditionId,
+    required this.accent,
+    required this.onEditionSelected,
+  });
+
+  final List<CatalogEdition> editions;
+  final String? selectedEditionId;
+  final Color accent;
+  final ValueChanged<String> onEditionSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (editions.isEmpty) return const SizedBox.shrink();
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final edition in editions)
+          _EditionCard(
+            edition: edition,
+            selected: edition.id == selectedEditionId,
+            accent: accent,
+            onTap: () => onEditionSelected(edition.id),
+          ),
+      ],
+    );
+  }
+}
+
+class _EditionCard extends StatelessWidget {
+  const _EditionCard({
+    required this.edition,
+    required this.selected,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final CatalogEdition edition;
+  final bool selected;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final coverUrl = edition.variants.isNotEmpty
+        ? edition.variants.first.coverImageUrl
+        : null;
+    final barcode = edition.isbn ??
+        edition.upc ??
+        (edition.variants.isNotEmpty ? edition.variants.first.barcode : null);
+    final formatId = edition.physicalFormat;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 100,
+        decoration: BoxDecoration(
+          color: selected
+              ? accent.withValues(alpha: 0.12)
+              : const Color(0x08000000),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: selected
+                ? accent.withValues(alpha: 0.8)
+                : kAppBorderSubtle,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        padding: const EdgeInsets.all(4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Cover image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: coverUrl != null
+                  ? Image.network(
+                      coverUrl,
+                      width: 88,
+                      height: 120,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _EditionPlaceholder(
+                        label: edition.title,
+                      ),
+                    )
+                  : _EditionPlaceholder(label: edition.title),
+            ),
+            const SizedBox(height: 4),
+            // Format badge
+            if (formatId != null)
+              FormatBadge.fromFormat(
+                id: formatId,
+                label: edition.physicalFormatLabel ?? formatId,
+                compact: true,
+              ),
+            const SizedBox(height: 2),
+            // Title
+            Text(
+              edition.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: selected ? accent : kAppTextSecondary,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            // Barcode
+            if (barcode != null)
+              Text(
+                barcode,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: kAppTextHint,
+                  fontSize: 8,
+                  fontFamily: 'monospace',
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EditionPlaceholder extends StatelessWidget {
+  const _EditionPlaceholder({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 88,
+      height: 120,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: kAppField,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: kAppTextMuted,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _VariantGrid extends StatelessWidget {
+  const _VariantGrid({
+    required this.variants,
+    required this.selectedVariantId,
+    required this.accent,
+    required this.onVariantSelected,
+  });
+
+  final List<CatalogVariant> variants;
+  final String? selectedVariantId;
+  final Color accent;
+  final ValueChanged<String> onVariantSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Variant',
+          style: TextStyle(
+            color: kAppTextMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _VariantChip(
+              label: 'Any',
+              selected: selectedVariantId == null ||
+                  selectedVariantId!.isEmpty,
+              accent: accent,
+              onTap: () => onVariantSelected(''),
+            ),
+            for (final variant in variants)
+              _VariantChip(
+                label: variant.name,
+                coverUrl: variant.coverImageUrl,
+                barcode: variant.barcode,
+                formatId: variant.physicalFormat,
+                selected: variant.id == selectedVariantId,
+                accent: accent,
+                onTap: () => onVariantSelected(variant.id),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _VariantChip extends StatelessWidget {
+  const _VariantChip({
+    required this.label,
+    required this.selected,
+    required this.accent,
+    required this.onTap,
+    this.coverUrl,
+    this.barcode,
+    this.formatId,
+  });
+
+  final String label;
+  final bool selected;
+  final Color accent;
+  final VoidCallback onTap;
+  final String? coverUrl;
+  final String? barcode;
+  final String? formatId;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        constraints: const BoxConstraints(maxWidth: 120),
+        decoration: BoxDecoration(
+          color: selected
+              ? accent.withValues(alpha: 0.12)
+              : const Color(0x08000000),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: selected
+                ? accent.withValues(alpha: 0.8)
+                : kAppBorderSubtle,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (coverUrl != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: Image.network(
+                  coverUrl!,
+                  width: 24,
+                  height: 32,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) =>
+                      const SizedBox(width: 24, height: 32),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: selected ? accent : kAppTextBright,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (formatId != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: FormatBadge.fromId(formatId!, compact: true),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 class DefaultLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilder {
   const DefaultLibraryEditPresentationBuilder({
-    this.showPhysicalFormatSelector = true,
     this.showOwnershipReferenceSection = true,
     this.showOwnedGradingSection = false,
     this.trackingSectionTitle = 'Tracking edition',
@@ -43,7 +42,6 @@ class DefaultLibraryEditPresentationBuilder
     ],
   });
 
-  final bool showPhysicalFormatSelector;
   final bool showOwnershipReferenceSection;
   final bool showOwnedGradingSection;
   final String trackingSectionTitle;
@@ -114,8 +112,6 @@ class DefaultLibraryEditPresentationBuilder
     required LibraryEditPresentationContext context,
   }) {
     return LibraryEditPresentationState(
-      showsPhysicalFormatSelector:
-          showPhysicalFormatSelector && context.hasPhysicalFormats,
       showsOwnershipReferenceSection:
           showOwnershipReferenceSection &&
           context.isOwned &&

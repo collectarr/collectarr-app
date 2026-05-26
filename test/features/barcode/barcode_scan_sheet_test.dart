@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('manual-only barcode sheet returns normalized input',
       (tester) async {
@@ -29,7 +31,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open scanner'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(
       find.text(
@@ -43,7 +45,7 @@ void main() {
       ' 7596-060 83060 ',
     );
     await tester.tap(find.text('Lookup barcode'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(result, '759606083060');
   });

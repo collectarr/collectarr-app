@@ -1,9 +1,32 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/error_card.dart';
+import 'package:collectarr_app/ui/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CharacterDetailPage extends ConsumerStatefulWidget {
+final _characterDetailProvider = FutureProvider.autoDispose
+    .family<_CharacterDetailData, String>((ref, characterName) async {
+  final api = ref.watch(apiClientProvider);
+  final results = await api.searchCharacters(
+    query: characterName,
+    limit: 12,
+  );
+  if (results.isEmpty) {
+    throw StateError('No character metadata found for $characterName.');
+  }
+  final character = _pickBestCharacter(results, characterName);
+  final appearances = await api.getCharacterAppearances(
+    character['id'].toString(),
+  );
+  return _CharacterDetailData(
+    character: character,
+    appearances: appearances,
+    alternatives: results,
+  );
+});
+
+class CharacterDetailPage extends ConsumerWidget {
   const CharacterDetailPage({
     super.key,
     required this.characterName,
@@ -12,60 +35,19 @@ class CharacterDetailPage extends ConsumerStatefulWidget {
   final String characterName;
 
   @override
-  ConsumerState<CharacterDetailPage> createState() =>
-      _CharacterDetailPageState();
-}
-
-class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
-  late Future<_CharacterDetailData> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = _load();
-  }
-
-  Future<_CharacterDetailData> _load() async {
-    final api = ref.read(apiClientProvider);
-    final results = await api.searchCharacters(
-      query: widget.characterName,
-      limit: 12,
-    );
-    if (results.isEmpty) {
-      throw StateError('No character metadata found for ${widget.characterName}.');
-    }
-    final character = _pickBestCharacter(results, widget.characterName);
-    final appearances = await api.getCharacterAppearances(
-      character['id'].toString(),
-    );
-    return _CharacterDetailData(
-      character: character,
-      appearances: appearances,
-      alternatives: results,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detail = ref.watch(_characterDetailProvider(characterName));
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.characterName),
+        title: Text(characterName),
       ),
-      body: FutureBuilder<_CharacterDetailData>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _CharacterDetailError(
-              message: snapshot.error.toString(),
-              onRetry: () => setState(() => _future = _load()),
-            );
-          }
-          final data = snapshot.data!;
-          return _CharacterDetailBody(data: data);
-        },
+      body: detail.when(
+        loading: () => const AppLoadingIndicator(),
+        error: (error, _) => AppErrorCard(
+          message: error.toString(),
+          onRetry: () => ref.invalidate(_characterDetailProvider(characterName)),
+        ),
+        data: (data) => _CharacterDetailBody(data: data),
       ),
     );
   }
@@ -295,41 +277,6 @@ class _AliasChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(label: Text(alias));
-  }
-}
-
-class _CharacterDetailError extends StatelessWidget {
-  const _CharacterDetailError({
-    required this.message,
-    required this.onRetry,
-  });
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 36),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 

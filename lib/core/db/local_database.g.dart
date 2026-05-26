@@ -270,6 +270,12 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> seriesGroup = GeneratedColumn<String>(
       'series_group', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _trailerUrlsJsonMeta =
+      const VerificationMeta('trailerUrlsJson');
+  @override
+  late final GeneratedColumn<String> trailerUrlsJson = GeneratedColumn<String>(
+      'trailer_urls_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _cachedAtMeta =
       const VerificationMeta('cachedAt');
   @override
@@ -322,6 +328,7 @@ class $CatalogCacheTable extends CatalogCache
         imprint,
         subtitle,
         seriesGroup,
+        trailerUrlsJson,
         cachedAt
       ];
   @override
@@ -573,6 +580,12 @@ class $CatalogCacheTable extends CatalogCache
           seriesGroup.isAcceptableOrUnknown(
               data['series_group']!, _seriesGroupMeta));
     }
+    if (data.containsKey('trailer_urls_json')) {
+      context.handle(
+          _trailerUrlsJsonMeta,
+          trailerUrlsJson.isAcceptableOrUnknown(
+              data['trailer_urls_json']!, _trailerUrlsJsonMeta));
+    }
     if (data.containsKey('cached_at')) {
       context.handle(_cachedAtMeta,
           cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta));
@@ -676,6 +689,8 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}subtitle']),
       seriesGroup: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}series_group']),
+      trailerUrlsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}trailer_urls_json']),
       cachedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}cached_at'])!,
     );
@@ -733,6 +748,7 @@ class CatalogCacheData extends DataClass
   final String? imprint;
   final String? subtitle;
   final String? seriesGroup;
+  final String? trailerUrlsJson;
   final DateTime cachedAt;
   const CatalogCacheData(
       {required this.id,
@@ -779,6 +795,7 @@ class CatalogCacheData extends DataClass
       this.imprint,
       this.subtitle,
       this.seriesGroup,
+      this.trailerUrlsJson,
       required this.cachedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -908,6 +925,9 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || seriesGroup != null) {
       map['series_group'] = Variable<String>(seriesGroup);
+    }
+    if (!nullToAbsent || trailerUrlsJson != null) {
+      map['trailer_urls_json'] = Variable<String>(trailerUrlsJson);
     }
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
@@ -1041,6 +1061,9 @@ class CatalogCacheData extends DataClass
       seriesGroup: seriesGroup == null && nullToAbsent
           ? const Value.absent()
           : Value(seriesGroup),
+      trailerUrlsJson: trailerUrlsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trailerUrlsJson),
       cachedAt: Value(cachedAt),
     );
   }
@@ -1095,6 +1118,7 @@ class CatalogCacheData extends DataClass
       imprint: serializer.fromJson<String?>(json['imprint']),
       subtitle: serializer.fromJson<String?>(json['subtitle']),
       seriesGroup: serializer.fromJson<String?>(json['seriesGroup']),
+      trailerUrlsJson: serializer.fromJson<String?>(json['trailerUrlsJson']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -1146,6 +1170,7 @@ class CatalogCacheData extends DataClass
       'imprint': serializer.toJson<String?>(imprint),
       'subtitle': serializer.toJson<String?>(subtitle),
       'seriesGroup': serializer.toJson<String?>(seriesGroup),
+      'trailerUrlsJson': serializer.toJson<String?>(trailerUrlsJson),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -1195,6 +1220,7 @@ class CatalogCacheData extends DataClass
           Value<String?> imprint = const Value.absent(),
           Value<String?> subtitle = const Value.absent(),
           Value<String?> seriesGroup = const Value.absent(),
+          Value<String?> trailerUrlsJson = const Value.absent(),
           DateTime? cachedAt}) =>
       CatalogCacheData(
         id: id ?? this.id,
@@ -1266,6 +1292,9 @@ class CatalogCacheData extends DataClass
         imprint: imprint.present ? imprint.value : this.imprint,
         subtitle: subtitle.present ? subtitle.value : this.subtitle,
         seriesGroup: seriesGroup.present ? seriesGroup.value : this.seriesGroup,
+        trailerUrlsJson: trailerUrlsJson.present
+            ? trailerUrlsJson.value
+            : this.trailerUrlsJson,
         cachedAt: cachedAt ?? this.cachedAt,
       );
   CatalogCacheData copyWithCompanion(CatalogCacheCompanion data) {
@@ -1363,6 +1392,9 @@ class CatalogCacheData extends DataClass
       subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
       seriesGroup:
           data.seriesGroup.present ? data.seriesGroup.value : this.seriesGroup,
+      trailerUrlsJson: data.trailerUrlsJson.present
+          ? data.trailerUrlsJson.value
+          : this.trailerUrlsJson,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -1414,6 +1446,7 @@ class CatalogCacheData extends DataClass
           ..write('imprint: $imprint, ')
           ..write('subtitle: $subtitle, ')
           ..write('seriesGroup: $seriesGroup, ')
+          ..write('trailerUrlsJson: $trailerUrlsJson, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
@@ -1465,6 +1498,7 @@ class CatalogCacheData extends DataClass
         imprint,
         subtitle,
         seriesGroup,
+        trailerUrlsJson,
         cachedAt
       ]);
   @override
@@ -1515,6 +1549,7 @@ class CatalogCacheData extends DataClass
           other.imprint == this.imprint &&
           other.subtitle == this.subtitle &&
           other.seriesGroup == this.seriesGroup &&
+          other.trailerUrlsJson == this.trailerUrlsJson &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -1563,6 +1598,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> imprint;
   final Value<String?> subtitle;
   final Value<String?> seriesGroup;
+  final Value<String?> trailerUrlsJson;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const CatalogCacheCompanion({
@@ -1610,6 +1646,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.imprint = const Value.absent(),
     this.subtitle = const Value.absent(),
     this.seriesGroup = const Value.absent(),
+    this.trailerUrlsJson = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1658,6 +1695,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.imprint = const Value.absent(),
     this.subtitle = const Value.absent(),
     this.seriesGroup = const Value.absent(),
+    this.trailerUrlsJson = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -1709,6 +1747,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? imprint,
     Expression<String>? subtitle,
     Expression<String>? seriesGroup,
+    Expression<String>? trailerUrlsJson,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -1758,6 +1797,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (imprint != null) 'imprint': imprint,
       if (subtitle != null) 'subtitle': subtitle,
       if (seriesGroup != null) 'series_group': seriesGroup,
+      if (trailerUrlsJson != null) 'trailer_urls_json': trailerUrlsJson,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1808,6 +1848,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? imprint,
       Value<String?>? subtitle,
       Value<String?>? seriesGroup,
+      Value<String?>? trailerUrlsJson,
       Value<DateTime>? cachedAt,
       Value<int>? rowid}) {
     return CatalogCacheCompanion(
@@ -1855,6 +1896,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       imprint: imprint ?? this.imprint,
       subtitle: subtitle ?? this.subtitle,
       seriesGroup: seriesGroup ?? this.seriesGroup,
+      trailerUrlsJson: trailerUrlsJson ?? this.trailerUrlsJson,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1996,6 +2038,9 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (seriesGroup.present) {
       map['series_group'] = Variable<String>(seriesGroup.value);
     }
+    if (trailerUrlsJson.present) {
+      map['trailer_urls_json'] = Variable<String>(trailerUrlsJson.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -2052,6 +2097,7 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('imprint: $imprint, ')
           ..write('subtitle: $subtitle, ')
           ..write('seriesGroup: $seriesGroup, ')
+          ..write('trailerUrlsJson: $trailerUrlsJson, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -2271,6 +2317,36 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> locationId = GeneratedColumn<String>(
       'location_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _featuresMeta =
+      const VerificationMeta('features');
+  @override
+  late final GeneratedColumn<String> features = GeneratedColumn<String>(
+      'features', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _hdrFormatsJsonMeta =
+      const VerificationMeta('hdrFormatsJson');
+  @override
+  late final GeneratedColumn<String> hdrFormatsJson = GeneratedColumn<String>(
+      'hdr_formats_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _purchaseStoreMeta =
+      const VerificationMeta('purchaseStore');
+  @override
+  late final GeneratedColumn<String> purchaseStore = GeneratedColumn<String>(
+      'purchase_store', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _boxSetIdMeta =
+      const VerificationMeta('boxSetId');
+  @override
+  late final GeneratedColumn<String> boxSetId = GeneratedColumn<String>(
+      'box_set_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _boxSetNameMeta =
+      const VerificationMeta('boxSetName');
+  @override
+  late final GeneratedColumn<String> boxSetName = GeneratedColumn<String>(
+      'box_set_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2306,7 +2382,12 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         soldAt,
         sellPriceCents,
         soldTo,
-        locationId
+        locationId,
+        features,
+        hdrFormatsJson,
+        purchaseStore,
+        boxSetId,
+        boxSetName
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2490,6 +2571,32 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           locationId.isAcceptableOrUnknown(
               data['location_id']!, _locationIdMeta));
     }
+    if (data.containsKey('features')) {
+      context.handle(_featuresMeta,
+          features.isAcceptableOrUnknown(data['features']!, _featuresMeta));
+    }
+    if (data.containsKey('hdr_formats_json')) {
+      context.handle(
+          _hdrFormatsJsonMeta,
+          hdrFormatsJson.isAcceptableOrUnknown(
+              data['hdr_formats_json']!, _hdrFormatsJsonMeta));
+    }
+    if (data.containsKey('purchase_store')) {
+      context.handle(
+          _purchaseStoreMeta,
+          purchaseStore.isAcceptableOrUnknown(
+              data['purchase_store']!, _purchaseStoreMeta));
+    }
+    if (data.containsKey('box_set_id')) {
+      context.handle(_boxSetIdMeta,
+          boxSetId.isAcceptableOrUnknown(data['box_set_id']!, _boxSetIdMeta));
+    }
+    if (data.containsKey('box_set_name')) {
+      context.handle(
+          _boxSetNameMeta,
+          boxSetName.isAcceptableOrUnknown(
+              data['box_set_name']!, _boxSetNameMeta));
+    }
     return context;
   }
 
@@ -2567,6 +2674,16 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}sold_to']),
       locationId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}location_id']),
+      features: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}features']),
+      hdrFormatsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}hdr_formats_json']),
+      purchaseStore: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}purchase_store']),
+      boxSetId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_id']),
+      boxSetName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_name']),
     );
   }
 
@@ -2612,6 +2729,11 @@ class OwnedItemsCacheData extends DataClass
   final int? sellPriceCents;
   final String? soldTo;
   final String? locationId;
+  final String? features;
+  final String? hdrFormatsJson;
+  final String? purchaseStore;
+  final String? boxSetId;
+  final String? boxSetName;
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
@@ -2646,7 +2768,12 @@ class OwnedItemsCacheData extends DataClass
       this.soldAt,
       this.sellPriceCents,
       this.soldTo,
-      this.locationId});
+      this.locationId,
+      this.features,
+      this.hdrFormatsJson,
+      this.purchaseStore,
+      this.boxSetId,
+      this.boxSetName});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2742,6 +2869,21 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || locationId != null) {
       map['location_id'] = Variable<String>(locationId);
     }
+    if (!nullToAbsent || features != null) {
+      map['features'] = Variable<String>(features);
+    }
+    if (!nullToAbsent || hdrFormatsJson != null) {
+      map['hdr_formats_json'] = Variable<String>(hdrFormatsJson);
+    }
+    if (!nullToAbsent || purchaseStore != null) {
+      map['purchase_store'] = Variable<String>(purchaseStore);
+    }
+    if (!nullToAbsent || boxSetId != null) {
+      map['box_set_id'] = Variable<String>(boxSetId);
+    }
+    if (!nullToAbsent || boxSetName != null) {
+      map['box_set_name'] = Variable<String>(boxSetName);
+    }
     return map;
   }
 
@@ -2833,6 +2975,21 @@ class OwnedItemsCacheData extends DataClass
       locationId: locationId == null && nullToAbsent
           ? const Value.absent()
           : Value(locationId),
+      features: features == null && nullToAbsent
+          ? const Value.absent()
+          : Value(features),
+      hdrFormatsJson: hdrFormatsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hdrFormatsJson),
+      purchaseStore: purchaseStore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseStore),
+      boxSetId: boxSetId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetId),
+      boxSetName: boxSetName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetName),
     );
   }
 
@@ -2874,6 +3031,11 @@ class OwnedItemsCacheData extends DataClass
       sellPriceCents: serializer.fromJson<int?>(json['sellPriceCents']),
       soldTo: serializer.fromJson<String?>(json['soldTo']),
       locationId: serializer.fromJson<String?>(json['locationId']),
+      features: serializer.fromJson<String?>(json['features']),
+      hdrFormatsJson: serializer.fromJson<String?>(json['hdrFormatsJson']),
+      purchaseStore: serializer.fromJson<String?>(json['purchaseStore']),
+      boxSetId: serializer.fromJson<String?>(json['boxSetId']),
+      boxSetName: serializer.fromJson<String?>(json['boxSetName']),
     );
   }
   @override
@@ -2914,6 +3076,11 @@ class OwnedItemsCacheData extends DataClass
       'sellPriceCents': serializer.toJson<int?>(sellPriceCents),
       'soldTo': serializer.toJson<String?>(soldTo),
       'locationId': serializer.toJson<String?>(locationId),
+      'features': serializer.toJson<String?>(features),
+      'hdrFormatsJson': serializer.toJson<String?>(hdrFormatsJson),
+      'purchaseStore': serializer.toJson<String?>(purchaseStore),
+      'boxSetId': serializer.toJson<String?>(boxSetId),
+      'boxSetName': serializer.toJson<String?>(boxSetName),
     };
   }
 
@@ -2951,7 +3118,12 @@ class OwnedItemsCacheData extends DataClass
           Value<DateTime?> soldAt = const Value.absent(),
           Value<int?> sellPriceCents = const Value.absent(),
           Value<String?> soldTo = const Value.absent(),
-          Value<String?> locationId = const Value.absent()}) =>
+          Value<String?> locationId = const Value.absent(),
+          Value<String?> features = const Value.absent(),
+          Value<String?> hdrFormatsJson = const Value.absent(),
+          Value<String?> purchaseStore = const Value.absent(),
+          Value<String?> boxSetId = const Value.absent(),
+          Value<String?> boxSetName = const Value.absent()}) =>
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
@@ -2997,6 +3169,13 @@ class OwnedItemsCacheData extends DataClass
             sellPriceCents.present ? sellPriceCents.value : this.sellPriceCents,
         soldTo: soldTo.present ? soldTo.value : this.soldTo,
         locationId: locationId.present ? locationId.value : this.locationId,
+        features: features.present ? features.value : this.features,
+        hdrFormatsJson:
+            hdrFormatsJson.present ? hdrFormatsJson.value : this.hdrFormatsJson,
+        purchaseStore:
+            purchaseStore.present ? purchaseStore.value : this.purchaseStore,
+        boxSetId: boxSetId.present ? boxSetId.value : this.boxSetId,
+        boxSetName: boxSetName.present ? boxSetName.value : this.boxSetName,
       );
   OwnedItemsCacheData copyWithCompanion(OwnedItemsCacheCompanion data) {
     return OwnedItemsCacheData(
@@ -3057,6 +3236,16 @@ class OwnedItemsCacheData extends DataClass
       soldTo: data.soldTo.present ? data.soldTo.value : this.soldTo,
       locationId:
           data.locationId.present ? data.locationId.value : this.locationId,
+      features: data.features.present ? data.features.value : this.features,
+      hdrFormatsJson: data.hdrFormatsJson.present
+          ? data.hdrFormatsJson.value
+          : this.hdrFormatsJson,
+      purchaseStore: data.purchaseStore.present
+          ? data.purchaseStore.value
+          : this.purchaseStore,
+      boxSetId: data.boxSetId.present ? data.boxSetId.value : this.boxSetId,
+      boxSetName:
+          data.boxSetName.present ? data.boxSetName.value : this.boxSetName,
     );
   }
 
@@ -3096,7 +3285,12 @@ class OwnedItemsCacheData extends DataClass
           ..write('soldAt: $soldAt, ')
           ..write('sellPriceCents: $sellPriceCents, ')
           ..write('soldTo: $soldTo, ')
-          ..write('locationId: $locationId')
+          ..write('locationId: $locationId, ')
+          ..write('features: $features, ')
+          ..write('hdrFormatsJson: $hdrFormatsJson, ')
+          ..write('purchaseStore: $purchaseStore, ')
+          ..write('boxSetId: $boxSetId, ')
+          ..write('boxSetName: $boxSetName')
           ..write(')'))
         .toString();
   }
@@ -3136,7 +3330,12 @@ class OwnedItemsCacheData extends DataClass
         soldAt,
         sellPriceCents,
         soldTo,
-        locationId
+        locationId,
+        features,
+        hdrFormatsJson,
+        purchaseStore,
+        boxSetId,
+        boxSetName
       ]);
   @override
   bool operator ==(Object other) =>
@@ -3175,7 +3374,12 @@ class OwnedItemsCacheData extends DataClass
           other.soldAt == this.soldAt &&
           other.sellPriceCents == this.sellPriceCents &&
           other.soldTo == this.soldTo &&
-          other.locationId == this.locationId);
+          other.locationId == this.locationId &&
+          other.features == this.features &&
+          other.hdrFormatsJson == this.hdrFormatsJson &&
+          other.purchaseStore == this.purchaseStore &&
+          other.boxSetId == this.boxSetId &&
+          other.boxSetName == this.boxSetName);
 }
 
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
@@ -3213,6 +3417,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<int?> sellPriceCents;
   final Value<String?> soldTo;
   final Value<String?> locationId;
+  final Value<String?> features;
+  final Value<String?> hdrFormatsJson;
+  final Value<String?> purchaseStore;
+  final Value<String?> boxSetId;
+  final Value<String?> boxSetName;
   final Value<int> rowid;
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
@@ -3249,6 +3458,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.sellPriceCents = const Value.absent(),
     this.soldTo = const Value.absent(),
     this.locationId = const Value.absent(),
+    this.features = const Value.absent(),
+    this.hdrFormatsJson = const Value.absent(),
+    this.purchaseStore = const Value.absent(),
+    this.boxSetId = const Value.absent(),
+    this.boxSetName = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OwnedItemsCacheCompanion.insert({
@@ -3286,6 +3500,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.sellPriceCents = const Value.absent(),
     this.soldTo = const Value.absent(),
     this.locationId = const Value.absent(),
+    this.features = const Value.absent(),
+    this.hdrFormatsJson = const Value.absent(),
+    this.purchaseStore = const Value.absent(),
+    this.boxSetId = const Value.absent(),
+    this.boxSetName = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
@@ -3325,6 +3544,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<int>? sellPriceCents,
     Expression<String>? soldTo,
     Expression<String>? locationId,
+    Expression<String>? features,
+    Expression<String>? hdrFormatsJson,
+    Expression<String>? purchaseStore,
+    Expression<String>? boxSetId,
+    Expression<String>? boxSetName,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3362,6 +3586,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (sellPriceCents != null) 'sell_price_cents': sellPriceCents,
       if (soldTo != null) 'sold_to': soldTo,
       if (locationId != null) 'location_id': locationId,
+      if (features != null) 'features': features,
+      if (hdrFormatsJson != null) 'hdr_formats_json': hdrFormatsJson,
+      if (purchaseStore != null) 'purchase_store': purchaseStore,
+      if (boxSetId != null) 'box_set_id': boxSetId,
+      if (boxSetName != null) 'box_set_name': boxSetName,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3401,6 +3630,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<int?>? sellPriceCents,
       Value<String?>? soldTo,
       Value<String?>? locationId,
+      Value<String?>? features,
+      Value<String?>? hdrFormatsJson,
+      Value<String?>? purchaseStore,
+      Value<String?>? boxSetId,
+      Value<String?>? boxSetName,
       Value<int>? rowid}) {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
@@ -3437,6 +3671,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
       locationId: locationId ?? this.locationId,
+      features: features ?? this.features,
+      hdrFormatsJson: hdrFormatsJson ?? this.hdrFormatsJson,
+      purchaseStore: purchaseStore ?? this.purchaseStore,
+      boxSetId: boxSetId ?? this.boxSetId,
+      boxSetName: boxSetName ?? this.boxSetName,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3546,6 +3785,21 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (locationId.present) {
       map['location_id'] = Variable<String>(locationId.value);
     }
+    if (features.present) {
+      map['features'] = Variable<String>(features.value);
+    }
+    if (hdrFormatsJson.present) {
+      map['hdr_formats_json'] = Variable<String>(hdrFormatsJson.value);
+    }
+    if (purchaseStore.present) {
+      map['purchase_store'] = Variable<String>(purchaseStore.value);
+    }
+    if (boxSetId.present) {
+      map['box_set_id'] = Variable<String>(boxSetId.value);
+    }
+    if (boxSetName.present) {
+      map['box_set_name'] = Variable<String>(boxSetName.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3589,6 +3843,11 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('sellPriceCents: $sellPriceCents, ')
           ..write('soldTo: $soldTo, ')
           ..write('locationId: $locationId, ')
+          ..write('features: $features, ')
+          ..write('hdrFormatsJson: $hdrFormatsJson, ')
+          ..write('purchaseStore: $purchaseStore, ')
+          ..write('boxSetId: $boxSetId, ')
+          ..write('boxSetName: $boxSetName, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4313,6 +4572,12 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
   late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
       'episode_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeRatingsMeta =
+      const VerificationMeta('episodeRatings');
+  @override
+  late final GeneratedColumn<String> episodeRatings = GeneratedColumn<String>(
+      'episode_ratings', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
@@ -4344,6 +4609,7 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
         notes,
         seasonNumber,
         episodeNumber,
+        episodeRatings,
         updatedAt,
         deletedAt
       ];
@@ -4447,6 +4713,12 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
           episodeNumber.isAcceptableOrUnknown(
               data['episode_number']!, _episodeNumberMeta));
     }
+    if (data.containsKey('episode_ratings')) {
+      context.handle(
+          _episodeRatingsMeta,
+          episodeRatings.isAcceptableOrUnknown(
+              data['episode_ratings']!, _episodeRatingsMeta));
+    }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
@@ -4501,6 +4773,8 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
           .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
       episodeNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      episodeRatings: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}episode_ratings']),
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
@@ -4533,6 +4807,7 @@ class TrackingEntriesCacheData extends DataClass
   final String? notes;
   final int? seasonNumber;
   final int? episodeNumber;
+  final String? episodeRatings;
   final DateTime updatedAt;
   final DateTime? deletedAt;
   const TrackingEntriesCacheData(
@@ -4553,6 +4828,7 @@ class TrackingEntriesCacheData extends DataClass
       this.notes,
       this.seasonNumber,
       this.episodeNumber,
+      this.episodeRatings,
       required this.updatedAt,
       this.deletedAt});
   @override
@@ -4604,6 +4880,9 @@ class TrackingEntriesCacheData extends DataClass
     }
     if (!nullToAbsent || episodeNumber != null) {
       map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    if (!nullToAbsent || episodeRatings != null) {
+      map['episode_ratings'] = Variable<String>(episodeRatings);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -4658,6 +4937,9 @@ class TrackingEntriesCacheData extends DataClass
       episodeNumber: episodeNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(episodeNumber),
+      episodeRatings: episodeRatings == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeRatings),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -4686,6 +4968,7 @@ class TrackingEntriesCacheData extends DataClass
       notes: serializer.fromJson<String?>(json['notes']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      episodeRatings: serializer.fromJson<String?>(json['episodeRatings']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
@@ -4711,6 +4994,7 @@ class TrackingEntriesCacheData extends DataClass
       'notes': serializer.toJson<String?>(notes),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'episodeRatings': serializer.toJson<String?>(episodeRatings),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
@@ -4734,6 +5018,7 @@ class TrackingEntriesCacheData extends DataClass
           Value<String?> notes = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent(),
+          Value<String?> episodeRatings = const Value.absent(),
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       TrackingEntriesCacheData(
@@ -4762,6 +5047,8 @@ class TrackingEntriesCacheData extends DataClass
             seasonNumber.present ? seasonNumber.value : this.seasonNumber,
         episodeNumber:
             episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        episodeRatings:
+            episodeRatings.present ? episodeRatings.value : this.episodeRatings,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
@@ -4800,6 +5087,9 @@ class TrackingEntriesCacheData extends DataClass
       episodeNumber: data.episodeNumber.present
           ? data.episodeNumber.value
           : this.episodeNumber,
+      episodeRatings: data.episodeRatings.present
+          ? data.episodeRatings.value
+          : this.episodeRatings,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
@@ -4825,6 +5115,7 @@ class TrackingEntriesCacheData extends DataClass
           ..write('notes: $notes, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
+          ..write('episodeRatings: $episodeRatings, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -4850,6 +5141,7 @@ class TrackingEntriesCacheData extends DataClass
       notes,
       seasonNumber,
       episodeNumber,
+      episodeRatings,
       updatedAt,
       deletedAt);
   @override
@@ -4873,6 +5165,7 @@ class TrackingEntriesCacheData extends DataClass
           other.notes == this.notes &&
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber &&
+          other.episodeRatings == this.episodeRatings &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -4896,6 +5189,7 @@ class TrackingEntriesCacheCompanion
   final Value<String?> notes;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
+  final Value<String?> episodeRatings;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   final Value<int> rowid;
@@ -4917,6 +5211,7 @@ class TrackingEntriesCacheCompanion
     this.notes = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
+    this.episodeRatings = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4939,6 +5234,7 @@ class TrackingEntriesCacheCompanion
     this.notes = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
+    this.episodeRatings = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4963,6 +5259,7 @@ class TrackingEntriesCacheCompanion
     Expression<String>? notes,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
+    Expression<String>? episodeRatings,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
@@ -4985,6 +5282,7 @@ class TrackingEntriesCacheCompanion
       if (notes != null) 'notes': notes,
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (episodeRatings != null) 'episode_ratings': episodeRatings,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
@@ -5009,6 +5307,7 @@ class TrackingEntriesCacheCompanion
       Value<String?>? notes,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
+      Value<String?>? episodeRatings,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
       Value<int>? rowid}) {
@@ -5030,6 +5329,7 @@ class TrackingEntriesCacheCompanion
       notes: notes ?? this.notes,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
+      episodeRatings: episodeRatings ?? this.episodeRatings,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
@@ -5090,6 +5390,9 @@ class TrackingEntriesCacheCompanion
     if (episodeNumber.present) {
       map['episode_number'] = Variable<int>(episodeNumber.value);
     }
+    if (episodeRatings.present) {
+      map['episode_ratings'] = Variable<String>(episodeRatings.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -5122,6 +5425,1386 @@ class TrackingEntriesCacheCompanion
           ..write('notes: $notes, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
+          ..write('episodeRatings: $episodeRatings, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TrackingUnitsCacheTable extends TrackingUnitsCache
+    with TableInfo<$TrackingUnitsCacheTable, TrackingUnitsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrackingUnitsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bundleReleaseIdMeta =
+      const VerificationMeta('bundleReleaseId');
+  @override
+  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
+      'bundle_release_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _unitTypeMeta =
+      const VerificationMeta('unitType');
+  @override
+  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
+      'unit_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _volumeNumberMeta =
+      const VerificationMeta('volumeNumber');
+  @override
+  late final GeneratedColumn<int> volumeNumber = GeneratedColumn<int>(
+      'volume_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _chapterNumberMeta =
+      const VerificationMeta('chapterNumber');
+  @override
+  late final GeneratedColumn<int> chapterNumber = GeneratedColumn<int>(
+      'chapter_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _issueNumberMeta =
+      const VerificationMeta('issueNumber');
+  @override
+  late final GeneratedColumn<String> issueNumber = GeneratedColumn<String>(
+      'issue_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+      'completed_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        trackingEntryId,
+        ownedItemId,
+        editionId,
+        variantId,
+        bundleReleaseId,
+        unitType,
+        seasonNumber,
+        episodeNumber,
+        volumeNumber,
+        chapterNumber,
+        issueNumber,
+        completedAt,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tracking_units_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<TrackingUnitsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('bundle_release_id')) {
+      context.handle(
+          _bundleReleaseIdMeta,
+          bundleReleaseId.isAcceptableOrUnknown(
+              data['bundle_release_id']!, _bundleReleaseIdMeta));
+    }
+    if (data.containsKey('unit_type')) {
+      context.handle(_unitTypeMeta,
+          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
+    } else if (isInserting) {
+      context.missing(_unitTypeMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('volume_number')) {
+      context.handle(
+          _volumeNumberMeta,
+          volumeNumber.isAcceptableOrUnknown(
+              data['volume_number']!, _volumeNumberMeta));
+    }
+    if (data.containsKey('chapter_number')) {
+      context.handle(
+          _chapterNumberMeta,
+          chapterNumber.isAcceptableOrUnknown(
+              data['chapter_number']!, _chapterNumberMeta));
+    }
+    if (data.containsKey('issue_number')) {
+      context.handle(
+          _issueNumberMeta,
+          issueNumber.isAcceptableOrUnknown(
+              data['issue_number']!, _issueNumberMeta));
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TrackingUnitsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrackingUnitsCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      bundleReleaseId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      unitType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      volumeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
+      chapterNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chapter_number']),
+      issueNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}issue_number']),
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $TrackingUnitsCacheTable createAlias(String alias) {
+    return $TrackingUnitsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class TrackingUnitsCacheData extends DataClass
+    implements Insertable<TrackingUnitsCacheData> {
+  final String id;
+  final String itemId;
+  final String? trackingEntryId;
+  final String? ownedItemId;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
+  final String unitType;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final int? volumeNumber;
+  final int? chapterNumber;
+  final String? issueNumber;
+  final DateTime completedAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const TrackingUnitsCacheData(
+      {required this.id,
+      required this.itemId,
+      this.trackingEntryId,
+      this.ownedItemId,
+      this.editionId,
+      this.variantId,
+      this.bundleReleaseId,
+      required this.unitType,
+      this.seasonNumber,
+      this.episodeNumber,
+      this.volumeNumber,
+      this.chapterNumber,
+      this.issueNumber,
+      required this.completedAt,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || bundleReleaseId != null) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    }
+    map['unit_type'] = Variable<String>(unitType);
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    if (!nullToAbsent || volumeNumber != null) {
+      map['volume_number'] = Variable<int>(volumeNumber);
+    }
+    if (!nullToAbsent || chapterNumber != null) {
+      map['chapter_number'] = Variable<int>(chapterNumber);
+    }
+    if (!nullToAbsent || issueNumber != null) {
+      map['issue_number'] = Variable<String>(issueNumber);
+    }
+    map['completed_at'] = Variable<DateTime>(completedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  TrackingUnitsCacheCompanion toCompanion(bool nullToAbsent) {
+    return TrackingUnitsCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      bundleReleaseId: bundleReleaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bundleReleaseId),
+      unitType: Value(unitType),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      volumeNumber: volumeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(volumeNumber),
+      chapterNumber: chapterNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chapterNumber),
+      issueNumber: issueNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(issueNumber),
+      completedAt: Value(completedAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory TrackingUnitsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrackingUnitsCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      unitType: serializer.fromJson<String>(json['unitType']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
+      chapterNumber: serializer.fromJson<int?>(json['chapterNumber']),
+      issueNumber: serializer.fromJson<String?>(json['issueNumber']),
+      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'unitType': serializer.toJson<String>(unitType),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'volumeNumber': serializer.toJson<int?>(volumeNumber),
+      'chapterNumber': serializer.toJson<int?>(chapterNumber),
+      'issueNumber': serializer.toJson<String?>(issueNumber),
+      'completedAt': serializer.toJson<DateTime>(completedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  TrackingUnitsCacheData copyWith(
+          {String? id,
+          String? itemId,
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          Value<String?> bundleReleaseId = const Value.absent(),
+          String? unitType,
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent(),
+          Value<int?> volumeNumber = const Value.absent(),
+          Value<int?> chapterNumber = const Value.absent(),
+          Value<String?> issueNumber = const Value.absent(),
+          DateTime? completedAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      TrackingUnitsCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        bundleReleaseId: bundleReleaseId.present
+            ? bundleReleaseId.value
+            : this.bundleReleaseId,
+        unitType: unitType ?? this.unitType,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        volumeNumber:
+            volumeNumber.present ? volumeNumber.value : this.volumeNumber,
+        chapterNumber:
+            chapterNumber.present ? chapterNumber.value : this.chapterNumber,
+        issueNumber: issueNumber.present ? issueNumber.value : this.issueNumber,
+        completedAt: completedAt ?? this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  TrackingUnitsCacheData copyWithCompanion(TrackingUnitsCacheCompanion data) {
+    return TrackingUnitsCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      bundleReleaseId: data.bundleReleaseId.present
+          ? data.bundleReleaseId.value
+          : this.bundleReleaseId,
+      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      volumeNumber: data.volumeNumber.present
+          ? data.volumeNumber.value
+          : this.volumeNumber,
+      chapterNumber: data.chapterNumber.present
+          ? data.chapterNumber.value
+          : this.chapterNumber,
+      issueNumber:
+          data.issueNumber.present ? data.issueNumber.value : this.issueNumber,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackingUnitsCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('unitType: $unitType, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('chapterNumber: $chapterNumber, ')
+          ..write('issueNumber: $issueNumber, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      trackingEntryId,
+      ownedItemId,
+      editionId,
+      variantId,
+      bundleReleaseId,
+      unitType,
+      seasonNumber,
+      episodeNumber,
+      volumeNumber,
+      chapterNumber,
+      issueNumber,
+      completedAt,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrackingUnitsCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.bundleReleaseId == this.bundleReleaseId &&
+          other.unitType == this.unitType &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.volumeNumber == this.volumeNumber &&
+          other.chapterNumber == this.chapterNumber &&
+          other.issueNumber == this.issueNumber &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class TrackingUnitsCacheCompanion
+    extends UpdateCompanion<TrackingUnitsCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String?> trackingEntryId;
+  final Value<String?> ownedItemId;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<String?> bundleReleaseId;
+  final Value<String> unitType;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<int?> volumeNumber;
+  final Value<int?> chapterNumber;
+  final Value<String?> issueNumber;
+  final Value<DateTime> completedAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const TrackingUnitsCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    this.unitType = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.volumeNumber = const Value.absent(),
+    this.chapterNumber = const Value.absent(),
+    this.issueNumber = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrackingUnitsCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    required String unitType,
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.volumeNumber = const Value.absent(),
+    this.chapterNumber = const Value.absent(),
+    this.issueNumber = const Value.absent(),
+    required DateTime completedAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        unitType = Value(unitType),
+        completedAt = Value(completedAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<TrackingUnitsCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? trackingEntryId,
+    Expression<String>? ownedItemId,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<String>? bundleReleaseId,
+    Expression<String>? unitType,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<int>? volumeNumber,
+    Expression<int>? chapterNumber,
+    Expression<String>? issueNumber,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (unitType != null) 'unit_type': unitType,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (volumeNumber != null) 'volume_number': volumeNumber,
+      if (chapterNumber != null) 'chapter_number': chapterNumber,
+      if (issueNumber != null) 'issue_number': issueNumber,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrackingUnitsCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<String?>? trackingEntryId,
+      Value<String?>? ownedItemId,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<String?>? bundleReleaseId,
+      Value<String>? unitType,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<int?>? volumeNumber,
+      Value<int?>? chapterNumber,
+      Value<String?>? issueNumber,
+      Value<DateTime>? completedAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return TrackingUnitsCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      unitType: unitType ?? this.unitType,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      volumeNumber: volumeNumber ?? this.volumeNumber,
+      chapterNumber: chapterNumber ?? this.chapterNumber,
+      issueNumber: issueNumber ?? this.issueNumber,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (bundleReleaseId.present) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    }
+    if (unitType.present) {
+      map['unit_type'] = Variable<String>(unitType.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (volumeNumber.present) {
+      map['volume_number'] = Variable<int>(volumeNumber.value);
+    }
+    if (chapterNumber.present) {
+      map['chapter_number'] = Variable<int>(chapterNumber.value);
+    }
+    if (issueNumber.present) {
+      map['issue_number'] = Variable<String>(issueNumber.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackingUnitsCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('unitType: $unitType, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('chapterNumber: $chapterNumber, ')
+          ..write('issueNumber: $issueNumber, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WatchSessionsCacheTable extends WatchSessionsCache
+    with TableInfo<$WatchSessionsCacheTable, WatchSessionsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WatchSessionsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _watchedAtMeta =
+      const VerificationMeta('watchedAt');
+  @override
+  late final GeneratedColumn<DateTime> watchedAt = GeneratedColumn<DateTime>(
+      'watched_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        trackingEntryId,
+        seasonNumber,
+        episodeNumber,
+        sourceType,
+        watchedAt,
+        rating,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'watch_sessions_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<WatchSessionsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('watched_at')) {
+      context.handle(_watchedAtMeta,
+          watchedAt.isAcceptableOrUnknown(data['watched_at']!, _watchedAtMeta));
+    } else if (isInserting) {
+      context.missing(_watchedAtMeta);
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WatchSessionsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WatchSessionsCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      watchedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}watched_at'])!,
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $WatchSessionsCacheTable createAlias(String alias) {
+    return $WatchSessionsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class WatchSessionsCacheData extends DataClass
+    implements Insertable<WatchSessionsCacheData> {
+  final String id;
+  final String itemId;
+  final String? trackingEntryId;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final String? sourceType;
+  final DateTime watchedAt;
+  final int? rating;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const WatchSessionsCacheData(
+      {required this.id,
+      required this.itemId,
+      this.trackingEntryId,
+      this.seasonNumber,
+      this.episodeNumber,
+      this.sourceType,
+      required this.watchedAt,
+      this.rating,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    map['watched_at'] = Variable<DateTime>(watchedAt);
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  WatchSessionsCacheCompanion toCompanion(bool nullToAbsent) {
+    return WatchSessionsCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      watchedAt: Value(watchedAt),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory WatchSessionsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WatchSessionsCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      watchedAt: serializer.fromJson<DateTime>(json['watchedAt']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'watchedAt': serializer.toJson<DateTime>(watchedAt),
+      'rating': serializer.toJson<int?>(rating),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  WatchSessionsCacheData copyWith(
+          {String? id,
+          String? itemId,
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          DateTime? watchedAt,
+          Value<int?> rating = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      WatchSessionsCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        watchedAt: watchedAt ?? this.watchedAt,
+        rating: rating.present ? rating.value : this.rating,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  WatchSessionsCacheData copyWithCompanion(WatchSessionsCacheCompanion data) {
+    return WatchSessionsCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      watchedAt: data.watchedAt.present ? data.watchedAt.value : this.watchedAt,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WatchSessionsCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('watchedAt: $watchedAt, ')
+          ..write('rating: $rating, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      trackingEntryId,
+      seasonNumber,
+      episodeNumber,
+      sourceType,
+      watchedAt,
+      rating,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WatchSessionsCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.sourceType == this.sourceType &&
+          other.watchedAt == this.watchedAt &&
+          other.rating == this.rating &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class WatchSessionsCacheCompanion
+    extends UpdateCompanion<WatchSessionsCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String?> trackingEntryId;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<String?> sourceType;
+  final Value<DateTime> watchedAt;
+  final Value<int?> rating;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const WatchSessionsCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.watchedAt = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WatchSessionsCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    this.trackingEntryId = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    required DateTime watchedAt,
+    this.rating = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        watchedAt = Value(watchedAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<WatchSessionsCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? trackingEntryId,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<String>? sourceType,
+    Expression<DateTime>? watchedAt,
+    Expression<int>? rating,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (sourceType != null) 'source_type': sourceType,
+      if (watchedAt != null) 'watched_at': watchedAt,
+      if (rating != null) 'rating': rating,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WatchSessionsCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<String?>? trackingEntryId,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<String?>? sourceType,
+      Value<DateTime>? watchedAt,
+      Value<int?>? rating,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return WatchSessionsCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      sourceType: sourceType ?? this.sourceType,
+      watchedAt: watchedAt ?? this.watchedAt,
+      rating: rating ?? this.rating,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (watchedAt.present) {
+      map['watched_at'] = Variable<DateTime>(watchedAt.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WatchSessionsCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('watchedAt: $watchedAt, ')
+          ..write('rating: $rating, ')
+          ..write('notes: $notes, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
@@ -5480,6 +7163,1016 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
           ..write('action: $action, ')
           ..write('payloadJson: $payloadJson, ')
           ..write('clientChangedAt: $clientChangedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
+    with
+        TableInfo<$UserMetadataOverridesCacheTable,
+            UserMetadataOverridesCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserMetadataOverridesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _fieldPathMeta =
+      const VerificationMeta('fieldPath');
+  @override
+  late final GeneratedColumn<String> fieldPath = GeneratedColumn<String>(
+      'field_path', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _originalValueMeta =
+      const VerificationMeta('originalValue');
+  @override
+  late final GeneratedColumn<String> originalValue = GeneratedColumn<String>(
+      'original_value', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _overrideValueMeta =
+      const VerificationMeta('overrideValue');
+  @override
+  late final GeneratedColumn<String> overrideValue = GeneratedColumn<String>(
+      'override_value', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        editionId,
+        variantId,
+        fieldPath,
+        originalValue,
+        overrideValue,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_metadata_overrides_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<UserMetadataOverridesCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('field_path')) {
+      context.handle(_fieldPathMeta,
+          fieldPath.isAcceptableOrUnknown(data['field_path']!, _fieldPathMeta));
+    } else if (isInserting) {
+      context.missing(_fieldPathMeta);
+    }
+    if (data.containsKey('original_value')) {
+      context.handle(
+          _originalValueMeta,
+          originalValue.isAcceptableOrUnknown(
+              data['original_value']!, _originalValueMeta));
+    }
+    if (data.containsKey('override_value')) {
+      context.handle(
+          _overrideValueMeta,
+          overrideValue.isAcceptableOrUnknown(
+              data['override_value']!, _overrideValueMeta));
+    } else if (isInserting) {
+      context.missing(_overrideValueMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserMetadataOverridesCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserMetadataOverridesCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      fieldPath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}field_path'])!,
+      originalValue: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}original_value']),
+      overrideValue: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}override_value'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $UserMetadataOverridesCacheTable createAlias(String alias) {
+    return $UserMetadataOverridesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class UserMetadataOverridesCacheData extends DataClass
+    implements Insertable<UserMetadataOverridesCacheData> {
+  final String id;
+  final String itemId;
+  final String? editionId;
+  final String? variantId;
+  final String fieldPath;
+  final String? originalValue;
+  final String overrideValue;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const UserMetadataOverridesCacheData(
+      {required this.id,
+      required this.itemId,
+      this.editionId,
+      this.variantId,
+      required this.fieldPath,
+      this.originalValue,
+      required this.overrideValue,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    map['field_path'] = Variable<String>(fieldPath);
+    if (!nullToAbsent || originalValue != null) {
+      map['original_value'] = Variable<String>(originalValue);
+    }
+    map['override_value'] = Variable<String>(overrideValue);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  UserMetadataOverridesCacheCompanion toCompanion(bool nullToAbsent) {
+    return UserMetadataOverridesCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      fieldPath: Value(fieldPath),
+      originalValue: originalValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalValue),
+      overrideValue: Value(overrideValue),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory UserMetadataOverridesCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserMetadataOverridesCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      fieldPath: serializer.fromJson<String>(json['fieldPath']),
+      originalValue: serializer.fromJson<String?>(json['originalValue']),
+      overrideValue: serializer.fromJson<String>(json['overrideValue']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'fieldPath': serializer.toJson<String>(fieldPath),
+      'originalValue': serializer.toJson<String?>(originalValue),
+      'overrideValue': serializer.toJson<String>(overrideValue),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  UserMetadataOverridesCacheData copyWith(
+          {String? id,
+          String? itemId,
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          String? fieldPath,
+          Value<String?> originalValue = const Value.absent(),
+          String? overrideValue,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      UserMetadataOverridesCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        fieldPath: fieldPath ?? this.fieldPath,
+        originalValue:
+            originalValue.present ? originalValue.value : this.originalValue,
+        overrideValue: overrideValue ?? this.overrideValue,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  UserMetadataOverridesCacheData copyWithCompanion(
+      UserMetadataOverridesCacheCompanion data) {
+    return UserMetadataOverridesCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      fieldPath: data.fieldPath.present ? data.fieldPath.value : this.fieldPath,
+      originalValue: data.originalValue.present
+          ? data.originalValue.value
+          : this.originalValue,
+      overrideValue: data.overrideValue.present
+          ? data.overrideValue.value
+          : this.overrideValue,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserMetadataOverridesCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('fieldPath: $fieldPath, ')
+          ..write('originalValue: $originalValue, ')
+          ..write('overrideValue: $overrideValue, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, itemId, editionId, variantId, fieldPath,
+      originalValue, overrideValue, updatedAt, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserMetadataOverridesCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.fieldPath == this.fieldPath &&
+          other.originalValue == this.originalValue &&
+          other.overrideValue == this.overrideValue &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class UserMetadataOverridesCacheCompanion
+    extends UpdateCompanion<UserMetadataOverridesCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<String> fieldPath;
+  final Value<String?> originalValue;
+  final Value<String> overrideValue;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const UserMetadataOverridesCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.fieldPath = const Value.absent(),
+    this.originalValue = const Value.absent(),
+    this.overrideValue = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserMetadataOverridesCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    required String fieldPath,
+    this.originalValue = const Value.absent(),
+    required String overrideValue,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        fieldPath = Value(fieldPath),
+        overrideValue = Value(overrideValue),
+        updatedAt = Value(updatedAt);
+  static Insertable<UserMetadataOverridesCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<String>? fieldPath,
+    Expression<String>? originalValue,
+    Expression<String>? overrideValue,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (fieldPath != null) 'field_path': fieldPath,
+      if (originalValue != null) 'original_value': originalValue,
+      if (overrideValue != null) 'override_value': overrideValue,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserMetadataOverridesCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<String>? fieldPath,
+      Value<String?>? originalValue,
+      Value<String>? overrideValue,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return UserMetadataOverridesCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      fieldPath: fieldPath ?? this.fieldPath,
+      originalValue: originalValue ?? this.originalValue,
+      overrideValue: overrideValue ?? this.overrideValue,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (fieldPath.present) {
+      map['field_path'] = Variable<String>(fieldPath.value);
+    }
+    if (originalValue.present) {
+      map['original_value'] = Variable<String>(originalValue.value);
+    }
+    if (overrideValue.present) {
+      map['override_value'] = Variable<String>(overrideValue.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserMetadataOverridesCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('fieldPath: $fieldPath, ')
+          ..write('originalValue: $originalValue, ')
+          ..write('overrideValue: $overrideValue, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CustomEpisodesCacheTable extends CustomEpisodesCache
+    with TableInfo<$CustomEpisodesCacheTable, CustomEpisodesCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomEpisodesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _overviewMeta =
+      const VerificationMeta('overview');
+  @override
+  late final GeneratedColumn<String> overview = GeneratedColumn<String>(
+      'overview', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _airDateMeta =
+      const VerificationMeta('airDate');
+  @override
+  late final GeneratedColumn<String> airDate = GeneratedColumn<String>(
+      'air_date', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _runtimeMinutesMeta =
+      const VerificationMeta('runtimeMinutes');
+  @override
+  late final GeneratedColumn<int> runtimeMinutes = GeneratedColumn<int>(
+      'runtime_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        seasonNumber,
+        episodeNumber,
+        title,
+        overview,
+        airDate,
+        runtimeMinutes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'custom_episodes_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CustomEpisodesCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    } else if (isInserting) {
+      context.missing(_seasonNumberMeta);
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    } else if (isInserting) {
+      context.missing(_episodeNumberMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('overview')) {
+      context.handle(_overviewMeta,
+          overview.isAcceptableOrUnknown(data['overview']!, _overviewMeta));
+    }
+    if (data.containsKey('air_date')) {
+      context.handle(_airDateMeta,
+          airDate.isAcceptableOrUnknown(data['air_date']!, _airDateMeta));
+    }
+    if (data.containsKey('runtime_minutes')) {
+      context.handle(
+          _runtimeMinutesMeta,
+          runtimeMinutes.isAcceptableOrUnknown(
+              data['runtime_minutes']!, _runtimeMinutesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CustomEpisodesCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomEpisodesCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number'])!,
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      overview: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}overview']),
+      airDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}air_date']),
+      runtimeMinutes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}runtime_minutes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $CustomEpisodesCacheTable createAlias(String alias) {
+    return $CustomEpisodesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class CustomEpisodesCacheData extends DataClass
+    implements Insertable<CustomEpisodesCacheData> {
+  final String id;
+  final String itemId;
+  final int seasonNumber;
+  final int episodeNumber;
+  final String title;
+  final String? overview;
+  final String? airDate;
+  final int? runtimeMinutes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const CustomEpisodesCacheData(
+      {required this.id,
+      required this.itemId,
+      required this.seasonNumber,
+      required this.episodeNumber,
+      required this.title,
+      this.overview,
+      this.airDate,
+      this.runtimeMinutes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    map['season_number'] = Variable<int>(seasonNumber);
+    map['episode_number'] = Variable<int>(episodeNumber);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || overview != null) {
+      map['overview'] = Variable<String>(overview);
+    }
+    if (!nullToAbsent || airDate != null) {
+      map['air_date'] = Variable<String>(airDate);
+    }
+    if (!nullToAbsent || runtimeMinutes != null) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  CustomEpisodesCacheCompanion toCompanion(bool nullToAbsent) {
+    return CustomEpisodesCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      seasonNumber: Value(seasonNumber),
+      episodeNumber: Value(episodeNumber),
+      title: Value(title),
+      overview: overview == null && nullToAbsent
+          ? const Value.absent()
+          : Value(overview),
+      airDate: airDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(airDate),
+      runtimeMinutes: runtimeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(runtimeMinutes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory CustomEpisodesCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomEpisodesCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      seasonNumber: serializer.fromJson<int>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int>(json['episodeNumber']),
+      title: serializer.fromJson<String>(json['title']),
+      overview: serializer.fromJson<String?>(json['overview']),
+      airDate: serializer.fromJson<String?>(json['airDate']),
+      runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'seasonNumber': serializer.toJson<int>(seasonNumber),
+      'episodeNumber': serializer.toJson<int>(episodeNumber),
+      'title': serializer.toJson<String>(title),
+      'overview': serializer.toJson<String?>(overview),
+      'airDate': serializer.toJson<String?>(airDate),
+      'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  CustomEpisodesCacheData copyWith(
+          {String? id,
+          String? itemId,
+          int? seasonNumber,
+          int? episodeNumber,
+          String? title,
+          Value<String?> overview = const Value.absent(),
+          Value<String?> airDate = const Value.absent(),
+          Value<int?> runtimeMinutes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      CustomEpisodesCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        seasonNumber: seasonNumber ?? this.seasonNumber,
+        episodeNumber: episodeNumber ?? this.episodeNumber,
+        title: title ?? this.title,
+        overview: overview.present ? overview.value : this.overview,
+        airDate: airDate.present ? airDate.value : this.airDate,
+        runtimeMinutes:
+            runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  CustomEpisodesCacheData copyWithCompanion(CustomEpisodesCacheCompanion data) {
+    return CustomEpisodesCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      title: data.title.present ? data.title.value : this.title,
+      overview: data.overview.present ? data.overview.value : this.overview,
+      airDate: data.airDate.present ? data.airDate.value : this.airDate,
+      runtimeMinutes: data.runtimeMinutes.present
+          ? data.runtimeMinutes.value
+          : this.runtimeMinutes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomEpisodesCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('title: $title, ')
+          ..write('overview: $overview, ')
+          ..write('airDate: $airDate, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, itemId, seasonNumber, episodeNumber,
+      title, overview, airDate, runtimeMinutes, updatedAt, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomEpisodesCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.title == this.title &&
+          other.overview == this.overview &&
+          other.airDate == this.airDate &&
+          other.runtimeMinutes == this.runtimeMinutes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class CustomEpisodesCacheCompanion
+    extends UpdateCompanion<CustomEpisodesCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<int> seasonNumber;
+  final Value<int> episodeNumber;
+  final Value<String> title;
+  final Value<String?> overview;
+  final Value<String?> airDate;
+  final Value<int?> runtimeMinutes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const CustomEpisodesCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.title = const Value.absent(),
+    this.overview = const Value.absent(),
+    this.airDate = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CustomEpisodesCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    required int seasonNumber,
+    required int episodeNumber,
+    required String title,
+    this.overview = const Value.absent(),
+    this.airDate = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        seasonNumber = Value(seasonNumber),
+        episodeNumber = Value(episodeNumber),
+        title = Value(title),
+        updatedAt = Value(updatedAt);
+  static Insertable<CustomEpisodesCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<String>? title,
+    Expression<String>? overview,
+    Expression<String>? airDate,
+    Expression<int>? runtimeMinutes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (title != null) 'title': title,
+      if (overview != null) 'overview': overview,
+      if (airDate != null) 'air_date': airDate,
+      if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CustomEpisodesCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<int>? seasonNumber,
+      Value<int>? episodeNumber,
+      Value<String>? title,
+      Value<String?>? overview,
+      Value<String?>? airDate,
+      Value<int?>? runtimeMinutes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return CustomEpisodesCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      title: title ?? this.title,
+      overview: overview ?? this.overview,
+      airDate: airDate ?? this.airDate,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (overview.present) {
+      map['overview'] = Variable<String>(overview.value);
+    }
+    if (airDate.present) {
+      map['air_date'] = Variable<String>(airDate.value);
+    }
+    if (runtimeMinutes.present) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomEpisodesCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('title: $title, ')
+          ..write('overview: $overview, ')
+          ..write('airDate: $airDate, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8767,7 +11460,15 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $WishlistItemsCacheTable(this);
   late final $TrackingEntriesCacheTable trackingEntriesCache =
       $TrackingEntriesCacheTable(this);
+  late final $TrackingUnitsCacheTable trackingUnitsCache =
+      $TrackingUnitsCacheTable(this);
+  late final $WatchSessionsCacheTable watchSessionsCache =
+      $WatchSessionsCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
+  late final $UserMetadataOverridesCacheTable userMetadataOverridesCache =
+      $UserMetadataOverridesCacheTable(this);
+  late final $CustomEpisodesCacheTable customEpisodesCache =
+      $CustomEpisodesCacheTable(this);
   late final $CustomFieldDefinitionsCacheTable customFieldDefinitionsCache =
       $CustomFieldDefinitionsCacheTable(this);
   late final $CustomFieldValuesCacheTable customFieldValuesCache =
@@ -8795,7 +11496,11 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         ownedItemsCache,
         wishlistItemsCache,
         trackingEntriesCache,
+        trackingUnitsCache,
+        watchSessionsCache,
         syncQueue,
+        userMetadataOverridesCache,
+        customEpisodesCache,
         customFieldDefinitionsCache,
         customFieldValuesCache,
         itemImagesCache,
@@ -8855,6 +11560,7 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> imprint,
   Value<String?> subtitle,
   Value<String?> seriesGroup,
+  Value<String?> trailerUrlsJson,
   required DateTime cachedAt,
   Value<int> rowid,
 });
@@ -8904,6 +11610,7 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> imprint,
   Value<String?> subtitle,
   Value<String?> seriesGroup,
+  Value<String?> trailerUrlsJson,
   Value<DateTime> cachedAt,
   Value<int> rowid,
 });
@@ -9057,6 +11764,10 @@ class $$CatalogCacheTableFilterComposer
 
   ColumnFilters<String> get seriesGroup => $composableBuilder(
       column: $table.seriesGroup, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnFilters(column));
@@ -9223,6 +11934,10 @@ class $$CatalogCacheTableOrderingComposer
   ColumnOrderings<String> get seriesGroup => $composableBuilder(
       column: $table.seriesGroup, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
 }
@@ -9368,6 +12083,9 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get seriesGroup => $composableBuilder(
       column: $table.seriesGroup, builder: (column) => column);
 
+  GeneratedColumn<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson, builder: (column) => column);
+
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
 }
@@ -9442,6 +12160,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> imprint = const Value.absent(),
             Value<String?> subtitle = const Value.absent(),
             Value<String?> seriesGroup = const Value.absent(),
+            Value<String?> trailerUrlsJson = const Value.absent(),
             Value<DateTime> cachedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -9490,6 +12209,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             imprint: imprint,
             subtitle: subtitle,
             seriesGroup: seriesGroup,
+            trailerUrlsJson: trailerUrlsJson,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -9538,6 +12258,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> imprint = const Value.absent(),
             Value<String?> subtitle = const Value.absent(),
             Value<String?> seriesGroup = const Value.absent(),
+            Value<String?> trailerUrlsJson = const Value.absent(),
             required DateTime cachedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -9586,6 +12307,7 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             imprint: imprint,
             subtitle: subtitle,
             seriesGroup: seriesGroup,
+            trailerUrlsJson: trailerUrlsJson,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -9647,6 +12369,11 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<int?> sellPriceCents,
   Value<String?> soldTo,
   Value<String?> locationId,
+  Value<String?> features,
+  Value<String?> hdrFormatsJson,
+  Value<String?> purchaseStore,
+  Value<String?> boxSetId,
+  Value<String?> boxSetName,
   Value<int> rowid,
 });
 typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
@@ -9685,6 +12412,11 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<int?> sellPriceCents,
   Value<String?> soldTo,
   Value<String?> locationId,
+  Value<String?> features,
+  Value<String?> hdrFormatsJson,
+  Value<String?> purchaseStore,
+  Value<String?> boxSetId,
+  Value<String?> boxSetName,
   Value<int> rowid,
 });
 
@@ -9803,6 +12535,22 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get features => $composableBuilder(
+      column: $table.features, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetId => $composableBuilder(
+      column: $table.boxSetId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnFilters(column));
 }
 
 class $$OwnedItemsCacheTableOrderingComposer
@@ -9923,6 +12671,23 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get features => $composableBuilder(
+      column: $table.features, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetId => $composableBuilder(
+      column: $table.boxSetId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnOrderings(column));
 }
 
 class $$OwnedItemsCacheTableAnnotationComposer
@@ -10035,6 +12800,21 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => column);
+
+  GeneratedColumn<String> get features =>
+      $composableBuilder(column: $table.features, builder: (column) => column);
+
+  GeneratedColumn<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetId =>
+      $composableBuilder(column: $table.boxSetId, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => column);
 }
 
 class $$OwnedItemsCacheTableTableManager extends RootTableManager<
@@ -10099,6 +12879,11 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<int?> sellPriceCents = const Value.absent(),
             Value<String?> soldTo = const Value.absent(),
             Value<String?> locationId = const Value.absent(),
+            Value<String?> features = const Value.absent(),
+            Value<String?> hdrFormatsJson = const Value.absent(),
+            Value<String?> purchaseStore = const Value.absent(),
+            Value<String?> boxSetId = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion(
@@ -10136,6 +12921,11 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             sellPriceCents: sellPriceCents,
             soldTo: soldTo,
             locationId: locationId,
+            features: features,
+            hdrFormatsJson: hdrFormatsJson,
+            purchaseStore: purchaseStore,
+            boxSetId: boxSetId,
+            boxSetName: boxSetName,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -10173,6 +12963,11 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<int?> sellPriceCents = const Value.absent(),
             Value<String?> soldTo = const Value.absent(),
             Value<String?> locationId = const Value.absent(),
+            Value<String?> features = const Value.absent(),
+            Value<String?> hdrFormatsJson = const Value.absent(),
+            Value<String?> purchaseStore = const Value.absent(),
+            Value<String?> boxSetId = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion.insert(
@@ -10210,6 +13005,11 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             sellPriceCents: sellPriceCents,
             soldTo: soldTo,
             locationId: locationId,
+            features: features,
+            hdrFormatsJson: hdrFormatsJson,
+            purchaseStore: purchaseStore,
+            boxSetId: boxSetId,
+            boxSetName: boxSetName,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -10540,6 +13340,7 @@ typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
   Value<String?> notes,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
+  Value<String?> episodeRatings,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -10563,6 +13364,7 @@ typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
   Value<String?> notes,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
+  Value<String?> episodeRatings,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -10630,6 +13432,10 @@ class $$TrackingEntriesCacheTableFilterComposer
 
   ColumnFilters<int> get episodeNumber => $composableBuilder(
       column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get episodeRatings => $composableBuilder(
+      column: $table.episodeRatings,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
@@ -10704,6 +13510,10 @@ class $$TrackingEntriesCacheTableOrderingComposer
       column: $table.episodeNumber,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get episodeRatings => $composableBuilder(
+      column: $table.episodeRatings,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
@@ -10771,6 +13581,9 @@ class $$TrackingEntriesCacheTableAnnotationComposer
   GeneratedColumn<int> get episodeNumber => $composableBuilder(
       column: $table.episodeNumber, builder: (column) => column);
 
+  GeneratedColumn<String> get episodeRatings => $composableBuilder(
+      column: $table.episodeRatings, builder: (column) => column);
+
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
@@ -10825,6 +13638,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<String?> notes = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
+            Value<String?> episodeRatings = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -10847,6 +13661,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             notes: notes,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
+            episodeRatings: episodeRatings,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -10869,6 +13684,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<String?> notes = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
+            Value<String?> episodeRatings = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -10891,6 +13707,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             notes: notes,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
+            episodeRatings: episodeRatings,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -10919,6 +13736,627 @@ typedef $$TrackingEntriesCacheTableProcessedTableManager
         ),
         TrackingEntriesCacheData,
         PrefetchHooks Function()>;
+typedef $$TrackingUnitsCacheTableCreateCompanionBuilder
+    = TrackingUnitsCacheCompanion Function({
+  required String id,
+  required String itemId,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  required String unitType,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<int?> volumeNumber,
+  Value<int?> chapterNumber,
+  Value<String?> issueNumber,
+  required DateTime completedAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$TrackingUnitsCacheTableUpdateCompanionBuilder
+    = TrackingUnitsCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  Value<String> unitType,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<int?> volumeNumber,
+  Value<int?> chapterNumber,
+  Value<String?> issueNumber,
+  Value<DateTime> completedAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$TrackingUnitsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
+  $$TrackingUnitsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$TrackingUnitsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
+  $$TrackingUnitsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TrackingUnitsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
+  $$TrackingUnitsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get unitType =>
+      $composableBuilder(column: $table.unitType, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TrackingUnitsCacheTable,
+    TrackingUnitsCacheData,
+    $$TrackingUnitsCacheTableFilterComposer,
+    $$TrackingUnitsCacheTableOrderingComposer,
+    $$TrackingUnitsCacheTableAnnotationComposer,
+    $$TrackingUnitsCacheTableCreateCompanionBuilder,
+    $$TrackingUnitsCacheTableUpdateCompanionBuilder,
+    (
+      TrackingUnitsCacheData,
+      BaseReferences<_$LocalDatabase, $TrackingUnitsCacheTable,
+          TrackingUnitsCacheData>
+    ),
+    TrackingUnitsCacheData,
+    PrefetchHooks Function()> {
+  $$TrackingUnitsCacheTableTableManager(
+      _$LocalDatabase db, $TrackingUnitsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TrackingUnitsCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TrackingUnitsCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TrackingUnitsCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String> unitType = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> chapterNumber = const Value.absent(),
+            Value<String?> issueNumber = const Value.absent(),
+            Value<DateTime> completedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TrackingUnitsCacheCompanion(
+            id: id,
+            itemId: itemId,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            unitType: unitType,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            volumeNumber: volumeNumber,
+            chapterNumber: chapterNumber,
+            issueNumber: issueNumber,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            required String unitType,
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> chapterNumber = const Value.absent(),
+            Value<String?> issueNumber = const Value.absent(),
+            required DateTime completedAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TrackingUnitsCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            unitType: unitType,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            volumeNumber: volumeNumber,
+            chapterNumber: chapterNumber,
+            issueNumber: issueNumber,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TrackingUnitsCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TrackingUnitsCacheTable,
+    TrackingUnitsCacheData,
+    $$TrackingUnitsCacheTableFilterComposer,
+    $$TrackingUnitsCacheTableOrderingComposer,
+    $$TrackingUnitsCacheTableAnnotationComposer,
+    $$TrackingUnitsCacheTableCreateCompanionBuilder,
+    $$TrackingUnitsCacheTableUpdateCompanionBuilder,
+    (
+      TrackingUnitsCacheData,
+      BaseReferences<_$LocalDatabase, $TrackingUnitsCacheTable,
+          TrackingUnitsCacheData>
+    ),
+    TrackingUnitsCacheData,
+    PrefetchHooks Function()>;
+typedef $$WatchSessionsCacheTableCreateCompanionBuilder
+    = WatchSessionsCacheCompanion Function({
+  required String id,
+  required String itemId,
+  Value<String?> trackingEntryId,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<String?> sourceType,
+  required DateTime watchedAt,
+  Value<int?> rating,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$WatchSessionsCacheTableUpdateCompanionBuilder
+    = WatchSessionsCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<String?> trackingEntryId,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<String?> sourceType,
+  Value<DateTime> watchedAt,
+  Value<int?> rating,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$WatchSessionsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $WatchSessionsCacheTable> {
+  $$WatchSessionsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get watchedAt => $composableBuilder(
+      column: $table.watchedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$WatchSessionsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $WatchSessionsCacheTable> {
+  $$WatchSessionsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get watchedAt => $composableBuilder(
+      column: $table.watchedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$WatchSessionsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $WatchSessionsCacheTable> {
+  $$WatchSessionsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get watchedAt =>
+      $composableBuilder(column: $table.watchedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$WatchSessionsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $WatchSessionsCacheTable,
+    WatchSessionsCacheData,
+    $$WatchSessionsCacheTableFilterComposer,
+    $$WatchSessionsCacheTableOrderingComposer,
+    $$WatchSessionsCacheTableAnnotationComposer,
+    $$WatchSessionsCacheTableCreateCompanionBuilder,
+    $$WatchSessionsCacheTableUpdateCompanionBuilder,
+    (
+      WatchSessionsCacheData,
+      BaseReferences<_$LocalDatabase, $WatchSessionsCacheTable,
+          WatchSessionsCacheData>
+    ),
+    WatchSessionsCacheData,
+    PrefetchHooks Function()> {
+  $$WatchSessionsCacheTableTableManager(
+      _$LocalDatabase db, $WatchSessionsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WatchSessionsCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WatchSessionsCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WatchSessionsCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<DateTime> watchedAt = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              WatchSessionsCacheCompanion(
+            id: id,
+            itemId: itemId,
+            trackingEntryId: trackingEntryId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            sourceType: sourceType,
+            watchedAt: watchedAt,
+            rating: rating,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            required DateTime watchedAt,
+            Value<int?> rating = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              WatchSessionsCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            trackingEntryId: trackingEntryId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            sourceType: sourceType,
+            watchedAt: watchedAt,
+            rating: rating,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$WatchSessionsCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $WatchSessionsCacheTable,
+    WatchSessionsCacheData,
+    $$WatchSessionsCacheTableFilterComposer,
+    $$WatchSessionsCacheTableOrderingComposer,
+    $$WatchSessionsCacheTableAnnotationComposer,
+    $$WatchSessionsCacheTableCreateCompanionBuilder,
+    $$WatchSessionsCacheTableUpdateCompanionBuilder,
+    (
+      WatchSessionsCacheData,
+      BaseReferences<_$LocalDatabase, $WatchSessionsCacheTable,
+          WatchSessionsCacheData>
+    ),
+    WatchSessionsCacheData,
+    PrefetchHooks Function()>;
 typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   required String id,
   required String entityType,
@@ -11106,6 +14544,505 @@ typedef $$SyncQueueTableProcessedTableManager = ProcessedTableManager<
       BaseReferences<_$LocalDatabase, $SyncQueueTable, SyncQueueData>
     ),
     SyncQueueData,
+    PrefetchHooks Function()>;
+typedef $$UserMetadataOverridesCacheTableCreateCompanionBuilder
+    = UserMetadataOverridesCacheCompanion Function({
+  required String id,
+  required String itemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  required String fieldPath,
+  Value<String?> originalValue,
+  required String overrideValue,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$UserMetadataOverridesCacheTableUpdateCompanionBuilder
+    = UserMetadataOverridesCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String> fieldPath,
+  Value<String?> originalValue,
+  Value<String> overrideValue,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$UserMetadataOverridesCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $UserMetadataOverridesCacheTable> {
+  $$UserMetadataOverridesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fieldPath => $composableBuilder(
+      column: $table.fieldPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalValue => $composableBuilder(
+      column: $table.originalValue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get overrideValue => $composableBuilder(
+      column: $table.overrideValue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$UserMetadataOverridesCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $UserMetadataOverridesCacheTable> {
+  $$UserMetadataOverridesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fieldPath => $composableBuilder(
+      column: $table.fieldPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originalValue => $composableBuilder(
+      column: $table.originalValue,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get overrideValue => $composableBuilder(
+      column: $table.overrideValue,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$UserMetadataOverridesCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $UserMetadataOverridesCacheTable> {
+  $$UserMetadataOverridesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get fieldPath =>
+      $composableBuilder(column: $table.fieldPath, builder: (column) => column);
+
+  GeneratedColumn<String> get originalValue => $composableBuilder(
+      column: $table.originalValue, builder: (column) => column);
+
+  GeneratedColumn<String> get overrideValue => $composableBuilder(
+      column: $table.overrideValue, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $UserMetadataOverridesCacheTable,
+    UserMetadataOverridesCacheData,
+    $$UserMetadataOverridesCacheTableFilterComposer,
+    $$UserMetadataOverridesCacheTableOrderingComposer,
+    $$UserMetadataOverridesCacheTableAnnotationComposer,
+    $$UserMetadataOverridesCacheTableCreateCompanionBuilder,
+    $$UserMetadataOverridesCacheTableUpdateCompanionBuilder,
+    (
+      UserMetadataOverridesCacheData,
+      BaseReferences<_$LocalDatabase, $UserMetadataOverridesCacheTable,
+          UserMetadataOverridesCacheData>
+    ),
+    UserMetadataOverridesCacheData,
+    PrefetchHooks Function()> {
+  $$UserMetadataOverridesCacheTableTableManager(
+      _$LocalDatabase db, $UserMetadataOverridesCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserMetadataOverridesCacheTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserMetadataOverridesCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserMetadataOverridesCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String> fieldPath = const Value.absent(),
+            Value<String?> originalValue = const Value.absent(),
+            Value<String> overrideValue = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserMetadataOverridesCacheCompanion(
+            id: id,
+            itemId: itemId,
+            editionId: editionId,
+            variantId: variantId,
+            fieldPath: fieldPath,
+            originalValue: originalValue,
+            overrideValue: overrideValue,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            required String fieldPath,
+            Value<String?> originalValue = const Value.absent(),
+            required String overrideValue,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserMetadataOverridesCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            editionId: editionId,
+            variantId: variantId,
+            fieldPath: fieldPath,
+            originalValue: originalValue,
+            overrideValue: overrideValue,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UserMetadataOverridesCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $UserMetadataOverridesCacheTable,
+        UserMetadataOverridesCacheData,
+        $$UserMetadataOverridesCacheTableFilterComposer,
+        $$UserMetadataOverridesCacheTableOrderingComposer,
+        $$UserMetadataOverridesCacheTableAnnotationComposer,
+        $$UserMetadataOverridesCacheTableCreateCompanionBuilder,
+        $$UserMetadataOverridesCacheTableUpdateCompanionBuilder,
+        (
+          UserMetadataOverridesCacheData,
+          BaseReferences<_$LocalDatabase, $UserMetadataOverridesCacheTable,
+              UserMetadataOverridesCacheData>
+        ),
+        UserMetadataOverridesCacheData,
+        PrefetchHooks Function()>;
+typedef $$CustomEpisodesCacheTableCreateCompanionBuilder
+    = CustomEpisodesCacheCompanion Function({
+  required String id,
+  required String itemId,
+  required int seasonNumber,
+  required int episodeNumber,
+  required String title,
+  Value<String?> overview,
+  Value<String?> airDate,
+  Value<int?> runtimeMinutes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$CustomEpisodesCacheTableUpdateCompanionBuilder
+    = CustomEpisodesCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<int> seasonNumber,
+  Value<int> episodeNumber,
+  Value<String> title,
+  Value<String?> overview,
+  Value<String?> airDate,
+  Value<int?> runtimeMinutes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$CustomEpisodesCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $CustomEpisodesCacheTable> {
+  $$CustomEpisodesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get overview => $composableBuilder(
+      column: $table.overview, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get airDate => $composableBuilder(
+      column: $table.airDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$CustomEpisodesCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CustomEpisodesCacheTable> {
+  $$CustomEpisodesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get overview => $composableBuilder(
+      column: $table.overview, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get airDate => $composableBuilder(
+      column: $table.airDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CustomEpisodesCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CustomEpisodesCacheTable> {
+  $$CustomEpisodesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get overview =>
+      $composableBuilder(column: $table.overview, builder: (column) => column);
+
+  GeneratedColumn<String> get airDate =>
+      $composableBuilder(column: $table.airDate, builder: (column) => column);
+
+  GeneratedColumn<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$CustomEpisodesCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CustomEpisodesCacheTable,
+    CustomEpisodesCacheData,
+    $$CustomEpisodesCacheTableFilterComposer,
+    $$CustomEpisodesCacheTableOrderingComposer,
+    $$CustomEpisodesCacheTableAnnotationComposer,
+    $$CustomEpisodesCacheTableCreateCompanionBuilder,
+    $$CustomEpisodesCacheTableUpdateCompanionBuilder,
+    (
+      CustomEpisodesCacheData,
+      BaseReferences<_$LocalDatabase, $CustomEpisodesCacheTable,
+          CustomEpisodesCacheData>
+    ),
+    CustomEpisodesCacheData,
+    PrefetchHooks Function()> {
+  $$CustomEpisodesCacheTableTableManager(
+      _$LocalDatabase db, $CustomEpisodesCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomEpisodesCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomEpisodesCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CustomEpisodesCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<int> seasonNumber = const Value.absent(),
+            Value<int> episodeNumber = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> overview = const Value.absent(),
+            Value<String?> airDate = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CustomEpisodesCacheCompanion(
+            id: id,
+            itemId: itemId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            title: title,
+            overview: overview,
+            airDate: airDate,
+            runtimeMinutes: runtimeMinutes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            required int seasonNumber,
+            required int episodeNumber,
+            required String title,
+            Value<String?> overview = const Value.absent(),
+            Value<String?> airDate = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CustomEpisodesCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            title: title,
+            overview: overview,
+            airDate: airDate,
+            runtimeMinutes: runtimeMinutes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CustomEpisodesCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $CustomEpisodesCacheTable,
+    CustomEpisodesCacheData,
+    $$CustomEpisodesCacheTableFilterComposer,
+    $$CustomEpisodesCacheTableOrderingComposer,
+    $$CustomEpisodesCacheTableAnnotationComposer,
+    $$CustomEpisodesCacheTableCreateCompanionBuilder,
+    $$CustomEpisodesCacheTableUpdateCompanionBuilder,
+    (
+      CustomEpisodesCacheData,
+      BaseReferences<_$LocalDatabase, $CustomEpisodesCacheTable,
+          CustomEpisodesCacheData>
+    ),
+    CustomEpisodesCacheData,
     PrefetchHooks Function()>;
 typedef $$CustomFieldDefinitionsCacheTableCreateCompanionBuilder
     = CustomFieldDefinitionsCacheCompanion Function({
@@ -12936,8 +16873,18 @@ class $LocalDatabaseManager {
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
   $$TrackingEntriesCacheTableTableManager get trackingEntriesCache =>
       $$TrackingEntriesCacheTableTableManager(_db, _db.trackingEntriesCache);
+  $$TrackingUnitsCacheTableTableManager get trackingUnitsCache =>
+      $$TrackingUnitsCacheTableTableManager(_db, _db.trackingUnitsCache);
+  $$WatchSessionsCacheTableTableManager get watchSessionsCache =>
+      $$WatchSessionsCacheTableTableManager(_db, _db.watchSessionsCache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
+  $$UserMetadataOverridesCacheTableTableManager
+      get userMetadataOverridesCache =>
+          $$UserMetadataOverridesCacheTableTableManager(
+              _db, _db.userMetadataOverridesCache);
+  $$CustomEpisodesCacheTableTableManager get customEpisodesCache =>
+      $$CustomEpisodesCacheTableTableManager(_db, _db.customEpisodesCache);
   $$CustomFieldDefinitionsCacheTableTableManager
       get customFieldDefinitionsCache =>
           $$CustomFieldDefinitionsCacheTableTableManager(

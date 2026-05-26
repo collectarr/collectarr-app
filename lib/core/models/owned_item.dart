@@ -39,6 +39,11 @@ class OwnedItem {
     this.sellPriceCents,
     this.soldTo,
     this.locationId,
+    this.features,
+    this.hdrFormats = const <String>[],
+    this.purchaseStore,
+    this.boxSetId,
+    this.boxSetName,
   }) : anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
@@ -78,6 +83,11 @@ class OwnedItem {
   final int? sellPriceCents;
   final String? soldTo;
   final String? locationId;
+  final String? features;
+  final List<String> hdrFormats;
+  final String? purchaseStore;
+  final String? boxSetId;
+  final String? boxSetName;
 
   String? get anchorType => anchor?.apiValue;
   String? get editionId => anchor?.editionId;
@@ -120,6 +130,12 @@ class OwnedItem {
       'sell_price_cents': sellPriceCents,
       'sold_to': soldTo,
       'location_id': locationId,
+      if (features != null) 'features': features,
+      if (hdrFormats.isNotEmpty)
+        'hdr_formats': hdrFormats,
+      if (purchaseStore != null) 'purchase_store': purchaseStore,
+      if (boxSetId != null) 'box_set_id': boxSetId,
+      if (boxSetName != null) 'box_set_name': boxSetName,
     };
   }
 
@@ -171,6 +187,14 @@ class OwnedItem {
       sellPriceCents: json['sell_price_cents'] as int?,
       soldTo: json['sold_to'] as String?,
       locationId: json['location_id'] as String?,
+      features: json['features'] as String?,
+      hdrFormats: (json['hdr_formats'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
+      purchaseStore: json['purchase_store'] as String?,
+      boxSetId: json['box_set_id'] as String?,
+      boxSetName: json['box_set_name'] as String?,
     );
   }
 
@@ -210,6 +234,11 @@ class OwnedItem {
     int? sellPriceCents,
     String? soldTo,
     String? locationId,
+    String? features,
+    List<String>? hdrFormats,
+    String? purchaseStore,
+    String? boxSetId,
+    String? boxSetName,
   }) {
     final resolvedAnchor = identical(anchor, _ownedItemUnset)
         ? PersonalItemAnchor.fromRaw(
@@ -252,6 +281,11 @@ class OwnedItem {
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
       locationId: locationId ?? this.locationId,
+      features: features ?? this.features,
+      hdrFormats: hdrFormats ?? this.hdrFormats,
+      purchaseStore: purchaseStore ?? this.purchaseStore,
+      boxSetId: boxSetId ?? this.boxSetId,
+      boxSetName: boxSetName ?? this.boxSetName,
     );
   }
 }

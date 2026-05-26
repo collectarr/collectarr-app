@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_entr
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('music filter dialog uses artist and label labels',
       (tester) async {
@@ -34,7 +36,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open filters'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Artist'), findsOneWidget);
     expect(find.text('Label'), findsOneWidget);
@@ -68,12 +70,12 @@ void main() {
     );
 
     await tester.tap(find.text('Open filters'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Location'), findsOneWidget);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Any location'), findsOneWidget);
   });
@@ -188,7 +190,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open filters'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Tracking status'), findsOneWidget);
     expect(find.text('Loan status'), findsOneWidget);
@@ -196,14 +198,14 @@ void main() {
     expect(find.text('Custom field'), findsOneWidget);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>).first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Location').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Location value'), findsOneWidget);
 
     await tester.tap(find.text('Apply'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
     expect(selection!.customFieldDefinitionId, 'cf-location');
@@ -238,16 +240,16 @@ void main() {
     );
 
     await tester.tap(find.text('Open filters'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Tag'), findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).last, 'Sig');
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Signed').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Apply'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
     expect(selection!.tag, 'Signed');

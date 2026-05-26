@@ -42,12 +42,13 @@ class LibrarySeriesSidebar extends StatelessWidget {
     this.title = 'Series',
     this.icon = Icons.folder,
     this.trailing,
+    this.headerOverride,
     this.backgroundColor = kAppPanel,
-    this.headerColor = const Color(0xFF303030),
+    this.headerColor = kAppSurface,
     this.dividerColor = kAppDivider,
     this.accentColor = kAppAccent,
     this.selectionColor = kAppSelection,
-    this.badgeColor = const Color(0xFF444444),
+    this.badgeColor = kAppBadgeBackground,
     this.selectedBadgeColor = kAppHighlight,
     this.mutedTextColor = kAppTextMuted,
   });
@@ -58,6 +59,7 @@ class LibrarySeriesSidebar extends StatelessWidget {
   final String title;
   final IconData icon;
   final Widget? trailing;
+  final Widget? headerOverride;
   final Color backgroundColor;
   final Color headerColor;
   final Color dividerColor;
@@ -73,33 +75,34 @@ class LibrarySeriesSidebar extends StatelessWidget {
       decoration: BoxDecoration(color: backgroundColor),
       child: Column(
         children: [
-          Container(
-            height: 42,
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: headerColor,
-              border: Border(bottom: BorderSide(color: dividerColor)),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, size: 18, color: accentColor),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w800),
-                  ),
+          headerOverride ??
+              Container(
+                height: 42,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: headerColor,
+                  border: Border(bottom: BorderSide(color: dividerColor)),
                 ),
-                if (trailing != null) trailing!,
-              ],
-            ),
-          ),
+                child: Row(
+                  children: [
+                    Icon(icon, size: 18, color: accentColor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    if (trailing != null) trailing!,
+                  ],
+                ),
+              ),
           Expanded(
             child: ListView.builder(
               itemCount: series.length,
@@ -174,10 +177,10 @@ class _LibrarySeriesRow extends StatelessWidget {
                         imageUrl: bucket.coverUrl!,
                         fit: BoxFit.cover,
                         placeholder: (_, __) => const ColoredBox(
-                          color: Color(0xFF333333),
+                          color: kAppSurface,
                         ),
                         errorWidget: (_, __, ___) => const ColoredBox(
-                          color: Color(0xFF333333),
+                          color: kAppSurface,
                         ),
                       ),
                     ),
@@ -217,7 +220,7 @@ class _LibrarySeriesRow extends StatelessWidget {
                 Badge(
                   label: Text(bucket.count.toString()),
                   backgroundColor: selected ? selectedBadgeColor : badgeColor,
-                  textColor: selected ? const Color(0xFF171717) : Colors.white,
+                  textColor: selected ? kAppSurfaceDim : Colors.white,
                 ),
               ],
             ),

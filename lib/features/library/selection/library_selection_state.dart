@@ -27,6 +27,14 @@ class LibrarySelectionState {
     );
   }
 
+  LibrarySelectionState merge(Iterable<String> itemIdsToAdd) {
+    final nextItemIds = Set<String>.of(itemIds)..addAll(itemIdsToAdd);
+    return LibrarySelectionState(
+      enabled: nextItemIds.isNotEmpty,
+      itemIds: nextItemIds,
+    );
+  }
+
   LibrarySelectionState setEnabled(bool value) {
     return LibrarySelectionState(
       enabled: value,
@@ -43,4 +51,29 @@ class LibrarySelectionState {
       itemIds: ids,
     );
   }
+}
+
+Set<String> selectionRangeItemIds(
+  List<String> orderedItemIds, {
+  required String anchorId,
+  required String targetId,
+}) {
+  final anchorIndex = orderedItemIds.indexOf(anchorId);
+  final targetIndex = orderedItemIds.indexOf(targetId);
+  if (anchorIndex < 0 || targetIndex < 0) {
+    return {targetId};
+  }
+  final start = anchorIndex < targetIndex ? anchorIndex : targetIndex;
+  final end = anchorIndex < targetIndex ? targetIndex : anchorIndex;
+  return orderedItemIds.sublist(start, end + 1).toSet();
+}
+
+Set<String> contextMenuSelectionItemIds(
+  Set<String> selectedItemIds, {
+  required String clickedId,
+}) {
+  if (selectedItemIds.length > 1 && selectedItemIds.contains(clickedId)) {
+    return Set<String>.from(selectedItemIds);
+  }
+  return {clickedId};
 }

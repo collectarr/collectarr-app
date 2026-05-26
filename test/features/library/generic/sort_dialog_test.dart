@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('sort dialog returns reordered multi-column rules', (
     tester,
@@ -37,12 +39,12 @@ void main() {
     );
 
     await tester.tap(find.text('Open sort'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byTooltip('Move down').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Apply'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(result, const [
       LibrarySortRule(

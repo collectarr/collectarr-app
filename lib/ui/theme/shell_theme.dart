@@ -14,7 +14,7 @@ ThemeData buildAppShellTheme({
     includeDropdownInputDecoration: false,
     inputDecorationTheme: buildAppInputDecorationTheme(
       palette,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       labelStyle: TextStyle(color: palette.textMuted),
       hintStyle: TextStyle(color: palette.textMuted),
     ),

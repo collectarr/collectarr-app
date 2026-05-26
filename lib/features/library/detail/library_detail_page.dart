@@ -3,13 +3,17 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
+import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
+import 'package:collectarr_app/features/library/kinds/shared/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +112,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         appBar: AppBar(
           backgroundColor: widget.accent,
           foregroundColor: Colors.white,
-          title: Text(widget.entry.title),
+          title: Text(widget.entry.resolvedTitle),
           actions: [
             IconButton(
               tooltip: 'Edit metadata and collection fields',
@@ -131,7 +135,10 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             if (isOwned)
               IconButton(
                 tooltip: 'Add another copy',
-                onPressed: () => _addOwnedCopy(widget.entry.id),
+                onPressed: () => _addOwnedCopy(
+                  widget.entry,
+                  ownedItem: activeOwnedItem,
+                ),
                 icon: const Icon(Icons.copy_all_outlined),
               ),
             IconButton(
@@ -175,7 +182,10 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                     _selectNewestOwnedItem = false;
                   }),
               onAddOwned: isOwned
-                  ? () => _addOwnedCopy(widget.entry.id)
+                  ? () => _addOwnedCopy(
+                        widget.entry,
+                        ownedItem: activeOwnedItem,
+                      )
                   : widget.onAddOwned,
               onRemoveOwned: activeOwnedItem == null
                   ? widget.onRemoveOwned
@@ -199,6 +209,12 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                 accent: widget.accent,
               ),
               const SizedBox(height: 16),
+            ] else ...[
+              ItemBundleReleaseBrowserSection(
+                itemId: widget.entry.titleItemId ?? widget.entry.id,
+                accent: widget.accent,
+              ),
+              const SizedBox(height: 16),
             ],
             LibraryDetailMetadataSection(
               type: widget.type,
@@ -217,6 +233,15 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               entry: widget.entry,
               accent: widget.accent,
               onFilterByValue: widget.onFilterByValue,
+            ),
+            LibraryDetailTrailersSection(
+              trailerUrls: widget.entry.trailerUrls,
+              accent: widget.accent,
+            ),
+            ...widget.type.presentation.builder.buildInspectorSections(
+              context: context,
+              entry: widget.entry,
+              accent: widget.accent,
             ),
             LibraryDetailProvenanceSection(
               type: widget.type,
@@ -250,6 +275,14 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                 editions: widget.entry.editions,
                 accent: widget.accent,
               ),
+            WatchHistorySection(
+              itemId: widget.entry.id,
+              accent: widget.accent,
+            ),
+            MetadataCorrectionsSection(
+              itemId: widget.entry.id,
+              accent: widget.accent,
+            ),
             LibraryDetailProviderSection(type: widget.type, accent: widget.accent),
             LibraryDetailLocalSnapshotSection(
               entry: widget.entry,
@@ -261,8 +294,21 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     );
   }
 
-  Future<void> _addOwnedCopy(String itemId) async {
-    await ref.read(collectionMutationsProvider).addItem(itemId);
+  Future<void> _addOwnedCopy(
+    LibraryWorkspaceEntry entry, {
+    OwnedItem? ownedItem,
+  }) async {
+    final anchor = resolveLibraryMutationAnchor(
+      entry: entry,
+      ownedItem: ownedItem,
+    );
+    await ref.read(collectionMutationsProvider).addItem(
+          entry.id,
+          anchorType: anchor.anchorType,
+          editionId: anchor.editionId,
+          variantId: anchor.variantId,
+          bundleReleaseId: anchor.bundleReleaseId,
+        );
     if (!mounted) {
       return;
     }

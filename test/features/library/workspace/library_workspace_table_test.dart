@@ -1,7 +1,10 @@
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../../helpers/test_constants.dart';
 
 DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
   return tester.widget<DecoratedBox>(
@@ -76,13 +79,63 @@ void main() {
       find.byIcon(Icons.drag_indicator).last,
       const Offset(-140, 0),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(sortedBy, LibrarySortColumn.title);
     expect(tapped, 'Batman');
     expect(reordered, (LibraryTableColumn.issue, LibraryTableColumn.title));
     expect(find.byKey(const ValueKey('sort-priority-title')), findsOneWidget);
     expect(find.byKey(const ValueKey('sort-priority-issue')), findsOneWidget);
+  });
+
+  testWidgets('workspace table reports row double taps', (tester) async {
+    String? opened;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 420,
+            height: 180,
+            child: LibraryWorkspaceTable<String>(
+              entries: const ['Spider-Man', 'Batman'],
+              columns: const [
+                LibraryTableColumn.title,
+                LibraryTableColumn.issue,
+              ],
+              sortColumn: LibrarySortColumn.title,
+              sortAscending: true,
+              columnWidthFor: (column) =>
+                  column == LibraryTableColumn.title ? 180 : 80,
+              defaultColumnWidthFor: (column) =>
+                  column == LibraryTableColumn.title ? 180 : 80,
+              columnSortFor: (column) => switch (column) {
+                LibraryTableColumn.title => LibrarySortColumn.title,
+                LibraryTableColumn.issue => LibrarySortColumn.issue,
+                _ => null,
+              },
+              columnLabelFor: (column) => column.name,
+              columnIsNumeric: (column) => column == LibraryTableColumn.issue,
+              cellBuilder: (entry, column) => Text(
+                column == LibraryTableColumn.title ? entry : '#1',
+              ),
+              isSelected: (_) => false,
+              onEntryTap: (_) {},
+              onEntryDoubleTap: (entry) => opened = entry,
+              onSortChanged: (_) {},
+              onColumnWidthChanged: (_, __) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Batman'));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(find.text('Batman'));
+    await pumpUntilSettled(tester);
+
+    expect(opened, 'Batman');
   });
 
   testWidgets('workspace table highlights selected row after tap',
@@ -137,7 +190,7 @@ void main() {
     expect(beforeTapBox.boxShadow, isNull);
 
     await tester.tap(find.text('Batman'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final afterTapDecoration = _rowDecorationForText(tester, 'Batman');
     final afterTapBox = afterTapDecoration.decoration as BoxDecoration;
@@ -205,8 +258,59 @@ void main() {
       start,
       Offset(issueHeader.dx - start.dx + 30, 0),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(reordered, (LibraryTableColumn.title, null));
+  });
+
+  testWidgets('workspace table scrollbar hover stays attached to its list view',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 420,
+            height: 180,
+            child: LibraryWorkspaceTable<String>(
+              entries: List.generate(20, (index) => 'Row $index'),
+              columns: const [
+                LibraryTableColumn.title,
+                LibraryTableColumn.issue,
+              ],
+              sortColumn: LibrarySortColumn.title,
+              sortAscending: true,
+              columnWidthFor: (column) =>
+                  column == LibraryTableColumn.title ? 180 : 80,
+              defaultColumnWidthFor: (column) =>
+                  column == LibraryTableColumn.title ? 180 : 80,
+              columnSortFor: (column) => switch (column) {
+                LibraryTableColumn.title => LibrarySortColumn.title,
+                LibraryTableColumn.issue => LibrarySortColumn.issue,
+                _ => null,
+              },
+              columnLabelFor: (column) => column.name,
+              columnIsNumeric: (column) => column == LibraryTableColumn.issue,
+              cellBuilder: (entry, column) => Text(
+                column == LibraryTableColumn.title ? entry : '#1',
+              ),
+              isSelected: (_) => false,
+              onEntryTap: (_) {},
+              onSortChanged: (_) {},
+              onColumnWidthChanged: (_, __) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(gesture.removePointer);
+    await gesture.addPointer(location: Offset.zero);
+    await gesture.moveTo(
+      tester.getTopRight(find.byType(Scrollbar).first) - const Offset(2, -24),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(tester.takeException(), isNull);
   });
 }

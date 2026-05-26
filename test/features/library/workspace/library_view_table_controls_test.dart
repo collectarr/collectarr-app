@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_cont
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('renders counts and enables column chooser in list mode',
       (tester) async {
@@ -49,7 +51,7 @@ void main() {
     expect(editColumnsCount, 0);
 
     await tester.tap(find.byTooltip('List view'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.byTooltip('Select columns'));
     await tester.pump();
     expect(editColumnsCount, 1);

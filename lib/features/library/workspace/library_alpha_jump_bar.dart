@@ -51,16 +51,16 @@ class LibraryAlphaJumpBar extends StatelessWidget {
     return Container(
       height: 26,
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: kAppPanel,
         border: Border(
           bottom: BorderSide(color: kAppDivider),
         ),
       ),
       child: Row(
         children: [
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           for (final letter in _letters) _buildLetterChip(letter),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
         ],
       ),
     );
@@ -74,11 +74,13 @@ class LibraryAlphaJumpBar extends StatelessWidget {
     final isAvailable = isAll || availableLetters.contains(letter);
 
     return Expanded(
-      child: GestureDetector(
-        onTap: isAvailable
-            ? () => onLetterSelected(isAll ? null : letter)
-            : null,
-        child: Container(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isAvailable
+              ? () => onLetterSelected(isAll ? null : letter)
+              : null,
+          child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isSelected ? accent.withValues(alpha: 0.35) : null,
@@ -101,6 +103,7 @@ class LibraryAlphaJumpBar extends StatelessWidget {
               letterSpacing: 0.5,
             ),
           ),
+        ),
         ),
       ),
     );

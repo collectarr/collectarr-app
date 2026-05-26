@@ -1,11 +1,12 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -380,7 +381,13 @@ Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty)
         .toSet();
-  } catch (_) {
+  } catch (error, stackTrace) {
+    logRecoverableError(
+      source: 'library_filter',
+      message: 'Failed to deserialize filter preset custom field options.',
+      error: error,
+      stackTrace: stackTrace,
+    );
     return const <String>{};
   }
 }
@@ -1062,6 +1069,7 @@ class _DateFilterButton extends StatelessWidget {
           ),
           if (onClear != null)
             IconButton(
+              tooltip: 'Clear',
               onPressed: onClear,
               icon: const Icon(Icons.close, size: 16),
               splashRadius: 14,

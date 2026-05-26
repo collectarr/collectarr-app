@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryEditDialogScaffold extends StatelessWidget {
@@ -12,11 +13,7 @@ class LibraryEditDialogScaffold extends StatelessWidget {
     required this.tabController,
     required this.tabs,
     required this.views,
-    this.footerLabel,
-    this.footerFields = const <Widget>[],
-    required this.onPrevious,
-    required this.onNext,
-    required this.onCancel,
+    required this.onClose,
     required this.onSave,
   });
 
@@ -28,11 +25,7 @@ class LibraryEditDialogScaffold extends StatelessWidget {
   final TabController tabController;
   final List<Widget> tabs;
   final List<Widget> views;
-  final String? footerLabel;
-  final List<Widget> footerFields;
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
-  final VoidCallback onCancel;
+  final VoidCallback onClose;
   final VoidCallback onSave;
 
   @override
@@ -64,7 +57,7 @@ class LibraryEditDialogScaffold extends StatelessWidget {
                     icon: icon,
                     title: title,
                     badges: badges,
-                    onClose: onCancel,
+                    onClose: onClose,
                   ),
                   ColoredBox(
                     color: kEditPanelRaised,
@@ -91,12 +84,6 @@ class LibraryEditDialogScaffold extends StatelessWidget {
                     ),
                   ),
                   _LibraryEditFooter(
-                    footerLabel: footerLabel,
-                    tabController: tabController,
-                    footerFields: footerFields,
-                    onPrevious: onPrevious,
-                    onNext: onNext,
-                    onCancel: onCancel,
                     onSave: onSave,
                   ),
                 ],
@@ -131,7 +118,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF343434), Color(0xFF161616)],
+          colors: [kAppSurface, kAppSurfaceDim],
         ),
         border: Border(bottom: BorderSide(color: accent)),
       ),
@@ -177,131 +164,26 @@ class _LibraryEditTitleBar extends StatelessWidget {
 }
 
 class _LibraryEditFooter extends StatelessWidget {
-  const _LibraryEditFooter({
-    required this.footerLabel,
-    required this.tabController,
-    required this.footerFields,
-    required this.onPrevious,
-    required this.onNext,
-    required this.onCancel,
-    required this.onSave,
-  });
+  const _LibraryEditFooter({required this.onSave});
 
-  final String? footerLabel;
-  final TabController tabController;
-  final List<Widget> footerFields;
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
-  final VoidCallback onCancel;
   final VoidCallback onSave;
 
   @override
   Widget build(BuildContext context) {
-    final metaChildren = <Widget>[
-      if (footerLabel != null)
-        Text(
-          footerLabel!,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: kEditTextMuted,
-                fontWeight: FontWeight.w800,
-              ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: const BoxDecoration(
+        color: kEditToolbar,
+        border: Border(top: BorderSide(color: kEditDivider)),
+      ),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: FilledButton.icon(
+          onPressed: onSave,
+          icon: const Icon(Icons.save_outlined),
+          label: const Text('Save'),
         ),
-      ...footerFields,
-    ];
-    return AnimatedBuilder(
-      animation: tabController,
-      builder: (context, _) {
-        final currentTab = tabController.index + 1;
-        final totalTabs = tabController.length;
-        final actions = Wrap(
-          alignment: WrapAlignment.end,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            FooterReadonlyField(
-              label: 'Tab',
-              value: '$currentTab / $totalTabs',
-              width: 72,
-            ),
-            Tooltip(
-              message: 'Previous tab',
-              child: OutlinedButton.icon(
-                onPressed: currentTab <= 1 ? null : onPrevious,
-                icon: const Icon(Icons.chevron_left),
-                label: const Text('Previous'),
-              ),
-            ),
-            Tooltip(
-              message: 'Next tab',
-              child: OutlinedButton.icon(
-                onPressed: currentTab >= totalTabs ? null : onNext,
-                icon: const Icon(Icons.chevron_right),
-                label: const Text('Next'),
-              ),
-            ),
-            TextButton(
-              onPressed: onCancel,
-              child: const Text('Cancel'),
-            ),
-            FilledButton.icon(
-              onPressed: onSave,
-              icon: const Icon(Icons.save_outlined),
-              label: const Text('Save'),
-            ),
-          ],
-        );
-        final meta = Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
-          children: metaChildren,
-        );
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: const BoxDecoration(
-            color: kEditToolbar,
-            border: Border(top: BorderSide(color: kEditDivider)),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              if (constraints.maxWidth < 760) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (metaChildren.isNotEmpty) meta,
-                    if (metaChildren.isNotEmpty) const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: actions,
-                    ),
-                  ],
-                );
-              }
-              return Row(
-                children: [
-                  if (metaChildren.isNotEmpty)
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: meta,
-                      ),
-                    )
-                  else
-                    const Spacer(),
-                  const SizedBox(width: 12),
-                  Flexible(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: actions,
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      },
+      ),
     );
   }
 }

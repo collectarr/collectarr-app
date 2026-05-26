@@ -49,6 +49,7 @@ class MusicLibraryEditPresentationBuilder
       'tracks' => ['music_track_listing'],
       'details_personal' => [
           'music_collection_or_tracking',
+          if (context.hasWishlistContext) 'music_wishlist_reference',
           if (context.isOwned) 'music_purchase_value',
           if (context.isOwned) 'music_profit_loss',
           if (context.hasCustomFields) 'music_custom_fields',

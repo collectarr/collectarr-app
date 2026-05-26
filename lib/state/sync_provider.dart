@@ -16,6 +16,9 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -370,6 +373,53 @@ extension on SyncQueueRepository {
           entityId: item.id,
           action: 'upsert',
           payload: item.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'watch_session':
+        final session = await WatchSessionsCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (session == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: session.id,
+          action: session.isDeleted ? 'delete' : 'upsert',
+          payload: session.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'metadata_override':
+        final override =
+            await UserMetadataOverridesCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (override == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: override.id,
+          action: override.isDeleted ? 'delete' : 'upsert',
+          payload: override.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'custom_episode':
+        final episode =
+            await CustomEpisodesCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (episode == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: episode.id,
+          action: episode.isDeleted ? 'delete' : 'upsert',
+          payload: episode.toSyncPayload(),
           clientChangedAt: changedAt,
         );
       case 'location':

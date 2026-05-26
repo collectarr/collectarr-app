@@ -7,6 +7,8 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   late LocalDatabase db;
 
@@ -71,21 +73,21 @@ void main() {
     );
 
     await tester.tap(find.text('Open queue'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('2/2 items'), findsOneWidget);
     expect(find.text('Dune'), findsOneWidget);
     expect(find.text('Foundation'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField), 'signed');
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('1/2 items'), findsOneWidget);
     expect(find.text('Foundation'), findsOneWidget);
     expect(find.text('Dune'), findsNothing);
 
     await tester.tap(find.text('Foundation'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selectedItemId, 'book-2');
   });

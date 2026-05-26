@@ -20,12 +20,67 @@ import 'package:collectarr_app/features/library/inspector/inspector_reading_queu
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/settings/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+@immutable
+class _InspectorConditionGradeOptionsRequest {
+  const _InspectorConditionGradeOptionsRequest({
+    required this.db,
+    required this.mediaKind,
+    required this.builtInConditions,
+    required this.builtInGrades,
+    required this.selectedCondition,
+    required this.selectedGrade,
+  });
+
+  final LocalDatabase db;
+  final String mediaKind;
+  final List<String> builtInConditions;
+  final List<String> builtInGrades;
+  final String? selectedCondition;
+  final String? selectedGrade;
+
+  @override
+  bool operator ==(Object other) {
+    return other is _InspectorConditionGradeOptionsRequest &&
+        identical(db, other.db) &&
+        mediaKind == other.mediaKind &&
+        listEquals(builtInConditions, other.builtInConditions) &&
+        listEquals(builtInGrades, other.builtInGrades) &&
+        selectedCondition == other.selectedCondition &&
+        selectedGrade == other.selectedGrade;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        db,
+        mediaKind,
+        Object.hashAll(builtInConditions),
+        Object.hashAll(builtInGrades),
+        selectedCondition,
+        selectedGrade,
+      );
+}
+
+final _inspectorConditionGradeOptionsProvider = FutureProvider.autoDispose
+    .family<PickListConditionGradeOptions, _InspectorConditionGradeOptionsRequest>(
+  (ref, request) async {
+    return loadConditionGradePickListOptions(
+      request.db,
+      mediaKind: request.mediaKind,
+      builtInConditions: request.builtInConditions,
+      builtInGrades: request.builtInGrades,
+      selectedCondition: request.selectedCondition,
+      selectedGrade: request.selectedGrade,
+    );
+  },
+);
 
 class LibraryInspector extends ConsumerStatefulWidget {
   const LibraryInspector({
@@ -132,7 +187,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         _InspectorDialogActionButton(
           tooltip: 'Add another copy',
           icon: Icons.copy_all_outlined,
-          onPressed: () => _addOwnedCopy(selected.id),
+          onPressed: () => _addOwnedCopy(selected, ownedItem: activeOwnedItem),
         ),
       if (activeOwnedItem != null && widget.db != null)
         _InspectorDialogActionButton(
@@ -237,7 +292,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     ownedItem: activeOwnedItem,
                     accent: widget.accent,
                     onAddOwned: selected.isOwned
-                        ? () => _addOwnedCopy(selected.id)
+                        ? () => _addOwnedCopy(
+                              selected,
+                              ownedItem: activeOwnedItem,
+                            )
                         : widget.onAddOwned,
                     onRemoveOwned: activeOwnedItem == null
                         ? widget.onRemoveOwned
@@ -263,7 +321,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   editions: selected.editions,
                   selectedOwnedItemId: activeOwnedItem?.id,
                   accent: widget.accent,
-                    onAddCopy: () => _addOwnedCopy(selected.id),
+                  onAddCopy: () => _addOwnedCopy(
+                    selected,
+                    ownedItem: activeOwnedItem,
+                  ),
                   onSelected: ownedCopies.length < 2
                       ? null
                       : (value) => setState(() => _selectedOwnedItemId = value),
@@ -285,17 +346,18 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                       ) !=
                       true) ...[
                 const SizedBox(height: 10),
-                FutureBuilder<PickListConditionGradeOptions>(
-                  future: loadConditionGradePickListOptions(
-                    widget.db ?? ref.read(localDatabaseProvider),
-                    mediaKind: widget.type.workspace.kind.apiValue,
-                    builtInConditions: widget.type.conditions,
-                    builtInGrades: widget.type.grades,
-                    selectedCondition: activeOwnedItem.condition,
-                    selectedGrade: activeOwnedItem.grade,
-                  ),
-                  builder: (context, snapshot) {
-                    final options = snapshot.data;
+                Builder(
+                  builder: (context) {
+                    final options = ref.watch(_inspectorConditionGradeOptionsProvider(
+                      _InspectorConditionGradeOptionsRequest(
+                        db: widget.db ?? ref.read(localDatabaseProvider),
+                        mediaKind: widget.type.workspace.kind.apiValue,
+                        builtInConditions: widget.type.conditions,
+                        builtInGrades: widget.type.grades,
+                        selectedCondition: activeOwnedItem.condition,
+                        selectedGrade: activeOwnedItem.grade,
+                      ),
+                    )).value;
                     return InspectorCollectionFields(
                       enabled: true,
                       condition: activeOwnedItem.condition,
@@ -328,12 +390,25 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 ),
               ],
               const SizedBox(height: 10),
-              InspectorMetadataSection(
-                type: widget.type,
-                entry: selected,
-                accent: widget.accent,
-                onFilterByValue: widget.onFilterByValue,
-              ),
+              ...widget.type.inspectorSectionsBuilder?.call(
+                    context,
+                    LibraryInspectorRequest(
+                      type: widget.type,
+                      entry: selected,
+                      ownedItem: activeOwnedItem,
+                      trackingEntry: activeTrackingEntry,
+                      accent: widget.accent,
+                      onFilterByValue: widget.onFilterByValue,
+                    ),
+                  ) ??
+                  <Widget>[
+                    InspectorMetadataSection(
+                      type: widget.type,
+                      entry: selected,
+                      accent: widget.accent,
+                      onFilterByValue: widget.onFilterByValue,
+                    ),
+                  ],
               InspectorPersonalSection(
                 entry: selected,
                 ownedItem: activeOwnedItem,
@@ -439,6 +514,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                       ),
                     ),
                     IconButton(
+                      tooltip: 'Close',
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close),
                     ),
@@ -471,8 +547,21 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     });
   }
 
-  Future<void> _addOwnedCopy(String itemId) async {
-    await ref.read(collectionMutationsProvider).addItem(itemId);
+  Future<void> _addOwnedCopy(
+    LibraryWorkspaceEntry entry, {
+    OwnedItem? ownedItem,
+  }) async {
+    final anchor = resolveLibraryMutationAnchor(
+      entry: entry,
+      ownedItem: ownedItem,
+    );
+    await ref.read(collectionMutationsProvider).addItem(
+          entry.id,
+          anchorType: anchor.anchorType,
+          editionId: anchor.editionId,
+          variantId: anchor.variantId,
+          bundleReleaseId: anchor.bundleReleaseId,
+        );
     if (!mounted) {
       return;
     }

@@ -6,16 +6,28 @@ enum LibraryViewMode { grid, card, cardFlow, list }
 enum LibraryDetailsLayout { right, bottom, hidden }
 
 enum LibraryGroupMode {
+  // ── Main ──
   series,
   storyArc,
   character,
   title,
   publisher,
   year,
+  genre,
+  country,
+  language,
+  ageRating,
+  // ── Edition ──
+  format,
+  // ── Cast & Crew ──
+  director,
+  creator,
+  // ── Personal ──
   location,
   ownership,
   grade,
   condition,
+  tags,
 }
 
 enum LibraryWorkspacePreset { cover, card, list, details }

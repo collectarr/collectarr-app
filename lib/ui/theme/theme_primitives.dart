@@ -16,7 +16,7 @@ ColorScheme buildAppColorScheme(AppThemePalette palette) {
     surfaceContainerLow: palette.panel,
     surfaceContainer: palette.toolbar,
     surfaceContainerHigh: palette.panelRaised,
-    surfaceContainerHighest: const Color(0xFF3A3A3A),
+    surfaceContainerHighest: kAppSurfaceBright,
     outline: palette.divider,
     outlineVariant: const Color(0xFF373737),
   );

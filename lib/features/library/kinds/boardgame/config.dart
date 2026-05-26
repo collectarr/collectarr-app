@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
@@ -39,4 +40,12 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: boardGamesLibraryMediaPresentation,
+  mediaFields: MediaEditFields(
+    numberLabel: 'Edition',
+    publisherLabel: 'Publisher / Designer',
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Expansion / Edition',
+    barcodeLabel: 'Barcode',
+  ),
 );

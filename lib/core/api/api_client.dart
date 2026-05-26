@@ -330,6 +330,16 @@ class ApiClient {
     );
   }
 
+  Future<AdminBatchHydrateResult> adminProviderBatchHydrate({
+    required String provider,
+    required List<String> providerItemIds,
+  }) async {
+    return _adminApi.adminProviderBatchHydrate(
+      provider: provider,
+      providerItemIds: providerItemIds,
+    );
+  }
+
   Future<AdminProviderPreview> providerPreview({
     required String provider,
     required String providerItemId,

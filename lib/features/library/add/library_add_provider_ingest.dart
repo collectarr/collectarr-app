@@ -270,29 +270,24 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
       if (!mounted) {
         return;
       }
-      final messenger = ScaffoldMessenger.of(context);
+      showAppToast(
+        context,
+        '${widget.type.singularLabel} metadata proposal sent for review.',
+        tone: AppToastTone.success,
+      );
       Navigator.of(context).pop(
         LibraryAddDialogResult(
           target: LibraryAddTarget.track,
           itemIds: [result.item.id],
         ),
       );
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            '${widget.type.singularLabel} metadata proposal sent for review',
-          ),
-        ),
-      );
     } catch (error) {
       if (mounted) {
-        if (await _clearRejectedMetadataSession(
-          error,
-          'Metadata proposal',
-        )) {
-          return;
-        }
-        _rebuild(() => _error = 'Metadata proposal failed: $error');
+        showAppToast(
+          context,
+          _describeMetadataProposalError(error),
+          tone: AppToastTone.error,
+        );
       }
     } finally {
       if (mounted) {
@@ -364,5 +359,28 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
       coverImageUrl: candidate.imageUrl,
       thumbnailImageUrl: candidate.imageUrl,
     );
+  }
+
+  String _describeMetadataProposalError(Object error) {
+    if (error case DioException dioError) {
+      final statusCode = dioError.response?.statusCode;
+      if (statusCode != null) {
+        return 'Couldn\'t send the metadata proposal. Server responded with $statusCode.';
+      }
+      if (dioError.type == DioExceptionType.connectionTimeout ||
+          dioError.type == DioExceptionType.receiveTimeout ||
+          dioError.type == DioExceptionType.sendTimeout) {
+        return 'Couldn\'t send the metadata proposal. The request timed out.';
+      }
+      return 'Couldn\'t send the metadata proposal right now. Try again.';
+    }
+    final text = error.toString().trim();
+    if (text.startsWith('StateError: ')) {
+      return text.substring('StateError: '.length);
+    }
+    if (text.startsWith('Exception: ')) {
+      return text.substring('Exception: '.length);
+    }
+    return 'Couldn\'t send the metadata proposal. $text';
   }
 }

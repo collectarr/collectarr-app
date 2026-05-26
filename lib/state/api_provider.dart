@@ -3,9 +3,16 @@ import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
-final apiAuthTokenProvider = StateProvider<String?>((ref) => null);
+final apiAuthTokenProvider =
+    NotifierProvider<ApiAuthToken, String?>(ApiAuthToken.new);
+
+class ApiAuthToken extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? token) => state = token;
+}
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   final settings = ref.watch(connectionSettingsProvider);

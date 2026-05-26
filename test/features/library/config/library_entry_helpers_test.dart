@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -81,5 +83,34 @@ void main() {
       hierarchy,
       ['Album', 'Edition: Deluxe Edition', 'Physical: Japan CD'],
     );
+  });
+
+  test('resolveLibraryMutationAnchor prefers explicit owned or wishlist release anchors', () {
+    final entry = LibraryWorkspaceEntry(
+      id: 'movie-1',
+      mediaType: 'movie',
+      title: 'Spirited Away',
+      referenceEditionId: 'edition-title',
+      updatedAt: DateTime.utc(2026, 5, 25),
+    );
+    final wishlistItem = WishlistItem(
+      id: 'wishlist-1',
+      itemId: 'movie-1',
+      anchorType: 'variant',
+      editionId: 'edition-4k',
+      variantId: 'variant-uhd',
+      createdAt: DateTime.utc(2026, 5, 25, 9),
+      updatedAt: DateTime.utc(2026, 5, 25, 10),
+    );
+
+    final resolved = resolveLibraryMutationAnchor(
+      entry: entry,
+      wishlistItem: wishlistItem,
+    );
+
+    expect(resolved.anchorType, 'variant');
+    expect(resolved.editionId, 'edition-4k');
+    expect(resolved.variantId, 'variant-uhd');
+    expect(resolved.bundleReleaseId, isNull);
   });
 }

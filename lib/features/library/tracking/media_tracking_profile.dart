@@ -220,6 +220,16 @@ const listeningTrackingProfile = MediaTrackingProfile(
       storageValue: 'Listened',
     ),
     MediaTrackingOption(
+      status: MediaTrackingStatus.paused,
+      label: 'On hold',
+      storageValue: 'On hold',
+    ),
+    MediaTrackingOption(
+      status: MediaTrackingStatus.dropped,
+      label: 'Dropped',
+      storageValue: 'Dropped',
+    ),
+    MediaTrackingOption(
       status: MediaTrackingStatus.repeating,
       label: 'On repeat',
       storageValue: 'On repeat',

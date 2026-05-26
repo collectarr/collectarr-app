@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('personal details editor saves structured locations',
       (tester) async {
@@ -63,17 +65,17 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.byIcon(Icons.place));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Assign Location'), findsOneWidget);
     await tester.tap(find.text('Shelf B').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final updated = await db.select(db.ownedItemsCache).getSingle();
     expect(updated.locationId, 'loc-b');
@@ -143,12 +145,12 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.ensureVisible(
       find.widgetWithText(FilledButton, 'Apply tracking changes'),
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Apply tracking changes'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final updated = await db.select(db.trackingEntriesCache).getSingle();
     expect(updated.sourceType, 'digital');
@@ -208,14 +210,14 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Primary'), findsOneWidget);
     expect(find.text('Hardcover'), findsOneWidget);
     expect(find.text('Variants'), findsNothing);
 
     await tester.tap(find.text('Hardcover'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selectedEditionId, 'edition-hc');
     expect(find.text('Variants'), findsOneWidget);
@@ -223,12 +225,12 @@ void main() {
     expect(find.text('Red foil'), findsOneWidget);
 
     await tester.tap(find.text('Red foil'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selectedVariantId, 'variant-red');
 
     await tester.tap(find.text('Primary'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(selectedEditionId, isNull);
     expect(selectedVariantId, isNull);

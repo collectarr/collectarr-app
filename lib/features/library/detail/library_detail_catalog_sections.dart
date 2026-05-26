@@ -24,7 +24,8 @@ class LibraryDetailMetadataSection extends StatelessWidget {
     return type.presentation.builder.buildDetailIdentitySection(
       context: context,
       singularLabel: type.singularLabel,
-      labels: type.presentation.fieldLabels,
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
       entry: entry,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -51,7 +52,8 @@ class LibraryDetailContextSection extends StatelessWidget {
     return type.presentation.builder.buildDetailContextSection(
       context: context,
       singularLabel: type.singularLabel,
-      labels: type.presentation.fieldLabels,
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
       entry: entry,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -78,7 +80,8 @@ class LibraryDetailCreditsSection extends StatelessWidget {
     return type.presentation.builder.buildDetailCreditsSection(
       context: context,
       singularLabel: type.singularLabel,
-      labels: type.presentation.fieldLabels,
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
       entry: entry,
       accent: accent,
       onFilterByValue: onFilterByValue,

@@ -1,8 +1,10 @@
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 
 class VideoLibraryMediaPresentationBuilder
@@ -16,7 +18,8 @@ class VideoLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -54,19 +57,21 @@ class VideoLibraryMediaPresentationBuilder
             'Volume',
             series!.volumeName ?? 'Vol. ${series.volumeNumber}',
           ),
-        if (entry.variant != null)
+        if (entry.browseScope != LibraryBrowserScope.title &&
+            entry.variant != null)
           LibraryInspectorFactData(
-            labels.variant,
+            releaseFields.variantLabel,
             entry.variant!,
             onTap: tapFor(entry.variant),
           ),
-        if (entry.barcode != null)
-          LibraryInspectorFactData(labels.barcode, entry.barcode!),
+        if (entry.browseScope != LibraryBrowserScope.title &&
+            entry.barcode != null)
+          LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
       ],
       contextFacts: [
         if (entry.publisher != null)
           LibraryInspectorFactData(
-            labels.publisher,
+            mediaFields.publisherLabel,
             entry.publisher!,
             onTap: tapFor(entry.publisher),
           ),

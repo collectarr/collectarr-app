@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -103,7 +104,7 @@ void main() {
     expect(wishlistRows.single.deletedAt, isNull);
   });
 
-  test('removeSelected clears both owned and wishlist selections', () async {
+  test('removeSelected clears owned, wishlist, and tracked-only selections', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -115,9 +116,15 @@ void main() {
     final mutations = container.read(collectionMutationsProvider);
     await mutations.addItem('movie-1');
     await mutations.addToWishlist('movie-2');
+    await mutations.upsertTrackingEntry(
+      'movie-3',
+      sourceType: 'streaming',
+      status: 'completed',
+    );
 
     final ownedRow = await db.select(db.ownedItemsCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
+    final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
     final actions = LibraryBulkActions(mutations);
 
     await actions.removeSelected([
@@ -138,12 +145,82 @@ void main() {
           updatedAt: wishlistRow.updatedAt,
         ),
       ),
+      ShelfEntry(
+        itemId: 'movie-3',
+        trackingEntry: TrackingEntry(
+          id: trackingRow.id,
+          itemId: trackingRow.itemId,
+          ownedItemId: trackingRow.ownedItemId,
+          editionId: trackingRow.editionId,
+          variantId: trackingRow.variantId,
+          bundleReleaseId: trackingRow.bundleReleaseId,
+          sourceType: trackingRow.sourceType,
+          status: trackingRow.status,
+          rating: trackingRow.rating,
+          startedAt: trackingRow.startedAt,
+          finishedAt: trackingRow.finishedAt,
+          progressCurrent: trackingRow.progressCurrent,
+          progressTotal: trackingRow.progressTotal,
+          timesCompleted: trackingRow.timesCompleted,
+          notes: trackingRow.notes,
+          seasonNumber: trackingRow.seasonNumber,
+          episodeNumber: trackingRow.episodeNumber,
+          updatedAt: trackingRow.updatedAt,
+          deletedAt: trackingRow.deletedAt,
+        ),
+      ),
     ]);
 
     final ownedRows = await db.select(db.ownedItemsCache).get();
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
+    final trackingRows = await db.select(db.trackingEntriesCache).get();
 
     expect(ownedRows.single.deletedAt, isNotNull);
     expect(wishlistRows.single.deletedAt, isNotNull);
+    expect(trackingRows.single.deletedAt, isNotNull);
+  });
+
+  test('moveSelectedToOwned keeps unrelated release wishlists active', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final mutations = container.read(collectionMutationsProvider);
+    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+
+    final rows = await db.select(db.wishlistItemsCache).get();
+    final row4k = rows.firstWhere((row) => row.editionId == 'edition-4k');
+    final actions = LibraryBulkActions(mutations);
+
+    await actions.moveSelectedToOwned([
+      ShelfEntry(
+        itemId: 'movie-1',
+        wishlistItem: WishlistItem(
+          id: row4k.id,
+          itemId: row4k.itemId,
+          anchorType: row4k.anchorType,
+          editionId: row4k.editionId,
+          variantId: row4k.variantId,
+          bundleReleaseId: row4k.bundleReleaseId,
+          createdAt: row4k.createdAt,
+          updatedAt: row4k.updatedAt,
+        ),
+      ),
+    ]);
+
+    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final wishlistRows = await db.select(db.wishlistItemsCache).get();
+    final activeWishlistRows =
+        wishlistRows.where((row) => row.deletedAt == null).toList();
+
+    expect(ownedRows, hasLength(1));
+    expect(ownedRows.single.editionId, 'edition-4k');
+    expect(activeWishlistRows, hasLength(1));
+    expect(activeWishlistRows.single.editionId, 'edition-bluray');
   });
 }

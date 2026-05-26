@@ -10,6 +10,8 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   late LocalDatabase db;
 
@@ -83,7 +85,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open smart lists'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Backlog sci-fi'), findsWidgets);
     expect(find.text('Quick view: Owned'), findsOneWidget);
@@ -96,7 +98,7 @@ void main() {
     expect(find.text('Custom: Location = Shelf A'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Load'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(loaded, isNotNull);
     expect(
