@@ -126,34 +126,34 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [x] Schema version reset to v1 for clean alpha baseline
 
 ### 🔴 CLZ Web Parity — Critical UX Gaps
-- [ ] **Toolbar search** — Always-visible search input in workspace toolbar to filter current library
-- [ ] **Sorting system + saved presets** — Multi-field sort (e.g. Title ASC → Year DESC → Series ASC) with named favorites
-- [ ] **Collection status filter** — Dropdown filter: All / In Collection / For Sale / Wish List / On Order / Sold / Not in Collection
-- [ ] **A-Z alphabet bar** — Quick letter buttons across top for initial-letter filtering, greyed for unused letters
-- [ ] **Multiple view types** — Add List view and Horizontal Cards alongside existing cover grid
-- [ ] **Multi-select & batch actions** — Checkbox items → Edit / Remove / Export / Duplicate / Loan / Transfer
-- [ ] **Panel layout options** — User toggles inspector position: Horizontal Split / Vertical Split / No Details
-- [ ] **Resizable panels** — Drag handles on sidebar and inspector with remembered widths
+- [x] **Toolbar search** — Always-visible search input in workspace toolbar to filter current library
+- [x] **Sorting system + saved presets** — Multi-field sort (e.g. Title ASC → Year DESC → Series ASC) with named favorites
+- [x] **Collection status filter** — Dropdown filter: All / In Collection / For Sale / Wish List / On Order / Sold / Not in Collection
+- [x] **A-Z alphabet bar** — Quick letter buttons across top for initial-letter filtering, greyed for unused letters
+- [x] **Multiple view types** — Add List view and Horizontal Cards alongside existing cover grid
+- [x] **Multi-select & batch actions** — Checkbox items → Edit / Remove / Export / Duplicate / Loan / Transfer
+- [x] **Panel layout options** — User toggles inspector position: Horizontal Split / Vertical Split / No Details
+- [x] **Resizable panels** — Drag handles on sidebar and inspector with remembered widths
 
 ### 🟡 CLZ Web Parity — Tools & Features
 - [ ] **Sidebar favorites** — Pin frequently-used group modes to top of dropdown
 - [ ] **Sidebar search** — Text input to filter sidebar bucket names
 - [ ] **Sidebar sort toggle** — Switch between alphabetical and by-count ordering
-- [ ] **Statistics page** — Charts by genre, year, watch counts, total runtime, value totals
-- [ ] **Find Duplicates** — Detect duplicates by title, barcode, title+format
-- [ ] **Loan Manager** — Track loaned items with due dates and return tracking
-- [ ] **Print to PDF** — Configurable PDF export with columns, covers, sorting
-- [ ] **Pick List management** — Edit/merge/remove pick list values (genres, formats, etc.)
+- [x] **Statistics page** — Charts by genre, year, watch counts, total runtime, value totals
+- [x] **Find Duplicates** — Detect duplicates by title, barcode, title+format
+- [x] **Loan Manager** — Track loaned items with due dates and return tracking
+- [x] **Print to PDF** — Configurable PDF export with columns, covers, sorting
+- [x] **Pick List management** — Edit/merge/remove pick list values (genres, formats, etc.)
 
 ### 🟢 CLZ Web Parity — Polish
-- [ ] **Scope pill** — When filtering by person/value, show a pill badge with "× clear"
+- [x] **Scope pill** — When filtering by person/value, show a pill badge with "× clear"
 - [ ] **Transfer Field Data** — Move data between fields across items
 - [ ] **Multiple collections per library** — Separate tabs within one library type
-- [ ] **Shelf view** — 3D shelf rendering with visual skin options
+- [x] **Shelf view** — 3D shelf rendering with visual skin options
 - [ ] **Themes/skins** — Light, Dark, Blue templates
-- [ ] **Watch/Read/Play history** — Full consumption tracking: dates, location, count
-- [ ] **Value tracking** — Purchase price, current value, currency totals, charts
-- [ ] **Item count display** — "42 movies" always visible in toolbar
+- [x] **Watch/Read/Play history** — Full consumption tracking: dates, location, count
+- [x] **Value tracking** — Purchase price, current value, currency totals, charts
+- [x] **Item count display** — "42 movies" always visible in toolbar
 
 ### 🧭 Location Hierarchy Follow-up
 - [x] Owned-item sync payload now includes `location_id`
