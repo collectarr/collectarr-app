@@ -405,7 +405,7 @@ double _headerSideWidth({
     }
   }
   final estimated = (20.0 + 7 + maxLabelLength * 9 + 18)
-      .clamp(132.0, 240.0)
+      .clamp(132.0, 360.0)
       .toDouble();
   final available = maxWidth / 3;
   if (available <= 0) {
@@ -481,6 +481,100 @@ class MediaLibraryNavStrip extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class MediaLibraryCollapsedStrip extends ConsumerWidget {
+  const MediaLibraryCollapsedStrip({
+    super.key,
+    required this.accent,
+  });
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      height: 6,
+      decoration: BoxDecoration(
+        gradient: libraryChromeGradient(
+          accent,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+      ),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Material(
+          color: Colors.transparent,
+          child: Tooltip(
+            message: 'Show library selector',
+            child: InkWell(
+              onTap: () => ref
+                  .read(libraryNavPreferencesProvider.notifier)
+                  .toggleCollapsed(),
+              child: Container(
+                width: 42,
+                height: 6,
+                color: Colors.white.withValues(alpha: 0.18),
+                child: const Icon(
+                  Icons.expand_more,
+                  size: 6,
+                  color: Colors.white70,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
+  const MediaLibraryCollapsedRailStrip({
+    super.key,
+    required this.accent,
+  });
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      width: 6,
+      decoration: BoxDecoration(
+        gradient: libraryChromeGradient(
+          accent,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Material(
+          color: Colors.transparent,
+          child: Tooltip(
+            message: 'Show library selector',
+            child: InkWell(
+              onTap: () => ref
+                  .read(libraryNavPreferencesProvider.notifier)
+                  .toggleCollapsed(),
+              child: Container(
+                width: 6,
+                height: 42,
+                color: Colors.white.withValues(alpha: 0.18),
+                child: const Icon(
+                  Icons.chevron_right,
+                  size: 6,
+                  color: Colors.white70,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

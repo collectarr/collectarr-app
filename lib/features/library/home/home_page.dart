@@ -93,16 +93,25 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           )
         : null;
     final collapsed = navPreferences.collapsed;
+    final accent = libraryAccentForKind(selected.kind);
+    final Widget resolvedTopBar;
+    if (navPreferences.placement == LibraryNavPlacement.top) {
+      resolvedTopBar = collapsed
+          ? MediaLibraryCollapsedStrip(accent: accent)
+          : topBar;
+    } else {
+      resolvedTopBar = collapsed
+          ? const SizedBox.shrink()
+          : titleBar;
+    }
     final content = Column(
       children: [
         if (offlineBanner != null) offlineBanner,
         Expanded(
           child: LibraryPage(
       type: selectedConfig,
-      topBar: navPreferences.placement == LibraryNavPlacement.top
-          ? (collapsed ? titleBar : topBar)
-          : titleBar,
-      accent: libraryAccentForKind(selected.kind),
+      topBar: resolvedTopBar,
+      accent: accent,
     ),
         ),
       ],
@@ -113,7 +122,9 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         color: kAppCanvas,
         child: Row(
           children: [
-            if (!collapsed)
+            if (collapsed)
+              MediaLibraryCollapsedRailStrip(accent: accent)
+            else
               MediaLibraryRail(
                 types: visibleTypes,
                 counts: counts,

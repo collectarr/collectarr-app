@@ -4,9 +4,11 @@ import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MediaLibraryRail extends StatelessWidget {
+class MediaLibraryRail extends ConsumerWidget {
   const MediaLibraryRail({
     super.key,
     required this.types,
@@ -23,7 +25,7 @@ class MediaLibraryRail extends StatelessWidget {
   final ValueChanged<CatalogMediaType> onSelected;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accent = libraryAccentForKind(selected.kind);
     return Container(
@@ -99,6 +101,25 @@ class MediaLibraryRail extends StatelessWidget {
                     ),
                   );
                 },
+              ),
+            ),
+            const Divider(height: 1, color: kAppDivider),
+            Tooltip(
+              message: 'Collapse library selector',
+              child: InkWell(
+                onTap: () => ref
+                    .read(libraryNavPreferencesProvider.notifier)
+                    .toggleCollapsed(),
+                child: SizedBox(
+                  height: 36,
+                  child: Center(
+                    child: Icon(
+                      Icons.chevron_left,
+                      size: 18,
+                      color: accent,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

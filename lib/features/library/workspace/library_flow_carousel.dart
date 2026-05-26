@@ -54,6 +54,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
   int _currentIndex = 0;
   double _viewportFraction = 0.34;
   double? _pendingViewportFraction;
+  bool _showAccentShelf = true;
 
   @override
   void initState() {
@@ -120,11 +121,6 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _FlowBackdrop(
-                    key: ValueKey('flow-carousel-backdrop-${activeItem.entry.id}'),
-                    item: activeItem,
-                    accent: widget.accent,
-                  ),
                   Column(
                     children: [
                       SizedBox(
@@ -205,16 +201,42 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                           ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(22, 8, 22, 18),
-                        child: _FlowCarouselFooter(
-                          item: activeItem,
-                          index: _currentIndex,
-                          total: widget.items.length,
-                          accent: widget.accent,
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            if (_showAccentShelf)
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius: kAppRadiusLarge,
+                                  child: _FlowBackdrop(
+                                    key: ValueKey('flow-carousel-backdrop-${activeItem.entry.id}'),
+                                    item: activeItem,
+                                    accent: widget.accent,
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(22, 8, 22, 18),
+                              child: _FlowCarouselFooter(
+                                item: activeItem,
+                                index: _currentIndex,
+                                total: widget.items.length,
+                                accent: widget.accent,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
+                  ),
+                  Positioned(
+                    right: 8,
+                    bottom: 8,
+                    child: _FlowShelfToggle(
+                      active: _showAccentShelf,
+                      accent: widget.accent,
+                      onToggle: () => setState(() => _showAccentShelf = !_showAccentShelf),
+                    ),
                   ),
                 ],
               ),
@@ -441,6 +463,53 @@ class _FlowBackdrop extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FlowShelfToggle extends StatelessWidget {
+  const _FlowShelfToggle({
+    required this.active,
+    required this.accent,
+    required this.onToggle,
+  });
+
+  final bool active;
+  final Color accent;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: active ? 'Hide shelf backdrop' : 'Show shelf backdrop',
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onToggle,
+          child: AnimatedContainer(
+            duration: kAppAnimFast,
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: active
+                  ? accent.withValues(alpha: 0.22)
+                  : Colors.white.withValues(alpha: 0.06),
+              border: Border.all(
+                color: active
+                    ? accent.withValues(alpha: 0.5)
+                    : Colors.white.withValues(alpha: 0.12),
+              ),
+            ),
+            child: Icon(
+              Icons.auto_awesome,
+              size: 16,
+              color: active ? accent : Colors.white.withValues(alpha: 0.4),
+            ),
+          ),
         ),
       ),
     );
