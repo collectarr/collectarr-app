@@ -96,6 +96,48 @@ class LibraryBulkActions {
     }
   }
 
+  Future<int> duplicateSelected(List<ShelfEntry> entries) async {
+    final ownedEntries = [
+      for (final entry in entries)
+        if (entry.ownedItem != null) entry,
+    ];
+    for (var index = 0; index < ownedEntries.length; index++) {
+      final src = ownedEntries[index].ownedItem!;
+      await mutations.addItem(
+        src.itemId,
+        isDigital: src.isDigital,
+        anchorType: src.anchorType,
+        editionId: src.editionId,
+        variantId: src.variantId,
+        bundleReleaseId: src.bundleReleaseId,
+        condition: src.condition,
+        grade: src.grade,
+        purchaseDate: src.purchaseDate,
+        pricePaidCents: src.pricePaidCents,
+        currency: src.currency,
+        personalNotes: src.personalNotes,
+        quantity: src.quantity,
+        storageBox: src.storageBox,
+        locationId: src.locationId,
+        indexNumber: src.indexNumber,
+        coverPriceCents: src.coverPriceCents,
+        rawOrSlabbed: src.rawOrSlabbed,
+        gradingCompany: src.gradingCompany,
+        graderNotes: src.graderNotes,
+        signedBy: src.signedBy,
+        keyComic: src.keyComic,
+        keyReason: src.keyReason,
+        rating: src.rating,
+        readStatus: src.readStatus,
+        startedAt: src.startedAt,
+        finishedAt: src.finishedAt,
+        tags: src.tags,
+        notify: index == ownedEntries.length - 1,
+      );
+    }
+    return ownedEntries.length;
+  }
+
   Future<void> removeSelected(List<ShelfEntry> entries) async {
     final ownedEntries = [
       for (final entry in entries)

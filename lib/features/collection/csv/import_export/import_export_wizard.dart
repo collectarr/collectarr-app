@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/cbz/comic_info_xml.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/xml/collection_xml.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter/material.dart';
@@ -192,6 +193,11 @@ class _ExportWizardPane extends StatelessWidget {
     final comicInfoXml = comicEntries.isEmpty
         ? '<!-- No comics to export -->'
         : _buildComicInfoBatch(comicEntries);
+    final collectionXml = const CollectionXml().serialize(
+      entries,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValuesByItem: customFieldValuesByItem,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -214,7 +220,7 @@ class _ExportWizardPane extends StatelessWidget {
         const SizedBox(height: 12),
         Expanded(
           child: DefaultTabController(
-            length: 3,
+            length: 4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -223,6 +229,7 @@ class _ExportWizardPane extends StatelessWidget {
                     Tab(text: 'Collectarr CSV'),
                     Tab(text: 'CLZ-friendly CSV'),
                     Tab(text: 'ComicInfo.xml'),
+                    Tab(text: 'Collectarr XML'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -232,6 +239,7 @@ class _ExportWizardPane extends StatelessWidget {
                       _CsvPreview(text: collectarr),
                       _CsvPreview(text: clz),
                       _CsvPreview(text: comicInfoXml),
+                      _CsvPreview(text: collectionXml),
                     ],
                   ),
                 ),
@@ -262,6 +270,12 @@ class _ExportWizardPane extends StatelessWidget {
                 icon: const Icon(Icons.code_outlined),
                 label: const Text('Copy ComicInfo.xml'),
               ),
+            OutlinedButton.icon(
+              onPressed: () =>
+                  _copy(context, collectionXml, 'Collectarr XML copied'),
+              icon: const Icon(Icons.code_outlined),
+              label: const Text('Copy Collectarr XML'),
+            ),
           ],
         ),
       ],

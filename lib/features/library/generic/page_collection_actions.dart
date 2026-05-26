@@ -65,6 +65,12 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
           return;
         }
         unawaited(showEditDialog(item, item.source.ownedItem));
+      case LibraryItemContextAction.duplicate:
+        if (isBatchSelection) {
+          await bulkDuplicateFlow(projection);
+          return;
+        }
+        await singleDuplicateFlow(item);
       case LibraryItemContextAction.addToOwned:
         if (isBatchSelection) {
           await bulkMoveToOwnedFlow(projection);
@@ -234,5 +240,54 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
     await bulkActions().removeSelected(entries);
     _rebuild(() => _selection = _selection.clear());
     ref.invalidate(shelfProvider);
+  }
+
+  Future<void> singleDuplicateFlow(LibraryProjectionItem item) async {
+    final ownedItem = item.source.ownedItem;
+    if (ownedItem == null) return;
+    await bulkActions().duplicateSelected([item.source]);
+    if (mounted) {
+      ref.invalidate(shelfProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Duplicated "${item.entry.title}"')),
+      );
+    }
+  }
+
+  Future<void> bulkDuplicateFlow(LibraryProjection? projection) async {
+    if (projection == null || _selection.itemIds.isEmpty) return;
+    final entries = selectedShelfEntries(
+      projection.filteredItems,
+      _selection.itemIds,
+    );
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Duplicate items'),
+        content: Text(
+          'Create a copy of ${entries.length} '
+          'item${entries.length == 1 ? '' : 's'}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Duplicate'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final count = await bulkActions().duplicateSelected(entries);
+    _rebuild(() => _selection = _selection.clear());
+    ref.invalidate(shelfProvider);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Duplicated $count item${count == 1 ? '' : 's'}')),
+      );
+    }
   }
 }

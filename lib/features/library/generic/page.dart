@@ -338,6 +338,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                         projection.filteredItems.isNotEmpty
                     ? () => showTransferFieldDataFlow(projection)
                     : null,
+                onReassignIndex: projection != null &&
+                        projection.filteredItems.isNotEmpty
+                    ? () => reassignIndexFlow(projection)
+                    : null,
                 onPrintReport: projection != null &&
                         projection.filteredItems.isNotEmpty
                     ? () => printReportFlow(projection)

@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
+import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/import_job_provider.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
@@ -563,6 +564,62 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       onClear: _clearProposalHistory,
                     ),
                   ),
+                  _SettingsPanel(
+                    icon: Icons.save_outlined,
+                    title: 'Database backup & restore',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Create a full JSON backup of your local database, or restore from a previous backup. '
+                          'This includes all collection, wishlist, tracking, custom fields, locations, smart lists, and queue data.',
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            FilledButton.tonalIcon(
+                              onPressed: _backupDatabase,
+                              icon: const Icon(Icons.save_alt_outlined),
+                              label: const Text('Backup to JSON'),
+                            ),
+                            FilledButton.tonalIcon(
+                              onPressed: _restoreDatabase,
+                              icon: const Icon(Icons.restore_outlined),
+                              label: const Text('Restore from JSON'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.delete_forever_outlined,
+                    title: 'Clear database',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Permanently delete ALL local data including collection, wishlist, tracking, custom fields, and settings. '
+                          'This cannot be undone.',
+                        ),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: FilledButton.tonalIcon(
+                            onPressed: _clearDatabase,
+                            icon: const Icon(Icons.delete_forever),
+                            label: const Text('Clear entire database'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               _SettingsTabBody(
@@ -1087,6 +1144,157 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.invalidate(_deviceIdentityProvider);
     if (mounted) {
       _showToast('Device id regenerated', tone: AppToastTone.success);
+    }
+  }
+
+  Future<void> _backupDatabase() async {
+    try {
+      final db = ref.read(localDatabaseProvider);
+      final backup = DatabaseBackup(db);
+      final json = await backup.exportJson();
+      final now = DateTime.now();
+      final stamp =
+          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}'
+          '_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}';
+      final fileName = 'collectarr_backup_$stamp.json';
+      final location = await getSaveLocation(
+        suggestedName: fileName,
+        acceptedTypeGroups: [
+          const XTypeGroup(label: 'JSON', extensions: ['json']),
+        ],
+      );
+      if (location == null) return;
+      final file = XFile.fromData(
+        utf8.encode(json),
+        mimeType: 'application/json',
+        name: fileName,
+      );
+      await file.saveTo(location.path);
+      if (mounted) {
+        _showToast('Backup saved', tone: AppToastTone.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showToast('Backup failed: ${_describeError(e)}',
+            tone: AppToastTone.error);
+      }
+    }
+  }
+
+  Future<void> _restoreDatabase() async {
+    try {
+      final file = await openFile(
+        acceptedTypeGroups: [
+          const XTypeGroup(label: 'JSON', extensions: ['json']),
+        ],
+      );
+      if (file == null) return;
+      if (!mounted) return;
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Restore database'),
+          content: const Text(
+            'This will replace ALL local data with the backup contents. '
+            'Any current data will be lost. Continue?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Restore'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is! Map<String, dynamic>) {
+        _showToast('Invalid backup file', tone: AppToastTone.error);
+        return;
+      }
+      final db = ref.read(localDatabaseProvider);
+      await DatabaseBackup(db).import(data);
+      if (mounted) {
+        _showToast('Database restored', tone: AppToastTone.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showToast('Restore failed: ${_describeError(e)}',
+            tone: AppToastTone.error);
+      }
+    }
+  }
+
+  Future<void> _clearDatabase() async {
+    final firstConfirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Clear database'),
+        content: const Text(
+          'This will permanently delete ALL local data. '
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+    if (firstConfirm != true || !mounted) return;
+
+    final secondConfirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Are you absolutely sure?'),
+        content: const Text(
+          'All collection data, tracking history, custom fields, '
+          'locations, smart lists, and reading queues will be '
+          'permanently erased.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            child: const Text('Yes, delete everything'),
+          ),
+        ],
+      ),
+    );
+    if (secondConfirm != true || !mounted) return;
+
+    try {
+      final db = ref.read(localDatabaseProvider);
+      await DatabaseBackup(db).clearAll();
+      if (mounted) {
+        _showToast('Database cleared', tone: AppToastTone.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showToast('Clear failed: ${_describeError(e)}',
+            tone: AppToastTone.error);
+      }
     }
   }
 
