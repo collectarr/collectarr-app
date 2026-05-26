@@ -249,6 +249,10 @@ void main() {
     await tester.tap(find.text('Open edition owned'));
     await pumpUntilSettled(tester);
 
+    // Navigate to the Ownership tab (video kind splits tabs)
+    await tester.tap(find.text('Ownership'));
+    await pumpUntilSettled(tester);
+
     await tester.tap(find.byKey(const Key('library-edit-owned-anchor-field')));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Edition').last);
@@ -487,6 +491,10 @@ void main() {
     await tester.tap(find.text('Open tracked'));
     await pumpUntilSettled(tester);
 
+    // Navigate to the Tracking tab (video kind splits tabs)
+    await tester.tap(find.text('Tracking'));
+    await pumpUntilSettled(tester);
+
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Tracking edition'), findsAtLeastNWidgets(1));
     expect(find.text('Value'), findsNothing);
@@ -575,6 +583,10 @@ void main() {
     await tester.tap(find.text('Open bundle owned'));
     await pumpUntilSettled(tester);
 
+    // Navigate to the Ownership tab (video kind splits tabs)
+    await tester.tap(find.text('Ownership'));
+    await pumpUntilSettled(tester);
+
     await tester.tap(find.byType(DropdownButtonFormField<String>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Bundle release').last);
@@ -653,6 +665,10 @@ void main() {
     );
 
     await tester.tap(find.text('Open digital'));
+    await pumpUntilSettled(tester);
+
+    // Navigate to the Ownership tab (video kind splits tabs)
+    await tester.tap(find.text('Ownership'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.'), findsOneWidget);

@@ -1,5 +1,33 @@
 // ignore_for_file: use_super_parameters
 
+class CatalogDisc {
+  const CatalogDisc({
+    required this.discNumber,
+    this.discName,
+    this.discFormat,
+  });
+
+  final int discNumber;
+  final String? discName;
+  final String? discFormat;
+
+  factory CatalogDisc.fromJson(Map<String, dynamic> json) {
+    return CatalogDisc(
+      discNumber: json['disc_number'] as int? ?? 1,
+      discName: json['disc_name'] as String?,
+      discFormat: json['disc_format'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'disc_number': discNumber,
+      if (discName != null) 'disc_name': discName,
+      if (discFormat != null) 'disc_format': discFormat,
+    };
+  }
+}
+
 class CatalogTrack {
   const CatalogTrack({
     required this.title,
@@ -137,6 +165,7 @@ class CatalogEdition {
     this.physicalFormatLabel,
     this.metadata,
     this.variants = const <CatalogVariant>[],
+    this.discs = const <CatalogDisc>[],
   });
 
   final String id;
@@ -152,6 +181,7 @@ class CatalogEdition {
   final String? physicalFormatLabel;
   final Map<String, dynamic>? metadata;
   final List<CatalogVariant> variants;
+  final List<CatalogDisc> discs;
 
   factory CatalogEdition.fromJson(Map<String, dynamic> json) {
     return CatalogEdition(
@@ -173,6 +203,11 @@ class CatalogEdition {
               .map(CatalogVariant.fromJson)
               .toList(growable: false) ??
           const <CatalogVariant>[],
+      discs: (json['discs'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CatalogDisc.fromJson)
+              .toList(growable: false) ??
+          const <CatalogDisc>[],
     );
   }
 
@@ -192,6 +227,8 @@ class CatalogEdition {
         'physical_format_label': physicalFormatLabel,
       if (metadata != null) 'metadata_json': metadata,
       'variants': variants.map((variant) => variant.toJson()).toList(growable: false),
+      if (discs.isNotEmpty)
+        'discs': discs.map((disc) => disc.toJson()).toList(growable: false),
     };
   }
 }

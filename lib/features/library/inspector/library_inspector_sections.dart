@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -98,6 +99,7 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
             ),
           ],
         ),
+        _buildEditionFormatBadges(entry),
         if (entry.genres case final genres? when genres.isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryInspectorChipWrap(label: 'Genres', values: genres),
@@ -113,6 +115,26 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
       ],
     );
   }
+}
+
+Widget _buildEditionFormatBadges(LibraryWorkspaceEntry entry) {
+  final seen = <String>{};
+  final badges = <Widget>[];
+  for (final edition in entry.editions) {
+    final id = edition.physicalFormat;
+    if (id == null || !seen.add(id)) continue;
+    badges.add(
+      FormatBadge.fromFormat(
+        id: id,
+        label: edition.physicalFormatLabel ?? id,
+      ),
+    );
+  }
+  if (badges.isEmpty) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Wrap(spacing: 4, runSpacing: 4, children: badges),
+  );
 }
 
 List<Widget> buildVideoInspectorSections(

@@ -466,6 +466,10 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     switch (id) {
       case 'main':
         return _mainTab();
+      case 'media':
+        return _mediaTab();
+      case 'cast':
+        return _castTab();
       case 'value':
         return _valueTab();
       case 'personal':
@@ -480,14 +484,252 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         return _coverTab();
       case 'synopsis':
         return _synopsisTab();
+      case 'discs':
+        return _discsTab();
       default:
         throw StateError('Unsupported generic edit tab: $id');
     }
   }
 
   // -------------------------------------------------------------------------
+  // Tab: Media (catalog snapshot — work-level fields only)
+  // -------------------------------------------------------------------------
+
+  Widget _mediaTab() {
+    final mediaFields = widget.type.mediaFields;
+    final releaseFields = widget.type.releaseFields;
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Media',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _titleController,
+                  label: 'Title',
+                  validator: (value) =>
+                      emptyToNull(value ?? '') == null ? 'Enter a title' : null,
+                ),
+                _field(controller: _numberController, label: mediaFields.numberLabel),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                    controller: _publisherController, label: mediaFields.publisherLabel),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _releaseDateController,
+                  label: 'Release date',
+                  hint: 'YYYY-MM-DD',
+                  validator: optionalDateValidator,
+                ),
+                _field(
+                  controller: _releaseYearController,
+                  label: 'Release year',
+                  validator: optionalIntValidator,
+                ),
+              ]),
+              if (mediaFields.showPageCount || mediaFields.showImprint || mediaFields.showSeriesGroup) ...[
+                const SizedBox(height: 10),
+                _responsiveFields([
+                  if (mediaFields.showPageCount)
+                    _field(
+                      controller: _pageCountController,
+                      label: 'Page count',
+                      validator: optionalIntValidator,
+                    ),
+                  if (mediaFields.showImprint)
+                    _field(controller: _imprintController, label: 'Imprint'),
+                  if (mediaFields.showSeriesGroup)
+                    _field(
+                      controller: _seriesGroupController,
+                      label: 'Series group',
+                    ),
+                ]),
+              ],
+            ],
+          ),
+        ),
+        if (_showsReleaseSection)
+          EditSection(
+            title: 'Release details',
+            accent: widget.accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _responsiveFields([
+                  _field(
+                      controller: _editionTitleController,
+                      label: releaseFields.editionTitleLabel),
+                  _field(controller: _variantController, label: releaseFields.variantLabel),
+                  _field(controller: _barcodeController, label: releaseFields.barcodeLabel),
+                ]),
+                if (releaseFields.showPhysicalFormat && widget.physicalFormats.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    initialValue: _physicalFormatId,
+                    isExpanded: true,
+                    dropdownColor: kEditPanelRaised,
+                    borderRadius: kEditMenuBorderRadius,
+                    decoration: const InputDecoration(
+                      labelText: 'Physical format',
+                    ),
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: '',
+                        child: Text('No specific format'),
+                      ),
+                      for (final format in widget.physicalFormats)
+                        DropdownMenuItem<String>(
+                          value: format.id,
+                          child: Text(format.label),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      final normalized = emptyToNull(value ?? '');
+                      final format = _physicalFormatForId(normalized);
+                      final previousFormat =
+                          _physicalFormatForId(_physicalFormatId);
+                      final variant = _variantController.text.trim();
+                      final shouldReplaceVariant =
+                          variant.isEmpty || previousFormat?.label == variant;
+                      setState(() {
+                        _physicalFormatId = format?.id;
+                        if (format != null && shouldReplaceVariant) {
+                          _variantController.text = format.label;
+                        }
+                      });
+                    },
+                  ),
+                ],
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Tab: Cast & Crew (placeholder — read-only credits display)
+  // -------------------------------------------------------------------------
+
+  Widget _castTab() {
+    final creators = widget.item.creators;
+    final hasCreators = creators != null && creators.isNotEmpty;
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Cast & Crew',
+          accent: widget.accent,
+          child: hasCreators
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final credit in creators!)
+                      if (credit is Map<String, dynamic> &&
+                          credit['name']?.toString().trim().isNotEmpty == true)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.person, size: 16, color: kEditTextMuted),
+                              const SizedBox(width: 8),
+                              Text(
+                                credit['name'].toString().trim(),
+                                style: const TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                              if (credit['role']?.toString().trim().isNotEmpty == true) ...[
+                                const SizedBox(width: 6),
+                                Text(
+                                  '— ${credit['role']}',
+                                  style: const TextStyle(color: kEditTextMuted),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                  ],
+                )
+              : const Text(
+                  'No cast or crew data available.',
+                  style: TextStyle(color: kEditTextMuted),
+                ),
+        ),
+      ],
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Tab: Discs (placeholder — future disc management)
+  // -------------------------------------------------------------------------
+
+  Widget _discsTab() {
+    final editions = widget.item.editions;
+    final allDiscs = <(String, CatalogDisc)>[];
+    for (final edition in editions) {
+      for (final disc in edition.discs) {
+        allDiscs.add((edition.title, disc));
+      }
+    }
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Disc contents',
+          accent: widget.accent,
+          child: allDiscs.isEmpty
+              ? const Text(
+                  'No disc data available yet. Disc management will be enabled in a future update.',
+                  style: TextStyle(color: kEditTextMuted),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final (editionTitle, disc) in allDiscs)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.album, size: 16, color: kEditTextMuted),
+                            const SizedBox(width: 8),
+                            Text(
+                              disc.discName ?? 'Disc ${disc.discNumber}',
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            if (disc.discFormat != null) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                '(${disc.discFormat})',
+                                style: const TextStyle(color: kEditTextMuted),
+                              ),
+                            ],
+                            const Spacer(),
+                            Text(
+                              editionTitle,
+                              style: const TextStyle(
+                                color: kEditTextMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+
+  // -------------------------------------------------------------------------
   // Tab: Main (catalog snapshot + condition/grade)
   // -------------------------------------------------------------------------
+
+  bool get _hasMediaTab => _tabSpecs.any((t) => t.id == 'media');
 
   Widget _mainTab() {
     final mediaFields = widget.type.mediaFields;
@@ -495,6 +737,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     final editPresentation = _editPresentation;
     return EditTabShell(
       children: [
+        if (!_hasMediaTab) ...[
         // ---- Media-level fields (the abstract work) ----
         EditSection(
           title: 'Media',
@@ -607,6 +850,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
             ),
           ),
+        ], // end if (!_hasMediaTab)
         if (_hasTrackingContext)
           EditSection(
             title: editPresentation.trackingSectionTitle,

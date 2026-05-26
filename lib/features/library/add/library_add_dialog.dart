@@ -26,6 +26,7 @@ import 'package:collectarr_app/features/library/add/library_add_reference_type.d
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -1609,7 +1610,7 @@ class _QueuedProviderIngest {
   }
 }
 
-enum _LibraryAddDialogMode { search, barcode, manual }
+enum _LibraryAddDialogMode { search, barcode, manual, browse }
 
 class _CoverScanPrefillBanner extends StatelessWidget {
   const _CoverScanPrefillBanner({required this.result});

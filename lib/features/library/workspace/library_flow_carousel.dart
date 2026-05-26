@@ -1,10 +1,12 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -595,7 +597,7 @@ class _FlowCarouselCard extends StatelessWidget {
   }
 }
 
-class _FlowCarouselFooter extends StatelessWidget {
+class _FlowCarouselFooter extends StatefulWidget {
   const _FlowCarouselFooter({
     required this.item,
     required this.index,
@@ -609,8 +611,23 @@ class _FlowCarouselFooter extends StatelessWidget {
   final Color accent;
 
   @override
+  State<_FlowCarouselFooter> createState() => _FlowCarouselFooterState();
+}
+
+class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
+  bool _showReleases = false;
+
+  @override
+  void didUpdateWidget(covariant _FlowCarouselFooter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.item.entry.id != oldWidget.item.entry.id) {
+      _showReleases = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final entry = item.entry;
+    final entry = widget.item.entry;
     final meta = [
       if (entry.series?.seriesTitle != null && entry.series!.seriesTitle!.trim().isNotEmpty)
         entry.series!.seriesTitle,
@@ -623,6 +640,9 @@ class _FlowCarouselFooter extends StatelessWidget {
       if (entry.referenceFormatLabel != null) entry.referenceFormatLabel,
     ].whereType<String>().join('  ·  ');
 
+    final editions = entry.editions;
+    final hasReleases = editions.length > 1;
+
     return DecoratedBox(
       decoration: BoxDecoration(
         color: const Color(0xFF131C28),
@@ -631,63 +651,166 @@ class _FlowCarouselFooter extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${index + 1} / $total',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.6,
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${widget.index + 1} / ${widget.total}',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: widget.accent,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.6,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        entry.resolvedTitle,
+                        key: const ValueKey('flow-carousel-footer-title'),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                            ),
+                      ),
+                      if (meta.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          meta,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: kAppTextMuted,
+                              ),
                         ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    entry.resolvedTitle,
-                    key: const ValueKey('flow-carousel-footer-title'),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                        ),
-                  ),
-                  if (meta.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      meta,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: kAppTextMuted,
+                ),
+                if (entry.itemNumber != null && entry.itemNumber!.trim().isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: widget.accent.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: widget.accent.withValues(alpha: 0.35)),
+                    ),
+                    child: Text(
+                      '#${entry.itemNumber}',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
                           ),
                     ),
-                  ],
-                ],
-              ),
+                  ),
+              ],
             ),
-            if (entry.itemNumber != null && entry.itemNumber!.trim().isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: accent.withValues(alpha: 0.35)),
-                ),
-                child: Text(
-                  '#${entry.itemNumber}',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
+            if (hasReleases) ...[
+              const SizedBox(height: 8),
+              InkWell(
+                borderRadius: BorderRadius.circular(4),
+                onTap: () => setState(() => _showReleases = !_showReleases),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _showReleases
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        size: 18,
+                        color: widget.accent,
                       ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${editions.length} releases',
+                        style: TextStyle(
+                          color: widget.accent,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              if (_showReleases) ...[
+                const SizedBox(height: 6),
+                for (final edition in editions)
+                  _FlowCarouselReleaseRow(
+                    edition: edition,
+                    isOwned: edition.id == entry.referenceEditionId,
+                    accent: widget.accent,
+                  ),
+              ],
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FlowCarouselReleaseRow extends StatelessWidget {
+  const _FlowCarouselReleaseRow({
+    required this.edition,
+    required this.isOwned,
+    required this.accent,
+  });
+
+  final CatalogEdition edition;
+  final bool isOwned;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          if (isOwned)
+            Icon(Icons.check_circle, size: 14, color: accent)
+          else
+            const Icon(Icons.circle_outlined, size: 14, color: kAppTextMuted),
+          const SizedBox(width: 8),
+          if (edition.physicalFormat != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: FormatBadge.fromFormat(
+                id: edition.physicalFormat!,
+                label: edition.physicalFormatLabel ?? edition.physicalFormat!,
+                compact: true,
+              ),
+            ),
+          Expanded(
+            child: Text(
+              edition.title ?? edition.physicalFormatLabel ?? 'Release',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isOwned ? Colors.white : kAppTextMuted,
+                fontSize: 12,
+                fontWeight: isOwned ? FontWeight.w800 : FontWeight.w600,
+              ),
+            ),
+          ),
+          if (edition.variants.isNotEmpty)
+            Text(
+              '${edition.variants.length} variant${edition.variants.length > 1 ? 's' : ''}',
+              style: const TextStyle(
+                color: kAppTextMuted,
+                fontSize: 11,
+              ),
+            ),
+        ],
       ),
     );
   }

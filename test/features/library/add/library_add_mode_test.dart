@@ -10,6 +10,7 @@ void main() {
         LibraryAddMode.addIssue,
         LibraryAddMode.barcode,
         LibraryAddMode.pullList,
+        LibraryAddMode.browseMedia,
       ],
     );
   });

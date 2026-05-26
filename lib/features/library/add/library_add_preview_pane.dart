@@ -179,6 +179,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
                             : 'Collectarr Core metadata',
                         style: const TextStyle(fontSize: 16),
                       ),
+                      _buildPreviewFormatBadges(selectedItem),
                     ],
                   ),
                 ),
@@ -1032,6 +1033,27 @@ CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
     }
   }
   return edition.variants.first;
+}
+
+Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
+  if (item == null || item.editions.isEmpty) return const SizedBox.shrink();
+  final seen = <String>{};
+  final badges = <Widget>[];
+  for (final edition in item.editions) {
+    final id = edition.physicalFormat;
+    if (id == null || !seen.add(id)) continue;
+    badges.add(
+      FormatBadge.fromFormat(
+        id: id,
+        label: edition.physicalFormatLabel ?? id,
+      ),
+    );
+  }
+  if (badges.isEmpty) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.only(top: 6),
+    child: Wrap(spacing: 4, runSpacing: 4, children: badges),
+  );
 }
 
 List<(String, String?)> _metadataRowsForCandidate(

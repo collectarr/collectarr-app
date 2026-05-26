@@ -259,6 +259,28 @@ class _LibraryAddModeBar extends StatelessWidget {
                     ),
                   ],
                 ),
+              _LibraryAddDialogMode.browse => Row(
+                  children: [
+                    Expanded(
+                      child: _LibraryAddModeTextField(
+                        fieldKey: const ValueKey('library-add-browse-field'),
+                        controller: queryController,
+                        label: 'Browse media catalog',
+                        hintText:
+                            'Filter by title to browse editions and variants...',
+                        onSubmitted: onSearch,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    _LibraryAddModeButton(
+                      label: 'Browse',
+                      icon: Icons.explore,
+                      accent: accent,
+                      isBusy: isSearching,
+                      onPressed: isBusy ? null : onSearch,
+                    ),
+                  ],
+                ),
             },
           ],
         ),
@@ -326,6 +348,13 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                     accent: accent,
                     selected: mode == _LibraryAddDialogMode.barcode,
                     onTap: () => onModeChanged(_LibraryAddDialogMode.barcode),
+                  ),
+                  LibraryAddModeTab(
+                    icon: Icons.explore,
+                    label: 'Browse',
+                    accent: accent,
+                    selected: mode == _LibraryAddDialogMode.browse,
+                    onTap: () => onModeChanged(_LibraryAddDialogMode.browse),
                   ),
                 ],
               ),
