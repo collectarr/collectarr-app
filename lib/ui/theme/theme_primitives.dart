@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 ColorScheme buildAppColorScheme(AppThemePalette palette) {
   final base = ColorScheme.fromSeed(
     seedColor: palette.accent,
-    brightness: Brightness.dark,
+    brightness: palette.brightness,
     surface: palette.panel,
   );
   return base.copyWith(
@@ -56,12 +56,12 @@ DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
       borderRadius: BorderRadius.circular(4),
       side: BorderSide(color: palette.divider),
     ),
-    titleTextStyle: const TextStyle(
-      color: Colors.white,
+    titleTextStyle: TextStyle(
+      color: palette.textPrimary,
       fontSize: 18,
       fontWeight: FontWeight.w900,
     ),
-    contentTextStyle: const TextStyle(color: Colors.white),
+    contentTextStyle: TextStyle(color: palette.textPrimary),
   );
 }
 
@@ -69,7 +69,7 @@ PopupMenuThemeData buildAppPopupMenuTheme(AppThemePalette palette) {
   return PopupMenuThemeData(
     color: palette.panelRaised,
     surfaceTintColor: Colors.transparent,
-    textStyle: const TextStyle(color: Colors.white),
+    textStyle: TextStyle(color: palette.textPrimary),
     elevation: 12,
     shape: RoundedRectangleBorder(
       borderRadius: palette.menuBorderRadius,
@@ -99,7 +99,7 @@ DropdownMenuThemeData buildAppDropdownMenuTheme(
   Color? inputFillColor,
 }) {
   return DropdownMenuThemeData(
-    textStyle: const TextStyle(color: Colors.white),
+    textStyle: TextStyle(color: palette.textPrimary),
     menuStyle: MenuStyle(
       backgroundColor: WidgetStatePropertyAll(palette.panelRaised),
       surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -134,7 +134,7 @@ FilledButtonThemeData buildAppFilledButtonTheme(AppThemePalette palette) {
 OutlinedButtonThemeData buildAppOutlinedButtonTheme(AppThemePalette palette) {
   return OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: Colors.white,
+      foregroundColor: palette.textPrimary,
       side: BorderSide(color: palette.divider),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
       visualDensity: VisualDensity.compact,
@@ -161,7 +161,7 @@ SearchBarThemeData buildAppSearchBarTheme(AppThemePalette palette) {
     hintStyle: WidgetStatePropertyAll(
       TextStyle(color: palette.textMuted),
     ),
-    textStyle: const WidgetStatePropertyAll(TextStyle(color: Colors.white)),
+    textStyle: WidgetStatePropertyAll(TextStyle(color: palette.textPrimary)),
     elevation: const WidgetStatePropertyAll(0),
     shape: WidgetStatePropertyAll(
       RoundedRectangleBorder(
@@ -179,7 +179,7 @@ ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
   return base.chipTheme.copyWith(
     backgroundColor: const Color(0xFF343434),
     selectedColor: palette.selection,
-    labelStyle: const TextStyle(color: Colors.white),
+    labelStyle: TextStyle(color: palette.textPrimary),
     side: BorderSide(color: palette.divider),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
   );
@@ -221,8 +221,8 @@ ThemeData applySharedSurfaceTheme(
     chipTheme: buildAppChipTheme(base, palette),
     datePickerTheme: buildAppDatePickerTheme(palette: palette),
     textTheme: base.textTheme.apply(
-      bodyColor: Colors.white,
-      displayColor: Colors.white,
+      bodyColor: palette.textPrimary,
+      displayColor: palette.textPrimary,
     ),
   );
 }

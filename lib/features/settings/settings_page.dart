@@ -35,6 +35,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:file_selector/file_selector.dart';
@@ -444,6 +445,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          secondary: Icon(
+                            ref.watch(appThemeModeProvider) == ThemeMode.dark
+                                ? Icons.dark_mode
+                                : Icons.light_mode,
+                          ),
+                          title: const Text('Dark mode'),
+                          subtitle: const Text(
+                            'Switch between dark and light theme.',
+                          ),
+                          value:
+                              ref.watch(appThemeModeProvider) == ThemeMode.dark,
+                          onChanged: (value) => ref
+                              .read(appThemeModeProvider.notifier)
+                              .setMode(
+                                  value ? ThemeMode.dark : ThemeMode.light),
+                        ),
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           secondary: const Icon(Icons.gradient_outlined),

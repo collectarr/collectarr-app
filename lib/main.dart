@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/app_zoom.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -46,9 +47,11 @@ class CollectarrApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final themeMode = ref.watch(appThemeModeProvider);
+    final palette = paletteForThemeMode(themeMode);
     return MaterialApp.router(
       title: 'Collectarr',
-      theme: buildAppShellTheme(),
+      theme: buildAppShellTheme(palette: palette),
       builder: (context, child) => AppZoomWrapper(child: child!),
       routerConfig: router,
     );
