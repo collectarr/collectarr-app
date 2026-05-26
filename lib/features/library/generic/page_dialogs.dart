@@ -213,4 +213,9 @@ extension _LibraryPageDialogs on _LibraryPageState {
       items: items,
     );
   }
+
+  Future<void> showUserFoldersFlow() async {
+    final db = ref.read(localDatabaseProvider);
+    await showUserFoldersDialog(context: context, db: db);
+  }
 }

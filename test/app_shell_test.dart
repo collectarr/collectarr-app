@@ -169,9 +169,9 @@ void main() {
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    // All users see 4 destinations (Libraries, Shelf, Manage, Settings).
+    // Non-admin users see 4 destinations (Libraries, Shelf, Calendar, Settings).
     expect(navigationBar.destinations.length, 4);
-    expect(find.text('Manage'), findsOneWidget);
+    expect(find.text('Calendar'), findsOneWidget);
     expect(find.text('Admin'), findsNothing);
   });
 
@@ -201,8 +201,9 @@ void main() {
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    // Admin accounts see 4 destinations with 'Admin' label.
-    expect(navigationBar.destinations.length, 4);
+    // Admin accounts see 5 destinations with 'Admin' label
+    // (Libraries, Shelf, Calendar, Admin, Settings).
+    expect(navigationBar.destinations.length, 5);
     expect(find.text('Admin'), findsOneWidget);
     expect(find.text('Manage'), findsNothing);
   });

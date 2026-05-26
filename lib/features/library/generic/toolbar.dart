@@ -47,6 +47,7 @@ class LibraryToolbar extends StatelessWidget {
     this.selectionCallbacks,
     this.shelfState,
     this.onSmartLists,
+    this.onFolders,
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
@@ -85,6 +86,7 @@ class LibraryToolbar extends StatelessWidget {
   final int selectedCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
@@ -180,6 +182,7 @@ class LibraryToolbar extends StatelessWidget {
                       onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
                       onSmartLists: onSmartLists,
+                      onFolders: onFolders,
                       onReadingQueue: onReadingQueue,
                       onEditConditionPickList: onEditConditionPickList,
                       onEditGradePickList: onEditGradePickList,

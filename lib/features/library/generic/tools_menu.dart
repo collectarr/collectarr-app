@@ -21,6 +21,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.onDownloadAllCovers,
     this.shelfState,
     this.onSmartLists,
+    this.onFolders,
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
@@ -41,6 +42,7 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
@@ -158,6 +160,12 @@ class LibraryToolsButton extends StatelessWidget {
             icon: Icons.auto_awesome_mosaic,
             label: 'Smart Lists...',
             onSelected: onSmartLists!,
+          ),
+        if (onFolders != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.folder_outlined,
+            label: 'Folders...',
+            onSelected: onFolders!,
           ),
         if (onReadingQueue != null)
           LibraryUtilityMenuAction(
