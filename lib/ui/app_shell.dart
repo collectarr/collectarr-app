@@ -58,7 +58,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final visibleBranches = [
       _branchLibraries,
       _branchShelf,
-      _branchAdmin,
+      if (isAdmin) _branchAdmin,
       _branchSettings,
     ];
     final selectedVisualIndex = visibleBranches.indexOf(currentBranch).clamp(0, visibleBranches.length - 1);
@@ -66,13 +66,12 @@ class _AppShellState extends ConsumerState<AppShell> {
     final pages = [
       const _ShellPage(label: 'Libraries', icon: Icons.apps_outlined),
       const _ShellPage(label: 'Shelf', icon: Icons.inventory_2),
-      _ShellPage(
-        label: isAdmin ? 'Admin' : 'Manage',
-        icon: isAdmin
-            ? Icons.admin_panel_settings_outlined
-            : Icons.hub_outlined,
-        adminOnly: isAdmin,
-      ),
+      if (isAdmin)
+        const _ShellPage(
+          label: 'Admin',
+          icon: Icons.admin_panel_settings_outlined,
+          adminOnly: true,
+        ),
       const _ShellPage(label: 'Settings', icon: Icons.settings_outlined),
     ];
 
@@ -208,12 +207,17 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                   NavigationDestination(
                     icon: page.adminOnly
                         ? Badge(
-                            label: const Icon(
-                              Icons.shield_outlined,
-                              size: 9,
-                              color: Colors.white,
+                            label: const Text(
+                              'ADMIN',
+                              style: TextStyle(
+                                fontSize: 7,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                            backgroundColor: Colors.white24,
+                            backgroundColor: Colors.deepOrange.shade700,
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: Icon(page.icon),
                           )
                         : Icon(page.icon),

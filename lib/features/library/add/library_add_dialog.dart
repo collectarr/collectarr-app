@@ -59,6 +59,8 @@ import 'package:uuid/uuid.dart';
 
 part 'library_add_mode_bar.dart';
 part 'library_add_search_pane.dart';
+part 'library_add_search_comic.dart';
+part 'library_add_search_manga.dart';
 part 'library_add_preview_pane.dart';
 part 'library_add_bottom_bar.dart';
 part 'library_add_manual_pane.dart';

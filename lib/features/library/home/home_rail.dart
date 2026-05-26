@@ -9,7 +9,7 @@ import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MediaLibraryRail extends ConsumerWidget {
+class MediaLibraryRail extends ConsumerStatefulWidget {
   const MediaLibraryRail({
     super.key,
     required this.types,
@@ -26,10 +26,52 @@ class MediaLibraryRail extends ConsumerWidget {
   final ValueChanged<CatalogMediaType> onSelected;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selected = selectedLibraryHomeType(types, selectedKind);
+  ConsumerState<MediaLibraryRail> createState() => _MediaLibraryRailState();
+}
+
+class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
+  final _scrollController = ScrollController();
+  bool _showUp = false;
+  bool _showDown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateArrows);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateArrows());
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateArrows() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    final up = pos.pixels > 0;
+    final down = pos.pixels < pos.maxScrollExtent - 1;
+    if (up != _showUp || down != _showDown) {
+      setState(() {
+        _showUp = up;
+        _showDown = down;
+      });
+    }
+  }
+
+  void _scrollBy(double delta) {
+    final target =
+        (_scrollController.offset + delta).clamp(0.0, _scrollController.position.maxScrollExtent);
+    _scrollController.animateTo(target,
+        duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = selectedLibraryHomeType(widget.types, widget.selectedKind);
     final accent = libraryAccentForKind(selected.kind);
-    final selectedIcon = registry.byKind(selected.kind)?.workspace.icon ??
+    final selectedIcon = widget.registry.byKind(selected.kind)?.workspace.icon ??
         libraryIconForKind(selected.kind);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
@@ -66,13 +108,16 @@ class MediaLibraryRail extends ConsumerWidget {
                 ),
                 const Divider(height: 1, color: kAppDivider),
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    itemCount: types.length,
-                    itemBuilder: (context, index) {
-                      final type = types[index];
-                      final typeAccent = libraryAccentForKind(type.kind);
-                      final selectedType = type.kind == selectedKind;
+                  child: Stack(
+                    children: [
+                      ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        itemCount: widget.types.length,
+                        itemBuilder: (context, index) {
+                          final type = widget.types[index];
+                          final typeAccent = libraryAccentForKind(type.kind);
+                          final selectedType = type.kind == widget.selectedKind;
                       return Tooltip(
                         message: type.pluralLabel,
                         child: Padding(
@@ -82,7 +127,7 @@ class MediaLibraryRail extends ConsumerWidget {
                           ),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(4),
-                            onTap: selectedType ? null : () => onSelected(type),
+                            onTap: selectedType ? null : () => widget.onSelected(type),
                             child: DecoratedBox(
                               decoration: BoxDecoration(
                                 color: selectedType
@@ -101,7 +146,7 @@ class MediaLibraryRail extends ConsumerWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      registry
+                                      widget.registry
                                               .byKind(type.kind)
                                               ?.workspace
                                               .icon ??
@@ -113,7 +158,7 @@ class MediaLibraryRail extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      (counts[type.kind]?.total ?? 0)
+                                      (widget.counts[type.kind]?.total ?? 0)
                                           .toString(),
                                       style: const TextStyle(
                                         color: Colors.white,
@@ -130,6 +175,48 @@ class MediaLibraryRail extends ConsumerWidget {
                       );
                     },
                   ),
+                  if (_showUp)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () => _scrollBy(-120),
+                          child: Container(
+                            width: 28,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.45),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(Icons.expand_less, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_showDown)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () => _scrollBy(120),
+                          child: Container(
+                            width: 28,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.45),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(Icons.expand_more, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 ),
                 const Divider(height: 1, color: kAppDivider),
                 const _RailSyncButton(),
