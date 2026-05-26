@@ -15,13 +15,11 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -88,7 +86,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _wishlistCurrencyController;
   late final TextEditingController _wishlistNotesController;
 
-  List<String> _tagOptions = const [];
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
   String? _selectedEditionId;
@@ -135,12 +132,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   LibraryEditPresentationState get _editPresentation {
     return widget.request.type.editPresentation.builder.build(
-      context: _editPresentationContext,
-    );
-  }
-
-  LibraryEditFooterSpec get _footerSpec {
-    return widget.request.type.editPresentation.builder.buildFooter(
       context: _editPresentationContext,
     );
   }
@@ -214,7 +205,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
       );
     _tagsController = TextEditingController(text: owned?.tags ?? '');
-    _tagOptions = splitPickListValues(owned?.tags);
     _sellPriceController = TextEditingController(
       text: owned?.sellPriceCents == null
           ? ''
@@ -265,7 +255,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     };
 
     unawaited(_loadAvailableLocations());
-    unawaited(_loadTagOptions());
   }
 
   @override
@@ -331,11 +320,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         tabController: _tabController,
         tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
         views: _tabViews(),
-        footerLabel: _footerSpec.label,
-        footerFields: [for (final fieldId in _footerSpec.fieldIds) _footerFieldFor(fieldId)],
-        onPrevious: _previousTab,
-        onNext: _nextTab,
-        onCancel: () => Navigator.of(context).pop(),
+        onClose: () => Navigator.of(context).pop(),
         onSave: _submit,
     );
   }
@@ -371,29 +356,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         return _linksTab();
       default:
         throw StateError('Unsupported music edit tab: $id');
-    }
-  }
-
-  Widget _footerFieldFor(String id) {
-    switch (id) {
-      case 'title_sort':
-        return FooterTextField(
-          label: 'Title sort',
-          controller: _sortKeyController,
-          width: 180,
-        );
-      case 'user_tags':
-        return SizedBox(
-          width: 280,
-          child: TagPickListField(
-            controller: _tagsController,
-            options: _tagOptions,
-            label: 'User tags',
-            hint: 'Comma-separated tags',
-          ),
-        );
-      default:
-        throw StateError('Unsupported music footer field: $id');
     }
   }
 
@@ -1239,18 +1201,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     setState(() => _availableLocations = locations);
   }
 
-  Future<void> _loadTagOptions() async {
-    final tagOptions = await loadTagPickListOptions(
-      ref.read(localDatabaseProvider),
-      mediaKind: widget.request.type.workspace.kind.apiValue,
-      selectedTags: splitPickListValues(_tagsController.text),
-    );
-    if (!mounted) {
-      return;
-    }
-    setState(() => _tagOptions = tagOptions);
-  }
-
   Future<void> _pickLocation() async {
     final result = await showLocationPickerDialog(
       context: context,
@@ -1270,18 +1220,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       _selectedLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
-  }
-
-  void _previousTab() {
-    if (_tabController.index > 0) {
-      _tabController.animateTo(_tabController.index - 1);
-    }
-  }
-
-  void _nextTab() {
-    if (_tabController.index < _tabController.length - 1) {
-      _tabController.animateTo(_tabController.index + 1);
-    }
   }
 
   Future<void> _pickPurchaseDate() async {

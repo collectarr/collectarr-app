@@ -631,7 +631,11 @@ class CollectionMutations {
         await _trackingCache().findActiveByItemIds([localItemId]);
     final localWishlistItems =
         await _wishlistCache().findActiveByItemIds([localItemId]);
-    if (localTrackingEntries.isEmpty && localWishlistItems.isEmpty) {
+    final localTrackingUnits =
+        await _trackingUnitsCache().findActiveByItemIds([localItemId]);
+    if (localTrackingEntries.isEmpty &&
+        localWishlistItems.isEmpty &&
+        localTrackingUnits.isEmpty) {
       return 0;
     }
 
@@ -702,6 +706,31 @@ class CollectionMutations {
       }
     }
 
+    final trackingUnitUpserts = <TrackingUnit>[];
+    final trackingUnitDeletes = <TrackingUnit>[];
+    for (final localUnit in localTrackingUnits) {
+      final newUnitId = _trackingUnitIdForEpisode(
+        item.id,
+        seasonNumber: localUnit.seasonNumber ?? 0,
+        episodeNumber: localUnit.episodeNumber ?? 0,
+      );
+      trackingUnitUpserts.add(TrackingUnit(
+        id: newUnitId,
+        itemId: item.id,
+        trackingEntryId: localUnit.trackingEntryId,
+        ownedItemId: localUnit.ownedItemId,
+        editionId: localUnit.editionId,
+        variantId: localUnit.variantId,
+        bundleReleaseId: localUnit.bundleReleaseId,
+        unitType: localUnit.unitType,
+        seasonNumber: localUnit.seasonNumber,
+        episodeNumber: localUnit.episodeNumber,
+        completedAt: localUnit.completedAt,
+        updatedAt: now,
+      ));
+      trackingUnitDeletes.add(localUnit);
+    }
+
     await _catalogCache().upsertAll([item]);
     _addCatalogSnapshotChange(syncChanges, <String>{}, item, now);
     await _trackingCache().upsertAll(trackingUpserts);
@@ -710,11 +739,17 @@ class CollectionMutations {
     }
     await _wishlistCache().upsertAll(wishlistUpserts);
     await _wishlistCache().markDeletedAll(wishlistDeletes, now);
+    await _trackingUnitsCache().upsertAll(trackingUnitUpserts);
+    for (final deleted in trackingUnitDeletes) {
+      await _trackingUnitsCache().markDeleted(deleted, now);
+    }
     await _syncQueue().enqueueAll(syncChanges);
     if (notify) {
       await _notifyCollectionChanged(wishlistChanged: localWishlistItems.isNotEmpty);
     }
-    return localTrackingEntries.length + localWishlistItems.length;
+    return localTrackingEntries.length +
+        localWishlistItems.length +
+        localTrackingUnits.length;
   }
 
   Future<WishlistItem> updateWishlistItem(

@@ -887,6 +887,18 @@ class _TmdbImportWorkspaceState extends ConsumerState<TmdbImportWorkspace> {
         stackTrace: stackTrace,
       );
       _enrichmentCache = const {};
+      if (mounted) {
+        final isAuthError = error is DioException &&
+            (error.response?.statusCode == 401 ||
+                error.response?.statusCode == 403);
+        showAppToast(
+          context,
+          isAuthError
+              ? 'Hydration skipped — not connected as admin. Imported items will have limited metadata.'
+              : 'Server-side hydration failed ($error). Imported items may have limited metadata.',
+          tone: AppToastTone.info,
+        );
+      }
     }
   }
 

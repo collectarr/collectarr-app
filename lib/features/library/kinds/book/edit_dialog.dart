@@ -132,12 +132,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
-  LibraryEditFooterSpec get _footerSpec {
-    return _type.editPresentation.builder.buildFooter(
-      context: _tabPresentationContext,
-    );
-  }
-
   String get _bookTitleLabel => _titleController.text.trim().isEmpty
       ? widget.request.item.title
       : _titleController.text.trim();
@@ -346,11 +340,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       tabController: _tabController,
       tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
       views: _tabViews(),
-      footerLabel: _footerSpec.label,
-      footerFields: [for (final fieldId in _footerSpec.fieldIds) _footerFieldFor(fieldId)],
-      onPrevious: _previousTab,
-      onNext: _nextTab,
-      onCancel: () => Navigator.of(context).pop(),
+      onClose: () => Navigator.of(context).pop(),
       onSave: _submit,
     );
   }
@@ -386,47 +376,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         return _photosTab();
       default:
         throw StateError('Unsupported book edit tab: $id');
-    }
-  }
-
-  Widget _footerFieldFor(String id) {
-    switch (id) {
-      case 'book_title':
-        return FooterReadonlyField(
-          label: 'Book',
-          value: _bookTitleLabel,
-          width: 180,
-        );
-      case 'book_volume':
-        return FooterReadonlyField(
-          label: 'Volume',
-          value: _volumeNumberController.text,
-          width: 74,
-        );
-      case 'title_sort':
-        return FooterTextField(
-          label: 'Title sort',
-          controller: _sortKeyController,
-          width: 160,
-        );
-      case 'series_tags':
-        return FooterTextField(
-          label: 'Series tags',
-          controller: _seriesTagsController,
-          width: 170,
-        );
-      case 'user_tags':
-        return SizedBox(
-          width: 280,
-          child: TagPickListField(
-            controller: _tagsController,
-            options: _tagOptions,
-            label: 'User tags',
-            hint: 'Comma-separated tags',
-          ),
-        );
-      default:
-        throw StateError('Unsupported book footer field: $id');
     }
   }
 
@@ -1083,18 +1032,6 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       _selectedLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
-  }
-
-  void _previousTab() {
-    if (_tabController.index > 0) {
-      _tabController.animateTo(_tabController.index - 1);
-    }
-  }
-
-  void _nextTab() {
-    if (_tabController.index < _tabController.length - 1) {
-      _tabController.animateTo(_tabController.index + 1);
-    }
   }
 
   Future<void> _pickPurchaseDate() async {

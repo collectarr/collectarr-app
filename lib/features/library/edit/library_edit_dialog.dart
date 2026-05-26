@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -187,12 +188,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   List<LibraryEditTabSpec> get _tabSpecs {
     return widget.type.editPresentation.builder.buildTabs(
-      context: _editPresentationContext,
-    );
-  }
-
-  LibraryEditFooterSpec get _footerSpec {
-    return widget.type.editPresentation.builder.buildFooter(
       context: _editPresentationContext,
     );
   }
@@ -447,11 +442,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       tabController: _tabController,
       tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
       views: _tabViews(),
-      footerLabel: _footerSpec.label,
-      footerFields: [for (final fieldId in _footerSpec.fieldIds) _footerFieldFor(fieldId)],
-      onPrevious: _previousTab,
-      onNext: _nextTab,
-      onCancel: () => Navigator.of(context).pop(),
+      onClose: () => Navigator.of(context).pop(),
       onSave: _submit,
     );
   }
@@ -480,19 +471,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         return _synopsisTab();
       default:
         throw StateError('Unsupported generic edit tab: $id');
-    }
-  }
-
-  Widget _footerFieldFor(String id) {
-    switch (id) {
-      case 'user_tags':
-        return FooterTextField(
-          label: 'User tags',
-          controller: _tagsController,
-          width: 150,
-        );
-      default:
-        throw StateError('Unsupported generic footer field: $id');
     }
   }
 
@@ -917,6 +895,11 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             ],
           ),
         ),
+        if (_showsEpisodeTrackingFields)
+          VideoSeasonTrackingSection(
+            itemId: widget.item.id,
+            accent: widget.accent,
+          ),
         if (_hasWishlistContext)
           EditSection(
             title: 'Wishlist reference',
@@ -1263,18 +1246,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       _selectedLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
-  }
-
-  void _previousTab() {
-    if (_tabController.index > 0) {
-      _tabController.animateTo(_tabController.index - 1);
-    }
-  }
-
-  void _nextTab() {
-    if (_tabController.index < _tabController.length - 1) {
-      _tabController.animateTo(_tabController.index + 1);
-    }
   }
 
   Future<void> _pickPurchaseDate() async {

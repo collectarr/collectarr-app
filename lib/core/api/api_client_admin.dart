@@ -319,12 +319,15 @@ class _AdminApiClient {
   }
 
   /// Batch-hydrate provider item IDs into normalized previews.
+  ///
+  /// Uses the public metadata endpoint (no admin auth required) so imports
+  /// work without login.
   Future<AdminBatchHydrateResult> adminProviderBatchHydrate({
     required String provider,
     required List<String> providerItemIds,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/providers/batch-hydrate',
+      '/providers/batch-hydrate',
       data: {
         'provider': provider,
         'items': [

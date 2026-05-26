@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,7 +40,7 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
       _disposed = true;
       _flushScheduled = false;
     });
-    return UnmodifiableListView(_entries);
+    return List.unmodifiable(_entries);
   }
 
   void log(
@@ -75,14 +74,14 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
 
   void clear() {
     _entries.clear();
-    state = UnmodifiableListView(_entries);
+    state = List.unmodifiable(_entries);
   }
 
   void _publishEntries() {
     if (_disposed || !ref.mounted) {
       return;
     }
-    state = UnmodifiableListView(_entries);
+    state = List.unmodifiable(_entries);
   }
 
   void _scheduleFlush() {

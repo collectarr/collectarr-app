@@ -124,6 +124,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             backgroundColor: libraryAccentChromeFallbackColor(accent),
             surfaceTintColor: Colors.transparent,
             flexibleSpace: LibraryAccentChrome(
+              key: ValueKey(accent),
               accent: accent,
               animationDuration: animationDuration,
             ),
@@ -170,7 +171,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         TextField(
                           controller: _metadataController,
                           maxLines: 1,
-                          onChanged: (_) => _scheduleConnectionAutoSave(),
+                          readOnly: true,
                           decoration: const InputDecoration(
                             labelText: 'Metadata API URL',
                             border: OutlineInputBorder(),
@@ -266,34 +267,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ),
                         ],
                         const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _StatusChip(
-                              icon: Icons.pending_actions,
-                              label: '${sync.pendingCount} pending',
-                            ),
-                            _StatusChip(
-                              icon: sync.isOffline
-                                  ? Icons.cloud_off
-                                  : Icons.cloud_done,
-                              label: sync.isOffline ? 'Offline' : 'Ready',
-                              isError: sync.isOffline,
-                            ),
-                            if (sync.warningMessage != null)
-                              _StatusChip(
-                                icon: Icons.sync_problem_outlined,
-                                label: sync.warningMessage!,
-                              ),
-                            _StatusChip(
-                              icon: Icons.schedule,
-                              label: sync.lastSyncedAt == null
-                                  ? 'Never synced'
-                                  : 'Last ${_formatSyncTime(sync.lastSyncedAt!)}',
-                            ),
-                          ],
-                        ),
                         if (sync.rejectedChanges.isNotEmpty) ...[
                           const SizedBox(height: 12),
                           _SyncConflictSummary(
@@ -2367,100 +2340,89 @@ class _ImportSourcesGrid extends ConsumerWidget {
           (d) => d.availability == ProviderImportAvailability.comingSoon,
         )
         .toList(growable: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _TmdbImportCard(tmdbSettings: tmdbSettings),
-        if (comingSoonDescriptors.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final crossAxisCount =
-                  constraints.maxWidth >= 600 ? 2 : 1;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate:
-                    SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  mainAxisExtent: 120,
-                ),
-                itemCount: comingSoonDescriptors.length,
-                itemBuilder: (context, index) {
-                  final descriptor = comingSoonDescriptors[index];
-                  return DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: theme.dividerColor),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                providerImportIcon(descriptor.id),
-                                size: 22,
-                                color: theme.hintColor,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  descriptor.title,
-                                  style: theme.textTheme.titleSmall
-                                      ?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme
-                                      .surfaceContainerHighest,
-                                  borderRadius:
-                                      BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  'Coming soon',
-                                  style: theme.textTheme.labelSmall
-                                      ?.copyWith(
-                                    color: theme.hintColor,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            descriptor.summary,
-                            style:
-                                theme.textTheme.bodySmall?.copyWith(
-                              color: theme.hintColor,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth >= 600 ? 2 : 1;
+        final totalCount = 1 + comingSoonDescriptors.length;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            mainAxisExtent: 100,
           ),
-        ],
-      ],
+          itemCount: totalCount,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return _TmdbImportCard(tmdbSettings: tmdbSettings);
+            }
+            final descriptor = comingSoonDescriptors[index - 1];
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: theme.dividerColor),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          providerImportIcon(descriptor.id),
+                          size: 22,
+                          color: theme.hintColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            descriptor.title,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme
+                                .surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            'Coming soon',
+                            style:
+                                theme.textTheme.labelSmall?.copyWith(
+                              color: theme.hintColor,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      descriptor.summary,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.hintColor,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -2475,11 +2437,7 @@ class _TmdbImportCard extends StatefulWidget {
 }
 
 class _TmdbImportCardState extends State<_TmdbImportCard> {
-  TmdbImportSourceMode _mode = TmdbImportSourceMode.exportFile;
-
   void _onImport() {
-    final autoStart = _mode == TmdbImportSourceMode.exportFile ||
-        widget.tmdbSettings.apiKey.isNotEmpty;
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
@@ -2492,8 +2450,7 @@ class _TmdbImportCardState extends State<_TmdbImportCard> {
               .clamp(380.0, 560.0),
           child: TmdbImportWorkspace(
             initialSettings: widget.tmdbSettings,
-            initialSourceMode: _mode,
-            autoStart: autoStart,
+            autoStart: true,
           ),
         ),
         actions: [
@@ -2517,93 +2474,52 @@ class _TmdbImportCardState extends State<_TmdbImportCard> {
           color: theme.colorScheme.outline.withValues(alpha: 0.4),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: SvgPicture.asset(
+      child: InkWell(
+        onTap: _onImport,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  SvgPicture.asset(
                     'assets/logos/tmdb_logo.svg',
-                    width: 36,
-                    height: 36,
+                    width: 28,
+                    height: 28,
+                    colorFilter: const ColorFilter.mode(
+                      Color(0xFF01B4E4),
+                      BlendMode.srcIn,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'TMDB',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'TMDB',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
-                      Text(
-                        'Import movies from your TMDB account or exported files.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.hintColor,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Radio<TmdbImportSourceMode>(
-                  value: TmdbImportSourceMode.accountSync,
-                  groupValue: _mode,
-                  visualDensity: VisualDensity.compact,
-                  onChanged: (v) {
-                    if (v != null) setState(() => _mode = v);
-                  },
-                ),
-                GestureDetector(
-                  onTap: () => setState(
-                    () => _mode = TmdbImportSourceMode.accountSync,
+                  Icon(
+                    Icons.import_export_outlined,
+                    size: 18,
+                    color: theme.colorScheme.primary,
                   ),
-                  child: Text(
-                    'API Key (account sync)',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Radio<TmdbImportSourceMode>(
-                  value: TmdbImportSourceMode.exportFile,
-                  groupValue: _mode,
-                  visualDensity: VisualDensity.compact,
-                  onChanged: (v) {
-                    if (v != null) setState(() => _mode = v);
-                  },
-                ),
-                GestureDetector(
-                  onTap: () => setState(
-                    () => _mode = TmdbImportSourceMode.exportFile,
-                  ),
-                  child: Text(
-                    'CSV / JSON file',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: _onImport,
-                icon: const Icon(Icons.import_export_outlined, size: 18),
-                label: const Text('Import'),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                'Import movies and TV from your TMDB account or exported files.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.hintColor,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );

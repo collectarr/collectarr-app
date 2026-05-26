@@ -92,6 +92,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
             ),
           )
         : null;
+    final collapsed = navPreferences.collapsed;
     final content = Column(
       children: [
         if (offlineBanner != null) offlineBanner,
@@ -99,7 +100,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           child: LibraryPage(
       type: selectedConfig,
       topBar: navPreferences.placement == LibraryNavPlacement.top
-          ? topBar
+          ? (collapsed ? titleBar : topBar)
           : titleBar,
       accent: libraryAccentForKind(selected.kind),
     ),
@@ -112,15 +113,16 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         color: kAppCanvas,
         child: Row(
           children: [
-            MediaLibraryRail(
-              types: visibleTypes,
-              counts: counts,
-              registry: registry,
-              selectedKind: selected.kind,
-              onSelected: (type) => ref
-                  .read(selectedLibraryKindProvider.notifier)
-                  .select(type.kind),
-            ),
+            if (!collapsed)
+              MediaLibraryRail(
+                types: visibleTypes,
+                counts: counts,
+                registry: registry,
+                selectedKind: selected.kind,
+                onSelected: (type) => ref
+                    .read(selectedLibraryKindProvider.notifier)
+                    .select(type.kind),
+              ),
             Expanded(child: content),
           ],
         ),

@@ -34,6 +34,7 @@ web wrapper.
 - **Manga volumes** — volume/chapter data from Core providers (MangaDex)
 - **TV seasons** — season/episode data for TV and anime
 - **CSV import / export** — Collectarr/CLZ-friendly with media-aware headers + custom field columns
+- **TMDB import** — import movies and TV from TMDB CSV/JSON exports with batch hydration and duplicate detection
 - **Barcode scanning** — camera scanner where available + manual fallback everywhere
 - **Sync support** — optional multi-device sync via `collectarr-sync` with conflict review and retry queue
 - **Admin panel** — user management, image cache controls, provider health (admin-only)

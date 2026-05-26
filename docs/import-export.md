@@ -17,6 +17,10 @@ through `collectarr-sync`.
   exports use Title / Edition no. / Format / Studio / UPC labels instead of
   comic Series / Issue labels. Physical format headers are included for media
   that need edition-level release data.
+- TMDB CSV / JSON: import movies and TV shows from TMDB-exported CSV or JSON
+  watchlist/ratings files. Entries are parsed with media type separation
+  (movies vs TV), enriched via Core's batch hydration endpoint, matched against
+  existing catalog snapshots, and imported into the local library.
 
 ## Flutter Workflow
 

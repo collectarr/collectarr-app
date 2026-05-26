@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_overflow_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -246,12 +247,26 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
+    final navPrefs = ref.watch(libraryNavPreferencesProvider);
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerRight,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          _HeaderActionButton(
+            tooltip: navPrefs.collapsed
+                ? 'Show library selector'
+                : 'Hide library selector',
+            label: '',
+            icon: navPrefs.collapsed
+                ? Icons.expand_more
+                : Icons.expand_less,
+            onPressed: () => ref
+                .read(libraryNavPreferencesProvider.notifier)
+                .toggleCollapsed(),
+          ),
+          const SizedBox(width: 2),
           if (overdueLoanCount > 0) ...[
             _OverdueLoanChip(
               overdueLoanCount: overdueLoanCount,

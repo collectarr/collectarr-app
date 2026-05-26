@@ -852,8 +852,6 @@ void main() {
     expect(find.text('People'), findsOneWidget);
     expect(find.text('Links'), findsOneWidget);
     expect(find.text('Value'), findsNothing);
-    expect(find.text('Previous'), findsOneWidget);
-    expect(find.text('Next'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextField, 'Artist').first, 'cAd');
     await tester.enterText(

@@ -49,6 +49,7 @@
 - Drift DB schema v2 with `CustomFieldDefinitionsCache`, `CustomFieldValuesCache`, `ItemImagesCache` tables
 - Purchase/sell tracking fields (`soldAt`, `sellPriceCents`, `soldTo`) on owned items
 - Generic edit dialogs support media-, edition-, variant-, and bundle-release-level personal anchors for owned/tracking/wishlist state
+- Edit dialog footer simplified to Save-only; tab navigation uses the tab bar, close uses the title bar X button
 
 ### 🎨 UI Polish
 - Distinctive library icons: comics (`style`), anime (`smart_display`), to avoid confusion with books (`menu_book_outlined`)
@@ -109,7 +110,8 @@ Current app-side parity work is largely complete; the remaining work here is har
 - [x] Location definitions sync as first-class personal metadata alongside `location_id` assignments
 
 ### 🧭 Yamtrack-Inspired Gaps Worth Evaluating
-- [ ] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry
+- [x] Direct imports from tracker ecosystems (Trakt, Simkl, MyAnimeList, AniList, Kitsu) where they reduce manual collection entry
+	- TMDB import landed first (CSV/JSON file import with batch hydration via Core). Settings page shows all import sources in a compact 2-column grid; TMDB is functional, others show "Coming soon".
 	- Prioritize import-only flows before any bidirectional sync; App mostly needs credential entry, import previews, and duplicate-resolution UX.
 	- Keep provider/source adapters modular so TV/anime imports can land before the full matrix of tracker ecosystems is supported.
 - [ ] Per-item tracking history / activity timeline
