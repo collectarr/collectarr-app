@@ -114,6 +114,47 @@
 
 Current app-side parity work is largely complete; the remaining work here is hardening the local scan-to-identify flow on real mobile devices and deciding whether Core needs any photo-ranking role at all.
 
+### 🎨 CLZ-Style UI Overhaul (v0.1.0-alpha.1)
+- [x] Add dialog: live autocomplete from catalog, browse tab merged into search
+- [x] Add dialog: CLZ-style edition picker with format icons replacing dropdowns
+- [x] Cover tiles: compact grid with format badge + year row below titles
+- [x] Inspector panel polish: title → publisher (year) → format badges → barcode → genres → synopsis → status chips
+- [x] Inspector hover animation enabled
+- [x] Sidebar: categorized group-by dropdown (Main, Edition, Cast & Crew, Personal)
+- [x] Expanded group modes for movie/TV/anime (14 modes: Year, Series, Studio, Genre, Country, Language, Age Rating, Format, Director, Creator, Location, Title, Ownership, Tags)
+- [x] Grid spacing tightened (10px → 6px)
+- [x] Schema version reset to v1 for clean alpha baseline
+
+### 🔴 CLZ Web Parity — Critical UX Gaps
+- [ ] **Toolbar search** — Always-visible search input in workspace toolbar to filter current library
+- [ ] **Sorting system + saved presets** — Multi-field sort (e.g. Title ASC → Year DESC → Series ASC) with named favorites
+- [ ] **Collection status filter** — Dropdown filter: All / In Collection / For Sale / Wish List / On Order / Sold / Not in Collection
+- [ ] **A-Z alphabet bar** — Quick letter buttons across top for initial-letter filtering, greyed for unused letters
+- [ ] **Multiple view types** — Add List view and Horizontal Cards alongside existing cover grid
+- [ ] **Multi-select & batch actions** — Checkbox items → Edit / Remove / Export / Duplicate / Loan / Transfer
+- [ ] **Panel layout options** — User toggles inspector position: Horizontal Split / Vertical Split / No Details
+- [ ] **Resizable panels** — Drag handles on sidebar and inspector with remembered widths
+
+### 🟡 CLZ Web Parity — Tools & Features
+- [ ] **Sidebar favorites** — Pin frequently-used group modes to top of dropdown
+- [ ] **Sidebar search** — Text input to filter sidebar bucket names
+- [ ] **Sidebar sort toggle** — Switch between alphabetical and by-count ordering
+- [ ] **Statistics page** — Charts by genre, year, watch counts, total runtime, value totals
+- [ ] **Find Duplicates** — Detect duplicates by title, barcode, title+format
+- [ ] **Loan Manager** — Track loaned items with due dates and return tracking
+- [ ] **Print to PDF** — Configurable PDF export with columns, covers, sorting
+- [ ] **Pick List management** — Edit/merge/remove pick list values (genres, formats, etc.)
+
+### 🟢 CLZ Web Parity — Polish
+- [ ] **Scope pill** — When filtering by person/value, show a pill badge with "× clear"
+- [ ] **Transfer Field Data** — Move data between fields across items
+- [ ] **Multiple collections per library** — Separate tabs within one library type
+- [ ] **Shelf view** — 3D shelf rendering with visual skin options
+- [ ] **Themes/skins** — Light, Dark, Blue templates
+- [ ] **Watch/Read/Play history** — Full consumption tracking: dates, location, count
+- [ ] **Value tracking** — Purchase price, current value, currency totals, charts
+- [ ] **Item count display** — "42 movies" always visible in toolbar
+
 ### 🧭 Location Hierarchy Follow-up
 - [x] Owned-item sync payload now includes `location_id`
 - [x] Inspector assignment flow supports picking and clearing a hierarchical location without accidental clears on cancel
