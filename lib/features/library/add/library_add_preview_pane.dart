@@ -701,31 +701,11 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                key: const ValueKey('library-add-edition-field'),
-                isExpanded: true,
-                initialValue: selectedEdition?.id,
-                decoration: const InputDecoration(
-                  labelText: 'Edition',
-                  isDense: true,
-                ),
-                items: [
-                  for (final edition in item.editions)
-                    DropdownMenuItem<String>(
-                      value: edition.id,
-                      child: Text(
-                        _editionOptionLabel(edition),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                ],
-                onChanged: !editionAvailable
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          onEditionSelected(value);
-                        }
-                      },
+              _EditionGrid(
+                editions: item.editions,
+                selectedEditionId: selectedEditionId,
+                accent: accent,
+                onEditionSelected: onEditionSelected,
               ),
               const SizedBox(height: 8),
               if (selectedEdition == null)
@@ -739,31 +719,11 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                   style: TextStyle(color: kAppTextMuted),
                 )
               else
-                DropdownButtonFormField<String>(
-                  key: const ValueKey('library-add-variant-field'),
-                  isExpanded: true,
-                  initialValue: selectedVariant?.id ?? '',
-                  decoration: const InputDecoration(
-                    labelText: 'Variant',
-                    isDense: true,
-                  ),
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: '',
-                      child: Text('Any / unspecified variant'),
-                    ),
-                    for (final variant in selectedEdition.variants)
-                      DropdownMenuItem<String>(
-                        value: variant.id,
-                        child: Text(
-                          _variantOptionLabel(variant),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    onVariantSelected(value ?? '');
-                  },
+                _VariantGrid(
+                  variants: selectedEdition.variants,
+                  selectedVariantId: selectedVariantId,
+                  accent: accent,
+                  onVariantSelected: onVariantSelected,
                 ),
             ],
             if (!selectionLocked &&
@@ -985,30 +945,6 @@ CatalogVariant? _selectedVariantForEdition(
     }
   }
   return null;
-}
-
-String _editionOptionLabel(CatalogEdition edition) {
-  final parts = <String>[
-    edition.title,
-    if (edition.physicalFormatLabel != null &&
-        edition.physicalFormatLabel!.trim().isNotEmpty)
-      edition.physicalFormatLabel!,
-    if (edition.releaseDate != null)
-      '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
-  ];
-  return parts.join(' • ');
-}
-
-String _variantOptionLabel(CatalogVariant variant) {
-  final parts = <String>[
-    variant.name,
-    if (variant.variantType != null && variant.variantType!.trim().isNotEmpty)
-      variant.variantType!,
-    if (variant.physicalFormatLabel != null &&
-        variant.physicalFormatLabel!.trim().isNotEmpty)
-      variant.physicalFormatLabel!,
-  ];
-  return parts.join(' • ');
 }
 
 CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
@@ -1660,6 +1596,307 @@ class _ResizableDialogShell extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _EditionGrid extends StatelessWidget {
+  const _EditionGrid({
+    required this.editions,
+    required this.selectedEditionId,
+    required this.accent,
+    required this.onEditionSelected,
+  });
+
+  final List<CatalogEdition> editions;
+  final String? selectedEditionId;
+  final Color accent;
+  final ValueChanged<String> onEditionSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (editions.isEmpty) return const SizedBox.shrink();
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final edition in editions)
+          _EditionCard(
+            edition: edition,
+            selected: edition.id == selectedEditionId,
+            accent: accent,
+            onTap: () => onEditionSelected(edition.id),
+          ),
+      ],
+    );
+  }
+}
+
+class _EditionCard extends StatelessWidget {
+  const _EditionCard({
+    required this.edition,
+    required this.selected,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final CatalogEdition edition;
+  final bool selected;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final coverUrl = edition.variants.isNotEmpty
+        ? edition.variants.first.coverImageUrl
+        : null;
+    final barcode = edition.isbn ??
+        edition.upc ??
+        (edition.variants.isNotEmpty ? edition.variants.first.barcode : null);
+    final formatId = edition.physicalFormat;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 100,
+        decoration: BoxDecoration(
+          color: selected
+              ? accent.withValues(alpha: 0.12)
+              : const Color(0x08000000),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: selected
+                ? accent.withValues(alpha: 0.8)
+                : kAppBorderSubtle,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        padding: const EdgeInsets.all(4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Cover image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: coverUrl != null
+                  ? Image.network(
+                      coverUrl,
+                      width: 88,
+                      height: 120,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _EditionPlaceholder(
+                        label: edition.title,
+                      ),
+                    )
+                  : _EditionPlaceholder(label: edition.title),
+            ),
+            const SizedBox(height: 4),
+            // Format badge
+            if (formatId != null)
+              FormatBadge.fromFormat(
+                id: formatId,
+                label: edition.physicalFormatLabel ?? formatId,
+                compact: true,
+              ),
+            const SizedBox(height: 2),
+            // Title
+            Text(
+              edition.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: selected ? accent : kAppTextSecondary,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            // Barcode
+            if (barcode != null)
+              Text(
+                barcode,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: kAppTextHint,
+                  fontSize: 8,
+                  fontFamily: 'monospace',
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EditionPlaceholder extends StatelessWidget {
+  const _EditionPlaceholder({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 88,
+      height: 120,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: kAppField,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: kAppTextMuted,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _VariantGrid extends StatelessWidget {
+  const _VariantGrid({
+    required this.variants,
+    required this.selectedVariantId,
+    required this.accent,
+    required this.onVariantSelected,
+  });
+
+  final List<CatalogVariant> variants;
+  final String? selectedVariantId;
+  final Color accent;
+  final ValueChanged<String> onVariantSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Variant',
+          style: TextStyle(
+            color: kAppTextMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _VariantChip(
+              label: 'Any',
+              selected: selectedVariantId == null ||
+                  selectedVariantId!.isEmpty,
+              accent: accent,
+              onTap: () => onVariantSelected(''),
+            ),
+            for (final variant in variants)
+              _VariantChip(
+                label: variant.name,
+                coverUrl: variant.coverImageUrl,
+                barcode: variant.barcode,
+                formatId: variant.physicalFormat,
+                selected: variant.id == selectedVariantId,
+                accent: accent,
+                onTap: () => onVariantSelected(variant.id),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _VariantChip extends StatelessWidget {
+  const _VariantChip({
+    required this.label,
+    required this.selected,
+    required this.accent,
+    required this.onTap,
+    this.coverUrl,
+    this.barcode,
+    this.formatId,
+  });
+
+  final String label;
+  final bool selected;
+  final Color accent;
+  final VoidCallback onTap;
+  final String? coverUrl;
+  final String? barcode;
+  final String? formatId;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        constraints: const BoxConstraints(maxWidth: 120),
+        decoration: BoxDecoration(
+          color: selected
+              ? accent.withValues(alpha: 0.12)
+              : const Color(0x08000000),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: selected
+                ? accent.withValues(alpha: 0.8)
+                : kAppBorderSubtle,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (coverUrl != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: Image.network(
+                  coverUrl!,
+                  width: 24,
+                  height: 32,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) =>
+                      const SizedBox(width: 24, height: 32),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: selected ? accent : kAppTextBright,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (formatId != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: FormatBadge.fromId(formatId!, compact: true),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

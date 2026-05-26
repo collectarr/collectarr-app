@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -66,7 +67,7 @@ class InspectorHero extends StatelessWidget {
                 secondaryLocalBase64: localBack,
                 ownedItemId: ownedItemId,
                 accentColor: accent,
-                enableHoverCue: false,
+                enableHoverCue: true,
                 onMissingSecondaryPressed: ownedItemId == null
                     ? null
                     : () async {
@@ -165,9 +166,29 @@ class _InspectorHeroInfo extends StatelessWidget {
     );
     final releaseLabel =
         formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
+    // Collect unique format IDs from editions.
+    final formatBadges = <Widget>[];
+    final seenFormats = <String>{};
+    for (final edition in entry.editions) {
+      final id = edition.physicalFormat;
+      if (id != null && seenFormats.add(id)) {
+        formatBadges.add(FormatBadge.fromFormat(
+          id: id,
+          label: edition.physicalFormatLabel ?? id,
+        ));
+      }
+    }
+    final genreText = entry.genres?.join('  |  ');
+    final countryLangRow = [
+      if (entry.country != null) entry.country!,
+      if (entry.language != null) entry.language!,
+      if (entry.video?.runtimeMinutes != null)
+        '${entry.video!.runtimeMinutes} min',
+    ].join('  |  ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ── Title ──
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -193,14 +214,13 @@ class _InspectorHeroInfo extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 5),
+        // ── Publisher (Year) ──
         Text(
           [
-            if (entry.variant != null && entry.variant!.isNotEmpty)
-              entry.variant,
             if (entry.publisher != null && entry.publisher!.isNotEmpty)
               entry.publisher,
-            if (releaseLabel != null) releaseLabel,
-          ].whereType<String>().join('  |  '),
+            if (releaseLabel != null) '($releaseLabel)',
+          ].whereType<String>().join(' '),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -208,6 +228,67 @@ class _InspectorHeroInfo extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
         ),
+        // ── Format badges (prominent, CLZ-style) ──
+        if (formatBadges.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(spacing: 5, runSpacing: 5, children: formatBadges),
+        ],
+        // ── Barcode ──
+        if (entry.barcode != null && entry.barcode!.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.view_week_outlined, size: 16, color: kAppTextMuted),
+              const SizedBox(width: 6),
+              Text(
+                entry.barcode!,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      letterSpacing: 1.1,
+                      color: kAppTextMuted,
+                    ),
+              ),
+            ],
+          ),
+        ],
+        // ── Genres (pipe-separated like CLZ) ──
+        if (genreText != null && genreText.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            genreText,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: kAppTextSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ],
+        // ── Country | Language | Runtime ──
+        if (countryLangRow.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(
+            countryLangRow,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: kAppTextMuted,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ],
+        // ── Synopsis ──
+        if (entry.synopsis != null && entry.synopsis!.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Text(
+            entry.synopsis!,
+            maxLines: 6,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: kAppTextSecondary,
+                  height: 1.4,
+                ),
+          ),
+        ],
         if (entry.mediaType == 'book' &&
             (entry.creators?.isNotEmpty ?? false)) ...[
           const SizedBox(height: 10),
@@ -224,6 +305,7 @@ class _InspectorHeroInfo extends StatelessWidget {
           ),
           const SizedBox(height: 10),
         ],
+        // ── Status chips ──
         Wrap(
           spacing: 6,
           runSpacing: 6,
@@ -249,27 +331,6 @@ class _InspectorHeroInfo extends StatelessWidget {
                 label: referenceLabel,
                 accent: accent,
               ),
-            if (entry.referenceFormatLabel != null)
-              LibraryMetaChip(
-                icon: Icons.album_outlined,
-                label: 'Format: ${entry.referenceFormatLabel!}',
-                accent: accent,
-              ),
-            LibraryMetaChip(
-              icon: entry.hasMissingCover
-                  ? Icons.image_not_supported_outlined
-                  : Icons.image_outlined,
-              label: entry.hasMissingCover ? 'Missing cover' : 'Cover ready',
-              accent: accent,
-            ),
-            LibraryMetaChip(
-              icon: entry.hasMissingMetadata
-                  ? Icons.manage_search
-                  : Icons.fact_check_outlined,
-              label:
-                  entry.hasMissingMetadata ? 'Missing metadata' : 'Metadata ok',
-              accent: accent,
-            ),
             if (ownedItem?.condition != null)
               LibraryMetaChip(
                 icon: Icons.fact_check_outlined,
@@ -293,35 +354,6 @@ class _InspectorHeroInfo extends StatelessWidget {
               ),
           ],
         ),
-        if (entry.barcode != null && entry.barcode!.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: const Color(0xAA151515),
-              border: Border.all(color: accent.withValues(alpha: 0.28)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-              child: Row(
-                children: [
-                  const Icon(Icons.view_week_outlined, size: 16),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      entry.barcode!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            letterSpacing: 1.1,
-                            color: kAppTextMuted,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }

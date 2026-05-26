@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -34,7 +35,7 @@ class LibraryCoverTile extends StatelessWidget {
       child: AnimatedContainer(
       duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.all(3),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: selected ? selectedColor : kAppField,
         borderRadius: kAppRadiusSmall,
@@ -104,47 +105,52 @@ class LibraryCoverTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
                 entry.itemNumber == null
                     ? entry.resolvedTitle
                     : '${entry.resolvedTitle} #${entry.itemNumber}',
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: selected ? Colors.white : mutedTextColor,
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                      fontSize: 11,
+                      height: 1.2,
                     ),
               ),
-              if (entry.originalTitle?.trim().isNotEmpty == true &&
-                  entry.originalTitle!.trim() != entry.resolvedTitle.trim())
-                Text(
-                  entry.originalTitle!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: selected
-                            ? Colors.white70
-                            : mutedTextColor.withValues(alpha: 0.7),
-                        fontSize: 10,
-                      ),
-                ),
-              if (entry.releaseYear != null)
-                Text(
-                  entry.releaseYear.toString(),
-                  maxLines: 1,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: selected
-                            ? Colors.white70
-                            : mutedTextColor.withValues(alpha: 0.6),
-                        fontSize: 10,
-                      ),
-                ),
+              const SizedBox(height: 3),
+              Row(
+                children: [
+                  if (_primaryFormatId(entry) case final fmtId?) ...[
+                    FormatBadge.fromId(fmtId, compact: true),
+                    const SizedBox(width: 4),
+                  ],
+                  if (entry.releaseYear != null)
+                    Text(
+                      entry.releaseYear.toString(),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: selected
+                                ? Colors.white70
+                                : mutedTextColor.withValues(alpha: 0.6),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                ],
+              ),
             ],
           ),
         ),
       ),
     ),
     );
+  }
+
+  static String? _primaryFormatId(LibraryWorkspaceEntry entry) {
+    for (final edition in entry.editions) {
+      if (edition.physicalFormat != null) return edition.physicalFormat;
+    }
+    return null;
   }
 }

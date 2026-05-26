@@ -594,7 +594,7 @@ class _GroupedGridState extends State<_GroupedGrid> {
       );
     }
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       sliver: SliverGrid(
         delegate: SliverChildBuilderDelegate(
           (context, index) => widget.itemBuilder(context, items[index]),
@@ -603,8 +603,8 @@ class _GroupedGridState extends State<_GroupedGrid> {
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: widget.maxCrossAxisExtent,
           mainAxisExtent: widget.mainAxisExtent,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 6,
         ),
       ),
     );

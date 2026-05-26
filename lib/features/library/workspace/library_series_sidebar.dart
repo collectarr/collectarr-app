@@ -42,6 +42,7 @@ class LibrarySeriesSidebar extends StatelessWidget {
     this.title = 'Series',
     this.icon = Icons.folder,
     this.trailing,
+    this.headerOverride,
     this.backgroundColor = kAppPanel,
     this.headerColor = kAppSurface,
     this.dividerColor = kAppDivider,
@@ -58,6 +59,7 @@ class LibrarySeriesSidebar extends StatelessWidget {
   final String title;
   final IconData icon;
   final Widget? trailing;
+  final Widget? headerOverride;
   final Color backgroundColor;
   final Color headerColor;
   final Color dividerColor;
@@ -73,33 +75,34 @@ class LibrarySeriesSidebar extends StatelessWidget {
       decoration: BoxDecoration(color: backgroundColor),
       child: Column(
         children: [
-          Container(
-            height: 42,
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: headerColor,
-              border: Border(bottom: BorderSide(color: dividerColor)),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, size: 18, color: accentColor),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w800),
-                  ),
+          headerOverride ??
+              Container(
+                height: 42,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: headerColor,
+                  border: Border(bottom: BorderSide(color: dividerColor)),
                 ),
-                if (trailing != null) trailing!,
-              ],
-            ),
-          ),
+                child: Row(
+                  children: [
+                    Icon(icon, size: 18, color: accentColor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    if (trailing != null) trailing!,
+                  ],
+                ),
+              ),
           Expanded(
             child: ListView.builder(
               itemCount: series.length,

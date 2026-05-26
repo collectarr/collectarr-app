@@ -184,6 +184,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   static const _minDialogHeight = 560.0;
   static const _maxDialogHeight = 1200.0;
 
+  // ── Autocomplete ──
+  Timer? _autocompleteTimer;
+  List<LibraryMetadataItem> _suggestions = const [];
+  bool _showSuggestions = false;
+  static const _autocompleteDebounce = Duration(milliseconds: 350);
+  static const _autocompleteLimit = 8;
+
   @override
   void initState() {
     super.initState();
@@ -206,6 +213,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   @override
   void dispose() {
+    _autocompleteTimer?.cancel();
     _queryController.dispose();
     _barcodeController.dispose();
     _titleController.dispose();
@@ -286,7 +294,15 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   isSearching: _isSearching,
                   isSearchingProvider: _isSearchingProvider,
                   onModeChanged: (mode) => setState(() => _mode = mode),
-                  onSearch: _search,
+                  onSearch: () {
+                    _dismissSuggestions();
+                    _search();
+                  },
+                  onQueryChanged: _onQueryChanged,
+                  suggestions: _suggestions,
+                  showSuggestions: _showSuggestions,
+                  onSelectSuggestion: _selectSuggestion,
+                  onDismissSuggestions: _dismissSuggestions,
                   canScanCover:
                       widget.type.workspace.kind == CatalogMediaKind.comic,
                   isScanningCover: _isScanningCover,
@@ -670,6 +686,70 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (mounted && searchGeneration == _coreSearchGeneration) {
         setState(() => _isSearching = false);
       }
+    }
+  }
+
+  void _onQueryChanged(String value) {
+    final query = value.trim();
+    if (query.length < 2) {
+      _autocompleteTimer?.cancel();
+      if (_showSuggestions) {
+        setState(() {
+          _suggestions = const [];
+          _showSuggestions = false;
+        });
+      }
+      return;
+    }
+    _autocompleteTimer?.cancel();
+    _autocompleteTimer = Timer(_autocompleteDebounce, () {
+      _fetchSuggestions(query);
+    });
+  }
+
+  Future<void> _fetchSuggestions(String query) async {
+    try {
+      final api = ref.read(apiClientProvider);
+      final items = await searchAndCacheLibraryMetadata(
+        api: api,
+        type: widget.type,
+        catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+        input: LibraryMetadataSearchInput(
+          query: query,
+          limit: _autocompleteLimit,
+        ),
+      ).timeout(const Duration(seconds: 5));
+      if (!mounted) return;
+      final mapped = [
+        for (final item in items) LibraryMetadataItem.fromCatalogItem(item),
+      ];
+      setState(() {
+        _suggestions = mapped;
+        _showSuggestions = mapped.isNotEmpty;
+      });
+    } catch (_) {
+      // Silently ignore autocomplete failures — the user can still press Search.
+    }
+  }
+
+  void _selectSuggestion(LibraryMetadataItem item) {
+    _queryController.text = item.title;
+    setState(() {
+      _showSuggestions = false;
+      _suggestions = const [];
+      _results = [item];
+      _selectedResultId = item.id;
+      _selectedProviderCandidateId = null;
+      _resetReferenceSelection();
+      _clearSelectionCaches();
+    });
+    _ensureSelectedResultLoaded(item.id);
+    _ensureBundleReleasesLoaded(item.id);
+  }
+
+  void _dismissSuggestions() {
+    if (_showSuggestions) {
+      setState(() => _showSuggestions = false);
     }
   }
 
@@ -1612,7 +1692,7 @@ class _QueuedProviderIngest {
   }
 }
 
-enum _LibraryAddDialogMode { search, barcode, manual, browse }
+enum _LibraryAddDialogMode { search, barcode, manual }
 
 class _CoverScanPrefillBanner extends StatelessWidget {
   const _CoverScanPrefillBanner({required this.result});

@@ -97,6 +97,11 @@ class _LibraryAddModeBar extends StatelessWidget {
     required this.isSearchingProvider,
     required this.onModeChanged,
     required this.onSearch,
+    required this.onQueryChanged,
+    required this.suggestions,
+    required this.showSuggestions,
+    required this.onSelectSuggestion,
+    required this.onDismissSuggestions,
     required this.canScanCover,
     required this.isScanningCover,
     required this.onScanCover,
@@ -119,6 +124,11 @@ class _LibraryAddModeBar extends StatelessWidget {
   final bool isSearchingProvider;
   final ValueChanged<_LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
+  final ValueChanged<String> onQueryChanged;
+  final List<LibraryMetadataItem> suggestions;
+  final bool showSuggestions;
+  final ValueChanged<LibraryMetadataItem> onSelectSuggestion;
+  final VoidCallback onDismissSuggestions;
   final bool canScanCover;
   final bool isScanningCover;
   final VoidCallback onScanCover;
@@ -167,6 +177,7 @@ class _LibraryAddModeBar extends StatelessWidget {
                             label: 'Search Collectarr Core',
                             hintText: searchLabels.queryHint,
                             onSubmitted: onSearch,
+                            onChanged: onQueryChanged,
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -209,6 +220,13 @@ class _LibraryAddModeBar extends StatelessWidget {
                         onSubmitted: onSearch,
                       ),
                     ],
+                    if (showSuggestions && suggestions.isNotEmpty)
+                      _SuggestionDropdown(
+                        suggestions: suggestions,
+                        accent: accent,
+                        onSelect: onSelectSuggestion,
+                        onDismiss: onDismissSuggestions,
+                      ),
                   ],
                 ),
               _LibraryAddDialogMode.barcode => Row(
@@ -256,28 +274,6 @@ class _LibraryAddModeBar extends StatelessWidget {
                       accent: accent,
                       outlined: true,
                       onPressed: onManual,
-                    ),
-                  ],
-                ),
-              _LibraryAddDialogMode.browse => Row(
-                  children: [
-                    Expanded(
-                      child: _LibraryAddModeTextField(
-                        fieldKey: const ValueKey('library-add-browse-field'),
-                        controller: queryController,
-                        label: 'Browse media catalog',
-                        hintText:
-                            'Filter by title to browse editions and variants...',
-                        onSubmitted: onSearch,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    _LibraryAddModeButton(
-                      label: 'Browse',
-                      icon: Icons.explore,
-                      accent: accent,
-                      isBusy: isSearching,
-                      onPressed: isBusy ? null : onSearch,
                     ),
                   ],
                 ),
@@ -349,13 +345,6 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                     selected: mode == _LibraryAddDialogMode.barcode,
                     onTap: () => onModeChanged(_LibraryAddDialogMode.barcode),
                   ),
-                  LibraryAddModeTab(
-                    icon: Icons.explore,
-                    label: 'Browse',
-                    accent: accent,
-                    selected: mode == _LibraryAddDialogMode.browse,
-                    onTap: () => onModeChanged(_LibraryAddDialogMode.browse),
-                  ),
                 ],
               ),
             ),
@@ -425,6 +414,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
     required this.label,
     required this.hintText,
     required this.onSubmitted,
+    this.onChanged,
     this.keyboardType,
   });
 
@@ -433,6 +423,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
   final String label;
   final String hintText;
   final VoidCallback onSubmitted;
+  final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
 
   @override
@@ -450,6 +441,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
           maxLines: null,
           textInputAction: TextInputAction.search,
           textAlignVertical: TextAlignVertical.center,
+          onChanged: onChanged,
           onSubmitted: (_) => onSubmitted(),
           style: const TextStyle(
             color: kAppTextBright,
@@ -696,6 +688,122 @@ class _AdvancedField extends StatelessWidget {
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SuggestionDropdown extends StatelessWidget {
+  const _SuggestionDropdown({
+    required this.suggestions,
+    required this.accent,
+    required this.onSelect,
+    required this.onDismiss,
+  });
+
+  final List<LibraryMetadataItem> suggestions;
+  final Color accent;
+  final ValueChanged<LibraryMetadataItem> onSelect;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      constraints: const BoxConstraints(maxHeight: 260),
+      decoration: BoxDecoration(
+        color: kAppField,
+        border: Border.all(color: accent.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: ListView.separated(
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        itemCount: suggestions.length,
+        separatorBuilder: (_, __) =>
+            const Divider(height: 1, color: kAppBorderSubtle),
+        itemBuilder: (context, index) {
+          final item = suggestions[index];
+          return _SuggestionTile(
+            item: item,
+            accent: accent,
+            onTap: () => onSelect(item),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SuggestionTile extends StatelessWidget {
+  const _SuggestionTile({
+    required this.item,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final LibraryMetadataItem item;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final year = item.releaseDate?.year;
+    final subtitle = [
+      if (year != null) year.toString(),
+      item.mediaKind.apiValue,
+    ].join(' · ');
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          children: [
+            if (item.coverImageUrl != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: Image.network(
+                  item.coverImageUrl!,
+                  width: 28,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) =>
+                      const SizedBox(width: 28, height: 40),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: kAppTextBright,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty)
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: kAppTextMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 12, color: accent),
+          ],
         ),
       ),
     );
