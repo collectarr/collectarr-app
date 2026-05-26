@@ -485,12 +485,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               const SizedBox(height: 10),
               _denseFields([
                 _field(controller: _subtitleController, label: 'Subtitle'),
-                _field(controller: _publisherController, label: 'Label'),
+                _field(controller: _publisherController, label: widget.request.type.mediaFields.publisherLabel),
                 _field(
                   controller: _editionTitleController,
-                  label: 'Edition / Packaging',
+                  label: widget.request.type.releaseFields.editionTitleLabel,
                 ),
-                _field(controller: _variantController, label: 'Variant'),
+                _field(controller: _variantController, label: widget.request.type.releaseFields.variantLabel),
               ]),
             ],
           ),
@@ -502,7 +502,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           child: Column(
             children: [
               _denseFields([
-                _field(controller: _barcodeController, label: 'UPC / Barcode'),
+                _field(controller: _barcodeController, label: widget.request.type.releaseFields.barcodeLabel),
                 _field(controller: _catalogNumberController, label: 'Catalog number'),
                 _field(
                   controller: _releaseDateController,
@@ -1026,7 +1026,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           title: 'Identifiers',
           accent: _accent,
           child: _denseFields([
-            _field(controller: _barcodeController, label: 'UPC / Barcode'),
+            _field(controller: _barcodeController, label: widget.request.type.releaseFields.barcodeLabel),
             _field(controller: _catalogNumberController, label: 'Catalog number'),
             _field(controller: _coverController, label: 'Front cover URL'),
             _field(controller: _thumbnailController, label: 'Thumbnail URL'),

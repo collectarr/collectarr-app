@@ -11,6 +11,19 @@ class MediaEditFields {
     this.showSeriesGroup = false,
   });
 
+  /// Print media (comics, manga, books) share page count, imprint, and
+  /// series group fields. Use this constructor as a shorthand.
+  const MediaEditFields.print({
+    required String numberLabel,
+    String publisherLabel = 'Publisher',
+  }) : this(
+          numberLabel: numberLabel,
+          publisherLabel: publisherLabel,
+          showPageCount: true,
+          showImprint: true,
+          showSeriesGroup: true,
+        );
+
   /// Label for the edition/volume/issue number field.
   final String numberLabel;
 

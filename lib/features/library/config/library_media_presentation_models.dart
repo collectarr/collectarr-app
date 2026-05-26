@@ -299,7 +299,6 @@ abstract class LibraryMediaPresentationBuilder {
 
 class LibraryMediaPresentation {
   const LibraryMediaPresentation({
-    required this.fieldLabels,
     required this.searchFieldLabels,
     required this.filterLabels,
     required this.groupLabels,
@@ -333,7 +332,6 @@ class LibraryMediaPresentation {
     ],
   });
 
-  final LibraryMediaFieldLabels fieldLabels;
   final LibraryMediaSearchFieldLabels searchFieldLabels;
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;

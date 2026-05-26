@@ -46,12 +46,8 @@ const mangaLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: mangaLibraryMediaPresentation,
   editPresentation: mangaLibraryEditPresentation,
-  mediaFields: MediaEditFields(
+  mediaFields: MediaEditFields.print(
     numberLabel: 'Volume / Chapter',
-    publisherLabel: 'Publisher',
-    showPageCount: true,
-    showImprint: true,
-    showSeriesGroup: true,
   ),
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Variant',

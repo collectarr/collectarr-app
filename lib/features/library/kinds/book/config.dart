@@ -44,12 +44,8 @@ const booksLibraryConfig = LibraryTypeConfig(
   presentation: booksLibraryMediaPresentation,
   editPresentation: booksLibraryEditPresentation,
   editDialogBuilder: buildBookLibraryEditDialog,
-  mediaFields: MediaEditFields(
+  mediaFields: MediaEditFields.print(
     numberLabel: 'Volume',
-    publisherLabel: 'Publisher',
-    showPageCount: true,
-    showImprint: true,
-    showSeriesGroup: true,
   ),
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Binding',

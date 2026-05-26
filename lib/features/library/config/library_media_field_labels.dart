@@ -10,8 +10,16 @@ export 'package:collectarr_app/features/library/config/library_media_presentatio
     LibraryMediaPreviewLabels,
         LibraryMediaSearchFieldLabels;
 
+/// Derives field labels from the canonical [MediaEditFields] and
+/// [ReleaseEditFields] on [LibraryTypeConfig].  Callers that only need a
+/// subset should access `type.mediaFields` / `type.releaseFields` directly.
 LibraryMediaFieldLabels libraryMediaFieldLabels(LibraryTypeConfig type) {
-  return type.presentation.fieldLabels;
+  return LibraryMediaFieldLabels(
+    number: type.mediaFields.numberLabel,
+    publisher: type.mediaFields.publisherLabel,
+    variant: type.releaseFields.variantLabel,
+    barcode: type.releaseFields.barcodeLabel,
+  );
 }
 
 LibraryMediaSearchFieldLabels libraryMediaSearchFieldLabels(

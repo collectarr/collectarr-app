@@ -528,9 +528,9 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
                 ),
                 _field(controller: _sortKeyController, label: 'Title sort'),
                 _field(controller: _subtitleController, label: 'Subtitle'),
-                _field(controller: _numberController, label: 'Book number'),
-                _field(controller: _publisherController, label: 'Publisher'),
-                _field(controller: _editionTitleController, label: 'Edition'),
+                _field(controller: _numberController, label: _type.mediaFields.numberLabel),
+                _field(controller: _publisherController, label: _type.mediaFields.publisherLabel),
+                _field(controller: _editionTitleController, label: _type.releaseFields.editionTitleLabel),
                 _field(controller: _countryController, label: 'Country'),
                 _field(controller: _languageController, label: 'Language'),
                 _field(controller: _imprintController, label: 'Imprint'),
@@ -670,8 +670,8 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           child: Column(
             children: [
               _responsiveFields([
-                _field(controller: _barcodeController, label: 'Barcode'),
-                _field(controller: _variantController, label: 'Format / variant'),
+                _field(controller: _barcodeController, label: _type.releaseFields.barcodeLabel),
+                _field(controller: _variantController, label: _type.releaseFields.variantLabel),
               ]),
             ],
           ),

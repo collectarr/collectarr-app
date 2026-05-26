@@ -47,12 +47,9 @@ const comicsLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: comicsLibraryMediaPresentation,
   editPresentation: comicsLibraryEditPresentation,
-  mediaFields: MediaEditFields(
+  mediaFields: MediaEditFields.print(
     numberLabel: 'No. / Vol.',
     publisherLabel: 'Publisher / Studio / Creator',
-    showPageCount: true,
-    showImprint: true,
-    showSeriesGroup: true,
   ),
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Variant / Format',

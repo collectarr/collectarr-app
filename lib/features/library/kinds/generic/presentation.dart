@@ -2,12 +2,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/shared/presentation_support.dart';
 
 const genericLibraryMediaPresentation = LibraryMediaPresentation(
-  fieldLabels: LibraryMediaFieldLabels(
-    number: 'No. / Vol.',
-    publisher: 'Publisher / Studio / Creator',
-    variant: 'Edition / Variant / Format',
-    barcode: 'Barcode / UPC / ISBN',
-  ),
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

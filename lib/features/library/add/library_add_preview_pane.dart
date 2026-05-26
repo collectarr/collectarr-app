@@ -125,7 +125,7 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       context: context,
       accent: accent,
       singularLabel: type.singularLabel,
-      labels: type.presentation.fieldLabels,
+      labels: libraryMediaFieldLabels(type),
       previewLabels: type.presentation.previewLabels,
       item: selectedItem,
       candidate: selectedCandidate,
