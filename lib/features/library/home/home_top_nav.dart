@@ -591,7 +591,7 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      width: 6,
+      width: 10,
       decoration: BoxDecoration(
         gradient: libraryChromeGradient(
           accent,
@@ -600,7 +600,7 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
         ),
       ),
       child: Align(
-        alignment: Alignment.topCenter,
+        alignment: Alignment.bottomCenter,
         child: Material(
           color: Colors.transparent,
           child: Tooltip(
@@ -610,12 +610,12 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
                   .read(libraryNavPreferencesProvider.notifier)
                   .toggleCollapsed(),
               child: Container(
-                width: 6,
-                height: 42,
+                width: 10,
+                height: 36,
                 color: Colors.white.withValues(alpha: 0.18),
                 child: const Icon(
                   Icons.chevron_right,
-                  size: 6,
+                  size: 14,
                   color: Colors.white70,
                 ),
               ),

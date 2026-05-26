@@ -64,14 +64,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       onSelected: (type) =>
           ref.read(selectedLibraryKindProvider.notifier).select(type.kind),
     );
-    final titleBar = MediaLibraryTitleBar(
-      type: selected,
-      overdueLoanCount: overdueLoanCount,
-      selectedOverdueLoanCount: selectedOverdueLoanCount,
-      selectedLabel: selected.pluralLabel,
-      registry: registry,
-      animationDuration: animationDuration,
-    );
     final selectedConfig = libraryConfigForCatalogType(selected, registry);
     final offlineBanner = isCatalogOffline
         ? Container(
@@ -100,9 +92,8 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           ? MediaLibraryCollapsedStrip(accent: accent)
           : topBar;
     } else {
-      resolvedTopBar = collapsed
-          ? const SizedBox.shrink()
-          : titleBar;
+      // Left-rail mode owns the whole library chrome, so no top bar.
+      resolvedTopBar = const SizedBox.shrink();
     }
     final content = Column(
       children: [
