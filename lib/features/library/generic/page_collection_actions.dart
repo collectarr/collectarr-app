@@ -295,32 +295,4 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
       );
     }
   }
-
-  Future<void> bulkRefreshMetadataFlow(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final selectedEntries = <LibraryWorkspaceEntry>[
-      for (final item in projection.filteredItems)
-        if (_selection.itemIds.contains(item.entry.id)) item.entry,
-    ];
-    if (selectedEntries.isEmpty) return;
-    final result = await showLibraryMetadataRefreshDialog(
-      context: context,
-      type: widget.type,
-      accent: widget.accent,
-      allEntries: selectedEntries,
-      shownEntries: selectedEntries,
-      selectedEntry: selectedEntries.first,
-    );
-    if (result == null || !mounted) return;
-    _rebuild(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Metadata refresh finished: ${result.matched}/${result.targets} matched, '
-          '${result.cached} cached, ${result.failed} failed.',
-        ),
-      ),
-    );
-  }
 }

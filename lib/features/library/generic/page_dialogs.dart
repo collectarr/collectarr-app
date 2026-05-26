@@ -257,4 +257,52 @@ extension _LibraryPageDialogs on _LibraryPageState {
       );
     }
   }
+
+  Future<void> reassignIndexFlow(LibraryProjection projection) async {
+    final items = projection.filteredItems;
+    if (items.isEmpty) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Re-assign index values'),
+        content: Text(
+          'Assign sequential index numbers (1–${items.length}) '
+          'to ${items.length} item${items.length == 1 ? '' : 's'} '
+          'in their current display order?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Re-assign'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final mutations = ref.read(collectionMutationsProvider);
+    var count = 0;
+    for (var i = 0; i < items.length; i++) {
+      final ownedItem = items[i].source.ownedItem;
+      if (ownedItem == null) continue;
+      await mutations.updateItem(
+        ownedItem,
+        indexNumber: i + 1,
+        notify: i == items.length - 1,
+      );
+      count++;
+    }
+    ref.invalidate(shelfProvider);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Assigned index values to $count items'),
+        ),
+      );
+    }
+  }
 }
