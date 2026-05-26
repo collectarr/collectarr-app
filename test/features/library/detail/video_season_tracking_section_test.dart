@@ -30,6 +30,7 @@ void main() {
     addTearDown(db.close);
     final api = _VideoSeasonApiClient();
     final type = collectarrLibraryTypes.byKind('tv')!;
+    const itemId = '00000000-0000-0000-0000-000000000001';
 
     await tester.pumpWidget(
       ProviderScope(
@@ -42,7 +43,7 @@ void main() {
             request: LibraryDetailPageRequest(
               type: type,
               entry: LibraryWorkspaceEntry(
-                id: 'tv-1',
+                id: itemId,
                 mediaType: 'tv',
                 title: 'Cowboy Bebop',
                 displayTitle: 'Cowboy Bebop',
@@ -84,14 +85,14 @@ void main() {
 
     final units = await db.select(db.trackingUnitsCache).get();
     expect(units, hasLength(1));
-    expect(units.single.itemId, 'tv-1');
+    expect(units.single.itemId, itemId);
     expect(units.single.seasonNumber, 1);
     expect(units.single.episodeNumber, 1);
     expect(units.single.deletedAt, isNull);
 
     final entries = await db.select(db.trackingEntriesCache).get();
     expect(entries, hasLength(1));
-    expect(entries.single.itemId, 'tv-1');
+    expect(entries.single.itemId, itemId);
     expect(entries.single.progressCurrent, 1);
     expect(entries.single.seasonNumber, 1);
     expect(entries.single.episodeNumber, 1);

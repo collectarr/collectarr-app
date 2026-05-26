@@ -285,9 +285,11 @@ class _MediaLibraryHeaderActions extends ConsumerWidget {
                 : sync.pendingCount > 0
                     ? 'Sync ${sync.pendingCount}'
                     : 'Sync now',
+            subtitle: sync.isSyncing ? null : _formatSyncAge(sync.lastSyncedAt),
             icon: sync.isOffline
                 ? Icons.cloud_off_outlined
-                : Icons.sync_outlined,
+                : _syncIcon(sync),
+            iconColor: _syncIconColor(sync),
             onPressed: sync.isSyncing
                 ? null
                 : () => ref.read(syncControllerProvider.notifier).syncNow(),
@@ -366,12 +368,16 @@ class _HeaderActionButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onPressed,
+    this.subtitle,
+    this.iconColor,
   });
 
   final String tooltip;
   final String label;
   final IconData icon;
   final VoidCallback? onPressed;
+  final String? subtitle;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -387,8 +393,23 @@ class _HeaderActionButton extends StatelessWidget {
           backgroundColor: Colors.black.withValues(alpha: 0.12),
           textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
-        icon: Icon(icon, size: 16),
-        label: Text(label),
+        icon: Icon(icon, size: 16, color: iconColor),
+        label: subtitle == null
+            ? Text(label)
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(label),
+                  Text(
+                    subtitle!,
+                    style: TextStyle(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -415,6 +436,33 @@ double _headerSideWidth({
     return available;
   }
   return estimated.clamp(132.0, available).toDouble();
+}
+
+const Duration _staleSyncThreshold = Duration(hours: 24);
+
+String? _formatSyncAge(DateTime? lastSyncedAt) {
+  if (lastSyncedAt == null) return null;
+  final diff = DateTime.now().toUtc().difference(lastSyncedAt);
+  if (diff.inSeconds < 60) return 'just now';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+  if (diff.inHours < 24) return '${diff.inHours}h ago';
+  if (diff.inDays < 7) return '${diff.inDays}d ago';
+  return '${diff.inDays ~/ 7}w ago';
+}
+
+IconData _syncIcon(SyncState sync) {
+  if (sync.lastSyncedAt == null) return Icons.sync_outlined;
+  final diff = DateTime.now().toUtc().difference(sync.lastSyncedAt!);
+  if (diff > _staleSyncThreshold) return Icons.sync_problem;
+  return Icons.sync_outlined;
+}
+
+Color? _syncIconColor(SyncState sync) {
+  if (sync.isOffline) return Colors.orange;
+  if (sync.lastSyncedAt == null) return null;
+  final diff = DateTime.now().toUtc().difference(sync.lastSyncedAt!);
+  if (diff > _staleSyncThreshold) return Colors.orange;
+  return null;
 }
 
 class MediaLibraryNavStrip extends StatelessWidget {

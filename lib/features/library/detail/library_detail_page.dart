@@ -9,8 +9,11 @@ import 'package:collectarr_app/features/library/detail/library_detail_actions.da
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
+import 'package:collectarr_app/features/library/kinds/shared/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -208,7 +211,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               const SizedBox(height: 16),
             ] else ...[
               ItemBundleReleaseBrowserSection(
-                itemId: widget.entry.id,
+                itemId: widget.entry.titleItemId ?? widget.entry.id,
                 accent: widget.accent,
               ),
               const SizedBox(height: 16),
@@ -230,6 +233,15 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               entry: widget.entry,
               accent: widget.accent,
               onFilterByValue: widget.onFilterByValue,
+            ),
+            LibraryDetailTrailersSection(
+              trailerUrls: widget.entry.trailerUrls,
+              accent: widget.accent,
+            ),
+            ...widget.type.presentation.builder.buildInspectorSections(
+              context: context,
+              entry: widget.entry,
+              accent: widget.accent,
             ),
             LibraryDetailProvenanceSection(
               type: widget.type,
@@ -263,6 +275,14 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                 editions: widget.entry.editions,
                 accent: widget.accent,
               ),
+            WatchHistorySection(
+              itemId: widget.entry.id,
+              accent: widget.accent,
+            ),
+            MetadataCorrectionsSection(
+              itemId: widget.entry.id,
+              accent: widget.accent,
+            ),
             LibraryDetailProviderSection(type: widget.type, accent: widget.accent),
             LibraryDetailLocalSnapshotSection(
               entry: widget.entry,

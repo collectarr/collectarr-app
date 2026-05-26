@@ -22,7 +22,7 @@ void main() {
             body: SizedBox(
               width: 720,
               child: ItemBundleReleaseBrowserSection(
-                itemId: 'book-1',
+                itemId: '00000000-0000-0000-0000-000000000001',
                 accent: Colors.cyan,
               ),
             ),

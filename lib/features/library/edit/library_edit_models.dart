@@ -49,6 +49,8 @@ class LibraryPersonalEditSelection {
     this.keyComic,
     this.keyReason,
     this.coverPriceCents,
+    this.features,
+    this.hdrFormats,
   });
 
   final String? anchorType;
@@ -75,6 +77,8 @@ class LibraryPersonalEditSelection {
   final bool? keyComic;
   final String? keyReason;
   final int? coverPriceCents;
+  final String? features;
+  final List<String>? hdrFormats;
 }
 
 class LibraryWishlistEditSelection {

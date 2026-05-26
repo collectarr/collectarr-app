@@ -182,6 +182,8 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         soldTo: personal.soldTo,
         syncTracking: false,
         notify: false,
+        features: personal.features,
+        hdrFormats: personal.hdrFormats,
       );
       await mutations.syncOwnedTrackingEntry(
         updatedOwned,

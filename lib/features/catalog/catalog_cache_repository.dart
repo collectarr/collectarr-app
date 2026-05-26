@@ -114,6 +114,15 @@ class CatalogCacheRepository {
                 imprint: Value(publishing?.imprint),
                 subtitle: Value(publishing?.subtitle),
                 seriesGroup: Value(publishing?.seriesGroup),
+                trailerUrlsJson: Value(
+                  item.trailerUrls.isNotEmpty
+                      ? jsonEncode(
+                          item.trailerUrls
+                              .map((t) => t.toJson())
+                              .toList(growable: false),
+                        )
+                      : null,
+                ),
                 cachedAt: now,
               );
             }()
@@ -261,6 +270,7 @@ class CatalogCacheRepository {
       storyArcs: _decodeStringList(row.storyArcsJson),
       rawPlatforms: rawPlatforms,
       genres: _decodeStringList(row.genresJson),
+      trailerUrls: _decodeTrailerUrls(row.trailerUrlsJson),
       country: row.country,
       language: row.language,
       ageRating: row.ageRating,
@@ -284,6 +294,16 @@ class CatalogCacheRepository {
     }
     return decoded
         .map((edition) => CatalogEdition.fromJson(edition))
+        .toList(growable: false);
+  }
+
+  static List<TrailerLink>? _decodeTrailerUrls(String? json) {
+    final decoded = _decodeListOfMaps(json);
+    if (decoded == null) {
+      return null;
+    }
+    return decoded
+        .map((trailer) => TrailerLink.fromJson(trailer))
         .toList(growable: false);
   }
 

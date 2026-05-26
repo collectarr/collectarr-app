@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:dio/dio.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -428,7 +429,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       );
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Resolve all failed: $error');
+        setState(() => _error = _friendlyImportError(error));
       }
     } finally {
       if (mounted) {
@@ -975,7 +976,7 @@ class _ResolveImportRowDialogState
       }
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Core search failed: $error');
+        setState(() => _error = _friendlyImportError(error));
       }
     } finally {
       if (mounted) {
@@ -1246,6 +1247,20 @@ String _catalogSubtitle(CatalogItem item) {
     if (item.releaseYear != null) item.releaseYear.toString(),
     if (item.barcode != null) item.barcode,
   ].join(' | ');
+}
+
+String _friendlyImportError(Object error) {
+  if (error is DioException) {
+    final status = error.response?.statusCode;
+    if (status == 401 || status == 403) {
+      return 'Not authenticated — sign in via Settings → Account to search the Collectarr Core catalog.';
+    }
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.connectionError) {
+      return 'Cannot reach the metadata server. Check the URL in Settings → Connection.';
+    }
+  }
+  return 'Search failed: $error';
 }
 
 Future<List<CatalogItem>> _searchCoreForRow(

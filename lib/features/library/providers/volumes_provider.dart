@@ -10,8 +10,16 @@ final volumesProvider = FutureProvider.autoDispose.family<List<Season>,
       .timeout(const Duration(seconds: 60));
 });
 
+final _uuidPattern = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+  caseSensitive: false,
+);
+
 final itemVolumesProvider =
     FutureProvider.autoDispose.family<List<Season>, String>((ref, itemId) async {
+  if (!_uuidPattern.hasMatch(itemId)) {
+    return const <Season>[];
+  }
   final api = ref.watch(apiClientProvider);
   return api.getItemVolumes(itemId).timeout(const Duration(seconds: 60));
 });

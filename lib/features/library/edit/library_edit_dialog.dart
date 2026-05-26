@@ -147,6 +147,10 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   bool _keyComic = false;
   late final TextEditingController _keyReasonController;
 
+  // Physical media fields
+  late final TextEditingController _featuresController;
+  List<String> _hdrFormats = [];
+
   String? _physicalFormatId;
   Map<String, String?> _customFieldEdits = {};
   List<ItemImageEdit> _itemImageEdits = [];
@@ -351,6 +355,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     );
     _keyComic = owned?.keyComic ?? false;
     _keyReasonController = TextEditingController(text: owned?.keyReason ?? '');
+    _featuresController = TextEditingController(text: owned?.features ?? '');
+    _hdrFormats = List<String>.from(owned?.hdrFormats ?? const <String>[]);
     final editionSelection = resolveLibraryEditionSelection(
       item.editions,
       editionId: owned?.editionId ?? tracking?.editionId,
@@ -434,6 +440,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _signedByController.dispose();
     _coverPriceController.dispose();
     _keyReasonController.dispose();
+    _featuresController.dispose();
     super.dispose();
   }
 
@@ -1267,6 +1274,61 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               style: TextStyle(color: kEditTextMuted),
             ),
           ),
+        if (_showPhysicalOwnedFields)
+          EditSection(
+            title: 'Physical media',
+            accent: widget.accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'HDR formats',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    for (final format in const [
+                      'HDR10',
+                      'HDR10+',
+                      'Dolby Vision',
+                      'HLG',
+                    ])
+                      FilterChip(
+                        label: Text(format),
+                        selected: _hdrFormats.contains(format),
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              _hdrFormats.add(format);
+                            } else {
+                              _hdrFormats.remove(format);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _featuresController,
+                  minLines: 3,
+                  maxLines: 6,
+                  decoration: const InputDecoration(
+                    labelText: 'Features',
+                    hintText: 'Disc features, special editions, bonus content...',
+                    alignLabelWithHint: true,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -1671,6 +1733,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               keyReason: emptyToNull(_keyReasonController.text),
               coverPriceCents:
                   _isDigitalFormat ? null : parseMoneyCents(_coverPriceController.text),
+              features: emptyToNull(_featuresController.text),
+              hdrFormats: _hdrFormats.isEmpty ? null : _hdrFormats,
             ),
       wishlist: widget.wishlistItem == null
           ? null

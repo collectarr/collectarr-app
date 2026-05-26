@@ -143,7 +143,7 @@ void main() {
     );
   });
 
-  testWidgets('app shell hides admin destination for standard accounts',
+  testWidgets('app shell shows Manage destination for standard accounts',
       (tester) async {
     SharedPreferences.setMockInitialValues({
       'collectarr.auth.token': _jwtExpiringAt(
@@ -169,7 +169,10 @@ void main() {
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    expect(navigationBar.destinations.length, 3);
+    // All users see 4 destinations (Libraries, Shelf, Manage, Settings).
+    expect(navigationBar.destinations.length, 4);
+    expect(find.text('Manage'), findsOneWidget);
+    expect(find.text('Admin'), findsNothing);
   });
 
   testWidgets('app shell shows admin destination for admin accounts',
@@ -198,8 +201,10 @@ void main() {
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    // Admin accounts see one extra destination (4 vs 3).
+    // Admin accounts see 4 destinations with 'Admin' label.
     expect(navigationBar.destinations.length, 4);
+    expect(find.text('Admin'), findsOneWidget);
+    expect(find.text('Manage'), findsNothing);
   });
 
   testWidgets('detail route without request payload redirects to libraries',

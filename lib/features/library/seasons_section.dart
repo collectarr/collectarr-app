@@ -135,17 +135,6 @@ class _EpisodeRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          if (episode.stillUrl != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: CachedNetworkImage(
-                imageUrl: episode.stillUrl!,
-                width: 64,
-                height: 36,
-                fit: BoxFit.cover,
-              ),
-            ),
-          if (episode.stillUrl != null) const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

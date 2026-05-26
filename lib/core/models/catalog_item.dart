@@ -1,5 +1,37 @@
 // ignore_for_file: use_super_parameters
 
+class TrailerLink {
+  const TrailerLink({
+    required this.url,
+    this.title,
+    this.source,
+    this.isAutomatic = true,
+  });
+
+  final String url;
+  final String? title;
+  final String? source;
+  final bool isAutomatic;
+
+  factory TrailerLink.fromJson(Map<String, dynamic> json) {
+    return TrailerLink(
+      url: json['url'] as String,
+      title: json['title'] as String?,
+      source: json['source'] as String?,
+      isAutomatic: json['is_automatic'] as bool? ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      if (title != null) 'title': title,
+      if (source != null) 'source': source,
+      'is_automatic': isAutomatic,
+    };
+  }
+}
+
 class CatalogDisc {
   const CatalogDisc({
     required this.discNumber,
@@ -400,6 +432,7 @@ sealed class CatalogItem {
     this.language,
     this.ageRating,
     this.rawPlatforms,
+    this.trailerUrls = const <TrailerLink>[],
   });
 
   factory CatalogItem({
@@ -434,6 +467,7 @@ sealed class CatalogItem {
     List<String>? characters,
     List<String>? storyArcs,
     List<String>? rawPlatforms,
+    List<TrailerLink>? trailerUrls,
     List<String>? genres,
     List<CatalogEdition>? editions,
     String? country,
@@ -472,6 +506,7 @@ sealed class CatalogItem {
       language: language,
       ageRating: ageRating,
       rawPlatforms: _normalizeStringList(rawPlatforms ?? game?.platforms),
+      trailerUrls: _normalizeTrailerList(trailerUrls),
     );
     series = series == null ? null : _seriesOrNull(series);
     publishing = publishing == null ? null : _publishingOrNull(publishing);
@@ -637,6 +672,10 @@ sealed class CatalogItem {
       genres: (json['genres'] as List<dynamic>?)
           ?.whereType<String>()
           .toList(growable: false),
+      trailerUrls: (json['trailer_urls'] as List<dynamic>?)
+          ?.whereType<Map<String, dynamic>>()
+          .map(TrailerLink.fromJson)
+          .toList(growable: false),
       country: json['country'] as String?,
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,
@@ -673,6 +712,7 @@ sealed class CatalogItem {
   final String? language;
   final String? ageRating;
   final List<String>? rawPlatforms;
+  final List<TrailerLink> trailerUrls;
 
   String get kind => mediaKind.apiValue;
 
@@ -751,6 +791,9 @@ sealed class CatalogItem {
       'editions': editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
       'release_status': music?.releaseStatus,
+      if (trailerUrls.isNotEmpty)
+        'trailer_urls':
+            trailerUrls.map((t) => t.toJson()).toList(growable: false),
       'page_count': publishing?.pageCount,
       'cover_price_cents': publishing?.coverPriceCents,
       'currency': publishing?.currency,
@@ -807,6 +850,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           language: common.language,
           ageRating: common.ageRating,
           rawPlatforms: common.rawPlatforms,
+          trailerUrls: common.trailerUrls ?? const <TrailerLink>[],
         );
 
   final CatalogSeriesDetails? seriesDetails;
@@ -1001,6 +1045,7 @@ class _CatalogItemCommon {
     this.language,
     this.ageRating,
     this.rawPlatforms,
+    this.trailerUrls,
   });
 
   final String id;
@@ -1033,6 +1078,7 @@ class _CatalogItemCommon {
   final String? language;
   final String? ageRating;
   final List<String>? rawPlatforms;
+  final List<TrailerLink>? trailerUrls;
 }
 
 CatalogSeriesDetails? _seriesOrNull(CatalogSeriesDetails details) {
@@ -1070,6 +1116,13 @@ List<CatalogEdition>? _normalizeEditionList(List<CatalogEdition>? values) {
 }
 
 List<Map<String, dynamic>>? _normalizeMapList(List<Map<String, dynamic>>? values) {
+  if (values == null || values.isEmpty) {
+    return null;
+  }
+  return values.toList(growable: false);
+}
+
+List<TrailerLink>? _normalizeTrailerList(List<TrailerLink>? values) {
   if (values == null || values.isEmpty) {
     return null;
   }

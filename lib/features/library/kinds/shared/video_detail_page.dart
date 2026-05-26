@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_sect
 import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video_episode_rating_section.dart';
+import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
+import 'package:collectarr_app/features/library/kinds/shared/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
@@ -257,6 +259,15 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
             const SizedBox(height: 16),
             LibraryDetailProviderSection(
               type: request.type,
+              accent: request.accent,
+            ),
+            const SizedBox(height: 16),
+            WatchHistorySection(
+              itemId: request.entry.id,
+              accent: request.accent,
+            ),
+            MetadataCorrectionsSection(
+              itemId: request.entry.id,
               accent: request.accent,
             ),
           ],

@@ -59,6 +59,7 @@ sealed class LibraryWorkspaceEntry {
     this.editions = const <CatalogEdition>[],
     required this.updatedAt,
     this.rawPlatforms,
+    this.trailerUrls = const <TrailerLink>[],
   });
 
   factory LibraryWorkspaceEntry({
@@ -119,6 +120,7 @@ sealed class LibraryWorkspaceEntry {
     String? ageRating,
     List<CatalogEdition> editions = const <CatalogEdition>[],
     required DateTime updatedAt,
+    List<TrailerLink>? trailerUrls,
   }) {
     final normalizedMediaType = mediaType.trim().toLowerCase();
     final common = _LibraryWorkspaceCommon(
@@ -175,6 +177,7 @@ sealed class LibraryWorkspaceEntry {
       editions: _copyEditionList(editions),
       updatedAt: updatedAt,
       rawPlatforms: _copyStringList(game?.platforms),
+      trailerUrls: trailerUrls ?? const <TrailerLink>[],
     );
     series = series == null ? null : _seriesOrNull(series);
     publishing = publishing == null ? null : _publishingOrNull(publishing);
@@ -398,6 +401,7 @@ sealed class LibraryWorkspaceEntry {
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
+  final List<TrailerLink> trailerUrls;
 
   String get resolvedTitle {
     final display = displayTitle?.trim();
@@ -491,6 +495,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           editions: common.editions,
           updatedAt: common.updatedAt,
           rawPlatforms: common.rawPlatforms,
+          trailerUrls: common.trailerUrls,
         );
 
   final CatalogSeriesDetails? seriesDetails;
@@ -708,6 +713,7 @@ class _LibraryWorkspaceCommon {
     required this.editions,
     required this.updatedAt,
     required this.rawPlatforms,
+    required this.trailerUrls,
   });
 
   final String id;
@@ -763,6 +769,7 @@ class _LibraryWorkspaceCommon {
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
+  final List<TrailerLink> trailerUrls;
 }
 
 CatalogSeriesDetails? _seriesOrNull(CatalogSeriesDetails details) {

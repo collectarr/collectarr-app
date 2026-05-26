@@ -72,6 +72,20 @@
 - Bulk edit dialog with tracking status and star rating fields
 - Selection state management with auto-enable/disable
 
+### 🎬 Trailer Links & Physical Media Enrichment
+- TrailerLink model with url, title, source, isAutomatic fields
+- Trailer URLs stored as JSON in CatalogCache, projected into LibraryWorkspaceEntry
+- Detail page trailer section with YouTube detection and url_launcher
+- HDR formats multi-value field on OwnedItem (Drift schema, edit UI FilterChips, sync settings)
+- Physical features text field on OwnedItem (edit UI, sync settings)
+
+### 🔄 Sync & Data Integrity Improvements
+- Sync freshness indicator: relative time subtitle + stale/offline warning icon on sync button
+- Data-first sync: image storage moved outside DB transaction so catalog/owned data commits first
+- Read-only metadata endpoints no longer require authentication (22 GET endpoints made public)
+- Non-UUID item ID guards on all API call sites (seasons, volumes, bundle releases) to prevent 400/422 from synthetic TMDB-local or composite release IDs
+- Friendly error messages for 401/403/connection errors during CSV import resolution
+
 ## 🎯 Current Priorities
 
 ### ⚙️ Provider Workflow / Core API Efficiency

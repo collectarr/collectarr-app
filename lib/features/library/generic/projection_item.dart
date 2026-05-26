@@ -104,6 +104,7 @@ class LibraryProjectionItem {
       ageRating: item.ageRating,
       editions: resolvedEditions,
       updatedAt: source.updatedAt,
+      trailerUrls: item.trailerUrls,
     );
     return LibraryProjectionItem(
       source: source,

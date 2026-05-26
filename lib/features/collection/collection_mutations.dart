@@ -9,6 +9,9 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/user_metadata_override.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -21,6 +24,9 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -176,6 +182,11 @@ class CollectionMutations {
     DateTime? soldAt,
     int? sellPriceCents,
     String? soldTo,
+    String? features,
+    List<String>? hdrFormats,
+    String? purchaseStore,
+    String? boxSetId,
+    String? boxSetName,
     bool syncTracking = true,
     bool notify = true,
   }) async {
@@ -227,6 +238,11 @@ class CollectionMutations {
       soldTo: soldTo,
       updatedAt: now,
       deletedAt: item.deletedAt,
+      features: features,
+      hdrFormats: hdrFormats ?? item.hdrFormats,
+      purchaseStore: purchaseStore,
+      boxSetId: boxSetId,
+      boxSetName: boxSetName,
     );
     await _ownedCache().upsert(updated);
     await _enqueueOwnedItem(updated, 'upsert', now);
@@ -383,6 +399,18 @@ class CollectionMutations {
           updatedAt: now,
         ),
       );
+      // T6: Record a watch session for this episode.
+      final session = WatchSession(
+        id: _uuid.v4(),
+        itemId: itemId,
+        trackingEntryId: summaryEntry?.id,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+        watchedAt: now,
+        updatedAt: now,
+      );
+      await _watchSessionsCache().upsert(session);
+      await _enqueueWatchSession(session, 'upsert', now);
     } else if (existingUnit != null && !existingUnit.isDeleted) {
       await _trackingUnitsCache().markDeleted(existingUnit, now);
     }
@@ -537,6 +565,131 @@ class CollectionMutations {
     if (notify) {
       await _notifyCollectionChanged();
     }
+  }
+
+  // ─── Watch Sessions ─────────────────────────────────────────────────
+
+  Future<WatchSession> addWatchSession(
+    String itemId, {
+    String? trackingEntryId,
+    int? seasonNumber,
+    int? episodeNumber,
+    TrackingSourceType? sourceType,
+    DateTime? watchedAt,
+    int? rating,
+    String? notes,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final session = WatchSession(
+      id: _uuid.v4(),
+      itemId: itemId,
+      trackingEntryId: trackingEntryId,
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      sourceType: sourceType,
+      watchedAt: watchedAt ?? now,
+      rating: rating,
+      notes: notes,
+      updatedAt: now,
+    );
+    await _watchSessionsCache().upsert(session);
+    await _enqueueWatchSession(session, 'upsert', now);
+    await _notifyCollectionChanged();
+    return session;
+  }
+
+  Future<void> removeWatchSession(WatchSession session) async {
+    final now = DateTime.now().toUtc();
+    await _watchSessionsCache().markDeleted(session, now);
+    final deleted = session.copyWith(deletedAt: now, updatedAt: now);
+    await _enqueueWatchSession(deleted, 'delete', now);
+    await _notifyCollectionChanged();
+  }
+
+  // ─── Metadata Overrides ─────────────────────────────────────────────
+
+  /// Create or update a user metadata override for a catalog field.
+  ///
+  /// If an active override already exists for the same (item, field, edition?,
+  /// variant?) combination, it is updated in-place.
+  Future<UserMetadataOverride> setMetadataOverride(
+    String itemId, {
+    required String fieldPath,
+    required String overrideValue,
+    String? originalValue,
+    String? editionId,
+    String? variantId,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final existing = await _overridesCache().findByField(
+      itemId,
+      fieldPath,
+      editionId: editionId,
+      variantId: variantId,
+    );
+    final override = UserMetadataOverride(
+      id: existing?.id ?? _uuid.v4(),
+      itemId: itemId,
+      editionId: editionId,
+      variantId: variantId,
+      fieldPath: fieldPath,
+      originalValue: originalValue ?? existing?.originalValue,
+      overrideValue: overrideValue,
+      updatedAt: now,
+    );
+    await _overridesCache().upsert(override);
+    await _enqueueMetadataOverride(override, 'upsert', now);
+    await _notifyCollectionChanged();
+    return override;
+  }
+
+  /// Remove (soft-delete) a metadata override, restoring the catalog value.
+  Future<void> removeMetadataOverride(UserMetadataOverride override) async {
+    final now = DateTime.now().toUtc();
+    await _overridesCache().markDeleted(override, now);
+    final deleted = override.copyWith(deletedAt: now, updatedAt: now);
+    await _enqueueMetadataOverride(deleted, 'delete', now);
+    await _notifyCollectionChanged();
+  }
+
+  // ─── Custom Episodes ────────────────────────────────────────────────
+
+  /// Create or update a custom episode for a series.
+  Future<CustomEpisode> upsertCustomEpisode({
+    String? id,
+    required String itemId,
+    required int seasonNumber,
+    required int episodeNumber,
+    required String title,
+    String? overview,
+    String? airDate,
+    int? runtimeMinutes,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final episode = CustomEpisode(
+      id: id ?? _uuid.v4(),
+      itemId: itemId,
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      title: title,
+      overview: overview,
+      airDate: airDate,
+      runtimeMinutes: runtimeMinutes,
+      updatedAt: now,
+    );
+    await _customEpisodesCache().upsert(episode);
+    await _enqueueCustomEpisode(episode, 'upsert', now);
+    await _notifyCollectionChanged();
+    return episode;
+  }
+
+  /// Remove (soft-delete) a custom episode.
+  Future<void> removeCustomEpisode(CustomEpisode episode) async {
+    final now = DateTime.now().toUtc();
+    await _customEpisodesCache().markDeleted(episode, now);
+    final deleted = episode.copyWith(deletedAt: now, updatedAt: now);
+    await _enqueueCustomEpisode(deleted, 'delete', now);
+    await _notifyCollectionChanged();
   }
 
   Future<void> addToWishlist(
@@ -1311,6 +1464,18 @@ class CollectionMutations {
     return TrackingUnitsCacheRepository(ref.read(localDatabaseProvider));
   }
 
+  WatchSessionsCacheRepository _watchSessionsCache() {
+    return WatchSessionsCacheRepository(ref.read(localDatabaseProvider));
+  }
+
+  UserMetadataOverridesCacheRepository _overridesCache() {
+    return UserMetadataOverridesCacheRepository(ref.read(localDatabaseProvider));
+  }
+
+  CustomEpisodesCacheRepository _customEpisodesCache() {
+    return CustomEpisodesCacheRepository(ref.read(localDatabaseProvider));
+  }
+
   SyncQueueRepository _syncQueue() {
     return SyncQueueRepository(ref.read(localDatabaseProvider));
   }
@@ -1350,6 +1515,57 @@ class CollectionMutations {
   ) {
     return _syncQueue().enqueue(
       _syncChangeForTrackingEntry(item, action, changedAt),
+    );
+  }
+
+  Future<void> _enqueueWatchSession(
+    WatchSession session,
+    String action,
+    DateTime changedAt,
+  ) {
+    return _syncQueue().enqueue(
+      SyncChange(
+        id: _uuid.v4(),
+        entityType: 'watch_session',
+        entityId: session.id,
+        action: action,
+        payload: session.toSyncPayload(),
+        clientChangedAt: changedAt,
+      ),
+    );
+  }
+
+  Future<void> _enqueueMetadataOverride(
+    UserMetadataOverride override,
+    String action,
+    DateTime changedAt,
+  ) {
+    return _syncQueue().enqueue(
+      SyncChange(
+        id: _uuid.v4(),
+        entityType: 'metadata_override',
+        entityId: override.id,
+        action: action,
+        payload: override.toSyncPayload(),
+        clientChangedAt: changedAt,
+      ),
+    );
+  }
+
+  Future<void> _enqueueCustomEpisode(
+    CustomEpisode episode,
+    String action,
+    DateTime changedAt,
+  ) {
+    return _syncQueue().enqueue(
+      SyncChange(
+        id: _uuid.v4(),
+        entityType: 'custom_episode',
+        entityId: episode.id,
+        action: action,
+        payload: episode.toSyncPayload(),
+        clientChangedAt: changedAt,
+      ),
     );
   }
 
@@ -1713,6 +1929,10 @@ class CollectionMutations {
       notes: local.notes ?? target.notes,
       seasonNumber: local.seasonNumber ?? target.seasonNumber,
       episodeNumber: local.episodeNumber ?? target.episodeNumber,
+      episodeRatings: {
+        ...target.episodeRatings,
+        ...local.episodeRatings,
+      },
       updatedAt: changedAt,
       deletedAt: null,
     );

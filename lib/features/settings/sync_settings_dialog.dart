@@ -50,6 +50,8 @@ const _syncFields = [
   SyncFieldSetting('personal_notes', 'Notes', group: 'Personal'),
   SyncFieldSetting('purchase_date', 'Date Purchased', group: 'Personal'),
   SyncFieldSetting('price_paid', 'Price Paid', group: 'Personal'),
+  SyncFieldSetting('features', 'Features', group: 'Personal'),
+  SyncFieldSetting('hdr_formats', 'HDR Formats', group: 'Personal'),
 ];
 
 const _prefsPrefix = 'collectarr.sync_field_policy.';

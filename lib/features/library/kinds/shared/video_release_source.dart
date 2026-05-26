@@ -270,7 +270,9 @@ int _compareCatalogEditions(CatalogEdition left, CatalogEdition right) {
   if (bySource != 0) {
     return bySource;
   }
-  return left.title.toLowerCase().compareTo(right.title.toLowerCase());
+  final leftTitle = left.title ?? '';
+  final rightTitle = right.title ?? '';
+  return leftTitle.toLowerCase().compareTo(rightTitle.toLowerCase());
 }
 
 int _sourcePriority(String? value) {

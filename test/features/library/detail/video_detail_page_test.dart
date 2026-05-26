@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -105,6 +106,9 @@ void main() {
           ),
           wishlistProvider.overrideWith(
             (ref) async => const <WishlistItem>[],
+          ),
+          watchSessionsByItemProvider.overrideWith(
+            (ref) => const <String, List<WatchSession>>{},
           ),
         ],
         child: MaterialApp.router(routerConfig: router),
@@ -216,6 +220,9 @@ void main() {
               ),
             ],
           ),
+          watchSessionsByItemProvider.overrideWith(
+            (ref) => const <String, List<WatchSession>>{},
+          ),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
@@ -292,6 +299,9 @@ void main() {
         overrides: [
           collectionProvider.overrideWith((ref) async => const <OwnedItem>[]),
           wishlistProvider.overrideWith((ref) async => const <WishlistItem>[]),
+          watchSessionsByItemProvider.overrideWith(
+            (ref) => const <String, List<WatchSession>>{},
+          ),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),

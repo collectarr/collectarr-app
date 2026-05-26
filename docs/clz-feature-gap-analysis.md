@@ -21,7 +21,7 @@
 | Sell price + date / Sold tracking | ✅ | ✅ | soldAt, sellPriceCents, soldTo fields |
 | Grading company + grade | ✅ | 🟡 | Collectarr has basic condition, not CGC/CBCS-specific |
 | Variant cover browsing | ✅ | ✅ | Provider candidates expose variants |
-| Hyperlink filtering | ✅ | ❌ | Click a writer/artist name → filter to matching items |
+| Hyperlink filtering | ✅ | ✅ | Click a writer/artist name → filter to matching items |
 | Cloud sync (multi-device) | ✅ | ✅ | Via collectarr-sync |
 | Wishlist | ✅ | ✅ | |
 | Series/run completeness tracking | ✅ | 🟡 | Basic series view, no "missing issues" list |
@@ -39,12 +39,12 @@
 | Custom user-defined fields | ✅ | ✅ | Per-media-type text fields, searchable |
 | Multiple images per item | ✅ | ✅ | Local photos with captions |
 | Purchase price + date | ✅ | ✅ | |
-| Location tracking (shelf/room) | ✅ | 🟡 | storageBox field exists |
+| Location tracking (shelf/room) | ✅ | ✅ | Hierarchical locations with rename/reparent/sync |
 | Personal ratings + notes | ✅ | 🟡 | Notes exist, no star rating field |
 | Cloud sync | ✅ | ✅ | |
 | Wishlist | ✅ | ✅ | |
 | Random pick ("shake phone") | ✅ | ❌ | |
-| Hyperlink filtering | ✅ | ❌ | |
+| Hyperlink filtering | ✅ | ✅ | Click any creator/publisher to filter |
 
 ---
 
@@ -54,17 +54,17 @@
 |---------|-----|------------|-------|
 | Barcode scanning | ✅ | ✅ | |
 | IMDb integration (cast/crew/ratings) | ✅ | 🟡 | Collectarr uses TMDb — has cast/crew but no IMDb ratings |
-| Physical format tracking (DVD/Blu-ray/4K/VHS/LaserDisc) | ✅ | 🟡 | Edition model exists, not as rich |
-| YouTube trailer links | ✅ | ❌ | |
+| Physical format tracking (DVD/Blu-ray/4K/VHS/LaserDisc) | ✅ | ✅ | Edition model + HDR formats + features fields |
+| YouTube trailer links | ✅ | ✅ | Trailer section with YouTube detection on detail page |
 | Custom episodes | ✅ | ❌ | User-added episode data |
 | Custom user-defined fields | ✅ | ✅ | Per-media-type text fields, searchable |
 | Multiple images per item | ✅ | ✅ | Local photos with captions |
 | Purchase price + date | ✅ | ✅ | |
-| Location tracking | ✅ | 🟡 | storageBox field exists |
+| Location tracking | ✅ | ✅ | Hierarchical locations with rename/reparent/sync |
 | Random movie picker | ✅ | ❌ | Shake phone to pick random movie |
 | Cloud sync | ✅ | ✅ | |
 | Wishlist | ✅ | ✅ | |
-| Hyperlink filtering | ✅ | ❌ | |
+| Hyperlink filtering | ✅ | ✅ | Click any creator/character/series/publisher to filter |
 
 ---
 
@@ -79,10 +79,10 @@
 | Custom user-defined fields | ✅ | ✅ | Per-media-type text fields, searchable |
 | Multiple images per item | ✅ | ✅ | Local photos with captions |
 | Purchase price + date | ✅ | ✅ | |
-| Location tracking | ✅ | 🟡 | storageBox field exists |
+| Location tracking | ✅ | ✅ | Hierarchical locations with rename/reparent/sync |
 | Cloud sync | ✅ | ✅ | |
 | Wishlist | ✅ | ✅ | |
-| Hyperlink filtering | ✅ | ❌ | |
+| Hyperlink filtering | ✅ | ✅ | Click any creator to filter |
 
 ---
 
@@ -94,14 +94,14 @@
 | Game values (PriceCharting: Loose/CIB/New) | ✅ | ❌ | CLZ integrates PriceCharting for daily values |
 | Platform/region/edition variants | ✅ | 🟡 | Basic edition model, not as granular |
 | Console/hardware cataloging | ✅ | ❌ | CLZ can catalog consoles, controllers, figures |
-| YouTube trailer links | ✅ | ❌ | |
+| YouTube trailer links | ✅ | ✅ | Trailer section with YouTube detection on detail page |
 | Custom user-defined fields | ✅ | ✅ | Per-media-type text fields, searchable |
 | Multiple images per item | ✅ | ✅ | Local photos with captions |
 | Purchase price + date | ✅ | ✅ | |
-| Location tracking | ✅ | 🟡 | storageBox field exists |
+| Location tracking | ✅ | ✅ | Hierarchical locations with rename/reparent/sync |
 | Cloud sync | ✅ | ✅ | |
 | Wishlist | ✅ | ✅ | |
-| Hyperlink filtering | ✅ | ❌ | |
+| Hyperlink filtering | ✅ | ✅ | Click any creator/publisher to filter |
 
 ---
 
@@ -116,8 +116,9 @@
 | **Multiple images per item** | ✅ Done | 📱 App + 🔄 Sync | Local photos with captions and sort order |
 | **Series/hierarchical shelf grouping** | ✅ Done | 📱 App | Series/volume/season grouping now ships in the shared library stack |
 | **Collection value totals** | 🟠 Medium | 📱 App | Computed from local price fields, no Core involvement |
-| **Hyperlink filtering** | 🟠 Medium | 📱 App | Click any field value to filter — pure UI feature |
-| **Location tracking** | 🟡 Low-Med | 📱 App + 🔄 Sync | Shelf/box/room — personal data, Drift + sync |
+| **Hyperlink filtering** | ✅ Done | 📱 App | Click any creator/character/series/publisher to filter the library |
+| **Location tracking** | ✅ Done | 📱 App + 🔄 Sync | Hierarchical locations with rename/reparent/description/sync |
+| **Trailer links** | ✅ Done | 📱 App | YouTube-detected trailers on detail page for movies/TV/games |
 | **Random pick / shake phone** | 🟡 Low | 📱 App | Fun "what should I read/watch/play" — pure UI |
 | **Cover art scanning (visual recognition)** | 🟡 Low | 🎯 Core | Only comics; would need ML model or external API |
 | **Sold items tracking** | ✅ Done | 📱 App + 🔄 Sync | soldAt, sellPriceCents, soldTo fields |

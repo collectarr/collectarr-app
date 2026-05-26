@@ -49,8 +49,20 @@ class _ItemBundleReleaseBrowserSectionState
     }
   }
 
+  static final _uuidPattern = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+    caseSensitive: false,
+  );
+
   Future<void> _ensureSummariesLoaded() async {
     if (_summaries != null || _summariesLoading) {
+      return;
+    }
+    if (!_uuidPattern.hasMatch(widget.itemId)) {
+      setState(() {
+        _summaries = const <BundleReleaseSummary>[];
+        _summariesLoading = false;
+      });
       return;
     }
     setState(() {

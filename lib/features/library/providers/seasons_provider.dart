@@ -9,8 +9,27 @@ final seasonsProvider =
   return api.getProviderSeasons(params.provider, params.providerItemId);
 });
 
+/// Matches local-synthetic item IDs created by TMDB import
+/// (e.g. `tmdb-local:tv:12345`).
+final _tmdbLocalIdPattern = RegExp(r'^tmdb-local:(\w+):(\d+)$');
+final _uuidPattern = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+  caseSensitive: false,
+);
+
 final itemSeasonsProvider =
     FutureProvider.autoDispose.family<List<Season>, String>((ref, itemId) async {
   final api = ref.watch(apiClientProvider);
+  final localMatch = _tmdbLocalIdPattern.firstMatch(itemId);
+  if (localMatch != null) {
+    final kind = localMatch.group(1)!;
+    final tmdbId = localMatch.group(2)!;
+    return api
+        .getProviderSeasons('tmdb', '$kind:$tmdbId')
+        .timeout(const Duration(seconds: 60));
+  }
+  if (!_uuidPattern.hasMatch(itemId)) {
+    return const <Season>[];
+  }
   return api.getItemSeasons(itemId).timeout(const Duration(seconds: 60));
 });

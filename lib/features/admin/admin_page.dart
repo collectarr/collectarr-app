@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -128,98 +129,160 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Widget build(BuildContext context) {
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
+    final isAdmin = ref.watch(authControllerProvider).isAdmin;
+
+    final tabs = <Tab>[
+      if (isAdmin)
+        const Tab(icon: Icon(Icons.dashboard_outlined), text: 'Dashboard'),
+      const Tab(icon: Icon(Icons.inventory_2_outlined), text: 'Catalog'),
+      const Tab(icon: Icon(Icons.hub_outlined), text: 'Providers'),
+      if (isAdmin)
+        const Tab(icon: Icon(Icons.history_outlined), text: 'Logs'),
+      if (isAdmin)
+        const Tab(icon: Icon(Icons.settings_outlined), text: 'System'),
+    ];
+
+    final tabViews = <Widget>[
+      if (isAdmin) _buildDashboardTab(),
+      _buildCatalogTab(context),
+      _buildProvidersTab(context, isAdmin: isAdmin),
+      if (isAdmin) _buildLogsTab(),
+      if (isAdmin) _buildSystemTab(),
+    ];
+
     return DefaultTabController(
-      length: 5,
+      length: tabs.length,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Admin'),
+          title: Text(isAdmin ? 'Admin' : 'Manage'),
           backgroundColor: libraryAccentChromeFallbackColor(accent),
           surfaceTintColor: Colors.transparent,
           flexibleSpace: LibraryAccentChrome(
             accent: accent,
             animationDuration: animationDuration,
           ),
-          bottom: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.dashboard_outlined), text: 'Dashboard'),
-              Tab(icon: Icon(Icons.inventory_2_outlined), text: 'Catalog'),
-              Tab(icon: Icon(Icons.hub_outlined), text: 'Providers'),
-              Tab(icon: Icon(Icons.history_outlined), text: 'Logs'),
-              Tab(icon: Icon(Icons.settings_outlined), text: 'System'),
+          bottom: TabBar(tabs: tabs),
+        ),
+        body: TabBarView(children: tabViews),
+      ),
+    );
+  }
+  // ─── Dashboard tab (admin only) ───
+  Widget _buildDashboardTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _AdminPanel(
+          icon: Icons.dashboard_customize_outlined,
+          title: 'Metadata dashboard',
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: 'Reindex search',
+                onPressed: _isReindexing ? null : _reindexSearch,
+                icon: _isReindexing
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2),
+                      )
+                    : const Icon(Icons.manage_search_outlined),
+              ),
+              IconButton(
+                tooltip: 'Refresh dashboard',
+                onPressed:
+                    _isLoadingDashboard ? null : _loadDashboard,
+                icon: _isLoadingDashboard
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh),
+              ),
             ],
           ),
+          child: _DashboardSummary(
+            summary: _summary,
+            searchStatus: _searchStatus,
+            lastReindex: _lastReindex,
+            configuredProviders: _configuredProviderCount(),
+            registeredProviders: _providers.length,
+            selectedProviderLabel: _selectedProviderLabel(),
+            lastIngest: _lastIngest,
+            errorMessage: _dashboardErrorMessage,
+          ),
         ),
-        body: TabBarView(
-          children: [
-            // ─── Dashboard ───
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _AdminPanel(
-                  icon: Icons.dashboard_customize_outlined,
-                  title: 'Metadata dashboard',
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        tooltip: 'Reindex search',
-                        onPressed: _isReindexing ? null : _reindexSearch,
-                        icon: _isReindexing
-                            ? const SizedBox.square(
-                                dimension: 18,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2),
-                              )
-                            : const Icon(Icons.manage_search_outlined),
-                      ),
-                      IconButton(
-                        tooltip: 'Refresh dashboard',
-                        onPressed:
-                            _isLoadingDashboard ? null : _loadDashboard,
-                        icon: _isLoadingDashboard
-                            ? const SizedBox.square(
-                                dimension: 18,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2),
-                              )
-                            : const Icon(Icons.refresh),
-                      ),
-                    ],
-                  ),
-                  child: _DashboardSummary(
-                    summary: _summary,
-                    searchStatus: _searchStatus,
-                    lastReindex: _lastReindex,
-                    configuredProviders: _configuredProviderCount(),
-                    registeredProviders: _providers.length,
-                    selectedProviderLabel: _selectedProviderLabel(),
-                    lastIngest: _lastIngest,
-                    errorMessage: _dashboardErrorMessage,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.pending_actions_outlined,
-                  title: 'Metadata proposal activity',
-                  child: _DashboardProposalActivity(
-                    summary: _dashboardProposalSummary,
-                    history: _proposalHistory,
-                    errorMessage: _dashboardErrorMessage,
-                  ),
-                ),
-              ],
-            ),
-            // ─── Catalog ───
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _AdminPanel(
-                  icon: Icons.inventory_2_outlined,
-                  title: 'Catalog search',
-                  trailing: IconButton(
-                    tooltip: 'Search catalog',
-                    onPressed:
-                        _isSearchingCatalog ? null : _searchCatalog,
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.pending_actions_outlined,
+          title: 'Metadata proposal activity',
+          child: _DashboardProposalActivity(
+            summary: _dashboardProposalSummary,
+            history: _proposalHistory,
+            errorMessage: _dashboardErrorMessage,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── Catalog tab (all users) ───
+  Widget _buildCatalogTab(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _AdminPanel(
+          icon: Icons.inventory_2_outlined,
+          title: 'Catalog search',
+          trailing: IconButton(
+            tooltip: 'Search catalog',
+            onPressed:
+                _isSearchingCatalog ? null : _searchCatalog,
+            icon: _isSearchingCatalog
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2),
+                  )
+                : const Icon(Icons.search),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final kindField = _ProviderKindSelector(
+                    value: _catalogKindFilter,
+                    kinds: _catalogKindOptions(),
+                    kindLabels: _catalogKindLabels(),
+                    isLoading: _isLoadingProviders,
+                    onChanged: (value) {
+                      setState(() {
+                        _catalogKindFilter =
+                            value == null || value.isEmpty
+                                ? null
+                                : value;
+                      });
+                    },
+                  );
+                  final queryField = TextField(
+                    controller: _catalogQueryController,
+                    decoration: const InputDecoration(
+                      labelText: 'Find catalog items',
+                      hintText: 'Search by title, number, or provider ID',
+                      prefixIcon:
+                          Icon(Icons.manage_search_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (_) => _searchCatalog(),
+                  );
+                  final searchButton = FilledButton.icon(
+                    onPressed: _isSearchingCatalog
+                        ? null
+                        : _searchCatalog,
                     icon: _isSearchingCatalog
                         ? const SizedBox.square(
                             dimension: 18,
@@ -227,411 +290,375 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                                 strokeWidth: 2),
                           )
                         : const Icon(Icons.search),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final kindField = _ProviderKindSelector(
-                            value: _catalogKindFilter,
-                            kinds: _catalogKindOptions(),
-                            kindLabels: _catalogKindLabels(),
-                            isLoading: _isLoadingProviders,
-                            onChanged: (value) {
-                              setState(() {
-                                _catalogKindFilter =
-                                    value == null || value.isEmpty
-                                        ? null
-                                        : value;
-                              });
-                            },
-                          );
-                          final queryField = TextField(
-                            controller: _catalogQueryController,
-                            decoration: const InputDecoration(
-                              labelText: 'Find catalog items',
-                              hintText: 'Search by title, number, or provider ID',
-                              prefixIcon:
-                                  Icon(Icons.manage_search_outlined),
-                              border: OutlineInputBorder(),
-                            ),
-                            textInputAction: TextInputAction.search,
-                            onSubmitted: (_) => _searchCatalog(),
-                          );
-                          final searchButton = FilledButton.icon(
-                            onPressed: _isSearchingCatalog
-                                ? null
-                                : _searchCatalog,
-                            icon: _isSearchingCatalog
-                                ? const SizedBox.square(
-                                    dimension: 18,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2),
-                                  )
-                                : const Icon(Icons.search),
-                            label: const Text('Search'),
-                          );
-                          if (constraints.maxWidth < 640) {
-                            return Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.stretch,
-                              children: [
-                                kindField,
-                                const SizedBox(height: 12),
-                                queryField,
-                                const SizedBox(height: 12),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: searchButton,
-                                ),
-                              ],
-                            );
-                          }
-                          return Row(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(width: 180, child: kindField),
-                              const SizedBox(width: 12),
-                              Expanded(child: queryField),
-                              const SizedBox(width: 12),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 4),
-                                child: searchButton,
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      if (_catalogStatusMessage != null ||
-                          _catalogErrorMessage != null) ...[
+                    label: const Text('Search'),
+                  );
+                  if (constraints.maxWidth < 640) {
+                    return Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.stretch,
+                      children: [
+                        kindField,
                         const SizedBox(height: 12),
-                        _MessageRow(
-                          message: _catalogErrorMessage ??
-                              _catalogStatusMessage!,
-                          isError: _catalogErrorMessage != null,
+                        queryField,
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: searchButton,
                         ),
                       ],
-                      const SizedBox(height: 12),
-                      _CatalogItemList(
-                        items: _catalogItems,
-                        hasSearched: _hasSearchedCatalog,
-                        inspectingItemId: _inspectingItemId,
-                        updatingItemId: _updatingCatalogItemId,
-                        onInspect: _inspectCatalogItem,
-                        onEdit: _showMetadataCorrectionDialog,
-                        onInspectCovers: _showCoverInspectionDialog,
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(width: 180, child: kindField),
+                      const SizedBox(width: 12),
+                      Expanded(child: queryField),
+                      const SizedBox(width: 12),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: 4),
+                        child: searchButton,
                       ),
                     ],
-                  ),
+                  );
+                },
+              ),
+              if (_catalogStatusMessage != null ||
+                  _catalogErrorMessage != null) ...[
+                const SizedBox(height: 12),
+                _MessageRow(
+                  message: _catalogErrorMessage ??
+                      _catalogStatusMessage!,
+                  isError: _catalogErrorMessage != null,
+                ),
+              ],
+              const SizedBox(height: 12),
+              _CatalogItemList(
+                items: _catalogItems,
+                hasSearched: _hasSearchedCatalog,
+                inspectingItemId: _inspectingItemId,
+                updatingItemId: _updatingCatalogItemId,
+                onInspect: _inspectCatalogItem,
+                onEdit: _showMetadataCorrectionDialog,
+                onInspectCovers: _showCoverInspectionDialog,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.join_inner_outlined,
+          title: 'Duplicate candidates',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_duplicateStatusMessage != null ||
+                  _duplicateErrorMessage != null) ...[
+                _MessageRow(
+                  message: _duplicateErrorMessage ??
+                      _duplicateStatusMessage!,
+                  isError: _duplicateErrorMessage != null,
                 ),
                 const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.join_inner_outlined,
-                  title: 'Duplicate candidates',
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (_duplicateStatusMessage != null ||
-                          _duplicateErrorMessage != null) ...[
-                        _MessageRow(
-                          message: _duplicateErrorMessage ??
-                              _duplicateStatusMessage!,
-                          isError: _duplicateErrorMessage != null,
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      _DuplicateCandidateList(
-                        candidates: _duplicates,
-                        inspectingItemId: _inspectingItemId,
-                        actionItemId: _duplicateActionItemId,
-                        onInspect: _inspectDuplicateCandidate,
-                        onIgnore: _ignoreDuplicateCandidate,
-                        onMerge: _mergeDuplicateCandidate,
-                      ),
-                    ],
+              ],
+              _DuplicateCandidateList(
+                candidates: _duplicates,
+                inspectingItemId: _inspectingItemId,
+                actionItemId: _duplicateActionItemId,
+                onInspect: _inspectDuplicateCandidate,
+                onIgnore: _ignoreDuplicateCandidate,
+                onMerge: _mergeDuplicateCandidate,
+              ),
+            ],
+          ),
+        ),
+        if (_lastIngest != null ||
+            _inspectErrorMessage != null) ...[
+          const SizedBox(height: 12),
+          _AdminPanel(
+            icon: Icons.fact_check_outlined,
+            title: 'Canonical item inspector',
+            child: _inspectErrorMessage != null
+                ? _MessageRow(
+                    message: _inspectErrorMessage!,
+                    isError: true,
+                  )
+                : _CanonicalItemSummary(
+                    item: _lastIngest!.item,
+                    created: _lastIngest?.created,
+                    auditLogs: const <AdminAuditLogEntry>[],
                   ),
-                ),
-                if (_lastIngest != null ||
-                    _inspectErrorMessage != null) ...[
-                  const SizedBox(height: 12),
-                  _AdminPanel(
-                    icon: Icons.fact_check_outlined,
-                    title: 'Canonical item inspector',
-                    child: _inspectErrorMessage != null
-                        ? _MessageRow(
-                            message: _inspectErrorMessage!,
-                            isError: true,
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ─── Providers tab (all users, ingest jobs admin-only) ───
+  Widget _buildProvidersTab(BuildContext context, {required bool isAdmin}) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _AdminPanel(
+          icon: Icons.hub_outlined,
+          title: 'Provider status',
+          trailing: IconButton(
+            tooltip: 'Refresh providers',
+            onPressed:
+                _isLoadingProviders ? null : _loadProviders,
+            icon: _isLoadingProviders
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh),
+          ),
+          child: _ProviderStatusList(providers: _providers),
+        ),
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.pending_actions_outlined,
+          title: 'Metadata proposals',
+          trailing: IconButton(
+            tooltip: 'Refresh proposals',
+            onPressed: _isLoadingProposals ? null : _loadProposalData,
+            icon: _isLoadingProposals
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh),
+          ),
+          child: _MetadataProposalPanel(
+            summary: _proposalSummary,
+            proposals: _proposals,
+            statusFilter: _proposalStatusFilter,
+            providerFilter: _proposalProviderFilter,
+            providers: _providers,
+            isLoading: _isLoadingProposals,
+            actingProposalId: _proposalActionId,
+            activeProposalTitle: _activeProposalTitle,
+            statusMessage: _proposalStatusMessage,
+            errorMessage: _proposalErrorMessage,
+            onStatusChanged: _changeProposalStatusFilter,
+            onProviderChanged: _changeProposalProviderFilter,
+            onReview: _reviewProposal,
+            onApprove: _approveProposal,
+            onApproveLinked: _approveProposalWithLinkedItem,
+            onReject: _rejectProposal,
+            onClearReview: _clearActiveProposal,
+            canApproveLinkedItem: _providerSupportsIngest,
+          ),
+        ),
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.travel_explore_outlined,
+          title: 'Add from provider',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Choose a category first, then open the guided add dialog to search a provider or ingest a known provider ID. Search results and proposal review stay below.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (_selectedProviderKindFilter != null)
+                    _MiniChip(
+                      label: _providerKindLabel(
+                        _selectedProviderKindFilter!,
+                        _catalogKindLabels(),
+                      ),
+                    ),
+                  if (_selectedProvider.isNotEmpty)
+                    _MiniChip(label: _selectedProviderLabel()),
+                  if (_activeProposalTitle != null)
+                    _MiniChip(label: 'Reviewing $_activeProposalTitle'),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilledButton.icon(
+                    onPressed: _isLoadingProviders ||
+                            _isSearching ||
+                            _isDirectIngesting
+                        ? null
+                        : _showProviderAddDialog,
+                    icon: _isSearching || _isDirectIngesting
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
                           )
-                        : _CanonicalItemSummary(
-                            item: _lastIngest!.item,
-                            created: _lastIngest?.created,
-                            auditLogs: const <AdminAuditLogEntry>[],
-                          ),
+                        : const Icon(Icons.add_circle_outline),
+                    label: const Text('Open add dialog'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _results.isEmpty
+                        ? null
+                        : () {
+                            setState(() {
+                              _results = const <ProviderCandidate>[];
+                              _statusMessage = null;
+                              _errorMessage = null;
+                            });
+                          },
+                    icon: const Icon(Icons.layers_clear_outlined),
+                    label: const Text('Clear results'),
                   ),
                 ],
-              ],
-            ),
-            // ─── Providers ───
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _AdminPanel(
-                  icon: Icons.hub_outlined,
-                  title: 'Provider status',
-                  trailing: IconButton(
-                    tooltip: 'Refresh providers',
-                    onPressed:
-                        _isLoadingProviders ? null : _loadProviders,
-                    icon: _isLoadingProviders
-                        ? const SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2),
-                          )
-                        : const Icon(Icons.refresh),
-                  ),
-                  child: _ProviderStatusList(providers: _providers),
-                ),
+              ),
+              if (_statusMessage != null ||
+                  _errorMessage != null) ...[
                 const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.pending_actions_outlined,
-                  title: 'Metadata proposals',
-                  trailing: IconButton(
-                    tooltip: 'Refresh proposals',
-                    onPressed: _isLoadingProposals ? null : _loadProposalData,
-                    icon: _isLoadingProposals
-                        ? const SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.refresh),
-                  ),
-                  child: _MetadataProposalPanel(
-                    summary: _proposalSummary,
-                    proposals: _proposals,
-                    statusFilter: _proposalStatusFilter,
-                    providerFilter: _proposalProviderFilter,
-                    providers: _providers,
-                    isLoading: _isLoadingProposals,
-                    actingProposalId: _proposalActionId,
-                    activeProposalTitle: _activeProposalTitle,
-                    statusMessage: _proposalStatusMessage,
-                    errorMessage: _proposalErrorMessage,
-                    onStatusChanged: _changeProposalStatusFilter,
-                    onProviderChanged: _changeProposalProviderFilter,
-                    onReview: _reviewProposal,
-                    onApprove: _approveProposal,
-                    onApproveLinked: _approveProposalWithLinkedItem,
-                    onReject: _rejectProposal,
-                    onClearReview: _clearActiveProposal,
-                    canApproveLinkedItem: _providerSupportsIngest,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.travel_explore_outlined,
-                  title: 'Add from provider',
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'Choose a category first, then open the guided add dialog to search a provider or ingest a known provider ID. Search results and proposal review stay below.',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          if (_selectedProviderKindFilter != null)
-                            _MiniChip(
-                              label: _providerKindLabel(
-                                _selectedProviderKindFilter!,
-                                _catalogKindLabels(),
-                              ),
-                            ),
-                          if (_selectedProvider.isNotEmpty)
-                            _MiniChip(label: _selectedProviderLabel()),
-                          if (_activeProposalTitle != null)
-                            _MiniChip(label: 'Reviewing $_activeProposalTitle'),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          FilledButton.icon(
-                            onPressed: _isLoadingProviders ||
-                                    _isSearching ||
-                                    _isDirectIngesting
-                                ? null
-                                : _showProviderAddDialog,
-                            icon: _isSearching || _isDirectIngesting
-                                ? const SizedBox.square(
-                                    dimension: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(Icons.add_circle_outline),
-                            label: const Text('Open add dialog'),
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: _results.isEmpty
-                                ? null
-                                : () {
-                                    setState(() {
-                                      _results = const <ProviderCandidate>[];
-                                      _statusMessage = null;
-                                      _errorMessage = null;
-                                    });
-                                  },
-                            icon: const Icon(Icons.layers_clear_outlined),
-                            label: const Text('Clear results'),
-                          ),
-                        ],
-                      ),
-                      if (_statusMessage != null ||
-                          _errorMessage != null) ...[
-                        const SizedBox(height: 12),
-                        _MessageRow(
-                          message:
-                              _errorMessage ?? _statusMessage!,
-                          isError: _errorMessage != null,
-                        ),
-                      ],
-                      const SizedBox(height: 12),
-                      _ProviderResultsList(
-                        results: _results,
-                        ingestingProviderItemId:
-                            _ingestingProviderItemId,
-                        canIngestProvider:
-                            _providerSupportsIngest,
-                        activeProposalId: _activeProposalId,
-                        activeProposalTitle: _activeProposalTitle,
-                        onApproveProposal: _approveProposalWithCandidate,
-                        onIngest: _ingestProviderItem,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.queue_outlined,
-                  title: 'Provider ingest jobs',
-                  trailing: IconButton(
-                    tooltip: 'Refresh ingest jobs',
-                    onPressed: _isPollingIngestJobs
-                        ? null
-                        : () =>
-                            unawaited(_refreshIngestJobs()),
-                    icon: _isPollingIngestJobs
-                        ? const SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2),
-                          )
-                        : const Icon(Icons.refresh),
-                  ),
-                  child: _ProviderIngestJobPanel(
-                    jobs: _ingestJobs,
-                    summary: _ingestJobSummary,
-                    autoRefresh: _autoRefreshIngestJobs,
-                    isPolling: _isPollingIngestJobs,
-                    refreshedAt: _ingestJobsRefreshedAt,
-                    statusFilter: _ingestJobStatusFilter,
-                    providerFilter: _ingestJobProviderFilter,
-                    selectedProvider: _selectedProvider,
-                    providers:
-                        _providerOptions(forIngest: true),
-                    isLoadingProviders: _isLoadingProviders,
-                    providerItemIdController:
-                        _jobProviderItemIdController,
-                    queryController:
-                        _ingestJobQueryController,
-                    isRunningJobs: _isRunningJobs,
-                    actionJobId: _jobActionId,
-                    onProviderChanged:
-                        _changeSelectedProvider,
-                    onAutoRefreshChanged:
-                        _changeIngestJobAutoRefresh,
-                    onStatusFilterChanged:
-                        _changeIngestJobStatusFilter,
-                    onProviderFilterChanged:
-                        _changeIngestJobProviderFilter,
-                    onApplyFilters: () =>
-                        unawaited(_refreshIngestJobs()),
-                    onRefresh: () =>
-                        unawaited(_refreshIngestJobs()),
-                    onQueueCurrent:
-                        _queueCurrentProviderItemId,
-                    onRunPending: _runPendingIngestJobs,
-                    onRun: _runIngestJob,
-                    onRetry: _retryIngestJob,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.report_problem_outlined,
-                  title: 'Provider ingest history',
-                  child: _ProviderIngestHistoryList(
-                    history: _ingestHistory,
-                    retryingHistoryId: _retryingHistoryId,
-                    onRetry: _retryIngestHistory,
-                  ),
+                _MessageRow(
+                  message:
+                      _errorMessage ?? _statusMessage!,
+                  isError: _errorMessage != null,
                 ),
               ],
-            ),
-            // ─── Logs ───
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _AdminPanel(
-                  icon: Icons.history_outlined,
-                  title: 'Search index history',
-                  child:
-                      _SearchHistoryList(history: _searchHistory),
-                ),
-                const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.manage_history_outlined,
-                  title: 'Admin audit log',
-                  child: _AdminAuditLogList(logs: _auditLogs),
-                ),
-              ],
-            ),
-            // ─── System ───
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _AdminPanel(
-                  icon: Icons.account_tree_outlined,
-                  title: 'Collection schema',
-                  child: CollectionSchemaManagementPanel(
-                    db: ref.read(localDatabaseProvider),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.people_outline,
-                  title: 'User management',
-                  child: const AdminUsersPanel(),
-                ),
-                const SizedBox(height: 12),
-                _AdminPanel(
-                  icon: Icons.image_outlined,
-                  title: 'Image cache',
-                  child: const AdminImageCachePanel(),
-                ),
-              ],
-            ),
-          ],
+              const SizedBox(height: 12),
+              _ProviderResultsList(
+                results: _results,
+                ingestingProviderItemId:
+                    _ingestingProviderItemId,
+                canIngestProvider:
+                    _providerSupportsIngest,
+                activeProposalId: _activeProposalId,
+                activeProposalTitle: _activeProposalTitle,
+                onApproveProposal: _approveProposalWithCandidate,
+                onIngest: _ingestProviderItem,
+              ),
+            ],
+          ),
         ),
-      ),
+        if (isAdmin) ...[
+          const SizedBox(height: 12),
+          _AdminPanel(
+            icon: Icons.queue_outlined,
+            title: 'Provider ingest jobs',
+            trailing: IconButton(
+              tooltip: 'Refresh ingest jobs',
+              onPressed: _isPollingIngestJobs
+                  ? null
+                  : () =>
+                      unawaited(_refreshIngestJobs()),
+              icon: _isPollingIngestJobs
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
+            ),
+            child: _ProviderIngestJobPanel(
+              jobs: _ingestJobs,
+              summary: _ingestJobSummary,
+              autoRefresh: _autoRefreshIngestJobs,
+              isPolling: _isPollingIngestJobs,
+              refreshedAt: _ingestJobsRefreshedAt,
+              statusFilter: _ingestJobStatusFilter,
+              providerFilter: _ingestJobProviderFilter,
+              selectedProvider: _selectedProvider,
+              providers:
+                  _providerOptions(forIngest: true),
+              isLoadingProviders: _isLoadingProviders,
+              providerItemIdController:
+                  _jobProviderItemIdController,
+              queryController:
+                  _ingestJobQueryController,
+              isRunningJobs: _isRunningJobs,
+              actionJobId: _jobActionId,
+              onProviderChanged:
+                  _changeSelectedProvider,
+              onAutoRefreshChanged:
+                  _changeIngestJobAutoRefresh,
+              onStatusFilterChanged:
+                  _changeIngestJobStatusFilter,
+              onProviderFilterChanged:
+                  _changeIngestJobProviderFilter,
+              onApplyFilters: () =>
+                  unawaited(_refreshIngestJobs()),
+              onRefresh: () =>
+                  unawaited(_refreshIngestJobs()),
+              onQueueCurrent:
+                  _queueCurrentProviderItemId,
+              onRunPending: _runPendingIngestJobs,
+              onRun: _runIngestJob,
+              onRetry: _retryIngestJob,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _AdminPanel(
+            icon: Icons.report_problem_outlined,
+            title: 'Provider ingest history',
+            child: _ProviderIngestHistoryList(
+              history: _ingestHistory,
+              retryingHistoryId: _retryingHistoryId,
+              onRetry: _retryIngestHistory,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ─── Logs tab (admin only) ───
+  Widget _buildLogsTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _AdminPanel(
+          icon: Icons.history_outlined,
+          title: 'Search index history',
+          child:
+              _SearchHistoryList(history: _searchHistory),
+        ),
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.manage_history_outlined,
+          title: 'Admin audit log',
+          child: _AdminAuditLogList(logs: _auditLogs),
+        ),
+      ],
+    );
+  }
+
+  // ─── System tab (admin only) ───
+  Widget _buildSystemTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _AdminPanel(
+          icon: Icons.account_tree_outlined,
+          title: 'Collection schema',
+          child: CollectionSchemaManagementPanel(
+            db: ref.read(localDatabaseProvider),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.people_outline,
+          title: 'User management',
+          child: const AdminUsersPanel(),
+        ),
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.image_outlined,
+          title: 'Image cache',
+          child: const AdminImageCachePanel(),
+        ),
+      ],
     );
   }
 

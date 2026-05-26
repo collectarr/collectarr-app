@@ -597,9 +597,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         Text(
                           auth.isAuthenticated
                               ? auth.isAdmin
-                                  ? 'Admin tools are available in navigation and advanced metadata workflows.'
-                                  : 'Admin-only tools are hidden for this account. Refresh permissions after a role change.'
-                              : 'You can browse the app and send metadata proposals without signing in. Sign in is only needed for admin tools.',
+                                  ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
+                                  : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
+                              : 'You can browse the app and send metadata proposals without signing in. Sign in is only needed for server features.',
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -2440,7 +2440,7 @@ class _TmdbImportCardState extends State<_TmdbImportCard> {
   void _onImport() {
     showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         insetPadding: const EdgeInsets.all(24),
         title: const Text('TMDB Import'),
         content: SizedBox(
@@ -2455,7 +2455,7 @@ class _TmdbImportCardState extends State<_TmdbImportCard> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Close'),
           ),
         ],

@@ -158,10 +158,11 @@ class DefaultLibraryMediaPresentationBuilder
     required Color accent,
   }) {
     final sections = <Widget>[];
+    final resolvedItemId = entry.titleItemId ?? entry.id;
     if (showSeasonHierarchy) {
-      sections.add(SeasonsSection(itemId: entry.id));
+      sections.add(SeasonsSection(itemId: resolvedItemId));
     } else if (showVolumeHierarchy) {
-      sections.add(VolumesSection(itemId: entry.id));
+      sections.add(VolumesSection(itemId: resolvedItemId));
     }
     if (showSummary && entry.synopsis != null && entry.synopsis!.trim().isNotEmpty) {
       sections.add(

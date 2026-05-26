@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,9 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => _AdminAuthController(ref),
+          ),
         ],
         child: const MaterialApp(home: AdminPage()),
       ),
@@ -402,6 +406,9 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => _AdminAuthController(ref),
+          ),
         ],
         child: const MaterialApp(home: AdminPage()),
       ),
@@ -462,6 +469,16 @@ Future<void> _scrollUntilVisible(
     maxScrolls: 50,
   );
   await pumpUntilSettled(tester);
+}
+
+class _AdminAuthController extends AuthController {
+  _AdminAuthController(super.ref) {
+    state = const AuthState(
+      token: 'test-token',
+      email: 'admin@example.com',
+      isAdmin: true,
+    );
+  }
 }
 
 class _FakeAdminApiClient extends ApiClient {
