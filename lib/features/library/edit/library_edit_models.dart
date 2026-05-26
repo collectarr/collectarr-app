@@ -111,6 +111,7 @@ class LibraryTrackingEditSelection {
     this.episodeNumber,
     this.startedAt,
     this.finishedAt,
+    this.episodeRatings,
   });
 
   final String? editionId;
@@ -125,4 +126,5 @@ class LibraryTrackingEditSelection {
   final int? episodeNumber;
   final DateTime? startedAt;
   final DateTime? finishedAt;
+  final Map<String, int>? episodeRatings;
 }

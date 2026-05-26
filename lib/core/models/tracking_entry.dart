@@ -20,10 +20,12 @@ class TrackingEntry {
     this.notes,
     this.seasonNumber,
     this.episodeNumber,
+    Map<String, int>? episodeRatings,
     required this.updatedAt,
     this.deletedAt,
   })  : sourceType = trackingSourceTypeFromValue(sourceType),
-        status = mediaTrackingStatusFromValue(status);
+        status = mediaTrackingStatusFromValue(status),
+        episodeRatings = episodeRatings ?? const {};
 
   final String id;
   final String itemId;
@@ -42,6 +44,7 @@ class TrackingEntry {
   final String? notes;
   final int? seasonNumber;
   final int? episodeNumber;
+  final Map<String, int> episodeRatings;
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
@@ -71,6 +74,7 @@ class TrackingEntry {
       'notes': notes,
       'season_number': seasonNumber,
       'episode_number': episodeNumber,
+      if (episodeRatings.isNotEmpty) 'episode_ratings': episodeRatings,
     };
   }
 
@@ -97,6 +101,7 @@ class TrackingEntry {
       notes: json['notes'] as String?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
+      episodeRatings: _parseEpisodeRatings(json['episode_ratings']),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] == null
           ? null
@@ -122,6 +127,7 @@ class TrackingEntry {
     String? notes,
     int? seasonNumber,
     int? episodeNumber,
+    Map<String, int>? episodeRatings,
     DateTime? updatedAt,
     DateTime? deletedAt,
   }) {
@@ -143,8 +149,22 @@ class TrackingEntry {
       notes: notes ?? this.notes,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
+      episodeRatings: episodeRatings ?? this.episodeRatings,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
     );
   }
+}
+
+Map<String, int> _parseEpisodeRatings(Object? raw) {
+  if (raw is Map) {
+    return {
+      for (final entry in raw.entries)
+        if (entry.key is String && entry.value is int)
+          entry.key as String: entry.value as int
+        else if (entry.key is String && entry.value is num)
+          entry.key as String: (entry.value as num).toInt(),
+    };
+  }
+  return const {};
 }

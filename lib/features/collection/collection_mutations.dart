@@ -253,6 +253,7 @@ class CollectionMutations {
     String? notes,
     int? seasonNumber,
     int? episodeNumber,
+    Map<String, int>? episodeRatings,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
@@ -273,6 +274,7 @@ class CollectionMutations {
       notes: _normalizeTrackingValue(notes),
       seasonNumber: seasonNumber,
       episodeNumber: episodeNumber,
+      episodeRatings: episodeRatings,
       updatedAt: now,
     );
     await _syncTrackingEntry(entry, now);

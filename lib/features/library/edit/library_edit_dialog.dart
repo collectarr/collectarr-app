@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video_season_tracking_section.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -135,6 +136,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   // Reading progress
   DateTime? _startedAt;
   DateTime? _finishedAt;
+  Map<String, int> _episodeRatings = {};
 
   // Comics-specific grading fields
   late final TextEditingController _rawOrSlabbedController;
@@ -333,6 +335,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _soldAt = owned?.soldAt;
     _startedAt = tracking?.startedAt ?? owned?.startedAt;
     _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
+    _episodeRatings = Map<String, int>.from(tracking?.episodeRatings ?? const {});
 
     _rawOrSlabbedController =
         TextEditingController(text: owned?.rawOrSlabbed ?? '');
@@ -1169,6 +1172,20 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             itemId: widget.item.id,
             accent: widget.accent,
           ),
+        if (_showsEpisodeTrackingFields)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: VideoEpisodeRatingSection(
+              itemId: widget.item.id,
+              accent: widget.accent,
+              trackingEntry: widget.trackingEntry?.copyWith(
+                episodeRatings: _episodeRatings,
+              ),
+              onEpisodeRatingsChanged: (updated) {
+                setState(() => _episodeRatings = updated);
+              },
+            ),
+          ),
         if (_hasWishlistContext)
           EditSection(
             title: 'Wishlist reference',
@@ -1692,6 +1709,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               notes: emptyToNull(_trackingNotesController.text),
               seasonNumber: parseInt(_seasonNumberController.text),
               episodeNumber: parseInt(_episodeNumberController.text),
+              episodeRatings: _episodeRatings.isEmpty ? null : _episodeRatings,
             ),
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,

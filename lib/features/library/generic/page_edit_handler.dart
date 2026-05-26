@@ -202,6 +202,8 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
           result.tracking?.seasonNumber ?? activeTrackingEntry?.seasonNumber,
         episodeNumber:
           result.tracking?.episodeNumber ?? activeTrackingEntry?.episodeNumber,
+        episodeRatings:
+          result.tracking?.episodeRatings ?? activeTrackingEntry?.episodeRatings,
       );
       // Save custom field values
       final now = DateTime.now();

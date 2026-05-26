@@ -4313,6 +4313,12 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
   late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
       'episode_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeRatingsMeta =
+      const VerificationMeta('episodeRatings');
+  @override
+  late final GeneratedColumn<String> episodeRatings = GeneratedColumn<String>(
+      'episode_ratings', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
@@ -4344,6 +4350,7 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
         notes,
         seasonNumber,
         episodeNumber,
+        episodeRatings,
         updatedAt,
         deletedAt
       ];
@@ -4447,6 +4454,12 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
           episodeNumber.isAcceptableOrUnknown(
               data['episode_number']!, _episodeNumberMeta));
     }
+    if (data.containsKey('episode_ratings')) {
+      context.handle(
+          _episodeRatingsMeta,
+          episodeRatings.isAcceptableOrUnknown(
+              data['episode_ratings']!, _episodeRatingsMeta));
+    }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
@@ -4501,6 +4514,8 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
           .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
       episodeNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      episodeRatings: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}episode_ratings']),
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
@@ -4533,6 +4548,7 @@ class TrackingEntriesCacheData extends DataClass
   final String? notes;
   final int? seasonNumber;
   final int? episodeNumber;
+  final String? episodeRatings;
   final DateTime updatedAt;
   final DateTime? deletedAt;
   const TrackingEntriesCacheData(
@@ -4553,6 +4569,7 @@ class TrackingEntriesCacheData extends DataClass
       this.notes,
       this.seasonNumber,
       this.episodeNumber,
+      this.episodeRatings,
       required this.updatedAt,
       this.deletedAt});
   @override
@@ -4604,6 +4621,9 @@ class TrackingEntriesCacheData extends DataClass
     }
     if (!nullToAbsent || episodeNumber != null) {
       map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    if (!nullToAbsent || episodeRatings != null) {
+      map['episode_ratings'] = Variable<String>(episodeRatings);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -4658,6 +4678,9 @@ class TrackingEntriesCacheData extends DataClass
       episodeNumber: episodeNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(episodeNumber),
+      episodeRatings: episodeRatings == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeRatings),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -4686,6 +4709,7 @@ class TrackingEntriesCacheData extends DataClass
       notes: serializer.fromJson<String?>(json['notes']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      episodeRatings: serializer.fromJson<String?>(json['episodeRatings']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
@@ -4711,6 +4735,7 @@ class TrackingEntriesCacheData extends DataClass
       'notes': serializer.toJson<String?>(notes),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'episodeRatings': serializer.toJson<String?>(episodeRatings),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
@@ -4734,6 +4759,7 @@ class TrackingEntriesCacheData extends DataClass
           Value<String?> notes = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent(),
+          Value<String?> episodeRatings = const Value.absent(),
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       TrackingEntriesCacheData(
@@ -4762,6 +4788,8 @@ class TrackingEntriesCacheData extends DataClass
             seasonNumber.present ? seasonNumber.value : this.seasonNumber,
         episodeNumber:
             episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        episodeRatings:
+            episodeRatings.present ? episodeRatings.value : this.episodeRatings,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
@@ -4800,6 +4828,9 @@ class TrackingEntriesCacheData extends DataClass
       episodeNumber: data.episodeNumber.present
           ? data.episodeNumber.value
           : this.episodeNumber,
+      episodeRatings: data.episodeRatings.present
+          ? data.episodeRatings.value
+          : this.episodeRatings,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
@@ -4825,6 +4856,7 @@ class TrackingEntriesCacheData extends DataClass
           ..write('notes: $notes, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
+          ..write('episodeRatings: $episodeRatings, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -4850,6 +4882,7 @@ class TrackingEntriesCacheData extends DataClass
       notes,
       seasonNumber,
       episodeNumber,
+      episodeRatings,
       updatedAt,
       deletedAt);
   @override
@@ -4873,6 +4906,7 @@ class TrackingEntriesCacheData extends DataClass
           other.notes == this.notes &&
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber &&
+          other.episodeRatings == this.episodeRatings &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -4896,6 +4930,7 @@ class TrackingEntriesCacheCompanion
   final Value<String?> notes;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
+  final Value<String?> episodeRatings;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   final Value<int> rowid;
@@ -4917,6 +4952,7 @@ class TrackingEntriesCacheCompanion
     this.notes = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
+    this.episodeRatings = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4939,6 +4975,7 @@ class TrackingEntriesCacheCompanion
     this.notes = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
+    this.episodeRatings = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4963,6 +5000,7 @@ class TrackingEntriesCacheCompanion
     Expression<String>? notes,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
+    Expression<String>? episodeRatings,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
@@ -4985,6 +5023,7 @@ class TrackingEntriesCacheCompanion
       if (notes != null) 'notes': notes,
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (episodeRatings != null) 'episode_ratings': episodeRatings,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
@@ -5009,6 +5048,7 @@ class TrackingEntriesCacheCompanion
       Value<String?>? notes,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
+      Value<String?>? episodeRatings,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
       Value<int>? rowid}) {
@@ -5030,6 +5070,7 @@ class TrackingEntriesCacheCompanion
       notes: notes ?? this.notes,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
+      episodeRatings: episodeRatings ?? this.episodeRatings,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
@@ -5090,6 +5131,9 @@ class TrackingEntriesCacheCompanion
     if (episodeNumber.present) {
       map['episode_number'] = Variable<int>(episodeNumber.value);
     }
+    if (episodeRatings.present) {
+      map['episode_ratings'] = Variable<String>(episodeRatings.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -5122,6 +5166,7 @@ class TrackingEntriesCacheCompanion
           ..write('notes: $notes, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
+          ..write('episodeRatings: $episodeRatings, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
@@ -11345,6 +11390,7 @@ typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
   Value<String?> notes,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
+  Value<String?> episodeRatings,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -11368,6 +11414,7 @@ typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
   Value<String?> notes,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
+  Value<String?> episodeRatings,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -11435,6 +11482,10 @@ class $$TrackingEntriesCacheTableFilterComposer
 
   ColumnFilters<int> get episodeNumber => $composableBuilder(
       column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get episodeRatings => $composableBuilder(
+      column: $table.episodeRatings,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
@@ -11509,6 +11560,10 @@ class $$TrackingEntriesCacheTableOrderingComposer
       column: $table.episodeNumber,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get episodeRatings => $composableBuilder(
+      column: $table.episodeRatings,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
@@ -11576,6 +11631,9 @@ class $$TrackingEntriesCacheTableAnnotationComposer
   GeneratedColumn<int> get episodeNumber => $composableBuilder(
       column: $table.episodeNumber, builder: (column) => column);
 
+  GeneratedColumn<String> get episodeRatings => $composableBuilder(
+      column: $table.episodeRatings, builder: (column) => column);
+
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
@@ -11630,6 +11688,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<String?> notes = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
+            Value<String?> episodeRatings = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -11652,6 +11711,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             notes: notes,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
+            episodeRatings: episodeRatings,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -11674,6 +11734,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<String?> notes = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
+            Value<String?> episodeRatings = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -11696,6 +11757,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             notes: notes,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
+            episodeRatings: episodeRatings,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
