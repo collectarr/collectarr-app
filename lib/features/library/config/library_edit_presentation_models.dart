@@ -11,6 +11,7 @@ class LibraryEditPresentationContext {
     required this.hasEditionAnchors,
     required this.hasBundleReleaseAnchors,
     required this.hasCustomFields,
+    this.hasReleaseAnchor = false,
   });
 
   final bool isOwned;
@@ -22,6 +23,12 @@ class LibraryEditPresentationContext {
   final bool hasEditionAnchors;
   final bool hasBundleReleaseAnchors;
   final bool hasCustomFields;
+
+  /// Whether the current ownership/tracking anchor targets a specific release
+  /// (edition, variant, or bundle) rather than the abstract media work.
+  /// When `false` and the item is owned/tracked, release-level fields
+  /// (edition title, variant, barcode, physical format) are hidden.
+  final bool hasReleaseAnchor;
 }
 
 class LibraryEditTabSpec {

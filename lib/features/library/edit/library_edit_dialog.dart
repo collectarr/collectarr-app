@@ -158,6 +158,10 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   bool get _hasWishlistContext => widget.wishlistItem != null;
 
+  bool get _hasReleaseAnchor {
+    return _selectedOwnedAnchorType != PersonalItemAnchorType.item.apiValue;
+  }
+
   LibraryEditPresentationContext get _editPresentationContext {
     return LibraryEditPresentationContext(
       isOwned: _isOwned,
@@ -169,6 +173,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       hasEditionAnchors: widget.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
       hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
+      hasReleaseAnchor: _hasReleaseAnchor,
     );
   }
 
@@ -183,6 +188,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       hasEditionAnchors: widget.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
       hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
+      hasReleaseAnchor: _hasReleaseAnchor,
     );
   }
 

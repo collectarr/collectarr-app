@@ -119,8 +119,12 @@ class DefaultLibraryEditPresentationBuilder
   }) {
     return LibraryEditPresentationState(
       showsPhysicalFormatSelector:
-          showPhysicalFormatSelector && context.hasPhysicalFormats,
-      showsCatalogReleaseFields: showCatalogReleaseFields,
+          showPhysicalFormatSelector &&
+          context.hasPhysicalFormats &&
+          (!context.hasTrackingContext || context.hasReleaseAnchor),
+      showsCatalogReleaseFields:
+          showCatalogReleaseFields &&
+          (!context.hasTrackingContext || context.hasReleaseAnchor),
       showsBookPublishingFields: showBookPublishingFields,
       showsOwnershipReferenceSection:
           showOwnershipReferenceSection &&
