@@ -152,7 +152,13 @@ class LibraryToolbar extends StatelessWidget {
                   onChanged: onSearchChanged,
                   selectionColor: kAppSelection,
                 ),
-                const LibraryWorkspaceSeparator(color: kAppDivider),
+                const SizedBox(width: 8),
+                _ItemCountLabel(
+                  shown: counts.shown,
+                  total: counts.total,
+                  pluralLabel: type.pluralLabel,
+                ),
+                const Spacer(),
                 if (selectionCallbacks != null)
                   LibrarySelectionControls(
                     selectedCount: selectedCount,
@@ -246,6 +252,32 @@ class _FilterButton extends StatelessWidget {
         ),
         tooltip: 'Edit filters',
         onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+class _ItemCountLabel extends StatelessWidget {
+  const _ItemCountLabel({
+    required this.shown,
+    required this.total,
+    required this.pluralLabel,
+  });
+
+  final int shown;
+  final int total;
+  final String pluralLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = shown == total
+        ? '$total ${pluralLabel.toLowerCase()}'
+        : '$shown of $total ${pluralLabel.toLowerCase()}';
+    return Text(
+      label,
+      style: const TextStyle(
+        fontSize: 12,
+        color: kAppTextMuted,
       ),
     );
   }
