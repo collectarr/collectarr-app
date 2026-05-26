@@ -169,15 +169,16 @@ Current app-side parity work is largely complete; the remaining work here is har
 	- TMDB import landed first (CSV/JSON file import with batch hydration via Core). Settings page shows all import sources in a compact 2-column grid; TMDB is functional, others show "Coming soon".
 	- Prioritize import-only flows before any bidirectional sync; App mostly needs credential entry, import previews, and duplicate-resolution UX.
 	- Keep provider/source adapters modular so TV/anime imports can land before the full matrix of tracker ecosystems is supported.
-- [ ] Per-item tracking history / activity timeline
-	- Anchor this on locally meaningful events first: added, moved, loaned, sold, wishlist changes, notes/value edits, and sync conflict actions.
-	- Prefer a compact detail-page/activity drawer before building any global feed surface.
-- [ ] Saved lists / shortlists beyond owned + wishlist
-	- Treat saved lists as named filtered collections first; avoid introducing collaborative/shared semantics until list ownership and export behavior are clear.
-	- Reuse existing projection/filter infrastructure so smart lists and manual shortlists can share one model.
-- [ ] Calendar and notification surfaces only if they clearly improve release / pull-list workflows
-	- Scope this to collector-relevant reminders such as release dates, pull-list due items, loans, and preorders rather than generic media calendars.
-	- Only add notification plumbing after the calendar surface proves useful as a passive view.
+- [x] Per-item tracking history / activity timeline
+	- Activity timeline section on detail page aggregates events from owned items, tracking entries, watch sessions, wishlist, and loans into a chronological rail view.
+	- 11 event kinds: added, removed, wishlisted, purchased, started, finished, sold, loaned, returned, watched, rated.
+- [x] Saved lists / shortlists beyond owned + wishlist
+	- Smart lists (saved filter/sort presets) with full CRUD via toolbar menu.
+	- User folders (manual shortlists) with folder management dialog, folder assignment from detail page, and toolbar access.
+	- Folders support create, rename, delete, and per-item add/remove membership.
+- [x] Calendar and notification surfaces only if they clearly improve release / pull-list workflows
+	- Calendar page added as a top-level navigation tab showing release dates, loan due/return dates, purchase dates, started/finished dates, and watch sessions.
+	- Month grid view with day selection and event list. Events aggregated from existing collection data.
 
 ### 🚫 Lower Priority Unless Product Direction Changes
 - [ ] Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity work for now
