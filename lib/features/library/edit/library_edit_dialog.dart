@@ -18,7 +18,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -162,6 +161,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     return _selectedOwnedAnchorType != PersonalItemAnchorType.item.apiValue;
   }
 
+  /// Release-level fields (edition title, variant, barcode, physical format)
+  /// are visible when editing a catalog-only item or when the ownership
+  /// anchor targets a specific release rather than the abstract media work.
+  bool get _showsReleaseSection {
+    if (!_hasTrackingContext) return true; // catalog-only: always show
+    return _hasReleaseAnchor;
+  }
+
   LibraryEditPresentationContext get _editPresentationContext {
     return LibraryEditPresentationContext(
       isOwned: _isOwned,
@@ -173,7 +180,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       hasEditionAnchors: widget.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
       hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
-      hasReleaseAnchor: _hasReleaseAnchor,
     );
   }
 
@@ -188,7 +194,6 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       hasEditionAnchors: widget.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
       hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
-      hasReleaseAnchor: _hasReleaseAnchor,
     );
   }
 
@@ -485,12 +490,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   // -------------------------------------------------------------------------
 
   Widget _mainTab() {
-    final labels = libraryMediaFieldLabels(widget.type);
+    final mediaFields = widget.type.mediaFields;
+    final releaseFields = widget.type.releaseFields;
     final editPresentation = _editPresentation;
     return EditTabShell(
       children: [
+        // ---- Media-level fields (the abstract work) ----
         EditSection(
-          title: 'Catalog snapshot',
+          title: 'Media',
           accent: widget.accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,60 +509,13 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   validator: (value) =>
                       emptyToNull(value ?? '') == null ? 'Enter a title' : null,
                 ),
-                _field(controller: _numberController, label: labels.number),
+                _field(controller: _numberController, label: mediaFields.numberLabel),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
-                    controller: _publisherController, label: labels.publisher),
-                if (editPresentation.showsCatalogReleaseFields)
-                  _field(
-                      controller: _editionTitleController,
-                      label: 'Edition title'),
-                if (editPresentation.showsCatalogReleaseFields)
-                  _field(controller: _variantController, label: labels.variant),
-                if (editPresentation.showsCatalogReleaseFields)
-                  _field(controller: _barcodeController, label: labels.barcode),
+                    controller: _publisherController, label: mediaFields.publisherLabel),
               ]),
-              if (editPresentation.showsCatalogReleaseFields &&
-                  editPresentation.showsPhysicalFormatSelector) ...[
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  initialValue: _physicalFormatId,
-                  isExpanded: true,
-                  dropdownColor: kEditPanelRaised,
-                  borderRadius: kEditMenuBorderRadius,
-                  decoration: const InputDecoration(
-                    labelText: 'Physical format',
-                  ),
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: '',
-                      child: Text('No specific format'),
-                    ),
-                    for (final format in widget.physicalFormats)
-                      DropdownMenuItem<String>(
-                        value: format.id,
-                        child: Text(format.label),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    final normalized = emptyToNull(value ?? '');
-                    final format = _physicalFormatForId(normalized);
-                    final previousFormat =
-                        _physicalFormatForId(_physicalFormatId);
-                    final variant = _variantController.text.trim();
-                    final shouldReplaceVariant =
-                        variant.isEmpty || previousFormat?.label == variant;
-                    setState(() {
-                      _physicalFormatId = format?.id;
-                      if (format != null && shouldReplaceVariant) {
-                        _variantController.text = format.label;
-                      }
-                    });
-                  },
-                ),
-              ],
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
@@ -570,24 +530,83 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   validator: optionalIntValidator,
                 ),
               ]),
-              if (editPresentation.showsBookPublishingFields) ...[
+              if (mediaFields.showPageCount || mediaFields.showImprint || mediaFields.showSeriesGroup) ...[
                 const SizedBox(height: 10),
                 _responsiveFields([
-                  _field(
-                    controller: _pageCountController,
-                    label: 'Page count',
-                    validator: optionalIntValidator,
-                  ),
-                  _field(controller: _imprintController, label: 'Imprint'),
-                  _field(
-                    controller: _seriesGroupController,
-                    label: 'Series group',
-                  ),
+                  if (mediaFields.showPageCount)
+                    _field(
+                      controller: _pageCountController,
+                      label: 'Page count',
+                      validator: optionalIntValidator,
+                    ),
+                  if (mediaFields.showImprint)
+                    _field(controller: _imprintController, label: 'Imprint'),
+                  if (mediaFields.showSeriesGroup)
+                    _field(
+                      controller: _seriesGroupController,
+                      label: 'Series group',
+                    ),
                 ]),
               ],
             ],
           ),
         ),
+        // ---- Release-level fields (specific edition/variant) ----
+        if (_showsReleaseSection)
+          EditSection(
+            title: 'Release details',
+            accent: widget.accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _responsiveFields([
+                  _field(
+                      controller: _editionTitleController,
+                      label: releaseFields.editionTitleLabel),
+                  _field(controller: _variantController, label: releaseFields.variantLabel),
+                  _field(controller: _barcodeController, label: releaseFields.barcodeLabel),
+                ]),
+                if (releaseFields.showPhysicalFormat && widget.physicalFormats.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    initialValue: _physicalFormatId,
+                    isExpanded: true,
+                    dropdownColor: kEditPanelRaised,
+                    borderRadius: kEditMenuBorderRadius,
+                    decoration: const InputDecoration(
+                      labelText: 'Physical format',
+                    ),
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: '',
+                        child: Text('No specific format'),
+                      ),
+                      for (final format in widget.physicalFormats)
+                        DropdownMenuItem<String>(
+                          value: format.id,
+                          child: Text(format.label),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      final normalized = emptyToNull(value ?? '');
+                      final format = _physicalFormatForId(normalized);
+                      final previousFormat =
+                          _physicalFormatForId(_physicalFormatId);
+                      final variant = _variantController.text.trim();
+                      final shouldReplaceVariant =
+                          variant.isEmpty || previousFormat?.label == variant;
+                      setState(() {
+                        _physicalFormatId = format?.id;
+                        if (format != null && shouldReplaceVariant) {
+                          _variantController.text = format.label;
+                        }
+                      });
+                    },
+                  ),
+                ],
+              ],
+            ),
+          ),
         if (_hasTrackingContext)
           EditSection(
             title: editPresentation.trackingSectionTitle,

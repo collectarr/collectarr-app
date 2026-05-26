@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
@@ -43,6 +44,17 @@ const booksLibraryConfig = LibraryTypeConfig(
   presentation: booksLibraryMediaPresentation,
   editPresentation: booksLibraryEditPresentation,
   editDialogBuilder: buildBookLibraryEditDialog,
+  mediaFields: MediaEditFields(
+    numberLabel: 'Volume',
+    publisherLabel: 'Publisher',
+    showPageCount: true,
+    showImprint: true,
+    showSeriesGroup: true,
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Edition / Binding',
+    barcodeLabel: 'ISBN / Barcode',
+  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.volumes,

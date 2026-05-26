@@ -130,12 +130,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  LibraryEditPresentationState get _editPresentation {
-    return widget.request.type.editPresentation.builder.build(
-      context: _editPresentationContext,
-    );
-  }
-
   String get _musicTitleLabel {
     final title = _titleController.text.trim();
     return title.isEmpty ? _item.title : title;
@@ -522,7 +516,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   validator: optionalIntValidator,
                 ),
               ]),
-              if (_editPresentation.showsPhysicalFormatSelector) ...[
+              if (widget.request.type.releaseFields.showPhysicalFormat &&
+                  widget.request.physicalFormats.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   initialValue: _physicalFormatId,

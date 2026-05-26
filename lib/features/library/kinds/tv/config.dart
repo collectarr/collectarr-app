@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video_detail_page.dart';
@@ -43,6 +44,14 @@ const tvLibraryConfig = LibraryTypeConfig(
   presentation: tvLibraryMediaPresentation,
   editPresentation: videoLibraryEditPresentation,
   inspectorSectionsBuilder: buildVideoInspectorSections,
+  mediaFields: MediaEditFields(
+    numberLabel: 'Season / Volume',
+    publisherLabel: 'Network / Studio',
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Format / Edition',
+    barcodeLabel: 'UPC / Barcode',
+  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.seasons,

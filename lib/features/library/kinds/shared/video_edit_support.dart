@@ -8,8 +8,6 @@ class VideoLibraryEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const VideoLibraryEditPresentationBuilder()
       : super(
-          showCatalogReleaseFields: true,
-          showPhysicalFormatSelector: true,
           trackingSectionTitle: 'Watch tracking',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',

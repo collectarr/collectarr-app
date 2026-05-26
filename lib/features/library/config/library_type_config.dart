@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
@@ -213,6 +214,8 @@ class LibraryTypeConfig {
     this.presentation = genericLibraryMediaPresentation,
     this.editPresentation =
       const LibraryEditPresentation(builder: DefaultLibraryEditPresentationBuilder()),
+    this.mediaFields = const MediaEditFields(),
+    this.releaseFields = const ReleaseEditFields(),
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
@@ -232,6 +235,8 @@ class LibraryTypeConfig {
   final LibraryTypeCapabilities capabilities;
   final LibraryMediaPresentation presentation;
   final LibraryEditPresentation editPresentation;
+  final MediaEditFields mediaFields;
+  final ReleaseEditFields releaseFields;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;

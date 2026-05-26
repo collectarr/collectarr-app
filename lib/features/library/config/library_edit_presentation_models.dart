@@ -11,7 +11,6 @@ class LibraryEditPresentationContext {
     required this.hasEditionAnchors,
     required this.hasBundleReleaseAnchors,
     required this.hasCustomFields,
-    this.hasReleaseAnchor = false,
   });
 
   final bool isOwned;
@@ -23,12 +22,6 @@ class LibraryEditPresentationContext {
   final bool hasEditionAnchors;
   final bool hasBundleReleaseAnchors;
   final bool hasCustomFields;
-
-  /// Whether the current ownership/tracking anchor targets a specific release
-  /// (edition, variant, or bundle) rather than the abstract media work.
-  /// When `false` and the item is owned/tracked, release-level fields
-  /// (edition title, variant, barcode, physical format) are hidden.
-  final bool hasReleaseAnchor;
 }
 
 class LibraryEditTabSpec {
@@ -55,9 +48,6 @@ class LibraryEditFooterSpec {
 
 class LibraryEditPresentationState {
   const LibraryEditPresentationState({
-    required this.showsPhysicalFormatSelector,
-    required this.showsCatalogReleaseFields,
-    this.showsBookPublishingFields = false,
     required this.showsOwnershipReferenceSection,
     required this.showsOwnedGradingSection,
     required this.trackingSectionTitle,
@@ -70,10 +60,6 @@ class LibraryEditPresentationState {
     required this.keyReasonLabel,
   });
 
-  final bool showsPhysicalFormatSelector;
-  final bool showsCatalogReleaseFields;
-  /// Whether to show book-specific publishing fields (page count, imprint, series group).
-  final bool showsBookPublishingFields;
   final bool showsOwnershipReferenceSection;
   final bool showsOwnedGradingSection;
   final String trackingSectionTitle;

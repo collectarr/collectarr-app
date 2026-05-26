@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
@@ -45,6 +46,17 @@ const mangaLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: mangaLibraryMediaPresentation,
   editPresentation: mangaLibraryEditPresentation,
+  mediaFields: MediaEditFields(
+    numberLabel: 'Volume / Chapter',
+    publisherLabel: 'Publisher',
+    showPageCount: true,
+    showImprint: true,
+    showSeriesGroup: true,
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Edition / Variant',
+    barcodeLabel: 'ISBN / Barcode',
+  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
