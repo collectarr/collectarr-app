@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
@@ -7,20 +8,6 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-class LibraryMediaFieldLabels {
-  const LibraryMediaFieldLabels({
-    required this.number,
-    required this.publisher,
-    required this.variant,
-    required this.barcode,
-  });
-
-  final String number;
-  final String publisher;
-  final String variant;
-  final String barcode;
-}
 
 class LibraryMediaSearchFieldLabels {
   const LibraryMediaSearchFieldLabels({
@@ -129,7 +116,8 @@ abstract class LibraryMediaPresentationBuilder {
     required BuildContext context,
     required Color accent,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryMediaPreviewLabels previewLabels,
     required LibraryMetadataItem? item,
     required ProviderCandidate? candidate,
@@ -142,7 +130,8 @@ abstract class LibraryMediaPresentationBuilder {
 
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -159,14 +148,16 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailIdentitySection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      labels: labels,
+      mediaFields: mediaFields,
+      releaseFields: releaseFields,
       entry: entry,
       includeIdentityFacts: true,
       tapFor: _tapResolver(onFilterByValue),
@@ -200,14 +191,16 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailContextSection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      labels: labels,
+      mediaFields: mediaFields,
+      releaseFields: releaseFields,
       entry: entry,
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),
@@ -232,14 +225,16 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailCreditsSection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      labels: labels,
+      mediaFields: mediaFields,
+      releaseFields: releaseFields,
       entry: entry,
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),

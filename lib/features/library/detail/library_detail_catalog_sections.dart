@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
@@ -25,7 +24,8 @@ class LibraryDetailMetadataSection extends StatelessWidget {
     return type.presentation.builder.buildDetailIdentitySection(
       context: context,
       singularLabel: type.singularLabel,
-      labels: libraryMediaFieldLabels(type),
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
       entry: entry,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -52,7 +52,8 @@ class LibraryDetailContextSection extends StatelessWidget {
     return type.presentation.builder.buildDetailContextSection(
       context: context,
       singularLabel: type.singularLabel,
-      labels: libraryMediaFieldLabels(type),
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
       entry: entry,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -79,7 +80,8 @@ class LibraryDetailCreditsSection extends StatelessWidget {
     return type.presentation.builder.buildDetailCreditsSection(
       context: context,
       singularLabel: type.singularLabel,
-      labels: libraryMediaFieldLabels(type),
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
       entry: entry,
       accent: accent,
       onFilterByValue: onFilterByValue,

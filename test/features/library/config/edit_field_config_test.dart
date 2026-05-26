@@ -69,9 +69,9 @@ void main() {
     expect(fields.publisherLabel, 'Publisher');
   });
 
-  test('field config labels match derived LibraryMediaFieldLabels', () {
+  test('field config labels are the single source of truth for display labels', () {
     // Verify that the labels on mediaFields/releaseFields are the single
-    // source of truth that libraryMediaFieldLabels() derives from.
+    // source of truth for all display label needs.
     expect(moviesLibraryConfig.mediaFields.publisherLabel, 'Studio');
     expect(moviesLibraryConfig.releaseFields.variantLabel, 'Format / Edition');
     expect(moviesLibraryConfig.releaseFields.barcodeLabel, 'UPC / Barcode');

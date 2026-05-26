@@ -125,7 +125,8 @@ class _LibraryAddPreviewPane extends ConsumerWidget {
       context: context,
       accent: accent,
       singularLabel: type.singularLabel,
-      labels: libraryMediaFieldLabels(type),
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
       previewLabels: type.presentation.previewLabels,
       item: selectedItem,
       candidate: selectedCandidate,
@@ -1037,16 +1038,17 @@ List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
   LibraryTypeConfig type,
 ) {
-  final labels = libraryMediaFieldLabels(type);
+  final media = type.mediaFields;
+  final release = type.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   return [
     if (candidate.series?.seriesTitle != null)
       (previewLabels.series, candidate.series!.seriesTitle),
-    if (candidate.issueNumber != null) (labels.number, candidate.issueNumber),
-    if (candidate.publisher != null) (labels.publisher, candidate.publisher),
+    if (candidate.issueNumber != null) (media.numberLabel, candidate.issueNumber),
+    if (candidate.publisher != null) (media.publisherLabel, candidate.publisher),
     if (candidate.series?.volumeStartYear != null)
       ('Year', candidate.series!.volumeStartYear.toString()),
-    if (candidate.variantName != null) (labels.variant, candidate.variantName),
+    if (candidate.variantName != null) (release.variantLabel, candidate.variantName),
     if (candidate.issueCount != null)
       (previewLabels.itemCount, candidate.issueCount.toString()),
   ];
@@ -1056,7 +1058,8 @@ List<(String, String?)> _metadataRowsForItem(
   LibraryMetadataItem item,
   LibraryTypeConfig type,
 ) {
-  final labels = libraryMediaFieldLabels(type);
+  final media = type.mediaFields;
+  final release = type.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final series = item.series;
   final video = item.video;
@@ -1065,15 +1068,15 @@ List<(String, String?)> _metadataRowsForItem(
   final publishing = item.publishing;
   return [
     if (series?.seriesTitle != null) (previewLabels.series, series!.seriesTitle),
-    (labels.publisher, item.publisher),
+    (media.publisherLabel, item.publisher),
     ('Released', item.releaseDate != null
         ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
         : item.releaseYear?.toString()),
     if (video?.runtimeMinutes != null) ('Runtime', '${video!.runtimeMinutes} min'),
-    if (item.itemNumber != null) (labels.number, item.itemNumber),
+    if (item.itemNumber != null) (media.numberLabel, item.itemNumber),
     if (item.displayEditionLabel != null)
-      (labels.variant, item.displayEditionLabel),
-    (labels.barcode, item.barcode),
+      (release.variantLabel, item.displayEditionLabel),
+    (release.barcodeLabel, item.barcode),
     if (type.capabilities.showsTrackData &&
       music?.trackCount != null)
       ('Tracks', music!.trackCount.toString()),
@@ -1130,7 +1133,8 @@ List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
   LibraryTypeConfig type,
 ) {
-  final labels = libraryMediaFieldLabels(type);
+  final media = type.mediaFields;
+  final release = type.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final series = preview.series;
   final publishing = preview.publishing;
@@ -1142,19 +1146,19 @@ List<(String, String?)> _metadataRowsForFullPreview(
       : null;
   return [
     if (series?.seriesTitle != null) (previewLabels.series, series!.seriesTitle),
-    if (preview.publisher != null) (labels.publisher, preview.publisher),
+    if (preview.publisher != null) (media.publisherLabel, preview.publisher),
     if (publishing?.imprint != null) ('Imprint', publishing!.imprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
     if (series?.volumeStartYear != null)
       ('Year', series!.volumeStartYear.toString()),
-    if (preview.itemNumber != null) (labels.number, preview.itemNumber),
-    if (preview.barcode != null) (labels.barcode, preview.barcode),
+    if (preview.itemNumber != null) (media.numberLabel, preview.itemNumber),
+    if (preview.barcode != null) (release.barcodeLabel, preview.barcode),
     if (preview.isbn != null) ('ISBN', preview.isbn),
     if (preview.country != null) ('Country', preview.country),
     if (preview.language != null) ('Language', preview.language),
     if (preview.physicalFormatLabel != null)
       ('Format', preview.physicalFormatLabel),
-    if (preview.variantName != null) (labels.variant, preview.variantName),
+    if (preview.variantName != null) (release.variantLabel, preview.variantName),
     if (collectarrLibraryTypes.capabilitiesForKind(preview.kind).showsTrackData &&
       music?.trackCount != null)
       ('Tracks', music!.trackCount.toString()),

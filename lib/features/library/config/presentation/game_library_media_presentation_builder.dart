@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_media_presentation_builder.dart';
@@ -13,7 +14,8 @@ class GameLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -30,12 +32,12 @@ class GameLibraryMediaPresentationBuilder
         ],
         if (entry.variant != null)
           LibraryInspectorFactData(
-            labels.variant,
+            releaseFields.variantLabel,
             entry.variant!,
             onTap: tapFor(entry.variant),
           ),
         if (entry.barcode != null)
-          LibraryInspectorFactData(labels.barcode, entry.barcode!),
+          LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
         if (entry.ageRating != null)
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
       ],
@@ -52,7 +54,7 @@ class GameLibraryMediaPresentationBuilder
           ),
         if (entry.publisher != null)
           LibraryInspectorFactData(
-            labels.publisher,
+            mediaFields.publisherLabel,
             entry.publisher!,
             onTap: tapFor(entry.publisher),
           ),

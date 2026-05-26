@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -23,7 +24,8 @@ class DefaultLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -65,23 +67,23 @@ class DefaultLibraryMediaPresentationBuilder
         if (hasEpisode && !hasSeason)
           LibraryInspectorFactData('Episode', 'Ep. ${series!.episodeNumber}'),
         LibraryInspectorFactData(
-          labels.number,
+          mediaFields.numberLabel,
           genericLibraryDash(entry.itemNumber),
           onTap: tapFor(entry.itemNumber),
         ),
         LibraryInspectorFactData(
-          labels.variant,
+          releaseFields.variantLabel,
           genericLibraryDash(entry.variant),
           onTap: tapFor(entry.variant),
         ),
         LibraryInspectorFactData(
-          labels.barcode,
+          releaseFields.barcodeLabel,
           genericLibraryDash(entry.barcode),
         ),
       ],
       contextFacts: [
         LibraryInspectorFactData(
-          labels.publisher,
+          mediaFields.publisherLabel,
           genericLibraryDash(entry.publisher),
           onTap: tapFor(entry.publisher),
         ),

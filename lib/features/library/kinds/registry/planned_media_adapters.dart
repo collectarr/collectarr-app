@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
-import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
@@ -267,12 +266,11 @@ String plannedMediaTableColumnLabelForType(
   LibraryTypeConfig type,
   LibraryTableColumn column,
 ) {
-  final labels = libraryMediaFieldLabels(type);
   return switch (column) {
-    LibraryTableColumn.issue => labels.number,
-    LibraryTableColumn.variant => labels.variant,
-    LibraryTableColumn.publisher => labels.publisher,
-    LibraryTableColumn.barcode => labels.barcode,
+    LibraryTableColumn.issue => type.mediaFields.numberLabel,
+    LibraryTableColumn.variant => type.releaseFields.variantLabel,
+    LibraryTableColumn.publisher => type.mediaFields.publisherLabel,
+    LibraryTableColumn.barcode => type.releaseFields.barcodeLabel,
     _ => plannedMediaTableColumnLabel(column),
   };
 }

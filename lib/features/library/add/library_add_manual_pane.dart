@@ -37,7 +37,8 @@ class _ManualPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labels = libraryMediaFieldLabels(type);
+    final media = type.mediaFields;
+    final release = type.releaseFields;
     final copyTypeLabel = ownedCopyTypeLabel(
       digitalPhysicalMediaFormatFlag(
         physicalFormatId,
@@ -83,7 +84,7 @@ class _ManualPane extends StatelessWidget {
                             controller: numberController,
                             textAlign: TextAlign.center,
                             decoration:
-                                InputDecoration(labelText: labels.number),
+                                InputDecoration(labelText: media.numberLabel),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -105,7 +106,7 @@ class _ManualPane extends StatelessWidget {
                     TextField(
                       controller: publisherController,
                       decoration: InputDecoration(
-                        labelText: labels.publisher,
+                        labelText: media.publisherLabel,
                         prefixIcon: const Icon(Icons.business_outlined),
                       ),
                     ),
@@ -113,7 +114,7 @@ class _ManualPane extends StatelessWidget {
                     TextField(
                       controller: variantController,
                       decoration: InputDecoration(
-                        labelText: labels.variant,
+                        labelText: release.variantLabel,
                         prefixIcon:
                             const Icon(Icons.auto_awesome_motion_outlined),
                       ),
@@ -148,7 +149,7 @@ class _ManualPane extends StatelessWidget {
                       controller: barcodeController,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        labelText: labels.barcode,
+                        labelText: release.barcodeLabel,
                         prefixIcon: const Icon(Icons.qr_code_2),
                       ),
                     ),

@@ -885,14 +885,14 @@ class _ComicCandidateIssueNode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labels = libraryMediaFieldLabels(type);
+    final labels = type.mediaFields;
     final titleIssueMetadata = _comicTitleIssueMetadata(candidate.title);
     final resolvedIssueNumber = candidate.issueNumber?.trim().isNotEmpty ?? false
         ? candidate.issueNumber!.trim()
         : titleIssueMetadata?.issueNumber;
     final subtitleParts = <String>[
       if (resolvedIssueNumber != null && resolvedIssueNumber.isNotEmpty)
-        '${labels.number}: $resolvedIssueNumber',
+        '${labels.numberLabel}: $resolvedIssueNumber',
       if (candidate.variantName != null && candidate.variantName!.trim().isNotEmpty)
         candidate.variantName!,
       if (candidate.publisher != null && candidate.publisher!.trim().isNotEmpty)
@@ -1700,7 +1700,7 @@ String? _metadataItemMatchSummary({
   required String yearText,
 }) {
   final groupLabels = libraryMediaGroupLabels(type);
-  final fieldLabels = libraryMediaFieldLabels(type);
+  final fieldLabels = type.mediaFields;
   final series = item.series;
   final reasons = <String>[];
   final seen = <String>{};
@@ -1725,7 +1725,7 @@ String? _metadataItemMatchSummary({
   addIfMatch('Title', queryText, [item.title]);
   addIfMatch(groupLabels.series, seriesText, [series?.seriesTitle]);
   addIfMatch(groupLabels.publisher, publisherText, [item.publisher]);
-  addIfMatch(fieldLabels.number, numberText, [
+  addIfMatch(fieldLabels.numberLabel, numberText, [
     item.itemNumber,
     series?.volumeName,
     series?.volumeNumber?.toString(),
@@ -1742,7 +1742,7 @@ String? _metadataItemMatchSummary({
   if (generalQuery.isNotEmpty) {
     addIfMatch(groupLabels.series, generalQuery, [series?.seriesTitle]);
     addIfMatch(groupLabels.publisher, generalQuery, [item.publisher]);
-    addIfMatch(fieldLabels.number, generalQuery, [
+    addIfMatch(fieldLabels.numberLabel, generalQuery, [
       item.itemNumber,
       series?.volumeName,
       series?.volumeNumber?.toString(),
@@ -1986,7 +1986,7 @@ String? _providerCandidateMatchSummary({
   required String yearText,
 }) {
   final groupLabels = libraryMediaGroupLabels(type);
-  final fieldLabels = libraryMediaFieldLabels(type);
+  final fieldLabels = type.mediaFields;
   final reasons = <String>[];
   final seen = <String>{};
 
@@ -2010,7 +2010,7 @@ String? _providerCandidateMatchSummary({
   addIfMatch('Title', queryText, [candidate.title]);
   addIfMatch(groupLabels.series, seriesText, [candidate.series?.seriesTitle]);
   addIfMatch(groupLabels.publisher, publisherText, [candidate.publisher]);
-  addIfMatch(fieldLabels.number, numberText, [
+  addIfMatch(fieldLabels.numberLabel, numberText, [
     candidate.issueNumber,
     candidate.variantName,
   ]);
@@ -2020,7 +2020,7 @@ String? _providerCandidateMatchSummary({
   if (generalQuery.isNotEmpty) {
     addIfMatch(groupLabels.series, generalQuery, [candidate.series?.seriesTitle]);
     addIfMatch(groupLabels.publisher, generalQuery, [candidate.publisher]);
-    addIfMatch(fieldLabels.number, generalQuery, [
+    addIfMatch(fieldLabels.numberLabel, generalQuery, [
       candidate.issueNumber,
       candidate.variantName,
       candidate.series?.volumeStartYear?.toString(),
