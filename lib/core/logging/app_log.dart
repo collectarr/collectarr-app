@@ -30,7 +30,7 @@ class AppLogEntry {
 class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   static const _maxEntries = 200;
   final _entries = <AppLogEntry>[];
-  var _flushScheduled = false;
+  Timer? _flushTimer;
   var _disposed = false;
 
   @override
@@ -38,7 +38,8 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
     _disposed = false;
     ref.onDispose(() {
       _disposed = true;
-      _flushScheduled = false;
+      _flushTimer?.cancel();
+      _flushTimer = null;
     });
     return List.unmodifiable(_entries);
   }
@@ -85,15 +86,14 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   }
 
   void _scheduleFlush() {
-    if (_flushScheduled) {
+    if (_flushTimer != null) {
       return;
     }
-    _flushScheduled = true;
-    Timer.run(_flushPending);
+    _flushTimer = Timer(Duration.zero, _flushPending);
   }
 
   void _flushPending() {
-    _flushScheduled = false;
+    _flushTimer = null;
     if (_entries.isEmpty) {
       return;
     }

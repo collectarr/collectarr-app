@@ -486,13 +486,14 @@ class AdminBatchHydrateResult {
 
   factory AdminBatchHydrateResult.fromJson(Map<String, dynamic> json) {
     return AdminBatchHydrateResult(
-      results: (json['results'] as List<dynamic>)
-          .cast<Map<String, dynamic>>()
-          .map(AdminBatchHydrateResultItem.fromJson)
-          .toList(growable: false),
-      total: json['total'] as int,
-      succeeded: json['succeeded'] as int,
-      failed: json['failed'] as int,
+      results: (json['results'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(AdminBatchHydrateResultItem.fromJson)
+              .toList(growable: false) ??
+          const <AdminBatchHydrateResultItem>[],
+      total: json['total'] as int? ?? 0,
+      succeeded: json['succeeded'] as int? ?? 0,
+      failed: json['failed'] as int? ?? 0,
     );
   }
 }
