@@ -5,16 +5,25 @@ import 'package:collectarr_app/ui/theme/library_theme.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/rendering.dart';
 
 import '../helpers/secure_storage_mock.dart';
 import '../helpers/test_constants.dart';
 
 void main() {
+  setUpAll(() {
+    debugDisableShadows = true;
+  });
+
+  tearDownAll(() {
+    debugDisableShadows = false;
+  });
+
   setUp(setUpSecureStorageMock);
 
   Widget wrapWidget(Widget child, {Size size = const Size(400, 300)}) {
     return MaterialApp(
-      theme: buildLibraryTheme(),
+      theme: buildLibraryTheme().copyWith(platform: TargetPlatform.android),
       home: Scaffold(body: Center(child: child)),
     );
   }
