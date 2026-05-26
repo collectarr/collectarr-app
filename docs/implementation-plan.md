@@ -147,7 +147,7 @@ Current app-side parity work is largely complete; the remaining work here is har
 
 ### 🟢 CLZ Web Parity — Polish
 - [x] **Scope pill** — When filtering by person/value, show a pill badge with "× clear"
-- [ ] **Transfer Field Data** — Move data between fields across items
+- [x] **Transfer Field Data** — Bulk move/copy data between fields across items, with conflict resolution (skip/overwrite/append)
 - [x] ~~**Multiple collections per library**~~ — Won't do: redundant with smart lists, user folders, status filters, and multi-user support
 - [x] **Shelf view** — 3D shelf rendering with visual skin options
 - [x] **Themes/skins** — Dark and Light mode with palette-based ThemeExtension toggle in Settings
