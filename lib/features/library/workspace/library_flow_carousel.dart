@@ -861,7 +861,7 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
             ),
           Expanded(
             child: Text(
-              edition.title ?? edition.physicalFormatLabel ?? 'Release',
+              edition.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

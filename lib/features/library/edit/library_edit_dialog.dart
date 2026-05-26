@@ -640,9 +640,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final credit in creators!)
-                      if (credit is Map<String, dynamic> &&
-                          credit['name']?.toString().trim().isNotEmpty == true)
+                    for (final credit in creators)
+                      if (credit['name']?.toString().trim().isNotEmpty == true)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Row(
