@@ -54,10 +54,10 @@ class _ActivityTimelineSectionState
   Future<void> _loadLoans() async {
     final db = ref.read(localDatabaseProvider);
     final repo = LoanRepository(db);
-    final allLoans = <Loan>[];
-    for (final ownedItemId in widget.ownedItemIds) {
-      allLoans.addAll(await repo.getLoansForItem(ownedItemId));
-    }
+    final loansList = await Future.wait(
+      widget.ownedItemIds.map((id) => repo.getLoansForItem(id)),
+    );
+    final allLoans = loansList.expand((l) => l).toList();
     if (mounted) setState(() => _loans = allLoans);
   }
 

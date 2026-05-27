@@ -6,7 +6,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:file_selector/file_selector.dart';
 
 /// Shows a dialog to share the current collection view.
 /// Offers: copy as text list, copy as CSV, export as CSV file.
@@ -197,9 +197,16 @@ class _CollectionShareDialog extends StatelessWidget {
   Future<void> _saveToFile(
       BuildContext context, String content, String ext) async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
       final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
-      final file = File('${dir.path}/${safeTitle}_collection.$ext');
+      final fileName = '${safeTitle}_collection.$ext';
+      final location = await getSaveLocation(
+        suggestedName: fileName,
+        acceptedTypeGroups: [
+          XTypeGroup(label: ext.toUpperCase(), extensions: [ext]),
+        ],
+      );
+      if (location == null) return;
+      final file = File(location.path);
       await file.writeAsString(content);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -260,9 +267,16 @@ ${rows.toString()}</tbody>
 </html>''';
 
     try {
-      final dir = await getApplicationDocumentsDirectory();
       final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
-      final file = File('${dir.path}/${safeTitle}_collection.html');
+      final fileName = '${safeTitle}_collection.html';
+      final location = await getSaveLocation(
+        suggestedName: fileName,
+        acceptedTypeGroups: [
+          const XTypeGroup(label: 'HTML', extensions: ['html']),
+        ],
+      );
+      if (location == null) return;
+      final file = File(location.path);
       await file.writeAsString(html);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

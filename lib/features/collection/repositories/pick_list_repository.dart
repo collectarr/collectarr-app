@@ -84,11 +84,27 @@ class PickListRepository {
   /// Replace all values in a pick list.
   Future<void> setValues(String listName, List<String> values,
       {String? mediaKind}) async {
+    final existingRows = await (_db.select(_db.pickListValuesCache)
+          ..where((t) => t.listName.equals(listName)))
+        .get();
     await (_db.delete(_db.pickListValuesCache)
           ..where((t) => t.listName.equals(listName)))
         .go();
     final changes = <SyncChange>[];
     final now = DateTime.now().toUtc();
+    for (final row in existingRows) {
+      changes.add(SyncChange(
+        id: const Uuid().v4(),
+        entityType: _entityType,
+        entityId: row.id,
+        action: 'delete',
+        payload: {
+          'list_name': row.listName,
+          'value': row.value,
+        },
+        clientChangedAt: now,
+      ));
+    }
     await _db.batch((batch) {
       for (var i = 0; i < values.length; i++) {
         final id = const Uuid().v4();

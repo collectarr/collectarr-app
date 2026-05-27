@@ -56,12 +56,30 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
 
   Future<void> _toggle(String folderId) async {
     final repo = UserFolderRepository(widget.db);
-    if (_memberOf.contains(folderId)) {
-      await repo.removeItemFromFolder(folderId, widget.ownedItemId);
-      if (mounted) setState(() => _memberOf.remove(folderId));
-    } else {
-      await repo.addItemToFolder(folderId, widget.ownedItemId);
-      if (mounted) setState(() => _memberOf.add(folderId));
+    final isMember = _memberOf.contains(folderId);
+    setState(() {
+      if (isMember) {
+        _memberOf.remove(folderId);
+      } else {
+        _memberOf.add(folderId);
+      }
+    });
+    try {
+      if (isMember) {
+        await repo.removeItemFromFolder(folderId, widget.ownedItemId);
+      } else {
+        await repo.addItemToFolder(folderId, widget.ownedItemId);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          if (isMember) {
+            _memberOf.add(folderId);
+          } else {
+            _memberOf.remove(folderId);
+          }
+        });
+      }
     }
   }
 

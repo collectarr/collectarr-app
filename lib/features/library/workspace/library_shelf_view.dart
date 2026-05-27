@@ -95,8 +95,9 @@ class _ShelfRow<T> extends StatelessWidget {
     const shelfThickness = 8.0;
     const shelfShadow = 12.0;
     const shelfOverhang = 8.0;
-    final shelfColor = HSLColor.fromColor(kAppPanel).withLightness(0.18).toColor();
-    final shelfHighlight = HSLColor.fromColor(kAppPanel).withLightness(0.24).toColor();
+    final panelColor = appPalette(context).panel;
+    final shelfColor = HSLColor.fromColor(panelColor).withLightness(0.18).toColor();
+    final shelfHighlight = HSLColor.fromColor(panelColor).withLightness(0.24).toColor();
     return SizedBox(
       height: shelfHeight + shelfThickness + shelfShadow,
       child: Stack(

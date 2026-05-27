@@ -1084,7 +1084,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   widget.physicalFormats.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  initialValue: _physicalFormatId,
+                  initialValue: _physicalFormatId ?? '',
                   isExpanded: true,
                   dropdownColor: appPalette(context).panelRaised,
                   borderRadius: kEditMenuBorderRadius,
