@@ -16,6 +16,7 @@ void main() {
               onBulkEdit: () {},
               onBulkMoveToOwned: () {},
               onBulkMoveToWishlist: () {},
+              onBulkRefreshMetadata: () {},
               onBulkRemove: () {
                 showDialog<void>(
                   context: tester.element(find.byType(LibrarySelectionControls)),
