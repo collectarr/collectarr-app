@@ -477,6 +477,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           gradingCompany: item.gradingCompany,
           graderNotes: item.graderNotes,
           signedBy: item.signedBy,
+          labelType: item.labelType,
+          certificationNumber: item.certificationNumber,
           keyComic: item.keyComic,
           keyReason: item.keyReason,
           rating: item.rating,

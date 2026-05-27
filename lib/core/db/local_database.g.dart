@@ -2489,6 +2489,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
       'signed_by', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelTypeMeta =
+      const VerificationMeta('labelType');
+  @override
+  late final GeneratedColumn<String> labelType = GeneratedColumn<String>(
+      'label_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _certificationNumberMeta =
+      const VerificationMeta('certificationNumber');
+  @override
+  late final GeneratedColumn<String> certificationNumber =
+      GeneratedColumn<String>('certification_number', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _keyComicMeta =
       const VerificationMeta('keyComic');
   @override
@@ -2667,6 +2679,8 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         gradingCompany,
         graderNotes,
         signedBy,
+        labelType,
+        certificationNumber,
         keyComic,
         keyReason,
         rating,
@@ -2813,6 +2827,16 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
     if (data.containsKey('signed_by')) {
       context.handle(_signedByMeta,
           signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
+    }
+    if (data.containsKey('label_type')) {
+      context.handle(_labelTypeMeta,
+          labelType.isAcceptableOrUnknown(data['label_type']!, _labelTypeMeta));
+    }
+    if (data.containsKey('certification_number')) {
+      context.handle(
+          _certificationNumberMeta,
+          certificationNumber.isAcceptableOrUnknown(
+              data['certification_number']!, _certificationNumberMeta));
     }
     if (data.containsKey('key_comic')) {
       context.handle(_keyComicMeta,
@@ -2997,6 +3021,10 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}grader_notes']),
       signedBy: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      labelType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_type']),
+      certificationNumber: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}certification_number']),
       keyComic: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}key_comic'])!,
       keyReason: attachedDatabase.typeMapping
@@ -3081,6 +3109,8 @@ class OwnedItemsCacheData extends DataClass
   final String? gradingCompany;
   final String? graderNotes;
   final String? signedBy;
+  final String? labelType;
+  final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
   final int? rating;
@@ -3129,6 +3159,8 @@ class OwnedItemsCacheData extends DataClass
       this.gradingCompany,
       this.graderNotes,
       this.signedBy,
+      this.labelType,
+      this.certificationNumber,
       required this.keyComic,
       this.keyReason,
       this.rating,
@@ -3214,6 +3246,12 @@ class OwnedItemsCacheData extends DataClass
     }
     if (!nullToAbsent || signedBy != null) {
       map['signed_by'] = Variable<String>(signedBy);
+    }
+    if (!nullToAbsent || labelType != null) {
+      map['label_type'] = Variable<String>(labelType);
+    }
+    if (!nullToAbsent || certificationNumber != null) {
+      map['certification_number'] = Variable<String>(certificationNumber);
     }
     map['key_comic'] = Variable<bool>(keyComic);
     if (!nullToAbsent || keyReason != null) {
@@ -3350,6 +3388,12 @@ class OwnedItemsCacheData extends DataClass
       signedBy: signedBy == null && nullToAbsent
           ? const Value.absent()
           : Value(signedBy),
+      labelType: labelType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelType),
+      certificationNumber: certificationNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(certificationNumber),
       keyComic: Value(keyComic),
       keyReason: keyReason == null && nullToAbsent
           ? const Value.absent()
@@ -3446,6 +3490,9 @@ class OwnedItemsCacheData extends DataClass
       gradingCompany: serializer.fromJson<String?>(json['gradingCompany']),
       graderNotes: serializer.fromJson<String?>(json['graderNotes']),
       signedBy: serializer.fromJson<String?>(json['signedBy']),
+      labelType: serializer.fromJson<String?>(json['labelType']),
+      certificationNumber:
+          serializer.fromJson<String?>(json['certificationNumber']),
       keyComic: serializer.fromJson<bool>(json['keyComic']),
       keyReason: serializer.fromJson<String?>(json['keyReason']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -3500,6 +3547,8 @@ class OwnedItemsCacheData extends DataClass
       'gradingCompany': serializer.toJson<String?>(gradingCompany),
       'graderNotes': serializer.toJson<String?>(graderNotes),
       'signedBy': serializer.toJson<String?>(signedBy),
+      'labelType': serializer.toJson<String?>(labelType),
+      'certificationNumber': serializer.toJson<String?>(certificationNumber),
       'keyComic': serializer.toJson<bool>(keyComic),
       'keyReason': serializer.toJson<String?>(keyReason),
       'rating': serializer.toJson<int?>(rating),
@@ -3551,6 +3600,8 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> gradingCompany = const Value.absent(),
           Value<String?> graderNotes = const Value.absent(),
           Value<String?> signedBy = const Value.absent(),
+          Value<String?> labelType = const Value.absent(),
+          Value<String?> certificationNumber = const Value.absent(),
           bool? keyComic,
           Value<String?> keyReason = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -3608,6 +3659,10 @@ class OwnedItemsCacheData extends DataClass
             gradingCompany.present ? gradingCompany.value : this.gradingCompany,
         graderNotes: graderNotes.present ? graderNotes.value : this.graderNotes,
         signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        labelType: labelType.present ? labelType.value : this.labelType,
+        certificationNumber: certificationNumber.present
+            ? certificationNumber.value
+            : this.certificationNumber,
         keyComic: keyComic ?? this.keyComic,
         keyReason: keyReason.present ? keyReason.value : this.keyReason,
         rating: rating.present ? rating.value : this.rating,
@@ -3686,6 +3741,10 @@ class OwnedItemsCacheData extends DataClass
       graderNotes:
           data.graderNotes.present ? data.graderNotes.value : this.graderNotes,
       signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      labelType: data.labelType.present ? data.labelType.value : this.labelType,
+      certificationNumber: data.certificationNumber.present
+          ? data.certificationNumber.value
+          : this.certificationNumber,
       keyComic: data.keyComic.present ? data.keyComic.value : this.keyComic,
       keyReason: data.keyReason.present ? data.keyReason.value : this.keyReason,
       rating: data.rating.present ? data.rating.value : this.rating,
@@ -3759,6 +3818,8 @@ class OwnedItemsCacheData extends DataClass
           ..write('gradingCompany: $gradingCompany, ')
           ..write('graderNotes: $graderNotes, ')
           ..write('signedBy: $signedBy, ')
+          ..write('labelType: $labelType, ')
+          ..write('certificationNumber: $certificationNumber, ')
           ..write('keyComic: $keyComic, ')
           ..write('keyReason: $keyReason, ')
           ..write('rating: $rating, ')
@@ -3812,6 +3873,8 @@ class OwnedItemsCacheData extends DataClass
         gradingCompany,
         graderNotes,
         signedBy,
+        labelType,
+        certificationNumber,
         keyComic,
         keyReason,
         rating,
@@ -3864,6 +3927,8 @@ class OwnedItemsCacheData extends DataClass
           other.gradingCompany == this.gradingCompany &&
           other.graderNotes == this.graderNotes &&
           other.signedBy == this.signedBy &&
+          other.labelType == this.labelType &&
+          other.certificationNumber == this.certificationNumber &&
           other.keyComic == this.keyComic &&
           other.keyReason == this.keyReason &&
           other.rating == this.rating &&
@@ -3914,6 +3979,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> gradingCompany;
   final Value<String?> graderNotes;
   final Value<String?> signedBy;
+  final Value<String?> labelType;
+  final Value<String?> certificationNumber;
   final Value<bool> keyComic;
   final Value<String?> keyReason;
   final Value<int?> rating;
@@ -3963,6 +4030,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.gradingCompany = const Value.absent(),
     this.graderNotes = const Value.absent(),
     this.signedBy = const Value.absent(),
+    this.labelType = const Value.absent(),
+    this.certificationNumber = const Value.absent(),
     this.keyComic = const Value.absent(),
     this.keyReason = const Value.absent(),
     this.rating = const Value.absent(),
@@ -4013,6 +4082,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.gradingCompany = const Value.absent(),
     this.graderNotes = const Value.absent(),
     this.signedBy = const Value.absent(),
+    this.labelType = const Value.absent(),
+    this.certificationNumber = const Value.absent(),
     this.keyComic = const Value.absent(),
     this.keyReason = const Value.absent(),
     this.rating = const Value.absent(),
@@ -4065,6 +4136,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? gradingCompany,
     Expression<String>? graderNotes,
     Expression<String>? signedBy,
+    Expression<String>? labelType,
+    Expression<String>? certificationNumber,
     Expression<bool>? keyComic,
     Expression<String>? keyReason,
     Expression<int>? rating,
@@ -4115,6 +4188,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (gradingCompany != null) 'grading_company': gradingCompany,
       if (graderNotes != null) 'grader_notes': graderNotes,
       if (signedBy != null) 'signed_by': signedBy,
+      if (labelType != null) 'label_type': labelType,
+      if (certificationNumber != null)
+        'certification_number': certificationNumber,
       if (keyComic != null) 'key_comic': keyComic,
       if (keyReason != null) 'key_reason': keyReason,
       if (rating != null) 'rating': rating,
@@ -4167,6 +4243,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? gradingCompany,
       Value<String?>? graderNotes,
       Value<String?>? signedBy,
+      Value<String?>? labelType,
+      Value<String?>? certificationNumber,
       Value<bool>? keyComic,
       Value<String?>? keyReason,
       Value<int?>? rating,
@@ -4216,6 +4294,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       gradingCompany: gradingCompany ?? this.gradingCompany,
       graderNotes: graderNotes ?? this.graderNotes,
       signedBy: signedBy ?? this.signedBy,
+      labelType: labelType ?? this.labelType,
+      certificationNumber: certificationNumber ?? this.certificationNumber,
       keyComic: keyComic ?? this.keyComic,
       keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,
@@ -4311,6 +4391,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     }
     if (signedBy.present) {
       map['signed_by'] = Variable<String>(signedBy.value);
+    }
+    if (labelType.present) {
+      map['label_type'] = Variable<String>(labelType.value);
+    }
+    if (certificationNumber.present) {
+      map['certification_number'] = Variable<String>(certificationNumber.value);
     }
     if (keyComic.present) {
       map['key_comic'] = Variable<bool>(keyComic.value);
@@ -4420,6 +4506,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('gradingCompany: $gradingCompany, ')
           ..write('graderNotes: $graderNotes, ')
           ..write('signedBy: $signedBy, ')
+          ..write('labelType: $labelType, ')
+          ..write('certificationNumber: $certificationNumber, ')
           ..write('keyComic: $keyComic, ')
           ..write('keyReason: $keyReason, ')
           ..write('rating: $rating, ')
@@ -13047,6 +13135,8 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> gradingCompany,
   Value<String?> graderNotes,
   Value<String?> signedBy,
+  Value<String?> labelType,
+  Value<String?> certificationNumber,
   Value<bool> keyComic,
   Value<String?> keyReason,
   Value<int?> rating,
@@ -13098,6 +13188,8 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> gradingCompany,
   Value<String?> graderNotes,
   Value<String?> signedBy,
+  Value<String?> labelType,
+  Value<String?> certificationNumber,
   Value<bool> keyComic,
   Value<String?> keyReason,
   Value<int?> rating,
@@ -13202,6 +13294,13 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get signedBy => $composableBuilder(
       column: $table.signedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get labelType => $composableBuilder(
+      column: $table.labelType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get keyComic => $composableBuilder(
       column: $table.keyComic, builder: (column) => ColumnFilters(column));
@@ -13366,6 +13465,13 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<String> get signedBy => $composableBuilder(
       column: $table.signedBy, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get labelType => $composableBuilder(
+      column: $table.labelType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get keyComic => $composableBuilder(
       column: $table.keyComic, builder: (column) => ColumnOrderings(column));
 
@@ -13524,6 +13630,12 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get signedBy =>
       $composableBuilder(column: $table.signedBy, builder: (column) => column);
 
+  GeneratedColumn<String> get labelType =>
+      $composableBuilder(column: $table.labelType, builder: (column) => column);
+
+  GeneratedColumn<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber, builder: (column) => column);
+
   GeneratedColumn<bool> get keyComic =>
       $composableBuilder(column: $table.keyComic, builder: (column) => column);
 
@@ -13652,6 +13764,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> gradingCompany = const Value.absent(),
             Value<String?> graderNotes = const Value.absent(),
             Value<String?> signedBy = const Value.absent(),
+            Value<String?> labelType = const Value.absent(),
+            Value<String?> certificationNumber = const Value.absent(),
             Value<bool> keyComic = const Value.absent(),
             Value<String?> keyReason = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -13702,6 +13816,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             gradingCompany: gradingCompany,
             graderNotes: graderNotes,
             signedBy: signedBy,
+            labelType: labelType,
+            certificationNumber: certificationNumber,
             keyComic: keyComic,
             keyReason: keyReason,
             rating: rating,
@@ -13752,6 +13868,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> gradingCompany = const Value.absent(),
             Value<String?> graderNotes = const Value.absent(),
             Value<String?> signedBy = const Value.absent(),
+            Value<String?> labelType = const Value.absent(),
+            Value<String?> certificationNumber = const Value.absent(),
             Value<bool> keyComic = const Value.absent(),
             Value<String?> keyReason = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -13802,6 +13920,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             gradingCompany: gradingCompany,
             graderNotes: graderNotes,
             signedBy: signedBy,
+            labelType: labelType,
+            certificationNumber: certificationNumber,
             keyComic: keyComic,
             keyReason: keyReason,
             rating: rating,

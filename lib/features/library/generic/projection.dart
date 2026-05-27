@@ -211,18 +211,24 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
 ) {
   final allBucketLabel = genericAllBucketLabel(type);
   final counts = <String, int>{allBucketLabel: items.length};
-  final ownedCounts = groupMode == LibraryGroupMode.series
+  final isSeries = groupMode == LibraryGroupMode.series;
+  final ownedCounts = isSeries
       ? <String, int>{
           allBucketLabel: items.where((item) => item.entry.isOwned).length,
         }
       : null;
   final coverUrls = <String, String?>{};
   final startYears = <String, int?>{};
+  final ownedNumbers = isSeries ? <String, Set<int>>{} : null;
   for (final item in items) {
     final bucket = genericBucketForItemMode(item, type, groupMode);
     counts[bucket] = (counts[bucket] ?? 0) + 1;
-    if (ownedCounts != null && item.entry.isOwned) {
-      ownedCounts[bucket] = (ownedCounts[bucket] ?? 0) + 1;
+    if (isSeries && item.entry.isOwned) {
+      ownedCounts![bucket] = (ownedCounts[bucket] ?? 0) + 1;
+      final num = _wholeNumber(item.entry.itemNumber);
+      if (num != null) {
+        ownedNumbers!.putIfAbsent(bucket, () => <int>{}).add(num);
+      }
     }
     if (!coverUrls.containsKey(bucket)) {
       coverUrls[bucket] = item.entry.displayCoverUrl;
@@ -235,6 +241,18 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
       }
     }
   }
+  final gapNumbers = <String, List<int>>{};
+  if (ownedNumbers != null) {
+    for (final entry in ownedNumbers.entries) {
+      final sorted = entry.value.toList(growable: false)..sort();
+      if (sorted.length < 2) continue;
+      final missing = <int>[];
+      for (var n = sorted.first; n <= sorted.last; n++) {
+        if (!entry.value.contains(n)) missing.add(n);
+      }
+      if (missing.isNotEmpty) gapNumbers[entry.key] = missing;
+    }
+  }
   final buckets = [
     for (final entry in counts.entries)
       LibrarySeriesBucket(
@@ -243,6 +261,7 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
         coverUrl: coverUrls[entry.key],
         startYear: startYears[entry.key],
         ownedCount: ownedCounts?[entry.key],
+        missingNumbers: gapNumbers[entry.key] ?? const <int>[],
       ),
   ];
   buckets.sort((a, b) {
@@ -255,6 +274,12 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
     return a.title.compareTo(b.title);
   });
   return buckets;
+}
+
+int? _wholeNumber(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  final match = RegExp(r'^\s*(\d+)').firstMatch(value);
+  return match == null ? null : int.tryParse(match.group(1)!);
 }
 
 LibraryProjectionItem? librarySelectedItem(

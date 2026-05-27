@@ -170,6 +170,8 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         gradingCompany: personal.gradingCompany,
         graderNotes: personal.graderNotes,
         signedBy: personal.signedBy,
+        labelType: personal.labelType,
+        certificationNumber: personal.certificationNumber,
         keyComic: personal.keyComic,
         keyReason: personal.keyReason,
         rating: result.tracking?.rating,

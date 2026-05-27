@@ -61,6 +61,8 @@ class LibraryProjectionItem {
       grade: source.ownedItem?.grade,
       rawOrSlabbed: source.ownedItem?.rawOrSlabbed,
       gradingCompany: source.ownedItem?.gradingCompany,
+      labelType: source.ownedItem?.labelType,
+      certificationNumber: source.ownedItem?.certificationNumber,
       keyComic: source.ownedItem?.keyComic ?? false,
       keyReason: source.ownedItem?.keyReason,
       notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,

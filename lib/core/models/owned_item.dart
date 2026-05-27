@@ -26,6 +26,8 @@ class OwnedItem {
     this.gradingCompany,
     this.graderNotes,
     this.signedBy,
+    this.labelType,
+    this.certificationNumber,
     this.keyComic = false,
     this.keyReason,
     this.rating,
@@ -78,6 +80,8 @@ class OwnedItem {
   final String? gradingCompany;
   final String? graderNotes;
   final String? signedBy;
+  final String? labelType;
+  final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
   final int? rating;
@@ -135,6 +139,8 @@ class OwnedItem {
       'grading_company': gradingCompany,
       'grader_notes': graderNotes,
       'signed_by': signedBy,
+      'label_type': labelType,
+      'certification_number': certificationNumber,
       'key_comic': keyComic,
       'key_reason': keyReason,
       'rating': rating,
@@ -191,6 +197,8 @@ class OwnedItem {
       gradingCompany: json['grading_company'] as String?,
       graderNotes: json['grader_notes'] as String?,
       signedBy: json['signed_by'] as String?,
+      labelType: json['label_type'] as String?,
+      certificationNumber: json['certification_number'] as String?,
       keyComic: json['key_comic'] as bool? ?? false,
       keyReason: json['key_reason'] as String?,
       rating: json['rating'] as int?,
@@ -256,6 +264,8 @@ class OwnedItem {
     String? gradingCompany,
     String? graderNotes,
     String? signedBy,
+    String? labelType,
+    String? certificationNumber,
     bool? keyComic,
     String? keyReason,
     int? rating,
@@ -311,6 +321,8 @@ class OwnedItem {
       gradingCompany: gradingCompany ?? this.gradingCompany,
       graderNotes: graderNotes ?? this.graderNotes,
       signedBy: signedBy ?? this.signedBy,
+      labelType: labelType ?? this.labelType,
+      certificationNumber: certificationNumber ?? this.certificationNumber,
       keyComic: keyComic ?? this.keyComic,
       keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,

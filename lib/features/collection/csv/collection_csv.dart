@@ -33,6 +33,8 @@ class CollectionCsvRow {
     this.gradingCompany,
     this.graderNotes,
     this.signedBy,
+    this.labelType,
+    this.certificationNumber,
     this.keyComic = false,
     this.keyReason,
     this.rating,
@@ -73,6 +75,8 @@ class CollectionCsvRow {
   final String? gradingCompany;
   final String? graderNotes;
   final String? signedBy;
+  final String? labelType;
+  final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
   final int? rating;
@@ -116,6 +120,8 @@ class CollectionCsvRow {
     String? gradingCompany,
     String? graderNotes,
     String? signedBy,
+    String? labelType,
+    String? certificationNumber,
     bool? keyComic,
     String? keyReason,
     int? rating,
@@ -156,6 +162,8 @@ class CollectionCsvRow {
       gradingCompany: gradingCompany ?? this.gradingCompany,
       graderNotes: graderNotes ?? this.graderNotes,
       signedBy: signedBy ?? this.signedBy,
+      labelType: labelType ?? this.labelType,
+      certificationNumber: certificationNumber ?? this.certificationNumber,
       keyComic: keyComic ?? this.keyComic,
       keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,
@@ -200,6 +208,8 @@ class CollectionCsv {
     'grading_company',
     'grader_notes',
     'signed_by',
+    'label_type',
+    'certification_number',
     'key_comic',
     'key_reason',
     'rating',
@@ -238,6 +248,8 @@ class CollectionCsv {
     'Grading Company',
     'Grader Notes',
     'Signed By',
+    'Label Type',
+    'Certification Number',
     'Key Comic',
     'Key Reason',
     'Rating',
@@ -336,6 +348,8 @@ class CollectionCsv {
       o?.gradingCompany ?? '',
       o?.graderNotes ?? '',
       o?.signedBy ?? '',
+      o?.labelType ?? '',
+      o?.certificationNumber ?? '',
       o == null ? '' : o.keyComic.toString(),
       o?.keyReason ?? '',
       o?.rating?.toString() ?? '',
@@ -375,6 +389,8 @@ class CollectionCsv {
       o?.gradingCompany ?? '',
       o?.graderNotes ?? '',
       o?.signedBy ?? '',
+      o?.labelType ?? '',
+      o?.certificationNumber ?? '',
       o == null ? '' : o.keyComic.toString(),
       o?.keyReason ?? '',
       o?.rating?.toString() ?? '',
@@ -527,6 +543,8 @@ class CollectionCsv {
       'Grading Company',
       'Grader Notes',
       'Signed By',
+      'Label Type',
+      'Certification Number',
       'Key Comic',
       'Key Reason',
       'Rating',
@@ -581,6 +599,8 @@ class CollectionCsv {
       gradingCompany: _optionalValue(index, values, 'grading_company'),
       graderNotes: _optionalValue(index, values, 'grader_notes'),
       signedBy: _optionalValue(index, values, 'signed_by'),
+      labelType: _optionalValue(index, values, 'label_type'),
+      certificationNumber: _optionalValue(index, values, 'certification_number'),
       keyComic: _boolValue(index, values, 'key_comic'),
       keyReason: _optionalValue(index, values, 'key_reason'),
       rating: int.tryParse(_value(index, values, 'rating')),
@@ -905,6 +925,8 @@ class CollectionCsv {
     'grading_company': ['Grading Company'],
     'grader_notes': ['Grader Notes'],
     'signed_by': ['Signed By'],
+    'label_type': ['Label Type'],
+    'certification_number': ['Certification Number', 'Cert Number', 'Cert #'],
     'key_comic': ['Key Comic'],
     'key_reason': ['Key Reason'],
     'rating': ['Rating'],

@@ -144,6 +144,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   late final TextEditingController _gradingCompanyController;
   late final TextEditingController _graderNotesController;
   late final TextEditingController _signedByController;
+  late final TextEditingController _labelTypeController;
+  late final TextEditingController _certificationNumberController;
   late final TextEditingController _coverPriceController;
   bool _keyComic = false;
   late final TextEditingController _keyReasonController;
@@ -369,6 +371,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _graderNotesController =
         TextEditingController(text: owned?.graderNotes ?? '');
     _signedByController = TextEditingController(text: owned?.signedBy ?? '');
+    _labelTypeController = TextEditingController(text: owned?.labelType ?? '');
+    _certificationNumberController =
+        TextEditingController(text: owned?.certificationNumber ?? '');
     _coverPriceController = TextEditingController(
       text: owned?.coverPriceCents == null
           ? ''
@@ -481,6 +486,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _gradingCompanyController.dispose();
     _graderNotesController.dispose();
     _signedByController.dispose();
+    _labelTypeController.dispose();
+    _certificationNumberController.dispose();
     _coverPriceController.dispose();
     _keyReasonController.dispose();
     _featuresController.dispose();
@@ -1011,6 +1018,17 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     _field(
                       controller: _gradingCompanyController,
                       label: 'Grading company',
+                    ),
+                  ]),
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _field(
+                      controller: _labelTypeController,
+                      label: 'Label type',
+                    ),
+                    _field(
+                      controller: _certificationNumberController,
+                      label: 'Certification number',
                     ),
                   ]),
                   const SizedBox(height: 10),
@@ -2148,6 +2166,10 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   _isDigitalFormat ? null : emptyToNull(_graderNotesController.text),
               signedBy:
                   _isDigitalFormat ? null : emptyToNull(_signedByController.text),
+              labelType:
+                  _isDigitalFormat ? null : emptyToNull(_labelTypeController.text),
+              certificationNumber:
+                  _isDigitalFormat ? null : emptyToNull(_certificationNumberController.text),
               keyComic: _keyComic,
               keyReason: emptyToNull(_keyReasonController.text),
               coverPriceCents:

@@ -83,6 +83,8 @@ class OwnedItemsCache extends Table {
   TextColumn get gradingCompany => text().nullable()();
   TextColumn get graderNotes => text().nullable()();
   TextColumn get signedBy => text().nullable()();
+  TextColumn get labelType => text().nullable()();
+  TextColumn get certificationNumber => text().nullable()();
   BoolColumn get keyComic => boolean().withDefault(const Constant(false))();
   TextColumn get keyReason => text().nullable()();
   IntColumn get rating => integer().nullable()();

@@ -46,6 +46,8 @@ class LibraryPersonalEditSelection {
     this.gradingCompany,
     this.graderNotes,
     this.signedBy,
+    this.labelType,
+    this.certificationNumber,
     this.keyComic,
     this.keyReason,
     this.coverPriceCents,
@@ -90,6 +92,8 @@ class LibraryPersonalEditSelection {
   final String? gradingCompany;
   final String? graderNotes;
   final String? signedBy;
+  final String? labelType;
+  final String? certificationNumber;
   final bool? keyComic;
   final String? keyReason;
   final int? coverPriceCents;

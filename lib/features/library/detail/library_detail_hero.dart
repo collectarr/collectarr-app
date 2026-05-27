@@ -85,15 +85,17 @@ class LibraryDetailHero extends StatelessWidget {
                         .value;
                 return SizedBox(
                   width: wide ? 180 : 150,
-                  child: LibraryInteractiveCover(
-                    title: entry.resolvedTitle,
-                    itemNumber: entry.itemNumber,
-                    imageUrl: entry.displayCoverUrl,
-                    localBase64: localFront,
-                    secondaryLocalBase64: localBack,
-                    ownedItemId: ownedItemId,
-                    accentColor: accent,
-                    onMissingSecondaryPressed: ownedItemId == null
+                  child: _maybeSlabDetail(
+                    ownedItem,
+                    LibraryInteractiveCover(
+                      title: entry.resolvedTitle,
+                      itemNumber: entry.itemNumber,
+                      imageUrl: entry.displayCoverUrl,
+                      localBase64: localFront,
+                      secondaryLocalBase64: localBack,
+                      ownedItemId: ownedItemId,
+                      accentColor: accent,
+                      onMissingSecondaryPressed: ownedItemId == null
                         ? null
                         : () async {
                             final savedType = await pickAndStoreOwnedItemImage(
@@ -111,6 +113,7 @@ class LibraryDetailHero extends StatelessWidget {
                               );
                             }
                           },
+                    ),
                   ),
                 );
               },
@@ -212,6 +215,12 @@ class LibraryDetailHero extends StatelessWidget {
                       _DetailHeaderChip(
                         icon: Icons.workspace_premium,
                         label: ownedItem!.grade!,
+                        accent: accent,
+                      ),
+                    if (ownedItem?.certificationNumber != null)
+                      _DetailHeaderChip(
+                        icon: Icons.verified_outlined,
+                        label: 'Cert #${ownedItem!.certificationNumber!}',
                         accent: accent,
                       ),
                     if (entry.video?.runtimeMinutes != null)
@@ -367,4 +376,18 @@ class _DetailHeaderChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
     );
   }
+}
+
+Widget _maybeSlabDetail(OwnedItem? ownedItem, Widget child) {
+  if (ownedItem == null) return child;
+  if (ownedItem.rawOrSlabbed?.toLowerCase() != 'slabbed') return child;
+  final company = ownedItem.gradingCompany;
+  final grade = ownedItem.grade;
+  if (company == null || grade == null) return child;
+  return SlabFrameOverlay(
+    gradingCompany: company,
+    grade: grade,
+    labelType: ownedItem.labelType,
+    child: child,
+  );
 }

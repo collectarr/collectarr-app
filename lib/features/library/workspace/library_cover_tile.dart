@@ -194,6 +194,7 @@ class LibraryCoverTile extends ConsumerWidget {
     return SlabFrameOverlay(
       gradingCompany: company,
       grade: grade,
+      labelType: entry.labelType,
       child: child,
     );
   }

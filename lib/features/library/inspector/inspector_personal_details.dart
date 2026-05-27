@@ -422,6 +422,8 @@ class _InspectorPersonalDetailsEditorState
           gradingCompany: widget.ownedItem.gradingCompany,
           graderNotes: widget.ownedItem.graderNotes,
           signedBy: widget.ownedItem.signedBy,
+          labelType: widget.ownedItem.labelType,
+          certificationNumber: widget.ownedItem.certificationNumber,
           keyComic: widget.ownedItem.keyComic,
           keyReason: widget.ownedItem.keyReason,
           rating: widget.ownedItem.rating,

@@ -969,6 +969,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       gradingCompany: personal.gradingCompany,
       graderNotes: personal.graderNotes,
       signedBy: personal.signedBy,
+      labelType: personal.labelType,
+      certificationNumber: personal.certificationNumber,
       keyComic: personal.keyComic ?? false,
       keyReason: personal.keyReason,
       rating: selection.tracking?.rating,

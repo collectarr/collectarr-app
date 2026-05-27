@@ -11,6 +11,7 @@ class LibrarySeriesBucket {
     this.coverUrl,
     this.startYear,
     this.ownedCount,
+    this.missingNumbers = const <int>[],
   });
 
   final String title;
@@ -18,6 +19,7 @@ class LibrarySeriesBucket {
   final String? coverUrl;
   final int? startYear;
   final int? ownedCount;
+  final List<int> missingNumbers;
 
   int? get completionPercent {
     final owned = ownedCount;
@@ -293,9 +295,14 @@ class _LibrarySeriesRow extends StatelessWidget {
     final subtitleParts = <String>[
       if (bucket.startYear != null) bucket.startYear.toString(),
       if (owned != null) '$owned / $total owned',
+      if (bucket.missingNumbers.isNotEmpty)
+        '${bucket.missingNumbers.length} gaps',
     ];
     final hasSubtitle = subtitleParts.isNotEmpty;
-    return Material(
+    final gapTooltip = bucket.missingNumbers.isNotEmpty
+        ? 'Missing: ${_formatMissingNumbers(bucket.missingNumbers)}'
+        : null;
+    Widget row = Material(
       color: selected ? selectionColor : Colors.transparent,
       child: InkWell(
         onTap: onTap,
@@ -378,6 +385,14 @@ class _LibrarySeriesRow extends StatelessWidget {
         ),
       ),
     );
+    if (gapTooltip != null) {
+      row = Tooltip(
+        message: gapTooltip,
+        waitDuration: const Duration(milliseconds: 400),
+        child: row,
+      );
+    }
+    return row;
   }
 }
 
@@ -422,4 +437,28 @@ class _SeriesCompletionBar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Formats a list of missing issue numbers into compact ranges.
+/// Example: [1,2,3,5,8,9] → "#1–3, #5, #8–9"
+String _formatMissingNumbers(List<int> numbers) {
+  if (numbers.isEmpty) return '';
+  final sorted = numbers.toList()..sort();
+  final parts = <String>[];
+  var start = sorted.first;
+  var end = start;
+  for (var i = 1; i < sorted.length; i++) {
+    if (sorted[i] == end + 1) {
+      end = sorted[i];
+    } else {
+      parts.add(start == end ? '#$start' : '#$start–#$end');
+      start = sorted[i];
+      end = start;
+    }
+  }
+  parts.add(start == end ? '#$start' : '#$start–#$end');
+  if (parts.length > 10) {
+    return '${parts.take(10).join(', ')} … +${parts.length - 10} more';
+  }
+  return parts.join(', ');
 }

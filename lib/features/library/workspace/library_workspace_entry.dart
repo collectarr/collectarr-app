@@ -36,6 +36,8 @@ sealed class LibraryWorkspaceEntry {
     this.grade,
     this.rawOrSlabbed,
     this.gradingCompany,
+    this.labelType,
+    this.certificationNumber,
     this.primaryReferenceLabel,
     this.referenceScopeLabel,
     this.referenceFormatLabel,
@@ -95,6 +97,8 @@ sealed class LibraryWorkspaceEntry {
     String? grade,
     String? rawOrSlabbed,
     String? gradingCompany,
+    String? labelType,
+    String? certificationNumber,
     String? primaryReferenceLabel,
     String? referenceScopeLabel,
     String? referenceFormatLabel,
@@ -158,6 +162,8 @@ sealed class LibraryWorkspaceEntry {
       grade: grade,
       rawOrSlabbed: rawOrSlabbed,
       gradingCompany: gradingCompany,
+      labelType: labelType,
+      certificationNumber: certificationNumber,
       primaryReferenceLabel: primaryReferenceLabel,
       referenceScopeLabel: referenceScopeLabel,
       referenceFormatLabel: referenceFormatLabel,
@@ -384,6 +390,8 @@ sealed class LibraryWorkspaceEntry {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? labelType;
+  final String? certificationNumber;
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;
@@ -480,6 +488,8 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           grade: common.grade,
           rawOrSlabbed: common.rawOrSlabbed,
           gradingCompany: common.gradingCompany,
+          labelType: common.labelType,
+          certificationNumber: common.certificationNumber,
           primaryReferenceLabel: common.primaryReferenceLabel,
           referenceScopeLabel: common.referenceScopeLabel,
           referenceFormatLabel: common.referenceFormatLabel,
@@ -700,6 +710,8 @@ class _LibraryWorkspaceCommon {
     required this.grade,
     required this.rawOrSlabbed,
     required this.gradingCompany,
+    required this.labelType,
+    required this.certificationNumber,
     required this.primaryReferenceLabel,
     required this.referenceScopeLabel,
     required this.referenceFormatLabel,
@@ -758,6 +770,8 @@ class _LibraryWorkspaceCommon {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? labelType;
+  final String? certificationNumber;
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;

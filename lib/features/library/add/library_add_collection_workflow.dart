@@ -41,6 +41,8 @@ class LibraryAddOwnedDetails {
     this.gradingCompany,
     this.graderNotes,
     this.signedBy,
+    this.labelType,
+    this.certificationNumber,
     this.keyComic = false,
     this.keyReason,
     this.rating,
@@ -74,6 +76,8 @@ class LibraryAddOwnedDetails {
   final String? gradingCompany;
   final String? graderNotes;
   final String? signedBy;
+  final String? labelType;
+  final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
   final int? rating;
@@ -163,6 +167,9 @@ Future<void> addLibraryItemsToTarget({
             isDigitalOwnedItem ? null : ownedDetails?.gradingCompany,
           graderNotes: isDigitalOwnedItem ? null : ownedDetails?.graderNotes,
           signedBy: isDigitalOwnedItem ? null : ownedDetails?.signedBy,
+          labelType: isDigitalOwnedItem ? null : ownedDetails?.labelType,
+          certificationNumber:
+            isDigitalOwnedItem ? null : ownedDetails?.certificationNumber,
           keyComic: ownedDetails?.keyComic ?? false,
           keyReason: ownedDetails?.keyReason,
           rating: ownedDetails?.rating,

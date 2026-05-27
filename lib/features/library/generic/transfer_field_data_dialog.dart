@@ -216,6 +216,8 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           gradingCompany: updated.gradingCompany,
           graderNotes: updated.graderNotes,
           signedBy: updated.signedBy,
+          labelType: updated.labelType,
+          certificationNumber: updated.certificationNumber,
           keyReason: updated.keyReason,
           readStatus: updated.readStatus,
           soldTo: updated.soldTo,
@@ -267,6 +269,9 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                 src.key == 'gradingCompany' ? null : item.gradingCompany,
             graderNotes: src.key == 'graderNotes' ? null : item.graderNotes,
             signedBy: src.key == 'signedBy' ? null : item.signedBy,
+            labelType: src.key == 'labelType' ? null : item.labelType,
+            certificationNumber:
+                src.key == 'certificationNumber' ? null : item.certificationNumber,
             keyReason: src.key == 'keyReason' ? null : item.keyReason,
             readStatus: src.key == 'readStatus' ? null : item.readStatus,
             soldTo: src.key == 'soldTo' ? null : item.soldTo,
