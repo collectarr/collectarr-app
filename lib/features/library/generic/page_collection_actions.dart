@@ -409,7 +409,7 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
                         ),
                       )
                     : const Icon(Icons.image, size: 40),
-                title: Text('$entityType / ${entityId.substring(0, 8)}…'),
+                title: Text('$entityType / ${entityId.length > 8 ? '${entityId.substring(0, 8)}…' : entityId}'),
                 subtitle: Text('$confidence% match (distance: $distance)'),
                 onTap: () {
                   Navigator.of(dialogContext).pop();

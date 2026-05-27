@@ -168,7 +168,6 @@ class SlabFrameOverlay extends StatelessWidget {
             borderRadius: BorderRadius.circular(3),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               // Slab label header
               Container(

@@ -431,7 +431,8 @@ List<int> _computeMissingIssues(
   for (final item in items) {
     final numberStr = item['item_number']?.toString();
     if (numberStr == null) continue;
-    final number = int.tryParse(numberStr.trim());
+    final match = RegExp(r'^\s*(\d+)').firstMatch(numberStr);
+    final number = match == null ? null : int.tryParse(match.group(1)!);
     if (number == null) continue;
     allNumbers.add(number);
     final id = item['id']?.toString();

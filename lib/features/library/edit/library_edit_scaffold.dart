@@ -210,7 +210,7 @@ class _ReorderableTabStrip extends StatelessWidget {
                     onAcceptWithDetails: (details) {
                       final from = details.data;
                       if (from != i) {
-                        onReorderItem(from, from < i ? i : i);
+                        onReorderItem(from, i);
                       }
                     },
                     builder: (context, candidateData, _) {

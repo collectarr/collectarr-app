@@ -236,7 +236,13 @@ class _UnifiedGroupNode extends StatefulWidget {
 }
 
 class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
-  bool _expanded = false;
+  late bool _expanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = _hasSelectedChild;
+  }
 
   bool get _hasSelectedChild {
     if (widget.group.coreItems.any(
