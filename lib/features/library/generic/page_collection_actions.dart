@@ -396,7 +396,7 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
               final confidence = ((64 - distance) / 64 * 100).round();
 
               return ListTile(
-                leading: publicUrl != null
+                leading: publicUrl != null && publicUrl.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: Image.network(

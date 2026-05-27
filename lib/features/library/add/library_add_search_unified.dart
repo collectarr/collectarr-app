@@ -247,7 +247,11 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
   @override
   void didUpdateWidget(_UnifiedGroupNode oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_hasSelectedChild && !_expanded) {
+    final selectionChanged =
+        widget.selectedResultId != oldWidget.selectedResultId ||
+        widget.selectedProviderCandidateId !=
+            oldWidget.selectedProviderCandidateId;
+    if (selectionChanged && _hasSelectedChild && !_expanded) {
       _expanded = true;
     }
   }
