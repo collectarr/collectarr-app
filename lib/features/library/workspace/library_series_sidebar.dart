@@ -279,9 +279,12 @@ class _LibrarySeriesRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasCover = bucket.coverUrl != null && bucket.coverUrl!.isNotEmpty;
+    final owned = bucket.ownedCount;
+    final total = bucket.count;
+    final pct = bucket.completionPercent;
     final subtitleParts = <String>[
       if (bucket.startYear != null) bucket.startYear.toString(),
-      if (bucket.completionPercent != null) '${bucket.completionPercent}% complete',
+      if (owned != null) '$owned / $total owned',
     ];
     final hasSubtitle = subtitleParts.isNotEmpty;
     return Material(
@@ -291,7 +294,7 @@ class _LibrarySeriesRow extends StatelessWidget {
         hoverColor: selectionColor.withValues(alpha: 0.35),
         child: SizedBox(
           height: hasSubtitle
-              ? (hasCover ? 44 : 40)
+              ? (hasCover ? 50 : 46)
               : (hasCover ? 40 : 36),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -343,12 +346,21 @@ class _LibrarySeriesRow extends StatelessWidget {
                                 fontSize: 10,
                               ),
                         ),
+                      if (pct != null) ...[                        
+                        const SizedBox(height: 2),
+                        _SeriesCompletionBar(
+                          percent: pct,
+                          selected: selected,
+                          badgeColor: badgeColor,
+                          selectedBadgeColor: selectedBadgeColor,
+                        ),
+                      ],
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 Badge(
-                  label: Text(bucket.count.toString()),
+                  label: Text(owned != null ? '$owned' : total.toString()),
                   backgroundColor: selected ? selectedBadgeColor : badgeColor,
                   textColor: selected ? kAppSurfaceDim : Colors.white,
                 ),
@@ -367,4 +379,39 @@ String libraryBucketLabel(LibrarySeriesBucket bucket) {
     return '${bucket.title} ${bucket.count}';
   }
   return '${bucket.title} ${bucket.count} ($completionPercent%)';
+}
+
+class _SeriesCompletionBar extends StatelessWidget {
+  const _SeriesCompletionBar({
+    required this.percent,
+    required this.selected,
+    required this.badgeColor,
+    required this.selectedBadgeColor,
+  });
+
+  final int percent;
+  final bool selected;
+  final Color badgeColor;
+  final Color selectedBadgeColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final barColor = percent >= 100
+        ? const Color(0xFF4CAF50)
+        : selected
+            ? selectedBadgeColor
+            : badgeColor;
+    return SizedBox(
+      height: 4,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(2),
+        child: LinearProgressIndicator(
+          value: percent / 100,
+          backgroundColor: kAppDivider,
+          valueColor: AlwaysStoppedAnimation(barColor),
+          minHeight: 4,
+        ),
+      ),
+    );
+  }
 }

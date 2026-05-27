@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -196,6 +197,82 @@ class _SeriesDetailBody extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 8),
+        Builder(builder: (context) {
+          final missingNumbers = _computeMissingIssues(data.items, ownedItemIds);
+          if (missingNumbers.isEmpty) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0x18FF9800),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0x44FF9800)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          size: 16, color: Color(0xFFFF9800)),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${missingNumbers.length} missing issue${missingNumbers.length == 1 ? '' : 's'}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          color: Color(0xFFFF9800),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      for (final n in missingNumbers.take(20))
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0x22FF9800),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '#$n',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFFF9800),
+                            ),
+                          ),
+                        ),
+                      if (missingNumbers.length > 20)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0x22FF9800),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '+${missingNumbers.length - 20} more',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFFF9800),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
         if (data.items.isEmpty)
           const Text('No catalog items were returned for this series.')
         else
@@ -342,5 +419,34 @@ class _SeriesStatChip extends StatelessWidget {
       label: Text(label),
     );
   }
+}
+
+/// Computes missing issue numbers between the min and max owned issues.
+List<int> _computeMissingIssues(
+  List<Map<String, dynamic>> items,
+  Map<String, OwnedItem> ownedItemIds,
+) {
+  final ownedNumbers = <int>{};
+  final allNumbers = <int>{};
+  for (final item in items) {
+    final numberStr = item['item_number']?.toString();
+    if (numberStr == null) continue;
+    final number = int.tryParse(numberStr.trim());
+    if (number == null) continue;
+    allNumbers.add(number);
+    final id = item['id']?.toString();
+    if (id != null && ownedItemIds.containsKey(id)) {
+      ownedNumbers.add(number);
+    }
+  }
+  if (ownedNumbers.length < 2) return const [];
+  final sorted = ownedNumbers.toList()..sort();
+  final missing = <int>[];
+  for (var n = sorted.first; n <= sorted.last; n++) {
+    if (!ownedNumbers.contains(n) && allNumbers.contains(n)) {
+      missing.add(n);
+    }
+  }
+  return missing;
 }
 

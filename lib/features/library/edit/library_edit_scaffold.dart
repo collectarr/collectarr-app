@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class LibraryEditDialogScaffold extends StatelessWidget {
+class LibraryEditDialogScaffold extends StatefulWidget {
   const LibraryEditDialogScaffold({
     super.key,
     required this.formKey,
@@ -29,11 +29,49 @@ class LibraryEditDialogScaffold extends StatelessWidget {
   final VoidCallback onSave;
 
   @override
+  State<LibraryEditDialogScaffold> createState() =>
+      _LibraryEditDialogScaffoldState();
+}
+
+class _LibraryEditDialogScaffoldState
+    extends State<LibraryEditDialogScaffold> {
+  late List<int> _tabOrder;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabOrder = List.generate(widget.tabs.length, (i) => i);
+  }
+
+  @override
+  void didUpdateWidget(LibraryEditDialogScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.tabs.length != _tabOrder.length) {
+      _tabOrder = List.generate(widget.tabs.length, (i) => i);
+    }
+  }
+
+  void _onReorderItem(int oldIndex, int newIndex) {
+    setState(() {
+      final currentTabLogical = _tabOrder[widget.tabController.index];
+      final item = _tabOrder.removeAt(oldIndex);
+      _tabOrder.insert(newIndex, item);
+      // Keep the same logical tab selected after reorder.
+      final newSelectedIndex = _tabOrder.indexOf(currentTabLogical);
+      if (newSelectedIndex >= 0) {
+        widget.tabController.index = newSelectedIndex;
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final orderedTabs = [for (final i in _tabOrder) widget.tabs[i]];
+    final orderedViews = [for (final i in _tabOrder) widget.views[i]];
     return Dialog(
       clipBehavior: Clip.antiAlias,
       child: Theme(
-        data: editDialogTheme(seedColor: accent, palette: appPalette(context)),
+        data: editDialogTheme(seedColor: widget.accent, palette: appPalette(context)),
         child: Builder(builder: (context) {
           final p = appPalette(context);
           return DecoratedBox(
@@ -51,42 +89,39 @@ class LibraryEditDialogScaffold extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
               child: Form(
-                key: formKey,
+                key: widget.formKey,
                 child: Column(
                   children: [
                     _LibraryEditTitleBar(
-                      accent: accent,
-                      icon: icon,
-                      title: title,
-                      badges: badges,
-                      onClose: onClose,
+                      accent: widget.accent,
+                      icon: widget.icon,
+                      title: widget.title,
+                      badges: widget.badges,
+                      onClose: widget.onClose,
                     ),
                     ColoredBox(
                       color: p.panelRaised,
-                      child: TabBar(
-                        controller: tabController,
-                        isScrollable: true,
-                        tabAlignment: TabAlignment.start,
+                      child: _ReorderableTabStrip(
+                        tabController: widget.tabController,
+                        tabs: orderedTabs,
+                        accent: widget.accent,
                         labelColor: p.textPrimary,
                         unselectedLabelColor: p.textMuted,
-                        indicatorColor: accent,
                         dividerColor: p.divider,
-                        labelPadding:
-                            const EdgeInsets.symmetric(horizontal: 11),
-                        tabs: tabs,
+                        onReorderItem: _onReorderItem,
                       ),
                     ),
                     Expanded(
                       child: ColoredBox(
                         color: p.panel,
                         child: TabBarView(
-                          controller: tabController,
-                          children: views,
+                          controller: widget.tabController,
+                          children: orderedViews,
                         ),
                       ),
                     ),
                     _LibraryEditFooter(
-                      onSave: onSave,
+                      onSave: widget.onSave,
                     ),
                   ],
                 ),
@@ -94,6 +129,160 @@ class LibraryEditDialogScaffold extends StatelessWidget {
             ),
           );
         }),
+      ),
+    );
+  }
+}
+
+/// A horizontal reorderable tab strip that replaces the standard [TabBar].
+///
+/// Uses [LongPressDraggable] + [DragTarget] so all tabs are always in the
+/// widget tree (unlike [ReorderableListView] which lazily builds items).
+class _ReorderableTabStrip extends StatelessWidget {
+  const _ReorderableTabStrip({
+    required this.tabController,
+    required this.tabs,
+    required this.accent,
+    required this.labelColor,
+    required this.unselectedLabelColor,
+    required this.dividerColor,
+    required this.onReorderItem,
+  });
+
+  final TabController tabController;
+  final List<Widget> tabs;
+  final Color accent;
+  final Color labelColor;
+  final Color unselectedLabelColor;
+  final Color dividerColor;
+  final void Function(int oldIndex, int newIndex) onReorderItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 40,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (var i = 0; i < tabs.length; i++)
+                  DragTarget<int>(
+                    onAcceptWithDetails: (details) {
+                      final from = details.data;
+                      if (from != i) {
+                        onReorderItem(from, from < i ? i : i);
+                      }
+                    },
+                    builder: (context, candidateData, _) {
+                      return LongPressDraggable<int>(
+                        data: i,
+                        axis: Axis.horizontal,
+                        feedback: Material(
+                          elevation: 4,
+                          color: Colors.transparent,
+                          child: _DraggableTabContent(
+                            tab: tabs[i],
+                            accent: accent,
+                            labelColor: labelColor,
+                          ),
+                        ),
+                        childWhenDragging: Opacity(
+                          opacity: 0.3,
+                          child: _DraggableTabContent(
+                            tab: tabs[i],
+                            accent: accent,
+                            labelColor: unselectedLabelColor,
+                          ),
+                        ),
+                        child: GestureDetector(
+                          onTap: () => tabController.animateTo(i),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 11),
+                            decoration: BoxDecoration(
+                              color: candidateData.isNotEmpty
+                                  ? accent.withValues(alpha: 0.12)
+                                  : Colors.transparent,
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: tabController.index == i
+                                      ? accent
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: DefaultTextStyle.merge(
+                              style: TextStyle(
+                                color: tabController.index == i
+                                    ? labelColor
+                                    : unselectedLabelColor,
+                                fontWeight: tabController.index == i
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                              child: IconTheme.merge(
+                                data: IconThemeData(
+                                  color: tabController.index == i
+                                      ? labelColor
+                                      : unselectedLabelColor,
+                                  size: 18,
+                                ),
+                                child: tabs[i],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+        Divider(height: 1, thickness: 1, color: dividerColor),
+      ],
+    );
+  }
+}
+
+class _DraggableTabContent extends StatelessWidget {
+  const _DraggableTabContent({
+    required this.tab,
+    required this.accent,
+    required this.labelColor,
+  });
+
+  final Widget tab;
+  final Color accent;
+  final Color labelColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 11),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      alignment: Alignment.center,
+      child: DefaultTextStyle.merge(
+        style: TextStyle(
+          color: labelColor,
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+        ),
+        child: IconTheme.merge(
+          data: IconThemeData(color: labelColor, size: 18),
+          child: tab,
+        ),
       ),
     );
   }
