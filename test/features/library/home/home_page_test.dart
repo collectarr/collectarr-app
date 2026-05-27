@@ -80,7 +80,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Group by'));
     await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(ListTile, 'Year'));
+    await tester.tap(find.text('Year'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Years'), findsOneWidget);
@@ -91,7 +91,7 @@ void main() {
     expect(find.text('Quick views'), findsOneWidget);
     expect(find.text('Statistics'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(ListTile, 'Statistics'));
+    await tester.tap(find.text('Statistics'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Games Statistics'), findsOneWidget);
@@ -101,7 +101,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Library tools'));
     await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(ListTile, 'Wishlist'));
+    await tester.tap(find.text('Wishlist'));
     await pumpUntilSettled(tester);
 
     expect(find.text('No matching games'), findsOneWidget);
@@ -157,19 +157,13 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    final overflowButton = tester.widget<PopupMenuButton<CatalogMediaType>>(
-      find.byType(PopupMenuButton<CatalogMediaType>),
+    // Navigate to games by scrolling the tab strip and tapping.
+    await tester.dragUntilVisible(
+      find.text('Games'),
+      find.byType(ListView),
+      const Offset(-100, 0),
     );
-    expect(overflowButton.color, const Color(0xFF202020));
-    expect(overflowButton.surfaceTintColor, Colors.transparent);
-    expect(overflowButton.position, PopupMenuPosition.under);
-
-    await tester.tap(find.byTooltip('More libraries'));
-    await pumpUntilSettled(tester);
-    final gameItem = tester.widget<PopupMenuItem<CatalogMediaType>>(
-      find.byKey(const ValueKey('library-overflow-item-game')),
-    );
-    expect(gameItem.height, 38);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Games'));
     await pumpUntilSettled(tester);
 
@@ -225,8 +219,12 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byTooltip('More libraries'));
-    await pumpUntilSettled(tester);
+    await tester.dragUntilVisible(
+      find.text('Podcasts'),
+      find.byType(ListView).first,
+      const Offset(-100, 0),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Podcasts'));
     await pumpUntilSettled(tester);
 

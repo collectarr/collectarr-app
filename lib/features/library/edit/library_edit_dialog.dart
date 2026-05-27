@@ -1536,24 +1536,20 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
               if (_showPhysicalOwnedFields) ...[
                 _responsiveFields([
-                  Expanded(
-                    child: TextFormField(
-                      controller: _storageDeviceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Storage Device',
-                        hintText: 'e.g. DVD Shelf, Blu-ray Cabinet',
-                        border: OutlineInputBorder(),
-                      ),
+                  TextFormField(
+                    controller: _storageDeviceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Storage Device',
+                      hintText: 'e.g. DVD Shelf, Blu-ray Cabinet',
+                      border: OutlineInputBorder(),
                     ),
                   ),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _storageSlotController,
-                      decoration: const InputDecoration(
-                        labelText: 'Storage Slot',
-                        hintText: 'e.g. Row 3, Slot 5',
-                        border: OutlineInputBorder(),
-                      ),
+                  TextFormField(
+                    controller: _storageSlotController,
+                    decoration: const InputDecoration(
+                      labelText: 'Storage Slot',
+                      hintText: 'e.g. Row 3, Slot 5',
+                      border: OutlineInputBorder(),
                     ),
                   ),
                 ]),

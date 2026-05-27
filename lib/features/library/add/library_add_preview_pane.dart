@@ -702,6 +702,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               _EditionGrid(
+                key: const ValueKey('library-add-edition-field'),
                 editions: item.editions,
                 selectedEditionId: selectedEditionId,
                 accent: accent,
@@ -720,6 +721,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 )
               else
                 _VariantGrid(
+                  key: const ValueKey('library-add-variant-field'),
                   variants: selectedEdition.variants,
                   selectedVariantId: selectedVariantId,
                   accent: accent,
@@ -1602,6 +1604,7 @@ class _ResizableDialogShell extends StatelessWidget {
 
 class _EditionGrid extends StatelessWidget {
   const _EditionGrid({
+    super.key,
     required this.editions,
     required this.selectedEditionId,
     required this.accent,
@@ -1762,6 +1765,7 @@ class _EditionPlaceholder extends StatelessWidget {
 
 class _VariantGrid extends StatelessWidget {
   const _VariantGrid({
+    super.key,
     required this.variants,
     required this.selectedVariantId,
     required this.accent,
