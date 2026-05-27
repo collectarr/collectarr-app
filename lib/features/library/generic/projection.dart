@@ -276,9 +276,11 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
   return buckets;
 }
 
+final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
+
 int? _wholeNumber(String? value) {
   if (value == null || value.trim().isEmpty) return null;
-  final match = RegExp(r'^\s*(\d+)').firstMatch(value);
+  final match = _issueNumberRegExp.firstMatch(value);
   return match == null ? null : int.tryParse(match.group(1)!);
 }
 

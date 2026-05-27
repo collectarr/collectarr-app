@@ -137,6 +137,23 @@ class SlabFrameOverlay extends StatelessWidget {
     super.key,
   });
 
+  static Widget maybeWrap({
+    required String? rawOrSlabbed,
+    required String? gradingCompany,
+    required String? grade,
+    required String? labelType,
+    required Widget child,
+  }) {
+    if (rawOrSlabbed?.toLowerCase() != 'slabbed') return child;
+    if (gradingCompany == null || grade == null) return child;
+    return SlabFrameOverlay(
+      gradingCompany: gradingCompany,
+      grade: grade,
+      labelType: labelType,
+      child: child,
+    );
+  }
+
   final Widget child;
   final String gradingCompany;
   final String grade;
@@ -160,6 +177,7 @@ class SlabFrameOverlay extends StatelessWidget {
         final gradeSize = isCompact ? 8.0 : 11.0;
         final companySize = isCompact ? 7.0 : 9.0;
         return Container(
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             border: Border.all(
               color: _labelColor.withValues(alpha: 0.8),

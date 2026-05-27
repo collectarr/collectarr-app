@@ -382,10 +382,10 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Cover Matches'),
-        content: SizedBox(
-          width: 400,
-          height: 400,
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
           child: ListView.builder(
+            shrinkWrap: true,
             itemCount: results.length,
             itemBuilder: (context, index) {
               final match = results[index];

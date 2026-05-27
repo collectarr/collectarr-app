@@ -380,13 +380,10 @@ class _DetailHeaderChip extends StatelessWidget {
 
 Widget _maybeSlabDetail(OwnedItem? ownedItem, Widget child) {
   if (ownedItem == null) return child;
-  if (ownedItem.rawOrSlabbed?.toLowerCase() != 'slabbed') return child;
-  final company = ownedItem.gradingCompany;
-  final grade = ownedItem.grade;
-  if (company == null || grade == null) return child;
-  return SlabFrameOverlay(
-    gradingCompany: company,
-    grade: grade,
+  return SlabFrameOverlay.maybeWrap(
+    rawOrSlabbed: ownedItem.rawOrSlabbed,
+    gradingCompany: ownedItem.gradingCompany,
+    grade: ownedItem.grade,
     labelType: ownedItem.labelType,
     child: child,
   );

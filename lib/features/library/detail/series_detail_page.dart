@@ -428,10 +428,11 @@ List<int> _computeMissingIssues(
 ) {
   final ownedNumbers = <int>{};
   final allNumbers = <int>{};
+  final issueRe = RegExp(r'^\s*(\d+)');
   for (final item in items) {
     final numberStr = item['item_number']?.toString();
     if (numberStr == null) continue;
-    final match = RegExp(r'^\s*(\d+)').firstMatch(numberStr);
+    final match = issueRe.firstMatch(numberStr);
     final number = match == null ? null : int.tryParse(match.group(1)!);
     if (number == null) continue;
     allNumbers.add(number);

@@ -196,11 +196,14 @@ class _ReorderableTabStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: 40,
+    return AnimatedBuilder(
+      animation: tabController,
+      builder: (context, _) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 40,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -283,8 +286,10 @@ class _ReorderableTabStrip extends StatelessWidget {
             ),
           ),
         ),
-        Divider(height: 1, thickness: 1, color: dividerColor),
-      ],
+            Divider(height: 1, thickness: 1, color: dividerColor),
+          ],
+        );
+      },
     );
   }
 }

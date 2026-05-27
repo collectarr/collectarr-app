@@ -187,13 +187,10 @@ class LibraryCoverTile extends ConsumerWidget {
   }
 
   static Widget _maybeSlab(LibraryWorkspaceEntry entry, Widget child) {
-    if (entry.rawOrSlabbed?.toLowerCase() != 'slabbed') return child;
-    final company = entry.gradingCompany;
-    final grade = entry.grade;
-    if (company == null || grade == null) return child;
-    return SlabFrameOverlay(
-      gradingCompany: company,
-      grade: grade,
+    return SlabFrameOverlay.maybeWrap(
+      rawOrSlabbed: entry.rawOrSlabbed,
+      gradingCompany: entry.gradingCompany,
+      grade: entry.grade,
       labelType: entry.labelType,
       child: child,
     );
