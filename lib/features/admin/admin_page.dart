@@ -1122,12 +1122,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _updatingCatalogItemId = null;
         _lastIngest = null;
         _catalogStatusMessage = 'Metadata correction saved.';
-        if (updated != null) {
-          _catalogItems = [
-            for (final row in _catalogItems)
-              row.id == updated.id ? updated : row,
-          ];
-        }
+        final finalItem = updated ?? item;
+        _catalogItems = [
+          for (final row in _catalogItems)
+            row.id == finalItem.id ? finalItem : row,
+        ];
       });
       await _loadDashboard();
     } catch (error) {
