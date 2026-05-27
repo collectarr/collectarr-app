@@ -234,6 +234,21 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           keyComic: updated.keyComic,
           notify: isLast,
         );
+        // Clear source custom field when moving from custom → built-in.
+        if (_mode == TransferMode.move && src.isCustomField) {
+          final existing = (allCfValues?[item.id] ?? [])
+              .where((v) => v.fieldDefinitionId == src.customFieldId)
+              .firstOrNull;
+          if (existing != null) {
+            await cfRepo.upsertValue(CustomFieldValue(
+              id: existing.id,
+              ownedItemId: item.id,
+              fieldDefinitionId: src.customFieldId!,
+              value: null,
+              updatedAt: now,
+            ));
+          }
+        }
         transferred++;
         continue;
       }

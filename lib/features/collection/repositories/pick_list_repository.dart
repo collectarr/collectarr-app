@@ -85,10 +85,20 @@ class PickListRepository {
   Future<void> setValues(String listName, List<String> values,
       {String? mediaKind}) async {
     final existingRows = await (_db.select(_db.pickListValuesCache)
-          ..where((t) => t.listName.equals(listName)))
+          ..where((t) {
+            final expr = t.listName.equals(listName);
+            return mediaKind != null
+                ? expr & t.mediaKind.equals(mediaKind)
+                : expr;
+          }))
         .get();
     await (_db.delete(_db.pickListValuesCache)
-          ..where((t) => t.listName.equals(listName)))
+          ..where((t) {
+            final expr = t.listName.equals(listName);
+            return mediaKind != null
+                ? expr & t.mediaKind.equals(mediaKind)
+                : expr;
+          }))
         .go();
     final changes = <SyncChange>[];
     final now = DateTime.now().toUtc();

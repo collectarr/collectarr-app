@@ -59,9 +59,17 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     );
     if (name == null || name.isEmpty) return;
 
-    final repo = UserFolderRepository(widget.db);
-    await repo.create(name: name);
-    await _load();
+    try {
+      final repo = UserFolderRepository(widget.db);
+      await repo.create(name: name);
+      await _load();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create folder: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _renameFolder(UserFolder folder) async {
@@ -73,9 +81,17 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     );
     if (name == null || name.isEmpty || name == folder.name) return;
 
-    final repo = UserFolderRepository(widget.db);
-    await repo.rename(folder.id, name);
-    await _load();
+    try {
+      final repo = UserFolderRepository(widget.db);
+      await repo.rename(folder.id, name);
+      await _load();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to rename folder: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _deleteFolder(UserFolder folder) async {
@@ -102,9 +118,17 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     );
     if (confirmed != true) return;
 
-    final repo = UserFolderRepository(widget.db);
-    await repo.delete(folder.id);
-    await _load();
+    try {
+      final repo = UserFolderRepository(widget.db);
+      await repo.delete(folder.id);
+      await _load();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete folder: $e')),
+        );
+      }
+    }
   }
 
   Future<String?> _promptForName({

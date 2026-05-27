@@ -40,9 +40,7 @@ class DatabaseBackup {
     await db.transaction(() async {
       // Clear all tables first.
       for (final table in db.allTables) {
-        await db.customStatement(
-          'DELETE FROM ${table.actualTableName}',
-        );
+        await db.delete(table).go();
       }
       // Re-insert rows.
       for (final table in db.allTables) {
@@ -74,9 +72,7 @@ class DatabaseBackup {
     try {
     await db.transaction(() async {
       for (final table in db.allTables) {
-        await db.customStatement(
-          'DELETE FROM ${table.actualTableName}',
-        );
+        await db.delete(table).go();
       }
     });
     } finally {
