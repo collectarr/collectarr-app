@@ -266,80 +266,46 @@ class _SearchResultsList extends StatelessWidget {
     }
     final fallbackProviderLabel = _fallbackProviderLabel();
     final mixedProviderSummary = _mixedProviderSummary();
+    final groups = _buildUnifiedGroups(
+      coreResults: results,
+      providerResults: providerResults,
+    );
     return ListView(
       padding: EdgeInsets.zero,
       children: [
         notice,
-        if (results.isNotEmpty) ...[
-          const _ResultSectionHeader(label: 'Collectarr Core'),
-          ..._withDividers(
-            context,
-            [
-              for (final item in results)
-                _SearchResultTile(
-                  type: type,
-                  item: item,
-                  accent: accent,
-                  queryText: providerQueryText,
-                  seriesText: providerSeriesText,
-                  numberText: providerNumberText,
-                  publisherText: providerPublisherText,
-                  yearText: providerYearText,
-                  selected: item.id == selectedResultId,
-                  checked: checkedResultIds.contains(item.id),
-                  isOwned: ownedCatalogItemIds.contains(item.id),
-                  onSelect: () => onSelectResult(item.id),
-                  onToggleCheck: () => onToggleResultCheck(item.id),
-                ),
-            ],
+        if (fallbackProviderLabel != null)
+          _ProviderFallbackNotice(
+            requestedProvider: type.metadataProviderLabel(selectedProvider),
+            fallbackProvider: fallbackProviderLabel,
           ),
-        ],
-        if (providerResults.isNotEmpty) ...[
-          if (fallbackProviderLabel != null)
-            _ProviderFallbackNotice(
-              requestedProvider: type.metadataProviderLabel(selectedProvider),
-              fallbackProvider: fallbackProviderLabel,
-            ),
-          if (mixedProviderSummary != null)
-            _ProviderMixedNotice(summary: mixedProviderSummary),
-          _ResultSectionHeader(
-            label: _providerSectionLabel(),
+        if (mixedProviderSummary != null)
+          _ProviderMixedNotice(summary: mixedProviderSummary),
+        for (var i = 0; i < groups.length; i++) ...[
+          _UnifiedGroupNode(
+            key: ValueKey(groups[i].key),
+            type: type,
+            group: groups[i],
+            accent: accent,
+            selectedResultId: selectedResultId,
+            selectedProviderCandidateId: selectedProviderCandidateId,
+            checkedResultIds: checkedResultIds,
+            checkedProviderIds: checkedProviderIds,
+            ownedCatalogItemIds: ownedCatalogItemIds,
+            queuedProviderIngests: queuedProviderIngests,
+            providerLabel: type.metadataProviderLabel,
+            onSelectResult: onSelectResult,
+            onSelectProviderCandidate: onSelectProviderCandidate,
+            onToggleResultCheck: onToggleResultCheck,
+            onToggleProviderCheck: onToggleProviderCheck,
+            queryText: providerQueryText,
+            seriesText: providerSeriesText,
+            numberText: providerNumberText,
+            publisherText: providerPublisherText,
+            yearText: providerYearText,
           ),
-          if (_usesTreeProviderCandidates(type))
-            _ProviderCandidateTreeList(
-              type: type,
-              results: providerResults,
-              accent: accent,
-              selectedProviderCandidateId: selectedProviderCandidateId,
-              queuedProviderIngests: queuedProviderIngests,
-              providerLabel: type.metadataProviderLabel,
-              onSelectProviderCandidate: onSelectProviderCandidate,
-            )
-          else
-            ..._withDividers(
-              context,
-              [
-                for (final candidate in providerResults)
-                  _ProviderCandidateTile(
-                  type: type,
-                    candidate: candidate,
-                    accent: accent,
-                    providerLabel:
-                        type.metadataProviderLabel(candidate.provider),
-                    queuedIngest:
-                        queuedProviderIngests[candidate.localCatalogId],
-                  providerQueryText: providerQueryText,
-                  providerSeriesText: providerSeriesText,
-                  providerNumberText: providerNumberText,
-                  providerPublisherText: providerPublisherText,
-                  providerYearText: providerYearText,
-                    selected:
-                        candidate.localCatalogId == selectedProviderCandidateId,
-                    onSelect: () =>
-                        onSelectProviderCandidate(candidate.localCatalogId),
-                  ),
-              ],
-            ),
+          if (i < groups.length - 1)
+            const Divider(height: 1, thickness: 1, color: kAppDivider),
         ],
       ],
     );
@@ -355,14 +321,6 @@ class _SearchResultsList extends StatelessWidget {
       return type.metadataProviderLabel(onlyProvider);
     }
     return null;
-  }
-
-  String _providerSectionLabel() {
-    final providers = _providerIdsInOrder();
-    if (providers.length == 1) {
-      return '${type.metadataProviderLabel(providers.first)} candidates';
-    }
-    return 'Provider candidates';
   }
 
   String? _mixedProviderSummary() {
@@ -396,68 +354,6 @@ class _SearchResultsList extends StatelessWidget {
     }
     final leading = labels.take(labels.length - 1).join(', ');
     return '$leading, and ${labels.last}';
-  }
-
-  List<Widget> _withDividers(BuildContext context, List<Widget> tiles) {
-    const divider = Divider(height: 1, thickness: 1, color: kAppDivider);
-    final separated = <Widget>[];
-    for (var index = 0; index < tiles.length; index++) {
-      if (index > 0) {
-        separated.add(divider);
-      }
-      separated.add(tiles[index]);
-    }
-    return separated;
-  }
-}
-
-bool _usesTreeProviderCandidates(LibraryTypeConfig type) {
-  return switch (type.workspace.kind) {
-    CatalogMediaKind.comic || CatalogMediaKind.manga => true,
-    _ => type.presentation.usesTreeProviderCandidates,
-  };
-}
-
-class _ProviderCandidateTreeList extends StatelessWidget {
-  const _ProviderCandidateTreeList({
-    required this.type,
-    required this.results,
-    required this.accent,
-    required this.selectedProviderCandidateId,
-    required this.queuedProviderIngests,
-    required this.providerLabel,
-    required this.onSelectProviderCandidate,
-  });
-
-  final LibraryTypeConfig type;
-  final List<ProviderCandidate> results;
-  final Color accent;
-  final String? selectedProviderCandidateId;
-  final Map<String, _QueuedProviderIngest> queuedProviderIngests;
-  final String Function(String providerId) providerLabel;
-  final ValueChanged<String> onSelectProviderCandidate;
-
-  @override
-  Widget build(BuildContext context) {
-    if (type.workspace.kind == CatalogMediaKind.comic) {
-      return _ComicCandidateTreeList(
-        type: type,
-        results: results,
-        accent: accent,
-        selectedProviderCandidateId: selectedProviderCandidateId,
-        queuedProviderIngests: queuedProviderIngests,
-        providerLabel: providerLabel,
-        onSelectProviderCandidate: onSelectProviderCandidate,
-      );
-    }
-    return _MangaCandidateTreeList(
-      results: results,
-      accent: accent,
-      selectedProviderCandidateId: selectedProviderCandidateId,
-      queuedProviderIngests: queuedProviderIngests,
-      providerLabel: providerLabel,
-      onSelectProviderCandidate: onSelectProviderCandidate,
-    );
   }
 }
 

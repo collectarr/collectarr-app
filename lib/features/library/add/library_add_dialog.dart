@@ -41,7 +41,6 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_query.
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/providers/volumes_provider.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
@@ -62,6 +61,7 @@ part 'library_add_mode_bar.dart';
 part 'library_add_search_pane.dart';
 part 'library_add_search_comic.dart';
 part 'library_add_search_manga.dart';
+part 'library_add_search_unified.dart';
 part 'library_add_preview_pane.dart';
 part 'library_add_bottom_bar.dart';
 part 'library_add_manual_pane.dart';

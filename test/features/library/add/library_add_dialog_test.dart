@@ -971,7 +971,6 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('GCD unavailable, Comic Vine fallback used.'), findsNothing);
-    expect(find.text('Provider candidates'), findsOneWidget);
     expect(
       find.text('Showing matches from GCD and Comic Vine.'),
       findsOneWidget,
