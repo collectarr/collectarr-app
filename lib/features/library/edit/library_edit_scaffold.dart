@@ -347,12 +347,16 @@ class _LibraryEditTitleBar extends StatelessWidget {
   final VoidCallback onClose;
   final String? ebaySearchQuery;
 
-  void _searchOnEbay() {
+  Future<void> _searchOnEbay() async {
     final query = ebaySearchQuery;
     if (query == null) return;
     final encoded = Uri.encodeComponent(query);
     final url = Uri.parse('https://www.ebay.com/sch/i.html?_nkw=$encoded');
-    launchUrl(url, mode: LaunchMode.externalApplication);
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // Platform cannot handle URL — ignore gracefully
+    }
   }
 
   @override

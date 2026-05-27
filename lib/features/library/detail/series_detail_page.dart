@@ -421,6 +421,8 @@ class _SeriesStatChip extends StatelessWidget {
   }
 }
 
+final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
+
 /// Computes missing issue numbers between the min and max owned issues.
 List<int> _computeMissingIssues(
   List<Map<String, dynamic>> items,
@@ -428,11 +430,10 @@ List<int> _computeMissingIssues(
 ) {
   final ownedNumbers = <int>{};
   final allNumbers = <int>{};
-  final issueRe = RegExp(r'^\s*(\d+)');
   for (final item in items) {
     final numberStr = item['item_number']?.toString();
     if (numberStr == null) continue;
-    final match = issueRe.firstMatch(numberStr);
+    final match = _issueNumberRegExp.firstMatch(numberStr);
     final number = match == null ? null : int.tryParse(match.group(1)!);
     if (number == null) continue;
     allNumbers.add(number);
@@ -443,10 +444,12 @@ List<int> _computeMissingIssues(
   }
   if (ownedNumbers.length < 2) return const [];
   final sorted = ownedNumbers.toList()..sort();
+  if (sorted.last - sorted.first > 5000) return const [];
   final missing = <int>[];
   for (var n = sorted.first; n <= sorted.last; n++) {
     if (!ownedNumbers.contains(n) && allNumbers.contains(n)) {
       missing.add(n);
+      if (missing.length > 1000) break;
     }
   }
   return missing;

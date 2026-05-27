@@ -246,9 +246,14 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
     for (final entry in ownedNumbers.entries) {
       final sorted = entry.value.toList(growable: false)..sort();
       if (sorted.length < 2) continue;
+      // Safeguard against extreme ranges from typos (e.g. issue #999999)
+      if (sorted.last - sorted.first > 5000) continue;
       final missing = <int>[];
       for (var n = sorted.first; n <= sorted.last; n++) {
-        if (!entry.value.contains(n)) missing.add(n);
+        if (!entry.value.contains(n)) {
+          missing.add(n);
+          if (missing.length > 1000) break;
+        }
       }
       if (missing.isNotEmpty) gapNumbers[entry.key] = missing;
     }

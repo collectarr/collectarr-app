@@ -259,6 +259,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       selectedCandidate != null &&
       _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
       !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
+    final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
     return Theme(
       data: _libraryAddDialogTheme(accent),
       child: Dialog(
@@ -329,7 +330,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
                       final searchPane = _SearchPane(
                         type: widget.type,
                         isBusy: isBusy,

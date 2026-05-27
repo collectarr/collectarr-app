@@ -322,13 +322,17 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     );
   }
 
-  void _searchOnEbay(LibraryWorkspaceEntry entry) {
+  Future<void> _searchOnEbay(LibraryWorkspaceEntry entry) async {
     final query = entry.itemNumber != null
         ? '${entry.resolvedTitle} #${entry.itemNumber}'
         : entry.resolvedTitle;
     final encoded = Uri.encodeComponent(query);
     final url = Uri.parse('https://www.ebay.com/sch/i.html?_nkw=$encoded');
-    launchUrl(url, mode: LaunchMode.externalApplication);
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // Platform cannot handle URL — ignore gracefully
+    }
   }
 
   Future<void> _addOwnedCopy(
