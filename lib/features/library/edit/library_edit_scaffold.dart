@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LibraryEditDialogScaffold extends StatefulWidget {
   const LibraryEditDialogScaffold({
@@ -15,6 +17,8 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.views,
     required this.onClose,
     required this.onSave,
+    this.tabOrderKey,
+    this.ebaySearchQuery,
   });
 
   final GlobalKey<FormState> formKey;
@@ -27,6 +31,10 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final List<Widget> views;
   final VoidCallback onClose;
   final VoidCallback onSave;
+  /// If non-null, the tab order is persisted to SharedPreferences under this key.
+  final String? tabOrderKey;
+  /// If non-null, an eBay search button appears in the title bar.
+  final String? ebaySearchQuery;
 
   @override
   State<LibraryEditDialogScaffold> createState() =>
@@ -41,6 +49,33 @@ class _LibraryEditDialogScaffoldState
   void initState() {
     super.initState();
     _tabOrder = List.generate(widget.tabs.length, (i) => i);
+    _loadSavedTabOrder();
+  }
+
+  Future<void> _loadSavedTabOrder() async {
+    final key = widget.tabOrderKey;
+    if (key == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList(key);
+    if (saved != null && saved.length == widget.tabs.length) {
+      final parsed = saved.map(int.tryParse).toList();
+      if (!parsed.contains(null)) {
+        final order = parsed.cast<int>();
+        // Validate: must be a permutation of 0..<length.
+        final check = List.of(order)..sort();
+        if (check.length == widget.tabs.length &&
+            check.indexed.every((e) => e.$2 == e.$1)) {
+          setState(() => _tabOrder = order);
+        }
+      }
+    }
+  }
+
+  Future<void> _saveTabOrder() async {
+    final key = widget.tabOrderKey;
+    if (key == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(key, _tabOrder.map((e) => e.toString()).toList());
   }
 
   @override
@@ -62,6 +97,7 @@ class _LibraryEditDialogScaffoldState
         widget.tabController.index = newSelectedIndex;
       }
     });
+    _saveTabOrder();
   }
 
   @override
@@ -98,6 +134,7 @@ class _LibraryEditDialogScaffoldState
                       title: widget.title,
                       badges: widget.badges,
                       onClose: widget.onClose,
+                      ebaySearchQuery: widget.ebaySearchQuery,
                     ),
                     ColoredBox(
                       color: p.panelRaised,
@@ -295,6 +332,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.title,
     required this.badges,
     required this.onClose,
+    this.ebaySearchQuery,
   });
 
   final Color accent;
@@ -302,6 +340,15 @@ class _LibraryEditTitleBar extends StatelessWidget {
   final String title;
   final List<Widget> badges;
   final VoidCallback onClose;
+  final String? ebaySearchQuery;
+
+  void _searchOnEbay() {
+    final query = ebaySearchQuery;
+    if (query == null) return;
+    final encoded = Uri.encodeComponent(query);
+    final url = Uri.parse('https://www.ebay.com/sch/i.html?_nkw=$encoded');
+    launchUrl(url, mode: LaunchMode.externalApplication);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -343,6 +390,13 @@ class _LibraryEditTitleBar extends StatelessWidget {
               ],
             ),
           ),
+          if (ebaySearchQuery != null)
+            IconButton(
+              tooltip: 'Search on eBay',
+              onPressed: _searchOnEbay,
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.shopping_cart_outlined, size: 20),
+            ),
           IconButton(
             tooltip: 'Close',
             onPressed: onClose,

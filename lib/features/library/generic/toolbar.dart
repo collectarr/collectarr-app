@@ -168,6 +168,15 @@ class LibraryToolbar extends StatelessWidget {
                   total: counts.total,
                   pluralLabel: type.pluralLabel,
                 ),
+                if (counts.totalPricePaidCents > 0) ...[
+                  const SizedBox(width: 8),
+                  _CollectionValueChip(
+                    totalPaidCents: counts.totalPricePaidCents,
+                    totalCoverCents: counts.totalCoverPriceCents,
+                    totalSellCents: counts.totalSellPriceCents,
+                    currency: counts.priceCurrency,
+                  ),
+                ],
                 const Spacer(),
                 if (selectionCallbacks != null)
                   LibrarySelectionControls(
@@ -291,6 +300,60 @@ class _ItemCountLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 12,
         color: kAppTextMuted,
+      ),
+    );
+  }
+}
+
+class _CollectionValueChip extends StatelessWidget {
+  const _CollectionValueChip({
+    required this.totalPaidCents,
+    required this.totalCoverCents,
+    required this.totalSellCents,
+    required this.currency,
+  });
+
+  final int totalPaidCents;
+  final int totalCoverCents;
+  final int totalSellCents;
+  final String? currency;
+
+  String _fmt(int cents) {
+    final cur = currency ?? 'USD';
+    return '${(cents / 100).toStringAsFixed(2)} $cur';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = <String>[];
+    if (totalPaidCents > 0) parts.add('Paid ${_fmt(totalPaidCents)}');
+    if (totalCoverCents > 0) parts.add('Cover ${_fmt(totalCoverCents)}');
+    if (totalSellCents > 0) parts.add('Sold ${_fmt(totalSellCents)}');
+    if (parts.isEmpty) return const SizedBox.shrink();
+    return Tooltip(
+      message: parts.join('\n'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: Colors.green.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.attach_money, size: 13, color: Colors.greenAccent.withValues(alpha: 0.8)),
+            const SizedBox(width: 3),
+            Text(
+              _fmt(totalPaidCents > 0 ? totalPaidCents : totalCoverCents),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.greenAccent.withValues(alpha: 0.9),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
