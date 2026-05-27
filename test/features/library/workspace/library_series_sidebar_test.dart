@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -8,22 +9,24 @@ void main() {
     String? selected;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 260,
-            height: 180,
-            child: LibrarySeriesSidebar(
-              series: const [
-                LibrarySeriesBucket(
-                  title: 'Action Comics',
-                  count: 12,
-                  ownedCount: 6,
-                ),
-                LibrarySeriesBucket(title: 'Superman', count: 4),
-              ],
-              selectedSeries: 'Superman',
-              onSelectSeries: (value) => selected = value,
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 260,
+              height: 180,
+              child: LibrarySeriesSidebar(
+                series: const [
+                  LibrarySeriesBucket(
+                    title: 'Action Comics',
+                    count: 12,
+                    ownedCount: 6,
+                  ),
+                  LibrarySeriesBucket(title: 'Superman', count: 4),
+                ],
+                selectedSeries: 'Superman',
+                onSelectSeries: (value) => selected = value,
+              ),
             ),
           ),
         ),

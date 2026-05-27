@@ -2,10 +2,12 @@ import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LibraryCoverTile extends StatelessWidget {
+class LibraryCoverTile extends ConsumerWidget {
   const LibraryCoverTile({
     required this.entry,
     required this.selected,
@@ -30,26 +32,37 @@ class LibraryCoverTile extends StatelessWidget {
   final Color mutedTextColor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uiPrefs = ref.watch(uiPreferencesProvider);
+    final flat = uiPrefs.flatCovers;
+    final showTitles = uiPrefs.showCoverTitles;
     return RepaintBoundary(
       child: AnimatedContainer(
       duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.all(2),
+      padding: flat ? EdgeInsets.zero : const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: selected ? selectedColor : appPalette(context).field,
-        borderRadius: kAppRadiusSmall,
-        border: Border.all(
-          color: selected ? accentColor : kAppCardBorder,
-          width: selected ? 2 : 1,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x99000000),
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
+        color: selected
+            ? selectedColor
+            : (flat ? Colors.transparent : appPalette(context).field),
+        borderRadius: flat ? BorderRadius.zero : kAppRadiusSmall,
+        border: flat
+            ? (selected
+                ? Border.all(color: accentColor, width: 2)
+                : null)
+            : Border.all(
+                color: selected ? accentColor : kAppCardBorder,
+                width: selected ? 2 : 1,
+              ),
+        boxShadow: flat
+            ? null
+            : const [
+                BoxShadow(
+                  color: Color(0x99000000),
+                  blurRadius: 6,
+                  offset: Offset(0, 2),
+                ),
+              ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -108,6 +121,7 @@ class LibraryCoverTile extends StatelessWidget {
                   ],
                 ),
               ),
+              if (showTitles) ...[
               const SizedBox(height: 4),
               Text(
                 entry.itemNumber == null
@@ -156,6 +170,7 @@ class LibraryCoverTile extends StatelessWidget {
                     ),
                 ],
               ),
+              ],
             ],
           ),
         ),

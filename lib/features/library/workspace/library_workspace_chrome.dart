@@ -1,4 +1,6 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'library_pane_widths.dart';
 import 'library_resizable_pane.dart';
@@ -118,7 +120,7 @@ class LibraryWorkspaceControlStrip extends StatelessWidget {
   }
 }
 
-class LibraryToolbarPrimaryActions extends StatelessWidget {
+class LibraryToolbarPrimaryActions extends ConsumerWidget {
   const LibraryToolbarPrimaryActions({
     super.key,
     required this.addLabel,
@@ -141,10 +143,12 @@ class LibraryToolbarPrimaryActions extends StatelessWidget {
   final Color addForegroundColor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final useFab = ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (!useFab) ...[
         SizedBox(
           height: 30,
           child: FilledButton.icon(
@@ -163,6 +167,7 @@ class LibraryToolbarPrimaryActions extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 6),
+        ],
         Tooltip(
           message: 'Scan barcode',
           child: LibraryWorkspaceIconButton(

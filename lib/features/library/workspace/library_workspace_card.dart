@@ -21,6 +21,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
     this.mutedTextColor = kAppTextMuted,
+    this.coverWidth = 72,
     super.key,
   });
 
@@ -34,6 +35,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final Color selectedColor;
   final Color accentColor;
   final Color mutedTextColor;
+  final double coverWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +69,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: 72,
+                  width: coverWidth,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [

@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibrarySeriesBucket {
   const LibrarySeriesBucket({
@@ -33,7 +35,7 @@ class LibrarySeriesBucket {
   }
 }
 
-class LibrarySeriesSidebar extends StatefulWidget {
+class LibrarySeriesSidebar extends ConsumerStatefulWidget {
   const LibrarySeriesSidebar({
     super.key,
     required this.series,
@@ -70,12 +72,12 @@ class LibrarySeriesSidebar extends StatefulWidget {
   final Color mutedTextColor;
 
   @override
-  State<LibrarySeriesSidebar> createState() => _LibrarySeriesSidebarState();
+  ConsumerState<LibrarySeriesSidebar> createState() => _LibrarySeriesSidebarState();
 }
 
 enum _SidebarSortMode { alphabetical, byCount }
 
-class _LibrarySeriesSidebarState extends State<LibrarySeriesSidebar> {
+class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
   final _searchController = TextEditingController();
   var _sortMode = _SidebarSortMode.alphabetical;
 
@@ -154,6 +156,9 @@ class _LibrarySeriesSidebarState extends State<LibrarySeriesSidebar> {
               itemBuilder: (context, index) {
                 final bucket = filtered[index];
                 final selected = bucket.title == widget.selectedSeries;
+                final rowPadding = ref.watch(
+                  uiPreferencesProvider.select((p) => p.sidebarRowPadding),
+                );
                 return _LibrarySeriesRow(
                   bucket: bucket,
                   selected: selected,
@@ -162,6 +167,7 @@ class _LibrarySeriesSidebarState extends State<LibrarySeriesSidebar> {
                   selectedBadgeColor: widget.selectedBadgeColor,
                   badgeColor: widget.badgeColor,
                   mutedTextColor: widget.mutedTextColor,
+                  extraVerticalPadding: rowPadding,
                 );
               },
             ),
@@ -266,6 +272,7 @@ class _LibrarySeriesRow extends StatelessWidget {
     required this.selectedBadgeColor,
     required this.badgeColor,
     required this.mutedTextColor,
+    this.extraVerticalPadding = 4.0,
   });
 
   final LibrarySeriesBucket bucket;
@@ -275,6 +282,7 @@ class _LibrarySeriesRow extends StatelessWidget {
   final Color selectedBadgeColor;
   final Color badgeColor;
   final Color mutedTextColor;
+  final double extraVerticalPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -293,9 +301,9 @@ class _LibrarySeriesRow extends StatelessWidget {
         onTap: onTap,
         hoverColor: selectionColor.withValues(alpha: 0.35),
         child: SizedBox(
-          height: hasSubtitle
+          height: (hasSubtitle
               ? (hasCover ? 50 : 46)
-              : (hasCover ? 40 : 36),
+              : (hasCover ? 40 : 36)) + extraVerticalPadding * 2,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(

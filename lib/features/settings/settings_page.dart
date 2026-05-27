@@ -476,6 +476,111 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               .read(uiPreferencesProvider.notifier)
                               .setAnimationsEnabled(value),
                         ),
+                        const Divider(height: 24),
+                        Text('Cover grid',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          secondary: const Icon(Icons.grid_view_sharp),
+                          title: const Text('Flat covers'),
+                          subtitle: const Text(
+                            'Remove shadows and borders from cover tiles.',
+                          ),
+                          value: uiPreferences.flatCovers,
+                          onChanged: (value) => ref
+                              .read(uiPreferencesProvider.notifier)
+                              .setFlatCovers(value),
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          secondary: const Icon(Icons.title),
+                          title: const Text('Show titles in grid'),
+                          subtitle: const Text(
+                            'Show title text below covers in grid view.',
+                          ),
+                          value: uiPreferences.showCoverTitles,
+                          onChanged: (value) => ref
+                              .read(uiPreferencesProvider.notifier)
+                              .setShowCoverTitles(value),
+                        ),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.space_bar),
+                          title: const Text('Grid spacing'),
+                          subtitle: Slider(
+                            value: uiPreferences.gridSpacing,
+                            min: 4,
+                            max: 14,
+                            divisions: 10,
+                            label:
+                                '${uiPreferences.gridSpacing.round()} px',
+                            onChanged: (value) => ref
+                                .read(uiPreferencesProvider.notifier)
+                                .setGridSpacing(value.roundToDouble()),
+                          ),
+                        ),
+                        const Divider(height: 24),
+                        Text('Card view',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.photo_size_select_large),
+                          title: const Text('Card cover width'),
+                          subtitle: Slider(
+                            value: uiPreferences.cardCoverWidth,
+                            min: 60,
+                            max: 120,
+                            divisions: 12,
+                            label:
+                                '${uiPreferences.cardCoverWidth.round()} px',
+                            onChanged: (value) => ref
+                                .read(uiPreferencesProvider.notifier)
+                                .setCardCoverWidth(value.roundToDouble()),
+                          ),
+                        ),
+                        const Divider(height: 24),
+                        Text('Layout',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          secondary: const Icon(Icons.add_circle_outline),
+                          title: const Text('Floating Add button'),
+                          subtitle: const Text(
+                            'Use a floating action button instead of inline toolbar button.',
+                          ),
+                          value: uiPreferences.fabAddButton,
+                          onChanged: (value) => ref
+                              .read(uiPreferencesProvider.notifier)
+                              .setFabAddButton(value),
+                        ),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.density_small),
+                          title: const Text('Sidebar row padding'),
+                          subtitle: Slider(
+                            value: uiPreferences.sidebarRowPadding,
+                            min: 0,
+                            max: 8,
+                            divisions: 8,
+                            label:
+                                '${uiPreferences.sidebarRowPadding.round()} px',
+                            onChanged: (value) => ref
+                                .read(uiPreferencesProvider.notifier)
+                                .setSidebarRowPadding(value.roundToDouble()),
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Align(
                           alignment: Alignment.centerLeft,
@@ -793,7 +898,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _resetAppearanceDefaults() async {
-    await ref.read(uiPreferencesProvider.notifier).setAnimationsEnabled(true);
+    await ref.read(uiPreferencesProvider.notifier).resetDefaults();
     if (mounted) {
       _showToast('Appearance defaults restored', tone: AppToastTone.success);
     }

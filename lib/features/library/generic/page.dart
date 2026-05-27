@@ -71,6 +71,7 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_view
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -271,11 +272,19 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             shelfState,
             viewState,
           );
+    final useFab = ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     return LibraryKeyboardShortcuts(
       onSelectAll: projection == null ? null : () => _selectAllVisible(projection),
       onDelete: projection == null ? null : () => _removeVisibleSelection(projection),
       child: Scaffold(
         backgroundColor: kAppCanvas,
+        floatingActionButton: useFab
+            ? FloatingActionButton(
+                onPressed: () => showAddDialogFlow(),
+                backgroundColor: widget.accent,
+                child: const Icon(Icons.add, color: Colors.white),
+              )
+            : null,
         body: SafeArea(
           bottom: false,
           child: Column(

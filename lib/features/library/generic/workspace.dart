@@ -19,15 +19,17 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_entr
 import 'package:collectarr_app/features/library/workspace/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef LibraryItemContextMenuCallback = void Function(
   LibraryProjectionItem item,
   Offset globalPosition,
 );
 
-class LibraryWorkspace extends StatelessWidget {
+class LibraryWorkspace extends ConsumerWidget {
   const LibraryWorkspace({
     super.key,
     required this.type,
@@ -126,7 +128,11 @@ class LibraryWorkspace extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uiPrefs = ref.watch(uiPreferencesProvider);
+    final gridSpacing = uiPrefs.gridSpacing;
+    final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
+    final cardCoverWidth = uiPrefs.cardCoverWidth;
     if (_showGrouped && items.isNotEmpty) {
       return switch (viewState.viewMode) {
         LibraryViewMode.grid => _GroupedGrid(
@@ -181,6 +187,7 @@ class LibraryWorkspace extends StatelessWidget {
               selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
               accentColor: accent,
               mutedTextColor: kAppTextMuted,
+              coverWidth: cardCoverWidth,
             ),
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
@@ -207,6 +214,9 @@ class LibraryWorkspace extends StatelessWidget {
           emptyBuilder: _emptyBuilder,
           maxCrossAxisExtent: viewState.coverSize,
           mainAxisExtent: viewState.coverSize * 1.53,
+          crossAxisSpacing: gridSpacing,
+          mainAxisSpacing: gridSpacing,
+          padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
@@ -233,6 +243,9 @@ class LibraryWorkspace extends StatelessWidget {
           maxCrossAxisExtent: 430,
           mainAxisExtent:
               (viewState.coverSize * 1.12).clamp(138.0, 174.0).toDouble(),
+          crossAxisSpacing: gridSpacing,
+          mainAxisSpacing: gridSpacing,
+          padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
           itemIdOf: (item) => item.entry.id,
@@ -252,6 +265,7 @@ class LibraryWorkspace extends StatelessWidget {
             selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
             accentColor: accent,
             mutedTextColor: kAppTextMuted,
+            coverWidth: cardCoverWidth,
           ),
         ),
         LibraryViewMode.cardFlow => LibraryFlowCarousel(
