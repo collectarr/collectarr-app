@@ -127,6 +127,124 @@ class LibraryCoverImage extends ConsumerWidget {
   }
 }
 
+/// Wraps a cover image in a slab-style frame for graded comics (CGC/CBCS).
+class SlabFrameOverlay extends StatelessWidget {
+  const SlabFrameOverlay({
+    required this.child,
+    required this.gradingCompany,
+    required this.grade,
+    this.labelType,
+    super.key,
+  });
+
+  final Widget child;
+  final String gradingCompany;
+  final String grade;
+  final String? labelType;
+
+  /// Returns the label color for the grading company.
+  Color get _labelColor {
+    final company = gradingCompany.toUpperCase();
+    if (company.contains('CGC')) return const Color(0xFF1565C0);
+    if (company.contains('CBCS')) return const Color(0xFF2E7D32);
+    if (company.contains('PGX')) return const Color(0xFF6A1B9A);
+    return const Color(0xFF37474F);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 60;
+        final labelHeight = isCompact ? 14.0 : 20.0;
+        final gradeSize = isCompact ? 8.0 : 11.0;
+        final companySize = isCompact ? 7.0 : 9.0;
+        return Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: _labelColor.withValues(alpha: 0.8),
+              width: isCompact ? 1.5 : 2.5,
+            ),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Slab label header
+              Container(
+                width: double.infinity,
+                height: labelHeight,
+                decoration: BoxDecoration(
+                  color: _labelColor,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(1.5),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      gradingCompany.toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: companySize,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(width: isCompact ? 3 : 6),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isCompact ? 2 : 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      child: Text(
+                        grade,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: gradeSize,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Cover image
+              Expanded(child: child),
+              // Bottom bar with label type
+              if (labelType != null && !isCompact)
+                Container(
+                  width: double.infinity,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: _labelColor.withValues(alpha: 0.7),
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(1.5),
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    labelType!.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 7,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class LibraryInteractiveCover extends StatefulWidget {
   const LibraryInteractiveCover({
     required this.title,

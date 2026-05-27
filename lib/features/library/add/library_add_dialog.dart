@@ -11,6 +11,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -328,6 +329,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
+                      final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
                       final searchPane = _SearchPane(
                         type: widget.type,
                         isBusy: isBusy,
@@ -343,6 +345,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             _selectedProviderCandidateId,
                         checkedResultIds: _checkedResultIds,
                         checkedProviderIds: _checkedProviderIds,
+                        ownedCatalogItemIds: ownedByCatalogId.keys.toSet(),
                         providerQueryText: _queryController.text,
                         providerSeriesText: _searchSeriesController.text,
                         providerNumberText: _searchNumberController.text,

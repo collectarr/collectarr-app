@@ -64,14 +64,17 @@ class LibraryCoverTile extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    LibraryInteractiveCover(
-                      title: entry.resolvedTitle,
-                      itemNumber: entry.itemNumber,
-                      imageUrl: entry.displayCoverUrl,
-                      ownedItemId: entry.ownedItemId,
-                      accentColor: accentColor,
-                      enableFullscreen: false,
-                      enableSecondaryControl: false,
+                    _maybeSlab(
+                      entry,
+                      LibraryInteractiveCover(
+                        title: entry.resolvedTitle,
+                        itemNumber: entry.itemNumber,
+                        imageUrl: entry.displayCoverUrl,
+                        ownedItemId: entry.ownedItemId,
+                        accentColor: accentColor,
+                        enableFullscreen: false,
+                        enableSecondaryControl: false,
+                      ),
                     ),
                     Positioned(
                       left: 4,
@@ -166,5 +169,17 @@ class LibraryCoverTile extends StatelessWidget {
       if (edition.physicalFormat != null) return edition.physicalFormat;
     }
     return null;
+  }
+
+  static Widget _maybeSlab(LibraryWorkspaceEntry entry, Widget child) {
+    if (entry.rawOrSlabbed?.toLowerCase() != 'slabbed') return child;
+    final company = entry.gradingCompany;
+    final grade = entry.grade;
+    if (company == null || grade == null) return child;
+    return SlabFrameOverlay(
+      gradingCompany: company,
+      grade: grade,
+      child: child,
+    );
   }
 }

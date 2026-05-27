@@ -15,6 +15,7 @@ class _SearchPane extends StatelessWidget {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
+    required this.ownedCatalogItemIds,
     required this.providerQueryText,
     required this.providerSeriesText,
     required this.providerNumberText,
@@ -40,6 +41,7 @@ class _SearchPane extends StatelessWidget {
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
+  final Set<String> ownedCatalogItemIds;
   final String providerQueryText;
   final String providerSeriesText;
   final String providerNumberText;
@@ -72,6 +74,7 @@ class _SearchPane extends StatelessWidget {
         selectedProviderCandidateId: selectedProviderCandidateId,
         checkedResultIds: checkedResultIds,
         checkedProviderIds: checkedProviderIds,
+        ownedCatalogItemIds: ownedCatalogItemIds,
         providerQueryText: providerQueryText,
         providerSeriesText: providerSeriesText,
         providerNumberText: providerNumberText,
@@ -194,6 +197,7 @@ class _SearchResultsList extends StatelessWidget {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
+    required this.ownedCatalogItemIds,
     required this.providerQueryText,
     required this.providerSeriesText,
     required this.providerNumberText,
@@ -219,6 +223,7 @@ class _SearchResultsList extends StatelessWidget {
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
+  final Set<String> ownedCatalogItemIds;
   final String providerQueryText;
   final String providerSeriesText;
   final String providerNumberText;
@@ -282,6 +287,7 @@ class _SearchResultsList extends StatelessWidget {
                   yearText: providerYearText,
                   selected: item.id == selectedResultId,
                   checked: checkedResultIds.contains(item.id),
+                  isOwned: ownedCatalogItemIds.contains(item.id),
                   onSelect: () => onSelectResult(item.id),
                   onToggleCheck: () => onToggleResultCheck(item.id),
                 ),
@@ -633,6 +639,7 @@ class _SearchResultTile extends StatelessWidget {
     required this.yearText,
     required this.selected,
     required this.checked,
+    this.isOwned = false,
     required this.onSelect,
     required this.onToggleCheck,
   });
@@ -647,6 +654,7 @@ class _SearchResultTile extends StatelessWidget {
   final String yearText;
   final bool selected;
   final bool checked;
+  final bool isOwned;
   final VoidCallback onSelect;
   final VoidCallback onToggleCheck;
 
@@ -767,6 +775,30 @@ class _SearchResultTile extends StatelessWidget {
                     const SizedBox(height: 5),
                     Row(
                       children: [
+                        if (isOwned) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.25),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: Colors.green.withValues(alpha: 0.6),
+                              ),
+                            ),
+                            child: const Text(
+                              'In collection',
+                              style: TextStyle(
+                                color: Colors.greenAccent,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                        ],
                         const LibraryAddResultBadge('core'),
                         const SizedBox(width: 4),
                         LibraryAddResultBadge(item.kind),

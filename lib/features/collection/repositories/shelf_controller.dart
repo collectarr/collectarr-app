@@ -55,6 +55,8 @@ class ShelfState {
     this.hasMixedCoverPriceCurrencies = false,
     this.soldCount = 0,
     this.totalSellCents,
+    this.marketValuedCount = 0,
+    this.totalMarketValueCents,
   });
 
   factory ShelfState.from({
@@ -170,6 +172,14 @@ class ShelfState {
           : activeOwned
               .where((item) => item.sellPriceCents != null)
               .fold<int>(0, (total, item) => total + item.sellPriceCents!),
+      marketValuedCount: activeOwned
+          .where((item) => item.marketValueCents != null)
+          .length,
+      totalMarketValueCents: hasMixedCurrencies
+          ? null
+          : activeOwned
+              .where((item) => item.marketValueCents != null)
+              .fold<int>(0, (total, item) => total + item.marketValueCents!),
     );
   }
 
@@ -195,6 +205,8 @@ class ShelfState {
   final bool hasMixedCoverPriceCurrencies;
   final int soldCount;
   final int? totalSellCents;
+  final int marketValuedCount;
+  final int? totalMarketValueCents;
 
   static Map<String, int> _counts(Iterable<String> values) {
     final counts = <String, int>{};

@@ -21,6 +21,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LibraryDetailPage extends ConsumerStatefulWidget {
   const LibraryDetailPage({
@@ -123,6 +124,11 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   ? null
                   : () => widget.onEdit!(activeOwnedItem),
               icon: const Icon(Icons.edit_outlined),
+            ),
+            IconButton(
+              tooltip: 'Search on eBay',
+              onPressed: () => _searchOnEbay(widget.entry),
+              icon: const Icon(Icons.shopping_cart_outlined),
             ),
             if (activeOwnedItem != null)
               IconButton(
@@ -314,6 +320,15 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         ),
       ),
     );
+  }
+
+  void _searchOnEbay(LibraryWorkspaceEntry entry) {
+    final query = entry.itemNumber != null
+        ? '${entry.resolvedTitle} #${entry.itemNumber}'
+        : entry.resolvedTitle;
+    final encoded = Uri.encodeComponent(query);
+    final url = Uri.parse('https://www.ebay.com/sch/i.html?_nkw=$encoded');
+    launchUrl(url, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _addOwnedCopy(
