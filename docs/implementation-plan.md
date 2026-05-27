@@ -114,6 +114,47 @@
 
 Current app-side parity work is largely complete; the remaining work here is hardening the local scan-to-identify flow on real mobile devices and deciding whether Core needs any photo-ranking role at all.
 
+### 🎨 CLZ-Style UI Overhaul (v0.1.0-alpha.1)
+- [x] Add dialog: live autocomplete from catalog, browse tab merged into search
+- [x] Add dialog: CLZ-style edition picker with format icons replacing dropdowns
+- [x] Cover tiles: compact grid with format badge + year row below titles
+- [x] Inspector panel polish: title → publisher (year) → format badges → barcode → genres → synopsis → status chips
+- [x] Inspector hover animation enabled
+- [x] Sidebar: categorized group-by dropdown (Main, Edition, Cast & Crew, Personal)
+- [x] Expanded group modes for movie/TV/anime (14 modes: Year, Series, Studio, Genre, Country, Language, Age Rating, Format, Director, Creator, Location, Title, Ownership, Tags)
+- [x] Grid spacing tightened (10px → 6px)
+- [x] Schema version reset to v1 for clean alpha baseline
+
+### 🔴 CLZ Web Parity — Critical UX Gaps
+- [x] **Toolbar search** — Always-visible search input in workspace toolbar to filter current library
+- [x] **Sorting system + saved presets** — Multi-field sort (e.g. Title ASC → Year DESC → Series ASC) with named favorites
+- [x] **Collection status filter** — Dropdown filter: All / In Collection / For Sale / Wish List / On Order / Sold / Not in Collection
+- [x] **A-Z alphabet bar** — Quick letter buttons across top for initial-letter filtering, greyed for unused letters
+- [x] **Multiple view types** — Add List view and Horizontal Cards alongside existing cover grid
+- [x] **Multi-select & batch actions** — Checkbox items → Edit / Remove / Export / Duplicate / Loan / Transfer
+- [x] **Panel layout options** — User toggles inspector position: Horizontal Split / Vertical Split / No Details
+- [x] **Resizable panels** — Drag handles on sidebar and inspector with remembered widths
+
+### 🟡 CLZ Web Parity — Tools & Features
+- [x] **Sidebar favorites** — Pin frequently-used group modes to top of dropdown
+- [x] **Sidebar search** — Text input to filter sidebar bucket names
+- [x] **Sidebar sort toggle** — Switch between alphabetical and by-count ordering
+- [x] **Statistics page** — Charts by genre, year, watch counts, total runtime, value totals
+- [x] **Find Duplicates** — Detect duplicates by title, barcode, title+format
+- [x] **Loan Manager** — Track loaned items with due dates and return tracking
+- [x] **Print to PDF** — Configurable PDF export with columns, covers, sorting
+- [x] **Pick List management** — Edit/merge/remove pick list values (genres, formats, etc.)
+
+### 🟢 CLZ Web Parity — Polish
+- [x] **Scope pill** — When filtering by person/value, show a pill badge with "× clear"
+- [x] **Transfer Field Data** — Bulk move/copy data between fields across items, with conflict resolution (skip/overwrite/append)
+- [x] ~~**Multiple collections per library**~~ — Won't do: redundant with smart lists, user folders, status filters, and multi-user support
+- [x] **Shelf view** — 3D shelf rendering with visual skin options
+- [x] **Themes/skins** — Dark and Light mode with palette-based ThemeExtension toggle in Settings
+- [x] **Watch/Read/Play history** — Full consumption tracking: dates, location, count
+- [x] **Value tracking** — Purchase price, current value, currency totals, charts
+- [x] **Item count display** — "42 movies" always visible in toolbar
+
 ### 🧭 Location Hierarchy Follow-up
 - [x] Owned-item sync payload now includes `location_id`
 - [x] Inspector assignment flow supports picking and clearing a hierarchical location without accidental clears on cancel
@@ -128,15 +169,16 @@ Current app-side parity work is largely complete; the remaining work here is har
 	- TMDB import landed first (CSV/JSON file import with batch hydration via Core). Settings page shows all import sources in a compact 2-column grid; TMDB is functional, others show "Coming soon".
 	- Prioritize import-only flows before any bidirectional sync; App mostly needs credential entry, import previews, and duplicate-resolution UX.
 	- Keep provider/source adapters modular so TV/anime imports can land before the full matrix of tracker ecosystems is supported.
-- [ ] Per-item tracking history / activity timeline
-	- Anchor this on locally meaningful events first: added, moved, loaned, sold, wishlist changes, notes/value edits, and sync conflict actions.
-	- Prefer a compact detail-page/activity drawer before building any global feed surface.
-- [ ] Saved lists / shortlists beyond owned + wishlist
-	- Treat saved lists as named filtered collections first; avoid introducing collaborative/shared semantics until list ownership and export behavior are clear.
-	- Reuse existing projection/filter infrastructure so smart lists and manual shortlists can share one model.
-- [ ] Calendar and notification surfaces only if they clearly improve release / pull-list workflows
-	- Scope this to collector-relevant reminders such as release dates, pull-list due items, loans, and preorders rather than generic media calendars.
-	- Only add notification plumbing after the calendar surface proves useful as a passive view.
+- [x] Per-item tracking history / activity timeline
+	- Activity timeline section on detail page aggregates events from owned items, tracking entries, watch sessions, wishlist, and loans into a chronological rail view.
+	- 11 event kinds: added, removed, wishlisted, purchased, started, finished, sold, loaned, returned, watched, rated.
+- [x] Saved lists / shortlists beyond owned + wishlist
+	- Smart lists (saved filter/sort presets) with full CRUD via toolbar menu.
+	- User folders (manual shortlists) with folder management dialog, folder assignment from detail page, and toolbar access.
+	- Folders support create, rename, delete, and per-item add/remove membership.
+- [x] Calendar and notification surfaces only if they clearly improve release / pull-list workflows
+	- Calendar page added as a top-level navigation tab showing release dates, loan due/return dates, purchase dates, started/finished dates, and watch sessions.
+	- Month grid view with day selection and event list. Events aggregated from existing collection data.
 
 ### 🚫 Lower Priority Unless Product Direction Changes
 - [ ] Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity work for now

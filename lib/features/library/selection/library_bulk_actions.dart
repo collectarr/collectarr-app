@@ -51,6 +51,10 @@ class LibraryBulkActions {
     List<ShelfEntry> entries, {
     String? defaultCondition,
     String? defaultGrade,
+    String? defaultLocationId,
+    String? defaultStorageBox,
+    String? defaultReadStatus,
+    String? defaultTags,
   }) async {
     final entriesToOwn = [
       for (final entry in entries)
@@ -71,6 +75,10 @@ class LibraryBulkActions {
         bundleReleaseId: anchor.bundleReleaseId,
         condition: defaultCondition,
         grade: defaultGrade,
+        locationId: defaultLocationId,
+        storageBox: defaultStorageBox,
+        readStatus: defaultReadStatus,
+        tags: defaultTags,
         notify:
             index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
       );
@@ -94,6 +102,58 @@ class LibraryBulkActions {
         notify: index == ownedEntries.length - 1,
       );
     }
+  }
+
+  Future<int> duplicateSelected(List<ShelfEntry> entries) async {
+    final ownedEntries = [
+      for (final entry in entries)
+        if (entry.ownedItem != null) entry,
+    ];
+    for (var index = 0; index < ownedEntries.length; index++) {
+      final src = ownedEntries[index].ownedItem!;
+      await mutations.addItem(
+        src.itemId,
+        isDigital: src.isDigital,
+        anchorType: src.anchorType,
+        editionId: src.editionId,
+        variantId: src.variantId,
+        bundleReleaseId: src.bundleReleaseId,
+        condition: src.condition,
+        grade: src.grade,
+        purchaseDate: src.purchaseDate,
+        pricePaidCents: src.pricePaidCents,
+        currency: src.currency,
+        personalNotes: src.personalNotes,
+        quantity: src.quantity,
+        storageBox: src.storageBox,
+        locationId: src.locationId,
+        indexNumber: src.indexNumber,
+        coverPriceCents: src.coverPriceCents,
+        rawOrSlabbed: src.rawOrSlabbed,
+        gradingCompany: src.gradingCompany,
+        graderNotes: src.graderNotes,
+        signedBy: src.signedBy,
+        keyComic: src.keyComic,
+        keyReason: src.keyReason,
+        rating: src.rating,
+        readStatus: src.readStatus,
+        startedAt: src.startedAt,
+        finishedAt: src.finishedAt,
+        tags: src.tags,
+        features: src.features,
+        hdrFormats: src.hdrFormats,
+        purchaseStore: src.purchaseStore,
+        boxSetId: src.boxSetId,
+        boxSetName: src.boxSetName,
+        storageDevice: src.storageDevice,
+        storageSlot: src.storageSlot,
+        region: src.region,
+        packaging: src.packaging,
+        distributor: src.distributor,
+        notify: index == ownedEntries.length - 1,
+      );
+    }
+    return ownedEntries.length;
   }
 
   Future<void> removeSelected(List<ShelfEntry> entries) async {

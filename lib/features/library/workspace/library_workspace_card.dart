@@ -273,7 +273,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: kAppTextSecondary,
+                                color: appPalette(context).textSecondary,
                               ),
                         ),
                     ],

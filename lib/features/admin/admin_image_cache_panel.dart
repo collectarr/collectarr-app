@@ -273,7 +273,7 @@ class _StatChip extends StatelessWidget {
         Text(value,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         Text(label,
-            style: TextStyle(fontSize: 12, color: kAppTextSecondary)),
+            style: TextStyle(fontSize: 12, color: appPalette(context).textSecondary)),
       ],
     );
   }

@@ -220,6 +220,24 @@ class LibraryDetailHero extends StatelessWidget {
                         label: '${entry.video!.runtimeMinutes} min',
                         accent: accent,
                       ),
+                    if (entry.video?.color != null)
+                      _DetailHeaderChip(
+                        icon: Icons.color_lens,
+                        label: entry.video!.color!,
+                        accent: accent,
+                      ),
+                    if (entry.video?.nrDiscs != null)
+                      _DetailHeaderChip(
+                        icon: Icons.album,
+                        label: '${entry.video!.nrDiscs} disc${entry.video!.nrDiscs == 1 ? '' : 's'}',
+                        accent: accent,
+                      ),
+                    if (entry.video?.screenRatio != null)
+                      _DetailHeaderChip(
+                        icon: Icons.aspect_ratio,
+                        label: entry.video!.screenRatio!,
+                        accent: accent,
+                      ),
                     if (entry.music?.trackCount != null)
                       _DetailHeaderChip(
                         icon: Icons.music_note,

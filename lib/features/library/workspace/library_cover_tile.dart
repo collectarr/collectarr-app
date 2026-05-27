@@ -37,7 +37,7 @@ class LibraryCoverTile extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: selected ? selectedColor : kAppField,
+        color: selected ? selectedColor : appPalette(context).field,
         borderRadius: kAppRadiusSmall,
         border: Border.all(
           color: selected ? accentColor : kAppCardBorder,
@@ -119,6 +119,20 @@ class LibraryCoverTile extends StatelessWidget {
                       height: 1.2,
                     ),
               ),
+              if (entry.originalTitle != null &&
+                  entry.originalTitle != entry.resolvedTitle)
+                Text(
+                  entry.originalTitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: selected
+                            ? Colors.white70
+                            : mutedTextColor.withValues(alpha: 0.7),
+                        fontSize: 9,
+                        height: 1.2,
+                      ),
+                ),
               const SizedBox(height: 3),
               Row(
                 children: [

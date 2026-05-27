@@ -111,7 +111,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: appPalette(context).panel,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
@@ -147,7 +147,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: kAppDivider),
+          bottom: BorderSide(color: appPalette(context).divider),
         ),
       ),
       child: Row(
@@ -217,7 +217,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: kAppDivider),
+          top: BorderSide(color: appPalette(context).divider),
         ),
       ),
       child: Row(
@@ -268,9 +268,9 @@ class _SyncFieldRow extends StatelessWidget {
             width: 160,
             child: Text(
               field.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: kAppTextMuted,
+                color: appPalette(context).textMuted,
               ),
             ),
           ),
@@ -279,15 +279,15 @@ class _SyncFieldRow extends StatelessWidget {
               height: 28,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: kAppPanelRaised,
+                color: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
-                border: Border.all(color: kAppDivider),
+                border: Border.all(color: appPalette(context).divider),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<SyncFieldPolicy>(
                   value: policy,
                   isExpanded: true,
-                  dropdownColor: kAppPanelRaised,
+                  dropdownColor: appPalette(context).panelRaised,
                   borderRadius: kAppMenuBorderRadius,
                   style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
                   icon: const Icon(Icons.expand_more, size: 16),

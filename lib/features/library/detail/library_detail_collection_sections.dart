@@ -110,6 +110,44 @@ class LibraryDetailPersonalSection extends StatelessWidget {
               'Rating',
               trackingRating?.toString() ?? '-',
             ),
+            LibraryInspectorFactData(
+              'Features',
+              genericLibraryDash(ownedItem?.features),
+            ),
+            LibraryInspectorFactData(
+              'HDR Formats',
+              ownedItem?.hdrFormats.isEmpty ?? true
+                  ? '-'
+                  : ownedItem!.hdrFormats.join(', '),
+            ),
+            LibraryInspectorFactData(
+              'Purchase Store',
+              genericLibraryDash(ownedItem?.purchaseStore),
+            ),
+            LibraryInspectorFactData(
+              'Box Set',
+              genericLibraryDash(ownedItem?.boxSetName),
+            ),
+            LibraryInspectorFactData(
+              'Storage Device',
+              genericLibraryDash(ownedItem?.storageDevice),
+            ),
+            LibraryInspectorFactData(
+              'Storage Slot',
+              genericLibraryDash(ownedItem?.storageSlot),
+            ),
+            LibraryInspectorFactData(
+              'Region',
+              genericLibraryDash(ownedItem?.region),
+            ),
+            LibraryInspectorFactData(
+              'Packaging',
+              genericLibraryDash(ownedItem?.packaging),
+            ),
+            LibraryInspectorFactData(
+              'Distributor',
+              genericLibraryDash(ownedItem?.distributor),
+            ),
           ],
         ),
         if (ownedItem?.personalNotes != null &&

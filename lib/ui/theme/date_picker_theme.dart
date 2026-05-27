@@ -47,19 +47,19 @@ DatePickerThemeData buildAppDatePickerTheme({
       fontWeight: FontWeight.w800,
       letterSpacing: 0.8,
     ),
-    dayStyle: const TextStyle(
-      color: Colors.white,
+    dayStyle: TextStyle(
+      color: palette.textPrimary,
       fontWeight: FontWeight.w700,
     ),
-    yearStyle: const TextStyle(
-      color: Colors.white,
+    yearStyle: TextStyle(
+      color: palette.textPrimary,
       fontWeight: FontWeight.w700,
     ),
     dayForegroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.disabled)) {
-        return Colors.white.withValues(alpha: 0.32);
+        return palette.textPrimary.withValues(alpha: 0.32);
       }
-      return Colors.white;
+      return palette.textPrimary;
     }),
     dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
@@ -85,7 +85,7 @@ DatePickerThemeData buildAppDatePickerTheme({
       return Colors.transparent;
     }),
     dayShape: WidgetStatePropertyAll(dayShape),
-    todayForegroundColor: const WidgetStatePropertyAll(Colors.white),
+    todayForegroundColor: WidgetStatePropertyAll(palette.textPrimary),
     todayBackgroundColor: WidgetStatePropertyAll(
       resolvedAccent.withValues(alpha: 0.16),
     ),
@@ -94,7 +94,7 @@ DatePickerThemeData buildAppDatePickerTheme({
       if (states.contains(WidgetState.selected)) {
         return Colors.white;
       }
-      return Colors.white.withValues(alpha: 0.88);
+      return palette.textPrimary.withValues(alpha: 0.88);
     }),
     yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
@@ -142,7 +142,7 @@ DatePickerThemeData buildAppDatePickerTheme({
     rangeSelectionBackgroundColor: selectedFill,
     rangeSelectionOverlayColor: WidgetStatePropertyAll(hoverFill),
     cancelButtonStyle: TextButton.styleFrom(
-      foregroundColor: Colors.white.withValues(alpha: 0.78),
+      foregroundColor: palette.textPrimary.withValues(alpha: 0.78),
       textStyle: const TextStyle(fontWeight: FontWeight.w800),
     ),
     confirmButtonStyle: FilledButton.styleFrom(

@@ -21,11 +21,14 @@ class LibraryToolsButton extends StatelessWidget {
     this.onDownloadAllCovers,
     this.shelfState,
     this.onSmartLists,
+    this.onFolders,
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
     this.onEditTagPickList,
     this.onEditSort,
+    this.onReassignIndex,
+    this.onTransferFieldData,
     this.onPrintReport,
     this.onShareCollection,
   });
@@ -41,11 +44,14 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditTagPickList;
   final VoidCallback? onEditSort;
+  final VoidCallback? onReassignIndex;
+  final VoidCallback? onTransferFieldData;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
 
@@ -158,6 +164,24 @@ class LibraryToolsButton extends StatelessWidget {
             icon: Icons.auto_awesome_mosaic,
             label: 'Smart Lists...',
             onSelected: onSmartLists!,
+          ),
+        if (onFolders != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.folder_outlined,
+            label: 'Folders...',
+            onSelected: onFolders!,
+          ),
+        if (onTransferFieldData != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.swap_horiz,
+            label: 'Transfer field data...',
+            onSelected: onTransferFieldData!,
+          ),
+        if (onReassignIndex != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.format_list_numbered,
+            label: 'Re-assign index values...',
+            onSelected: onReassignIndex!,
           ),
         if (onReadingQueue != null)
           LibraryUtilityMenuAction(

@@ -43,6 +43,8 @@ import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
+import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
+import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -66,6 +68,7 @@ import 'package:collectarr_app/features/library/workspace/library_series_sidebar
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -110,6 +113,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   final _facetBucketsByMode = <LibraryGroupMode, FacetBuckets>{};
   final _facetLoadsInFlight = <LibraryGroupMode>{};
   Set<String> _activeLoanOwnedItemIds = const {};
+  Set<LibraryGroupMode> _pinnedGroupModes = const {};
   String? _videoShelfDrilldownTitleItemId;
   String? _videoShelfDrilldownReleaseId;
   int _viewStateLoadToken = 0;
@@ -141,6 +145,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     final expectedKind = widget.type.workspace.kind;
     final quickView = await _viewPrefs.readQuickView();
     final groupMode = await _viewPrefs.readGroupMode();
+    final pinnedModes = await _viewPrefs.readPinnedGroupModes();
     if (!mounted ||
         loadToken != _viewPreferenceLoadToken ||
         widget.type.workspace.kind != expectedKind) {
@@ -149,6 +154,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     setState(() {
       _quickView = quickView;
       _groupMode = groupMode;
+      _pinnedGroupModes = pinnedModes;
     });
     } catch (error, stackTrace) {
       logRecoverableError(
@@ -163,6 +169,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   void _primeCachedViewPreferences() {
     _quickView = _viewPrefs.cachedQuickView;
     _groupMode = _viewPrefs.cachedGroupMode;
+    _pinnedGroupModes = _viewPrefs.cachedPinnedGroupModes;
   }
 
   @override
@@ -324,9 +331,18 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                   : null,
                 onEditTagPickList: showTagPickListEditorFlow,
                 onSmartLists: () => showSmartListsFlow(shelfState),
+                onFolders: showUserFoldersFlow,
                 onReadingQueue: libraryShowsReadingQueue(widget.type.workspace.kind)
                   ? showReadingQueueFlow
                   : null,
+                onTransferFieldData: projection != null &&
+                        projection.filteredItems.isNotEmpty
+                    ? () => showTransferFieldDataFlow(projection)
+                    : null,
+                onReassignIndex: projection != null &&
+                        projection.filteredItems.isNotEmpty
+                    ? () => reassignIndexFlow(projection)
+                    : null,
                 onPrintReport: projection != null &&
                         projection.filteredItems.isNotEmpty
                     ? () => printReportFlow(projection)
@@ -346,6 +362,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                   onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
                   onBulkMoveToWishlist: () => bulkMoveToWishlistFlow(projection),
                   onBulkRemove: () => bulkRemoveFlow(projection),
+                  onBulkRefreshMetadata: () => bulkRefreshMetadataFlow(projection),
                 ),
               ),
               Expanded(
@@ -478,6 +495,17 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       ),
       onLetterSelected: (letter) => setState(() => _selectedLetter = letter),
       db: ref.read(localDatabaseProvider),
+      pinnedGroupModes: _pinnedGroupModes,
+      onTogglePinGroupMode: (mode) {
+        final updated = Set<LibraryGroupMode>.from(_pinnedGroupModes);
+        if (updated.contains(mode)) {
+          updated.remove(mode);
+        } else {
+          updated.add(mode);
+        }
+        setState(() => _pinnedGroupModes = updated);
+        unawaited(_viewPrefs.writePinnedGroupModes(updated));
+      },
     );
   }
 

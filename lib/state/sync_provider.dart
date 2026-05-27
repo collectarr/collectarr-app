@@ -446,6 +446,36 @@ extension on SyncQueueRepository {
           );
         }
         return null;
+      case 'pick_list_value':
+        final row = await (db.select(db.pickListValuesCache)
+              ..where((t) => t.id.equals(change.entityId)))
+            .getSingleOrNull();
+        if (row != null) {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: row.id,
+            action: 'upsert',
+            payload: {
+              'list_name': row.listName,
+              'media_kind': row.mediaKind,
+              'value': row.value,
+              'sort_order': row.sortOrder,
+            },
+            clientChangedAt: changedAt,
+          );
+        }
+        if (change.localAction == 'delete') {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: change.entityId,
+            action: 'delete',
+            payload: change.localPayload ?? const {},
+            clientChangedAt: changedAt,
+          );
+        }
+        return null;
       default:
         return null;
     }

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -149,7 +150,27 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
 
   // Physical media fields
   late final TextEditingController _featuresController;
+  late final TextEditingController _purchaseStoreController;
+  late final TextEditingController _boxSetNameController;
+  late final TextEditingController _storageDeviceController;
+  late final TextEditingController _storageSlotController;
   List<String> _hdrFormats = [];
+
+  // Edition / specs fields
+  late final TextEditingController _regionController;
+  late final TextEditingController _packagingController;
+  late final TextEditingController _distributorController;
+  late final TextEditingController _screenRatioController;
+
+  // Collection status & bag/board
+  String? _collectionStatus;
+  DateTime? _lastBagBoardDate;
+  late final TextEditingController _marketValueController;
+  late final TextEditingController _audioTracksController;
+  late final TextEditingController _subtitlesController;
+  late final TextEditingController _layersController;
+  late final TextEditingController _colorController;
+  late final TextEditingController _nrDiscsController;
 
   String? _physicalFormatId;
   Map<String, String?> _customFieldEdits = {};
@@ -357,6 +378,27 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _keyReasonController = TextEditingController(text: owned?.keyReason ?? '');
     _featuresController = TextEditingController(text: owned?.features ?? '');
     _hdrFormats = List<String>.from(owned?.hdrFormats ?? const <String>[]);
+    _purchaseStoreController = TextEditingController(text: owned?.purchaseStore ?? '');
+    _boxSetNameController = TextEditingController(text: owned?.boxSetName ?? '');
+    _storageDeviceController = TextEditingController(text: owned?.storageDevice ?? '');
+    _storageSlotController = TextEditingController(text: owned?.storageSlot ?? '');
+    _regionController = TextEditingController(text: owned?.region ?? '');
+    _packagingController = TextEditingController(text: owned?.packaging ?? '');
+    _distributorController = TextEditingController(text: owned?.distributor ?? '');
+    _collectionStatus = owned?.collectionStatus;
+    _lastBagBoardDate = owned?.lastBagBoardDate;
+    _marketValueController = TextEditingController(
+      text: owned?.marketValueCents == null
+          ? ''
+          : (owned!.marketValueCents! / 100).toStringAsFixed(2),
+    );
+    final catalogVideo = widget.item.video;
+    _screenRatioController = TextEditingController(text: catalogVideo?.screenRatio ?? '');
+    _audioTracksController = TextEditingController(text: catalogVideo?.audioTracks ?? '');
+    _subtitlesController = TextEditingController(text: catalogVideo?.subtitles ?? '');
+    _layersController = TextEditingController(text: catalogVideo?.layers ?? '');
+    _colorController = TextEditingController(text: catalogVideo?.color ?? '');
+    _nrDiscsController = TextEditingController(text: catalogVideo?.nrDiscs?.toString() ?? '');
     final editionSelection = resolveLibraryEditionSelection(
       item.editions,
       editionId: owned?.editionId ?? tracking?.editionId,
@@ -433,6 +475,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _trackingNotesController.dispose();
     _tagsController.dispose();
     _sellPriceController.dispose();
+    _marketValueController.dispose();
     _soldToController.dispose();
     _rawOrSlabbedController.dispose();
     _gradingCompanyController.dispose();
@@ -441,6 +484,19 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
     _coverPriceController.dispose();
     _keyReasonController.dispose();
     _featuresController.dispose();
+    _purchaseStoreController.dispose();
+    _boxSetNameController.dispose();
+    _storageDeviceController.dispose();
+    _storageSlotController.dispose();
+    _regionController.dispose();
+    _packagingController.dispose();
+    _distributorController.dispose();
+    _screenRatioController.dispose();
+    _audioTracksController.dispose();
+    _subtitlesController.dispose();
+    _layersController.dispose();
+    _colorController.dispose();
+    _nrDiscsController.dispose();
     super.dispose();
   }
 
@@ -478,6 +534,10 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         return _mainTab();
       case 'media':
         return _mediaTab();
+      case 'edition':
+        return _editionTab();
+      case 'specs':
+        return _specsTab();
       case 'cast':
         return _castTab();
       case 'value':
@@ -584,7 +644,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   DropdownButtonFormField<String>(
                     initialValue: _physicalFormatId,
                     isExpanded: true,
-                    dropdownColor: kEditPanelRaised,
+                    dropdownColor: appPalette(context).panelRaised,
                     borderRadius: kEditMenuBorderRadius,
                     decoration: const InputDecoration(
                       labelText: 'Physical format',
@@ -646,7 +706,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Row(
                             children: [
-                              const Icon(Icons.person, size: 16, color: kEditTextMuted),
+                              Icon(Icons.person, size: 16, color: appPalette(context).textMuted),
                               const SizedBox(width: 8),
                               Text(
                                 credit['name'].toString().trim(),
@@ -656,7 +716,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                                 const SizedBox(width: 6),
                                 Text(
                                   '— ${credit['role']}',
-                                  style: const TextStyle(color: kEditTextMuted),
+                                  style: TextStyle(color: appPalette(context).textMuted),
                                 ),
                               ],
                             ],
@@ -664,9 +724,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                         ),
                   ],
                 )
-              : const Text(
+              : Text(
                   'No cast or crew data available.',
-                  style: TextStyle(color: kEditTextMuted),
+                  style: TextStyle(color: appPalette(context).textMuted),
                 ),
         ),
       ],
@@ -691,9 +751,9 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
           title: 'Disc contents',
           accent: widget.accent,
           child: allDiscs.isEmpty
-              ? const Text(
+              ? Text(
                   'No disc data available yet. Disc management will be enabled in a future update.',
-                  style: TextStyle(color: kEditTextMuted),
+                  style: TextStyle(color: appPalette(context).textMuted),
                 )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -703,7 +763,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Row(
                           children: [
-                            const Icon(Icons.album, size: 16, color: kEditTextMuted),
+                            Icon(Icons.album, size: 16, color: appPalette(context).textMuted),
                             const SizedBox(width: 8),
                             Text(
                               disc.discName ?? 'Disc ${disc.discNumber}',
@@ -713,14 +773,14 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                               const SizedBox(width: 6),
                               Text(
                                 '(${disc.discFormat})',
-                                style: const TextStyle(color: kEditTextMuted),
+                                style: TextStyle(color: appPalette(context).textMuted),
                               ),
                             ],
                             const Spacer(),
                             Text(
                               editionTitle,
-                              style: const TextStyle(
-                                color: kEditTextMuted,
+                              style: TextStyle(
+                                color: appPalette(context).textMuted,
                                 fontSize: 12,
                               ),
                             ),
@@ -739,6 +799,8 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
   // -------------------------------------------------------------------------
 
   bool get _hasMediaTab => _tabSpecs.any((t) => t.id == 'media');
+  bool get _hasEditionTab => _tabSpecs.any((t) => t.id == 'edition');
+  bool get _hasSpecsTab => _tabSpecs.any((t) => t.id == 'specs');
 
   Widget _mainTab() {
     final mediaFields = widget.type.mediaFields;
@@ -823,7 +885,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   DropdownButtonFormField<String>(
                     initialValue: _physicalFormatId,
                     isExpanded: true,
-                    dropdownColor: kEditPanelRaised,
+                    dropdownColor: appPalette(context).panelRaised,
                     borderRadius: kEditMenuBorderRadius,
                     decoration: const InputDecoration(
                       labelText: 'Physical format',
@@ -872,7 +934,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     padding: const EdgeInsets.only(bottom: 10),
                     child: Text(
                       editPresentation.trackingSectionHint!,
-                      style: const TextStyle(color: kEditTextMuted),
+                      style: TextStyle(color: appPalette(context).textMuted),
                     ),
                   ),
                 _responsiveFields([
@@ -894,7 +956,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ],
             ),
           ),
-        if (editPresentation.showsOwnershipReferenceSection)
+        if (editPresentation.showsOwnershipReferenceSection && !_hasEditionTab)
           EditSection(
             title: editPresentation.ownershipReferenceTitle,
             accent: widget.accent,
@@ -967,7 +1029,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     padding: const EdgeInsets.only(bottom: 10),
                     child: Text(
                       editPresentation.ownedGradingSectionHint!,
-                      style: const TextStyle(color: kEditTextMuted),
+                      style: TextStyle(color: appPalette(context).textMuted),
                     ),
                   ),
                 SwitchListTile(
@@ -988,6 +1050,269 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
             ),
           ),
         ],
+      ],
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Tab: Edition (release-level fields — video types)
+  // -------------------------------------------------------------------------
+
+  Widget _editionTab() {
+    final releaseFields = widget.type.releaseFields;
+    final editPresentation = _editPresentation;
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Release details',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(
+                    controller: _editionTitleController,
+                    label: releaseFields.editionTitleLabel),
+                _field(
+                    controller: _variantController,
+                    label: releaseFields.variantLabel),
+                _field(
+                    controller: _barcodeController,
+                    label: releaseFields.barcodeLabel),
+              ]),
+              if (releaseFields.showPhysicalFormat &&
+                  widget.physicalFormats.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  initialValue: _physicalFormatId ?? '',
+                  isExpanded: true,
+                  dropdownColor: appPalette(context).panelRaised,
+                  borderRadius: kEditMenuBorderRadius,
+                  decoration: const InputDecoration(
+                    labelText: 'Physical format',
+                  ),
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: '',
+                      child: Text('No specific format'),
+                    ),
+                    for (final format in widget.physicalFormats)
+                      DropdownMenuItem<String>(
+                        value: format.id,
+                        child: Text(format.label),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    final normalized = emptyToNull(value ?? '');
+                    final format = _physicalFormatForId(normalized);
+                    final previousFormat =
+                        _physicalFormatForId(_physicalFormatId);
+                    final variant = _variantController.text.trim();
+                    final shouldReplaceVariant =
+                        variant.isEmpty || previousFormat?.label == variant;
+                    setState(() {
+                      _physicalFormatId = format?.id;
+                      if (format != null && shouldReplaceVariant) {
+                        _variantController.text = format.label;
+                      }
+                    });
+                  },
+                ),
+              ],
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _regionController,
+                  label: 'Region',
+                  hint: 'e.g. A, B, C (Blu-ray) or 1-6 (DVD)',
+                ),
+                _field(
+                  controller: _packagingController,
+                  label: 'Packaging',
+                  hint: 'e.g. Keep Case, Steelbook, Digibook',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _distributorController,
+                  label: 'Distributor',
+                ),
+                _field(
+                  controller: _nrDiscsController,
+                  label: 'Nr. of Discs',
+                  validator: optionalIntValidator,
+                ),
+              ]),
+            ],
+          ),
+        ),
+        if (editPresentation.showsOwnershipReferenceSection)
+          EditSection(
+            title: editPresentation.ownershipReferenceTitle,
+            accent: widget.accent,
+            child: Column(
+              children: [
+                _ownershipAnchorSelectionField(),
+                if (_selectedOwnedAnchorType ==
+                        PersonalItemAnchorType.edition.apiValue ||
+                    _selectedOwnedAnchorType ==
+                        PersonalItemAnchorType.variant.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _responsiveFields([
+                    _editionSelectionField(),
+                    if (_selectedOwnedAnchorType ==
+                        PersonalItemAnchorType.variant.apiValue)
+                      _variantSelectionField(),
+                  ]),
+                ],
+                if (_selectedOwnedAnchorType ==
+                    PersonalItemAnchorType.bundleRelease.apiValue) ...[
+                  const SizedBox(height: 10),
+                  _bundleReleaseSelectionField(
+                    fieldKey:
+                        const Key('library-edit-owned-bundle-field'),
+                    label: editPresentation.ownedBundleLabel,
+                    selectedBundleReleaseId: _selectedBundleReleaseId,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedBundleReleaseId = _normalizedId(value);
+                      });
+                    },
+                  ),
+                ],
+              ],
+            ),
+          ),
+        EditSection(
+          title: 'Box Set',
+          accent: widget.accent,
+          child: TextFormField(
+            controller: _boxSetNameController,
+            decoration: const InputDecoration(
+              labelText: 'Box Set Name',
+              hintText: 'Name of the box set this disc belongs to',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Tab: Specs (edition specifications — video types)
+  // -------------------------------------------------------------------------
+
+  Widget _specsTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Video specifications',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _screenRatioController,
+                  label: 'Screen Ratio',
+                  hint: 'e.g. 2.39:1, 1.85:1, 16:9',
+                ),
+                _field(
+                  controller: _colorController,
+                  label: 'Color',
+                  hint: 'B&W, Color, or Both',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _layersController,
+                  label: 'Layers',
+                  hint: 'e.g. Single, Dual',
+                ),
+              ]),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'HDR',
+          accent: widget.accent,
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              for (final format in const [
+                'HDR10',
+                'HDR10+',
+                'Dolby Vision',
+                'HLG',
+              ])
+                FilterChip(
+                  label: Text(format),
+                  selected: _hdrFormats.contains(format),
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _hdrFormats.add(format);
+                      } else {
+                        _hdrFormats.remove(format);
+                      }
+                    });
+                  },
+                ),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Audio & Subtitles',
+          accent: widget.accent,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _audioTracksController,
+                minLines: 3,
+                maxLines: 6,
+                decoration: const InputDecoration(
+                  labelText: 'Audio Tracks',
+                  hintText:
+                      'One per line, e.g.\nEnglish DTS-HD MA 7.1\nFrench DD 5.1',
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _subtitlesController,
+                minLines: 3,
+                maxLines: 6,
+                decoration: const InputDecoration(
+                  labelText: 'Subtitles',
+                  hintText:
+                      'One per line, e.g.\nEnglish\nFrench\nSpanish',
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Features',
+          accent: widget.accent,
+          child: TextFormField(
+            controller: _featuresController,
+            minLines: 3,
+            maxLines: 6,
+            decoration: const InputDecoration(
+              labelText: 'Features',
+              hintText: 'Disc features, special editions, bonus content...',
+              alignLabelWithHint: true,
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -1022,6 +1347,50 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                       : 'Purchase date: ${_purchaseDateController.text}',
                 ),
               ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _purchaseStoreController,
+                decoration: const InputDecoration(
+                  labelText: 'Purchase Store',
+                  hintText: 'Where you bought it',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              _field(
+                controller: _marketValueController,
+                label: 'Estimated market value',
+                validator: optionalMoneyValidator,
+              ),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Collection status',
+          accent: widget.accent,
+          child: Column(
+            children: [
+              DropdownButtonFormField<String>(
+                initialValue: _collectionStatus,
+                isExpanded: true,
+                dropdownColor: appPalette(context).panelRaised,
+                borderRadius: kEditMenuBorderRadius,
+                decoration: const InputDecoration(
+                  labelText: 'Status',
+                ),
+                items: const [
+                  DropdownMenuItem(value: null, child: Text('In collection')),
+                  DropdownMenuItem(value: 'for_sale', child: Text('For sale')),
+                  DropdownMenuItem(value: 'on_order', child: Text('On order')),
+                ],
+                onChanged: (value) => setState(() => _collectionStatus = value),
+              ),
+              const SizedBox(height: 10),
+              _datePickerField(
+                label: 'Last bag & board date',
+                value: _lastBagBoardDate,
+                onChanged: (v) => setState(() => _lastBagBoardDate = v),
+              ),
             ],
           ),
         ),
@@ -1052,6 +1421,13 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 value: _purchaseDateController.text.isEmpty
                     ? '—'
                     : _purchaseDateController.text,
+              ),
+              ValueContextChip(
+                icon: Icons.trending_up_outlined,
+                label: 'Market value',
+                value: _marketValueController.text.isEmpty
+                    ? '—'
+                    : '\$${_marketValueController.text}',
               ),
             ],
           ),
@@ -1140,11 +1516,11 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
               ),
               if (_isOwned && _isDigitalFormat) ...[
                 const SizedBox(height: 10),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Wishlist-only and digital copies do not expose storage location fields.',
-                    style: TextStyle(color: kEditTextMuted),
+                    style: TextStyle(color: appPalette(context).textMuted),
                   ),
                 ),
               ],
@@ -1156,6 +1532,27 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   label: 'Tags',
                   hint: 'Comma-separated tags',
                 ),
+                const SizedBox(height: 10),
+              ],
+              if (_showPhysicalOwnedFields) ...[
+                _responsiveFields([
+                  TextFormField(
+                    controller: _storageDeviceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Storage Device',
+                      hintText: 'e.g. DVD Shelf, Blu-ray Cabinet',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _storageSlotController,
+                    decoration: const InputDecoration(
+                      labelText: 'Storage Slot',
+                      hintText: 'e.g. Row 3, Slot 5',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ]),
                 const SizedBox(height: 10),
               ],
               _responsiveFields([
@@ -1268,12 +1665,12 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
           EditSection(
             title: 'Collection fields',
             accent: widget.accent,
-            child: const Text(
+            child: Text(
               'Storage, value, quantity and personal notes are only available once the item has an owned copy. Tracking progress stays editable here.',
-              style: TextStyle(color: kEditTextMuted),
+              style: TextStyle(color: appPalette(context).textMuted),
             ),
           ),
-        if (_showPhysicalOwnedFields)
+        if (_showPhysicalOwnedFields && !_hasSpecsTab)
           EditSection(
             title: 'Physical media',
             accent: widget.accent,
@@ -1325,6 +1722,15 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                     border: OutlineInputBorder(),
                   ),
                 ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _boxSetNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Box Set Name',
+                    hintText: 'Name of the box set this disc belongs to',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1355,7 +1761,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                 subtitle: _soldAt != null
                     ? Text(
                         'Sold on ${formatDate(_soldAt!)}',
-                        style: const TextStyle(color: kEditTextMuted),
+                        style: TextStyle(color: appPalette(context).textMuted),
                       )
                     : null,
                 contentPadding: EdgeInsets.zero,
@@ -1531,7 +1937,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         child: Text(
           label ?? 'No location selected',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: label == null ? kEditTextMuted : null,
+                color: label == null ? appPalette(context).textMuted : null,
               ),
         ),
       ),
@@ -1671,6 +2077,15 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
       subtitle: widget.item.publishing?.subtitle,
       seriesGroup: emptyToNull(_seriesGroupController.text),
     );
+    final updatedVideo = VideoCatalogDetails(
+      runtimeMinutes: widget.item.video?.runtimeMinutes,
+      color: emptyToNull(_colorController.text),
+      nrDiscs: int.tryParse(_nrDiscsController.text),
+      screenRatio: emptyToNull(_screenRatioController.text),
+      audioTracks: emptyToNull(_audioTracksController.text),
+      subtitles: emptyToNull(_subtitlesController.text),
+      layers: emptyToNull(_layersController.text),
+    );
     final selection = LibraryEditSelection(
       item: widget.item.copyWith(
         title: _titleController.text.trim(),
@@ -1687,6 +2102,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
         barcode: emptyToNull(_barcodeController.text),
         variant: emptyToNull(_variantController.text),
         publishing: updatedPublishing.hasData ? updatedPublishing : null,
+        video: updatedVideo.hasData ? updatedVideo : null,
       ),
       personal: widget.ownedItem == null
           ? null
@@ -1734,6 +2150,22 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
                   _isDigitalFormat ? null : parseMoneyCents(_coverPriceController.text),
               features: emptyToNull(_featuresController.text),
               hdrFormats: _hdrFormats.isEmpty ? null : _hdrFormats,
+              purchaseStore: emptyToNull(_purchaseStoreController.text),
+              boxSetName: emptyToNull(_boxSetNameController.text),
+              storageDevice: emptyToNull(_storageDeviceController.text),
+              storageSlot: emptyToNull(_storageSlotController.text),
+              region: emptyToNull(_regionController.text),
+              packaging: emptyToNull(_packagingController.text),
+              distributor: emptyToNull(_distributorController.text),
+              screenRatio: emptyToNull(_screenRatioController.text),
+              audioTracks: emptyToNull(_audioTracksController.text),
+              subtitles: emptyToNull(_subtitlesController.text),
+              layers: emptyToNull(_layersController.text),
+              color: emptyToNull(_colorController.text),
+              nrDiscs: int.tryParse(_nrDiscsController.text),
+              collectionStatus: _collectionStatus,
+              lastBagBoardDate: _lastBagBoardDate,
+              marketValueCents: parseMoneyCents(_marketValueController.text),
             ),
       wishlist: widget.wishlistItem == null
           ? null

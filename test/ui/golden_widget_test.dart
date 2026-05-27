@@ -3,15 +3,47 @@ import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/library_theme.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/secure_storage_mock.dart';
 import '../helpers/test_constants.dart';
 
+/// Golden file comparator that tolerates small pixel differences caused by
+/// cross-platform font rendering (e.g. Windows vs Linux CI).
+class _TolerantGoldenFileComparator extends LocalFileComparator {
+  _TolerantGoldenFileComparator(super.testFile);
+
+  /// Allow up to 0.5% of pixels to differ.
+  static const double _kTolerance = 0.005;
+
+  @override
+  Future<bool> compare(Uint8List imageBytes, Uri golden) async {
+    final result = await GoldenFileComparator.compareLists(
+      imageBytes,
+      await getGoldenBytes(golden),
+    );
+    if (!result.passed && result.diffPercent <= _kTolerance) {
+      debugPrint(
+        'Golden "$golden": ${result.diffPercent.toStringAsFixed(2)}% diff '
+        '(within ${(_kTolerance * 100).toStringAsFixed(1)}% tolerance)',
+      );
+      return true;
+    }
+    return result.passed;
+  }
+}
+
 void main() {
   setUpAll(() {
     debugDisableShadows = true;
+    final basedir = (goldenFileComparator as LocalFileComparator).basedir;
+    // LocalFileComparator expects a file URI and derives basedir via dirname;
+    // pass a synthetic file URI so basedir resolves to the test directory.
+    goldenFileComparator = _TolerantGoldenFileComparator(
+      basedir.resolve('golden_widget_test.dart'),
+    );
   });
 
   tearDownAll(() {

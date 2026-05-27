@@ -17,6 +17,8 @@ class LibrarySidebar extends StatelessWidget {
     required this.onSelected,
     required this.onGroupModeChanged,
     required this.onClearFilter,
+    this.pinnedGroupModes = const {},
+    this.onTogglePinGroupMode,
   });
 
   final LibraryTypeConfig type;
@@ -28,6 +30,8 @@ class LibrarySidebar extends StatelessWidget {
   final ValueChanged<String> onSelected;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
   final VoidCallback? onClearFilter;
+  final Set<LibraryGroupMode> pinnedGroupModes;
+  final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +43,11 @@ class LibrarySidebar extends StatelessWidget {
       onSelectSeries: onSelected,
       accentColor: accent,
       selectionColor: accent.withValues(alpha: 0.36),
-      backgroundColor: kAppPanel,
-      headerColor: kAppSurface,
-      dividerColor: kAppDivider,
-      selectedBadgeColor: kAppHighlight,
-      mutedTextColor: kAppTextMuted,
+      backgroundColor: appPalette(context).panel,
+      headerColor: appPalette(context).surface,
+      dividerColor: appPalette(context).divider,
+      selectedBadgeColor: appPalette(context).highlight,
+      mutedTextColor: appPalette(context).textMuted,
       headerOverride: _SidebarGroupDropdownHeader(
         type: type,
         groupMode: groupMode,
@@ -52,6 +56,8 @@ class LibrarySidebar extends StatelessWidget {
         onChanged: onGroupModeChanged,
         groupLoading: groupLoading,
         onClearFilter: onClearFilter,
+        pinnedGroupModes: pinnedGroupModes,
+        onTogglePin: onTogglePinGroupMode,
       ),
     );
   }
@@ -76,9 +82,9 @@ class LibraryCompactBucketBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kAppPanel,
-        border: Border(bottom: BorderSide(color: kAppDivider)),
+      decoration: BoxDecoration(
+        color: appPalette(context).panel,
+        border: Border(bottom: BorderSide(color: appPalette(context).divider)),
       ),
       child: SizedBox(
         height: 38,
@@ -98,7 +104,7 @@ class LibraryCompactBucketBar extends StatelessWidget {
                   : null,
               label: Text(libraryBucketLabel(bucket)),
               selectedColor: accent.withValues(alpha: 0.42),
-              side: BorderSide(color: selected ? accent : kAppDivider),
+              side: BorderSide(color: selected ? accent : appPalette(context).divider),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             );
           },
@@ -125,6 +131,8 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     required this.onChanged,
     this.groupLoading = false,
     this.onClearFilter,
+    this.pinnedGroupModes = const {},
+    this.onTogglePin,
   });
 
   final LibraryTypeConfig type;
@@ -134,6 +142,8 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
   final ValueChanged<LibraryGroupMode> onChanged;
   final bool groupLoading;
   final VoidCallback? onClearFilter;
+  final Set<LibraryGroupMode> pinnedGroupModes;
+  final ValueChanged<LibraryGroupMode>? onTogglePin;
 
   @override
   Widget build(BuildContext context) {
@@ -141,36 +151,41 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     return Container(
       height: 42,
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: const BoxDecoration(
-        color: kAppSurface,
-        border: Border(bottom: BorderSide(color: kAppDivider)),
+      decoration: BoxDecoration(
+        color: appPalette(context).surface,
+        border: Border(bottom: BorderSide(color: appPalette(context).divider)),
       ),
       child: Row(
         children: [
           Expanded(
-            child: InkWell(
-              onTap: () => _showGroupModeMenu(context),
-              borderRadius: BorderRadius.circular(4),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 16, color: accent),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: accent,
-                            ),
+            child: Tooltip(
+              message: 'Group by',
+              child: InkWell(
+                onTap: () => _showGroupModeMenu(context),
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 16, color: accent),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: accent,
+                                  ),
+                        ),
                       ),
-                    ),
-                    Icon(Icons.arrow_drop_down, size: 18, color: accent),
-                  ],
+                      Icon(Icons.arrow_drop_down, size: 18, color: accent),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -199,6 +214,8 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
   void _showGroupModeMenu(BuildContext context) {
     final modes = libraryGroupModesForType(type);
     final categories = _categorizeGroupModes(modes);
+    final pinned = modes.where(pinnedGroupModes.contains).toList();
+    final localPinned = Set<LibraryGroupMode>.from(pinned);
     final box = context.findRenderObject() as RenderBox;
     final offset = box.localToGlobal(Offset(0, box.size.height));
     showMenu<LibraryGroupMode>(
@@ -209,8 +226,26 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
         offset.dx + box.size.width,
         offset.dy,
       ),
-      constraints: const BoxConstraints(maxWidth: 220),
+      constraints: const BoxConstraints(maxWidth: 240),
       items: [
+        if (pinned.isNotEmpty) ...[
+          PopupMenuItem<LibraryGroupMode>(
+            enabled: false,
+            height: 28,
+            child: Text(
+              'Favorites',
+              style: TextStyle(
+                color: appPalette(context).highlight,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          for (final mode in pinned)
+            _buildGroupModeItem(mode, menuContext: context, localPinned: localPinned),
+          const PopupMenuDivider(height: 8),
+        ],
         for (final category in categories) ...[
           PopupMenuItem<LibraryGroupMode>(
             enabled: false,
@@ -218,7 +253,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             child: Text(
               category.label,
               style: TextStyle(
-                color: kAppTextMuted,
+                color: appPalette(context).textMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
@@ -226,38 +261,80 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             ),
           ),
           for (final mode in category.modes)
-            PopupMenuItem<LibraryGroupMode>(
-              value: mode,
-              height: 36,
-              child: Row(
-                children: [
-                  Icon(
-                    genericGroupModeIcon(mode),
-                    size: 16,
-                    color: mode == groupMode ? accent : kAppTextSecondary,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      genericGroupModeLabel(mode, type),
-                      style: TextStyle(
-                        fontWeight: mode == groupMode
-                            ? FontWeight.w800
-                            : FontWeight.w500,
-                        color: mode == groupMode ? accent : null,
-                      ),
-                    ),
-                  ),
-                  if (mode == groupMode)
-                    Icon(Icons.check, size: 16, color: accent),
-                ],
-              ),
-            ),
+            _buildGroupModeItem(mode, menuContext: context, localPinned: localPinned),
         ],
       ],
     ).then((value) {
       if (value != null) onChanged(value);
     });
+  }
+
+  PopupMenuItem<LibraryGroupMode> _buildGroupModeItem(
+    LibraryGroupMode mode, {
+    BuildContext? menuContext,
+    Set<LibraryGroupMode>? localPinned,
+  }) {
+    return PopupMenuItem<LibraryGroupMode>(
+      value: mode,
+      height: 36,
+      child: StatefulBuilder(
+        builder: (context, setMenuState) {
+          final isPinned = localPinned?.contains(mode) ?? pinnedGroupModes.contains(mode);
+          return Row(
+            children: [
+              Icon(
+                genericGroupModeIcon(mode),
+                size: 16,
+                color: mode == groupMode ? accent : kAppTextSecondary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  genericGroupModeLabel(mode, type),
+                  style: TextStyle(
+                    fontWeight:
+                        mode == groupMode ? FontWeight.w800 : FontWeight.w500,
+                    color: mode == groupMode ? accent : null,
+                  ),
+                ),
+              ),
+              if (mode == groupMode)
+                Icon(Icons.check, size: 16, color: accent),
+              if (onTogglePin != null) ...[
+                const SizedBox(width: 4),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    onTogglePin!(mode);
+                    setMenuState(() {
+                      if (isPinned) {
+                        localPinned?.remove(mode);
+                      } else {
+                        localPinned?.add(mode);
+                      }
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: Icon(
+                      isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                      size: 14,
+                      color: isPinned
+                          ? (menuContext != null
+                              ? appPalette(menuContext).highlight
+                              : kAppHighlight)
+                          : (menuContext != null
+                              ? appPalette(menuContext).textMuted
+                              : kAppTextMuted),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
+      ),
+    );
   }
 
   static List<_GroupModeCategory> _categorizeGroupModes(

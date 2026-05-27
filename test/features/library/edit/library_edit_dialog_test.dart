@@ -249,8 +249,8 @@ void main() {
     await tester.tap(find.text('Open edition owned'));
     await pumpUntilSettled(tester);
 
-    // Navigate to the Ownership tab (video kind splits tabs)
-    await tester.tap(find.text('Ownership'));
+    // Navigate to the Edition tab (video kind places ownership anchor here)
+    await tester.tap(find.text('Edition'));
     await pumpUntilSettled(tester);
 
     await tester.tap(find.byKey(const Key('library-edit-owned-anchor-field')));
@@ -583,11 +583,11 @@ void main() {
     await tester.tap(find.text('Open bundle owned'));
     await pumpUntilSettled(tester);
 
-    // Navigate to the Ownership tab (video kind splits tabs)
-    await tester.tap(find.text('Ownership'));
+    // Navigate to the Edition tab (video kind places ownership anchor here)
+    await tester.tap(find.text('Edition'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await tester.tap(find.byKey(const Key('library-edit-owned-anchor-field')));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Bundle release').last);
     await pumpUntilSettled(tester);

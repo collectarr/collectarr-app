@@ -170,7 +170,7 @@ class _AdminUsersPanelState extends ConsumerState<AdminUsersPanel> {
         final roleField = DropdownButtonFormField<String>(
           initialValue: _roleFilter ?? '',
           isExpanded: true,
-          dropdownColor: kAppPanelRaised,
+          dropdownColor: appPalette(context).panelRaised,
           borderRadius: kAppMenuBorderRadius,
           decoration: const InputDecoration(
             labelText: 'Role',
@@ -191,7 +191,7 @@ class _AdminUsersPanelState extends ConsumerState<AdminUsersPanel> {
             null => '',
           },
           isExpanded: true,
-          dropdownColor: kAppPanelRaised,
+          dropdownColor: appPalette(context).panelRaised,
           borderRadius: kAppMenuBorderRadius,
           decoration: const InputDecoration(
             labelText: 'Status',
@@ -494,7 +494,7 @@ class _AdminUserEditorDialogState extends State<_AdminUserEditorDialog> {
             DropdownButtonFormField<String>(
               initialValue: _role,
               isExpanded: true,
-              dropdownColor: kAppPanelRaised,
+              dropdownColor: appPalette(context).panelRaised,
               borderRadius: kAppMenuBorderRadius,
               decoration: const InputDecoration(
                 labelText: 'Role',

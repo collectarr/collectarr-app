@@ -231,7 +231,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       padding: const EdgeInsets.only(bottom: 12),
       child: DropdownButtonFormField<String>(
         initialValue: _physicalFormatId,
-        dropdownColor: _kAdminDropdownColor,
+        dropdownColor: appPalette(context).panelRaised,
         borderRadius: kAppMenuBorderRadius,
         decoration: const InputDecoration(
           labelText: 'Physical format',

@@ -65,6 +65,8 @@ class LibraryProjectionItem {
       keyReason: source.ownedItem?.keyReason,
       notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
       tags: source.ownedItem?.tags,
+      collectionStatus: source.ownedItem?.collectionStatus,
+      lastBagBoardDate: source.ownedItem?.lastBagBoardDate,
       primaryReferenceLabel: libraryPrimaryReferenceLabel(
         ownedItem: source.ownedItem,
         wishlistItem: source.wishlistItem,

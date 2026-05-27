@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 @immutable
-class AppThemePalette {
+class AppThemePalette extends ThemeExtension<AppThemePalette> {
   const AppThemePalette({
     required this.topBar,
     required this.toolbar,
@@ -20,6 +20,16 @@ class AppThemePalette {
     required this.tableHover,
     required this.field,
     required this.menuBorderRadius,
+    this.brightness = Brightness.dark,
+    this.textPrimary = Colors.white,
+    this.cardBackground = kAppCardBackground,
+    this.cardBorder = kAppCardBorder,
+    this.surface = kAppSurface,
+    this.surfaceDim = kAppSurfaceDim,
+    this.surfaceBright = kAppSurfaceBright,
+    this.surfaceSubtle = kAppSurfaceSubtle,
+    this.textSecondary = kAppTextSecondary,
+    this.badgeBackground = kAppBadgeBackground,
   });
 
   final Color topBar;
@@ -39,7 +49,20 @@ class AppThemePalette {
   final Color tableHover;
   final Color field;
   final BorderRadius menuBorderRadius;
+  final Brightness brightness;
+  final Color textPrimary;
+  final Color cardBackground;
+  final Color cardBorder;
+  final Color surface;
+  final Color surfaceDim;
+  final Color surfaceBright;
+  final Color surfaceSubtle;
+  final Color textSecondary;
+  final Color badgeBackground;
 
+  bool get isDark => brightness == Brightness.dark;
+
+  @override
   AppThemePalette copyWith({
     Color? topBar,
     Color? toolbar,
@@ -58,6 +81,16 @@ class AppThemePalette {
     Color? tableHover,
     Color? field,
     BorderRadius? menuBorderRadius,
+    Brightness? brightness,
+    Color? textPrimary,
+    Color? cardBackground,
+    Color? cardBorder,
+    Color? surface,
+    Color? surfaceDim,
+    Color? surfaceBright,
+    Color? surfaceSubtle,
+    Color? textSecondary,
+    Color? badgeBackground,
   }) {
     return AppThemePalette(
       topBar: topBar ?? this.topBar,
@@ -77,6 +110,52 @@ class AppThemePalette {
       tableHover: tableHover ?? this.tableHover,
       field: field ?? this.field,
       menuBorderRadius: menuBorderRadius ?? this.menuBorderRadius,
+      brightness: brightness ?? this.brightness,
+      textPrimary: textPrimary ?? this.textPrimary,
+      cardBackground: cardBackground ?? this.cardBackground,
+      cardBorder: cardBorder ?? this.cardBorder,
+      surface: surface ?? this.surface,
+      surfaceDim: surfaceDim ?? this.surfaceDim,
+      surfaceBright: surfaceBright ?? this.surfaceBright,
+      surfaceSubtle: surfaceSubtle ?? this.surfaceSubtle,
+      textSecondary: textSecondary ?? this.textSecondary,
+      badgeBackground: badgeBackground ?? this.badgeBackground,
+    );
+  }
+
+  @override
+  AppThemePalette lerp(covariant AppThemePalette? other, double t) {
+    if (other == null) return this;
+    return AppThemePalette(
+      topBar: Color.lerp(topBar, other.topBar, t)!,
+      toolbar: Color.lerp(toolbar, other.toolbar, t)!,
+      panel: Color.lerp(panel, other.panel, t)!,
+      panelRaised: Color.lerp(panelRaised, other.panelRaised, t)!,
+      canvas: Color.lerp(canvas, other.canvas, t)!,
+      gridCanvas: Color.lerp(gridCanvas, other.gridCanvas, t)!,
+      accent: Color.lerp(accent, other.accent, t)!,
+      selection: Color.lerp(selection, other.selection, t)!,
+      highlight: Color.lerp(highlight, other.highlight, t)!,
+      divider: Color.lerp(divider, other.divider, t)!,
+      textMuted: Color.lerp(textMuted, other.textMuted, t)!,
+      tableOddRow: Color.lerp(tableOddRow, other.tableOddRow, t)!,
+      tableEvenRow: Color.lerp(tableEvenRow, other.tableEvenRow, t)!,
+      tableBottomBorder:
+          Color.lerp(tableBottomBorder, other.tableBottomBorder, t)!,
+      tableHover: Color.lerp(tableHover, other.tableHover, t)!,
+      field: Color.lerp(field, other.field, t)!,
+      menuBorderRadius:
+          BorderRadius.lerp(menuBorderRadius, other.menuBorderRadius, t)!,
+      brightness: t < 0.5 ? brightness : other.brightness,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
+      cardBackground: Color.lerp(cardBackground, other.cardBackground, t)!,
+      cardBorder: Color.lerp(cardBorder, other.cardBorder, t)!,
+      surface: Color.lerp(surface, other.surface, t)!,
+      surfaceDim: Color.lerp(surfaceDim, other.surfaceDim, t)!,
+      surfaceBright: Color.lerp(surfaceBright, other.surfaceBright, t)!,
+      surfaceSubtle: Color.lerp(surfaceSubtle, other.surfaceSubtle, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      badgeBackground: Color.lerp(badgeBackground, other.badgeBackground, t)!,
     );
   }
 }
@@ -166,3 +245,40 @@ const kDefaultAppThemePalette = AppThemePalette(
   field: kAppField,
   menuBorderRadius: kAppMenuBorderRadius,
 );
+
+const kLightAppThemePalette = AppThemePalette(
+  brightness: Brightness.light,
+  topBar: Color(0xFF0D8AB0),
+  toolbar: Color(0xFFF0F0F0),
+  panel: Color(0xFFFFFFFF),
+  panelRaised: Color(0xFFF5F5F5),
+  canvas: Color(0xFFF8F8F8),
+  gridCanvas: Color(0xFFEFEFEF),
+  accent: Color(0xFF0D8AB0),
+  selection: Color(0xFFBDE5F2),
+  highlight: Color(0xFFE6A800),
+  divider: Color(0xFFD0D0D0),
+  textMuted: Color(0xFF707070),
+  tableOddRow: Color(0xFFF6F8FA),
+  tableEvenRow: Color(0xFFFFFFFF),
+  tableBottomBorder: Color(0xFFE0E0E0),
+  tableHover: Color(0xFFE0F2F8),
+  field: Color(0xFFFFFFFF),
+  menuBorderRadius: kAppMenuBorderRadius,
+  textPrimary: Color(0xFF1A1A1A),
+  cardBackground: Color(0xFFFFFFFF),
+  cardBorder: Color(0xFFD8D8D8),
+  surface: Color(0xFFE8E8E8),
+  surfaceDim: Color(0xFFF0F0F0),
+  surfaceBright: Color(0xFFFFFFFF),
+  surfaceSubtle: Color(0xFFF2F2F2),
+  textSecondary: Color(0xFF808080),
+  badgeBackground: Color(0xFFD0D0D0),
+);
+
+/// Resolve the active [AppThemePalette] from [context].
+/// Falls back to [kDefaultAppThemePalette] when no extension is present.
+AppThemePalette appPalette(BuildContext context) {
+  return Theme.of(context).extension<AppThemePalette>() ??
+      kDefaultAppThemePalette;
+}

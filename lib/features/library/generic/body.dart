@@ -59,6 +59,8 @@ class LibraryBody extends StatelessWidget {
     this.availableLetters = const {},
     this.onLetterSelected,
     this.db,
+    this.pinnedGroupModes = const {},
+    this.onTogglePinGroupMode,
   });
 
   final LibraryTypeConfig type;
@@ -105,6 +107,8 @@ class LibraryBody extends StatelessWidget {
   final Set<String> availableLetters;
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
+  final Set<LibraryGroupMode> pinnedGroupModes;
+  final ValueChanged<LibraryGroupMode>? onTogglePinGroupMode;
 
   @override
   Widget build(BuildContext context) {
@@ -238,6 +242,8 @@ class LibraryBody extends StatelessWidget {
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),
+                    pinnedGroupModes: pinnedGroupModes,
+                    onTogglePinGroupMode: onTogglePinGroupMode,
                   ),
                 ),
                 LibraryResizableDivider(

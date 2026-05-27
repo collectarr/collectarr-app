@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:flutter/material.dart';
 
-enum LibraryViewMode { grid, card, cardFlow, list }
+enum LibraryViewMode { grid, card, cardFlow, list, shelves }
 
 enum LibraryDetailsLayout { right, bottom, hidden }
 
@@ -22,6 +22,13 @@ enum LibraryGroupMode {
   // ── Cast & Crew ──
   director,
   creator,
+  writer,
+  artist,
+  penciller,
+  colorist,
+  letterer,
+  coverArtist,
+  editor,
   // ── Personal ──
   location,
   ownership,

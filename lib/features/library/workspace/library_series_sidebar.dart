@@ -33,7 +33,7 @@ class LibrarySeriesBucket {
   }
 }
 
-class LibrarySeriesSidebar extends StatelessWidget {
+class LibrarySeriesSidebar extends StatefulWidget {
   const LibrarySeriesSidebar({
     super.key,
     required this.series,
@@ -70,27 +70,61 @@ class LibrarySeriesSidebar extends StatelessWidget {
   final Color mutedTextColor;
 
   @override
+  State<LibrarySeriesSidebar> createState() => _LibrarySeriesSidebarState();
+}
+
+enum _SidebarSortMode { alphabetical, byCount }
+
+class _LibrarySeriesSidebarState extends State<LibrarySeriesSidebar> {
+  final _searchController = TextEditingController();
+  var _sortMode = _SidebarSortMode.alphabetical;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<LibrarySeriesBucket> get _filteredSorted {
+    final query = _searchController.text.trim().toLowerCase();
+    var items = widget.series.where((b) {
+      if (query.isEmpty) return true;
+      return b.title.toLowerCase().contains(query);
+    }).toList();
+    switch (_sortMode) {
+      case _SidebarSortMode.alphabetical:
+        // Keep original order (already alphabetical from projection).
+        break;
+      case _SidebarSortMode.byCount:
+        items.sort((a, b) => b.count.compareTo(a.count));
+    }
+    return items;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final filtered = _filteredSorted;
     return DecoratedBox(
-      decoration: BoxDecoration(color: backgroundColor),
+      decoration: BoxDecoration(color: widget.backgroundColor),
       child: Column(
         children: [
-          headerOverride ??
+          widget.headerOverride ??
               Container(
                 height: 42,
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: headerColor,
-                  border: Border(bottom: BorderSide(color: dividerColor)),
+                  color: widget.headerColor,
+                  border:
+                      Border(bottom: BorderSide(color: widget.dividerColor)),
                 ),
                 child: Row(
                   children: [
-                    Icon(icon, size: 18, color: accentColor),
+                    Icon(widget.icon, size: 18, color: widget.accentColor),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        title,
+                        widget.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context)
@@ -99,26 +133,122 @@ class LibrarySeriesSidebar extends StatelessWidget {
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
-                    if (trailing != null) trailing!,
+                    if (widget.trailing != null) widget.trailing!,
                   ],
                 ),
               ),
+          _SidebarSearchAndSort(
+            controller: _searchController,
+            sortMode: _sortMode,
+            dividerColor: widget.dividerColor,
+            onChanged: () => setState(() {}),
+            onToggleSort: () => setState(() {
+              _sortMode = _sortMode == _SidebarSortMode.alphabetical
+                  ? _SidebarSortMode.byCount
+                  : _SidebarSortMode.alphabetical;
+            }),
+          ),
           Expanded(
             child: ListView.builder(
-              itemCount: series.length,
+              itemCount: filtered.length,
               itemBuilder: (context, index) {
-                final bucket = series[index];
-                final selected = bucket.title == selectedSeries;
+                final bucket = filtered[index];
+                final selected = bucket.title == widget.selectedSeries;
                 return _LibrarySeriesRow(
                   bucket: bucket,
                   selected: selected,
-                  onTap: () => onSelectSeries(bucket.title),
-                  selectionColor: selectionColor,
-                  selectedBadgeColor: selectedBadgeColor,
-                  badgeColor: badgeColor,
-                  mutedTextColor: mutedTextColor,
+                  onTap: () => widget.onSelectSeries(bucket.title),
+                  selectionColor: widget.selectionColor,
+                  selectedBadgeColor: widget.selectedBadgeColor,
+                  badgeColor: widget.badgeColor,
+                  mutedTextColor: widget.mutedTextColor,
                 );
               },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarSearchAndSort extends StatelessWidget {
+  const _SidebarSearchAndSort({
+    required this.controller,
+    required this.sortMode,
+    required this.dividerColor,
+    required this.onChanged,
+    required this.onToggleSort,
+  });
+
+  final TextEditingController controller;
+  final _SidebarSortMode sortMode;
+  final Color dividerColor;
+  final VoidCallback onChanged;
+  final VoidCallback onToggleSort;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: dividerColor)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 26,
+              child: TextField(
+                controller: controller,
+                onChanged: (_) => onChanged(),
+                style: const TextStyle(fontSize: 12),
+                decoration: InputDecoration(
+                  hintText: 'Filter…',
+                  hintStyle:
+                      TextStyle(fontSize: 12, color: appPalette(context).textMuted),
+                  prefixIcon:
+                      Icon(Icons.search, size: 14, color: appPalette(context).textMuted),
+                  prefixIconConstraints:
+                      const BoxConstraints(minWidth: 28, maxHeight: 26),
+                  suffixIcon: controller.text.isNotEmpty
+                      ? GestureDetector(
+                          onTap: () {
+                            controller.clear();
+                            onChanged();
+                          },
+                          child: Icon(Icons.close, size: 14,
+                              color: appPalette(context).textMuted),
+                        )
+                      : null,
+                  suffixIconConstraints:
+                      const BoxConstraints(minWidth: 24, maxHeight: 26),
+                  contentPadding: const EdgeInsets.only(bottom: 10),
+                  border: InputBorder.none,
+                  isDense: true,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 2),
+          Tooltip(
+            message: sortMode == _SidebarSortMode.alphabetical
+                ? 'Sort by count'
+                : 'Sort alphabetically',
+            child: InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: onToggleSort,
+              child: Padding(
+                padding: const EdgeInsets.all(3),
+                child: Icon(
+                  sortMode == _SidebarSortMode.alphabetical
+                      ? Icons.sort_by_alpha
+                      : Icons.tag,
+                  size: 16,
+                  color: kAppTextMuted,
+                ),
+              ),
             ),
           ),
         ],
@@ -176,11 +306,11 @@ class _LibrarySeriesRow extends StatelessWidget {
                       child: CachedNetworkImage(
                         imageUrl: bucket.coverUrl!,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) => const ColoredBox(
-                          color: kAppSurface,
+                        placeholder: (_, __) => ColoredBox(
+                          color: appPalette(context).surface,
                         ),
-                        errorWidget: (_, __, ___) => const ColoredBox(
-                          color: kAppSurface,
+                        errorWidget: (_, __, ___) => ColoredBox(
+                          color: appPalette(context).surface,
                         ),
                       ),
                     ),

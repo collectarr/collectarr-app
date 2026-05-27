@@ -136,7 +136,7 @@ class _ItemBundleReleaseBrowserSectionState
         selectedId != null && _loadingDetails.contains(selectedId);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xD51C1F21),
+        color: appPalette(context).surfaceSubtle,
         border: Border.all(color: widget.accent.withValues(alpha: 0.33)),
       ),
       child: Material(

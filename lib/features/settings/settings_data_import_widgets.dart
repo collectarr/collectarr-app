@@ -351,7 +351,7 @@ class _TmdbImportInlineCardState
 
             // Collection dropdown
             DropdownButtonFormField<TmdbImportCollection>(
-              value: _collection,
+              initialValue: _collection,
               isExpanded: true,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),

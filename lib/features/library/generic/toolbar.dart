@@ -47,10 +47,13 @@ class LibraryToolbar extends StatelessWidget {
     this.selectionCallbacks,
     this.shelfState,
     this.onSmartLists,
+    this.onFolders,
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
     this.onEditTagPickList,
+    this.onTransferFieldData,
+    this.onReassignIndex,
     this.onPrintReport,
     this.onShareCollection,
   });
@@ -85,10 +88,13 @@ class LibraryToolbar extends StatelessWidget {
   final int selectedCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditTagPickList;
+  final VoidCallback? onTransferFieldData;
+  final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
 
@@ -152,7 +158,13 @@ class LibraryToolbar extends StatelessWidget {
                   onChanged: onSearchChanged,
                   selectionColor: kAppSelection,
                 ),
-                const LibraryWorkspaceSeparator(color: kAppDivider),
+                const SizedBox(width: 8),
+                _ItemCountLabel(
+                  shown: counts.shown,
+                  total: counts.total,
+                  pluralLabel: type.pluralLabel,
+                ),
+                const Spacer(),
                 if (selectionCallbacks != null)
                   LibrarySelectionControls(
                     selectedCount: selectedCount,
@@ -174,11 +186,14 @@ class LibraryToolbar extends StatelessWidget {
                       onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
                       onSmartLists: onSmartLists,
+                      onFolders: onFolders,
                       onReadingQueue: onReadingQueue,
                       onEditConditionPickList: onEditConditionPickList,
                       onEditGradePickList: onEditGradePickList,
                       onEditTagPickList: onEditTagPickList,
                       onEditSort: onEditSort,
+                      onTransferFieldData: onTransferFieldData,
+                      onReassignIndex: onReassignIndex,
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
                     ),
@@ -246,6 +261,32 @@ class _FilterButton extends StatelessWidget {
         ),
         tooltip: 'Edit filters',
         onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+class _ItemCountLabel extends StatelessWidget {
+  const _ItemCountLabel({
+    required this.shown,
+    required this.total,
+    required this.pluralLabel,
+  });
+
+  final int shown;
+  final int total;
+  final String pluralLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = shown == total
+        ? '$total ${pluralLabel.toLowerCase()}'
+        : '$shown of $total ${pluralLabel.toLowerCase()}';
+    return Text(
+      label,
+      style: const TextStyle(
+        fontSize: 12,
+        color: kAppTextMuted,
       ),
     );
   }

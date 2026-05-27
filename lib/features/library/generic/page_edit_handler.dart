@@ -184,6 +184,16 @@ extension _LibraryPageEditHandlerExt on _LibraryPageState {
         notify: false,
         features: personal.features,
         hdrFormats: personal.hdrFormats,
+        purchaseStore: personal.purchaseStore,
+        boxSetName: personal.boxSetName,
+        storageDevice: personal.storageDevice,
+        storageSlot: personal.storageSlot,
+        region: personal.region,
+        packaging: personal.packaging,
+        distributor: personal.distributor,
+        collectionStatus: personal.collectionStatus,
+        lastBagBoardDate: personal.lastBagBoardDate,
+        marketValueCents: personal.marketValueCents,
       );
       await mutations.syncOwnedTrackingEntry(
         updatedOwned,

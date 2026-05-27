@@ -73,6 +73,16 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
         if (credit['name']?.toString().trim().isNotEmpty == true)
           credit['name'].toString().trim(),
     ];
+    final creatorsByRole = <String, List<String>>{};
+    for (final credit in entry.creators ?? const <Map<String, dynamic>>[]) {
+      final name = credit['name']?.toString().trim();
+      if (name == null || name.isEmpty) continue;
+      final role = credit['role']?.toString().trim();
+      final key = (role != null && role.isNotEmpty) ? role : 'Creator';
+      creatorsByRole.putIfAbsent(key, () => <String>[]).add(name);
+    }
+    final hasRoles = creatorsByRole.keys.any((r) => r != 'Creator') ||
+        creatorsByRole.length > 1;
     return LibraryInspectorSection(
       title: 'Title metadata',
       accentColor: accent,
@@ -104,7 +114,12 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
           const SizedBox(height: 8),
           LibraryInspectorChipWrap(label: 'Genres', values: genres),
         ],
-        if (creatorNames.isNotEmpty) ...[
+        if (creatorNames.isNotEmpty && hasRoles) ...[
+          for (final entry in creatorsByRole.entries) ...[
+            const SizedBox(height: 8),
+            LibraryInspectorChipWrap(label: entry.key, values: entry.value),
+          ],
+        ] else if (creatorNames.isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryInspectorChipWrap(label: 'Cast / credits', values: creatorNames),
         ],

@@ -49,6 +49,12 @@ class CatalogCache extends Table {
   TextColumn get subtitle => text().nullable()();
   TextColumn get seriesGroup => text().nullable()();
   TextColumn get trailerUrlsJson => text().nullable()();
+  TextColumn get color => text().nullable()();
+  IntColumn get nrDiscs => integer().nullable()();
+  TextColumn get screenRatio => text().nullable()();
+  TextColumn get audioTracksJson => text().nullable()();
+  TextColumn get subtitlesJson => text().nullable()();
+  TextColumn get layers => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -95,6 +101,14 @@ class OwnedItemsCache extends Table {
   TextColumn get purchaseStore => text().nullable()();
   TextColumn get boxSetId => text().nullable()();
   TextColumn get boxSetName => text().nullable()();
+  TextColumn get storageDevice => text().nullable()();
+  TextColumn get storageSlot => text().nullable()();
+  TextColumn get region => text().nullable()();
+  TextColumn get packaging => text().nullable()();
+  TextColumn get distributor => text().nullable()();
+  TextColumn get collectionStatus => text().nullable()();
+  DateTimeColumn get lastBagBoardDate => dateTime().nullable()();
+  IntColumn get marketValueCents => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -366,7 +380,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {

@@ -1173,18 +1173,25 @@ void main() {
     await tester.tap(find.text('Edition'));
     await pumpUntilSettled(tester);
 
-    await tester.ensureVisible(
-      find.byKey(const ValueKey('library-add-edition-field')),
-    );
-    await tester.tap(
-      find.byKey(const ValueKey('library-add-edition-field')),
-    );
-    await pumpUntilSettled(tester);
-    await tester.tap(find.text('Collector Edition • Collector Issue').last);
+    // Select the "Collector Edition" card from the edition grid
+    final collectorEdition = find.descendant(
+      of: find.byKey(const ValueKey('library-add-edition-field')),
+      matching: find.text('Collector Edition'),
+    ).first;
+    await tester.ensureVisible(collectorEdition);
+    await tester.pumpAndSettle();
+    await tester.tap(collectorEdition);
     await pumpUntilSettled(tester);
 
     expect(find.textContaining('Collector Edition'), findsWidgets);
-    expect(find.text('Any / unspecified variant'), findsOneWidget);
+    // Variant grid shows "Any" chip as default (no variant selected)
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('library-add-variant-field')),
+        matching: find.text('Any'),
+      ),
+      findsOneWidget,
+    );
     expect(find.textContaining('Physical: Sketch Cover'), findsNothing);
   });
 
@@ -1243,24 +1250,24 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.ensureVisible(
-      find.byKey(const ValueKey('library-add-edition-field')),
-    );
-    await tester.tap(
-      find.byKey(const ValueKey('library-add-edition-field')),
-    );
-    await pumpUntilSettled(tester);
-    await tester.tap(find.text('Collector Edition • Collector Issue').last);
+    // Select "Collector Edition" card from edition grid
+    final collectorEdition = find.descendant(
+      of: find.byKey(const ValueKey('library-add-edition-field')),
+      matching: find.text('Collector Edition'),
+    ).first;
+    await tester.ensureVisible(collectorEdition);
+    await tester.pumpAndSettle();
+    await tester.tap(collectorEdition);
     await pumpUntilSettled(tester);
 
-    await tester.ensureVisible(
-      find.byKey(const ValueKey('library-add-variant-field')),
-    );
-    await tester.tap(
-      find.byKey(const ValueKey('library-add-variant-field')),
-    );
-    await pumpUntilSettled(tester);
-    await tester.tap(find.text('Sketch Cover • sketch').last);
+    // Select "Sketch Cover" card from variant grid
+    final sketchCover = find.descendant(
+      of: find.byKey(const ValueKey('library-add-variant-field')),
+      matching: find.text('Sketch Cover'),
+    ).first;
+    await tester.ensureVisible(sketchCover);
+    await tester.pumpAndSettle();
+    await tester.tap(sketchCover);
     await pumpUntilSettled(tester);
 
     expect(find.textContaining('Collector Edition'), findsWidgets);

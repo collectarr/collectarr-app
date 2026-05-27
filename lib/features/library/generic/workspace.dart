@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/workspace/library_cover_image.da
 import 'package:collectarr_app/features/library/workspace/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/library_flow_carousel.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/library_shelf_view.dart';
 import 'package:collectarr_app/features/library/workspace/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -83,6 +84,7 @@ class LibraryWorkspace extends StatelessWidget {
 
   bool get _showGrouped =>
       viewState.viewMode != LibraryViewMode.cardFlow &&
+      viewState.viewMode != LibraryViewMode.shelves &&
       selectedBucket == null &&
       groupMode != LibraryGroupMode.title &&
       groupMode != LibraryGroupMode.ownership;
@@ -195,6 +197,8 @@ class LibraryWorkspace extends StatelessWidget {
             itemBuilder: (context, item) => const SizedBox.shrink(),
           ),
         LibraryViewMode.list => _buildTable(),
+        LibraryViewMode.shelves =>
+          const SizedBox.shrink(), // shelves never grouped
       };
     }
     return switch (viewState.viewMode) {
@@ -264,6 +268,20 @@ class LibraryWorkspace extends StatelessWidget {
           onItemContextMenu: onItemContextMenu,
         ),
       LibraryViewMode.list => _buildTable(),
+      LibraryViewMode.shelves => LibraryShelfView<LibraryProjectionItem>(
+          items: items,
+          entryOf: (item) => item.entry,
+          isSelected: _isSelected,
+          onTap: (item) => _selectionTap(item)(),
+          onDoubleTap: onOpenItem,
+          onSecondaryTapUp: onItemContextMenu == null
+              ? null
+              : (item, d) => onItemContextMenu!(item, d.globalPosition),
+          accent: accent,
+          shelfHeight: viewState.coverSize * 1.53,
+          bookWidth: viewState.coverSize,
+          emptyBuilder: _emptyBuilder,
+        ),
     };
   }
 

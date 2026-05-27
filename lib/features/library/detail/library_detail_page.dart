@@ -5,6 +5,8 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/detail/activity_timeline_section.dart';
+import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
@@ -15,6 +17,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_personal_det
 import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/shared/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,9 +109,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         activeOwnedItem?.bundleReleaseId ?? widget.entry.referenceBundleReleaseId;
     final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || widget.entry.isOwned;
     return Theme(
-      data: kLibraryTheme,
+      data: buildLibraryTheme(palette: appPalette(context)),
       child: Scaffold(
-        backgroundColor: kAppCanvas,
+        backgroundColor: appPalette(context).canvas,
         appBar: AppBar(
           backgroundColor: widget.accent,
           foregroundColor: Colors.white,
@@ -121,6 +124,19 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   : () => widget.onEdit!(activeOwnedItem),
               icon: const Icon(Icons.edit_outlined),
             ),
+            if (activeOwnedItem != null)
+              IconButton(
+                tooltip: 'Assign to folders',
+                onPressed: () {
+                  final db = ref.read(localDatabaseProvider);
+                  showFolderAssignmentDialog(
+                    context: context,
+                    db: db,
+                    ownedItemId: activeOwnedItem.id,
+                  );
+                },
+                icon: const Icon(Icons.folder_outlined),
+              ),
             IconButton(
               tooltip: widget.entry.isWishlisted
                   ? 'Remove from wishlist'
@@ -277,6 +293,12 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               ),
             WatchHistorySection(
               itemId: widget.entry.id,
+              accent: widget.accent,
+            ),
+            const SizedBox(height: 16),
+            ActivityTimelineSection(
+              itemId: widget.entry.id,
+              ownedItemIds: ownedCopies.map((c) => c.id).toList(),
               accent: widget.accent,
             ),
             MetadataCorrectionsSection(

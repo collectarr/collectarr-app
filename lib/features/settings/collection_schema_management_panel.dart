@@ -220,9 +220,9 @@ class _CollectionSchemaCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppPanelRaised,
+        color: appPalette(context).panelRaised,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: kAppDivider),
+        border: Border.all(color: appPalette(context).divider),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -250,7 +250,7 @@ class _CollectionSchemaCard extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: kAppTextMuted),
+                  ?.copyWith(color: appPalette(context).textMuted),
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -271,7 +271,7 @@ class _CollectionSchemaCard extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .labelMedium
-                    ?.copyWith(color: kAppTextMuted),
+                    ?.copyWith(color: appPalette(context).textMuted),
               ),
               const SizedBox(height: 8),
               Wrap(

@@ -68,7 +68,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
             value: _sourceFilter,
             underline: const SizedBox.shrink(),
             isDense: true,
-            dropdownColor: kAppPanelRaised,
+            dropdownColor: appPalette(context).panelRaised,
             borderRadius: kAppMenuBorderRadius,
             items: [
               const DropdownMenuItem(
@@ -96,7 +96,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
           child: Text(
             '${entries.length} entries',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kAppTextMuted,
+                  color: appPalette(context).textMuted,
                 ),
           ),
         ),
@@ -173,7 +173,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                     ? 'No log entries yet'
                     : 'No entries match the current filter',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: kAppTextMuted,
+                      color: appPalette(context).textMuted,
                     ),
               ),
             ),
@@ -208,12 +208,12 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
-                                ?.copyWith(color: kAppTextMuted),
+                                ?.copyWith(color: appPalette(context).textMuted),
                           ),
                           const SizedBox(width: 8),
                           DecoratedBox(
                             decoration: BoxDecoration(
-                              color: kAppPanelRaised,
+                              color: appPalette(context).panelRaised,
                               borderRadius: BorderRadius.circular(3),
                             ),
                             child: Padding(
@@ -223,10 +223,10 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                               ),
                               child: Text(
                                 e.source,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
-                                  color: kAppTextMuted,
+                                  color: appPalette(context).textMuted,
                                 ),
                               ),
                             ),
@@ -238,7 +238,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                                   ? Icons.expand_less
                                   : Icons.expand_more,
                               size: 16,
-                              color: kAppTextMuted,
+                              color: appPalette(context).textMuted,
                             ),
                           ],
                         ],
@@ -255,17 +255,17 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                         const SizedBox(height: 6),
                         DecoratedBox(
                           decoration: BoxDecoration(
-                            color: kAppField,
+                            color: appPalette(context).field,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(8),
                             child: SelectableText(
                               e.detail!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontFamily: 'monospace',
-                                color: kAppTextMuted,
+                                color: appPalette(context).textMuted,
                               ),
                             ),
                           ),

@@ -9,6 +9,7 @@ class LibraryItemContextMenuResult {
 
 enum LibraryItemContextAction {
   edit,
+  duplicate,
   addToOwned,
   removeFromOwned,
   addToWishlist,
@@ -52,6 +53,11 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               Icons.edit_note,
               'Bulk edit selected',
             ),
+            _item(
+              LibraryItemContextAction.duplicate,
+              Icons.copy_outlined,
+              'Duplicate selected',
+            ),
             const PopupMenuDivider(),
             _header('Collection', accent),
             _item(
@@ -78,6 +84,12 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               Icons.edit_outlined,
               'Edit item...',
             ),
+            if (entry.isOwned)
+              _item(
+                LibraryItemContextAction.duplicate,
+                Icons.copy_outlined,
+                'Duplicate item',
+              ),
             const PopupMenuDivider(),
             _header('Collection', accent),
             if (!entry.isOwned)

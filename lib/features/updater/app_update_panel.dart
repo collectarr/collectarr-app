@@ -50,7 +50,7 @@ class _VersionRow extends StatelessWidget {
               fontSize: 14,
               color: update.status == UpdateStatus.updateAvailable
                   ? Colors.amber
-                  : kAppTextSecondary,
+                  : appPalette(context).textSecondary,
             ),
           ),
         ],
@@ -136,7 +136,7 @@ class _StatusSection extends StatelessWidget {
           Container(
             constraints: const BoxConstraints(maxHeight: 200),
             decoration: BoxDecoration(
-              color: kAppPanelRaised,
+              color: appPalette(context).panelRaised,
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.all(12),

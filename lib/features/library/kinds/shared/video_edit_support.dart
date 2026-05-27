@@ -15,6 +15,10 @@ class VideoLibraryEditPresentationBuilder
             LibraryEditTabSpec(
                 id: 'media', icon: Icons.movie, label: 'Media'),
             LibraryEditTabSpec(
+                id: 'edition', icon: Icons.album, label: 'Edition'),
+            LibraryEditTabSpec(
+                id: 'specs', icon: Icons.tune, label: 'Specs'),
+            LibraryEditTabSpec(
                 id: 'cast', icon: Icons.people, label: 'Cast & Crew'),
             LibraryEditTabSpec(
                 id: 'main', icon: Icons.inventory_2, label: 'Ownership'),
@@ -37,6 +41,10 @@ class VideoLibraryEditPresentationBuilder
             LibraryEditTabSpec(
                 id: 'media', icon: Icons.movie, label: 'Media'),
             LibraryEditTabSpec(
+                id: 'edition', icon: Icons.album, label: 'Edition'),
+            LibraryEditTabSpec(
+                id: 'specs', icon: Icons.tune, label: 'Specs'),
+            LibraryEditTabSpec(
                 id: 'cast', icon: Icons.people, label: 'Cast & Crew'),
             LibraryEditTabSpec(
                 id: 'main', icon: Icons.track_changes, label: 'Tracking'),
@@ -50,6 +58,10 @@ class VideoLibraryEditPresentationBuilder
           catalogTabs: const [
             LibraryEditTabSpec(
                 id: 'media', icon: Icons.movie, label: 'Media'),
+            LibraryEditTabSpec(
+                id: 'edition', icon: Icons.album, label: 'Edition'),
+            LibraryEditTabSpec(
+                id: 'specs', icon: Icons.tune, label: 'Specs'),
             LibraryEditTabSpec(
                 id: 'cast', icon: Icons.people, label: 'Cast & Crew'),
             LibraryEditTabSpec(
@@ -66,6 +78,8 @@ class VideoLibraryEditPresentationBuilder
   }) {
     final sections = switch (tabId) {
       'media' => ['catalog_snapshot'],
+      'edition' => ['release_details', 'ownership_reference', 'box_set'],
+      'specs' => ['video_specs', 'hdr', 'audio_subtitles', 'features'],
       'cast' => ['cast_crew'],
       'main' => [
         'tracking_context',
