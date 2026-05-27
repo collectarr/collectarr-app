@@ -66,10 +66,24 @@ class _CollectionShareDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             _ShareOption(
+              icon: Icons.save_alt,
+              label: 'Save CSV to file',
+              subtitle: 'Save spreadsheet file to documents',
+              onTap: () => _saveCsvToFile(context),
+            ),
+            const SizedBox(height: 8),
+            _ShareOption(
               icon: Icons.data_object,
               label: 'Copy as JSON',
               subtitle: 'Structured data for import/export',
               onTap: () => _copyAsJson(context),
+            ),
+            const SizedBox(height: 8),
+            _ShareOption(
+              icon: Icons.save_alt,
+              label: 'Save JSON to file',
+              subtitle: 'Save structured data file to documents',
+              onTap: () => _saveJsonToFile(context),
             ),
             const SizedBox(height: 8),
             _ShareOption(
@@ -146,6 +160,60 @@ class _CollectionShareDialog extends StatelessWidget {
       const SnackBar(content: Text('Copied as JSON')),
     );
     Navigator.pop(context);
+  }
+
+  Future<void> _saveCsvToFile(BuildContext context) async {
+    final rows = <List<String>>[
+      ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
+      ...items.map((item) => [
+            item.title,
+            item.itemNumber ?? '',
+            item.series?.seriesTitle ?? '',
+            item.publisher ?? '',
+            item.condition ?? '',
+            item.barcode ?? '',
+          ]),
+    ];
+    final csv = const CsvEncoder().convert(rows);
+    await _saveToFile(context, csv, 'csv');
+  }
+
+  Future<void> _saveJsonToFile(BuildContext context) async {
+    final data = items
+        .map((item) => {
+              'title': item.title,
+              if (item.itemNumber != null) 'issue': item.itemNumber,
+              if (item.series?.seriesTitle != null)
+                'series': item.series!.seriesTitle,
+              if (item.publisher != null) 'publisher': item.publisher,
+              if (item.condition != null) 'condition': item.condition,
+              if (item.barcode != null) 'barcode': item.barcode,
+            })
+        .toList();
+    final json = const JsonEncoder.withIndent('  ').convert(data);
+    await _saveToFile(context, json, 'json');
+  }
+
+  Future<void> _saveToFile(
+      BuildContext context, String content, String ext) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
+      final file = File('${dir.path}/${safeTitle}_collection.$ext');
+      await file.writeAsString(content);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Saved to ${file.path}')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Save failed: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _exportAsHtml(BuildContext context) async {

@@ -68,6 +68,7 @@ import 'package:collectarr_app/features/library/workspace/library_series_sidebar
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';

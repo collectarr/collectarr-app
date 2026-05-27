@@ -205,10 +205,15 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
       projection.filteredItems,
       _selection.itemIds,
     );
+    final prefill = await PrefillDefaults.load();
     await bulkActions().moveSelectedToOwned(
       entries,
-      defaultCondition: widget.type.defaultCondition,
-      defaultGrade: widget.type.defaultGrade,
+      defaultCondition: prefill.condition ?? widget.type.defaultCondition,
+      defaultGrade: prefill.grade ?? widget.type.defaultGrade,
+      defaultLocationId: prefill.locationId,
+      defaultStorageBox: prefill.legacyStorageBox,
+      defaultReadStatus: prefill.readStatus,
+      defaultTags: prefill.tags,
     );
     _rebuild(() => _selection = _selection.clear());
     ref.invalidate(shelfProvider);

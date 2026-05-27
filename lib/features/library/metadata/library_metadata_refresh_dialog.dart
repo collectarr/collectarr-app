@@ -9,7 +9,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _maxRefreshTargets = 25;
+const _maxRefreshTargets = 100;
 
 class LibraryMetadataRefreshResult {
   const LibraryMetadataRefreshResult({

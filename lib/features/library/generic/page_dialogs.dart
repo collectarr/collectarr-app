@@ -200,6 +200,7 @@ extension _LibraryPageDialogs on _LibraryPageState {
   void printReportFlow(LibraryProjection projection) {
     final items = projection.filteredItems.map((i) => i.entry).toList();
     printCollectionReport(
+      context: context,
       title: widget.type.workspace.title,
       items: items,
     );

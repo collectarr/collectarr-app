@@ -34,6 +34,7 @@ const booksLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.publisher,
     LibraryGroupMode.series,
     LibraryGroupMode.year,
+    LibraryGroupMode.creator,
     LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,

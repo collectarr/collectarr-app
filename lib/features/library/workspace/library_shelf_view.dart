@@ -92,14 +92,16 @@ class _ShelfRow<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const shelfThickness = 6.0;
-    const shelfShadow = 10.0;
+    const shelfThickness = 8.0;
+    const shelfShadow = 12.0;
+    const shelfOverhang = 8.0;
     final shelfColor = HSLColor.fromColor(kAppPanel).withLightness(0.18).toColor();
+    final shelfHighlight = HSLColor.fromColor(kAppPanel).withLightness(0.24).toColor();
     return SizedBox(
       height: shelfHeight + shelfThickness + shelfShadow,
       child: Stack(
         children: [
-          // Shelf plank
+          // Shelf plank with wood-like gradient
           Positioned(
             left: 0,
             right: 0,
@@ -107,21 +109,43 @@ class _ShelfRow<T> extends StatelessWidget {
             height: shelfThickness,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: shelfColor,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [shelfHighlight, shelfColor, shelfColor],
+                  stops: const [0.0, 0.3, 1.0],
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    color: Colors.black.withValues(alpha: 0.6),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
                   ),
                 ],
               ),
             ),
           ),
+          // Shelf front lip
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: shelfShadow + shelfThickness - 1,
+            height: 1,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
           // Books
           Positioned(
-            left: 12,
-            right: 12,
+            left: shelfOverhang,
+            right: shelfOverhang,
             bottom: shelfThickness + shelfShadow,
             height: shelfHeight,
             child: Row(
@@ -148,51 +172,110 @@ class _ShelfRow<T> extends StatelessWidget {
       onSecondaryTapUp: onSecondaryTapUp != null
           ? (d) => onSecondaryTapUp!(item, d)
           : null,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-              width: bookW,
-              height: bookHeight,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(3),
-                  topRight: Radius.circular(3),
-                ),
-                border: selected
-                    ? Border.all(color: accent, width: 2)
-                    : null,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    blurRadius: 4,
-                    offset: const Offset(2, 2),
+      child: Tooltip(
+        message: entry.resolvedTitle,
+        waitDuration: const Duration(milliseconds: 400),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 1),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: bookW,
+                height: bookHeight,
+                transformAlignment: Alignment.bottomCenter,
+                transform: selected
+                    ? (Matrix4.identity()..setTranslationRaw(0.0, -6.0, 0.0))
+                    : Matrix4.identity(),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(3),
+                    topRight: Radius.circular(3),
                   ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: coverUrl != null
-                  ? LibraryCoverImage(
-                      title: entry.resolvedTitle,
-                      imageUrl: coverUrl,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      color: kAppPanelRaised,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(4),
-                      child: Text(
-                        entry.resolvedTitle,
-                        textAlign: TextAlign.center,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 9),
+                  border: selected
+                      ? Border.all(color: accent, width: 2)
+                      : null,
+                  boxShadow: [
+                    // Main drop shadow
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: selected ? 0.7 : 0.45),
+                      blurRadius: selected ? 10 : 5,
+                      offset: Offset(selected ? 3 : 2, selected ? 4 : 2),
+                    ),
+                    // Subtle inner glow on left (spine highlight)
+                    BoxShadow(
+                      color: Colors.white.withValues(alpha: 0.06),
+                      blurRadius: 1,
+                      offset: const Offset(-1, 0),
+                    ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Cover or fallback
+                    if (coverUrl != null)
+                      LibraryCoverImage(
+                        title: entry.resolvedTitle,
+                        imageUrl: coverUrl,
+                        fit: BoxFit.cover,
+                      )
+                    else
+                      Container(
+                        color: kAppPanelRaised,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
+                          entry.resolvedTitle,
+                          textAlign: TextAlign.center,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 9),
+                        ),
+                      ),
+                    // Spine edge gradient (left side)
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: 6,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.black.withValues(alpha: 0.25),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-            ),
-          ],
+                    // Top edge highlight
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      height: 2,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.white.withValues(alpha: 0.12),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

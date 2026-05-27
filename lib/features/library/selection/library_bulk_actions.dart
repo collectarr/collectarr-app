@@ -51,6 +51,10 @@ class LibraryBulkActions {
     List<ShelfEntry> entries, {
     String? defaultCondition,
     String? defaultGrade,
+    String? defaultLocationId,
+    String? defaultStorageBox,
+    String? defaultReadStatus,
+    String? defaultTags,
   }) async {
     final entriesToOwn = [
       for (final entry in entries)
@@ -71,6 +75,10 @@ class LibraryBulkActions {
         bundleReleaseId: anchor.bundleReleaseId,
         condition: defaultCondition,
         grade: defaultGrade,
+        locationId: defaultLocationId,
+        storageBox: defaultStorageBox,
+        readStatus: defaultReadStatus,
+        tags: defaultTags,
         notify:
             index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
       );

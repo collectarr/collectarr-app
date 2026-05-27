@@ -22,6 +22,13 @@ enum LibraryGroupMode {
   // ── Cast & Crew ──
   director,
   creator,
+  writer,
+  artist,
+  penciller,
+  colorist,
+  letterer,
+  coverArtist,
+  editor,
   // ── Personal ──
   location,
   ownership,

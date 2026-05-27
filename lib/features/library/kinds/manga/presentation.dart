@@ -32,6 +32,8 @@ const mangaLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
     LibraryGroupMode.year,
+    LibraryGroupMode.writer,
+    LibraryGroupMode.artist,
     LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,
