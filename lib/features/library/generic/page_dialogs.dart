@@ -10,10 +10,9 @@ extension _LibraryPageDialogs on _LibraryPageState {
     if (!mounted) {
       return;
     }
-    final allEntries = projection?.allItems
-            .map((i) => i.entry)
-            .toList(growable: false) ??
-        const [];
+    final allEntries =
+        projection?.allItems.map((i) => i.entry).toList(growable: false) ??
+            const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
       customFieldDefinitions: customFieldDefinitions,
@@ -45,9 +44,8 @@ extension _LibraryPageDialogs on _LibraryPageState {
       currentSortRules: _viewState?.sortRules,
       currentSortColumn: _viewState?.sortColumn,
       currentSortAscending: _viewState?.sortAscending,
-      currentSearchQuery: _searchController.text.isNotEmpty
-          ? _searchController.text
-          : null,
+      currentSearchQuery:
+          _searchController.text.isNotEmpty ? _searchController.text : null,
       customFieldDefinitions: customFieldDefinitions,
     );
     if (result != null && mounted) {
@@ -171,6 +169,7 @@ extension _LibraryPageDialogs on _LibraryPageState {
     if (selected != null) {
       _updateViewState((state) => state.copyWith(visibleColumns: selected));
     }
+    await _loadColumnFavoritePresets();
   }
 
   Future<void> showMetadataRefreshFlow(

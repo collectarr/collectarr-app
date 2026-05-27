@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
@@ -23,8 +24,10 @@ class LibrarySidebar extends StatelessWidget {
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
+    this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
+    this.seriesStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
     this.hasActiveFilters = false,
     this.onEditFilters,
@@ -49,8 +52,10 @@ class LibrarySidebar extends StatelessWidget {
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
+  final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
+  final LibrarySeriesStatusSummary? seriesStatusSummary;
   final LibraryFilterSelection filterSelection;
   final bool hasActiveFilters;
   final VoidCallback? onEditFilters;
@@ -89,8 +94,10 @@ class LibrarySidebar extends StatelessWidget {
         searchQuery: searchQuery,
         activeSmartListName: activeSmartListName,
         quickView: quickView,
+        collectionStatusScopeLabel: collectionStatusScopeLabel,
         linkedMetadataFilterLabel: linkedMetadataFilterLabel,
         selectedLetter: selectedLetter,
+        seriesStatusSummary: seriesStatusSummary,
         filterSelection: filterSelection,
         hasActiveFilters: hasActiveFilters,
         onEditFilters: onEditFilters,
@@ -145,7 +152,8 @@ class LibraryCompactBucketBar extends StatelessWidget {
                   : null,
               label: Text(libraryBucketLabel(bucket)),
               selectedColor: accent.withValues(alpha: 0.42),
-              side: BorderSide(color: selected ? accent : appPalette(context).divider),
+              side: BorderSide(
+                  color: selected ? accent : appPalette(context).divider),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             );
           },
@@ -177,8 +185,10 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
+    this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
+    this.seriesStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
     this.hasActiveFilters = false,
     this.onEditFilters,
@@ -202,8 +212,10 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
+  final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
+  final LibrarySeriesStatusSummary? seriesStatusSummary;
   final LibraryFilterSelection filterSelection;
   final bool hasActiveFilters;
   final VoidCallback? onEditFilters;
@@ -261,7 +273,8 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                   icon: const Icon(Icons.menu_open, size: 16),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
                 ),
             ],
           ),
@@ -275,8 +288,8 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                     onTap: () => _showGroupModeMenu(context),
                     borderRadius: BorderRadius.circular(4),
                     child: Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 6),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -310,7 +323,8 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                   icon: const Icon(Icons.arrow_back, size: 16),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
                 )
               else if (!isRootScope)
                 IconButton(
@@ -319,7 +333,8 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                   icon: const Icon(Icons.arrow_back, size: 16),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
                 )
               else
                 IconButton(
@@ -328,50 +343,51 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                   icon: const Icon(Icons.filter_alt_off, size: 16),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
                 ),
             ],
           ),
-            if (breadcrumbs.length > 1) ...[
-              const SizedBox(height: 6),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (var index = 0; index < breadcrumbs.length; index++) ...[
-                      if (index > 0)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 2),
-                          child: Icon(
-                            Icons.chevron_right,
-                            size: 14,
-                            color: appPalette(context).textMuted,
-                          ),
-                        ),
+          if (breadcrumbs.length > 1) ...[
+            const SizedBox(height: 6),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (var index = 0; index < breadcrumbs.length; index++) ...[
+                    if (index > 0)
                       Padding(
-                        padding: const EdgeInsets.only(right: 2),
-                        child: index == breadcrumbs.length - 1
-                            ? Chip(
-                                label: Text(breadcrumbs[index]),
-                                visualDensity: VisualDensity.compact,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                              )
-                            : ActionChip(
-                                label: Text(breadcrumbs[index]),
-                                onPressed: onNavigateToBreadcrumb == null
-                                    ? null
-                                    : () => onNavigateToBreadcrumb!(index),
-                                visualDensity: VisualDensity.compact,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                              ),
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: Icon(
+                          Icons.chevron_right,
+                          size: 14,
+                          color: appPalette(context).textMuted,
+                        ),
                       ),
-                    ],
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2),
+                      child: index == breadcrumbs.length - 1
+                          ? Chip(
+                              label: Text(breadcrumbs[index]),
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                            )
+                          : ActionChip(
+                              label: Text(breadcrumbs[index]),
+                              onPressed: onNavigateToBreadcrumb == null
+                                  ? null
+                                  : () => onNavigateToBreadcrumb!(index),
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                            ),
+                    ),
                   ],
-                ),
+                ],
               ),
-            ],
+            ),
+          ],
           const SizedBox(height: 2),
           Row(
             children: [
@@ -394,19 +410,24 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
               ),
             ],
           ),
-              const SizedBox(height: 8),
-              _SidebarFilteringPanel(
-                type: type,
-                activeSmartListName: activeSmartListName,
-                quickView: quickView,
-                searchQuery: searchQuery,
-                linkedMetadataFilterLabel: linkedMetadataFilterLabel,
-                selectedLetter: selectedLetter,
-                filterSelection: filterSelection,
-                hasActiveFilters: hasActiveFilters,
-                onEditFilters: onEditFilters,
-                onClearFilters: onClearFilters,
-              ),
+          const SizedBox(height: 8),
+          _SidebarFilteringPanel(
+            type: type,
+            activeSmartListName: activeSmartListName,
+            quickView: quickView,
+            collectionStatusScopeLabel: collectionStatusScopeLabel,
+            searchQuery: searchQuery,
+            linkedMetadataFilterLabel: linkedMetadataFilterLabel,
+            selectedLetter: selectedLetter,
+            filterSelection: filterSelection,
+            hasActiveFilters: hasActiveFilters,
+            onEditFilters: onEditFilters,
+            onClearFilters: onClearFilters,
+          ),
+          if (seriesStatusSummary != null) ...[
+            const SizedBox(height: 8),
+            _SidebarSeriesStatusPanel(summary: seriesStatusSummary!),
+          ],
         ],
       ),
     );
@@ -442,8 +463,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
               ),
             ),
           ),
-          for (final mode in pinned)
-            _buildGroupModeItem(mode),
+          for (final mode in pinned) _buildGroupModeItem(mode),
           const PopupMenuDivider(height: 8),
         ],
         for (final category in categories) ...[
@@ -460,8 +480,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
               ),
             ),
           ),
-          for (final mode in category.modes)
-            _buildGroupModeItem(mode),
+          for (final mode in category.modes) _buildGroupModeItem(mode),
         ],
       ],
     ).then((value) {
@@ -492,8 +511,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
               ),
             ),
           ),
-          if (mode == groupMode)
-            Icon(Icons.check, size: 16, color: accent),
+          if (mode == groupMode) Icon(Icons.check, size: 16, color: accent),
           if (onTogglePin != null) ...[
             const SizedBox(width: 4),
             GestureDetector(
@@ -560,6 +578,7 @@ class _SidebarFilteringPanel extends StatelessWidget {
     required this.type,
     this.activeSmartListName,
     this.quickView,
+    this.collectionStatusScopeLabel,
     this.searchQuery,
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
@@ -572,6 +591,7 @@ class _SidebarFilteringPanel extends StatelessWidget {
   final LibraryTypeConfig type;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
+  final String? collectionStatusScopeLabel;
   final String? searchQuery;
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
@@ -592,6 +612,11 @@ class _SidebarFilteringPanel extends StatelessWidget {
         _SidebarFilterChip(
           icon: quickView!.icon,
           label: quickView!.label,
+        ),
+      if (collectionStatusScopeLabel != null)
+        _SidebarFilterChip(
+          icon: Icons.inventory_2_outlined,
+          label: collectionStatusScopeLabel!,
         ),
       if (searchQuery != null && searchQuery!.trim().isNotEmpty)
         _SidebarFilterChip(
@@ -707,6 +732,108 @@ class _SidebarFilterChip extends StatelessWidget {
       label: Text(label),
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+  }
+}
+
+class _SidebarSeriesStatusPanel extends StatelessWidget {
+  const _SidebarSeriesStatusPanel({required this.summary});
+
+  final LibrarySeriesStatusSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final chips = <Widget>[
+      _SidebarFilterChip(
+        icon: Icons.library_books_outlined,
+        label: '${summary.totalCount} total',
+      ),
+      if (summary.ownedCount > 0)
+        _SidebarFilterChip(
+          icon: Icons.inventory_2_outlined,
+          label: '${summary.ownedCount} owned',
+        ),
+      if (summary.wishlistCount > 0)
+        _SidebarFilterChip(
+          icon: Icons.star_border,
+          label: '${summary.wishlistCount} wish list',
+        ),
+      if (summary.forSaleCount > 0)
+        _SidebarFilterChip(
+          icon: Icons.sell_outlined,
+          label: '${summary.forSaleCount} for sale',
+        ),
+      if (summary.onOrderCount > 0)
+        _SidebarFilterChip(
+          icon: Icons.local_shipping_outlined,
+          label: '${summary.onOrderCount} on order',
+        ),
+      if (summary.soldCount > 0)
+        _SidebarFilterChip(
+          icon: Icons.paid_outlined,
+          label: '${summary.soldCount} sold',
+        ),
+      if (summary.catalogOnlyCount > 0)
+        _SidebarFilterChip(
+          icon: Icons.hide_source_outlined,
+          label: '${summary.catalogOnlyCount} not in collection',
+        ),
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: appPalette(context).panel.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: appPalette(context).divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.monitor_heart_outlined,
+                size: 15,
+                color: appPalette(context).textMuted,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Series status',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            summary.title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: appPalette(context).textMuted,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: chips,
+          ),
+          if (summary.missingIssueSummary != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Missing issues: ${summary.missingIssueSummary}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: appPalette(context).textMuted,
+                  ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

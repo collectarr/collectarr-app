@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_media_field_label
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
@@ -149,13 +150,15 @@ class LibraryProjection {
     required String? selectedBucket,
     required String? selectedItemId,
     required LibraryQuickView? quickView,
+    LibraryCollectionStatusScope collectionStatusScope =
+        LibraryCollectionStatusScope.all,
     required LibraryGroupMode groupMode,
     List<LibrarySeriesBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
-      const {},
+        const {},
     Set<String> activeLoanOwnedItemIds = const {},
   }) {
     final allItems = libraryItemsForShelf(shelf, type);
@@ -164,6 +167,7 @@ class LibraryProjection {
       for (final item in allItems)
         if (_matchesBucket(item, type, groupMode, selectedBucket) &&
             _matchesConstrainedItemIds(item, constrainedItemIds) &&
+            _matchesCollectionStatusScope(item, collectionStatusScope) &&
             _matchesQuickView(item, quickView) &&
             _matchesFilter(
               item,
@@ -304,7 +308,8 @@ LibraryProjectionItem? librarySelectedItem(
   return null;
 }
 
-String genericBucketForItem(LibraryProjectionItem item, LibraryTypeConfig type) {
+String genericBucketForItem(
+    LibraryProjectionItem item, LibraryTypeConfig type) {
   return genericBucketForItemMode(
     item,
     type,
@@ -336,9 +341,8 @@ String genericBucketForItemMode(
     LibraryGroupMode.language => entry.language?.trim().isNotEmpty == true
         ? entry.language!
         : 'Unknown language',
-    LibraryGroupMode.ageRating => entry.ageRating?.trim().isNotEmpty == true
-        ? entry.ageRating!
-        : 'Unrated',
+    LibraryGroupMode.ageRating =>
+      entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
     LibraryGroupMode.format => _editionFormatBucket(entry),
     LibraryGroupMode.director => _creatorBucketByRole(entry, 'director'),
     LibraryGroupMode.creator => _creatorBucketByRole(entry, null),
@@ -358,12 +362,15 @@ String genericBucketForItemMode(
     LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
     LibraryGroupMode.grade =>
       entry.grade?.trim().isNotEmpty == true ? entry.grade! : 'Ungraded',
-    LibraryGroupMode.condition =>
-      entry.condition?.trim().isNotEmpty == true
-          ? entry.condition!
-          : 'No condition',
+    LibraryGroupMode.condition => entry.condition?.trim().isNotEmpty == true
+        ? entry.condition!
+        : 'No condition',
     LibraryGroupMode.tags => _firstOrDefault(
-        entry.tags?.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList(),
+        entry.tags
+            ?.split(',')
+            .map((t) => t.trim())
+            .where((t) => t.isNotEmpty)
+            .toList(),
         'No tags',
       ),
   };
@@ -438,7 +445,8 @@ bool _matchesConstrainedItemIds(
       constrainedItemIds.contains(item.entry.id);
 }
 
-bool _matchesQuickView(LibraryProjectionItem item, LibraryQuickView? quickView) {
+bool _matchesQuickView(
+    LibraryProjectionItem item, LibraryQuickView? quickView) {
   return switch (quickView) {
     null => true,
     LibraryQuickView.owned => item.entry.isOwned,
@@ -447,6 +455,31 @@ bool _matchesQuickView(LibraryProjectionItem item, LibraryQuickView? quickView) 
     LibraryQuickView.missingMetadata => item.entry.hasMissingMetadata,
     LibraryQuickView.missingGrade => item.entry.isOwned &&
         (item.entry.grade == null || item.entry.grade!.trim().isEmpty),
+  };
+}
+
+bool _matchesCollectionStatusScope(
+  LibraryProjectionItem item,
+  LibraryCollectionStatusScope scope,
+) {
+  final ownedItem = item.source.ownedItem;
+  final isSold = ownedItem?.isSold == true;
+  final collectionStatus = item.entry.collectionStatus?.trim().toLowerCase();
+  final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
+  final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
+  final isForSale = !isSold && collectionStatus == 'for_sale';
+  final isOnOrder = !isSold && collectionStatus == 'on_order';
+  final isInCollection =
+      item.source.isOwned && !isSold && !isForSale && !isOnOrder;
+
+  return switch (scope) {
+    LibraryCollectionStatusScope.all => true,
+    LibraryCollectionStatusScope.inCollection => isInCollection,
+    LibraryCollectionStatusScope.forSale => isForSale,
+    LibraryCollectionStatusScope.wishList => isWishlistOnly,
+    LibraryCollectionStatusScope.onOrder => isOnOrder,
+    LibraryCollectionStatusScope.sold => isSold,
+    LibraryCollectionStatusScope.notInCollection => isCatalogOnly,
   };
 }
 
@@ -468,7 +501,8 @@ bool _matchesFilter(
   )) {
     return false;
   }
-  if (!_matchesLoanFilter(item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
+  if (!_matchesLoanFilter(
+      item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
     return false;
   }
   if (!_matchesDateRange(item, filters)) {
@@ -565,8 +599,10 @@ DateTime? _filterDateForItem(
   return switch (field) {
     LibraryDateRangeField.updated => item.source.updatedAt,
     LibraryDateRangeField.purchased => ownedItem?.purchaseDate,
-    LibraryDateRangeField.started => trackingEntry?.startedAt ?? ownedItem?.startedAt,
-    LibraryDateRangeField.finished => trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
+    LibraryDateRangeField.started =>
+      trackingEntry?.startedAt ?? ownedItem?.startedAt,
+    LibraryDateRangeField.finished =>
+      trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
   };
 }
 

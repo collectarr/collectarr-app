@@ -4,6 +4,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -49,9 +50,12 @@ class LibraryBody extends StatelessWidget {
     this.searchQuery,
     this.activeSmartListName,
     this.quickView,
+    this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.sidebarSelectedLetter,
+    this.seriesStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
+    this.preferToolbarAlphabet = false,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
@@ -104,9 +108,12 @@ class LibraryBody extends StatelessWidget {
   final String? searchQuery;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
+  final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? sidebarSelectedLetter;
+  final LibrarySeriesStatusSummary? seriesStatusSummary;
   final LibraryFilterSelection filterSelection;
+  final bool preferToolbarAlphabet;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
@@ -223,7 +230,9 @@ class LibraryBody extends StatelessWidget {
 
         final workspaceContent = Column(
           children: [
-            if (workspaceOverride == null && !showSidebar && projection.buckets.length > 1)
+            if (workspaceOverride == null &&
+                !showSidebar &&
+                projection.buckets.length > 1)
               LibraryCompactBucketBar(
                 type: type,
                 accent: accent,
@@ -233,7 +242,9 @@ class LibraryBody extends StatelessWidget {
                   bucket == genericAllBucketLabel(type) ? null : bucket,
                 ),
               ),
-            if (workspaceOverride == null && onLetterSelected != null)
+            if (workspaceOverride == null &&
+                onLetterSelected != null &&
+                (!preferToolbarAlphabet || compact))
               LibraryAlphaJumpBar(
                 availableLetters: availableLetters,
                 selectedLetter: selectedLetter,
@@ -269,8 +280,10 @@ class LibraryBody extends StatelessWidget {
                     searchQuery: searchQuery,
                     activeSmartListName: activeSmartListName,
                     quickView: quickView,
+                    collectionStatusScopeLabel: collectionStatusScopeLabel,
                     linkedMetadataFilterLabel: linkedMetadataFilterLabel,
                     selectedLetter: sidebarSelectedLetter,
+                    seriesStatusSummary: seriesStatusSummary,
                     filterSelection: filterSelection,
                     hasActiveFilters: hasActiveFilter,
                     onEditFilters: onEditFilters,
