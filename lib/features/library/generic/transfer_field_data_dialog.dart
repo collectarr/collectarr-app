@@ -201,37 +201,41 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         ));
       } else {
         var updated = tgt.writeTo(item, newTargetValue);
-        // Clear source if mode is Move.
-        if (_mode == TransferMode.move && !src.isCustomField) {
-          updated = src.writeTo(updated, null);
-        }
+        // When moving between built-in fields, clear the source inline.
+        // OwnedItem.copyWith uses ?? so writeTo(item, null) can't null out
+        // a field — we pass null directly to updateItem instead.
+        final clearSrc = _mode == TransferMode.move && !src.isCustomField;
+        T? clr<T>(String key, T? value) =>
+            clearSrc && src.key == key ? null : value;
         await widget.mutations.updateItem(
           item,
-          condition: updated.condition,
-          grade: updated.grade,
-          personalNotes: updated.personalNotes,
-          storageBox: updated.storageBox,
-          tags: updated.tags,
-          currency: updated.currency,
-          rawOrSlabbed: updated.rawOrSlabbed,
-          gradingCompany: updated.gradingCompany,
-          graderNotes: updated.graderNotes,
-          signedBy: updated.signedBy,
-          keyReason: updated.keyReason,
-          readStatus: updated.readStatus,
-          soldTo: updated.soldTo,
-          features: updated.features,
-          pricePaidCents: updated.pricePaidCents,
-          coverPriceCents: updated.coverPriceCents,
-          sellPriceCents: updated.sellPriceCents,
-          quantity: updated.quantity,
-          indexNumber: updated.indexNumber,
-          rating: updated.rating,
-          purchaseDate: updated.purchaseDate,
-          startedAt: updated.startedAt,
-          finishedAt: updated.finishedAt,
-          soldAt: updated.soldAt,
-          keyComic: updated.keyComic,
+          condition: clr('condition', updated.condition),
+          grade: clr('grade', updated.grade),
+          personalNotes: clr('personalNotes', updated.personalNotes),
+          storageBox: clr('storageBox', updated.storageBox),
+          tags: clr('tags', updated.tags),
+          currency: clr('currency', updated.currency),
+          rawOrSlabbed: clr('rawOrSlabbed', updated.rawOrSlabbed),
+          gradingCompany: clr('gradingCompany', updated.gradingCompany),
+          graderNotes: clr('graderNotes', updated.graderNotes),
+          signedBy: clr('signedBy', updated.signedBy),
+          keyReason: clr('keyReason', updated.keyReason),
+          readStatus: clr('readStatus', updated.readStatus),
+          soldTo: clr('soldTo', updated.soldTo),
+          features: clr('features', updated.features),
+          pricePaidCents: clr('pricePaidCents', updated.pricePaidCents),
+          coverPriceCents: clr('coverPriceCents', updated.coverPriceCents),
+          sellPriceCents: clr('sellPriceCents', updated.sellPriceCents),
+          quantity: clr('quantity', updated.quantity),
+          indexNumber: clr('indexNumber', updated.indexNumber),
+          rating: clr('rating', updated.rating),
+          purchaseDate: clr('purchaseDate', updated.purchaseDate),
+          startedAt: clr('startedAt', updated.startedAt),
+          finishedAt: clr('finishedAt', updated.finishedAt),
+          soldAt: clr('soldAt', updated.soldAt),
+          keyComic: clr('keyComic', updated.keyComic),
+          purchaseStore: clr('purchaseStore', updated.purchaseStore),
+          boxSetName: clr('boxSetName', updated.boxSetName),
           notify: isLast,
         );
         // Clear source custom field when moving from custom → built-in.
