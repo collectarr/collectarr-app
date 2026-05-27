@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/collection/repositories/user_metadata_ov
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -80,6 +81,8 @@ class SyncService {
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
     final customEpisodes = <CustomEpisode>[];
+    final pickListUpserts = <Map<String, dynamic>>[];
+    final pickListDeletes = <String>[];
     // Collect image data from snapshots keyed by item ID.
     final imageDataByItemId = <String, String>{};
     for (final entity in entities) {
@@ -116,6 +119,16 @@ class SyncService {
       if (type == 'custom_episode') {
         customEpisodes.add(_customEpisodeFromEntity(entity));
       }
+      if (type == 'pick_list_value') {
+        if (entity['action'] == 'delete') {
+          pickListDeletes.add(entity['entity_id'] as String);
+        } else {
+          pickListUpserts.add({
+            'id': entity['entity_id'] as String,
+            ..._payload(entity),
+          });
+        }
+      }
     }
     await db.transaction(() async {
       await catalog.upsertAll(catalogSnapshots);
@@ -134,6 +147,9 @@ class SyncService {
       }
       if (customEpisodes.isNotEmpty) {
         await CustomEpisodesCacheRepository(db).upsertAll(customEpisodes);
+      }
+      if (pickListUpserts.isNotEmpty || pickListDeletes.isNotEmpty) {
+        await _applyPickListValues(pickListUpserts, pickListDeletes);
       }
       for (final locationId in locationDeletes) {
         await locations.applySyncedDelete(locationId);
@@ -160,6 +176,28 @@ class SyncService {
           imageData: entry.value,
         );
       }
+    }
+  }
+
+  Future<void> _applyPickListValues(
+    List<Map<String, dynamic>> upserts,
+    List<String> deletes,
+  ) async {
+    for (final data in upserts) {
+      await db.into(db.pickListValuesCache).insertOnConflictUpdate(
+            PickListValuesCacheCompanion.insert(
+              id: data['id'] as String,
+              listName: data['list_name'] as String,
+              mediaKind: Value(data['media_kind'] as String?),
+              value: data['value'] as String,
+              sortOrder: Value(data['sort_order'] as int? ?? 0),
+            ),
+          );
+    }
+    for (final id in deletes) {
+      await (db.delete(db.pickListValuesCache)
+            ..where((t) => t.id.equals(id)))
+          .go();
     }
   }
 
