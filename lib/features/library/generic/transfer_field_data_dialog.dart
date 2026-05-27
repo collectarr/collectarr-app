@@ -365,32 +365,38 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                     // Mode
                     Text('Mode', style: theme.textTheme.titleSmall),
                     const SizedBox(height: 4),
-                    ...TransferMode.values.map((m) => RadioListTile<TransferMode>(
-                          title: Text(m.label),
-                          subtitle: Text(m.description),
-                          value: m,
-                          groupValue: _mode,
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                          onChanged: (v) =>
-                              setState(() => _mode = v ?? _mode),
-                        )),
+                    RadioGroup<TransferMode>(
+                      groupValue: _mode,
+                      onChanged: (v) => setState(() { if (v != null) _mode = v; }),
+                      child: Column(
+                        children: TransferMode.values.map((m) => RadioListTile<TransferMode>(
+                              title: Text(m.label),
+                              subtitle: Text(m.description),
+                              value: m,
+                              dense: true,
+                              contentPadding: EdgeInsets.zero,
+                            )).toList(),
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     // Conflict
                     Text('When target already has data',
                         style: theme.textTheme.titleSmall),
                     const SizedBox(height: 4),
-                    ...TransferConflict.values.map(
-                        (c) => RadioListTile<TransferConflict>(
-                              title: Text(c.label),
-                              subtitle: Text(c.description),
-                              value: c,
-                              groupValue: _conflict,
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                              onChanged: (v) =>
-                                  setState(() => _conflict = v ?? _conflict),
-                            )),
+                    RadioGroup<TransferConflict>(
+                      groupValue: _conflict,
+                      onChanged: (v) => setState(() { if (v != null) _conflict = v; }),
+                      child: Column(
+                        children: TransferConflict.values.map(
+                            (c) => RadioListTile<TransferConflict>(
+                                  title: Text(c.label),
+                                  subtitle: Text(c.description),
+                                  value: c,
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                )).toList(),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -438,7 +444,7 @@ class _FieldDropdown extends StatelessWidget {
         border: const OutlineInputBorder(),
         isDense: true,
       ),
-      value: value,
+      initialValue: value,
       isExpanded: true,
       items: [
         for (final f in fields)
