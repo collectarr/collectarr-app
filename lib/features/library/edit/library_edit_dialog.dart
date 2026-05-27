@@ -1371,7 +1371,7 @@ class _LibraryEditDialogState extends ConsumerState<LibraryEditDialog>
           child: Column(
             children: [
               DropdownButtonFormField<String>(
-                value: _collectionStatus,
+                initialValue: _collectionStatus,
                 isExpanded: true,
                 dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kEditMenuBorderRadius,

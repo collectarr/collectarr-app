@@ -415,16 +415,12 @@ class _HeaderActionButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onPressed,
-    this.subtitle,
-    this.iconColor,
   });
 
   final String tooltip;
   final String label;
   final IconData icon;
   final VoidCallback? onPressed;
-  final String? subtitle;
-  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -440,23 +436,8 @@ class _HeaderActionButton extends StatelessWidget {
           backgroundColor: Colors.black.withValues(alpha: 0.12),
           textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
-        icon: Icon(icon, size: 16, color: iconColor),
-        label: subtitle == null
-            ? Text(label)
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(label),
-                  Text(
-                    subtitle!,
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
+        icon: Icon(icon, size: 16),
+        label: Text(label),
       ),
     );
   }
