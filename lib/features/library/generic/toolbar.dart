@@ -41,6 +41,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onEditFilters,
     this.activeFilterCount = 0,
     this.onRandomPick,
+    this.onScanCover,
     this.onDownloadAllCovers,
     this.selectionEnabled = false,
     this.selectedCount = 0,
@@ -82,6 +83,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onEditFilters;
   final int activeFilterCount;
   final VoidCallback? onRandomPick;
+  final VoidCallback? onScanCover;
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final bool selectionEnabled;
@@ -145,6 +147,8 @@ class LibraryToolbar extends StatelessWidget {
                   onAdd: onAdd,
                   onScanBarcode: onScan,
                   onRefreshMetadata: onRefreshMetadata,
+                  onRandomPick: onRandomPick,
+                  onScanCover: onScanCover,
                   addBackgroundColor: accent,
                   addForegroundColor: _toolbarForegroundForAccent(accent),
                 ),

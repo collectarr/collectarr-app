@@ -15,12 +15,14 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
@@ -74,6 +76,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 part 'page_edit_handler.dart';
@@ -116,6 +119,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Set<LibraryGroupMode> _pinnedGroupModes = const {};
   String? _videoShelfDrilldownTitleItemId;
   String? _videoShelfDrilldownReleaseId;
+  String? _activeSmartListId;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
 
@@ -318,6 +322,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                     projection != null && projection.filteredItems.isNotEmpty
                         ? () => pickRandomItemFlow(projection)
                         : null,
+                onScanCover: () => scanCoverFlow(),
                 onDownloadAllCovers: shelfState != null
                     ? () => downloadAllCoversFlow(shelfState)
                     : null,
@@ -379,6 +384,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                   loading: () =>
                       const SkeletonGrid(),
                 ),
+              ),
+              _CollectionTabBar(
+                mediaKind: widget.type.workspace.kind.apiValue,
+                activeSmartListId: _activeSmartListId,
+                onSmartListSelected: _applySmartList,
+                onAllSelected: _clearSmartList,
               ),
             ],
           ),
@@ -664,6 +675,45 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _filterSelection = LibraryFilterSelection.none;
       _searchController.clear();
       _selectionAnchorId = null;
+    });
+  }
+
+  void _applySmartList(SmartList smartList) {
+    setState(() {
+      _activeSmartListId = smartList.id;
+      _filterSelection = smartList.filterSelection;
+      _quickView = smartList.quickView;
+      if (smartList.searchQuery != null) {
+        _searchController.text = smartList.searchQuery!;
+      } else {
+        _searchController.clear();
+      }
+      if (_viewState != null) {
+        if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
+          _viewState = _viewState!.withSortRules(
+            smartList.sortRules!,
+            _adapter.viewProfile,
+          );
+        } else if (smartList.sortColumn != null) {
+          _viewState = _viewState!.copyWith(
+            sortColumn: smartList.sortColumn,
+            sortAscending: smartList.sortAscending ?? true,
+          );
+        }
+      }
+      _selectedBucket = null;
+      _linkedMetadataFilter = null;
+    });
+  }
+
+  void _clearSmartList() {
+    setState(() {
+      _activeSmartListId = null;
+      _filterSelection = LibraryFilterSelection.none;
+      _quickView = null;
+      _searchController.clear();
+      _selectedBucket = null;
+      _linkedMetadataFilter = null;
     });
   }
 
@@ -1096,5 +1146,129 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     } finally {
       _detailHydrationInFlight.remove(itemId);
     }
+  }
+}
+
+/// Excel-style tab bar showing user smart lists as clickable collection tabs.
+class _CollectionTabBar extends ConsumerStatefulWidget {
+  const _CollectionTabBar({
+    required this.mediaKind,
+    required this.activeSmartListId,
+    required this.onSmartListSelected,
+    required this.onAllSelected,
+  });
+
+  final String mediaKind;
+  final String? activeSmartListId;
+  final ValueChanged<SmartList> onSmartListSelected;
+  final VoidCallback onAllSelected;
+
+  @override
+  ConsumerState<_CollectionTabBar> createState() => _CollectionTabBarState();
+}
+
+class _CollectionTabBarState extends ConsumerState<_CollectionTabBar> {
+  List<SmartList> _smartLists = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSmartLists();
+  }
+
+  @override
+  void didUpdateWidget(_CollectionTabBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mediaKind != widget.mediaKind) {
+      _loadSmartLists();
+    }
+  }
+
+  Future<void> _loadSmartLists() async {
+    final db = ref.read(localDatabaseProvider);
+    final repo = SmartListRepository(db);
+    final lists = await repo.getAll(mediaKind: widget.mediaKind);
+    if (mounted) {
+      setState(() => _smartLists = lists);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_smartLists.isEmpty) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final isAllActive = widget.activeSmartListId == null;
+
+    return Container(
+      height: 34,
+      decoration: BoxDecoration(
+        color: kAppCanvas,
+        border: Border(
+          top: BorderSide(color: theme.dividerColor, width: 0.5),
+        ),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            _CollectionTab(
+              label: 'All',
+              isActive: isAllActive,
+              onTap: widget.onAllSelected,
+            ),
+            for (final list in _smartLists)
+              _CollectionTab(
+                label: list.name,
+                isActive: widget.activeSmartListId == list.id,
+                onTap: () => widget.onSmartListSelected(list),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CollectionTab extends StatelessWidget {
+  const _CollectionTab({
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+      child: Material(
+        color: isActive
+            ? theme.colorScheme.primaryContainer
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(6),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                color: isActive
+                    ? theme.colorScheme.onPrimaryContainer
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

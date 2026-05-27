@@ -323,4 +323,111 @@ extension _LibraryPageCollectionActions on _LibraryPageState {
       ),
     );
   }
+
+  Future<void> scanCoverFlow() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1280,
+      maxHeight: 1280,
+      imageQuality: 85,
+    );
+    if (picked == null || !mounted) return;
+
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+
+    // Show a loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final api = ref.read(apiClientProvider);
+      final response = await api.searchByCoverUpload(bytes);
+      if (!mounted) return;
+      Navigator.of(context).pop(); // dismiss loading
+
+      final results = (response['results'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+      final queryPhash = response['query_phash'] as String? ?? '';
+
+      if (results.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No matching covers found.')),
+        );
+        return;
+      }
+
+      await _showCoverScanResults(
+        queryPhash: queryPhash,
+        results: results,
+      );
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop(); // dismiss loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Cover scan failed: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _showCoverScanResults({
+    required String queryPhash,
+    required List<Map<String, dynamic>> results,
+  }) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Cover Matches'),
+        content: SizedBox(
+          width: 400,
+          height: 400,
+          child: ListView.builder(
+            itemCount: results.length,
+            itemBuilder: (context, index) {
+              final match = results[index];
+              final entityType = match['entity_type'] as String? ?? '';
+              final entityId = match['entity_id'] as String? ?? '';
+              final distance = match['hamming_distance'] as int? ?? 0;
+              final publicUrl = match['public_url'] as String?;
+              final confidence = ((64 - distance) / 64 * 100).round();
+
+              return ListTile(
+                leading: publicUrl != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.network(
+                          publicUrl,
+                          width: 40,
+                          height: 56,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              const Icon(Icons.broken_image, size: 40),
+                        ),
+                      )
+                    : const Icon(Icons.image, size: 40),
+                title: Text('$entityType / ${entityId.substring(0, 8)}…'),
+                subtitle: Text('$confidence% match (distance: $distance)'),
+                onTap: () {
+                  Navigator.of(dialogContext).pop();
+                  if (entityType == 'item') {
+                    _selectItem(entityId);
+                  }
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
 }

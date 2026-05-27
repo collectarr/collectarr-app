@@ -702,6 +702,19 @@ class ApiClient {
     return _assetsApi.setImagePrimary(imageId);
   }
 
+  /// Search for visually similar covers by uploading an image.
+  Future<Map<String, dynamic>> searchByCoverUpload(
+    Uint8List imageBytes, {
+    int threshold = 12,
+    int limit = 20,
+  }) async {
+    return _assetsApi.searchByCoverUpload(
+      imageBytes,
+      threshold: threshold,
+      limit: limit,
+    );
+  }
+
   Map<String, dynamic> _resolveImageUrls(Map<String, dynamic> data) {
     return _resolveImageUrlsValue(data) as Map<String, dynamic>;
   }

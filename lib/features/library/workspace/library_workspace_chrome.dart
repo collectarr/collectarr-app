@@ -125,6 +125,8 @@ class LibraryToolbarPrimaryActions extends StatelessWidget {
     required this.onAdd,
     required this.onScanBarcode,
     required this.onRefreshMetadata,
+    this.onRandomPick,
+    this.onScanCover,
     required this.addBackgroundColor,
     required this.addForegroundColor,
   });
@@ -133,6 +135,8 @@ class LibraryToolbarPrimaryActions extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onScanBarcode;
   final VoidCallback onRefreshMetadata;
+  final VoidCallback? onRandomPick;
+  final VoidCallback? onScanCover;
   final Color addBackgroundColor;
   final Color addForegroundColor;
 
@@ -173,6 +177,22 @@ class LibraryToolbarPrimaryActions extends StatelessWidget {
             onPressed: onRefreshMetadata,
           ),
         ),
+        if (onRandomPick != null)
+          Tooltip(
+            message: 'Random pick',
+            child: LibraryWorkspaceIconButton(
+              icon: Icons.casino_outlined,
+              onPressed: onRandomPick!,
+            ),
+          ),
+        if (onScanCover != null)
+          Tooltip(
+            message: 'Scan cover',
+            child: LibraryWorkspaceIconButton(
+              icon: Icons.image_search_outlined,
+              onPressed: onScanCover!,
+            ),
+          ),
       ],
     );
   }
