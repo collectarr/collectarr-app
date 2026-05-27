@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class CompactLibraryToolbar extends StatelessWidget {
@@ -24,6 +25,10 @@ class CompactLibraryToolbar extends StatelessWidget {
     required this.onClearFilters,
     this.onRandomPick,
     this.onDownloadAllCovers,
+    this.onEditConditionPickList,
+    this.onEditGradePickList,
+    this.onEditTagPickList,
+    this.onEditSort,
   });
 
   final LibraryTypeConfig type;
@@ -42,20 +47,35 @@ class CompactLibraryToolbar extends StatelessWidget {
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
   final VoidCallback? onDownloadAllCovers;
+  final VoidCallback? onEditConditionPickList;
+  final VoidCallback? onEditGradePickList;
+  final VoidCallback? onEditTagPickList;
+  final VoidCallback? onEditSort;
 
   @override
   Widget build(BuildContext context) {
     final targetAccent = libraryAccentForKind(type.workspace.kind);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
-      duration: const Duration(milliseconds: 350),
+      duration: kAppAnimNormal,
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final accent = color ?? targetAccent;
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       child: Row(
         children: [
+          Expanded(
+            child: SearchBar(
+              controller: searchController,
+              constraints: const BoxConstraints.tightFor(height: 32),
+              hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+              leading: const Icon(Icons.search),
+              onChanged: onSearchChanged,
+              onSubmitted: onSearchChanged,
+            ),
+          ),
+          const SizedBox(width: 8),
           Tooltip(
             message: 'Add ${type.pluralLabel}',
             child: IconButton.filled(
@@ -65,17 +85,6 @@ class CompactLibraryToolbar extends StatelessWidget {
               ),
               onPressed: onAdd,
               icon: const Icon(Icons.add),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: SearchBar(
-              controller: searchController,
-              constraints: const BoxConstraints.tightFor(height: 32),
-              hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
-              leading: const Icon(Icons.search),
-              onChanged: onSearchChanged,
-              onSubmitted: onSearchChanged,
             ),
           ),
           const SizedBox(width: 8),
@@ -89,6 +98,10 @@ class CompactLibraryToolbar extends StatelessWidget {
             onClearFilters: onClearFilters,
             onRandomPick: onRandomPick,
             onDownloadAllCovers: onDownloadAllCovers,
+            onEditConditionPickList: onEditConditionPickList,
+            onEditGradePickList: onEditGradePickList,
+            onEditTagPickList: onEditTagPickList,
+            onEditSort: onEditSort,
           ),
           Tooltip(
             message: 'Cover size',
@@ -136,7 +149,7 @@ void _showCompactCoverSizeSheet(
         children: [
           ListTile(
             leading: const Icon(Icons.grid_view),
-            title: const Text('Cover view'),
+            title: const Text('Grid view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.grid);
@@ -144,7 +157,7 @@ void _showCompactCoverSizeSheet(
           ),
           ListTile(
             leading: const Icon(Icons.view_module),
-            title: const Text('Card view'),
+            title: const Text('Cards view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.card);
@@ -152,7 +165,7 @@ void _showCompactCoverSizeSheet(
           ),
           ListTile(
             leading: const Icon(Icons.view_agenda),
-            title: const Text('Card flow'),
+            title: const Text('Flow view'),
             onTap: () {
               Navigator.of(context).pop();
               onViewModeChanged(LibraryViewMode.cardFlow);

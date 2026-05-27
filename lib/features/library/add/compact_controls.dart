@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/core/utils/text_utils.dart'
@@ -5,7 +6,7 @@ export 'package:collectarr_app/core/utils/text_utils.dart'
 
 const double kCompactControlHeight = 30;
 const double kCompactMenuItemHeight = 30;
-const Color kCompactMenuBackground = Color(0xFF183246);
+const Color kCompactMenuBackground = kAppBannerInfoBackground;
 const Color kCompactMenuText = Color(0xFFBFEFFF);
 
 /// Derives a dark background tinted by [accent] for popup menus and buttons.

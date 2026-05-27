@@ -3,12 +3,6 @@ import 'package:collectarr_app/features/library/kinds/shared/presentation_suppor
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 const gamesLibraryMediaPresentation = LibraryMediaPresentation(
-  fieldLabels: LibraryMediaFieldLabels(
-    number: 'Version',
-    publisher: 'Publisher / Studio',
-    variant: 'Platform / Edition',
-    barcode: 'UPC / Barcode',
-  ),
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

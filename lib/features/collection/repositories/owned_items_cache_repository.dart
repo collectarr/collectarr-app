@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:drift/drift.dart';
@@ -89,8 +91,11 @@ class OwnedItemsCacheRepository {
     return OwnedItem(
       id: row.id,
       itemId: row.itemId,
+      isDigital: row.isDigital,
+      anchorType: row.anchorType,
       editionId: row.editionId,
       variantId: row.variantId,
+      bundleReleaseId: row.bundleReleaseId,
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
@@ -118,6 +123,19 @@ class OwnedItemsCacheRepository {
       sellPriceCents: row.sellPriceCents,
       soldTo: row.soldTo,
       locationId: row.locationId,
+      features: row.features,
+      hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
+      purchaseStore: row.purchaseStore,
+      boxSetId: row.boxSetId,
+      boxSetName: row.boxSetName,
+      storageDevice: row.storageDevice,
+      storageSlot: row.storageSlot,
+      region: row.region,
+      packaging: row.packaging,
+      distributor: row.distributor,
+      collectionStatus: row.collectionStatus,
+      lastBagBoardDate: row.lastBagBoardDate,
+      marketValueCents: row.marketValueCents,
     );
   }
 
@@ -125,8 +143,11 @@ class OwnedItemsCacheRepository {
     return OwnedItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
+      isDigital: Value(item.isDigital),
+      anchorType: Value(item.anchorType),
       editionId: Value(item.editionId),
       variantId: Value(item.variantId),
+      bundleReleaseId: Value(item.bundleReleaseId),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
@@ -154,6 +175,32 @@ class OwnedItemsCacheRepository {
       sellPriceCents: Value(item.sellPriceCents),
       soldTo: Value(item.soldTo),
       locationId: Value(item.locationId),
+      features: Value(item.features),
+      hdrFormatsJson: Value(
+        item.hdrFormats.isNotEmpty ? jsonEncode(item.hdrFormats) : null,
+      ),
+      purchaseStore: Value(item.purchaseStore),
+      boxSetId: Value(item.boxSetId),
+      boxSetName: Value(item.boxSetName),
+      storageDevice: Value(item.storageDevice),
+      storageSlot: Value(item.storageSlot),
+      region: Value(item.region),
+      packaging: Value(item.packaging),
+      distributor: Value(item.distributor),
+      collectionStatus: Value(item.collectionStatus),
+      lastBagBoardDate: Value(item.lastBagBoardDate),
+      marketValueCents: Value(item.marketValueCents),
     );
+  }
+
+  static List<String>? _decodeStringList(String? json) {
+    if (json == null || json.isEmpty) {
+      return null;
+    }
+    final decoded = jsonDecode(json);
+    if (decoded is! List) {
+      return null;
+    }
+    return decoded.cast<String>().toList(growable: false);
   }
 }

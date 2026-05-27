@@ -114,6 +114,21 @@ class CatalogCacheRepository {
                 imprint: Value(publishing?.imprint),
                 subtitle: Value(publishing?.subtitle),
                 seriesGroup: Value(publishing?.seriesGroup),
+                trailerUrlsJson: Value(
+                  item.trailerUrls.isNotEmpty
+                      ? jsonEncode(
+                          item.trailerUrls
+                              .map((t) => t.toJson())
+                              .toList(growable: false),
+                        )
+                      : null,
+                ),
+                color: Value(video?.color),
+                nrDiscs: Value(video?.nrDiscs),
+                screenRatio: Value(video?.screenRatio),
+                audioTracksJson: Value(video?.audioTracks),
+                subtitlesJson: Value(video?.subtitles),
+                layers: Value(video?.layers),
                 cachedAt: now,
               );
             }()
@@ -214,7 +229,15 @@ class CatalogCacheRepository {
       episodeNumber: row.episodeNumber,
       tags: _decodeStringList(row.seriesTagsJson) ?? const <String>[],
     );
-    final video = VideoCatalogDetails(runtimeMinutes: row.runtimeMinutes);
+    final video = VideoCatalogDetails(
+      runtimeMinutes: row.runtimeMinutes,
+      color: row.color,
+      nrDiscs: row.nrDiscs,
+      screenRatio: row.screenRatio,
+      audioTracks: row.audioTracksJson,
+      subtitles: row.subtitlesJson,
+      layers: row.layers,
+    );
     final tracks = _decodeTracks(row.tracksJson);
     final editions = _decodeEditions(row.editionsJson);
     final rawPlatforms = _decodeStringList(row.platformsJson);
@@ -261,6 +284,7 @@ class CatalogCacheRepository {
       storyArcs: _decodeStringList(row.storyArcsJson),
       rawPlatforms: rawPlatforms,
       genres: _decodeStringList(row.genresJson),
+      trailerUrls: _decodeTrailerUrls(row.trailerUrlsJson),
       country: row.country,
       language: row.language,
       ageRating: row.ageRating,
@@ -284,6 +308,16 @@ class CatalogCacheRepository {
     }
     return decoded
         .map((edition) => CatalogEdition.fromJson(edition))
+        .toList(growable: false);
+  }
+
+  static List<TrailerLink>? _decodeTrailerUrls(String? json) {
+    final decoded = _decodeListOfMaps(json);
+    if (decoded == null) {
+      return null;
+    }
+    return decoded
+        .map((trailer) => TrailerLink.fromJson(trailer))
         .toList(growable: false);
   }
 

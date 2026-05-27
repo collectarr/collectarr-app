@@ -1,12 +1,16 @@
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+
 class TrackingEntry {
-  const TrackingEntry({
+  TrackingEntry({
     required this.id,
     required this.itemId,
     this.ownedItemId,
     this.editionId,
     this.variantId,
-    this.sourceType,
-    this.status,
+    this.bundleReleaseId,
+    Object? sourceType,
+    Object? status,
     this.rating,
     this.startedAt,
     this.finishedAt,
@@ -16,17 +20,21 @@ class TrackingEntry {
     this.notes,
     this.seasonNumber,
     this.episodeNumber,
+    Map<String, int>? episodeRatings,
     required this.updatedAt,
     this.deletedAt,
-  });
+  })  : sourceType = trackingSourceTypeFromValue(sourceType),
+        status = mediaTrackingStatusFromValue(status),
+        episodeRatings = episodeRatings ?? const {};
 
   final String id;
   final String itemId;
   final String? ownedItemId;
   final String? editionId;
   final String? variantId;
-  final String? sourceType;
-  final String? status;
+  final String? bundleReleaseId;
+  final TrackingSourceType? sourceType;
+  final MediaTrackingStatus? status;
   final int? rating;
   final DateTime? startedAt;
   final DateTime? finishedAt;
@@ -36,8 +44,15 @@ class TrackingEntry {
   final String? notes;
   final int? seasonNumber;
   final int? episodeNumber;
+  final Map<String, int> episodeRatings;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+
+  TrackingSourceType? get trackingSource => sourceType;
+
+  String? get sourceTypeApiValue => sourceType?.apiValue;
+
+  String? get statusStorageValue => mediaTrackingStatusToStorageValue(status);
 
   bool get isDeleted => deletedAt != null;
 
@@ -47,8 +62,9 @@ class TrackingEntry {
       'owned_item_id': ownedItemId,
       'edition_id': editionId,
       'variant_id': variantId,
-      'source_type': sourceType,
-      'status': status,
+      'bundle_release_id': bundleReleaseId,
+      'source_type': sourceTypeApiValue,
+      'status': statusStorageValue,
       'rating': rating,
       'started_at': startedAt?.toUtc().toIso8601String(),
       'finished_at': finishedAt?.toUtc().toIso8601String(),
@@ -58,6 +74,7 @@ class TrackingEntry {
       'notes': notes,
       'season_number': seasonNumber,
       'episode_number': episodeNumber,
+      if (episodeRatings.isNotEmpty) 'episode_ratings': episodeRatings,
     };
   }
 
@@ -68,6 +85,7 @@ class TrackingEntry {
       ownedItemId: json['owned_item_id'] as String?,
       editionId: json['edition_id'] as String?,
       variantId: json['variant_id'] as String?,
+      bundleReleaseId: json['bundle_release_id'] as String?,
       sourceType: json['source_type'] as String?,
       status: json['status'] as String?,
       rating: json['rating'] as int?,
@@ -83,6 +101,7 @@ class TrackingEntry {
       notes: json['notes'] as String?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
+      episodeRatings: _parseEpisodeRatings(json['episode_ratings']),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] == null
           ? null
@@ -96,8 +115,9 @@ class TrackingEntry {
     String? ownedItemId,
     String? editionId,
     String? variantId,
-    String? sourceType,
-    String? status,
+    String? bundleReleaseId,
+    Object? sourceType,
+    Object? status,
     int? rating,
     DateTime? startedAt,
     DateTime? finishedAt,
@@ -107,6 +127,7 @@ class TrackingEntry {
     String? notes,
     int? seasonNumber,
     int? episodeNumber,
+    Map<String, int>? episodeRatings,
     DateTime? updatedAt,
     DateTime? deletedAt,
   }) {
@@ -116,8 +137,9 @@ class TrackingEntry {
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
-      sourceType: sourceType ?? this.sourceType,
-      status: status ?? this.status,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      sourceType: trackingSourceTypeFromValue(sourceType) ?? this.sourceType,
+      status: mediaTrackingStatusFromValue(status) ?? this.status,
       rating: rating ?? this.rating,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,
@@ -127,8 +149,22 @@ class TrackingEntry {
       notes: notes ?? this.notes,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
+      episodeRatings: episodeRatings ?? this.episodeRatings,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
     );
   }
+}
+
+Map<String, int> _parseEpisodeRatings(Object? raw) {
+  if (raw is Map) {
+    return {
+      for (final entry in raw.entries)
+        if (entry.key is String && entry.value is int)
+          entry.key as String: entry.value as int
+        else if (entry.key is String && entry.value is num)
+          entry.key as String: (entry.value as num).toInt(),
+    };
+  }
+  return const {};
 }

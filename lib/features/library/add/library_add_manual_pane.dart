@@ -16,6 +16,7 @@ class _ManualPane extends StatelessWidget {
     required this.isAdding,
     required this.onAddOwned,
     required this.onAddWishlist,
+    required this.onAddTrack,
   });
 
   final LibraryTypeConfig type;
@@ -32,10 +33,18 @@ class _ManualPane extends StatelessWidget {
   final bool isAdding;
   final VoidCallback onAddOwned;
   final VoidCallback onAddWishlist;
+  final VoidCallback onAddTrack;
 
   @override
   Widget build(BuildContext context) {
-    final labels = libraryMediaFieldLabels(type);
+    final media = type.mediaFields;
+    final release = type.releaseFields;
+    final copyTypeLabel = ownedCopyTypeLabel(
+      digitalPhysicalMediaFormatFlag(
+        physicalFormatId,
+        formats: physicalFormats,
+      ),
+    );
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: kAppPanelRaised,
@@ -75,7 +84,7 @@ class _ManualPane extends StatelessWidget {
                             controller: numberController,
                             textAlign: TextAlign.center,
                             decoration:
-                                InputDecoration(labelText: labels.number),
+                                InputDecoration(labelText: media.numberLabel),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -97,7 +106,7 @@ class _ManualPane extends StatelessWidget {
                     TextField(
                       controller: publisherController,
                       decoration: InputDecoration(
-                        labelText: labels.publisher,
+                        labelText: media.publisherLabel,
                         prefixIcon: const Icon(Icons.business_outlined),
                       ),
                     ),
@@ -105,7 +114,7 @@ class _ManualPane extends StatelessWidget {
                     TextField(
                       controller: variantController,
                       decoration: InputDecoration(
-                        labelText: labels.variant,
+                        labelText: release.variantLabel,
                         prefixIcon:
                             const Icon(Icons.auto_awesome_motion_outlined),
                       ),
@@ -140,7 +149,7 @@ class _ManualPane extends StatelessWidget {
                       controller: barcodeController,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        labelText: labels.barcode,
+                        labelText: release.barcodeLabel,
                         prefixIcon: const Icon(Icons.qr_code_2),
                       ),
                     ),
@@ -184,9 +193,39 @@ class _ManualPane extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (copyTypeLabel != null) ...[
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Owned copies created from this draft will be saved as $copyTypeLabel.',
+                          style: const TextStyle(
+                            color: kAppTextMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Row(
                       children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: isAdding ? null : onAddTrack,
+                            style: _libraryAddOutlinedButtonStyle(),
+                            icon: const Icon(Icons.visibility_outlined, size: 18),
+                            label: Text(
+                              LibraryAddCopy.addToTargetLabel(
+                                count: 1,
+                                type: type,
+                                target: LibraryAddTarget.track,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: isAdding ? null : onAddWishlist,

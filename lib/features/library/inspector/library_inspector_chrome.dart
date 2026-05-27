@@ -1,26 +1,34 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:flutter/material.dart';
 
 class InspectorBackdrop extends StatelessWidget {
-  const InspectorBackdrop({super.key, required this.entry});
+  const InspectorBackdrop({
+    super.key,
+    required this.entry,
+    this.ownedItem,
+  });
 
   final LibraryWorkspaceEntry entry;
+  final OwnedItem? ownedItem;
 
   @override
   Widget build(BuildContext context) {
+    final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     return Stack(
       fit: StackFit.expand,
       children: [
         Opacity(
           opacity: 0.38,
           child: LibraryCoverImage(
-            title: entry.title,
+            title: entry.resolvedTitle,
             itemNumber: entry.itemNumber,
             imageUrl: entry.displayCoverUrl,
-            ownedItemId: entry.ownedItemId,
+            ownedItemId: ownedItemId,
           ),
         ),
         const DecoratedBox(
@@ -96,6 +104,8 @@ class InspectorActionBar extends StatelessWidget {
                     _GenericInspectorActionButton(
                       tooltip: entry.isOwned
                           ? 'Remove from collection'
+                        : entry.isWishlisted
+                          ? 'Convert wishlist to collection'
                           : 'Add to collection',
                       onPressed: onToggleOwned,
                       icon: entry.isOwned
@@ -142,7 +152,7 @@ class InspectorActionBar extends StatelessWidget {
             const SizedBox(width: 6),
             DecoratedBox(
               decoration: BoxDecoration(
-                color: entry.isOwned ? kAppHighlight : const Color(0xFF2A2A2A),
+                color: entry.isOwned ? kAppHighlight : kAppSurfaceSubtle,
                 border: Border.all(
                   color: entry.isOwned ? kAppHighlight : kAppDivider,
                 ),
@@ -157,15 +167,15 @@ class InspectorActionBar extends StatelessWidget {
                           : Icons.check_box_outline_blank,
                       size: 15,
                       color: entry.isOwned
-                          ? const Color(0xFF141414)
+                        ? kAppCanvas
                           : kAppTextMuted,
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      entry.isOwned ? 'OWNED' : 'LOCAL',
+                      entry.isOwned ? 'OWNED' : 'CATALOG',
                       style: TextStyle(
                         color: entry.isOwned
-                            ? const Color(0xFF141414)
+                            ? kAppCanvas
                             : kAppTextMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,

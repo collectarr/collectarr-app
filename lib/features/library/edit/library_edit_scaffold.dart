@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryEditDialogScaffold extends StatelessWidget {
@@ -12,11 +13,7 @@ class LibraryEditDialogScaffold extends StatelessWidget {
     required this.tabController,
     required this.tabs,
     required this.views,
-    this.footerLabel,
-    this.footerFields = const <Widget>[],
-    required this.onPrevious,
-    required this.onNext,
-    required this.onCancel,
+    required this.onClose,
     required this.onSave,
   });
 
@@ -28,11 +25,7 @@ class LibraryEditDialogScaffold extends StatelessWidget {
   final TabController tabController;
   final List<Widget> tabs;
   final List<Widget> views;
-  final String? footerLabel;
-  final List<Widget> footerFields;
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
-  final VoidCallback onCancel;
+  final VoidCallback onClose;
   final VoidCallback onSave;
 
   @override
@@ -40,13 +33,13 @@ class LibraryEditDialogScaffold extends StatelessWidget {
     return Dialog(
       clipBehavior: Clip.antiAlias,
       child: Theme(
-        data: editDialogTheme(seedColor: accent),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
-          child: DecoratedBox(
+        data: editDialogTheme(seedColor: accent, palette: appPalette(context)),
+        child: Builder(builder: (context) {
+          final p = appPalette(context);
+          return DecoratedBox(
             decoration: BoxDecoration(
-              color: kEditPanel,
-              border: Border.all(color: kEditDivider),
+              color: p.panel,
+              border: Border.all(color: p.divider),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0xCC000000),
@@ -55,55 +48,52 @@ class LibraryEditDialogScaffold extends StatelessWidget {
                 ),
               ],
             ),
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  _LibraryEditTitleBar(
-                    accent: accent,
-                    icon: icon,
-                    title: title,
-                    badges: badges,
-                    onClose: onCancel,
-                  ),
-                  ColoredBox(
-                    color: kEditPanelRaised,
-                    child: TabBar(
-                      controller: tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: kEditTextMuted,
-                      indicatorColor: accent,
-                      dividerColor: kEditDivider,
-                      labelPadding:
-                          const EdgeInsets.symmetric(horizontal: 11),
-                      tabs: tabs,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    _LibraryEditTitleBar(
+                      accent: accent,
+                      icon: icon,
+                      title: title,
+                      badges: badges,
+                      onClose: onClose,
                     ),
-                  ),
-                  Expanded(
-                    child: ColoredBox(
-                      color: kEditPanel,
-                      child: TabBarView(
+                    ColoredBox(
+                      color: p.panelRaised,
+                      child: TabBar(
                         controller: tabController,
-                        children: views,
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        labelColor: p.textPrimary,
+                        unselectedLabelColor: p.textMuted,
+                        indicatorColor: accent,
+                        dividerColor: p.divider,
+                        labelPadding:
+                            const EdgeInsets.symmetric(horizontal: 11),
+                        tabs: tabs,
                       ),
                     ),
-                  ),
-                  _LibraryEditFooter(
-                    footerLabel: footerLabel,
-                    tabController: tabController,
-                    footerFields: footerFields,
-                    onPrevious: onPrevious,
-                    onNext: onNext,
-                    onCancel: onCancel,
-                    onSave: onSave,
-                  ),
-                ],
+                    Expanded(
+                      child: ColoredBox(
+                        color: p.panel,
+                        child: TabBarView(
+                          controller: tabController,
+                          children: views,
+                        ),
+                      ),
+                    ),
+                    _LibraryEditFooter(
+                      onSave: onSave,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
@@ -130,8 +120,8 @@ class _LibraryEditTitleBar extends StatelessWidget {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF343434), Color(0xFF161616)],
+        gradient: LinearGradient(
+          colors: [appPalette(context).surface, appPalette(context).surfaceDim],
         ),
         border: Border(bottom: BorderSide(color: accent)),
       ),
@@ -177,52 +167,25 @@ class _LibraryEditTitleBar extends StatelessWidget {
 }
 
 class _LibraryEditFooter extends StatelessWidget {
-  const _LibraryEditFooter({
-    required this.footerLabel,
-    required this.tabController,
-    required this.footerFields,
-    required this.onPrevious,
-    required this.onNext,
-    required this.onCancel,
-    required this.onSave,
-  });
+  const _LibraryEditFooter({required this.onSave});
 
-  final String? footerLabel;
-  final TabController tabController;
-  final List<Widget> footerFields;
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
-  final VoidCallback onCancel;
   final VoidCallback onSave;
 
   @override
   Widget build(BuildContext context) {
-    final actions = Wrap(
-      alignment: WrapAlignment.end,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        TextButton(
-          onPressed: onCancel,
-          child: const Text('Cancel'),
-        ),
-        FilledButton.icon(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: appPalette(context).toolbar,
+        border: Border(top: BorderSide(color: appPalette(context).divider)),
+      ),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: FilledButton.icon(
           onPressed: onSave,
           icon: const Icon(Icons.save_outlined),
           label: const Text('Save'),
         ),
-      ],
-    );
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: const BoxDecoration(
-        color: kEditToolbar,
-        border: Border(top: BorderSide(color: kEditDivider)),
-      ),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: actions,
       ),
     );
   }

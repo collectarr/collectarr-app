@@ -21,10 +21,42 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install semantic-release
-        run: npm install -g semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github
+      - name: Read Flutter app version
+        id: app_version
+        shell: bash
+        run: |
+          version="$(sed -n 's/^version: //p' pubspec.yaml | cut -d'+' -f1)"
+          if [ -z "$version" ]; then
+            echo "::error title=Missing pubspec version::Could not read version from pubspec.yaml"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Release
+      - name: Preview release version
+        id: semantic_preview
+        uses: cycjimmy/semantic-release-action@v6
+        with:
+          dry_run: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+
+      - name: Verify Flutter app version matches release version
+        if: steps.semantic_preview.outputs.new_release_published == 'true'
+        shell: bash
+        run: |
+          expected="${{ steps.semantic_preview.outputs.new_release_version }}"
+          actual="${{ steps.app_version.outputs.version }}"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error title=pubspec.yaml version mismatch::pubspec.yaml is $actual but semantic-release plans $expected. Update pubspec.yaml before running the release workflow."
+            exit 1
+          fi
+
+      - name: Release
+        if: steps.semantic_preview.outputs.new_release_published == 'true'
+        uses: cycjimmy/semantic-release-action@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: No release needed
+        if: steps.semantic_preview.outputs.new_release_published != 'true'
+        run: echo "No releasable changes detected."

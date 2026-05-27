@@ -55,7 +55,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
                             ),
                       )
                     : DropdownButtonFormField<String>(
-                        value: selectedOwnedItemId,
+                        initialValue: selectedOwnedItemId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Active copy',
@@ -112,7 +112,11 @@ class LibraryDetailActionStrip extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onAddOwned,
                 icon: const Icon(Icons.add_circle_outline),
-                label: const Text('Add to collection'),
+                label: Text(
+                  entry.isWishlisted
+                      ? 'Convert wishlist to collection'
+                      : 'Add to collection',
+                ),
               ),
             OutlinedButton.icon(
               onPressed: entry.isWishlisted ? onRemoveWishlist : onAddWishlist,

@@ -1,4 +1,6 @@
 import 'dart:convert';
+
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
@@ -152,7 +154,13 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     // Validate base64
     try {
       base64Decode(base64Data);
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'item_images',
+        message: 'Failed to decode pasted base64 image data in edit dialog.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Invalid base64 data')),
@@ -253,7 +261,13 @@ class _ImageCard extends StatelessWidget {
         height: 120,
         errorBuilder: (_, __, ___) => _placeholder(),
       );
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'item_images',
+        message: 'Failed to decode item image thumbnail base64 data.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       thumbnail = _placeholder();
     }
     return SizedBox(

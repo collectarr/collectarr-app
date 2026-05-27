@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_view_state.dart';
@@ -7,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   const config = LibraryWorkspaceConfig(
-    kind: 'comic',
+    kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,
     preferencePrefix: 'test.comics',
@@ -90,6 +91,36 @@ void main() {
     expect(toggled.sortAscending, isFalse);
   });
 
+  test('workspace view state preserves trailing multi-sort rules', () {
+    final state = profile.defaults().withSortRules([
+      const LibrarySortRule(
+        column: LibrarySortColumn.publisher,
+        ascending: true,
+      ),
+      const LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: false,
+      ),
+    ], profile);
+
+    final updated = state.withSortColumn(LibrarySortColumn.grade, profile);
+
+    expect(updated.sortRules, [
+      const LibrarySortRule(
+        column: LibrarySortColumn.grade,
+        ascending: true,
+      ),
+      const LibrarySortRule(
+        column: LibrarySortColumn.publisher,
+        ascending: true,
+      ),
+      const LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: false,
+      ),
+    ]);
+  });
+
   test('workspace view state reorders visible table columns', () {
     final state = profile.defaults().copyWith(
       visibleColumns: {
@@ -155,6 +186,16 @@ void main() {
   test('workspace view profile persists through shared preferences', () async {
     final state = profile.defaults().copyWith(
           viewMode: LibraryViewMode.card,
+          sortRules: const [
+            LibrarySortRule(
+              column: LibrarySortColumn.publisher,
+              ascending: true,
+            ),
+            LibrarySortRule(
+              column: LibrarySortColumn.updated,
+              ascending: false,
+            ),
+          ],
           coverSize: 180,
           sidebarWidth: 300,
           detailsWidth: 420,
@@ -164,6 +205,16 @@ void main() {
     final restored = await profile.load();
 
     expect(restored.viewMode, LibraryViewMode.card);
+    expect(restored.sortRules, [
+      const LibrarySortRule(
+        column: LibrarySortColumn.publisher,
+        ascending: true,
+      ),
+      const LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: false,
+      ),
+    ]);
     expect(restored.coverSize, 180);
     expect(restored.sidebarWidth, 300);
     expect(restored.detailsWidth, 420);

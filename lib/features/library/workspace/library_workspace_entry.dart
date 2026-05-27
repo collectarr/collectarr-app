@@ -1,6 +1,7 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 sealed class LibraryWorkspaceEntry {
@@ -8,6 +9,14 @@ sealed class LibraryWorkspaceEntry {
     required this.id,
     required this.mediaType,
     required this.title,
+    this.browseScope = LibraryBrowserScope.title,
+    this.titleItemId,
+    this.releaseId,
+    this.copyId,
+    this.displayTitle,
+    this.localizedTitle,
+    this.originalTitle,
+    this.searchAliases,
     this.ownedItemId,
     this.itemNumber,
     this.synopsis,
@@ -27,9 +36,18 @@ sealed class LibraryWorkspaceEntry {
     this.grade,
     this.rawOrSlabbed,
     this.gradingCompany,
+    this.primaryReferenceLabel,
+    this.referenceScopeLabel,
+    this.referenceFormatLabel,
+    this.referenceEditionId,
+    this.referenceVariantId,
+    this.referenceBundleReleaseId,
     this.keyComic = false,
     this.keyReason,
     this.notes,
+    this.tags,
+    this.collectionStatus,
+    this.lastBagBoardDate,
     this.pricePaidCents,
     this.currency,
     this.storageBox,
@@ -43,12 +61,21 @@ sealed class LibraryWorkspaceEntry {
     this.editions = const <CatalogEdition>[],
     required this.updatedAt,
     this.rawPlatforms,
+    this.trailerUrls = const <TrailerLink>[],
   });
 
   factory LibraryWorkspaceEntry({
     required String id,
     required String mediaType,
     required String title,
+    LibraryBrowserScope browseScope = LibraryBrowserScope.title,
+    String? titleItemId,
+    String? releaseId,
+    String? copyId,
+    String? displayTitle,
+    String? localizedTitle,
+    String? originalTitle,
+    List<String>? searchAliases,
     String? ownedItemId,
     String? itemNumber,
     String? synopsis,
@@ -68,9 +95,18 @@ sealed class LibraryWorkspaceEntry {
     String? grade,
     String? rawOrSlabbed,
     String? gradingCompany,
+    String? primaryReferenceLabel,
+    String? referenceScopeLabel,
+    String? referenceFormatLabel,
+    String? referenceEditionId,
+    String? referenceVariantId,
+    String? referenceBundleReleaseId,
     bool keyComic = false,
     String? keyReason,
     String? notes,
+    String? tags,
+    String? collectionStatus,
+    DateTime? lastBagBoardDate,
     int? pricePaidCents,
     String? currency,
     String? storageBox,
@@ -88,13 +124,22 @@ sealed class LibraryWorkspaceEntry {
     String? ageRating,
     List<CatalogEdition> editions = const <CatalogEdition>[],
     required DateTime updatedAt,
+    List<TrailerLink>? trailerUrls,
   }) {
     final normalizedMediaType = mediaType.trim().toLowerCase();
     final common = _LibraryWorkspaceCommon(
       id: id,
+      browseScope: browseScope,
+      titleItemId: titleItemId,
+      releaseId: releaseId,
+      copyId: copyId,
       ownedItemId: ownedItemId,
       mediaType: normalizedMediaType,
       title: title,
+      displayTitle: displayTitle,
+      localizedTitle: localizedTitle,
+      originalTitle: originalTitle,
+      searchAliases: _copyStringList(searchAliases),
       itemNumber: itemNumber,
       synopsis: synopsis,
       coverImageUrl: coverImageUrl,
@@ -113,9 +158,18 @@ sealed class LibraryWorkspaceEntry {
       grade: grade,
       rawOrSlabbed: rawOrSlabbed,
       gradingCompany: gradingCompany,
+      primaryReferenceLabel: primaryReferenceLabel,
+      referenceScopeLabel: referenceScopeLabel,
+      referenceFormatLabel: referenceFormatLabel,
+      referenceEditionId: referenceEditionId,
+      referenceVariantId: referenceVariantId,
+      referenceBundleReleaseId: referenceBundleReleaseId,
       keyComic: keyComic,
       keyReason: keyReason,
       notes: notes,
+      tags: tags,
+      collectionStatus: collectionStatus,
+      lastBagBoardDate: lastBagBoardDate,
       pricePaidCents: pricePaidCents,
       currency: currency,
       storageBox: storageBox,
@@ -129,6 +183,7 @@ sealed class LibraryWorkspaceEntry {
       editions: _copyEditionList(editions),
       updatedAt: updatedAt,
       rawPlatforms: _copyStringList(game?.platforms),
+      trailerUrls: trailerUrls ?? const <TrailerLink>[],
     );
     series = series == null ? null : _seriesOrNull(series);
     publishing = publishing == null ? null : _publishingOrNull(publishing);
@@ -209,10 +264,108 @@ sealed class LibraryWorkspaceEntry {
     }
   }
 
+  factory LibraryWorkspaceEntry.releaseNode({
+    required String titleItemId,
+    required String mediaType,
+    required String title,
+    required CatalogEdition edition,
+    String? displayTitle,
+    String? localizedTitle,
+    String? originalTitle,
+    List<String>? searchAliases,
+    String? fallbackSynopsis,
+    String? fallbackCoverImageUrl,
+    String? fallbackThumbnailImageUrl,
+    String? fallbackPublisher,
+    int? fallbackReleaseYear,
+    CatalogSeriesDetails? fallbackSeries,
+    CatalogPublishingDetails? fallbackPublishing,
+    VideoCatalogDetails? fallbackVideo,
+    MusicCatalogDetails? fallbackMusic,
+    GameCatalogDetails? fallbackGame,
+    List<Map<String, dynamic>>? fallbackCreators,
+    List<String>? fallbackCharacters,
+    List<String>? fallbackStoryArcs,
+    List<String>? fallbackGenres,
+    String? fallbackCountry,
+    String? fallbackLanguage,
+    String? fallbackAgeRating,
+    bool isOwned = false,
+    bool isWishlisted = false,
+    bool isTracked = false,
+    String? referenceEditionId,
+    String? referenceVariantId,
+    String? referenceBundleReleaseId,
+    List<CatalogEdition> editions = const <CatalogEdition>[],
+    required DateTime updatedAt,
+  }) {
+    CatalogVariant? primaryVariant;
+    for (final variant in edition.variants) {
+      if (variant.isPrimary) {
+        primaryVariant = variant;
+        break;
+      }
+    }
+    primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
+    return LibraryWorkspaceEntry(
+      id: '$titleItemId:release:${edition.id}',
+      browseScope: LibraryBrowserScope.release,
+      titleItemId: titleItemId,
+      releaseId: edition.id,
+      mediaType: mediaType,
+      title: title,
+      displayTitle: displayTitle,
+      localizedTitle: localizedTitle,
+      originalTitle: originalTitle,
+      searchAliases: searchAliases,
+      synopsis: fallbackSynopsis,
+      coverImageUrl: primaryVariant?.coverImageUrl ?? fallbackCoverImageUrl,
+      thumbnailImageUrl: primaryVariant?.thumbnailImageUrl ??
+          primaryVariant?.coverImageUrl ??
+          fallbackThumbnailImageUrl ??
+          fallbackCoverImageUrl,
+      publisher: edition.publisher ?? fallbackPublisher,
+      releaseDate: edition.releaseDate,
+      releaseYear: edition.releaseDate?.year ?? fallbackReleaseYear,
+      barcode: primaryVariant?.barcode ?? edition.upc,
+      variant: primaryVariant?.name ?? edition.title,
+      isOwned: isOwned,
+      isTracked: isTracked,
+      isWishlisted: isWishlisted,
+      referenceFormatLabel:
+          primaryVariant?.physicalFormatLabel ?? edition.physicalFormatLabel,
+      referenceEditionId: referenceEditionId ?? edition.id,
+      referenceVariantId: referenceVariantId ?? primaryVariant?.id,
+      referenceBundleReleaseId: referenceBundleReleaseId,
+      creators: fallbackCreators,
+      characters: fallbackCharacters,
+      storyArcs: fallbackStoryArcs,
+      genres: fallbackGenres,
+      country: fallbackCountry,
+      language: edition.language ?? fallbackLanguage,
+      ageRating: fallbackAgeRating,
+      series: fallbackSeries,
+      publishing: fallbackPublishing,
+      video: fallbackVideo,
+      music: fallbackMusic,
+      game: fallbackGame,
+      editions: editions.isEmpty ? [edition] : editions,
+      updatedAt: updatedAt,
+    );
+  }
+
   final String id;
+  final LibraryBrowserScope browseScope;
+  final String? titleItemId;
+  final String? releaseId;
+  final String? copyId;
   final String? ownedItemId;
   final String mediaType;
   final String title;
+  final String? displayTitle;
+  final String? localizedTitle;
+  final String? originalTitle;
+  final List<String>? searchAliases;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -231,9 +384,18 @@ sealed class LibraryWorkspaceEntry {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? primaryReferenceLabel;
+  final String? referenceScopeLabel;
+  final String? referenceFormatLabel;
+  final String? referenceEditionId;
+  final String? referenceVariantId;
+  final String? referenceBundleReleaseId;
   final bool keyComic;
   final String? keyReason;
   final String? notes;
+  final String? tags;
+  final String? collectionStatus;
+  final DateTime? lastBagBoardDate;
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;
@@ -247,6 +409,27 @@ sealed class LibraryWorkspaceEntry {
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
+  final List<TrailerLink> trailerUrls;
+
+  String get resolvedTitle {
+    final display = displayTitle?.trim();
+    if (display != null && display.isNotEmpty) {
+      return display;
+    }
+    final localized = localizedTitle?.trim();
+    if (localized != null && localized.isNotEmpty) {
+      return localized;
+    }
+    final raw = title.trim();
+    if (raw.isNotEmpty) {
+      return raw;
+    }
+    final original = originalTitle?.trim();
+    if (original != null && original.isNotEmpty) {
+      return original;
+    }
+    return title;
+  }
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
@@ -268,6 +451,14 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
     this.gameDetails,
   }) : super._(
           id: common.id,
+      browseScope: common.browseScope,
+      titleItemId: common.titleItemId,
+      releaseId: common.releaseId,
+      copyId: common.copyId,
+      displayTitle: common.displayTitle,
+      localizedTitle: common.localizedTitle,
+      originalTitle: common.originalTitle,
+      searchAliases: common.searchAliases,
           ownedItemId: common.ownedItemId,
           mediaType: common.mediaType,
           title: common.title,
@@ -289,9 +480,18 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           grade: common.grade,
           rawOrSlabbed: common.rawOrSlabbed,
           gradingCompany: common.gradingCompany,
+          primaryReferenceLabel: common.primaryReferenceLabel,
+          referenceScopeLabel: common.referenceScopeLabel,
+          referenceFormatLabel: common.referenceFormatLabel,
+          referenceEditionId: common.referenceEditionId,
+          referenceVariantId: common.referenceVariantId,
+          referenceBundleReleaseId: common.referenceBundleReleaseId,
           keyComic: common.keyComic,
           keyReason: common.keyReason,
           notes: common.notes,
+          tags: common.tags,
+          collectionStatus: common.collectionStatus,
+          lastBagBoardDate: common.lastBagBoardDate,
           pricePaidCents: common.pricePaidCents,
           currency: common.currency,
           storageBox: common.storageBox,
@@ -305,6 +505,7 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           editions: common.editions,
           updatedAt: common.updatedAt,
           rawPlatforms: common.rawPlatforms,
+          trailerUrls: common.trailerUrls,
         );
 
   final CatalogSeriesDetails? seriesDetails;
@@ -470,9 +671,17 @@ final class GenericWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
 class _LibraryWorkspaceCommon {
   const _LibraryWorkspaceCommon({
     required this.id,
+    required this.browseScope,
+    required this.titleItemId,
+    required this.releaseId,
+    required this.copyId,
     required this.ownedItemId,
     required this.mediaType,
     required this.title,
+    required this.displayTitle,
+    required this.localizedTitle,
+    required this.originalTitle,
+    required this.searchAliases,
     required this.itemNumber,
     required this.synopsis,
     required this.coverImageUrl,
@@ -491,9 +700,18 @@ class _LibraryWorkspaceCommon {
     required this.grade,
     required this.rawOrSlabbed,
     required this.gradingCompany,
+    required this.primaryReferenceLabel,
+    required this.referenceScopeLabel,
+    required this.referenceFormatLabel,
+    required this.referenceEditionId,
+    required this.referenceVariantId,
+    required this.referenceBundleReleaseId,
     required this.keyComic,
     required this.keyReason,
     required this.notes,
+    required this.tags,
+    required this.collectionStatus,
+    required this.lastBagBoardDate,
     required this.pricePaidCents,
     required this.currency,
     required this.storageBox,
@@ -507,12 +725,21 @@ class _LibraryWorkspaceCommon {
     required this.editions,
     required this.updatedAt,
     required this.rawPlatforms,
+    required this.trailerUrls,
   });
 
   final String id;
+  final LibraryBrowserScope browseScope;
+  final String? titleItemId;
+  final String? releaseId;
+  final String? copyId;
   final String? ownedItemId;
   final String mediaType;
   final String title;
+  final String? displayTitle;
+  final String? localizedTitle;
+  final String? originalTitle;
+  final List<String>? searchAliases;
   final String? itemNumber;
   final String? synopsis;
   final String? coverImageUrl;
@@ -531,9 +758,18 @@ class _LibraryWorkspaceCommon {
   final String? grade;
   final String? rawOrSlabbed;
   final String? gradingCompany;
+  final String? primaryReferenceLabel;
+  final String? referenceScopeLabel;
+  final String? referenceFormatLabel;
+  final String? referenceEditionId;
+  final String? referenceVariantId;
+  final String? referenceBundleReleaseId;
   final bool keyComic;
   final String? keyReason;
   final String? notes;
+  final String? tags;
+  final String? collectionStatus;
+  final DateTime? lastBagBoardDate;
   final int? pricePaidCents;
   final String? currency;
   final String? storageBox;
@@ -547,6 +783,7 @@ class _LibraryWorkspaceCommon {
   final List<CatalogEdition> editions;
   final DateTime updatedAt;
   final List<String>? rawPlatforms;
+  final List<TrailerLink> trailerUrls;
 }
 
 CatalogSeriesDetails? _seriesOrNull(CatalogSeriesDetails details) {
@@ -596,9 +833,40 @@ int compareLibraryWorkspaceEntries(
   LibrarySortColumn column,
   bool ascending,
 ) {
-  final result = switch (column) {
+  return compareLibraryWorkspaceEntriesByRules(
+    left,
+    right,
+    [LibrarySortRule(column: column, ascending: ascending)],
+  );
+}
+
+int compareLibraryWorkspaceEntriesByRules(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  Iterable<LibrarySortRule> rules,
+) {
+  for (final rule in rules) {
+    final result = _compareLibraryWorkspaceEntriesByColumn(
+      left,
+      right,
+      rule.column,
+    );
+    if (result != 0) {
+      return rule.ascending ? result : -result;
+    }
+  }
+  return _compareNullableStrings(left.resolvedTitle, right.resolvedTitle);
+}
+
+int _compareLibraryWorkspaceEntriesByColumn(
+  LibraryWorkspaceEntry left,
+  LibraryWorkspaceEntry right,
+  LibrarySortColumn column,
+) {
+  return switch (column) {
     LibrarySortColumn.status => _compareBools(left.isOwned, right.isOwned),
-    LibrarySortColumn.title => _compareNullableStrings(left.title, right.title),
+    LibrarySortColumn.title =>
+      _compareNullableStrings(left.resolvedTitle, right.resolvedTitle),
     LibrarySortColumn.issue =>
       _compareIssueNumbers(left.itemNumber, right.itemNumber),
     LibrarySortColumn.variant =>
@@ -630,10 +898,6 @@ int compareLibraryWorkspaceEntries(
     LibrarySortColumn.imprint =>
       _compareNullableStrings(left.publishing?.imprint, right.publishing?.imprint),
   };
-  if (result != 0) {
-    return ascending ? result : -result;
-  }
-  return _compareNullableStrings(left.title, right.title);
 }
 
 int _compareIssueNumbers(String? left, String? right) {

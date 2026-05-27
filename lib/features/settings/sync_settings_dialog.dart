@@ -50,6 +50,8 @@ const _syncFields = [
   SyncFieldSetting('personal_notes', 'Notes', group: 'Personal'),
   SyncFieldSetting('purchase_date', 'Date Purchased', group: 'Personal'),
   SyncFieldSetting('price_paid', 'Price Paid', group: 'Personal'),
+  SyncFieldSetting('features', 'Features', group: 'Personal'),
+  SyncFieldSetting('hdr_formats', 'HDR Formats', group: 'Personal'),
 ];
 
 const _prefsPrefix = 'collectarr.sync_field_policy.';
@@ -109,7 +111,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: appPalette(context).panel,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
@@ -145,19 +147,19 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: kAppDivider),
+          bottom: BorderSide(color: appPalette(context).divider),
         ),
       ),
       child: Row(
         children: [
           Icon(Icons.sync, color: widget.accent, size: 20),
           const SizedBox(width: 8),
-          const Text(
+          Text(
             'Sync Settings',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const Spacer(),
@@ -215,7 +217,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: kAppDivider),
+          top: BorderSide(color: appPalette(context).divider),
         ),
       ),
       child: Row(
@@ -266,9 +268,9 @@ class _SyncFieldRow extends StatelessWidget {
             width: 160,
             child: Text(
               field.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: Colors.white70,
+                color: appPalette(context).textMuted,
               ),
             ),
           ),
@@ -277,17 +279,17 @@ class _SyncFieldRow extends StatelessWidget {
               height: 28,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: kAppPanelRaised,
+                color: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
-                border: Border.all(color: kAppDivider),
+                border: Border.all(color: appPalette(context).divider),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<SyncFieldPolicy>(
                   value: policy,
                   isExpanded: true,
-                  dropdownColor: kAppPanelRaised,
+                  dropdownColor: appPalette(context).panelRaised,
                   borderRadius: kAppMenuBorderRadius,
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
                   icon: const Icon(Icons.expand_more, size: 16),
                   items: SyncFieldPolicy.values
                       .map((p) => DropdownMenuItem(

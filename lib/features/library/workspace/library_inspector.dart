@@ -1,7 +1,8 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const Color _kDefaultAccent = Color(0xFF10A8D8);
-const Color _kDefaultMutedText = Color(0xFFB8B8B8);
+const Color _kDefaultAccent = kAppAccent;
+const Color _kDefaultMutedText = kAppTextMuted;
 const double _kTwoColumnBreakpoint = 420;
 
 class LibraryInspectorFactData {
@@ -322,9 +323,9 @@ class LibraryInspectorChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final chip = DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF183B44),
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: const Color(0x8837C7E8)),
+        color: kAppSelection,
+        borderRadius: kAppRadiusSmall,
+        border: Border.all(color: kAppAccent.withValues(alpha: 0.53)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),

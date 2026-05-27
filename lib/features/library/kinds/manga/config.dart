@@ -1,14 +1,17 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/shared/edit_presentation_support.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const mangaWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'manga',
+  kind: CatalogMediaKind.manga,
   title: 'Manga',
   icon: Icons.auto_stories,
   preferencePrefix: 'manga',
@@ -40,8 +43,16 @@ const mangaLibraryConfig = LibraryTypeConfig(
     hardcoverMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
-  editDialogBuilder: buildMangaLibraryEditDialog,
+  editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: mangaLibraryMediaPresentation,
+  editPresentation: mangaLibraryEditPresentation,
+  mediaFields: MediaEditFields.print(
+    numberLabel: 'Volume / Chapter',
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Edition / Variant',
+    barcodeLabel: 'ISBN / Barcode',
+  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     contentHierarchy: LibraryContentHierarchy.volumes,

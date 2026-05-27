@@ -1,18 +1,20 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const Color kLibraryFallbackAccent = Color(0xFF10A8D8);
+const Color kLibraryFallbackAccent = kAppAccent;
 
-Color libraryAccentForKind(String kind) {
-  return switch (kind) {
-    'comic' => const Color(0xFF4DBBD5),
-    'manga' => const Color(0xFFE96BA8),
-    'anime' => const Color(0xFF00AFA5),
-    'book' => const Color(0xFF48A868),
-    'game' => const Color(0xFF7C68D8),
-    'boardgame' => const Color(0xFFE0A52B),
-    'movie' => const Color(0xFFE05252),
-    'tv' => const Color(0xFF4E7FE5),
-    'music' => const Color(0xFFE07A2D),
+Color libraryAccentForKind(Object? kind) {
+  return switch (catalogMediaKindFromValue(kind)) {
+    CatalogMediaKind.comic => kAppTopBar,
+    CatalogMediaKind.manga => const Color(0xFFE96BA8),
+    CatalogMediaKind.anime => const Color(0xFF00AFA5),
+    CatalogMediaKind.book => const Color(0xFF48A868),
+    CatalogMediaKind.game => const Color(0xFF7C68D8),
+    CatalogMediaKind.boardgame => const Color(0xFFE0A52B),
+    CatalogMediaKind.movie => const Color(0xFFE05252),
+    CatalogMediaKind.tv => const Color(0xFF4E7FE5),
+    CatalogMediaKind.music => const Color(0xFFE07A2D),
     _ => kLibraryFallbackAccent,
   };
 }
@@ -38,27 +40,30 @@ LinearGradient libraryChromeGradient(
   );
 }
 
-IconData libraryIconForKind(String kind) {
-  return switch (kind) {
-    'anime' => Icons.movie_filter_outlined,
-    'book' => Icons.menu_book_outlined,
-    'boardgame' => Icons.casino_outlined,
-    'comic' => Icons.library_books,
-    'game' => Icons.sports_esports,
-    'manga' => Icons.auto_stories,
-    'movie' => Icons.movie_outlined,
-    'music' => Icons.music_note,
-    'tv' => Icons.tv,
+IconData libraryIconForKind(Object? kind) {
+  return switch (catalogMediaKindFromValue(kind)) {
+    CatalogMediaKind.anime => Icons.movie_filter_outlined,
+    CatalogMediaKind.book => Icons.menu_book_outlined,
+    CatalogMediaKind.boardgame => Icons.casino_outlined,
+    CatalogMediaKind.comic => Icons.library_books,
+    CatalogMediaKind.game => Icons.sports_esports,
+    CatalogMediaKind.manga => Icons.auto_stories,
+    CatalogMediaKind.movie => Icons.movie_outlined,
+    CatalogMediaKind.music => Icons.music_note,
+    CatalogMediaKind.tv => Icons.tv,
     _ => Icons.category_outlined,
   };
 }
 
-String librarySidebarTitleForKind(String kind) {
-  return switch (kind) {
-    'movie' => 'Years',
-    'music' => 'Artists',
-    'manga' || 'anime' || 'tv' => 'Series',
-    'book' || 'game' || 'boardgame' => 'Publishers',
+String librarySidebarTitleForKind(Object? kind) {
+  return switch (catalogMediaKindFromValue(kind)) {
+    CatalogMediaKind.movie => 'Years',
+    CatalogMediaKind.music => 'Artists',
+    CatalogMediaKind.manga || CatalogMediaKind.anime || CatalogMediaKind.tv =>
+      'Series',
+    CatalogMediaKind.book ||
+    CatalogMediaKind.game ||
+    CatalogMediaKind.boardgame => 'Publishers',
     _ => 'Titles',
   };
 }

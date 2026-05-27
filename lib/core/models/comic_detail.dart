@@ -113,7 +113,6 @@ class ComicEdition {
     required this.id,
     required this.title,
     required this.variants,
-    required this.releases,
     this.format,
     this.publisher,
     this.isbn,
@@ -139,7 +138,6 @@ class ComicEdition {
   final String? physicalFormatLabel;
   final Map<String, dynamic>? metadataJson;
   final List<ComicVariant> variants;
-  final List<ComicRelease> releases;
 
   Map<String, dynamic>? get sourceMetadata {
     final source = metadataJson?['source'];
@@ -173,10 +171,6 @@ class ComicEdition {
         for (final variant in (json['variants'] as List<dynamic>? ?? []))
           ComicVariant.fromJson(variant as Map<String, dynamic>),
       ],
-      releases: [
-        for (final release in (json['releases'] as List<dynamic>? ?? []))
-          ComicRelease.fromJson(release as Map<String, dynamic>),
-      ],
     );
   }
 
@@ -194,32 +188,6 @@ class ComicEdition {
       }
     }
     return DateTime.tryParse(value)?.toUtc();
-  }
-}
-
-class ComicRelease {
-  const ComicRelease({
-    required this.id,
-    required this.region,
-    this.releaseDate,
-    this.publisher,
-    this.externalIds,
-  });
-
-  final String id;
-  final String region;
-  final DateTime? releaseDate;
-  final String? publisher;
-  final Map<String, dynamic>? externalIds;
-
-  factory ComicRelease.fromJson(Map<String, dynamic> json) {
-    return ComicRelease(
-      id: json['id'] as String,
-      region: json['region'] as String,
-      releaseDate: ComicEdition.parseDate(json['release_date'] as String?),
-      publisher: json['publisher'] as String?,
-      externalIds: json['external_ids'] as Map<String, dynamic>?,
-    );
   }
 }
 

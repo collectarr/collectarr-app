@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -31,8 +33,13 @@ final mediaCatalogProvider =
       _cachedMediaCatalog = normalizedCatalog;
       return normalizedCatalog;
     }
-  } catch (_) {
-    // Keep the app usable when Core is offline; callers can invalidate to retry.
+  } catch (error, stackTrace) {
+    logRecoverableError(
+      source: 'media_catalog',
+      message: 'Failed to load media catalog from metadata server; using fallback catalog.',
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
   return fallbackMediaCatalog;
 });
@@ -68,15 +75,16 @@ List<CatalogMediaType> _catalogOrFallback(
 
 List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
-  String kind,
+  Object? kind,
 ) {
-  final mediaFamily = catalogMediaFamilyForKind(kind);
+  final normalizedKind = catalogMediaKindFromValue(kind).apiValue;
+  final mediaFamily = catalogMediaFamilyForKind(normalizedKind);
   final formats = physicalMediaFormatsFromCatalog(catalog,
-      kind: kind, mediaFamily: mediaFamily);
+      kind: normalizedKind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
-  return fallbackPhysicalMediaFormatsForKind(kind);
+  return fallbackPhysicalMediaFormatsForKind(normalizedKind);
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(

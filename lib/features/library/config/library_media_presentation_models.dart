@@ -1,8 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/series_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
@@ -10,20 +7,7 @@ import 'package:collectarr_app/features/library/workspace/library_inspector.dart
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
-
-class LibraryMediaFieldLabels {
-  const LibraryMediaFieldLabels({
-    required this.number,
-    required this.publisher,
-    required this.variant,
-    required this.barcode,
-  });
-
-  final String number;
-  final String publisher;
-  final String variant;
-  final String barcode;
-}
+import 'package:go_router/go_router.dart';
 
 class LibraryMediaSearchFieldLabels {
   const LibraryMediaSearchFieldLabels({
@@ -132,7 +116,8 @@ abstract class LibraryMediaPresentationBuilder {
     required BuildContext context,
     required Color accent,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryMediaPreviewLabels previewLabels,
     required LibraryMetadataItem? item,
     required ProviderCandidate? candidate,
@@ -145,7 +130,8 @@ abstract class LibraryMediaPresentationBuilder {
 
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -162,14 +148,16 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailIdentitySection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      labels: labels,
+      mediaFields: mediaFields,
+      releaseFields: releaseFields,
       entry: entry,
       includeIdentityFacts: true,
       tapFor: _tapResolver(onFilterByValue),
@@ -184,13 +172,8 @@ abstract class LibraryMediaPresentationBuilder {
         return LibraryInspectorFactData(
           fact.label,
           fact.value,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => SeriesDetailPage(
-                seriesId: series.seriesId!,
-                seriesTitle: series.seriesTitle!,
-              ),
-            ),
+          onTap: () => context.push(
+            '/series/${Uri.encodeComponent(series.seriesId!)}?title=${Uri.encodeQueryComponent(series.seriesTitle!)}',
           ),
         );
       }
@@ -208,14 +191,16 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailContextSection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      labels: labels,
+      mediaFields: mediaFields,
+      releaseFields: releaseFields,
       entry: entry,
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),
@@ -240,14 +225,16 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailCreditsSection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      labels: labels,
+      mediaFields: mediaFields,
+      releaseFields: releaseFields,
       entry: entry,
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),
@@ -263,10 +250,8 @@ abstract class LibraryMediaPresentationBuilder {
           LibraryMetadataCreditsList(
             title: 'Creators',
             credits: presentation.creators,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => CreatorDetailPage(creatorName: value),
-              ),
+            onValueTap: (value) => context.push(
+              '/creator/${Uri.encodeComponent(value)}',
             ),
           ),
         if (presentation.characters.isNotEmpty) ...[
@@ -274,10 +259,8 @@ abstract class LibraryMediaPresentationBuilder {
           LibraryInspectorChipWrap(
             label: 'Characters',
             values: presentation.characters,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => CharacterDetailPage(characterName: value),
-              ),
+            onValueTap: (value) => context.push(
+              '/character/${Uri.encodeComponent(value)}',
             ),
           ),
         ],
@@ -288,10 +271,8 @@ abstract class LibraryMediaPresentationBuilder {
           LibraryInspectorChipWrap(
             label: 'Story Arcs',
             values: presentation.storyArcs,
-            onValueTap: (value) => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => StoryArcDetailPage(storyArcName: value),
-              ),
+            onValueTap: (value) => context.push(
+              '/story-arc/${Uri.encodeComponent(value)}',
             ),
           ),
         ],
@@ -313,7 +294,6 @@ abstract class LibraryMediaPresentationBuilder {
 
 class LibraryMediaPresentation {
   const LibraryMediaPresentation({
-    required this.fieldLabels,
     required this.searchFieldLabels,
     required this.filterLabels,
     required this.groupLabels,
@@ -347,7 +327,6 @@ class LibraryMediaPresentation {
     ],
   });
 
-  final LibraryMediaFieldLabels fieldLabels;
   final LibraryMediaSearchFieldLabels searchFieldLabels;
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;

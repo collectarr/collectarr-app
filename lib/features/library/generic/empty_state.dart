@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +25,7 @@ class LibraryEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
-      duration: const Duration(milliseconds: 350),
+      duration: kAppAnimNormal,
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final animatedAccent = color ?? accent;
@@ -37,7 +38,7 @@ class LibraryEmptyState extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, size: 44, color: animatedAccent),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               Text(
                 hasActiveFilter
                     ? 'No matching ${type.pluralLabel.toLowerCase()}'
@@ -49,7 +50,7 @@ class LibraryEmptyState extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 hasActiveFilter
                     ? 'Clear filters to return to your local shelf.'
@@ -80,7 +81,7 @@ class LibraryEmptyState extends StatelessWidget {
                 ),
               if (!hasActiveFilter && type.supportedMetadataProviders.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     'Manual add is enabled even without provider search.',
                     textAlign: TextAlign.center,
@@ -106,7 +107,8 @@ String _emptyStateSummary(LibraryTypeConfig type) {
   }
   final providers =
       type.supportedMetadataProviders.map((p) => p.label).join(', ');
-  final suffix = type.workspace.kind == 'movie' || type.workspace.kind == 'tv'
+    final suffix = type.workspace.kind == CatalogMediaKind.movie ||
+      type.workspace.kind == CatalogMediaKind.tv
       ? ' Physical formats are tracked as editions.'
       : '';
   return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';

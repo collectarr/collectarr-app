@@ -31,10 +31,13 @@ class LibraryDetailHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedOwnedItemId = ownedItem?.id ?? entry.ownedItemId;
+    final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
     final resolvedIsOwned = isOwned ?? ownedItem != null || entry.isOwned;
-    final releaseLabel = formatNullableDate(entry.releaseDate) ??
-        entry.releaseYear?.toString();
+    final referenceLabel =
+        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+            entry.primaryReferenceLabel;
+    final releaseLabel =
+        formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: accent.withValues(alpha: 0.6)),
@@ -42,12 +45,12 @@ class LibraryDetailHero extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF101010),
+            kAppField,
             Color.alphaBlend(
               accent.withValues(alpha: 0.18),
-              const Color(0xFF18242A),
+              kAppSurfaceSubtle,
             ),
-            const Color(0xFF101010),
+            kAppField,
           ],
         ),
       ),
@@ -62,51 +65,52 @@ class LibraryDetailHero extends StatelessWidget {
                 final db = ref.watch(localDatabaseProvider);
                 final localFront = ownedItemId == null
                     ? null
-                    : ref.watch(
-                        localItemImageProvider((
-                          ownedItemId: ownedItemId,
-                          imageType: 'front_cover',
-                        )),
-                      ).value;
+                    : ref
+                        .watch(
+                          localItemImageProvider((
+                            ownedItemId: ownedItemId,
+                            imageType: 'front_cover',
+                          )),
+                        )
+                        .value;
                 final localBack = ownedItemId == null
                     ? null
-                    : ref.watch(
-                        localItemImageProvider((
-                          ownedItemId: ownedItemId,
-                          imageType: 'back_cover',
-                        )),
-                      ).value;
+                    : ref
+                        .watch(
+                          localItemImageProvider((
+                            ownedItemId: ownedItemId,
+                            imageType: 'back_cover',
+                          )),
+                        )
+                        .value;
                 return SizedBox(
                   width: wide ? 180 : 150,
-                  child: AspectRatio(
-                    aspectRatio: 2 / 3,
-                    child: LibraryInteractiveCover(
-                      title: entry.title,
-                      itemNumber: entry.itemNumber,
-                      imageUrl: entry.displayCoverUrl,
-                      localBase64: localFront,
-                      secondaryLocalBase64: localBack,
-                        ownedItemId: ownedItemId,
-                      accentColor: accent,
-                      onMissingSecondaryPressed: ownedItemId == null
-                          ? null
-                          : () async {
-                              final savedType = await pickAndStoreOwnedItemImage(
-                                context: context,
-                                db: db,
-                                ownedItemId: ownedItemId,
-                                imageType: 'back_cover',
+                  child: LibraryInteractiveCover(
+                    title: entry.resolvedTitle,
+                    itemNumber: entry.itemNumber,
+                    imageUrl: entry.displayCoverUrl,
+                    localBase64: localFront,
+                    secondaryLocalBase64: localBack,
+                    ownedItemId: ownedItemId,
+                    accentColor: accent,
+                    onMissingSecondaryPressed: ownedItemId == null
+                        ? null
+                        : () async {
+                            final savedType = await pickAndStoreOwnedItemImage(
+                              context: context,
+                              db: db,
+                              ownedItemId: ownedItemId,
+                              imageType: 'back_cover',
+                            );
+                            if (savedType == 'back_cover') {
+                              ref.invalidate(
+                                localItemImageProvider((
+                                  ownedItemId: ownedItemId,
+                                  imageType: 'back_cover',
+                                )),
                               );
-                              if (savedType == 'back_cover') {
-                                ref.invalidate(
-                                  localItemImageProvider((
-                                    ownedItemId: ownedItemId,
-                                    imageType: 'back_cover',
-                                  )),
-                                );
-                              }
-                            },
-                    ),
+                            }
+                          },
                   ),
                 );
               },
@@ -116,7 +120,7 @@ class LibraryDetailHero extends StatelessWidget {
                   wide ? CrossAxisAlignment.start : CrossAxisAlignment.center,
               children: [
                 Text(
-                  entry.title,
+                  entry.resolvedTitle,
                   textAlign: wide ? TextAlign.start : TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: accent,
@@ -168,6 +172,18 @@ class LibraryDetailHero extends StatelessWidget {
                       label: entry.isWishlisted ? 'Wishlisted' : 'Wishlist',
                       accent: accent,
                     ),
+                    if (referenceLabel != null)
+                      _DetailHeaderChip(
+                        icon: Icons.link_outlined,
+                        label: referenceLabel,
+                        accent: accent,
+                      ),
+                    if (entry.referenceFormatLabel != null)
+                      _DetailHeaderChip(
+                        icon: Icons.album_outlined,
+                        label: 'Format: ${entry.referenceFormatLabel!}',
+                        accent: accent,
+                      ),
                     _DetailHeaderChip(
                       icon: entry.hasMissingCover
                           ? Icons.image_not_supported_outlined
@@ -204,6 +220,24 @@ class LibraryDetailHero extends StatelessWidget {
                         label: '${entry.video!.runtimeMinutes} min',
                         accent: accent,
                       ),
+                    if (entry.video?.color != null)
+                      _DetailHeaderChip(
+                        icon: Icons.color_lens,
+                        label: entry.video!.color!,
+                        accent: accent,
+                      ),
+                    if (entry.video?.nrDiscs != null)
+                      _DetailHeaderChip(
+                        icon: Icons.album,
+                        label: '${entry.video!.nrDiscs} disc${entry.video!.nrDiscs == 1 ? '' : 's'}',
+                        accent: accent,
+                      ),
+                    if (entry.video?.screenRatio != null)
+                      _DetailHeaderChip(
+                        icon: Icons.aspect_ratio,
+                        label: entry.video!.screenRatio!,
+                        accent: accent,
+                      ),
                     if (entry.music?.trackCount != null)
                       _DetailHeaderChip(
                         icon: Icons.music_note,
@@ -216,7 +250,8 @@ class LibraryDetailHero extends StatelessWidget {
                         label: entry.music!.releaseStatus!,
                         accent: accent,
                       ),
-                    if (_detailPlatformLabel(entry.rawPlatforms) case final platformLabel?)
+                    if (_detailPlatformLabel(entry.rawPlatforms)
+                        case final platformLabel?)
                       _DetailHeaderChip(
                         icon: Icons.sports_esports,
                         label: platformLabel,

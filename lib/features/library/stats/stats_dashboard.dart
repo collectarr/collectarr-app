@@ -53,7 +53,8 @@ class _GenericStatsDashboard extends StatelessWidget {
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
     final metadataQualityBands = _metadataQualityBands(state.entries);
     final metadataAlertCounts = _metadataAlertCounts(state.entries, type);
-    final seriesGapSummary = _seriesGapSummary(state.entries, type.workspace.kind);
+    final seriesGapSummary =
+      _seriesGapSummary(state.entries, type.workspace.kind.apiValue);
     final volumeGapSummary = _numberedGapSummary(
       state.entries,
       (entry) => entry.catalogItem?.series?.volumeNumber,

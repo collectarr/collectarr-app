@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('shelf page shows local collection stats and filters',
       (tester) async {
@@ -58,7 +60,7 @@ void main() {
         child: const MaterialApp(home: CollectionPage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Shelf'), findsOneWidget);
     expect(find.text('Owned'), findsWidgets);
@@ -70,26 +72,26 @@ void main() {
     expect(find.text('Read status'), findsOneWidget);
     expect(find.text('Storage boxes'), findsOneWidget);
     expect(find.text('Top series'), findsOneWidget);
-    expect(find.text('read: 1'), findsOneWidget);
+    expect(find.text('Completed: 1'), findsOneWidget);
     expect(find.text('Box 6: 1'), findsOneWidget);
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
     expect(find.text('Signed copy'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Export CSV'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Export collection'));
+    await pumpUntilSettled(tester);
 
-    expect(find.text('Export CSV'), findsOneWidget);
-    expect(find.text('Copy Collectarr'), findsOneWidget);
-    expect(find.text('Copy CLZ'), findsOneWidget);
-    expect(find.text('Rows: 2'), findsOneWidget);
-    expect(find.text('Owned: 1'), findsOneWidget);
-    expect(find.text('Wishlist: 1'), findsOneWidget);
+    expect(find.text('Import or export collection'), findsOneWidget);
+    expect(find.text('Copy Collectarr CSV'), findsOneWidget);
+    expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
+    expect(find.text('2 rows'), findsOneWidget);
+    expect(find.text('1 owned'), findsOneWidget);
+    expect(find.text('1 wishlist'), findsOneWidget);
 
-    await tester.tap(find.text('Done'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.text('Close'));
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byKey(const ValueKey('shelf-filter-wishlist')));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Superman, Vol. 4 #8A'), findsNothing);
     expect(find.textContaining('Catalog item'), findsOneWidget);

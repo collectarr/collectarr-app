@@ -3,12 +3,6 @@ import 'package:collectarr_app/features/library/kinds/shared/presentation_suppor
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 const musicLibraryMediaPresentation = LibraryMediaPresentation(
-  fieldLabels: LibraryMediaFieldLabels(
-    number: 'Disc / Volume',
-    publisher: 'Label / Artist',
-    variant: 'Format / Edition',
-    barcode: 'Barcode / Catalog no.',
-  ),
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter album, artist, release, or label...',
     emptySearchMessage: 'Enter an album, artist, release, or label.',

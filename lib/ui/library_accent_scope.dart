@@ -14,7 +14,7 @@ class LibraryAccentScope extends InheritedWidget {
   final bool animationsEnabled;
 
   Duration get animationDuration =>
-      animationsEnabled ? const Duration(milliseconds: 320) : Duration.zero;
+      animationsEnabled ? kAppAnimNormal : Duration.zero;
 
   static LibraryAccentScope? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<LibraryAccentScope>();
@@ -28,7 +28,7 @@ class LibraryAccentScope extends InheritedWidget {
 
   static Duration animationDurationOf(BuildContext context) {
     return maybeOf(context)?.animationDuration ??
-        const Duration(milliseconds: 320);
+        kAppAnimNormal;
   }
 
   @override

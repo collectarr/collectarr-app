@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class MediaLibraryOverflowMenu extends StatelessWidget {
@@ -22,7 +23,7 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<CatalogMediaType>(
       tooltip: 'More libraries',
-      color: const Color(0xFF202020),
+      color: kAppGridCanvas,
       surfaceTintColor: Colors.transparent,
       shadowColor: Colors.black.withValues(alpha: 0.54),
       elevation: 10,
@@ -31,7 +32,7 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 190, maxWidth: 250),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
-        side: const BorderSide(color: Color(0xFF484848)),
+        side: const BorderSide(color: kAppDivider),
       ),
       onSelected: onSelected,
       itemBuilder: (context) => [

@@ -1,4 +1,6 @@
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -12,12 +14,15 @@ class GameLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryWorkspaceEntry entry,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final game = entry.game;
+    final referenceRelease = resolveLibraryEntryReferenceRelease(entry);
+    final referenceVariant = referenceRelease.variant;
+    final referencePlatforms = libraryReferencePlatforms(entry);
     return LibraryMetadataPresentation(
       identityFacts: [
         if (includeIdentityFacts) ...[
@@ -27,21 +32,29 @@ class GameLibraryMediaPresentationBuilder
         ],
         if (entry.variant != null)
           LibraryInspectorFactData(
-            labels.variant,
+            releaseFields.variantLabel,
             entry.variant!,
             onTap: tapFor(entry.variant),
           ),
         if (entry.barcode != null)
-          LibraryInspectorFactData(labels.barcode, entry.barcode!),
+          LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
         if (entry.ageRating != null)
           LibraryInspectorFactData('Age Rating', entry.ageRating!),
       ],
       contextFacts: [
-        if (game?.platforms case final platforms? when platforms.isNotEmpty)
-          LibraryInspectorFactData('Platforms', platforms.join(', ')),
+        if (referenceVariant?.variantType case final variantType?
+            when variantType.trim().isNotEmpty)
+          LibraryInspectorFactData('Variant Type', variantType.trim()),
+        if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
+          LibraryInspectorFactData('SKU', sku.trim()),
+        if (referencePlatforms.isNotEmpty)
+          LibraryInspectorFactData(
+            referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
+            referencePlatforms.join(', '),
+          ),
         if (entry.publisher != null)
           LibraryInspectorFactData(
-            labels.publisher,
+            mediaFields.publisherLabel,
             entry.publisher!,
             onTap: tapFor(entry.publisher),
           ),

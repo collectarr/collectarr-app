@@ -21,6 +21,14 @@ class LibraryToolsButton extends StatelessWidget {
     this.onDownloadAllCovers,
     this.shelfState,
     this.onSmartLists,
+    this.onFolders,
+    this.onReadingQueue,
+    this.onEditConditionPickList,
+    this.onEditGradePickList,
+    this.onEditTagPickList,
+    this.onEditSort,
+    this.onReassignIndex,
+    this.onTransferFieldData,
     this.onPrintReport,
     this.onShareCollection,
   });
@@ -36,6 +44,14 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final VoidCallback? onSmartLists;
+  final VoidCallback? onFolders;
+  final VoidCallback? onReadingQueue;
+  final VoidCallback? onEditConditionPickList;
+  final VoidCallback? onEditGradePickList;
+  final VoidCallback? onEditTagPickList;
+  final VoidCallback? onEditSort;
+  final VoidCallback? onReassignIndex;
+  final VoidCallback? onTransferFieldData;
   final VoidCallback? onPrintReport;
   final VoidCallback? onShareCollection;
 
@@ -89,6 +105,12 @@ class LibraryToolsButton extends StatelessWidget {
           enabled: hasActiveFilters,
           onSelected: onClearFilters,
         ),
+        if (onEditSort != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.sort,
+            label: 'Sort...',
+            onSelected: onEditSort!,
+          ),
         if (onDownloadAllCovers != null)
           LibraryUtilityMenuAction(
             icon: Icons.download_outlined,
@@ -119,11 +141,53 @@ class LibraryToolsButton extends StatelessWidget {
             showPrefillSettingsDialog(context: context, accent: accent);
           },
         ),
+        if (onEditConditionPickList != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.inventory_2_outlined,
+            label: 'Condition values...',
+            onSelected: onEditConditionPickList!,
+          ),
+        if (onEditGradePickList != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.workspace_premium_outlined,
+            label: 'Grade values...',
+            onSelected: onEditGradePickList!,
+          ),
+        if (onEditTagPickList != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.sell_outlined,
+            label: 'Tag values...',
+            onSelected: onEditTagPickList!,
+          ),
         if (onSmartLists != null)
           LibraryUtilityMenuAction(
             icon: Icons.auto_awesome_mosaic,
             label: 'Smart Lists...',
             onSelected: onSmartLists!,
+          ),
+        if (onFolders != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.folder_outlined,
+            label: 'Folders...',
+            onSelected: onFolders!,
+          ),
+        if (onTransferFieldData != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.swap_horiz,
+            label: 'Transfer field data...',
+            onSelected: onTransferFieldData!,
+          ),
+        if (onReassignIndex != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.format_list_numbered,
+            label: 'Re-assign index values...',
+            onSelected: onReassignIndex!,
+          ),
+        if (onReadingQueue != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.bookmarks_outlined,
+            label: 'Reading Queue...',
+            onSelected: onReadingQueue!,
           ),
         if (onPrintReport != null)
           LibraryUtilityMenuAction(

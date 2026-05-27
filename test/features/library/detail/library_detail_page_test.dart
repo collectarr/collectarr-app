@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/test_constants.dart';
+
 void main() {
   testWidgets('detail page shows copy selector when multiple copies exist', (
     tester,
@@ -68,7 +70,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('2 copies in collection'), findsOneWidget);
     expect(find.text('Active copy'), findsOneWidget);
@@ -143,12 +145,12 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Very Fine').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Edit'));
     await tester.pump();
@@ -197,15 +199,15 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
-    final saveButton = find.widgetWithText(FilledButton, 'Save tracking details');
+    final saveButton = find.widgetWithText(FilledButton, 'Apply tracking changes');
     await tester.scrollUntilVisible(
       saveButton,
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.byType(InspectorTrackingDetailsEditor), findsOneWidget);
     expect(saveButton, findsOneWidget);

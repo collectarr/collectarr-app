@@ -33,13 +33,17 @@ web wrapper.
 - **Smart add / search** — structured series, issue, barcode, candidate tree, and whole-series handling
 - **Manga volumes** — volume/chapter data from Core providers (MangaDex)
 - **TV seasons** — season/episode data for TV and anime
+- **Trailer links** — YouTube-detected trailers on detail pages for movies, TV, and games
+- **HDR & physical media** — HDR format multi-select and features text for physical media tracking
 - **CSV import / export** — Collectarr/CLZ-friendly with media-aware headers + custom field columns
+- **TMDB import** — import movies and TV from TMDB CSV/JSON exports with batch hydration and duplicate detection
 - **Barcode scanning** — camera scanner where available + manual fallback everywhere
-- **Sync support** — optional multi-device sync via `collectarr-sync` with conflict review and retry queue
+- **Sync support** — optional multi-device sync via `collectarr-sync` with conflict review, retry queue, and freshness indicator
 - **Admin panel** — user management, image cache controls, provider health (admin-only)
 - **Sync history** — timestamped log with push/pull/reject counts
 - **Custom fields** — user-defined fields per media type with search/filter and CSV support
 - **Multiple images per item** — local item photos with captions and sort order
+- **Bundle-aware add/edit flows** — choose media, edition, variant, or bundle-release references with member previews and anchor-aware personal item editing
 - **Story arc & character facets** — filter library by story arcs and characters with facet buckets
 - **Provider previews** — see story arc, character, and credit previews in add/search dialogs
 - **Media-aware metadata UI** — shared inspector/add preview with type-specific music, game, and video metadata presentation
@@ -124,15 +128,28 @@ candidate. The dialog still loads direct provider previews up front, but does
 so in bounded batches so large result sets do not fan out into an unbounded
 burst of preview requests.
 
+When Core exposes editions, variants, or bundle releases for a selected result,
+the add flow can anchor against those references directly. Bundle releases stay
+previewable before ingest so box sets, season packs, and collected editions can
+be reviewed by member list instead of being treated like opaque metadata.
+
 Provider candidate lists can also be mixed when Core enriches or falls back to a
 secondary source. The app surfaces that mix with provider badges and neutral
 messaging instead of claiming the requested provider fully failed when both
 providers contributed results.
 
+The generic edit dialog follows the same model after ingest: owned, tracking,
+and wishlist entries can switch between media-, edition-, variant-, and
+bundle-release-level anchors without dropping back to media-specific dialogs.
+
 ## Release Policy
 
 Release publishing is manual-only. The `Release` GitHub Actions workflow uses
 `workflow_dispatch`; pushing to `main` runs CI only — no auto-publish.
+
+The first packaged rollout keeps installation manual. The in-app updater stays
+hidden until the release workflow also publishes installer assets that the
+desktop client can install directly.
 
 ## Related Repos
 
@@ -144,3 +161,11 @@ Release publishing is manual-only. The `Release` GitHub Actions workflow uses
 ## Roadmap
 
 See [docs/implementation-plan.md](docs/implementation-plan.md) for the full roadmap.
+
+---
+
+## Support
+
+If Collectarr is useful to you, you can support ongoing development on Ko-fi:
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/saitatter)

@@ -33,21 +33,21 @@ class LibraryViewControls extends StatelessWidget {
             ButtonSegment(
               value: LibraryViewMode.grid,
               icon: Tooltip(
-                message: 'Cover view',
+                message: 'Grid view',
                 child: Icon(Icons.grid_view),
               ),
             ),
             ButtonSegment(
               value: LibraryViewMode.card,
               icon: Tooltip(
-                message: 'Card view',
+                message: 'Cards view',
                 child: Icon(Icons.view_module),
               ),
             ),
             ButtonSegment(
               value: LibraryViewMode.cardFlow,
               icon: Tooltip(
-                message: 'Card flow',
+                message: 'Flow view',
                 child: Icon(Icons.view_agenda),
               ),
             ),
@@ -56,6 +56,13 @@ class LibraryViewControls extends StatelessWidget {
               icon: Tooltip(
                 message: 'List view',
                 child: Icon(Icons.view_list),
+              ),
+            ),
+            ButtonSegment(
+              value: LibraryViewMode.shelves,
+              icon: Tooltip(
+                message: 'Shelves view',
+                child: Icon(Icons.shelves),
               ),
             ),
           ],
@@ -69,21 +76,21 @@ class LibraryViewControls extends StatelessWidget {
             ButtonSegment(
               value: LibraryDetailsLayout.right,
               icon: Tooltip(
-                message: 'Details right',
+                message: 'Details panel right',
                 child: Icon(Icons.view_sidebar),
               ),
             ),
             ButtonSegment(
               value: LibraryDetailsLayout.bottom,
               icon: Tooltip(
-                message: 'Details bottom',
+                message: 'Details panel bottom',
                 child: Icon(Icons.vertical_split),
               ),
             ),
             ButtonSegment(
               value: LibraryDetailsLayout.hidden,
               icon: Tooltip(
-                message: 'Hide details',
+                message: 'Hide details panel',
                 child: Icon(Icons.visibility_off),
               ),
             ),

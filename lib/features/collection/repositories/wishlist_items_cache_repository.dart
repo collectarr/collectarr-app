@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:drift/drift.dart';
 
@@ -34,6 +35,36 @@ class WishlistItemsCacheRepository {
       return null;
     }
     return _fromCache(rows.first);
+  }
+
+  Future<List<WishlistItem>> listActiveByItemId(String itemId) async {
+    final rows = await (_db.select(_db.wishlistItemsCache)
+          ..where((row) => row.itemId.equals(itemId) & row.deletedAt.isNull())
+          ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
+        .get();
+    return rows.map(_fromCache).toList(growable: false);
+  }
+
+  Future<WishlistItem?> findActiveByItemAnchor(
+    String itemId, {
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) async {
+    final items = await listActiveByItemId(itemId);
+    for (final item in items) {
+      if (_matchesAnchor(
+        item,
+        anchorType: anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      )) {
+        return item;
+      }
+    }
+    return null;
   }
 
   Future<List<WishlistItem>> findActiveByItemIds(
@@ -106,8 +137,10 @@ class WishlistItemsCacheRepository {
     return WishlistItem(
       id: row.id,
       itemId: row.itemId,
+      anchorType: row.anchorType,
       editionId: row.editionId,
       variantId: row.variantId,
+      bundleReleaseId: row.bundleReleaseId,
       targetPriceCents: row.targetPriceCents,
       currency: row.currency,
       notes: row.notes,
@@ -121,8 +154,10 @@ class WishlistItemsCacheRepository {
     return WishlistItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
+      anchorType: Value(item.anchorType),
       editionId: Value(item.editionId),
       variantId: Value(item.variantId),
+      bundleReleaseId: Value(item.bundleReleaseId),
       targetPriceCents: Value(item.targetPriceCents),
       currency: Value(item.currency),
       notes: Value(item.notes),
@@ -130,5 +165,28 @@ class WishlistItemsCacheRepository {
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
     );
+  }
+
+  bool _matchesAnchor(
+    WishlistItem item, {
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) {
+    final itemAnchor = item.anchor;
+    final candidateAnchor = PersonalItemAnchor.fromRaw(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    if (itemAnchor == null || candidateAnchor == null) {
+      return itemAnchor == null && candidateAnchor == null;
+    }
+    return itemAnchor.apiValue == candidateAnchor.apiValue &&
+        itemAnchor.editionId == candidateAnchor.editionId &&
+        itemAnchor.variantId == candidateAnchor.variantId &&
+        itemAnchor.bundleReleaseId == candidateAnchor.bundleReleaseId;
   }
 }

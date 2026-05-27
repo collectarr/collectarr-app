@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_preferences.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   const config = LibraryWorkspaceConfig(
-    kind: 'comic',
+    kind: CatalogMediaKind.comic,
     title: 'Comics',
     icon: Icons.menu_book,
     preferencePrefix: 'comics',
@@ -18,7 +19,7 @@ void main() {
     },
   );
   const mangaConfig = LibraryWorkspaceConfig(
-    kind: 'manga',
+    kind: CatalogMediaKind.manga,
     title: 'Manga',
     icon: Icons.auto_stories,
     preferencePrefix: 'manga',
@@ -44,6 +45,16 @@ void main() {
         detailsLayout: LibraryDetailsLayout.bottom,
         sortColumn: LibrarySortColumn.grade,
         sortAscending: false,
+        sortRules: [
+          LibrarySortRule(
+            column: LibrarySortColumn.grade,
+            ascending: false,
+          ),
+          LibrarySortRule(
+            column: LibrarySortColumn.updated,
+            ascending: false,
+          ),
+        ],
         coverSize: 144,
         sidebarWidth: 280,
         detailsWidth: 390,
@@ -68,6 +79,16 @@ void main() {
     expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
     expect(restored.sortColumn, LibrarySortColumn.grade);
     expect(restored.sortAscending, isFalse);
+    expect(restored.sortRules, [
+      const LibrarySortRule(
+        column: LibrarySortColumn.grade,
+        ascending: false,
+      ),
+      const LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: false,
+      ),
+    ]);
     expect(restored.coverSize, 144);
     expect(restored.sidebarWidth, 280);
     expect(restored.detailsWidth, 390);

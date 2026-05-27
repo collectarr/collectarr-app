@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
@@ -11,13 +12,14 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
-import 'package:collectarr_app/features/library/edit/release_selection_helpers.dart';
+import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -76,6 +78,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _tagsController;
   late final TextEditingController _sellPriceController;
   late final TextEditingController _soldToController;
+  late final TextEditingController _progressCurrentController;
+  late final TextEditingController _progressTotalController;
+  late final TextEditingController _timesCompletedController;
+  late final TextEditingController _trackingNotesController;
+  late final TextEditingController _wishlistPriceController;
+  late final TextEditingController _wishlistCurrencyController;
+  late final TextEditingController _wishlistNotesController;
 
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
@@ -95,9 +104,31 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   bool get _isTrackingOnly => !_isOwned && widget.request.trackingEntry != null;
 
+  bool get _hasWishlistContext => widget.request.wishlistItem != null;
+
   LibraryMetadataItem get _item => widget.request.item;
   OwnedItem? get _owned => widget.request.ownedItem;
   Color get _accent => widget.request.accent;
+
+  LibraryEditPresentationContext get _editPresentationContext {
+    return LibraryEditPresentationContext(
+      isOwned: _isOwned,
+      isTrackingOnly: _isTrackingOnly,
+      hasTrackingContext: _hasTrackingContext,
+      hasWishlistContext: _hasWishlistContext,
+      isDigitalFormat: false,
+      hasPhysicalFormats: widget.request.physicalFormats.isNotEmpty,
+      hasEditionAnchors: widget.request.item.editions.isNotEmpty,
+      hasBundleReleaseAnchors: false,
+      hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
+    );
+  }
+
+  List<LibraryEditTabSpec> get _tabSpecs {
+    return widget.request.type.editPresentation.builder.buildTabs(
+      context: _editPresentationContext,
+    );
+  }
 
   String get _musicTitleLabel {
     final title = _titleController.text.trim();
@@ -110,7 +141,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     final item = _item;
     final owned = _owned;
     final tracking = widget.request.trackingEntry;
-    _tabController = TabController(length: 8, vsync: this)
+    _tabController = TabController(length: _tabSpecs.length, vsync: this)
       ..addListener(() {
         if (mounted) {
           setState(() {});
@@ -164,7 +195,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _ratingController =
       TextEditingController(text: (tracking?.rating ?? owned?.rating)?.toString() ?? '');
     _trackingController =
-      TextEditingController(text: tracking?.status ?? owned?.readStatus ?? '');
+      TextEditingController(
+        text: tracking?.statusStorageValue ?? owned?.readStatus ?? '',
+      );
     _tagsController = TextEditingController(text: owned?.tags ?? '');
     _sellPriceController = TextEditingController(
       text: owned?.sellPriceCents == null
@@ -173,20 +206,43 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
     _soldToController = TextEditingController(text: owned?.soldTo ?? '');
 
+    _progressCurrentController = TextEditingController(
+      text: tracking?.progressCurrent?.toString() ?? '',
+    );
+    _progressTotalController = TextEditingController(
+      text: tracking?.progressTotal?.toString() ?? '',
+    );
+    _timesCompletedController = TextEditingController(
+      text: tracking?.timesCompleted?.toString() ?? '',
+    );
+    _trackingNotesController = TextEditingController(
+      text: tracking?.notes ?? '',
+    );
+    final wishlist = widget.request.wishlistItem;
+    _wishlistPriceController = TextEditingController(
+      text: wishlist?.targetPriceCents == null
+          ? ''
+          : (wishlist!.targetPriceCents! / 100).toStringAsFixed(2),
+    );
+    _wishlistCurrencyController =
+        TextEditingController(text: wishlist?.currency ?? '');
+    _wishlistNotesController =
+        TextEditingController(text: wishlist?.notes ?? '');
+
     _selectedLocationId = owned?.locationId;
     _startedAt = tracking?.startedAt ?? owned?.startedAt;
     _finishedAt = tracking?.finishedAt ?? owned?.finishedAt;
     _soldAt = owned?.soldAt;
     _physicalFormatId = _initialPhysicalFormatId(item);
-    final releaseSelection = resolveLibraryReleaseSelection(
+    final editionSelection = resolveLibraryEditionSelection(
       item.editions,
       editionId: owned?.editionId ?? tracking?.editionId,
       editionTitle: item.editionTitle,
       variantId: owned?.variantId ?? tracking?.variantId,
       variantName: item.variant,
     );
-    _selectedEditionId = releaseSelection.edition?.id;
-    _selectedVariantId = releaseSelection.variant?.id;
+    _selectedEditionId = editionSelection.edition?.id;
+    _selectedVariantId = editionSelection.variant?.id;
     _customFieldEdits = {
       for (final value in widget.request.customFieldValues)
         value.fieldDefinitionId: value.value,
@@ -229,14 +285,19 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _tagsController.dispose();
     _sellPriceController.dispose();
     _soldToController.dispose();
+    _progressCurrentController.dispose();
+    _progressTotalController.dispose();
+    _timesCompletedController.dispose();
+    _trackingNotesController.dispose();
+    _wishlistPriceController.dispose();
+    _wishlistCurrencyController.dispose();
+    _wishlistNotesController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: editDialogTheme(seedColor: _accent),
-      child: LibraryEditDialogScaffold(
+    return LibraryEditDialogScaffold(
         formKey: _formKey,
         accent: _accent,
         icon: widget.request.type.workspace.icon,
@@ -251,65 +312,52 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           if (_selectedLocationLabel != null) EditMiniBadge(_selectedLocationLabel!),
         ],
         tabController: _tabController,
-        tabs: _tabHeaders(),
+        tabs: [for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)],
         views: _tabViews(),
-        footerLabel:
-          _isOwned
-            ? 'Music catalog + collection'
-            : _isTrackingOnly
-              ? 'Music catalog + tracking'
-              : 'Music catalog snapshot',
-        footerFields: [
-          FooterTextField(
-            label: 'Title sort',
-            controller: _sortKeyController,
-            width: 180,
-          ),
-          if (_isOwned)
-            FooterTextField(
-              label: 'User tags',
-              controller: _tagsController,
-              width: 150,
-            ),
-        ],
-        onPrevious: _previousTab,
-        onNext: _nextTab,
-        onCancel: () => Navigator.of(context).pop(),
+        onClose: () => Navigator.of(context).pop(),
         onSave: _submit,
-      ),
     );
   }
 
-  List<Widget> _tabHeaders() {
-    return const [
-      EditTab(icon: Icons.album_outlined, label: 'Main'),
-      EditTab(icon: Icons.piano_outlined, label: 'Classical'),
-      EditTab(icon: Icons.queue_music_outlined, label: 'Tracks'),
-      EditTab(icon: Icons.library_music_outlined, label: 'Details / Personal'),
-      EditTab(icon: Icons.groups_2_outlined, label: 'People'),
-      EditTab(icon: Icons.image_outlined, label: 'Covers'),
-      EditTab(icon: Icons.notes_outlined, label: 'Notes'),
-      EditTab(icon: Icons.link_outlined, label: 'Links'),
-    ];
+  List<Widget> _tabViews() {
+    return [for (final tab in _tabSpecs) _tabViewFor(tab.id)];
   }
 
-  List<Widget> _tabViews() {
-    return [
-      _mainTab(),
-      _classicalTab(),
-      _tracksTab(),
-      _detailsPersonalTab(),
-      _peopleTab(),
-      _coversTab(),
-      _notesTab(),
-      _linksTab(),
-    ];
+  List<String> _tabSectionIds(String tabId) {
+    return widget.request.type.editPresentation.builder.buildTabSectionIds(
+      context: _editPresentationContext,
+      tabId: tabId,
+    );
+  }
+
+  Widget _tabViewFor(String id) {
+    switch (id) {
+      case 'main':
+        return _mainTab();
+      case 'classical':
+        return _classicalTab();
+      case 'tracks':
+        return _tracksTab();
+      case 'details_personal':
+        return _detailsPersonalTab();
+      case 'people':
+        return _peopleTab();
+      case 'covers':
+        return _coversTab();
+      case 'notes':
+        return _notesTab();
+      case 'links':
+        return _linksTab();
+      default:
+        throw StateError('Unsupported music edit tab: $id');
+    }
   }
 
   Widget _mainTab() {
     final music = _item.music;
     final tracks = music?.tracks ?? const <CatalogTrack>[];
     final trackCount = music?.trackCount ?? tracks.length;
+    final sections = _tabSectionIds('main');
     return EditTabShell(
       cover: _coverPreview(),
       children: [
@@ -346,7 +394,81 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           ],
         ),
         const SizedBox(height: 12),
-        EditSection(
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _classicalTab() {
+    final sections = _tabSectionIds('classical');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _tracksTab() {
+    final sections = _tabSectionIds('tracks');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _detailsPersonalTab() {
+    final sections = _tabSectionIds('details_personal');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _peopleTab() {
+    final sections = _tabSectionIds('people');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _coversTab() {
+    final sections = _tabSectionIds('covers');
+    return EditTabShell(
+      cover: _coverPreview(),
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _notesTab() {
+    final sections = _tabSectionIds('notes');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _linksTab() {
+    final sections = _tabSectionIds('links');
+    return EditTabShell(
+      children: [
+        for (final sectionId in sections) _sectionFor(sectionId),
+      ],
+    );
+  }
+
+  Widget _sectionFor(String id) {
+    final tracks = _item.music?.tracks ?? const <CatalogTrack>[];
+    final totalDuration = _trackDurationLabel(tracks);
+    switch (id) {
+      case 'music_release_identity':
+        return EditSection(
           title: 'Release identity',
           accent: _accent,
           child: Column(
@@ -363,23 +485,24 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               const SizedBox(height: 10),
               _denseFields([
                 _field(controller: _subtitleController, label: 'Subtitle'),
-                _field(controller: _publisherController, label: 'Label'),
+                _field(controller: _publisherController, label: widget.request.type.mediaFields.publisherLabel),
                 _field(
                   controller: _editionTitleController,
-                  label: 'Edition / Packaging',
+                  label: widget.request.type.releaseFields.editionTitleLabel,
                 ),
-                _field(controller: _variantController, label: 'Variant'),
+                _field(controller: _variantController, label: widget.request.type.releaseFields.variantLabel),
               ]),
             ],
           ),
-        ),
-        EditSection(
+        );
+      case 'music_identifiers_release':
+        return EditSection(
           title: 'Identifiers & release',
           accent: _accent,
           child: Column(
             children: [
               _denseFields([
-                _field(controller: _barcodeController, label: 'UPC / Barcode'),
+                _field(controller: _barcodeController, label: widget.request.type.releaseFields.barcodeLabel),
                 _field(controller: _catalogNumberController, label: 'Catalog number'),
                 _field(
                   controller: _releaseDateController,
@@ -393,7 +516,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   validator: optionalIntValidator,
                 ),
               ]),
-              if (widget.request.physicalFormats.isNotEmpty) ...[
+              if (widget.request.type.releaseFields.showPhysicalFormat &&
+                  widget.request.physicalFormats.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   initialValue: _physicalFormatId,
@@ -430,8 +554,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               ]),
             ],
           ),
-        ),
-        EditSection(
+        );
+      case 'music_genres':
+        return EditSection(
           title: 'Genres',
           accent: _accent,
           child: TextFormField(
@@ -444,36 +569,26 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               alignLabelWithHint: true,
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _classicalTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'music_classical_metadata':
+        return EditSection(
           title: 'Classical metadata',
           accent: _accent,
           child: const Text(
             'This tab is reserved for composer, conductor, orchestra and chorus metadata. The current music model does not persist dedicated classical structures yet, but the edit flow now mirrors the CLZ tab layout so the specialized fields can be wired in without reshaping the dialog again.',
             style: TextStyle(color: kEditTextMuted),
           ),
-        ),
-        _readonlyListSection('Composer', _creatorsForRole(['composer'])),
-        _readonlyListSection('Conductor', _creatorsForRole(['conductor'])),
-        _readonlyListSection('Orchestra', _creatorsForRole(['orchestra', 'ensemble'])),
-        _readonlyListSection('Chorus', _creatorsForRole(['chorus', 'choir'])),
-      ],
-    );
-  }
-
-  Widget _tracksTab() {
-    final tracks = _item.music?.tracks ?? const <CatalogTrack>[];
-    final totalDuration = _trackDurationLabel(tracks);
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'music_composer':
+        return _readonlyListSection('Composer', _creatorsForRole(['composer']));
+      case 'music_conductor':
+        return _readonlyListSection('Conductor', _creatorsForRole(['conductor']));
+      case 'music_orchestra':
+        return _readonlyListSection('Orchestra', _creatorsForRole(['orchestra', 'ensemble']));
+      case 'music_chorus':
+        return _readonlyListSection('Chorus', _creatorsForRole(['chorus', 'choir']));
+      case 'music_track_listing':
+        return EditSection(
           title: 'Track listing',
           accent: _accent,
           child: Column(
@@ -504,7 +619,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               else
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF101010),
+                    color: kAppField,
                     border: Border.all(color: kEditDivider),
                   ),
                   child: Column(
@@ -575,16 +690,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 ),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _detailsPersonalTab() {
-    return EditTabShell(
-      children: [
-        if (_isOwned)
-          EditSection(
+        );
+      case 'music_collection_or_tracking':
+        if (_isOwned) {
+          return EditSection(
             title: 'Collection',
             accent: _accent,
             child: Column(
@@ -637,11 +746,40 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     onChanged: (value) => setState(() => _finishedAt = value),
                   ),
                 ]),
+                const SizedBox(height: 10),
+                _denseFields([
+                  _field(
+                    controller: _timesCompletedController,
+                    label: 'Times listened',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressCurrentController,
+                    label: 'Tracks heard',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressTotalController,
+                    label: 'Total tracks',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _trackingNotesController,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Tracking notes',
+                    alignLabelWithHint: true,
+                  ),
+                ),
               ],
             ),
-          )
-        else if (_hasTrackingContext)
-          EditSection(
+          );
+        }
+        if (_hasTrackingContext) {
+          return EditSection(
             title: 'Tracking',
             accent: _accent,
             child: Column(
@@ -683,87 +821,143 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                     onChanged: (value) => setState(() => _finishedAt = value),
                   ),
                 ]),
-              ],
-            ),
-          )
-        else
-          EditSection(
-            title: 'Personal fields',
-            accent: _accent,
-            child: const Text(
-              'Open the edit dialog from an owned copy to populate collection-specific music fields like condition, rating, location and listening status.',
-              style: TextStyle(color: kEditTextMuted),
-            ),
-          ),
-        if (_isOwned)
-          EditSection(
-            title: 'Purchase & value',
-            accent: _accent,
-            child: Column(
-              children: [
+                const SizedBox(height: 10),
                 _denseFields([
                   _field(
-                    controller: _priceController,
-                    label: 'Price paid',
-                    validator: optionalMoneyValidator,
+                    controller: _timesCompletedController,
+                    label: 'Times listened',
+                    validator: optionalPositiveIntValidator,
                   ),
-                  _field(controller: _currencyController, label: 'Currency'),
                   _field(
-                    controller: _sellPriceController,
-                    label: 'Current / sell value',
-                    validator: optionalMoneyValidator,
+                    controller: _progressCurrentController,
+                    label: 'Tracks heard',
+                    validator: optionalPositiveIntValidator,
+                  ),
+                  _field(
+                    controller: _progressTotalController,
+                    label: 'Total tracks',
+                    validator: optionalPositiveIntValidator,
                   ),
                 ]),
                 const SizedBox(height: 10),
-                OutlinedButton.icon(
-                  onPressed: _pickPurchaseDate,
-                  icon: const Icon(Icons.event),
-                  label: Text(
-                    _purchaseDateController.text.isEmpty
-                        ? 'Set purchase date'
-                        : 'Purchase date: ${_purchaseDateController.text}',
+                TextFormField(
+                  controller: _trackingNotesController,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Tracking notes',
+                    alignLabelWithHint: true,
                   ),
                 ),
               ],
             ),
+          );
+        }
+        return EditSection(
+          title: 'Personal fields',
+          accent: _accent,
+          child: const Text(
+            'Open the edit dialog from an owned copy to populate collection-specific music fields like condition, rating, location and listening status.',
+            style: TextStyle(color: kEditTextMuted),
           ),
-        if (_isOwned && _sellPriceController.text.trim().isNotEmpty)
-          EditSection(
-            title: 'Profit / Loss',
+        );
+      case 'music_wishlist_reference':
+        return EditSection(
+          title: 'Wishlist',
+          accent: _accent,
+          child: Column(
+            children: [
+              _denseFields([
+                _field(
+                  controller: _wishlistPriceController,
+                  label: 'Target price',
+                  validator: optionalMoneyValidator,
+                ),
+                _field(
+                  controller: _wishlistCurrencyController,
+                  label: 'Currency',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _wishlistNotesController,
+                minLines: 3,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  labelText: 'Wishlist notes',
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ],
+          ),
+        );
+      case 'music_purchase_value':
+        return EditSection(
+          title: 'Purchase & value',
+          accent: _accent,
+          child: Column(
+            children: [
+              _denseFields([
+                _field(
+                  controller: _priceController,
+                  label: 'Price paid',
+                  validator: optionalMoneyValidator,
+                ),
+                _field(controller: _currencyController, label: 'Currency'),
+                _field(
+                  controller: _sellPriceController,
+                  label: 'Current / sell value',
+                  validator: optionalMoneyValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: _pickPurchaseDate,
+                icon: const Icon(Icons.event),
+                label: Text(
+                  _purchaseDateController.text.isEmpty
+                      ? 'Set purchase date'
+                      : 'Purchase date: ${_purchaseDateController.text}',
+                ),
+              ),
+            ],
+          ),
+        );
+      case 'music_profit_loss':
+        if (!_isOwned || _sellPriceController.text.trim().isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return EditSection(
+          title: 'Profit / Loss',
+          accent: _accent,
+          child: SoldSummaryPanel(
+            pricePaidCents: parseMoneyCents(_priceController.text),
+            sellPriceCents: parseMoneyCents(_sellPriceController.text),
+            currency: _currencyController.text,
+          ),
+        );
+      case 'music_custom_fields':
+        return EditSection(
+          title: 'Custom fields',
+          accent: _accent,
+          child: CustomFieldsEditSection(
+            definitions: widget.request.customFieldDefinitions,
+            values: _customFieldEdits,
             accent: _accent,
-            child: SoldSummaryPanel(
-              pricePaidCents: parseMoneyCents(_priceController.text),
-              sellPriceCents: parseMoneyCents(_sellPriceController.text),
-              currency: _currencyController.text,
-            ),
+            onChanged: (values) => _customFieldEdits = values,
           ),
-        if (widget.request.customFieldDefinitions.isNotEmpty)
-          EditSection(
-            title: 'Custom fields',
-            accent: _accent,
-            child: CustomFieldsEditSection(
-              definitions: widget.request.customFieldDefinitions,
-              values: _customFieldEdits,
-              accent: _accent,
-              onChanged: (values) => _customFieldEdits = values,
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _peopleTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'music_primary_artist':
+        return EditSection(
           title: 'Primary artist',
           accent: _accent,
           child: _field(
             controller: _artistController,
             label: 'Artist / display name',
           ),
-        ),
-        EditSection(
+        );
+      case 'music_credits':
+        return EditSection(
           title: 'Credits',
           accent: _accent,
           child: TextFormField(
@@ -776,16 +970,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               alignLabelWithHint: true,
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _coversTab() {
-    return EditTabShell(
-      cover: _coverPreview(),
-      children: [
-        EditSection(
+        );
+      case 'music_remote_cover_assets':
+        return EditSection(
           title: 'Remote cover assets',
           accent: _accent,
           child: Column(
@@ -795,8 +982,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               _field(controller: _thumbnailController, label: 'Thumbnail image URL'),
             ],
           ),
-        ),
-        EditSection(
+        );
+      case 'music_local_images':
+        return EditSection(
           title: 'Local images',
           accent: _accent,
           child: ItemImagesEditSection(
@@ -804,15 +992,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             accent: _accent,
             onChanged: (edits) => _itemImageEdits = edits,
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _notesTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'music_album_notes':
+        return EditSection(
           title: 'Album notes',
           accent: _accent,
           child: TextFormField(
@@ -824,48 +1006,44 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               alignLabelWithHint: true,
             ),
           ),
-        ),
-        if (_isOwned)
-          EditSection(
-            title: 'Personal notes',
-            accent: _accent,
-            child: TextFormField(
-              controller: _notesController,
-              minLines: 6,
-              maxLines: 10,
-              decoration: const InputDecoration(
-                labelText: 'Collection notes',
-                alignLabelWithHint: true,
-              ),
+        );
+      case 'music_personal_notes':
+        return EditSection(
+          title: 'Personal notes',
+          accent: _accent,
+          child: TextFormField(
+            controller: _notesController,
+            minLines: 6,
+            maxLines: 10,
+            decoration: const InputDecoration(
+              labelText: 'Collection notes',
+              alignLabelWithHint: true,
             ),
           ),
-      ],
-    );
-  }
-
-  Widget _linksTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
+        );
+      case 'music_identifiers':
+        return EditSection(
           title: 'Identifiers',
           accent: _accent,
           child: _denseFields([
-            _field(controller: _barcodeController, label: 'UPC / Barcode'),
+            _field(controller: _barcodeController, label: widget.request.type.releaseFields.barcodeLabel),
             _field(controller: _catalogNumberController, label: 'Catalog number'),
             _field(controller: _coverController, label: 'Front cover URL'),
             _field(controller: _thumbnailController, label: 'Thumbnail URL'),
           ]),
-        ),
-        EditSection(
+        );
+      case 'music_metadata_source_notes':
+        return EditSection(
           title: 'Metadata source notes',
           accent: _accent,
           child: const Text(
             'Provider-specific online links are not modeled separately in the current client yet. This tab keeps the CLZ-style surface for identifiers and remote asset references so the music edit flow stays consistent.',
             style: TextStyle(color: kEditTextMuted),
           ),
-        ),
-      ],
-    );
+        );
+      default:
+        throw StateError('Unsupported music section: $id');
+    }
   }
 
   Widget _denseFields(List<Widget> children) {
@@ -936,7 +1114,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               runSpacing: 8,
               children: [
                 for (final value in values)
-                  EditMiniBadge(value, color: const Color(0xFF3A3A3A)),
+                  EditMiniBadge(value, color: kAppSurfaceBright),
               ],
             ),
     );
@@ -1039,18 +1217,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     });
   }
 
-  void _previousTab() {
-    if (_tabController.index > 0) {
-      _tabController.animateTo(_tabController.index - 1);
-    }
-  }
-
-  void _nextTab() {
-    if (_tabController.index < _tabController.length - 1) {
-      _tabController.animateTo(_tabController.index + 1);
-    }
-  }
-
   Future<void> _pickPurchaseDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -1091,6 +1257,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           labelText: label,
           suffixIcon: value != null
               ? IconButton(
+                  tooltip: 'Clear date',
                   icon: const Icon(Icons.clear, size: 18),
                   onPressed: () => onChanged(null),
                 )
@@ -1262,8 +1429,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(
+            anchorType: (_selectedEditionId != null || _selectedVariantId != null)
+              ? 'variant'
+              : 'item',
             editionId: _selectedEditionId,
             variantId: _selectedVariantId,
+            bundleReleaseId: null,
                 condition: emptyToNull(_conditionController.text),
                 grade: emptyToNull(_gradeController.text),
                 purchaseDate: parseDate(_purchaseDateController.text),
@@ -1294,9 +1465,29 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 readStatus: emptyToNull(_trackingController.text),
                 startedAt: _startedAt,
                 finishedAt: _finishedAt,
+                progressCurrent: parseInt(_progressCurrentController.text),
+                progressTotal: parseInt(_progressTotalController.text),
+                timesCompleted: parseInt(_timesCompletedController.text),
+                notes: emptyToNull(_trackingNotesController.text),
+                seasonNumber: widget.request.trackingEntry?.seasonNumber ?? _item.series?.seasonNumber,
+                episodeNumber: widget.request.trackingEntry?.episodeNumber ?? _item.series?.episodeNumber,
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
+        wishlist: !_hasWishlistContext
+            ? null
+            : LibraryWishlistEditSelection(
+                anchorType: (_selectedEditionId != null || _selectedVariantId != null)
+                    ? 'variant'
+                    : 'item',
+                editionId: _selectedEditionId,
+                variantId: _selectedVariantId,
+                bundleReleaseId: null,
+                targetPriceCents:
+                    parseMoneyCents(_wishlistPriceController.text),
+                currency: emptyToNull(_wishlistCurrencyController.text),
+                notes: emptyToNull(_wishlistNotesController.text),
+              ),
       ),
     );
   }
@@ -1333,7 +1524,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           ),
       ],
       onChanged: (value) {
-        final edition = resolveLibraryReleaseSelection(
+        final edition = resolveLibraryEditionSelection(
           widget.request.item.editions,
           editionId: emptyToNull(value ?? ''),
         ).edition;

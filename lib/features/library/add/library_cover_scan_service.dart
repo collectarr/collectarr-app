@@ -1,14 +1,39 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart'
   as mlkit;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+
+final _coverScanPreviewBytesProvider =
+    FutureProvider.autoDispose.family<Uint8List?, _CoverScanPreviewSource>(
+  (ref, source) async {
+  return _readPreviewBytes(source.file);
+});
+
+@immutable
+class _CoverScanPreviewSource {
+  const _CoverScanPreviewSource(this.file);
+
+  final XFile file;
+
+  String get _identity => file.path.isNotEmpty ? file.path : file.name;
+
+  @override
+  bool operator ==(Object other) {
+    return other is _CoverScanPreviewSource && other._identity == _identity;
+  }
+
+  @override
+  int get hashCode => _identity.hashCode;
+}
 
 abstract class LibraryCoverScanService {
   const LibraryCoverScanService();
@@ -263,7 +288,13 @@ Future<Uint8List?> _transformPreparedBytes(
     croppedImage = await _renderCroppedImage(rotatedImage, cropRect);
     final byteData = await croppedImage.toByteData(format: ui.ImageByteFormat.png);
     return byteData?.buffer.asUint8List();
-  } catch (_) {
+  } catch (error, stackTrace) {
+    logRecoverableError(
+      source: 'cover_scan',
+      message: 'Failed to render reviewed cover image bytes.',
+      error: error,
+      stackTrace: stackTrace,
+    );
     return null;
   } finally {
     codec?.dispose();
@@ -422,7 +453,13 @@ class GoogleMlKitLibraryCoverTextRecognizer
       final result = await recognizer.processImage(inputImage);
       final text = result.text.trim();
       return text.isEmpty ? null : text;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'cover_scan',
+        message: 'Local OCR failed while reading cover text.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       return null;
     } finally {
       await recognizer.close();
@@ -562,7 +599,7 @@ class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
   }
 }
 
-class _LibraryCoverScanReviewDialog extends StatefulWidget {
+class _LibraryCoverScanReviewDialog extends ConsumerStatefulWidget {
   const _LibraryCoverScanReviewDialog({
     required this.file,
     required this.type,
@@ -576,18 +613,17 @@ class _LibraryCoverScanReviewDialog extends StatefulWidget {
   final LibraryCoverTextRecognizer textRecognizer;
 
   @override
-  State<_LibraryCoverScanReviewDialog> createState() =>
+  ConsumerState<_LibraryCoverScanReviewDialog> createState() =>
       _LibraryCoverScanReviewDialogState();
 }
 
 class _LibraryCoverScanReviewDialogState
-    extends State<_LibraryCoverScanReviewDialog> {
+    extends ConsumerState<_LibraryCoverScanReviewDialog> {
   static const _cropStep = 0.05;
   static const _minCropSpan = 0.35;
 
   late final TextEditingController _displayNameController;
   late final TextEditingController _extractedTextController;
-  late final Future<Uint8List?> _previewBytesFuture;
   int _rotationQuarterTurns = 0;
   LibraryCoverCropBounds _cropBounds = const LibraryCoverCropBounds.fullFrame();
   bool _isAutofillingExtractedText = false;
@@ -602,7 +638,6 @@ class _LibraryCoverScanReviewDialogState
           : widget.file.name.trim(),
     );
     _extractedTextController = TextEditingController();
-    _previewBytesFuture = _readPreviewBytes(widget.file);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _autofillExtractedText();
     });
@@ -618,9 +653,10 @@ class _LibraryCoverScanReviewDialogState
   @override
   Widget build(BuildContext context) {
     final maxDialogHeight = MediaQuery.sizeOf(context).height * 0.84;
-    return FutureBuilder<Uint8List?>(
-      future: _previewBytesFuture,
-      builder: (context, snapshot) => Dialog(
+    final previewBytes = ref.watch(
+      _coverScanPreviewBytesProvider(_CoverScanPreviewSource(widget.file)),
+    );
+    return Dialog(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 560, maxHeight: maxDialogHeight),
           child: SingleChildScrollView(
@@ -643,8 +679,8 @@ class _LibraryCoverScanReviewDialogState
                 const SizedBox(height: 16),
                 _LibraryCoverScanReviewPreview(
                   file: widget.file,
-                  previewBytes: snapshot.data,
-                  isLoading: snapshot.connectionState != ConnectionState.done,
+                  previewBytes: previewBytes.value,
+                  isLoading: previewBytes.isLoading,
                   rotationQuarterTurns: _rotationQuarterTurns,
                   cropBounds: _cropBounds,
                 ),
@@ -811,7 +847,7 @@ class _LibraryCoverScanReviewDialogState
                       onPressed: () => Navigator.of(context).pop(
                         LibraryCoverReviewedImage.fromFile(
                           widget.file,
-                          imageBytes: snapshot.data,
+                          imageBytes: previewBytes.value,
                           displayName: _displayNameController.text,
                           rotationQuarterTurns: _rotationQuarterTurns,
                           cropBounds: _cropBounds,
@@ -827,7 +863,6 @@ class _LibraryCoverScanReviewDialogState
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -868,9 +903,15 @@ class _LibraryCoverScanReviewDialogState
       _autofillStatus = 'Extracting local text...';
     });
     try {
+      final previewBytes =
+          await ref.read(
+            _coverScanPreviewBytesProvider(
+              _CoverScanPreviewSource(widget.file),
+            ).future,
+          );
       final reviewed = LibraryCoverReviewedImage.fromFile(
         widget.file,
-        imageBytes: await _previewBytesFuture,
+        imageBytes: previewBytes,
         displayName: _displayNameController.text,
         rotationQuarterTurns: _rotationQuarterTurns,
         cropBounds: _cropBounds,
@@ -915,7 +956,13 @@ Future<Uint8List?> _readPreviewBytes(XFile file) async {
   try {
     final bytes = await file.readAsBytes();
     return bytes.isEmpty ? null : bytes;
-  } catch (_) {
+  } catch (error, stackTrace) {
+    logRecoverableError(
+      source: 'cover_scan',
+      message: 'Failed to read preview bytes from picked cover image file.',
+      error: error,
+      stackTrace: stackTrace,
+    );
     return null;
   }
 }

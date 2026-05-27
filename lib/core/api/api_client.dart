@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
@@ -6,6 +7,12 @@ import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+
+part 'api_client_admin.dart';
+part 'api_client_catalog.dart';
+part 'api_client_provider.dart';
+part 'api_client_browse.dart';
+part 'api_client_assets.dart';
 
 class ApiClient {
   static const requestTimeout = Duration(seconds: 30);
@@ -21,6 +28,11 @@ class ApiClient {
         );
 
   final Dio _dio;
+  late final _AdminApiClient _adminApi = _AdminApiClient(this);
+  late final _CatalogApiClient _catalogApi = _CatalogApiClient(this);
+  late final _ProviderApiClient _providerApi = _ProviderApiClient(this);
+  late final _BrowseApiClient _browseApi = _BrowseApiClient(this);
+  late final _AssetsApiClient _assetsApi = _AssetsApiClient(this);
 
   String get baseUrl => _dio.options.baseUrl;
 
@@ -34,6 +46,10 @@ class ApiClient {
 
   void clearToken() {
     _dio.options.headers.remove('Authorization');
+  }
+
+  void addInterceptor(Interceptor interceptor) {
+    _dio.interceptors.add(interceptor);
   }
 
   Future<Map<String, dynamic>> register({
@@ -89,62 +105,41 @@ class ApiClient {
     String? barcode,
     int? limit,
   }) async {
-    return searchMetadata(
-      MetadataSearchQuery(
-        query: query,
-        kind: kind,
-        series: series,
-        issueNumber: issueNumber,
-        publisher: publisher,
-        year: year,
-        barcode: barcode,
-        limit: limit,
-      ),
+    return _catalogApi.search(
+      query,
+      kind: kind,
+      series: series,
+      issueNumber: issueNumber,
+      publisher: publisher,
+      year: year,
+      barcode: barcode,
+      limit: limit,
     );
   }
 
   Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query,
   ) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/search',
-      queryParameters: query.toQueryParameters(),
-    );
-    return response.data!
-        .cast<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .toList(growable: false);
+    return _catalogApi.searchMetadata(query);
   }
 
   Future<CatalogItem> getMetadataItem({
     required String kind,
     required String id,
   }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/metadata/$kind/$id',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/metadata/$kind/$id returned an empty response body');
-    }
-    return CatalogItem.fromJson(_resolveImageUrls(data));
+    return _catalogApi.getMetadataItem(kind: kind, id: id);
+  }
+
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+    return _catalogApi.getItemBundleReleases(itemId);
+  }
+
+  Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
+    return _catalogApi.getBundleRelease(bundleReleaseId);
   }
 
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
-    final response = await _dio.get<dynamic>('/metadata/media-types');
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    final rows = data is List<dynamic>
-        ? data
-        : data is Map<String, dynamic>
-            ? data['media_types'] as List<dynamic>? ?? const []
-            : const <dynamic>[];
-    return rows
-        .cast<Map<String, dynamic>>()
-        .map(CatalogMediaType.fromJson)
-        .toList(growable: false);
+    return _catalogApi.metadataMediaTypes();
   }
 
   Future<List<Map<String, dynamic>>> searchProvider({
@@ -155,57 +150,22 @@ class ApiClient {
     String? issueNumber,
     int? year,
   }) async {
-    final providerPath = provider == null || provider.isEmpty
-        ? '/metadata/providers/search'
-        : '/metadata/providers/$provider/search';
-    final response = await _dio.get<List<dynamic>>(
-      providerPath,
-      queryParameters: {
-        'q': query,
-        if (kind != null) 'kind': kind,
-        if (series != null && series.trim().isNotEmpty) 'series': series.trim(),
-        if (issueNumber != null && issueNumber.trim().isNotEmpty)
-          'issue_number': issueNumber.trim(),
-        if (year != null) 'year': year,
-      },
+    return _providerApi.searchProvider(
+      provider: provider,
+      query: query,
+      kind: kind,
+      series: series,
+      issueNumber: issueNumber,
+      year: year,
     );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .toList(growable: false);
   }
 
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {
-    final response = await _dio.get<dynamic>('/admin/providers');
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    final rows = data is List<dynamic>
-        ? data
-        : data is Map<String, dynamic>
-            ? data['providers'] as List<dynamic>? ?? const []
-            : const <dynamic>[];
-    return rows
-        .cast<Map<String, dynamic>>()
-        .map(AdminProviderStatus.fromJson)
-        .toList(growable: false);
+    return _adminApi.adminProviderStatuses();
   }
 
   Future<AdminCatalogSummary> adminCatalogSummary() async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/admin/catalog/summary',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/catalog/summary returned an empty response body');
-    }
-    return AdminCatalogSummary.fromJson(data);
+    return _adminApi.adminCatalogSummary();
   }
 
   Future<List<AdminMetadataItem>> adminCatalogItems({
@@ -213,23 +173,11 @@ class ApiClient {
     String? kind,
     int limit = 25,
   }) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/admin/catalog/items',
-      queryParameters: {
-        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
-        if (kind != null && kind.isNotEmpty) 'kind': kind,
-        'limit': limit,
-      },
+    return _adminApi.adminCatalogItems(
+      query: query,
+      kind: kind,
+      limit: limit,
     );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .map(AdminMetadataItem.fromJson)
-        .toList(growable: false);
   }
 
   Future<AdminMetadataItem> adminUpdateCatalogItem({
@@ -240,10 +188,17 @@ class ApiClient {
     String? synopsis,
     String? editionTitle,
     int? pageCount,
+    int? runtimeMinutes,
     String? publisher,
     DateTime? releaseDate,
     String? imprint,
+    String? subtitle,
     String? seriesGroup,
+    String? country,
+    String? language,
+    String? ageRating,
+    String? catalogNumber,
+    String? releaseStatus,
     String? physicalFormat,
     String? variantName,
     String? barcode,
@@ -252,113 +207,62 @@ class ApiClient {
     bool includeNulls = false,
     Set<String> explicitFields = const <String>{},
   }) async {
-    final data = <String, dynamic>{
-      if (explicitFields.contains('title') || includeNulls || title != null)
-        'title': title,
-      if (explicitFields.contains('item_number') ||
-          includeNulls ||
-          itemNumber != null)
-        'item_number': itemNumber,
-      if (explicitFields.contains('synopsis') || includeNulls || synopsis != null)
-        'synopsis': synopsis,
-      if (explicitFields.contains('edition_title') ||
-          includeNulls ||
-          editionTitle != null)
-        'edition_title': editionTitle,
-      if (explicitFields.contains('page_count') || includeNulls || pageCount != null)
-        'page_count': pageCount,
-      if (explicitFields.contains('publisher') || includeNulls || publisher != null)
-        'publisher': publisher,
-      if (explicitFields.contains('release_date') ||
-          includeNulls ||
-          releaseDate != null)
-        'release_date':
-            releaseDate == null ? null : _dateForApi(releaseDate.toUtc()),
-      if (explicitFields.contains('imprint') || includeNulls || imprint != null)
-        'imprint': imprint,
-      if (explicitFields.contains('series_group') ||
-          includeNulls ||
-          seriesGroup != null)
-        'series_group': seriesGroup,
-      if (physicalFormat != null) 'physical_format': physicalFormat,
-      if (explicitFields.contains('variant_name') ||
-          includeNulls ||
-          variantName != null)
-        'variant_name': variantName,
-      if (explicitFields.contains('barcode') || includeNulls || barcode != null)
-        'barcode': barcode,
-      if (explicitFields.contains('cover_image_url') ||
-          includeNulls ||
-          coverImageUrl != null)
-        'cover_image_url': coverImageUrl,
-      if (explicitFields.contains('thumbnail_image_url') ||
-          includeNulls ||
-          thumbnailImageUrl != null)
-        'thumbnail_image_url': thumbnailImageUrl,
-    };
-    final response = await _dio.patch<Map<String, dynamic>>(
-      '/admin/catalog/items/$kind/$id',
-      data: data,
+    return _adminApi.adminUpdateCatalogItem(
+      kind: kind,
+      id: id,
+      title: title,
+      itemNumber: itemNumber,
+      synopsis: synopsis,
+      editionTitle: editionTitle,
+      pageCount: pageCount,
+      runtimeMinutes: runtimeMinutes,
+      publisher: publisher,
+      releaseDate: releaseDate,
+      imprint: imprint,
+      subtitle: subtitle,
+      seriesGroup: seriesGroup,
+      country: country,
+      language: language,
+      ageRating: ageRating,
+      catalogNumber: catalogNumber,
+      releaseStatus: releaseStatus,
+      physicalFormat: physicalFormat,
+      variantName: variantName,
+      barcode: barcode,
+      coverImageUrl: coverImageUrl,
+      thumbnailImageUrl: thumbnailImageUrl,
+      includeNulls: includeNulls,
+      explicitFields: explicitFields,
     );
-    final body = response.data;
-    if (body == null) {
-      throw StateError(
-          '/admin/catalog/items/$kind/$id returned an empty response body');
-    }
-    return AdminMetadataItem.fromJson(_resolveImageUrls(body));
   }
 
   Future<Map<String, dynamic>> adminUpdateSeriesTags({
     required String seriesId,
     required List<String> tags,
   }) async {
-    final response = await _dio.patch<Map<String, dynamic>>(
-      '/admin/catalog/series/$seriesId/tags',
-      data: {'tags': tags},
+    return _adminApi.adminUpdateSeriesTags(seriesId: seriesId, tags: tags);
+  }
+
+  Future<BundleReleaseDetail> adminUpdateBundleRelease({
+    required String bundleReleaseId,
+    required AdminBundleReleaseCorrection correction,
+  }) async {
+    return _adminApi.adminUpdateBundleRelease(
+      bundleReleaseId: bundleReleaseId,
+      correction: correction,
     );
-    final body = response.data;
-    if (body == null) {
-      throw StateError(
-        '/admin/catalog/series/$seriesId/tags returned an empty response body',
-      );
-    }
-    return body;
   }
 
   Future<AdminSearchStatus> adminSearchStatus() async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/admin/search/status',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/admin/search/status returned an empty response body');
-    }
-    return AdminSearchStatus.fromJson(data);
+    return _adminApi.adminSearchStatus();
   }
 
   Future<AdminSearchReindexResult> adminReindexSearch() async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/search/reindex',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/admin/search/reindex returned an empty response body');
-    }
-    return AdminSearchReindexResult.fromJson(data);
+    return _adminApi.adminReindexSearch();
   }
 
   Future<List<AdminSearchHistoryEntry>> adminSearchHistory() async {
-    final response = await _dio.get<List<dynamic>>(
-      '/admin/search/history',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(AdminSearchHistoryEntry.fromJson)
-        .toList(growable: false);
+    return _adminApi.adminSearchHistory();
   }
 
   Future<List<AdminAuditLogEntry>> adminAuditLogs({
@@ -367,89 +271,41 @@ class ApiClient {
     String? entityId,
     int limit = 10,
   }) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/admin/audit/logs',
-      queryParameters: {
-        if (action != null && action.isNotEmpty) 'action': action,
-        if (entityType != null && entityType.isNotEmpty)
-          'entity_type': entityType,
-        if (entityId != null && entityId.isNotEmpty) 'entity_id': entityId,
-        'limit': limit,
-      },
+    return _adminApi.adminAuditLogs(
+      action: action,
+      entityType: entityType,
+      entityId: entityId,
+      limit: limit,
     );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(AdminAuditLogEntry.fromJson)
-        .toList(growable: false);
   }
 
   Future<List<AdminDuplicateCandidate>> adminDuplicateCandidates({
     int limit = 10,
   }) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/admin/duplicates',
-      queryParameters: {'limit': limit},
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(AdminDuplicateCandidate.fromJson)
-        .toList(growable: false);
+    return _adminApi.adminDuplicateCandidates(limit: limit);
   }
 
   Future<AdminDuplicateActionResult> adminIgnoreDuplicateCandidate({
     required List<String> itemIds,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/duplicates/ignore',
-      data: {'item_ids': itemIds},
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/duplicates/ignore returned an empty response body');
-    }
-    return AdminDuplicateActionResult.fromJson(data);
+    return _adminApi.adminIgnoreDuplicateCandidate(itemIds: itemIds);
   }
 
   Future<AdminDuplicateActionResult> adminMergeDuplicateCandidate({
     required String targetItemId,
     required List<String> sourceItemIds,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/duplicates/merge',
-      data: {
-        'target_item_id': targetItemId,
-        'source_item_ids': sourceItemIds,
-      },
+    return _adminApi.adminMergeDuplicateCandidate(
+      targetItemId: targetItemId,
+      sourceItemIds: sourceItemIds,
     );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/duplicates/merge returned an empty response body');
-    }
-    return AdminDuplicateActionResult.fromJson(data);
   }
 
   Future<AdminMetadataItem> adminGetMetadataItem({
     required String kind,
     required String id,
   }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/metadata/$kind/$id',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/metadata/$kind/$id returned an empty response body');
-    }
-    return AdminMetadataItem.fromJson(_resolveImageUrls(data));
+    return _adminApi.adminGetMetadataItem(kind: kind, id: id);
   }
 
   Future<List<Map<String, dynamic>>> adminProviderSearch({
@@ -457,32 +313,30 @@ class ApiClient {
     required String query,
     String? kind,
   }) async {
-    final response = await _dio.post<List<dynamic>>(
-      '/admin/providers/search',
-      data: {
-        'provider': provider,
-        'query': query,
-        if (kind != null) 'kind': kind,
-      },
+    return _adminApi.adminProviderSearch(
+      provider: provider,
+      query: query,
+      kind: kind,
     );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .toList(growable: false);
   }
 
   Future<AdminProviderPreview> adminProviderPreview({
     required String provider,
     required String providerItemId,
   }) async {
-    return _providerPreview(
-      '/admin/providers/preview',
+    return _adminApi.adminProviderPreview(
       provider: provider,
       providerItemId: providerItemId,
+    );
+  }
+
+  Future<AdminBatchHydrateResult> adminProviderBatchHydrate({
+    required String provider,
+    required List<String> providerItemIds,
+  }) async {
+    return _adminApi.adminProviderBatchHydrate(
+      provider: provider,
+      providerItemIds: providerItemIds,
     );
   }
 
@@ -490,8 +344,7 @@ class ApiClient {
     required String provider,
     required String providerItemId,
   }) async {
-    return _providerPreview(
-      '/metadata/providers/preview',
+    return _providerApi.providerPreview(
       provider: provider,
       providerItemId: providerItemId,
     );
@@ -519,50 +372,24 @@ class ApiClient {
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest',
-      data: {
-        'provider': provider,
-        'provider_item_id': providerItemId,
-      },
+    return _adminApi.adminProviderIngest(
+      provider: provider,
+      providerItemId: providerItemId,
+      kind: kind,
     );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/providers/ingest returned an empty response body');
-    }
-    return AdminProviderIngestResult.fromJson(data);
   }
 
   Future<List<AdminProviderIngestHistoryEntry>>
       adminProviderIngestHistory() async {
-    final response = await _dio.get<List<dynamic>>(
-      '/admin/providers/ingest/history',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(AdminProviderIngestHistoryEntry.fromJson)
-        .toList(growable: false);
+    return _adminApi.adminProviderIngestHistory();
   }
 
   Future<AdminProviderIngestResult> adminRetryProviderIngest({
     required int historyId,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/retry',
-      data: {'history_id': historyId},
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/providers/ingest/retry returned an empty response body');
-    }
-    return AdminProviderIngestResult.fromJson(data);
+    return _adminApi.adminRetryProviderIngest(historyId: historyId);
   }
 
   Future<List<AdminProviderIngestJob>> adminProviderIngestJobs({
@@ -571,35 +398,16 @@ class ApiClient {
     String? query,
     int limit = 25,
   }) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/admin/providers/ingest/jobs',
-      queryParameters: {
-        if (status != null && status.isNotEmpty) 'status': status,
-        if (provider != null && provider.isNotEmpty) 'provider': provider,
-        if (query != null && query.isNotEmpty) 'q': query,
-        'limit': limit,
-      },
+    return _adminApi.adminProviderIngestJobs(
+      status: status,
+      provider: provider,
+      query: query,
+      limit: limit,
     );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(AdminProviderIngestJob.fromJson)
-        .toList(growable: false);
   }
 
   Future<AdminProviderIngestJobSummary> adminProviderIngestJobSummary() async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs/summary',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/providers/ingest/jobs/summary returned an empty response body');
-    }
-    return AdminProviderIngestJobSummary.fromJson(data);
+    return _adminApi.adminProviderIngestJobSummary();
   }
 
   Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
@@ -607,63 +415,70 @@ class ApiClient {
     required String providerItemId,
     int maxAttempts = 3,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs',
-      data: {
-        'provider': provider,
-        'provider_item_id': providerItemId,
-        'max_attempts': maxAttempts,
-      },
+    return _adminApi.adminCreateProviderIngestJob(
+      provider: provider,
+      providerItemId: providerItemId,
+      maxAttempts: maxAttempts,
     );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/providers/ingest/jobs returned an empty response body');
-    }
-    return AdminProviderIngestJob.fromJson(data);
   }
 
   Future<AdminProviderIngestJobRunResult> adminRunPendingProviderIngestJobs({
     int limit = 5,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs/run-pending',
-      queryParameters: {'limit': limit},
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/providers/ingest/jobs/run-pending returned an empty response body');
-    }
-    return AdminProviderIngestJobRunResult.fromJson(data);
+    return _adminApi.adminRunPendingProviderIngestJobs(limit: limit);
   }
 
   Future<AdminProviderIngestJob> adminRunProviderIngestJob({
     required String jobId,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs/$jobId/run',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/providers/ingest/jobs/$jobId/run returned an empty response body');
-    }
-    return AdminProviderIngestJob.fromJson(data);
+    return _adminApi.adminRunProviderIngestJob(jobId: jobId);
   }
 
   Future<AdminProviderIngestJob> adminRetryProviderIngestJob({
     required String jobId,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs/$jobId/retry',
+    return _adminApi.adminRetryProviderIngestJob(jobId: jobId);
+  }
+
+  Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
+    return _adminApi.adminMetadataProposalSummary();
+  }
+
+  Future<List<AdminMetadataProposal>> adminMetadataProposals({
+    String status = 'pending',
+    String? provider,
+  }) async {
+    return _adminApi.adminMetadataProposals(
+      status: status,
+      provider: provider,
     );
-    final data = response.data;
-    if (data == null) {
-      throw StateError(
-          '/admin/providers/ingest/jobs/$jobId/retry returned an empty response body');
-    }
-    return AdminProviderIngestJob.fromJson(data);
+  }
+
+  Future<AdminProviderIngestResult> adminApproveMetadataProposal({
+    required String proposalId,
+  }) async {
+    return _adminApi.adminApproveMetadataProposal(proposalId: proposalId);
+  }
+
+  Future<AdminProviderIngestResult>
+      adminApproveMetadataProposalWithProviderItem({
+    required String proposalId,
+    required String provider,
+    required String providerItemId,
+    String? kind,
+  }) async {
+    return _adminApi.adminApproveMetadataProposalWithProviderItem(
+      proposalId: proposalId,
+      provider: provider,
+      providerItemId: providerItemId,
+      kind: kind,
+    );
+  }
+
+  Future<AdminMetadataProposal> adminRejectMetadataProposal({
+    required String proposalId,
+  }) async {
+    return _adminApi.adminRejectMetadataProposal(proposalId: proposalId);
   }
 
   Future<Map<String, dynamic>> createMetadataProposal({
@@ -675,229 +490,117 @@ class ApiClient {
     String? imageUrl,
     Map<String, dynamic>? metadataPayload,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/metadata/proposals',
-      data: {
-        'provider': provider,
-        'query': query,
-        if (providerItemId != null) 'provider_item_id': providerItemId,
-        if (title != null) 'title': title,
-        if (summary != null) 'summary': summary,
-        if (imageUrl != null) 'image_url': imageUrl,
-        if (metadataPayload != null) 'metadata_payload': metadataPayload,
-      },
+    return _catalogApi.createMetadataProposal(
+      provider: provider,
+      query: query,
+      providerItemId: providerItemId,
+      title: title,
+      summary: summary,
+      imageUrl: imageUrl,
+      metadataPayload: metadataPayload,
     );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/metadata/proposals returned an empty response body');
-    }
-    return data;
   }
 
   Future<Map<String, dynamic>> getComic(String id) async {
-    final response =
-        await _dio.get<Map<String, dynamic>>('/metadata/comic/$id');
-    return _resolveImageUrls(response.data!);
+    return _catalogApi.getComic(id);
   }
 
   Future<List<SeriesRelation>> getSeriesRelations(String seriesId) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/series/$seriesId/relations',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(SeriesRelation.fromJson)
-        .toList(growable: false);
+    return _catalogApi.getSeriesRelations(seriesId);
   }
 
   Future<Map<String, dynamic>> getSeries(String seriesId) async {
-    final response = await _dio.get<Map<String, dynamic>>('/series/$seriesId');
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/series/$seriesId returned an empty response body');
-    }
-    return data;
+    return _catalogApi.getSeries(seriesId);
   }
 
   Future<List<Map<String, dynamic>>> getSeriesItems(String seriesId) {
-    return _fetchList('/series/$seriesId/items');
+    return _catalogApi.getSeriesItems(seriesId);
   }
 
   Future<List<Season>> getProviderSeasons(
     String provider,
     String providerItemId,
   ) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/metadata/providers/$provider/seasons/${Uri.encodeComponent(providerItemId)}',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(Season.fromJson)
-        .toList(growable: false);
+    return _providerApi.getProviderSeasons(provider, providerItemId);
   }
 
   Future<List<Season>> getProviderVolumes(
     String provider,
     String providerItemId,
   ) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/metadata/providers/$provider/volumes/${Uri.encodeComponent(providerItemId)}',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(Season.fromJson)
-        .toList(growable: false);
+    return _providerApi.getProviderVolumes(provider, providerItemId);
   }
 
   Future<List<Season>> getItemVolumes(String itemId) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/metadata/items/${Uri.encodeComponent(itemId)}/volumes',
-    );
-    final data = response.data;
-    if (data == null) {
-      return const [];
-    }
-    return data
-        .cast<Map<String, dynamic>>()
-        .map(Season.fromJson)
-        .toList(growable: false);
+    return _catalogApi.getItemVolumes(itemId);
   }
 
-  Future<List<Map<String, dynamic>>> _fetchList(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Object? data,
-  }) async {
-    final response = data != null
-        ? await _dio.post<List<dynamic>>(path,
-            queryParameters: queryParameters, data: data)
-        : await _dio.get<List<dynamic>>(path,
-            queryParameters: queryParameters);
-    final body = response.data;
-    if (body == null) {
-      return const [];
-    }
-    return body
-        .cast<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .toList(growable: false);
+  Future<List<Season>> getItemSeasons(String itemId) async {
+    return _catalogApi.getItemSeasons(itemId);
+  }
+
+  Future<CatalogEdition> createEdition(String itemId, {required String title}) async {
+    return _catalogApi.createEdition(itemId, title: title);
   }
 
   Future<List<Map<String, dynamic>>> searchStoryArcs({
     String? query,
     int limit = 50,
   }) {
-    return _fetchList(
-      '/story-arcs',
-      queryParameters: {
-        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
-        'limit': limit,
-      },
-    );
+    return _browseApi.searchStoryArcs(query: query, limit: limit);
   }
 
-  Future<List<Map<String, dynamic>>> getStoryArcItems(
-      String storyArcId) {
-    return _fetchList(
-        '/story-arcs/${Uri.encodeComponent(storyArcId)}/items');
+  Future<List<Map<String, dynamic>>> getStoryArcItems(String storyArcId) {
+    return _browseApi.getStoryArcItems(storyArcId);
   }
 
   Future<List<Map<String, dynamic>>> storyArcFacets(
     Iterable<String> itemIds,
   ) {
-    final ids = itemIds.where((id) => id.trim().isNotEmpty).toSet().toList();
-    if (ids.isEmpty) {
-      return Future.value(const []);
-    }
-    return _fetchList('/story-arcs/facets', data: {'item_ids': ids});
+    return _browseApi.storyArcFacets(itemIds);
   }
 
   Future<List<Map<String, dynamic>>> searchCreators({
     String? query,
     int limit = 50,
   }) {
-    return _fetchList(
-      '/creators',
-      queryParameters: {
-        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
-        'limit': limit,
-      },
-    );
+    return _browseApi.searchCreators(query: query, limit: limit);
   }
 
   Future<List<Map<String, dynamic>>> creatorFacets(
     Iterable<String> itemIds,
   ) {
-    final ids = itemIds.where((id) => id.trim().isNotEmpty).toSet().toList();
-    if (ids.isEmpty) {
-      return Future.value(const []);
-    }
-    return _fetchList('/creators/facets', data: {'item_ids': ids});
+    return _browseApi.creatorFacets(itemIds);
   }
 
   Future<List<Map<String, dynamic>>> getCreatorCredits(
     String creatorId,
   ) {
-    return _fetchList(
-      '/creators/${Uri.encodeComponent(creatorId)}/credits',
-    );
+    return _browseApi.getCreatorCredits(creatorId);
   }
 
   Future<List<Map<String, dynamic>>> searchCharacters({
     String? query,
     int limit = 50,
   }) {
-    return _fetchList(
-      '/characters',
-      queryParameters: {
-        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
-        'limit': limit,
-      },
-    );
+    return _browseApi.searchCharacters(query: query, limit: limit);
   }
 
   Future<List<Map<String, dynamic>>> characterFacets(
     Iterable<String> itemIds,
   ) {
-    final ids = itemIds.where((id) => id.trim().isNotEmpty).toSet().toList();
-    if (ids.isEmpty) {
-      return Future.value(const []);
-    }
-    return _fetchList('/characters/facets', data: {'item_ids': ids});
+    return _browseApi.characterFacets(itemIds);
   }
 
   Future<List<Map<String, dynamic>>> getCharacterAppearances(
     String characterId,
   ) {
-    return _fetchList(
-        '/characters/${Uri.encodeComponent(characterId)}/appearances');
+    return _browseApi.getCharacterAppearances(characterId);
   }
 
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
       {String? kind}) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/barcode/${Uri.encodeComponent(MetadataSearchQuery.normalizeBarcode(barcode))}',
-      queryParameters: {
-        if (kind != null) 'kind': kind,
-      },
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/barcode returned an empty response body');
-    }
-    return _resolveImageUrls(data);
+    return _catalogApi.lookupBarcode(barcode, kind: kind);
   }
 
   Future<Map<String, dynamic>> health() async {
@@ -913,55 +616,32 @@ class ApiClient {
   // User management
   // -----------------------------------------------------------------------
 
-  Future<List<Map<String, dynamic>>> adminListUsers() async {
-    final response = await _dio.get<List<dynamic>>('/admin/users');
-    final data = response.data;
-    if (data == null) return const [];
-    return data.cast<Map<String, dynamic>>();
+  Future<List<AdminUser>> adminListUsers() async {
+    return _assetsApi.adminListUsers();
   }
 
-  Future<Map<String, dynamic>> adminImageCacheStats() async {
-    final response =
-        await _dio.get<Map<String, dynamic>>('/admin/image-cache/stats');
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/admin/image-cache/stats returned empty body');
-    }
-    return data;
+  Future<AdminImageCacheStats> adminImageCacheStats() async {
+    return _assetsApi.adminImageCacheStats();
   }
 
-  Future<Map<String, dynamic>> adminPurgeImageCache({String? provider}) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/admin/image-cache/purge',
-      queryParameters: {if (provider != null) 'provider': provider},
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/admin/image-cache/purge returned empty body');
-    }
-    return data;
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache({
+    String? provider,
+  }) async {
+    return _assetsApi.adminPurgeImageCache(provider: provider);
   }
 
-  Future<Map<String, dynamic>> adminUpdateUser(
+  Future<AdminUser> adminUpdateUser(
     String userId, {
     String? role,
     bool? isActive,
     String? displayName,
   }) async {
-    final body = <String, dynamic>{
-      if (role != null) 'role': role,
-      if (isActive != null) 'is_active': isActive,
-      if (displayName != null) 'display_name': displayName,
-    };
-    final response = await _dio.patch<Map<String, dynamic>>(
-      '/admin/users/${Uri.encodeComponent(userId)}',
-      data: body,
+    return _assetsApi.adminUpdateUser(
+      userId,
+      role: role,
+      isActive: isActive,
+      displayName: displayName,
     );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/admin/users/$userId returned an empty response body');
-    }
-    return data;
   }
 
   // ---------------------------------------------------------------------------
@@ -970,26 +650,14 @@ class ApiClient {
 
   /// Download a single processed image from the server as raw bytes.
   Future<List<int>> downloadImageBytes(String objectKey) async {
-    final response = await _dio.get<List<int>>(
-      '/images/download',
-      queryParameters: {'object_key': objectKey},
-      options: Options(responseType: ResponseType.bytes),
-    );
-    return response.data ?? const [];
+    return _assetsApi.downloadImageBytes(objectKey);
   }
 
   /// Batch-download processed images.  Returns a map of object_key → base64.
   Future<Map<String, String?>> batchDownloadImages(
     List<String> objectKeys,
   ) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/images/batch-download',
-      data: objectKeys,
-    );
-    return response.data?.map(
-          (key, value) => MapEntry(key, value as String?),
-        ) ??
-        {};
+    return _assetsApi.batchDownloadImages(objectKeys);
   }
 
   /// List all image assets for an entity.
@@ -997,10 +665,10 @@ class ApiClient {
     required String entityType,
     required String entityId,
   }) async {
-    final response = await _dio.get<List<dynamic>>(
-      '/images/entity/$entityType/$entityId',
+    return _assetsApi.listEntityImages(
+      entityType: entityType,
+      entityId: entityId,
     );
-    return (response.data ?? []).cast<Map<String, dynamic>>();
   }
 
   /// Upload a new image for an entity.
@@ -1013,30 +681,25 @@ class ApiClient {
     String? provider,
     bool isPrimary = false,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/images/entity/$entityType/$entityId',
-      data: {
-        'image_type': imageType,
-        'image_data_base64': imageDataBase64,
-        if (sourceUrl != null) 'source_url': sourceUrl,
-        if (provider != null) 'provider': provider,
-        'is_primary': isPrimary,
-      },
+    return _assetsApi.addEntityImage(
+      entityType: entityType,
+      entityId: entityId,
+      imageType: imageType,
+      imageDataBase64: imageDataBase64,
+      sourceUrl: sourceUrl,
+      provider: provider,
+      isPrimary: isPrimary,
     );
-    return response.data ?? {};
   }
 
   /// Delete an image asset.
   Future<void> deleteEntityImage(String imageId) async {
-    await _dio.delete('/images/$imageId');
+    await _assetsApi.deleteEntityImage(imageId);
   }
 
   /// Set an image as primary for its type.
   Future<Map<String, dynamic>> setImagePrimary(String imageId) async {
-    final response = await _dio.patch<Map<String, dynamic>>(
-      '/images/$imageId/primary',
-    );
-    return response.data ?? {};
+    return _assetsApi.setImagePrimary(imageId);
   }
 
   Map<String, dynamic> _resolveImageUrls(Map<String, dynamic> data) {

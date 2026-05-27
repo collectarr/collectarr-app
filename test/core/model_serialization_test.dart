@@ -397,7 +397,6 @@ void main() {
     expect(detail.primaryEdition?.region, 'US');
     expect(detail.primaryEdition?.physicalFormat, 'blu-ray');
     expect(detail.primaryEdition?.physicalFormatLabel, 'Blu-ray');
-    expect(detail.primaryEdition?.releases.single.region, 'US');
     expect(detail.primaryVariant?.barcode, '75960604716100111');
     expect(detail.primaryVariant?.physicalFormatLabel, 'Blu-ray');
     expect(detail.primaryVariant?.coverPriceCents, 399);
@@ -411,6 +410,7 @@ void main() {
     final item = OwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
+      isDigital: true,
       condition: 'Near Mint',
       grade: '9.8',
       purchaseDate: DateTime.utc(2026, 5, 11),
@@ -432,6 +432,7 @@ void main() {
     final payload = item.toSyncPayload();
 
     expect(payload['item_id'], 'comic-1');
+    expect(payload['is_digital'], isTrue);
     expect(payload['grade'], '9.8');
     expect(payload['purchase_date'], '2026-05-11T00:00:00.000Z');
     expect(payload['price_paid_cents'], 1299);

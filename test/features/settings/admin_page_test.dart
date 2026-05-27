@@ -1,30 +1,58 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('admin page searches provider metadata and ingests a result',
       (tester) async {
     final api = _FakeAdminApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    await LocationRepository(db).create(name: 'Shelf A');
+    await CustomFieldRepository(db).upsertDefinition(
+      CustomFieldDefinition(
+        id: 'cf-1',
+        name: 'Signed',
+        fieldType: 'bool',
+        mediaKind: 'comic',
+        createdAt: DateTime.utc(2026, 5, 14),
+      ),
+    );
     tester.view.physicalSize = const Size(1200, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(db.close);
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [apiClientProvider.overrideWithValue(api)],
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => _AdminAuthController(ref),
+          ),
+        ],
         child: const MaterialApp(home: AdminPage()),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     // ─── Dashboard tab (default) ───
     expect(find.text('Metadata dashboard'), findsOneWidget);
@@ -38,16 +66,21 @@ void main() {
     expect(find.text('5 ok'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
     expect(find.text('GCD'), findsWidgets);
+    expect(find.text('Metadata proposal activity'), findsOneWidget);
+    expect(find.text('1 recent approve'), findsOneWidget);
+    expect(find.text('1 recent reject'), findsOneWidget);
+    expect(find.text('Approved via provider'), findsOneWidget);
+    expect(find.text('Rejected proposal'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Reindex search'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.reindexCount, 1);
     expect(find.text('Reindexed 12'), findsOneWidget);
 
     // ─── Logs tab ───
     await tester.tap(find.text('Logs'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Search index history'), findsOneWidget);
     expect(find.text('12 docs'), findsOneWidget);
@@ -58,9 +91,15 @@ void main() {
 
     // ─── Catalog tab ───
     await tester.tap(find.text('Catalog').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
-    expect(find.text('Canonical catalog browser'), findsOneWidget);
+    expect(find.text('Catalog search'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Find catalog items'),
+      'Batman',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Search'));
+    await pumpUntilSettled(tester);
 
     await _scrollUntilVisible(
       tester,
@@ -68,10 +107,10 @@ void main() {
       delta: -500,
     );
     await tester.tap(find.widgetWithText(OutlinedButton, 'Covers').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.textContaining('cover:'), findsOneWidget);
     await tester.tap(find.text('Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await _scrollUntilVisible(
       tester,
@@ -79,14 +118,17 @@ void main() {
       delta: -500,
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Edit').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
         find.widgetWithText(TextField, 'Title'), 'Absolute Batman Deluxe');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save correction').first);
+    await pumpUntilSettled(tester);
     expect(find.text('Preview metadata correction'), findsOneWidget);
     await tester.tap(find.text('Save correction').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+    expect(find.text('Preview metadata correction'), findsOneWidget);
+    await tester.tap(find.text('Save correction').last);
+    await pumpUntilSettled(tester);
 
     expect(api.lastCatalogUpdateTitle, 'Absolute Batman Deluxe');
     expect(find.text('Metadata correction saved.'), findsOneWidget);
@@ -94,10 +136,10 @@ void main() {
     // Inspect + duplicates (also on Catalog tab)
     await tester.ensureVisible(
         find.widgetWithText(OutlinedButton, 'Inspect').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Absolute Batman #1A'), findsWidgets);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Inspect').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastInspectKind, 'comic');
     expect(api.lastInspectId, 'item-1');
@@ -105,21 +147,43 @@ void main() {
     expect(find.text('Absolute Batman #1B'), findsOneWidget);
     expect(find.text('Provider links'), findsOneWidget);
     expect(find.text('Item audit history'), findsOneWidget);
+    expect(find.text('Bundle releases'), findsOneWidget);
+    expect(find.text('Absolute Batman Collector Bundle'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Edit bundle'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Edit bundle: Absolute Batman Collector Bundle'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Title'),
+      'Absolute Batman Collector Box',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Save correction'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Preview bundle correction'), findsOneWidget);
+    await tester.tap(find.text('Save correction').last);
+    await pumpUntilSettled(tester);
+
+    expect(api.lastBundleUpdateId, 'bundle-1');
+    expect(api.lastBundleUpdateTitle, 'Absolute Batman Collector Box');
+    expect(find.text('Bundle release correction saved.'), findsOneWidget);
+    expect(find.text('Absolute Batman Collector Box'), findsOneWidget);
+
     await tester.tap(find.widgetWithText(TextButton, 'Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.ensureVisible(find.text('Merge into first'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.text('Merge into first'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.textContaining('Merge review:'), findsOneWidget);
     await tester.enterText(
       find.widgetWithText(TextField, 'Type MERGE to confirm'),
       'MERGE',
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Merge selected'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastMergeTargetItemId, 'item-1');
     expect(api.lastMergeSourceItemIds, ['item-2']);
@@ -127,11 +191,42 @@ void main() {
     expect(find.text('No duplicate candidates detected.'), findsOneWidget);
     expect(find.text('Inspect: Absolute Batman #1B'), findsOneWidget);
     await tester.tap(find.widgetWithText(TextButton, 'Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     // ─── Providers tab ───
     await tester.tap(find.text('Providers'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Metadata proposals'), findsOneWidget);
+    expect(find.text('2 pending'), findsOneWidget);
+    expect(find.text('1 approved'), findsOneWidget);
+    expect(find.text('1 rejected'), findsOneWidget);
+    expect(find.text('Manual GCD correction'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Review in search').first);
+    await pumpUntilSettled(tester);
+
+    expect(find.textContaining('Reviewing proposal:'), findsOneWidget);
+    await _scrollUntilVisible(
+      tester,
+      find.widgetWithText(FilledButton, 'Approve proposal').first,
+      delta: -400,
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Approve proposal').first);
+    await pumpUntilSettled(tester);
+
+    expect(api.lastApprovedProposalId, 'proposal-1');
+    expect(api.lastApprovedProposalProviderItemId, '12345');
+    expect(
+      find.text('Proposal approved with selected provider item.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Reject').first);
+    await pumpUntilSettled(tester);
+
+    expect(api.lastRejectedProposalId, 'proposal-2');
+    expect(find.text('Proposal rejected.'), findsOneWidget);
 
     await _scrollUntilVisible(tester, find.text('Provider ingest jobs'));
     expect(find.text('Provider ingest jobs'), findsOneWidget);
@@ -143,7 +238,7 @@ void main() {
     expect(find.textContaining('Last refreshed'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(OutlinedButton, 'Details').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Ingest job: gcd queued-123'), findsOneWidget);
     expect(find.text('Job ID'), findsOneWidget);
@@ -154,22 +249,22 @@ void main() {
     expect(find.widgetWithText(OutlinedButton, 'Refresh list'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester
         .ensureVisible(find.widgetWithText(OutlinedButton, 'Queue current ID'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Job provider item ID'),
       'queued-direct',
     );
     await tester.tap(find.widgetWithText(OutlinedButton, 'Queue current ID'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastQueuedProviderItemId, 'queued-direct');
 
     await tester.tap(find.widgetWithText(FilledButton, 'Run queued'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.runPendingCount, 1);
 
@@ -182,40 +277,57 @@ void main() {
     expect(find.text('gcd failed-123'), findsOneWidget);
 
     await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Retry'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(OutlinedButton, 'Retry'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastRetryHistoryId, 7);
 
     // Provider ingest by ID
-    await _scrollUntilVisible(
-      tester,
-      find.widgetWithText(TextField, 'Provider item ID'),
-      delta: -700,
+    await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
+    await pumpUntilSettled(tester);
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is DropdownButtonFormField<String> &&
+            widget.decoration.labelText == 'Media kind',
+      ),
     );
+    await pumpUntilSettled(tester);
+    await tester.tap(find.textContaining('Comic').last);
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('Known ID'));
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Provider item ID'),
       'direct-123',
     );
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Ingest ID'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Add to catalog'));
+    await pumpUntilSettled(tester);
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, 'direct-123');
 
-    await _scrollUntilVisible(
-      tester,
-      find.widgetWithText(TextField, 'Provider query'),
+    await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
+    await pumpUntilSettled(tester);
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is DropdownButtonFormField<String> &&
+            widget.decoration.labelText == 'Media kind',
+      ),
     );
+    await pumpUntilSettled(tester);
+    await tester.tap(find.textContaining('Comic').last);
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Provider query'),
       'Batman #1',
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Search').last);
+    await tester.tap(find.widgetWithText(FilledButton, 'Search provider'));
     await tester.pump();
     await tester.pump();
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastSearchProvider, 'gcd');
     expect(api.lastSearchQuery, 'Batman #1');
@@ -227,33 +339,90 @@ void main() {
       find.widgetWithText(FilledButton, 'Ingest'),
     );
     expect(find.text('Absolute Batman #1'), findsWidgets);
-    expect(find.text('ID 12345'), findsOneWidget);
+    expect(find.text('12345'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Ingest').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(api.lastIngestProvider, 'gcd');
     expect(api.lastIngestProviderItemId, '12345');
+
+    await tester.tap(find.text('System'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Collection schema'), findsOneWidget);
+    expect(find.text('New root location'), findsOneWidget);
+    expect(find.text('Manage locations'), findsOneWidget);
+    expect(find.text('New custom field'), findsOneWidget);
+    expect(find.text('Manage custom fields'), findsOneWidget);
+    expect(find.text('Field scope'), findsOneWidget);
+    expect(find.text('User management'), findsOneWidget);
+    expect(find.text('Image cache'), findsOneWidget);
+    expect(find.text('alice@example.com'), findsOneWidget);
+    expect(find.text('bob@example.com'), findsOneWidget);
+    expect(find.text('Visible 2'), findsOneWidget);
+    expect(find.text('Admins 1'), findsOneWidget);
+    expect(find.text('Per-provider purge'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Purge gcd'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Edit user').first);
+    await pumpUntilSettled(tester);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Display name'),
+      'Alice Curator',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+
+    expect(api.lastUpdatedUserId, 'user-1');
+    expect(api.lastUpdatedUserDisplayName, 'Alice Curator');
+    expect(find.text('Updated alice@example.com.'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Deactivate').first);
+    await pumpUntilSettled(tester);
+
+    expect(api.lastUpdatedUserIsActive, isFalse);
+    expect(find.text('Deactivated alice@example.com.'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Purge gcd'));
+    await pumpUntilSettled(tester);
+
+    expect(api.lastPurgedImageProvider, 'gcd');
+    expect(find.textContaining('Purged 12 gcd entries'), findsOneWidget);
   });
 
   testWidgets('admin page persists series tag corrections for books',
       (tester) async {
     final api = _BookAdminApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
     tester.view.physicalSize = const Size(1280, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(db.close);
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [apiClientProvider.overrideWithValue(api)],
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => _AdminAuthController(ref),
+          ),
+        ],
         child: const MaterialApp(home: AdminPage()),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(Tab, 'Catalog'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Find catalog items'),
+      'Lord of the Rings',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Search'));
+    await pumpUntilSettled(tester);
 
     await _scrollUntilVisible(
       tester,
@@ -261,31 +430,24 @@ void main() {
       delta: -500,
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Edit').first);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
-    expect(find.text('Credits & Characters'), findsOneWidget);
-    await tester.tap(find.text('Credits & Characters'));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.widgetWithText(TextField, 'Series tags'));
     await tester.enterText(
-      find.widgetWithText(TextField, 'Add tag').first,
-      'Epic Fantasy',
+      find.widgetWithText(TextField, 'Series tags'),
+      'Fantasy, Epic Fantasy, Fellowship',
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Add tag').first,
-      'Fellowship',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Add').last);
-    await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save correction').first);
+    await pumpUntilSettled(tester);
     expect(find.text('Preview metadata correction'), findsOneWidget);
     expect(find.text('Series tags'), findsWidgets);
 
     await tester.tap(find.text('Save correction').last);
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+    expect(find.text('Preview metadata correction'), findsOneWidget);
+    await tester.tap(find.text('Save correction').last);
+    await pumpUntilSettled(tester);
 
     expect(api.lastSeriesTagsSeriesId, 'series-book-1');
     expect(api.lastSeriesTags, ['Fantasy', 'Epic Fantasy', 'Fellowship']);
@@ -306,7 +468,17 @@ Future<void> _scrollUntilVisible(
     ).first,
     maxScrolls: 50,
   );
-  await tester.pumpAndSettle();
+  await pumpUntilSettled(tester);
+}
+
+class _AdminAuthController extends AuthController {
+  _AdminAuthController(super.ref) {
+    state = const AuthState(
+      token: 'test-token',
+      email: 'admin@example.com',
+      isAdmin: true,
+    );
+  }
 }
 
 class _FakeAdminApiClient extends ApiClient {
@@ -315,6 +487,14 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastSearchProvider;
   String? lastSearchQuery;
   String? lastSearchKind;
+  String? lastApprovedProposalId;
+  String? lastApprovedProposalProviderItemId;
+  String? lastRejectedProposalId;
+  String? lastUpdatedUserId;
+  String? lastUpdatedUserDisplayName;
+  String? lastUpdatedUserRole;
+  bool? lastUpdatedUserIsActive;
+  String? lastPurgedImageProvider;
   String? lastSeriesTagsSeriesId;
   String? lastIngestProvider;
   String? lastIngestProviderItemId;
@@ -323,6 +503,8 @@ class _FakeAdminApiClient extends ApiClient {
   String? lastMergeTargetItemId;
   String? lastCatalogUpdateTitle;
   String? lastCatalogUpdatePhysicalFormat;
+  String? lastBundleUpdateId;
+  String? lastBundleUpdateTitle;
   String? lastQueuedProviderItemId;
   int? lastRetryHistoryId;
   List<String>? lastSeriesTags;
@@ -330,10 +512,53 @@ class _FakeAdminApiClient extends ApiClient {
   bool duplicateResolved = false;
   bool retryResolved = false;
   bool catalogUpdated = false;
+  bool bundleUpdated = false;
   bool queuedJobCreated = false;
   int catalogUpdateCount = 0;
   int runPendingCount = 0;
   int reindexCount = 0;
+  final List<AdminUser> _users = [
+    AdminUser(
+      id: 'user-1',
+      email: 'alice@example.com',
+      displayName: 'Alice Admin',
+      isActive: true,
+      isAdmin: true,
+      role: 'admin',
+      createdAt: DateTime.utc(2026, 5, 10, 9),
+      updatedAt: DateTime.utc(2026, 5, 14, 9),
+    ),
+    AdminUser(
+      id: 'user-2',
+      email: 'bob@example.com',
+      displayName: 'Bob Editor',
+      isActive: true,
+      isAdmin: false,
+      role: 'editor',
+      createdAt: DateTime.utc(2026, 5, 11, 9),
+      updatedAt: DateTime.utc(2026, 5, 14, 10),
+    ),
+  ];
+  final Map<String, int> _imageProviders = {'gcd': 12, 'comicvine': 4};
+  final List<AdminMetadataProposal> _pendingProposals = [
+    const AdminMetadataProposal(
+      id: 'proposal-1',
+      provider: 'gcd',
+      providerItemId: 'manual-123',
+      query: 'Absolute Batman manual correction',
+      title: 'Manual GCD correction',
+      summary: 'Needs a provider-backed match before ingest.',
+      status: 'pending',
+    ),
+    const AdminMetadataProposal(
+      id: 'proposal-2',
+      provider: 'comicvine',
+      query: 'Variant cleanup proposal',
+      title: 'Variant cleanup',
+      summary: 'Reject this duplicate suggestion.',
+      status: 'pending',
+    ),
+  ];
 
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
@@ -426,7 +651,6 @@ class _FakeAdminApiClient extends ApiClient {
       volumes: 4,
       editions: 12,
       variants: 15,
-      releases: 12,
       providerLinks: 20,
       imageAssets: 0,
       imageCacheEntries: 0,
@@ -493,10 +717,17 @@ class _FakeAdminApiClient extends ApiClient {
     String? synopsis,
     String? editionTitle,
     int? pageCount,
+    int? runtimeMinutes,
     String? publisher,
     DateTime? releaseDate,
     String? imprint,
+    String? subtitle,
     String? seriesGroup,
+    String? country,
+    String? language,
+    String? ageRating,
+    String? catalogNumber,
+    String? releaseStatus,
     String? physicalFormat,
     String? variantName,
     String? barcode,
@@ -558,6 +789,28 @@ class _FakeAdminApiClient extends ApiClient {
     String? entityId,
     int limit = 10,
   }) async {
+    if (entityType == 'metadata_proposal') {
+      return [
+        AdminAuditLogEntry(
+          id: 'proposal-audit-1',
+          action: 'metadata_proposal.approve_provider',
+          actorEmail: 'admin@example.com',
+          entityType: 'metadata_proposal',
+          entityId: 'proposal-1',
+          detailsJson: const {'provider': 'gcd'},
+          createdAt: DateTime.utc(2026, 5, 14, 9, 20),
+        ),
+        AdminAuditLogEntry(
+          id: 'proposal-audit-2',
+          action: 'metadata_proposal.reject',
+          actorEmail: 'admin@example.com',
+          entityType: 'metadata_proposal',
+          entityId: 'proposal-2',
+          detailsJson: const {'provider': 'comicvine'},
+          createdAt: DateTime.utc(2026, 5, 14, 9, 25),
+        ),
+      ];
+    }
     return [
       AdminAuditLogEntry(
         id: 'audit-1',
@@ -600,6 +853,112 @@ class _FakeAdminApiClient extends ApiClient {
         error: 'Provider timeout',
       ),
     ];
+  }
+
+  @override
+  Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
+    return AdminMetadataProposalSummary(
+      pending: _pendingProposals
+          .where((proposal) =>
+              proposal.id != lastApprovedProposalId &&
+              proposal.id != lastRejectedProposalId)
+          .length,
+      approved: 1 + (lastApprovedProposalId == null ? 0 : 1),
+      rejected: 1 + (lastRejectedProposalId == null ? 0 : 1),
+      total: _pendingProposals.length + 2,
+    );
+  }
+
+  @override
+  Future<List<AdminMetadataProposal>> adminMetadataProposals({
+    String status = 'pending',
+    String? provider,
+  }) async {
+    Iterable<AdminMetadataProposal> proposals;
+    if (status == 'pending') {
+      proposals = _pendingProposals.where((proposal) {
+        if (lastApprovedProposalId == proposal.id ||
+            lastRejectedProposalId == proposal.id) {
+          return false;
+        }
+        return true;
+      });
+    } else if (status == 'approved') {
+      proposals = const [
+        AdminMetadataProposal(
+          id: 'proposal-approved-1',
+          provider: 'gcd',
+          query: 'Approved proposal',
+          title: 'Approved proposal',
+          status: 'approved',
+        ),
+      ];
+    } else {
+      proposals = const [
+        AdminMetadataProposal(
+          id: 'proposal-rejected-1',
+          provider: 'comicvine',
+          query: 'Rejected proposal',
+          title: 'Rejected proposal',
+          status: 'rejected',
+        ),
+      ];
+    }
+    if (provider != null && provider.isNotEmpty) {
+      proposals = proposals.where((proposal) => proposal.provider == provider);
+    }
+    return proposals.toList(growable: false);
+  }
+
+  @override
+  Future<AdminProviderIngestResult> adminApproveMetadataProposal({
+    required String proposalId,
+  }) async {
+    lastApprovedProposalId = proposalId;
+    return const AdminProviderIngestResult(
+      itemId: 'item-1',
+      created: true,
+      item: AdminMetadataItem(
+        id: 'item-1',
+        kind: 'comic',
+        title: 'Absolute Batman',
+      ),
+    );
+  }
+
+  @override
+  Future<AdminProviderIngestResult>
+      adminApproveMetadataProposalWithProviderItem({
+    required String proposalId,
+    required String provider,
+    required String providerItemId,
+    String? kind,
+  }) async {
+    lastApprovedProposalId = proposalId;
+    lastApprovedProposalProviderItemId = providerItemId;
+    return const AdminProviderIngestResult(
+      itemId: 'item-1',
+      created: true,
+      item: AdminMetadataItem(
+        id: 'item-1',
+        kind: 'comic',
+        title: 'Absolute Batman',
+      ),
+    );
+  }
+
+  @override
+  Future<AdminMetadataProposal> adminRejectMetadataProposal({
+    required String proposalId,
+  }) async {
+    lastRejectedProposalId = proposalId;
+    return const AdminMetadataProposal(
+      id: 'proposal-2',
+      provider: 'comicvine',
+      query: 'Variant cleanup proposal',
+      title: 'Variant cleanup',
+      status: 'rejected',
+    );
   }
 
   @override
@@ -791,12 +1150,86 @@ class _FakeAdminApiClient extends ApiClient {
               currency: 'USD',
             ),
           ],
-          releases: [
-            AdminRelease(id: 'release-2', region: 'US'),
-          ],
         ),
       ],
     );
+  }
+
+  @override
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+    if (itemId != 'item-1') {
+      return const [];
+    }
+    return [
+      BundleReleaseSummary(
+        id: 'bundle-1',
+        kind: 'comic',
+        title: bundleUpdated
+            ? 'Absolute Batman Collector Box'
+            : 'Absolute Batman Collector Bundle',
+        publisher: 'DC Comics',
+        bundleType: 'box_set',
+        contentSummary: const BundleReleaseContentSummary(
+          totalItems: 2,
+          primaryCount: 1,
+          bonusCount: 1,
+        ),
+      ),
+    ];
+  }
+
+  @override
+  Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
+    expect(bundleReleaseId, 'bundle-1');
+    return BundleReleaseDetail.fromJson({
+      'id': 'bundle-1',
+      'kind': 'comic',
+      'title': bundleUpdated
+          ? 'Absolute Batman Collector Box'
+          : 'Absolute Batman Collector Bundle',
+      'bundle_type': 'box_set',
+      'publisher': 'DC Comics',
+      'primary_item_id': 'item-1',
+      'content_summary': const {
+        'total_items': 2,
+        'primary_count': 1,
+        'bonus_count': 1,
+      },
+      'members': const [
+        {
+          'id': 'bundle-member-1',
+          'item_id': 'item-1',
+          'role': 'primary',
+          'sequence_number': 1,
+          'quantity': 1,
+          'is_primary': true,
+          'kind': 'comic',
+          'title': 'Absolute Batman #1B',
+          'item_number': '1B',
+        },
+        {
+          'id': 'bundle-member-2',
+          'item_id': 'item-3',
+          'role': 'bonus',
+          'sequence_number': 2,
+          'quantity': 1,
+          'is_primary': false,
+          'kind': 'comic',
+          'title': 'Absolute Batman Sketchbook',
+        },
+      ],
+    });
+  }
+
+  @override
+  Future<BundleReleaseDetail> adminUpdateBundleRelease({
+    required String bundleReleaseId,
+    required AdminBundleReleaseCorrection correction,
+  }) async {
+    lastBundleUpdateId = bundleReleaseId;
+    lastBundleUpdateTitle = correction.title;
+    bundleUpdated = true;
+    return getBundleRelease(bundleReleaseId);
   }
 
   @override
@@ -823,6 +1256,7 @@ class _FakeAdminApiClient extends ApiClient {
   Future<AdminProviderIngestResult> adminProviderIngest({
     required String provider,
     required String providerItemId,
+    String? kind,
   }) async {
     lastIngestProvider = provider;
     lastIngestProviderItemId = providerItemId;
@@ -861,9 +1295,6 @@ class _FakeAdminApiClient extends ApiClient {
                 coverPriceCents: 499,
                 currency: 'USD',
               ),
-            ],
-            releases: [
-              AdminRelease(id: 'release-1', region: 'US'),
             ],
           ),
         ],
@@ -909,6 +1340,73 @@ class _FakeAdminApiClient extends ApiClient {
       processed: 1,
       recovered: 0,
       jobs: await adminProviderIngestJobs(),
+    );
+  }
+
+  @override
+  Future<List<AdminUser>> adminListUsers() async {
+    return List<AdminUser>.from(_users);
+  }
+
+  @override
+  Future<AdminUser> adminUpdateUser(
+    String userId, {
+    String? role,
+    bool? isActive,
+    String? displayName,
+  }) async {
+    final index = _users.indexWhere((user) => user.id == userId);
+    expect(index, isNonNegative);
+    final current = _users[index];
+    final updated = AdminUser(
+      id: current.id,
+      email: current.email,
+      displayName: displayName ?? current.displayName,
+      isActive: isActive ?? current.isActive,
+      isAdmin: (role ?? current.role) == 'admin',
+      role: role ?? current.role,
+      createdAt: current.createdAt,
+      updatedAt: DateTime.utc(2026, 5, 14, 11),
+    );
+    _users[index] = updated;
+    lastUpdatedUserId = userId;
+    lastUpdatedUserDisplayName = displayName;
+    lastUpdatedUserRole = role;
+    lastUpdatedUserIsActive = isActive;
+    return updated;
+  }
+
+  @override
+  Future<AdminImageCacheStats> adminImageCacheStats() async {
+    final totalEntries = _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
+    final totalSizeBytes = totalEntries * 1024 * 128;
+    const maxSizeBytes = 1024 * 1024 * 8;
+    return AdminImageCacheStats(
+      totalEntries: totalEntries,
+      totalSizeBytes: totalSizeBytes,
+      maxSizeBytes: maxSizeBytes,
+      usagePercent: totalSizeBytes / maxSizeBytes * 100,
+      mirroringEnabled: true,
+      providers: Map<String, int>.from(_imageProviders),
+    );
+  }
+
+  @override
+  Future<AdminImageCachePurgeResult> adminPurgeImageCache({String? provider}) async {
+    lastPurgedImageProvider = provider;
+    if (provider == null || provider.isEmpty) {
+      final deletedEntries = _imageProviders.values.fold<int>(0, (sum, item) => sum + item);
+      _imageProviders.updateAll((key, value) => 0);
+      return AdminImageCachePurgeResult(
+        deletedEntries: deletedEntries,
+        freedBytes: deletedEntries * 1024 * 128,
+      );
+    }
+    final deletedEntries = _imageProviders[provider] ?? 0;
+    _imageProviders[provider] = 0;
+    return AdminImageCachePurgeResult(
+      deletedEntries: deletedEntries,
+      freedBytes: deletedEntries * 1024 * 128,
     );
   }
 }

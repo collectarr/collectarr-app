@@ -1,10 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 
 class LibraryMetadataItem {
-  const LibraryMetadataItem({
+    LibraryMetadataItem({
     required this.id,
-    required this.kind,
+        String? kind,
+        CatalogMediaKind? mediaKind,
     required this.title,
+    this.displayTitle,
+    this.localizedTitle,
+    this.originalTitle,
+    this.searchAliases,
         this.sortKey,
     this.itemNumber,
     this.synopsis,
@@ -32,13 +37,17 @@ class LibraryMetadataItem {
     this.country,
     this.language,
     this.ageRating,
-  });
+    }) : mediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
 
   static const _unset = Object();
 
   final String id;
-  final String kind;
+    final CatalogMediaKind mediaKind;
   final String title;
+    final String? displayTitle;
+    final String? localizedTitle;
+    final String? originalTitle;
+    final List<String>? searchAliases;
     final String? sortKey;
   final String? itemNumber;
   final String? synopsis;
@@ -67,11 +76,17 @@ class LibraryMetadataItem {
   final String? language;
   final String? ageRating;
 
+    String get kind => mediaKind.apiValue;
+
   factory LibraryMetadataItem.fromCatalogItem(CatalogItem item) {
     return LibraryMetadataItem(
       id: item.id,
-      kind: item.kind,
+            mediaKind: item.mediaKind,
       title: item.title,
+    displayTitle: item.displayTitle,
+    localizedTitle: item.localizedTitle,
+    originalTitle: item.originalTitle,
+    searchAliases: item.searchAliases,
     sortKey: item.sortKey,
       itemNumber: item.itemNumber,
       synopsis: item.synopsis,
@@ -105,7 +120,12 @@ class LibraryMetadataItem {
   LibraryMetadataItem copyWith({
     String? id,
     String? kind,
+        CatalogMediaKind? mediaKind,
     String? title,
+    Object? displayTitle = _unset,
+    Object? localizedTitle = _unset,
+    Object? originalTitle = _unset,
+    Object? searchAliases = _unset,
     Object? sortKey = _unset,
     Object? itemNumber = _unset,
     Object? synopsis = _unset,
@@ -136,8 +156,21 @@ class LibraryMetadataItem {
   }) {
     return LibraryMetadataItem(
       id: id ?? this.id,
-      kind: kind ?? this.kind,
+        mediaKind: mediaKind ??
+            (kind != null ? catalogMediaKindFromApiValue(kind) : this.mediaKind),
       title: title ?? this.title,
+      displayTitle: identical(displayTitle, _unset)
+          ? this.displayTitle
+          : displayTitle as String?,
+      localizedTitle: identical(localizedTitle, _unset)
+          ? this.localizedTitle
+          : localizedTitle as String?,
+      originalTitle: identical(originalTitle, _unset)
+          ? this.originalTitle
+          : originalTitle as String?,
+      searchAliases: identical(searchAliases, _unset)
+          ? this.searchAliases
+          : searchAliases as List<String>?,
       sortKey: identical(sortKey, _unset) ? this.sortKey : sortKey as String?,
       itemNumber: identical(itemNumber, _unset)
           ? this.itemNumber
@@ -224,8 +257,12 @@ class LibraryMetadataItem {
         final platformList = game?.platforms;
     return CatalogItem(
       id: id,
-      kind: kind,
+            mediaKind: mediaKind,
       title: title,
+    displayTitle: displayTitle,
+    localizedTitle: localizedTitle,
+    originalTitle: originalTitle,
+    searchAliases: searchAliases,
     sortKey: sortKey,
       itemNumber: itemNumber,
       synopsis: synopsis,

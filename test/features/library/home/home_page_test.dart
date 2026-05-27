@@ -1,14 +1,21 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('non-comic libraries use the generic workspace', (tester) async {
@@ -55,10 +62,10 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.text('Games'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     // Core workspace layout renders with game data.
     expect(find.text('Add Games'), findsOneWidget);
@@ -72,39 +79,39 @@ void main() {
     expect(find.byTooltip('Clear group filter'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Group by'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ListTile, 'Year'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('Year'));
+    await pumpUntilSettled(tester);
 
     expect(find.text('Years'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Library tools'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Quick views'), findsOneWidget);
     expect(find.text('Statistics'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(ListTile, 'Statistics'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.text('Statistics'));
+    await pumpUntilSettled(tester);
 
     expect(find.text('Games Statistics'), findsOneWidget);
     expect(find.text('Total'), findsOneWidget);
     await tester.tap(find.byTooltip('Close'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.tap(find.byTooltip('Library tools'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ListTile, 'Wishlist'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('Wishlist'));
+    await pumpUntilSettled(tester);
 
     expect(find.text('No matching games'), findsOneWidget);
     expect(find.text('Hades'), findsNothing);
     await tester.tap(find.text('Clear filter'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
     expect(find.text('Hades'), findsWidgets);
 
     await tester.tap(find.byTooltip('Refresh metadata'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Refresh games metadata'), findsOneWidget);
     expect(find.text('Source: Collectarr Core search'), findsOneWidget);
@@ -148,23 +155,17 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
-    final overflowButton = tester.widget<PopupMenuButton<CatalogMediaType>>(
-      find.byType(PopupMenuButton<CatalogMediaType>),
+    // Navigate to games by scrolling the tab strip and tapping.
+    await tester.dragUntilVisible(
+      find.text('Games'),
+      find.byType(ListView),
+      const Offset(-100, 0),
     );
-    expect(overflowButton.color, const Color(0xFF202020));
-    expect(overflowButton.surfaceTintColor, Colors.transparent);
-    expect(overflowButton.position, PopupMenuPosition.under);
-
-    await tester.tap(find.byTooltip('More libraries'));
     await tester.pumpAndSettle();
-    final gameItem = tester.widget<PopupMenuItem<CatalogMediaType>>(
-      find.byKey(const ValueKey('library-overflow-item-game')),
-    );
-    expect(gameItem.height, 38);
     await tester.tap(find.text('Games'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('[All Games] 1'), findsOneWidget);
     expect(find.text('Hades'), findsWidgets);
@@ -216,12 +217,16 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
-    await tester.tap(find.byTooltip('More libraries'));
+    await tester.dragUntilVisible(
+      find.text('Podcasts'),
+      find.byType(ListView).first,
+      const Offset(-100, 0),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Podcasts'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Add Podcasts'), findsOneWidget);
     expect(find.byTooltip('Scan barcode'), findsOneWidget);
@@ -274,7 +279,7 @@ void main() {
         child: const MaterialApp(home: LibraryHomePage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Add Games'), findsOneWidget);
     expect(find.text('Celeste'), findsWidgets);
@@ -282,5 +287,69 @@ void main() {
     expect(find.byTooltip('Comics'), findsNothing);
     expect(find.byTooltip('Games'), findsOneWidget);
     expect(find.byTooltip('More libraries'), findsNothing);
+  });
+
+  testWidgets('main chrome shows overdue loan alert chip', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1220, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final now = DateTime.utc(2026, 5, 15);
+    final game = CatalogItem(
+      id: 'game-overdue-1',
+      kind: 'game',
+      title: 'Citizen Sleeper',
+      publisher: 'Jump Over the Age',
+      releaseYear: 2022,
+    );
+    final owned = OwnedItem(
+      id: 'owned-overdue-1',
+      itemId: game.id,
+      updatedAt: now,
+    );
+    final shelf = ShelfState.from(
+      ownedItems: [owned],
+      wishlistItems: const [],
+      catalogItems: {game.id: game},
+    );
+    await LoanRepository(db).create(
+      Loan(
+        id: 'loan-overdue-1',
+        ownedItemId: owned.id,
+        borrowerName: 'Alex',
+        lentDate: DateTime.utc(2020, 1, 1),
+        dueDate: DateTime.utc(2020, 1, 10),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+          shelfProvider.overrideWith((ref) async => shelf),
+          collectionProvider.overrideWith((ref) async => const []),
+          wishlistProvider.overrideWith((ref) async => const []),
+          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          localDatabaseProvider.overrideWithValue(db),
+        ],
+        child: const MaterialApp(home: LibraryHomePage()),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(find.text('1 overdue'), findsOneWidget);
+    expect(
+      find.byTooltip('1 overdue loan · Open Shelf'),
+      findsOneWidget,
+    );
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

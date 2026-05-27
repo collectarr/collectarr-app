@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/settings/sync_settings_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/test_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -22,21 +24,21 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     await tester.scrollUntilVisible(
       find.text('Location'),
       240,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Location'), findsOneWidget);
     expect(find.text('Storage Box'), findsNothing);
     expect(find.text('Always overwrite'), findsWidgets);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Sync Now'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final prefs = await SharedPreferences.getInstance();
     expect(

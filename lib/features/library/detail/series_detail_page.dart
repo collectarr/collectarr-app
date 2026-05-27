@@ -1,10 +1,27 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/error_card.dart';
+import 'package:collectarr_app/ui/loading_indicator.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SeriesDetailPage extends ConsumerStatefulWidget {
+final _seriesDetailProvider =
+    FutureProvider.autoDispose.family<_SeriesDetailData, String>((ref, seriesId) async {
+  final api = ref.watch(apiClientProvider);
+  final series = await api.getSeries(seriesId);
+  final items = await api.getSeriesItems(seriesId);
+  final relations = await api.getSeriesRelations(seriesId);
+  return _SeriesDetailData(
+    series: series,
+    items: items,
+    relations: relations,
+  );
+});
+
+class SeriesDetailPage extends ConsumerWidget {
   const SeriesDetailPage({
     super.key,
     required this.seriesId,
@@ -15,50 +32,19 @@ class SeriesDetailPage extends ConsumerStatefulWidget {
   final String seriesTitle;
 
   @override
-  ConsumerState<SeriesDetailPage> createState() => _SeriesDetailPageState();
-}
-
-class _SeriesDetailPageState extends ConsumerState<SeriesDetailPage> {
-  late Future<_SeriesDetailData> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = _load();
-  }
-
-  Future<_SeriesDetailData> _load() async {
-    final api = ref.read(apiClientProvider);
-    final series = await api.getSeries(widget.seriesId);
-    final items = await api.getSeriesItems(widget.seriesId);
-    final relations = await api.getSeriesRelations(widget.seriesId);
-    return _SeriesDetailData(
-      series: series,
-      items: items,
-      relations: relations,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detail = ref.watch(_seriesDetailProvider(seriesId));
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.seriesTitle),
+        title: Text(seriesTitle),
       ),
-      body: FutureBuilder<_SeriesDetailData>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _SeriesDetailError(
-              message: snapshot.error.toString(),
-              onRetry: () => setState(() => _future = _load()),
-            );
-          }
-          return _SeriesDetailBody(data: snapshot.data!);
-        },
+      body: detail.when(
+        loading: () => const AppLoadingIndicator(),
+        error: (error, _) => AppErrorCard(
+          message: error.toString(),
+          onRetry: () => ref.invalidate(_seriesDetailProvider(seriesId)),
+        ),
+        data: (data) => _SeriesDetailBody(data: data),
       ),
     );
   }
@@ -76,13 +62,14 @@ class _SeriesDetailData {
   final List<SeriesRelation> relations;
 }
 
-class _SeriesDetailBody extends StatelessWidget {
+class _SeriesDetailBody extends ConsumerWidget {
   const _SeriesDetailBody({required this.data});
 
   final _SeriesDetailData data;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ownedItemIds = ref.watch(collectionByCatalogItemProvider);
     final series = data.series;
     final description = series['description']?.toString();
     final itemCount = (series['item_count'] as num?)?.toInt() ?? data.items.length;
@@ -181,24 +168,52 @@ class _SeriesDetailBody extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 20),
-        Text(
-          'Series Items',
-          style: Theme.of(context).textTheme.titleMedium,
+        Row(
+          children: [
+            Text(
+              'Series Items',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(width: 8),
+            if (data.items.isNotEmpty) ...[
+              Builder(builder: (context) {
+                final ownedCount = data.items.where((item) {
+                  final id = item['id']?.toString();
+                  return id != null && ownedItemIds.containsKey(id);
+                }).length;
+                return Text(
+                  '$ownedCount / ${data.items.length} owned',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: ownedCount == data.items.length
+                        ? kAppAccent
+                        : kAppTextMuted,
+                    fontWeight: FontWeight.w600,
+                  ),
+                );
+              }),
+            ],
+          ],
         ),
         const SizedBox(height: 8),
         if (data.items.isEmpty)
           const Text('No catalog items were returned for this series.')
         else
-          for (final item in data.items) _SeriesItemTile(item: item),
+          for (final item in data.items)
+            _SeriesItemTile(
+              item: item,
+              isOwned: ownedItemIds.containsKey(item['id']?.toString()),
+            ),
       ],
     );
   }
 }
 
 class _SeriesItemTile extends StatelessWidget {
-  const _SeriesItemTile({required this.item});
+  const _SeriesItemTile({required this.item, required this.isOwned});
 
   final Map<String, dynamic> item;
+  final bool isOwned;
 
   @override
   Widget build(BuildContext context) {
@@ -246,6 +261,9 @@ class _SeriesItemTile extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
+        trailing: isOwned
+            ? const Icon(Icons.check_circle, color: kAppAccent, size: 20)
+            : const Icon(Icons.circle_outlined, color: kAppTextMuted, size: 20),
       ),
     );
   }
@@ -326,37 +344,3 @@ class _SeriesStatChip extends StatelessWidget {
   }
 }
 
-class _SeriesDetailError extends StatelessWidget {
-  const _SeriesDetailError({
-    required this.message,
-    required this.onRetry,
-  });
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 36),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

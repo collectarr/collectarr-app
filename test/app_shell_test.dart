@@ -1,36 +1,69 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'helpers/secure_storage_mock.dart';
+import 'helpers/test_constants.dart';
+
+/// Builds a [MaterialApp.router] backed by the real [appRouterProvider] so the
+/// [AppShell] receives a proper [StatefulNavigationShell].
+Widget _shellTestApp({List<Override> overrides = const []}) {
+  return ProviderScope(
+    overrides: overrides,
+    child: Consumer(
+      builder: (context, ref, _) {
+        final router = ref.watch(appRouterProvider);
+        return MaterialApp.router(routerConfig: router);
+      },
+    ),
+  );
+}
+
+void _setDesktopViewport(WidgetTester tester) {
+  tester.view.physicalSize = kDesktopTestSize;
+  tester.view.devicePixelRatio = kDesktopTestDPR;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
+
 void main() {
-  testWidgets('app shell exposes sync status in the floating action button',
+  setUp(setUpSecureStorageMock);
+
+  testWidgets('app shell requests online-first sync once on startup',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    _setDesktopViewport(tester);
 
+    late _SpySyncController syncController;
     await tester.pumpWidget(
-      ProviderScope(
+      _shellTestApp(
         overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
           syncControllerProvider.overrideWith(
-            (ref) => _StaticSyncController(
-              ref,
-              const SyncState(pendingCount: 3),
-            ),
+            (ref) => syncController = _SpySyncController(ref),
           ),
           shelfProvider.overrideWith(
             (ref) async => const ShelfState(
@@ -48,89 +81,34 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: AppShell()),
       ),
     );
-    await tester.pumpAndSettle();
 
-    expect(
-      find.byTooltip('Sync personal data - 3 pending, never synced'),
-      findsOneWidget,
-    );
-    expect(find.text('3'), findsOneWidget);
-    expect(
-      find.descendant(
-        of: find.byType(FloatingActionButton),
-        matching: find.byIcon(Icons.sync),
-      ),
-      findsOneWidget,
-    );
-  });
+    await pumpUntilSettled(tester);
+    expect(syncController.onlineFirstRequests, 1);
 
-  testWidgets('app shell shows offline sync state', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          syncControllerProvider.overrideWith(
-            (ref) => _StaticSyncController(
-              ref,
-              const SyncState(
-                pendingCount: 2,
-                isOffline: true,
-                errorMessage: 'sync unavailable',
-              ),
-            ),
-          ),
-          shelfProvider.overrideWith(
-            (ref) async => const ShelfState(
-              entries: [],
-              ownedCount: 0,
-              wishlistCount: 0,
-              missingGradeCount: 0,
-              pricedCount: 0,
-              totalPaidCents: null,
-              primaryCurrency: null,
-              hasMixedCurrencies: false,
-            ),
-          ),
-          collectionProvider.overrideWith((ref) async => const []),
-          wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
-        ],
-        child: const MaterialApp(home: AppShell()),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byTooltip('sync unavailable'), findsOneWidget);
-    expect(
-      find.descendant(
-        of: find.byType(FloatingActionButton),
-        matching: find.byIcon(Icons.cloud_off),
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('2'), findsOneWidget);
+    await tester.pump();
+    expect(syncController.onlineFirstRequests, 1);
   });
 
   testWidgets('app shell tints bottom navigation with active library color',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    _setDesktopViewport(tester);
 
     await tester.pumpWidget(
-      ProviderScope(
+      _shellTestApp(
         overrides: [
-          selectedLibraryKindProvider.overrideWith((ref) => 'manga'),
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          selectedLibraryKindProvider.overrideWith(() => _FixedLibraryKind('manga')),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           syncControllerProvider.overrideWith(
@@ -152,10 +130,9 @@ void main() {
           wishlistProvider.overrideWith((ref) async => const []),
           wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
         ],
-        child: const MaterialApp(home: AppShell()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
@@ -166,62 +143,35 @@ void main() {
     );
   });
 
-  testWidgets('sync action keeps white foreground on bright library accents',
+  testWidgets('app shell shows Manage destination for standard accounts',
       (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    Future<void> pumpForLibrary(String kind) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          key: ValueKey(kind),
-          overrides: [
-            selectedLibraryKindProvider.overrideWith((ref) => kind),
-            mediaCatalogProvider
-                .overrideWith((ref) async => fallbackMediaCatalog),
-            ..._baseShellOverrides(),
-          ],
-          child: const MaterialApp(home: AppShell()),
-        ),
-      );
-      await tester.pumpAndSettle();
-    }
-
-    for (final kind in ['comic', 'manga', 'boardgame', 'movie']) {
-      await pumpForLibrary(kind);
-      final button = tester.widget<FloatingActionButton>(
-        find.byType(FloatingActionButton),
-      );
-      final background = button.backgroundColor;
-      expect(button.foregroundColor, Colors.white);
-      expect(background, libraryAccentActionColor(libraryAccentForKind(kind)));
-      expect(_contrastWithWhite(background!), greaterThanOrEqualTo(4.5));
-    }
-  });
-
-  testWidgets('app shell hides admin destination for standard accounts',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    _setDesktopViewport(tester);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: _baseShellOverrides(),
-        child: const MaterialApp(home: AppShell()),
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    expect(navigationBar.destinations.length, 3);
+    // Non-admin users see 4 destinations (Libraries, Shelf, Calendar, Settings).
+    expect(navigationBar.destinations.length, 4);
+    expect(find.text('Calendar'), findsOneWidget);
     expect(find.text('Admin'), findsNothing);
   });
 
@@ -234,24 +184,59 @@ void main() {
       'collectarr.auth.email': 'admin@example.com',
       'collectarr.auth.is_admin': true,
     });
-    tester.view.physicalSize = const Size(1200, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    _setDesktopViewport(tester);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: _baseShellOverrides(),
-        child: const MaterialApp(home: AppShell()),
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    expect(navigationBar.destinations.length, 4);
+    // Admin accounts see 5 destinations with 'Admin' label
+    // (Libraries, Shelf, Calendar, Admin, Settings).
+    expect(navigationBar.destinations.length, 5);
     expect(find.text('Admin'), findsOneWidget);
+    expect(find.text('Manage'), findsNothing);
+  });
+
+  testWidgets('detail route without request payload redirects to libraries',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    _setDesktopViewport(tester);
+
+    await tester.pumpWidget(
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    final context = tester.element(find.byType(AppShell));
+    GoRouter.of(context).go(AppRoutes.detail);
+    await pumpUntilSettled(tester);
+
+    expect(find.byType(LibraryHomePage), findsOneWidget);
+    expect(find.byType(AppShell), findsOneWidget);
   });
 }
 
@@ -291,10 +276,6 @@ String _base64UrlJson(Map<String, Object> value) {
   return base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
 }
 
-double _contrastWithWhite(Color color) {
-  return 1.05 / (color.computeLuminance() + 0.05);
-}
-
 class _StaticSyncController extends SyncController {
   _StaticSyncController(super.ref, SyncState initial) {
     state = initial;
@@ -305,4 +286,30 @@ class _StaticSyncController extends SyncController {
 
   @override
   Future<void> syncNow() async {}
+}
+
+class _SpySyncController extends _StaticSyncController {
+  _SpySyncController(Ref ref) : super(ref, const SyncState());
+
+  int onlineFirstRequests = 0;
+
+  @override
+  Future<void> syncOnlineFirstIfEnabled() async {
+    onlineFirstRequests += 1;
+  }
+}
+
+/// Auth controller that relies on [SharedPreferences.setMockInitialValues]
+/// being called with a valid JWT before construction.  The parent's private
+/// [_restoreSession] reads the mocked prefs and transitions to authenticated.
+class _AuthenticatedAuthController extends AuthController {
+  _AuthenticatedAuthController(super.ref);
+}
+
+class _FixedLibraryKind extends SelectedLibraryKind {
+  _FixedLibraryKind(this._kind);
+  final String _kind;
+
+  @override
+  String build() => _kind;
 }

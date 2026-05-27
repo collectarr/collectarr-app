@@ -48,6 +48,13 @@ class CatalogCache extends Table {
   TextColumn get imprint => text().nullable()();
   TextColumn get subtitle => text().nullable()();
   TextColumn get seriesGroup => text().nullable()();
+  TextColumn get trailerUrlsJson => text().nullable()();
+  TextColumn get color => text().nullable()();
+  IntColumn get nrDiscs => integer().nullable()();
+  TextColumn get screenRatio => text().nullable()();
+  TextColumn get audioTracksJson => text().nullable()();
+  TextColumn get subtitlesJson => text().nullable()();
+  TextColumn get layers => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -57,8 +64,11 @@ class CatalogCache extends Table {
 class OwnedItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  BoolColumn get isDigital => boolean().nullable()();
+  TextColumn get anchorType => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
   TextColumn get condition => text().nullable()();
   TextColumn get grade => text().nullable()();
   DateTimeColumn get purchaseDate => dateTime().nullable()();
@@ -86,6 +96,19 @@ class OwnedItemsCache extends Table {
   IntColumn get sellPriceCents => integer().nullable()();
   TextColumn get soldTo => text().nullable()();
   TextColumn get locationId => text().nullable()();
+  TextColumn get features => text().nullable()();
+  TextColumn get hdrFormatsJson => text().nullable()();
+  TextColumn get purchaseStore => text().nullable()();
+  TextColumn get boxSetId => text().nullable()();
+  TextColumn get boxSetName => text().nullable()();
+  TextColumn get storageDevice => text().nullable()();
+  TextColumn get storageSlot => text().nullable()();
+  TextColumn get region => text().nullable()();
+  TextColumn get packaging => text().nullable()();
+  TextColumn get distributor => text().nullable()();
+  TextColumn get collectionStatus => text().nullable()();
+  DateTimeColumn get lastBagBoardDate => dateTime().nullable()();
+  IntColumn get marketValueCents => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -132,8 +155,10 @@ class ItemImagesCache extends Table {
 class WishlistItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  TextColumn get anchorType => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
   IntColumn get targetPriceCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get notes => text().nullable()();
@@ -151,6 +176,7 @@ class TrackingEntriesCache extends Table {
   TextColumn get ownedItemId => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();
@@ -162,6 +188,46 @@ class TrackingEntriesCache extends Table {
   TextColumn get notes => text().nullable()();
   IntColumn get seasonNumber => integer().nullable()();
   IntColumn get episodeNumber => integer().nullable()();
+  TextColumn get episodeRatings => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class TrackingUnitsCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  TextColumn get trackingEntryId => text().nullable()();
+  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get editionId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
+  TextColumn get unitType => text()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
+  IntColumn get volumeNumber => integer().nullable()();
+  IntColumn get chapterNumber => integer().nullable()();
+  TextColumn get issueNumber => text().nullable()();
+  DateTimeColumn get completedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class WatchSessionsCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  TextColumn get trackingEntryId => text().nullable()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
+  TextColumn get sourceType => text().nullable()();
+  DateTimeColumn get watchedAt => dateTime()();
+  IntColumn get rating => integer().nullable()();
+  TextColumn get notes => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
@@ -179,6 +245,37 @@ class SyncQueue extends Table {
 
   @override
   Set<Column> get primaryKey => {entityType, entityId};
+}
+
+class UserMetadataOverridesCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  TextColumn get editionId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get fieldPath => text()();
+  TextColumn get originalValue => text().nullable()();
+  TextColumn get overrideValue => text()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class CustomEpisodesCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  IntColumn get seasonNumber => integer()();
+  IntColumn get episodeNumber => integer()();
+  TextColumn get title => text()();
+  TextColumn get overview => text().nullable()();
+  TextColumn get airDate => text().nullable()();
+  IntColumn get runtimeMinutes => integer().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 class LoansCache extends Table {
@@ -262,7 +359,11 @@ class PickListValuesCache extends Table {
   OwnedItemsCache,
   WishlistItemsCache,
   TrackingEntriesCache,
+  TrackingUnitsCache,
+  WatchSessionsCache,
   SyncQueue,
+  UserMetadataOverridesCache,
+  CustomEpisodesCache,
   CustomFieldDefinitionsCache,
   CustomFieldValuesCache,
   ItemImagesCache,
@@ -279,7 +380,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {

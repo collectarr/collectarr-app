@@ -6,9 +6,23 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class InspectorItemImagesSection extends StatefulWidget {
+typedef _InspectorItemImagesRequest = ({
+  LocalDatabase db,
+  String ownedItemId,
+});
+
+final _inspectorItemImagesProvider =
+    FutureProvider.autoDispose.family<List<ItemImage>, _InspectorItemImagesRequest>(
+  (ref, request) async {
+    return ItemImageRepository(request.db).listForItem(request.ownedItemId);
+  },
+);
+
+class InspectorItemImagesSection extends ConsumerWidget {
   const InspectorItemImagesSection({
     super.key,
     required this.ownedItemId,
@@ -21,99 +35,83 @@ class InspectorItemImagesSection extends StatefulWidget {
   final Color accent;
 
   @override
-  State<InspectorItemImagesSection> createState() =>
-      _InspectorItemImagesSectionState();
-}
-
-class _InspectorItemImagesSectionState
-    extends State<InspectorItemImagesSection> {
-  late Future<List<ItemImage>> _imagesFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _reload();
-  }
-
-  void _reload() {
-    _imagesFuture =
-        ItemImageRepository(widget.db).listForItem(widget.ownedItemId);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<ItemImage>>(
-      future: _imagesFuture,
-      builder: (context, snapshot) {
-        final images = snapshot.data ?? [];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final request = (db: db, ownedItemId: ownedItemId);
+    final imagesAsync = ref.watch(_inspectorItemImagesProvider(request));
+    final images = imagesAsync.value ?? const <ItemImage>[];
+        final visibleImages = images
+            .where((image) => image.imageType != 'front_cover')
+            .toList(growable: false);
 
         // Group by image type.
         final groups = <String, List<ItemImage>>{};
-        for (final img in images) {
+        for (final img in visibleImages) {
           (groups[img.imageType] ??= []).add(img);
         }
 
-        final label = images.isEmpty
+        final label = visibleImages.isEmpty
             ? 'Images'
             : groups.length == 1
-            ? '${itemImageTypeLabels[groups.keys.first] ?? groups.keys.first} (${images.length})'
-                : 'Images (${images.length})';
+                ? '${itemImageTypeLabels[groups.keys.first] ?? groups.keys.first} (${visibleImages.length})'
+                : 'Images (${visibleImages.length})';
 
-        return LibraryInspectorSection(
-          title: label,
-          accentColor: widget.accent,
-          children: [
-            for (final entry in groups.entries) ...[
-              if (groups.length > 1) ...[
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    itemImageTypeLabels[entry.key] ?? entry.key,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: widget.accent.withValues(alpha: 0.8),
-                        ),
-                  ),
-                ),
-              ],
-              SizedBox(
-                height: 100,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: entry.value.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 6),
-                  itemBuilder: (context, index) {
-                    final img = entry.value[index];
-                    return _InspectorThumbnail(
-                      image: img,
-                      onDelete: () => _deleteImage(img.id),
-                    );
-                  },
-                ),
+    return LibraryInspectorSection(
+      title: label,
+      accentColor: accent,
+      children: [
+        for (final entry in groups.entries) ...[
+          if (groups.length > 1) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                itemImageTypeLabels[entry.key] ?? entry.key,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: accent.withValues(alpha: 0.8),
+                    ),
               ),
-              const SizedBox(height: 8),
-            ],
-            _AddImageButton(
-              accent: widget.accent,
-              onPick: _pickAndAddImage,
             ),
           ],
-        );
-      },
+          SizedBox(
+            height: 100,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: entry.value.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 6),
+              itemBuilder: (context, index) {
+                final img = entry.value[index];
+                return _InspectorThumbnail(
+                  image: img,
+                  onDelete: () => _deleteImage(context, ref, img.id),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+        _AddImageButton(
+          accent: accent,
+          onPick: () => _pickAndAddImage(context, ref),
+        ),
+      ],
     );
   }
 
-  Future<void> _pickAndAddImage() async {
+  Future<void> _pickAndAddImage(BuildContext context, WidgetRef ref) async {
     final savedType = await pickAndStoreOwnedItemImage(
       context: context,
-      db: widget.db,
-      ownedItemId: widget.ownedItemId,
+      db: db,
+      ownedItemId: ownedItemId,
     );
-    if (savedType != null && mounted) {
-      setState(_reload);
+    if (savedType != null && context.mounted) {
+      ref.invalidate(_inspectorItemImagesProvider((db: db, ownedItemId: ownedItemId)));
     }
   }
 
-  Future<void> _deleteImage(String imageId) async {
+  Future<void> _deleteImage(
+    BuildContext context,
+    WidgetRef ref,
+    String imageId,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -131,11 +129,11 @@ class _InspectorItemImagesSectionState
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !context.mounted) return;
 
-    final repo = ItemImagesCacheRepository(widget.db);
+    final repo = ItemImagesCacheRepository(db);
     await repo.deleteById(imageId);
-    if (mounted) setState(_reload);
+    ref.invalidate(_inspectorItemImagesProvider((db: db, ownedItemId: ownedItemId)));
   }
 }
 
@@ -174,53 +172,61 @@ class _InspectorThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bytes = base64Decode(image.imageData);
-    return GestureDetector(
-      onTap: () => _showFullImage(context),
-      onLongPress: onDelete,
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Image.memory(
-              bytes,
-              width: 80,
-              height: 100,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+    final bytes = base64.decode(image.imageData);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showFullImage(context),
+        onLongPress: onDelete,
+        borderRadius: kAppRadiusSmall,
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: kAppRadiusSmall,
+              child: Image.memory(
+                bytes,
                 width: 80,
                 height: 100,
-                color: const Color(0xFF2A2A2A),
-                child: const Icon(Icons.broken_image, color: Colors.white38),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 80,
+                  height: 100,
+                  color: kAppSurfaceSubtle,
+                  child: const Icon(Icons.broken_image, color: Colors.white38),
+                ),
               ),
             ),
-          ),
           Positioned(
             top: 2,
             right: 2,
-            child: GestureDetector(
-              onTap: onDelete,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
-                  color: Colors.black54,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.close,
-                  size: 14,
-                  color: Colors.white70,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onDelete,
+                customBorder: const CircleBorder(),
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    size: 14,
+                    color: Colors.white70,
+                  ),
                 ),
               ),
             ),
           ),
         ],
       ),
+      ),
     );
   }
 
   void _showFullImage(BuildContext context) {
-    final bytes = base64Decode(image.imageData);
+    final bytes = base64.decode(image.imageData);
     showDialog(
       context: context,
       builder: (context) => Dialog(

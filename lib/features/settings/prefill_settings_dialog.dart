@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -100,8 +100,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
 
   Future<void> _load() async {
     final defaults = await PrefillDefaults.load();
-    final locations =
-        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    final locations = await ref.read(allLocationsProvider.future);
     final locationId = defaults.locationId ??
         _matchLegacyLocationId(defaults.legacyStorageBox, locations);
     if (!mounted) return;
@@ -120,7 +119,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: appPalette(context).panel,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
@@ -143,13 +142,13 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Default values applied when adding new items to your collection.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white54,
+                          color: appPalette(context).textMuted,
                         ),
                       ),
                     ),
@@ -181,7 +180,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: kAppDivider),
+          bottom: BorderSide(color: appPalette(context).divider),
         ),
       ),
       child: Row(
@@ -192,14 +191,14 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
               children: [
                 Icon(Icons.auto_fix_high, color: widget.accent, size: 20),
                 const SizedBox(width: 8),
-                const Flexible(
+                Flexible(
                   child: Text(
                     'Pre-fill Settings',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -229,11 +228,11 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         _legacyLocationLabel;
     return Row(
       children: [
-        const SizedBox(
+        SizedBox(
           width: 100,
           child: Text(
             'Location',
-            style: TextStyle(fontSize: 13, color: Colors.white70),
+            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
@@ -244,13 +243,13 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
               height: 34,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
+                color: appPalette(context).panelRaised,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: const Color(0xFF404040)),
+                border: Border.all(color: appPalette(context).divider),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.place, size: 16, color: Colors.white70),
+                  Icon(Icons.place, size: 16, color: appPalette(context).textMuted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -297,8 +296,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     if (result == null) {
       return;
     }
-    final locations =
-        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    ref.invalidate(allLocationsProvider);
+    final locations = await ref.read(allLocationsProvider.future);
     if (!mounted) {
       return;
     }
@@ -338,27 +337,27 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           width: 100,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 13, color: Colors.white70),
+            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
           child: TextField(
             controller: controller,
-            style: const TextStyle(fontSize: 13, color: Colors.white),
+            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(fontSize: 12, color: Colors.white24),
+              hintStyle: TextStyle(fontSize: 12, color: appPalette(context).textMuted),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               filled: true,
-              fillColor: const Color(0xFF2A2A2A),
+              fillColor: appPalette(context).panelRaised,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: Color(0xFF404040)),
+                borderSide: BorderSide(color: appPalette(context).divider),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: Color(0xFF404040)),
+                borderSide: BorderSide(color: appPalette(context).divider),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
@@ -375,11 +374,11 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   Widget _readStatusField() {
     return Row(
       children: [
-        const SizedBox(
+        SizedBox(
           width: 100,
           child: Text(
             'Read Status',
-            style: TextStyle(fontSize: 13, color: Colors.white70),
+            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
@@ -387,17 +386,17 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
             height: 34,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
-              color: kAppPanelRaised,
+              color: appPalette(context).panelRaised,
               borderRadius: kAppMenuBorderRadius,
-              border: Border.all(color: kAppDivider),
+              border: Border.all(color: appPalette(context).divider),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String?>(
                 value: _readStatus,
                 isExpanded: true,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
-                style: const TextStyle(fontSize: 13, color: Colors.white),
+                style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
                 icon: const Icon(Icons.expand_more, size: 16),
                 items: _readStatusOptions
                     .map((s) => DropdownMenuItem(
@@ -419,7 +418,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: kAppDivider),
+          top: BorderSide(color: appPalette(context).divider),
         ),
       ),
       child: Row(

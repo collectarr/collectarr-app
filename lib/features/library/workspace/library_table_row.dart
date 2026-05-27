@@ -6,6 +6,7 @@ class LibraryTableInkRow extends StatelessWidget {
     required this.selected,
     required this.odd,
     required this.onTap,
+    this.onDoubleTap,
     this.onSecondaryTapUp,
     required this.child,
     required this.selectedColor,
@@ -22,6 +23,7 @@ class LibraryTableInkRow extends StatelessWidget {
   final bool selected;
   final bool odd;
   final VoidCallback onTap;
+  final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
   final Widget child;
   final Color selectedColor;
@@ -38,12 +40,25 @@ class LibraryTableInkRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseColor = odd ? oddColor : evenColor;
     final resolvedSelectedColor = Color.alphaBlend(
-      selectedColor.withValues(alpha: 0.72),
+      selectedColor.withValues(alpha: 0.9),
       baseColor,
     );
-    return Ink(
+    final resolvedOutlineColor = Color.alphaBlend(
+      selectionRailColor.withValues(alpha: 0.14),
+      resolvedSelectedColor,
+    );
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: selected ? resolvedSelectedColor : baseColor,
+        boxShadow: selected
+            ? [
+                BoxShadow(
+                  color: selectedColor.withValues(alpha: 0.24),
+                  blurRadius: 10,
+                  offset: const Offset(0, 1),
+                ),
+              ]
+            : null,
         border: Border(
           left: BorderSide(
             color: selected ? selectionRailColor : Colors.transparent,
@@ -51,28 +66,37 @@ class LibraryTableInkRow extends StatelessWidget {
           ),
           top: BorderSide(
             color: selected
-                ? selectionRailColor.withValues(alpha: 0.35)
+                ? resolvedOutlineColor.withValues(alpha: 0.7)
+                : Colors.transparent,
+          ),
+          right: BorderSide(
+            color: selected
+                ? resolvedOutlineColor.withValues(alpha: 0.5)
                 : Colors.transparent,
           ),
           bottom: BorderSide(
             color: selected
-                ? selectionRailColor.withValues(alpha: 0.45)
+                ? resolvedOutlineColor.withValues(alpha: 0.82)
                 : bottomBorderColor,
           ),
         ),
       ),
-      child: InkWell(
-        onTap: onTap,
-        onSecondaryTapUp: onSecondaryTapUp,
-        hoverColor: hoverColor,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            horizontalMargin,
-            verticalPadding,
-            horizontalMargin - selectionRailWidth,
-            verticalPadding,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          onDoubleTap: onDoubleTap,
+          onSecondaryTapUp: onSecondaryTapUp,
+          hoverColor: hoverColor,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              horizontalMargin,
+              verticalPadding,
+              horizontalMargin - selectionRailWidth,
+              verticalPadding,
+            ),
+            child: child,
           ),
-          child: child,
         ),
       ),
     );

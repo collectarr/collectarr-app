@@ -1,34 +1,45 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/library_item_state.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('library item state resolves owned and wishlist status', () {
+  test('library entry resolves combined owned and wishlist state', () {
     final item = CatalogItem(id: 'comic-1', kind: 'comic', title: 'Comic');
     final owned = OwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
       updatedAt: DateTime.utc(2026),
     );
-
-    final state = libraryItemStateFor(
-      item: item,
-      ownedByItemId: {'comic-1': owned},
-      wishlistIds: {'comic-1'},
+    final wishlist = WishlistItem(
+      id: 'wishlist-1',
+      itemId: 'comic-1',
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
     );
 
-    expect(state.isOwned, isTrue);
-    expect(state.isWishlisted, isTrue);
-    expect(state.ownedItem, owned);
-    expect(state.statusLabel, 'Owned + Wishlist');
+    final entry = LibraryEntry(
+      itemId: item.id,
+      catalogItem: item,
+      ownedItem: owned,
+      wishlistItem: wishlist,
+    );
+
+    expect(entry.isOwned, isTrue);
+    expect(entry.isWishlisted, isTrue);
+    expect(entry.ownedItem, owned);
+    expect(entry.wishlistItem, wishlist);
+    expect(entry.subtitle, 'Owned and wishlisted');
   });
 
-  test('library item state handles empty library rows', () {
-    const state = LibraryItemState();
+  test('library entry exposes tracking-only rows', () {
+    final item = CatalogItem(id: 'comic-2', kind: 'comic', title: 'Comic 2');
+    final entry = LibraryEntry(itemId: item.id, catalogItem: item);
 
-    expect(state.isOwned, isFalse);
-    expect(state.isWishlisted, isFalse);
-    expect(state.statusLabel, 'Not in library');
+    expect(entry.isOwned, isFalse);
+    expect(entry.isWishlisted, isFalse);
+    expect(entry.isTracked, isFalse);
+    expect(entry.title, 'Comic 2');
   });
 }

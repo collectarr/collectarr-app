@@ -59,6 +59,14 @@ class LibraryWorkspaceViewProfile {
   final LibrarySortColumnDirectionResolver? sortAscendingForColumn;
 
   LibraryWorkspaceViewState defaults() {
+    // Use cached snapshot from a previous load/save when available so that the
+    // first frame renders with the user's last-known cover size, avoiding a
+    // visible pop-in when the async load completes.
+    final cached = LibraryWorkspacePreferences.cachedSnapshot(config);
+    if (cached != null) {
+      return fromPreferences(cached)
+          .withChrome(LibraryWorkspacePreferences.cachedChrome);
+    }
     final defaults = LibraryWorkspaceViewState(
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
@@ -81,6 +89,7 @@ class LibraryWorkspaceViewProfile {
       detailsLayout: preferences.detailsLayout,
       sortColumn: preferences.sortColumn,
       sortAscending: preferences.sortAscending,
+      sortRules: preferences.sortRules,
       coverSize: preferences.coverSize,
       sidebarWidth: preferences.sidebarWidth,
       detailsWidth: preferences.detailsWidth,
@@ -120,25 +129,38 @@ class LibraryWorkspaceViewState {
   LibraryWorkspaceViewState({
     required this.viewMode,
     required this.detailsLayout,
-    required this.sortColumn,
-    required this.sortAscending,
+    required LibrarySortColumn sortColumn,
+    required bool sortAscending,
+    List<LibrarySortRule>? sortRules,
     required this.coverSize,
     required this.sidebarWidth,
     required this.detailsWidth,
     required Set<LibraryTableColumn> visibleColumns,
     required Map<LibraryTableColumn, double> columnWidths,
-  })  : visibleColumns = Set.unmodifiable(visibleColumns),
+  })  : _sortRules = List.unmodifiable(
+          _normalizedSortRules(
+            sortRules,
+            fallbackColumn: sortColumn,
+            fallbackAscending: sortAscending,
+          ),
+        ),
+        visibleColumns = Set.unmodifiable(visibleColumns),
         columnWidths = Map.unmodifiable(columnWidths);
 
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
-  final LibrarySortColumn sortColumn;
-  final bool sortAscending;
+  final List<LibrarySortRule> _sortRules;
   final double coverSize;
   final double sidebarWidth;
   final double detailsWidth;
   final Set<LibraryTableColumn> visibleColumns;
   final Map<LibraryTableColumn, double> columnWidths;
+
+  List<LibrarySortRule> get sortRules => _sortRules;
+
+  LibrarySortColumn get sortColumn => _sortRules.first.column;
+
+  bool get sortAscending => _sortRules.first.ascending;
 
   LibraryWorkspacePreferenceSnapshot toPreferenceSnapshot() {
     return LibraryWorkspacePreferenceSnapshot(
@@ -146,6 +168,7 @@ class LibraryWorkspaceViewState {
       detailsLayout: detailsLayout,
       sortColumn: sortColumn,
       sortAscending: sortAscending,
+      sortRules: sortRules,
       coverSize: coverSize,
       sidebarWidth: sidebarWidth,
       detailsWidth: detailsWidth,
@@ -159,17 +182,30 @@ class LibraryWorkspaceViewState {
     LibraryDetailsLayout? detailsLayout,
     LibrarySortColumn? sortColumn,
     bool? sortAscending,
+    List<LibrarySortRule>? sortRules,
     double? coverSize,
     double? sidebarWidth,
     double? detailsWidth,
     Set<LibraryTableColumn>? visibleColumns,
     Map<LibraryTableColumn, double>? columnWidths,
   }) {
+    final nextSortRules = sortRules ??
+        ((sortColumn != null || sortAscending != null)
+            ? [
+                LibrarySortRule(
+                  column: sortColumn ?? this.sortColumn,
+                  ascending: sortAscending ?? this.sortAscending,
+                ),
+                for (final rule in this.sortRules)
+                  if (rule.column != (sortColumn ?? this.sortColumn)) rule,
+              ]
+            : this.sortRules);
     return LibraryWorkspaceViewState(
       viewMode: viewMode ?? this.viewMode,
       detailsLayout: detailsLayout ?? this.detailsLayout,
       sortColumn: sortColumn ?? this.sortColumn,
       sortAscending: sortAscending ?? this.sortAscending,
+      sortRules: nextSortRules,
       coverSize: coverSize ?? this.coverSize,
       sidebarWidth: sidebarWidth ?? this.sidebarWidth,
       detailsWidth: detailsWidth ?? this.detailsWidth,
@@ -185,9 +221,36 @@ class LibraryWorkspaceViewState {
     if (sortColumn == column) {
       return copyWith(sortAscending: !sortAscending);
     }
+    final trailingRules = [
+      for (final rule in sortRules)
+        if (rule.column != column) rule,
+    ];
     return copyWith(
       sortColumn: column,
       sortAscending: profile.initialSortAscending(column),
+      sortRules: [
+        LibrarySortRule(
+          column: column,
+          ascending: profile.initialSortAscending(column),
+        ),
+        ...trailingRules,
+      ],
+    );
+  }
+
+  LibraryWorkspaceViewState withSortRules(
+    List<LibrarySortRule> rules,
+    LibraryWorkspaceViewProfile profile,
+  ) {
+    final normalized = _normalizedSortRules(
+      rules,
+      fallbackColumn: sortColumn,
+      fallbackAscending: sortAscending,
+    );
+    return copyWith(
+      sortColumn: normalized.first.column,
+      sortAscending: normalized.first.ascending,
+      sortRules: normalized,
     );
   }
 
@@ -246,4 +309,30 @@ class LibraryWorkspaceViewState {
       },
     );
   }
+}
+
+List<LibrarySortRule> _normalizedSortRules(
+  List<LibrarySortRule>? rules, {
+  required LibrarySortColumn fallbackColumn,
+  required bool fallbackAscending,
+}) {
+  final effective = rules == null || rules.isEmpty
+      ? [LibrarySortRule(column: fallbackColumn, ascending: fallbackAscending)]
+      : rules;
+  final seen = <LibrarySortColumn>{};
+  final normalized = <LibrarySortRule>[];
+  for (final rule in effective) {
+    if (seen.add(rule.column)) {
+      normalized.add(rule);
+    }
+  }
+  if (normalized.isEmpty) {
+    normalized.add(
+      LibrarySortRule(
+        column: fallbackColumn,
+        ascending: fallbackAscending,
+      ),
+    );
+  }
+  return normalized;
 }

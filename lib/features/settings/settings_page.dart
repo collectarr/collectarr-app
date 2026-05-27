@@ -4,10 +4,12 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
@@ -15,6 +17,12 @@ import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
+import 'package:collectarr_app/features/settings/database_backup.dart';
+import 'package:collectarr_app/features/settings/import_job_provider.dart';
+import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -22,20 +30,36 @@ import 'package:collectarr_app/features/library/providers/media_catalog_provider
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/settings/location_management_dialog.dart';
-import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
+import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
-import 'package:collectarr_app/features/updater/app_update_panel.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+part 'settings_connection_widgets.dart';
+part 'settings_library_nav_widgets.dart';
+part 'settings_data_import_widgets.dart';
+
+final _metadataProposalHistoryProvider =
+    FutureProvider.autoDispose<List<MetadataProposalRecord>>((ref) async {
+  return const MetadataProposalStore().read();
+});
+
+final _deviceIdentityProvider = FutureProvider.autoDispose<String>((ref) async {
+  return DeviceIdentity().getOrCreate();
+});
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({
@@ -53,7 +77,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   final _metadataController = TextEditingController();
   final _syncController = TextEditingController();
   final _syncKeyController = TextEditingController();
-  Future<String>? _deviceIdFuture;
   _DiagnosticState? _metadataDiagnostic;
   _DiagnosticState? _syncDiagnostic;
   Map<String, dynamic>? _syncStatusDetails;
@@ -64,7 +87,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    _deviceIdFuture = DeviceIdentity().getOrCreate();
   }
 
   @override
@@ -87,13 +109,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
+    final tmdbImportSettings = ref.watch(tmdbImportSettingsProvider);
+    final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
+    final deviceId = ref.watch(_deviceIdentityProvider);
     final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
     final accentScope = LibraryAccentScope.maybeOf(context);
     final accent =
         accentScope?.accent ?? libraryAccentForKind(selectedLibraryKind);
     final animationDuration = accentScope?.animationDuration ??
         (uiPreferences.animationsEnabled
-            ? const Duration(milliseconds: 320)
+            ? kAppAnimNormal
             : Duration.zero);
     _syncTextControllers(settings);
 
@@ -107,6 +132,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             backgroundColor: libraryAccentChromeFallbackColor(accent),
             surfaceTintColor: Colors.transparent,
             flexibleSpace: LibraryAccentChrome(
+              key: ValueKey(accent),
               accent: accent,
               animationDuration: animationDuration,
             ),
@@ -120,7 +146,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 Tab(icon: Icon(Icons.palette_outlined), text: 'Appearance'),
                 Tab(icon: Icon(Icons.backup_outlined), text: 'Data'),
                 Tab(icon: Icon(Icons.account_circle_outlined), text: 'Account'),
-                Tab(icon: Icon(Icons.system_update_outlined), text: 'Updates'),
+                Tab(icon: Icon(Icons.bug_report_outlined), text: 'Logs'),
               ],
             ),
           ),
@@ -153,7 +179,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         TextField(
                           controller: _metadataController,
                           maxLines: 1,
-                          onChanged: (_) => _scheduleConnectionAutoSave(),
+                          readOnly: true,
                           decoration: const InputDecoration(
                             labelText: 'Metadata API URL',
                             border: OutlineInputBorder(),
@@ -207,6 +233,36 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ),
                         ),
                         const SizedBox(height: 12),
+                        SwitchListTile.adaptive(
+                          contentPadding: EdgeInsets.zero,
+                          value: settings.preferOnlineFirstSync,
+                          onChanged: (value) async {
+                            await ref
+                                .read(connectionSettingsProvider.notifier)
+                                .save(
+                                  metadataBaseUrl: _metadataController.text,
+                                  syncBaseUrl: _syncController.text,
+                                  syncKey: _syncKeyController.text,
+                                  preferOnlineFirstSync: value,
+                                );
+                            if (!mounted) {
+                              return;
+                            }
+                            ref
+                                .read(syncControllerProvider.notifier)
+                                .refreshPendingCount();
+                            if (value) {
+                              unawaited(ref
+                                  .read(syncControllerProvider.notifier)
+                                  .syncOnlineFirstIfEnabled());
+                            }
+                          },
+                          title: const Text('Prefer online-first personal sync'),
+                          subtitle: const Text(
+                            'Keep the local cache, but sync automatically on startup and after local personal changes when your sync service is available.',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         _DiagnosticRow(
                           diagnostic: _syncDiagnostic,
                           idleLabel: 'Not checked',
@@ -219,34 +275,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ),
                         ],
                         const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _StatusChip(
-                              icon: Icons.pending_actions,
-                              label: '${sync.pendingCount} pending',
-                            ),
-                            _StatusChip(
-                              icon: sync.isOffline
-                                  ? Icons.cloud_off
-                                  : Icons.cloud_done,
-                              label: sync.isOffline ? 'Offline' : 'Ready',
-                              isError: sync.isOffline,
-                            ),
-                            if (sync.warningMessage != null)
-                              _StatusChip(
-                                icon: Icons.sync_problem_outlined,
-                                label: sync.warningMessage!,
-                              ),
-                            _StatusChip(
-                              icon: Icons.schedule,
-                              label: sync.lastSyncedAt == null
-                                  ? 'Never synced'
-                                  : 'Last ${_formatSyncTime(sync.lastSyncedAt!)}',
-                            ),
-                          ],
-                        ),
                         if (sync.rejectedChanges.isNotEmpty) ...[
                           const SizedBox(height: 12),
                           _SyncConflictSummary(
@@ -322,7 +350,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       '${entry.rejected > 0 ? ', ${entry.rejected} rejected' : ''}',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.grey.shade600,
+                                        color: appPalette(context).textSecondary,
                                       ),
                                     )
                                   else
@@ -402,24 +430,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                   _SettingsPanel(
-                    icon: Icons.place_outlined,
-                    title: 'Locations',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Manage the reusable location hierarchy used by add defaults, item editing, inspector assignment, and bulk edit flows.',
-                        ),
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: OutlinedButton.icon(
-                            onPressed: _showLocationManager,
-                            icon: const Icon(Icons.edit_location_alt_outlined),
-                            label: const Text('Manage locations'),
-                          ),
-                        ),
-                      ],
+                    icon: Icons.account_tree_outlined,
+                    title: 'Collection schema',
+                    child: CollectionSchemaManagementPanel(
+                      db: ref.read(localDatabaseProvider),
                     ),
                   ),
                 ],
@@ -432,6 +446,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          secondary: Icon(
+                            ref.watch(appThemeModeProvider) == ThemeMode.dark
+                                ? Icons.dark_mode
+                                : Icons.light_mode,
+                          ),
+                          title: const Text('Dark mode'),
+                          subtitle: const Text(
+                            'Switch between dark and light theme.',
+                          ),
+                          value:
+                              ref.watch(appThemeModeProvider) == ThemeMode.dark,
+                          onChanged: (value) => ref
+                              .read(appThemeModeProvider.notifier)
+                              .setMode(
+                                  value ? ThemeMode.dark : ThemeMode.light),
+                        ),
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           secondary: const Icon(Icons.gradient_outlined),
@@ -467,7 +499,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Text(
-                          'Copy a CSV snapshot of the local shelf. This includes personal fields stored on this device.',
+                          'Import or export your local collection as Collectarr CSV, CLZ-friendly CSV, or ComicInfo.xml. Personal fields stored on this device stay in the exported data.',
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -475,19 +507,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           runSpacing: 8,
                           children: [
                             FilledButton.tonalIcon(
-                              onPressed: () => _showImportExportWizard(),
-                              icon: const Icon(Icons.import_export_outlined),
-                              label: const Text('Open CSV / CLZ wizard'),
+                              onPressed: () =>
+                                  _showImportExportWizard(initialIndex: 1),
+                              icon: const Icon(Icons.upload_file_outlined),
+                              label: const Text('Import collection'),
+                            ),
+                            FilledButton.tonalIcon(
+                              onPressed: () =>
+                                  _showImportExportWizard(initialIndex: 0),
+                              icon: const Icon(Icons.download_outlined),
+                              label: const Text('Export collection'),
                             ),
                             OutlinedButton.icon(
                               onPressed: () => _copyBackup(clzFriendly: false),
                               icon: const Icon(Icons.copy_all),
-                              label: const Text('Copy Collectarr CSV'),
+                              label: const Text('Copy Collectarr export'),
                             ),
                             OutlinedButton.icon(
                               onPressed: () => _copyBackup(clzFriendly: true),
                               icon: const Icon(Icons.table_view),
-                              label: const Text('Copy CLZ-friendly CSV'),
+                              label: const Text('Copy CLZ-friendly export'),
                             ),
                             OutlinedButton.icon(
                               onPressed: _copySyncBackupGuide,
@@ -500,25 +539,85 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                   _SettingsPanel(
-                    icon: Icons.tune_outlined,
-                    title: 'Custom fields',
-                    child: CustomFieldsSettings(
-                      db: ref.read(localDatabaseProvider),
+                    icon: Icons.download_outlined,
+                    title: 'Import data',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Import your collection and tracking data from external services.',
+                        ),
+                        const SizedBox(height: 12),
+                        const _ImportJobsPanel(),
+                        _ImportSourcesGrid(
+                          tmdbSettings: tmdbImportSettings,
+                        ),
+                      ],
                     ),
                   ),
                   _SettingsPanel(
                     icon: Icons.outbox_outlined,
                     title: 'Metadata proposals',
-                    child: FutureBuilder<List<MetadataProposalRecord>>(
-                      future: const MetadataProposalStore().read(),
-                      builder: (context, snapshot) {
-                        return _MetadataProposalHistory(
-                          records: snapshot.data ?? const [],
-                          isLoading: snapshot.connectionState ==
-                              ConnectionState.waiting,
-                          onClear: _clearProposalHistory,
-                        );
-                      },
+                    child: _MetadataProposalHistory(
+                      records: metadataProposalHistory.value ?? const [],
+                      isLoading: metadataProposalHistory.isLoading,
+                      onClear: _clearProposalHistory,
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.save_outlined,
+                    title: 'Database backup & restore',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Create a full JSON backup of your local database, or restore from a previous backup. '
+                          'This includes all collection, wishlist, tracking, custom fields, locations, smart lists, and queue data.',
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            FilledButton.tonalIcon(
+                              onPressed: _backupDatabase,
+                              icon: const Icon(Icons.save_alt_outlined),
+                              label: const Text('Backup to JSON'),
+                            ),
+                            FilledButton.tonalIcon(
+                              onPressed: _restoreDatabase,
+                              icon: const Icon(Icons.restore_outlined),
+                              label: const Text('Restore from JSON'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.delete_forever_outlined,
+                    title: 'Clear database',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Permanently delete ALL local data including collection, wishlist, tracking, custom fields, and settings. '
+                          'This cannot be undone.',
+                        ),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: FilledButton.tonalIcon(
+                            onPressed: _clearDatabase,
+                            icon: const Icon(Icons.delete_forever),
+                            label: const Text('Clear entire database'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -528,29 +627,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   _SettingsPanel(
                     icon: Icons.devices_outlined,
                     title: 'Device identity',
-                    child: FutureBuilder<String>(
-                      future: _deviceIdFuture,
-                      builder: (context, snapshot) {
-                        final deviceId = snapshot.data;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            SelectableText(deviceId ?? 'Loading device id...'),
-                            const SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: OutlinedButton.icon(
-                                onPressed: snapshot.connectionState ==
-                                        ConnectionState.waiting
-                                    ? null
-                                    : _regenerateDeviceId,
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Regenerate device id'),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SelectableText(deviceId.value ?? 'Loading device id...'),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: deviceId.isLoading
+                                ? null
+                                : _regenerateDeviceId,
+                            icon: const Icon(Icons.refresh_outlined),
+                            label: const Text('Regenerate device id'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   _SettingsPanel(
@@ -559,7 +651,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        SelectableText(auth.email ?? 'Signed in'),
+                        SelectableText(auth.email ?? 'Not signed in'),
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 8,
@@ -584,33 +676,38 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ),
                           ],
                         ),
-                        if (auth.isAuthenticated) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            auth.isAdmin
-                                ? 'Admin tools are available in navigation and advanced metadata workflows.'
-                                : 'Admin-only tools are hidden for this account. Refresh permissions after a role change.',
-                          ),
-                        ],
+                        const SizedBox(height: 12),
+                        Text(
+                          auth.isAuthenticated
+                              ? auth.isAdmin
+                                  ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
+                                  : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
+                              : 'You can browse the app and send metadata proposals without signing in. Sign in is only needed for server features.',
+                        ),
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            OutlinedButton.icon(
-                              onPressed: auth.isAuthenticated
-                                  ? _refreshAccountPermissions
-                                  : null,
-                              icon: const Icon(Icons.manage_accounts_outlined),
-                              label: const Text('Refresh permissions'),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: () => ref
-                                  .read(authControllerProvider.notifier)
-                                  .logout(),
-                              icon: const Icon(Icons.logout),
-                              label: const Text('Sign out'),
-                            ),
+                            if (auth.isAuthenticated) ...[
+                              OutlinedButton.icon(
+                                onPressed: _refreshAccountPermissions,
+                                icon: const Icon(Icons.manage_accounts_outlined),
+                                label: const Text('Refresh permissions'),
+                              ),
+                              OutlinedButton.icon(
+                                onPressed: () => ref
+                                    .read(authControllerProvider.notifier)
+                                    .logout(),
+                                icon: const Icon(Icons.logout),
+                                label: const Text('Sign out'),
+                              ),
+                            ] else
+                              FilledButton.icon(
+                                onPressed: () => context.go(AppRoutes.auth),
+                                icon: const Icon(Icons.login),
+                                label: const Text('Sign in'),
+                              ),
                           ],
                         ),
                       ],
@@ -618,13 +715,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                 ],
               ),
-              // ── Updates tab ──────────────────────────────────────────
+              // ── Logs tab ─────────────────────────────────────────────
               _SettingsTabBody(
                 children: [
                   _SettingsPanel(
-                    icon: Icons.system_update_outlined,
-                    title: 'App updates',
-                    child: const AppUpdatePanel(),
+                    icon: Icons.bug_report_outlined,
+                    title: 'Application log',
+                    child: const AppLogViewerPanel(),
                   ),
                 ],
               ),
@@ -691,30 +788,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         );
     ref.read(syncControllerProvider.notifier).refreshPendingCount();
     if (mounted && notify != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(notify)),
-      );
+      _showToast(notify, tone: AppToastTone.success);
     }
   }
 
   Future<void> _resetAppearanceDefaults() async {
     await ref.read(uiPreferencesProvider.notifier).setAnimationsEnabled(true);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Appearance defaults restored')),
-      );
+      _showToast('Appearance defaults restored', tone: AppToastTone.success);
     }
-  }
-
-  Future<void> _showLocationManager() async {
-    await showLocationManagementDialog(
-      context: context,
-      db: ref.read(localDatabaseProvider),
-    );
-    if (!mounted) {
-      return;
-    }
-    setState(() {});
   }
 
   Future<void> _copyPairingCode() async {
@@ -730,15 +812,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pairing code copied')),
-      );
+      _showToast('Pairing code copied', tone: AppToastTone.success);
     } catch (error) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not copy pairing code: $error')),
+      _showToast(
+        'Could not copy pairing code: ${_describeError(error)}',
+        tone: AppToastTone.error,
       );
     }
   }
@@ -805,13 +886,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _syncDevices = const [];
       });
       ref.read(syncControllerProvider.notifier).refreshPendingCount();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pairing settings applied')),
-      );
+      _showToast('Pairing settings applied', tone: AppToastTone.success);
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid pairing code: $error')),
+        _showToast(
+          'Invalid pairing code: ${_describeError(error)}',
+          tone: AppToastTone.error,
         );
       }
     }
@@ -827,9 +907,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     });
     ref.read(syncControllerProvider.notifier).refreshPendingCount();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Connection defaults restored')),
-      );
+      _showToast('Connection defaults restored', tone: AppToastTone.success);
     }
   }
 
@@ -913,11 +991,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return;
     }
     final sync = ref.read(syncControllerProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_syncResultMessage(sync)),
-      ),
-    );
+    _showToast(_syncResultMessage(sync), tone: _syncResultTone(sync));
   }
 
   Future<void> _refreshAccountPermissions() async {
@@ -927,21 +1001,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return;
       }
       final auth = ref.read(authControllerProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            auth.isAdmin
-                ? 'Account permissions refreshed: admin'
-                : 'Account permissions refreshed: standard account',
-          ),
-        ),
+      _showToast(
+        auth.isAdmin
+            ? 'Account permissions refreshed: admin'
+            : 'Account permissions refreshed: standard account',
+        tone: AppToastTone.success,
       );
     } catch (error) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not refresh permissions: $error')),
+      _showToast(
+        'Could not refresh permissions: ${_describeError(error)}',
+        tone: AppToastTone.error,
       );
     }
   }
@@ -954,14 +1026,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return;
     }
     final pendingCount = ref.read(syncControllerProvider).pendingCount;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          queued
-              ? 'Local version queued for the next sync. ${_pendingSyncLabel(pendingCount)} ready to upload.'
-              : 'Local version is no longer available for that conflict.',
-        ),
-      ),
+    _showToast(
+      queued
+          ? 'Local version queued for the next sync. ${_pendingSyncLabel(pendingCount)} ready to upload.'
+          : 'Local version is no longer available for that conflict.',
+      tone: queued ? AppToastTone.success : AppToastTone.error,
     );
   }
 
@@ -1001,18 +1070,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          clzFriendly
-              ? 'CLZ-friendly CSV backup copied'
-              : 'Collectarr CSV backup copied',
-        ),
-      ),
+    _showToast(
+      clzFriendly
+          ? 'CLZ-friendly CSV backup copied'
+          : 'Collectarr CSV backup copied',
+      tone: AppToastTone.success,
     );
   }
 
-  Future<void> _showImportExportWizard() async {
+  Future<void> _showImportExportWizard({required int initialIndex}) async {
     final state = await ref.read(shelfProvider.future);
     final db = ref.read(localDatabaseProvider);
     final cfRepo = CustomFieldRepository(db);
@@ -1025,13 +1091,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (context) => ImportExportWizardDialog(
         entries: state.entries,
+        initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,
       ),
     );
     if (imported != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported $imported CSV rows')),
+      _showToast(
+        'Imported $imported rows into your collection',
+        tone: AppToastTone.success,
       );
     }
   }
@@ -1059,32 +1127,203 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sync backup guide copied')),
-    );
+    _showToast('Sync backup guide copied', tone: AppToastTone.success);
   }
 
   Future<void> _clearProposalHistory() async {
     await const MetadataProposalStore().clear();
     if (mounted) {
+      ref.invalidate(_metadataProposalHistoryProvider);
       setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Local proposal history cleared')),
-      );
+      _showToast('Local proposal history cleared', tone: AppToastTone.success);
     }
   }
 
   Future<void> _regenerateDeviceId() async {
-    final future = DeviceIdentity().regenerate();
-    setState(() {
-      _deviceIdFuture = future;
-    });
-    await future;
+    await DeviceIdentity().regenerate();
+    ref.invalidate(_deviceIdentityProvider);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Device id regenerated')),
-      );
+      _showToast('Device id regenerated', tone: AppToastTone.success);
     }
+  }
+
+  Future<void> _backupDatabase() async {
+    try {
+      final db = ref.read(localDatabaseProvider);
+      final backup = DatabaseBackup(db);
+      final json = await backup.exportJson();
+      final now = DateTime.now();
+      final stamp =
+          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}'
+          '_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}';
+      final fileName = 'collectarr_backup_$stamp.json';
+      final location = await getSaveLocation(
+        suggestedName: fileName,
+        acceptedTypeGroups: [
+          const XTypeGroup(label: 'JSON', extensions: ['json']),
+        ],
+      );
+      if (location == null) return;
+      final file = XFile.fromData(
+        utf8.encode(json),
+        mimeType: 'application/json',
+        name: fileName,
+      );
+      await file.saveTo(location.path);
+      if (mounted) {
+        _showToast('Backup saved', tone: AppToastTone.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showToast('Backup failed: ${_describeError(e)}',
+            tone: AppToastTone.error);
+      }
+    }
+  }
+
+  Future<void> _restoreDatabase() async {
+    try {
+      final file = await openFile(
+        acceptedTypeGroups: [
+          const XTypeGroup(label: 'JSON', extensions: ['json']),
+        ],
+      );
+      if (file == null) return;
+      if (!mounted) return;
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Restore database'),
+          content: const Text(
+            'This will replace ALL local data with the backup contents. '
+            'Any current data will be lost. Continue?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Restore'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is! Map<String, dynamic>) {
+        _showToast('Invalid backup file', tone: AppToastTone.error);
+        return;
+      }
+      final db = ref.read(localDatabaseProvider);
+      await DatabaseBackup(db).import(data);
+      if (mounted) {
+        _showToast('Database restored', tone: AppToastTone.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showToast('Restore failed: ${_describeError(e)}',
+            tone: AppToastTone.error);
+      }
+    }
+  }
+
+  Future<void> _clearDatabase() async {
+    final firstConfirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Clear database'),
+        content: const Text(
+          'This will permanently delete ALL local data. '
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+    if (firstConfirm != true || !mounted) return;
+
+    final secondConfirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Are you absolutely sure?'),
+        content: const Text(
+          'All collection data, tracking history, custom fields, '
+          'locations, smart lists, and reading queues will be '
+          'permanently erased.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            child: const Text('Yes, delete everything'),
+          ),
+        ],
+      ),
+    );
+    if (secondConfirm != true || !mounted) return;
+
+    try {
+      final db = ref.read(localDatabaseProvider);
+      await DatabaseBackup(db).clearAll();
+      if (mounted) {
+        _showToast('Database cleared', tone: AppToastTone.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showToast('Clear failed: ${_describeError(e)}',
+            tone: AppToastTone.error);
+      }
+    }
+  }
+
+  void _showToast(String message, {AppToastTone tone = AppToastTone.info}) {
+    if (!mounted) {
+      return;
+    }
+    showAppToast(context, message, tone: tone);
+  }
+
+  String _describeError(Object error) {
+    final text = error.toString().trim();
+    if (text.startsWith('Exception: ')) {
+      return text.substring('Exception: '.length);
+    }
+    if (text.startsWith('StateError: ')) {
+      return text.substring('StateError: '.length);
+    }
+    return text;
+  }
+
+  AppToastTone _syncResultTone(SyncState sync) {
+    if (sync.errorMessage != null) {
+      return AppToastTone.error;
+    }
+    if (sync.warningMessage != null) {
+      return AppToastTone.info;
+    }
+    return AppToastTone.success;
   }
 
   String _formatSyncTime(DateTime value) {
@@ -1103,551 +1342,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return 'Session expiry unavailable';
     }
     return 'Session expires ${_formatSyncTime(expiresAt)}';
-  }
-}
-
-class _PairingCodeDialog extends StatefulWidget {
-  const _PairingCodeDialog();
-
-  @override
-  State<_PairingCodeDialog> createState() => _PairingCodeDialogState();
-}
-
-class _PairingCodeDialogState extends State<_PairingCodeDialog> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Apply pairing code'),
-      content: SizedBox(
-        width: 520,
-        child: TextField(
-          controller: _controller,
-          autofocus: true,
-          minLines: 4,
-          maxLines: 6,
-          decoration: const InputDecoration(
-            labelText: 'Pairing code',
-            border: OutlineInputBorder(),
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(_controller.text),
-          child: const Text('Apply'),
-        ),
-      ],
-    );
-  }
-}
-
-class _PairingQrDialog extends StatelessWidget {
-  const _PairingQrDialog({required this.code});
-
-  final String code;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog(
-      title: const Text('Pairing QR'),
-      content: SizedBox(
-        width: 360,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: colorScheme.outlineVariant),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: QrImageView(
-                    data: code,
-                    version: QrVersions.auto,
-                    size: 240,
-                    backgroundColor: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SelectableText(
-              code,
-              maxLines: 4,
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Clipboard.setData(ClipboardData(text: code)),
-          child: const Text('Copy code'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    );
-  }
-}
-
-class _LibraryNavSettings extends StatelessWidget {
-  const _LibraryNavSettings({
-    required this.catalog,
-    required this.preferences,
-    required this.onPlacementChanged,
-    required this.onOrderChanged,
-    required this.onVisibilityChanged,
-    required this.onReset,
-  });
-
-  final List<CatalogMediaType> catalog;
-  final LibraryNavPreferences preferences;
-  final ValueChanged<LibraryNavPlacement> onPlacementChanged;
-  final ValueChanged<List<String>> onOrderChanged;
-  final void Function(String kind, bool visible) onVisibilityChanged;
-  final VoidCallback onReset;
-
-  @override
-  Widget build(BuildContext context) {
-    final types = _orderedSettingsMediaTypes(catalog, preferences);
-    final visibleTypes = [
-      for (final type in types)
-        if (preferences.isVisible(type.kind)) type,
-    ];
-    final hiddenCount = types.length - visibleTypes.length;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _LibraryNavSummary(
-          visibleCount: visibleTypes.length,
-          hiddenCount: hiddenCount,
-          placement: preferences.placement,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Position',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 12,
-          runSpacing: 8,
-          children: [
-            SegmentedButton<LibraryNavPlacement>(
-              segments: const [
-                ButtonSegment(
-                  value: LibraryNavPlacement.top,
-                  icon: Icon(Icons.view_week_outlined),
-                  label: Text('Top bar'),
-                ),
-                ButtonSegment(
-                  value: LibraryNavPlacement.left,
-                  icon: Icon(Icons.vertical_split_outlined),
-                  label: Text('Left rail'),
-                ),
-              ],
-              selected: {preferences.placement},
-              showSelectedIcon: false,
-              onSelectionChanged: (selection) =>
-                  onPlacementChanged(selection.first),
-            ),
-            Text(
-              preferences.placement == LibraryNavPlacement.top
-                  ? 'Extra libraries collapse into More when the window is narrow.'
-                  : 'The vertical rail keeps libraries visible on dense desktop layouts.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        _LibraryNavPreview(
-          types: visibleTypes.isEmpty ? types.take(1).toList() : visibleTypes,
-          placement: preferences.placement,
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Text(
-              'Libraries',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-            ),
-            const Spacer(),
-            OutlinedButton.icon(
-              onPressed: onReset,
-              icon: const Icon(Icons.restart_alt),
-              label: const Text('Reset library navigation'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Drag rows or use the arrow buttons to reorder. Hidden libraries are removed from the top bar/rail, but can be restored here.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-        const SizedBox(height: 8),
-        ReorderableListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          buildDefaultDragHandles: false,
-          itemCount: types.length,
-          onReorderItem: (oldIndex, newIndex) {
-            final reordered = types.map((type) => type.kind).toList();
-            final moved = reordered.removeAt(oldIndex);
-            reordered.insert(newIndex, moved);
-            onOrderChanged(reordered);
-          },
-          itemBuilder: (context, index) {
-            final type = types[index];
-            final visible = preferences.isVisible(type.kind);
-            final reordered = types.map((type) => type.kind).toList();
-            return ListTile(
-              key: ValueKey('library-nav-${type.kind}'),
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              leading: SizedBox(
-                width: 74,
-                child: Row(
-                  children: [
-                    ReorderableDragStartListener(
-                      index: index,
-                      child: const Icon(Icons.drag_indicator),
-                    ),
-                    const SizedBox(width: 6),
-                    _LibraryNavTypeIcon(type: type),
-                  ],
-                ),
-              ),
-              title: Text(type.pluralLabel),
-              subtitle: Text(
-                [
-                  visible ? 'Visible' : 'Hidden',
-                  type.providers.isEmpty
-                      ? 'No provider'
-                      : 'Providers: ${type.providers.join(', ')}',
-                ].join(' | '),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 2,
-                children: [
-                  IconButton(
-                    tooltip: 'Move up',
-                    onPressed: index == 0
-                        ? null
-                        : () {
-                            final moved = reordered.removeAt(index);
-                            reordered.insert(index - 1, moved);
-                            onOrderChanged(reordered);
-                          },
-                    icon: const Icon(Icons.keyboard_arrow_up),
-                  ),
-                  IconButton(
-                    tooltip: 'Move down',
-                    onPressed: index == types.length - 1
-                        ? null
-                        : () {
-                            final moved = reordered.removeAt(index);
-                            reordered.insert(index + 1, moved);
-                            onOrderChanged(reordered);
-                          },
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                  ),
-                  Switch(
-                    value: visible,
-                    onChanged: (value) => onVisibilityChanged(
-                      type.kind,
-                      value,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class _LibraryNavSummary extends StatelessWidget {
-  const _LibraryNavSummary({
-    required this.visibleCount,
-    required this.hiddenCount,
-    required this.placement,
-  });
-
-  final int visibleCount;
-  final int hiddenCount;
-  final LibraryNavPlacement placement;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        _SettingsMiniStat(
-          icon: Icons.visibility_outlined,
-          label: '$visibleCount visible',
-        ),
-        _SettingsMiniStat(
-          icon: Icons.visibility_off_outlined,
-          label: '$hiddenCount hidden',
-        ),
-        _SettingsMiniStat(
-          icon: placement == LibraryNavPlacement.top
-              ? Icons.view_week_outlined
-              : Icons.vertical_split_outlined,
-          label: placement == LibraryNavPlacement.top ? 'Top bar' : 'Left rail',
-        ),
-        const _SettingsMiniStat(
-          icon: Icons.more_horiz,
-          label: 'Overflow uses More',
-        ),
-      ],
-    );
-  }
-}
-
-class _LibraryNavPreview extends StatelessWidget {
-  const _LibraryNavPreview({
-    required this.types,
-    required this.placement,
-  });
-
-  final List<CatalogMediaType> types;
-  final LibraryNavPlacement placement;
-
-  @override
-  Widget build(BuildContext context) {
-    final visible = types.take(5).toList();
-    final overflow = types.length - visible.length;
-    final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.44),
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: placement == LibraryNavPlacement.left
-            ? Row(
-                children: [
-                  SizedBox(
-                    width: 58,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (final type in visible.take(4))
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 5),
-                            child: _LibraryNavPreviewTile(type: type),
-                          ),
-                        if (overflow > 0)
-                          _LibraryNavPreviewBadge(label: '+$overflow'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Left rail keeps library switching pinned beside the workspace.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          for (final type in visible)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: _LibraryNavPreviewButton(type: type),
-                            ),
-                          if (overflow > 0)
-                            _LibraryNavPreviewBadge(label: 'More +$overflow'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-}
-
-class _LibraryNavTypeIcon extends StatelessWidget {
-  const _LibraryNavTypeIcon({required this.type});
-
-  final CatalogMediaType type;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: libraryAccentForKind(type.kind).withValues(alpha: 0.18),
-        border: Border.all(color: libraryAccentForKind(type.kind)),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: SizedBox.square(
-        dimension: 30,
-        child: Icon(
-          libraryIconForKind(type.kind),
-          size: 17,
-          color: libraryAccentForKind(type.kind),
-        ),
-      ),
-    );
-  }
-}
-
-class _LibraryNavPreviewButton extends StatelessWidget {
-  const _LibraryNavPreviewButton({required this.type});
-
-  final CatalogMediaType type;
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = libraryAccentForKind(type.kind);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.22),
-        border: Border.all(color: accent),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(libraryIconForKind(type.kind), size: 15, color: accent),
-            const SizedBox(width: 5),
-            Text(
-              type.pluralLabel,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LibraryNavPreviewTile extends StatelessWidget {
-  const _LibraryNavPreviewTile({required this.type});
-
-  final CatalogMediaType type;
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = libraryAccentForKind(type.kind);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.20),
-        border: Border.all(color: accent),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: SizedBox.square(
-        dimension: 36,
-        child: Icon(libraryIconForKind(type.kind), size: 18, color: accent),
-      ),
-    );
-  }
-}
-
-class _LibraryNavPreviewBadge extends StatelessWidget {
-  const _LibraryNavPreviewBadge({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsMiniStat extends StatelessWidget {
-  const _SettingsMiniStat({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 15),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -1728,595 +1422,4 @@ class _SettingsPanel extends StatelessWidget {
       ),
     );
   }
-}
-
-class _SyncWebWarning extends StatelessWidget {
-  const _SyncWebWarning();
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.errorContainer.withValues(alpha: 0.32),
-        border: Border.all(color: colorScheme.error.withValues(alpha: 0.42)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.public_off_outlined,
-              color: colorScheme.error,
-              size: 20,
-            ),
-            const SizedBox(width: 10),
-            const Expanded(
-              child: Text(
-                'Web sync uses your personal sync endpoint directly. Browser CORS, HTTPS, and local-network access rules can block it even when desktop or mobile sync works.',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MetadataProposalHistory extends StatelessWidget {
-  const _MetadataProposalHistory({
-    required this.records,
-    required this.isLoading,
-    required this.onClear,
-  });
-
-  final List<MetadataProposalRecord> records;
-  final bool isLoading;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isLoading) {
-      return const LinearProgressIndicator();
-    }
-    if (records.isEmpty) {
-      return const Text('No local proposal submissions yet.');
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _StatusChip(
-              icon: Icons.outbox_outlined,
-              label: '${records.length} submitted locally',
-            ),
-            _StatusChip(
-              icon: Icons.pending_actions,
-              label:
-                  "${records.where((row) => row.status == 'pending').length} pending",
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        for (final record in records.take(5))
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.fact_check_outlined),
-            title: Text(record.title ?? record.query),
-            subtitle: Text(
-              [
-                record.source,
-                record.provider,
-                record.status,
-                _formatProposalTime(record.createdAt),
-              ].join(' | '),
-            ),
-          ),
-        if (records.length > 5)
-          Text('+${records.length - 5} older proposal submissions'),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: OutlinedButton.icon(
-            onPressed: onClear,
-            icon: const Icon(Icons.clear_all),
-            label: const Text('Clear local history'),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-String _formatProposalTime(DateTime value) {
-  final local = value.toLocal();
-  final hour = local.hour.toString().padLeft(2, '0');
-  final minute = local.minute.toString().padLeft(2, '0');
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hour:$minute';
-}
-
-List<CatalogMediaType> _orderedSettingsMediaTypes(
-  List<CatalogMediaType> catalog,
-  LibraryNavPreferences preferences,
-) {
-  final topLevelByKind = {
-    for (final type in catalog)
-      if (type.isTopLevel) type.kind: type,
-  };
-  final defaultKinds = [
-    for (final config in collectarrLibraryTypes.types) config.workspace.kind,
-  ];
-  final orderedKinds = preferences.orderedKinds([
-    ...defaultKinds,
-    ...topLevelByKind.keys,
-  ]);
-  final ordered = <CatalogMediaType>[];
-  for (final kind in orderedKinds) {
-    final type = topLevelByKind.remove(kind);
-    if (type != null) {
-      ordered.add(type);
-    }
-  }
-  ordered.addAll(topLevelByKind.values.toList()
-    ..sort((a, b) => a.pluralLabel.compareTo(b.pluralLabel)));
-  return ordered.isEmpty
-      ? fallbackMediaCatalog.where((type) => type.isTopLevel).toList()
-      : ordered;
-}
-
-class _DiagnosticRow extends StatelessWidget {
-  const _DiagnosticRow({required this.diagnostic, required this.idleLabel});
-
-  final _DiagnosticState? diagnostic;
-  final String idleLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final state = diagnostic;
-    if (state == null) {
-      return _DiagnosticPill(
-        icon: Icons.radio_button_unchecked,
-        label: idleLabel,
-      );
-    }
-    if (state.isChecking) {
-      return const _DiagnosticPill(
-        icon: Icons.sync,
-        label: 'Checking...',
-      );
-    }
-    return _DiagnosticPill(
-      icon: state.isOk ? Icons.check_circle_outline : Icons.error_outline,
-      label: state.message,
-      isError: !state.isOk,
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.icon,
-    required this.label,
-    this.isError = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isError;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Chip(
-      avatar: Icon(
-        icon,
-        size: 18,
-        color: isError ? colorScheme.error : colorScheme.primary,
-      ),
-      label: Text(label),
-      visualDensity: VisualDensity.compact,
-    );
-  }
-}
-
-class _SyncServiceSummary extends StatelessWidget {
-  const _SyncServiceSummary({
-    required this.status,
-    required this.devices,
-  });
-
-  final Map<String, dynamic> status;
-  final List<Map<String, dynamic>> devices;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _StatusChip(
-                  icon: Icons.storage_outlined,
-                  label: '${status['entity_count'] ?? '-'} entities',
-                ),
-                _StatusChip(
-                  icon: Icons.account_tree_outlined,
-                  label: 'protocol ${status['protocol_version'] ?? '-'}',
-                ),
-                _StatusChip(
-                  icon: Icons.delete_sweep_outlined,
-                  label: '${status['tombstone_count'] ?? '-'} tombstones',
-                ),
-                _StatusChip(
-                  icon: Icons.history,
-                  label: '${status['change_count'] ?? '-'} events',
-                ),
-                _StatusChip(
-                  icon: Icons.event_repeat,
-                  label: '${status['retention_days'] ?? '-'}d retention',
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text('Devices seen', style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: 6),
-            if (devices.isEmpty)
-              const Text('No synced devices yet.')
-            else
-              for (final device in devices.take(5))
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.devices_other, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${device['device_id']}',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text('${device['change_count'] ?? 0} events'),
-                    ],
-                  ),
-                ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SyncConflictSummary extends StatelessWidget {
-  const _SyncConflictSummary({
-    required this.changes,
-    required this.onKeepLocal,
-    required this.onDismiss,
-    required this.onDismissAll,
-  });
-
-  final List<SyncRejectedChange> changes;
-  final Future<void> Function(SyncRejectedChange change) onKeepLocal;
-  final ValueChanged<SyncRejectedChange> onDismiss;
-  final VoidCallback onDismissAll;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.errorContainer.withValues(alpha: 0.28),
-        border: Border.all(color: colorScheme.error.withValues(alpha: 0.36)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.sync_problem_outlined, color: colorScheme.error),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Sync conflict review',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: onDismissAll,
-                  icon: const Icon(Icons.done_all_outlined),
-                  label: const Text('Keep service'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Use Keep local when this device should overwrite the service on the next sync. Use Keep service when the service version is correct.',
-            ),
-            const SizedBox(height: 8),
-            for (final change in changes.take(5))
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 3),
-                child: Row(
-                  children: [
-                    const Icon(Icons.rule_folder_outlined, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${change.entityType}:${_shortSyncId(change.entityId)}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        _conflictLabel(change),
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'View payload diff',
-                      onPressed: () => showDialog<void>(
-                        context: context,
-                        builder: (context) =>
-                            _SyncConflictDiffDialog(change: change),
-                      ),
-                      icon: const Icon(Icons.difference_outlined, size: 18),
-                    ),
-                    IconButton(
-                      tooltip: 'Copy conflict id',
-                      onPressed: () => Clipboard.setData(
-                        ClipboardData(text: change.key),
-                      ),
-                      icon: const Icon(Icons.copy_outlined, size: 18),
-                    ),
-                    IconButton(
-                      tooltip: 'Keep local version',
-                      onPressed: () => onKeepLocal(change),
-                      icon: const Icon(Icons.cloud_upload_outlined, size: 18),
-                    ),
-                    IconButton(
-                      tooltip: 'Keep service version',
-                      onPressed: () => onDismiss(change),
-                      icon: const Icon(Icons.check_outlined, size: 18),
-                    ),
-                  ],
-                ),
-              ),
-            if (changes.length > 5)
-              Text('+${changes.length - 5} older rejected changes'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DiagnosticPill extends StatelessWidget {
-  const _DiagnosticPill({
-    required this.icon,
-    required this.label,
-    this.isError = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isError;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final color = isError ? colorScheme.error : colorScheme.primary;
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SyncConflictDiffDialog extends StatelessWidget {
-  const _SyncConflictDiffDialog({required this.change});
-
-  final SyncRejectedChange change;
-
-  @override
-  Widget build(BuildContext context) {
-    final localPayload = change.localPayload ?? const <String, dynamic>{};
-    final servicePayload = change.servicePayload ?? const <String, dynamic>{};
-    return AlertDialog(
-      title: const Text('Sync conflict diff'),
-      content: SizedBox(
-        width: 860,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _ConflictDiffChip(label: change.entityType),
-                  _ConflictDiffChip(label: _shortSyncId(change.entityId)),
-                  _ConflictDiffChip(label: change.reason),
-                  if (change.localAction != null)
-                    _ConflictDiffChip(label: 'local ${change.localAction}'),
-                  if (change.serviceAction != null)
-                    _ConflictDiffChip(
-                      label: 'service ${change.serviceAction}',
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final panels = [
-                    _PayloadPanel(
-                      title: 'Local rejected payload',
-                      timestamp: change.localClientChangedAt,
-                      payload: localPayload,
-                    ),
-                    _PayloadPanel(
-                      title: 'Service kept payload',
-                      timestamp: change.currentClientChangedAt,
-                      payload: servicePayload,
-                    ),
-                  ];
-                  if (constraints.maxWidth < 720) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        panels[0],
-                        const SizedBox(height: 12),
-                        panels[1],
-                      ],
-                    );
-                  }
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: panels[0]),
-                      const SizedBox(width: 12),
-                      Expanded(child: panels[1]),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    );
-  }
-}
-
-class _PayloadPanel extends StatelessWidget {
-  const _PayloadPanel({
-    required this.title,
-    required this.payload,
-    this.timestamp,
-  });
-
-  final String title;
-  final DateTime? timestamp;
-  final Map<String, dynamic> payload;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final encoded = const JsonEncoder.withIndent('  ').convert(payload);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleSmall),
-            if (timestamp != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                _formatProposalTime(timestamp!),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-            const SizedBox(height: 8),
-            SelectableText(
-              encoded,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ConflictDiffChip extends StatelessWidget {
-  const _ConflictDiffChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      label: Text(label),
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-}
-
-String _shortSyncId(String id) {
-  if (id.length <= 8) {
-    return id;
-  }
-  return id.substring(0, 8);
-}
-
-String _conflictLabel(SyncRejectedChange change) {
-  final label = SyncWarningFormatter.reasonLabel(change.reason);
-  final current = change.currentClientChangedAt;
-  if (current == null) {
-    return label;
-  }
-  return '$label, service kept ${_formatProposalTime(current)}';
-}
-
-class _DiagnosticState {
-  const _DiagnosticState.checking()
-      : isChecking = true,
-        isOk = false,
-        message = '';
-
-  const _DiagnosticState.ok(this.message)
-      : isChecking = false,
-        isOk = true;
-
-  const _DiagnosticState.error(this.message)
-      : isChecking = false,
-        isOk = false;
-
-  final bool isChecking;
-  final bool isOk;
-  final String message;
 }

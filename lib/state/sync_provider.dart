@@ -2,6 +2,8 @@ import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
+import 'package:collectarr_app/core/logging/app_log.dart';
+import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
@@ -14,6 +16,9 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -98,6 +103,7 @@ class SyncController extends StateNotifier<SyncState> {
   SyncController(this.ref) : super(const SyncState());
 
   final Ref ref;
+  bool _onlineFirstSyncQueued = false;
 
   Future<void> refreshPendingCount() async {
     final count = await _queue().pendingCount();
@@ -108,6 +114,9 @@ class SyncController extends StateNotifier<SyncState> {
   static const _maxLogEntries = 20;
 
   Future<void> syncNow() async {
+    if (state.isSyncing) {
+      return;
+    }
     final preSyncPending = state.pendingCount;
     state = state.copyWith(
       isSyncing: true,
@@ -162,6 +171,11 @@ class SyncController extends StateNotifier<SyncState> {
         error: error,
         stackTrace: stackTrace,
       );
+      ref.read(appLogProvider.notifier).error(
+            'sync',
+            'Sync failed: $error',
+            detail: stackTrace.toString(),
+          );
       final count = await _queue().pendingCount();
       final log = _appendLog(SyncLogEntry(
         timestamp: DateTime.now().toUtc(),
@@ -177,6 +191,23 @@ class SyncController extends StateNotifier<SyncState> {
         rejectedChanges: state.rejectedChanges,
         syncLog: log,
       );
+    }
+  }
+
+  Future<void> syncOnlineFirstIfEnabled() async {
+    if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider))) {
+      return;
+    }
+    _onlineFirstSyncQueued = true;
+    if (state.isSyncing) {
+      return;
+    }
+    while (_onlineFirstSyncQueued) {
+      _onlineFirstSyncQueued = false;
+      await syncNow();
+      if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider))) {
+        _onlineFirstSyncQueued = false;
+      }
     }
   }
 
@@ -241,8 +272,21 @@ class SyncController extends StateNotifier<SyncState> {
         error: error,
         stackTrace: stackTrace,
       );
+      ref.read(appLogProvider.notifier).error(
+            'sync',
+            'Sync cursor read failed: $error',
+            detail: stackTrace.toString(),
+          );
       return state.lastSyncedAt;
     }
+  }
+
+  bool _shouldUseOnlineFirstSync(ConnectionSettings settings) {
+    if (!settings.preferOnlineFirstSync) {
+      return false;
+    }
+    return settings.syncBaseUrl.trim().isNotEmpty &&
+        settings.syncKey.trim().isNotEmpty;
   }
 }
 
@@ -331,6 +375,53 @@ extension on SyncQueueRepository {
           payload: item.toSyncPayload(),
           clientChangedAt: changedAt,
         );
+      case 'watch_session':
+        final session = await WatchSessionsCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (session == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: session.id,
+          action: session.isDeleted ? 'delete' : 'upsert',
+          payload: session.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'metadata_override':
+        final override =
+            await UserMetadataOverridesCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (override == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: override.id,
+          action: override.isDeleted ? 'delete' : 'upsert',
+          payload: override.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
+      case 'custom_episode':
+        final episode =
+            await CustomEpisodesCacheRepository(db).findById(
+          change.entityId,
+        );
+        if (episode == null) {
+          return null;
+        }
+        return SyncChange(
+          id: uuid.v4(),
+          entityType: change.entityType,
+          entityId: episode.id,
+          action: episode.isDeleted ? 'delete' : 'upsert',
+          payload: episode.toSyncPayload(),
+          clientChangedAt: changedAt,
+        );
       case 'location':
         final repo = LocationRepository(db);
         final location = await repo.getById(change.entityId);
@@ -341,6 +432,36 @@ extension on SyncQueueRepository {
             entityId: location.id,
             action: 'upsert',
             payload: location.toSyncPayload(),
+            clientChangedAt: changedAt,
+          );
+        }
+        if (change.localAction == 'delete') {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: change.entityId,
+            action: 'delete',
+            payload: change.localPayload ?? const {},
+            clientChangedAt: changedAt,
+          );
+        }
+        return null;
+      case 'pick_list_value':
+        final row = await (db.select(db.pickListValuesCache)
+              ..where((t) => t.id.equals(change.entityId)))
+            .getSingleOrNull();
+        if (row != null) {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: row.id,
+            action: 'upsert',
+            payload: {
+              'list_name': row.listName,
+              'media_kind': row.mediaKind,
+              'value': row.value,
+              'sort_order': row.sortOrder,
+            },
             clientChangedAt: changedAt,
           );
         }

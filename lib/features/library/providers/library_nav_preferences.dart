@@ -8,21 +8,25 @@ class LibraryNavPreferences {
     this.order = const [],
     this.hiddenKinds = const {},
     this.placement = LibraryNavPlacement.top,
+    this.collapsed = false,
   });
 
   final List<String> order;
   final Set<String> hiddenKinds;
   final LibraryNavPlacement placement;
+  final bool collapsed;
 
   LibraryNavPreferences copyWith({
     List<String>? order,
     Set<String>? hiddenKinds,
     LibraryNavPlacement? placement,
+    bool? collapsed,
   }) {
     return LibraryNavPreferences(
       order: order ?? this.order,
       hiddenKinds: hiddenKinds ?? this.hiddenKinds,
       placement: placement ?? this.placement,
+      collapsed: collapsed ?? this.collapsed,
     );
   }
 
@@ -53,6 +57,7 @@ class LibraryNavPreferencesStore {
   static const _orderKey = 'collectarr.library_nav.order';
   static const _hiddenKey = 'collectarr.library_nav.hidden';
   static const _placementKey = 'collectarr.library_nav.placement';
+  static const _collapsedKey = 'collectarr.library_nav.collapsed';
 
   Future<LibraryNavPreferences> read() async {
     final prefs = await SharedPreferences.getInstance();
@@ -66,6 +71,7 @@ class LibraryNavPreferencesStore {
           if (_normalizeKind(kind).isNotEmpty) _normalizeKind(kind),
       },
       placement: _placementByName(prefs.getString(_placementKey)),
+      collapsed: prefs.getBool(_collapsedKey) ?? false,
     );
   }
 
@@ -77,6 +83,7 @@ class LibraryNavPreferencesStore {
       preferences.hiddenKinds.toList(growable: false),
     );
     await prefs.setString(_placementKey, preferences.placement.name);
+    await prefs.setBool(_collapsedKey, preferences.collapsed);
   }
 
   static LibraryNavPlacement _placementByName(String? name) {
@@ -109,6 +116,10 @@ class LibraryNavPreferencesController
 
   Future<void> setPlacement(LibraryNavPlacement placement) async {
     await _save(state.copyWith(placement: placement));
+  }
+
+  Future<void> toggleCollapsed() async {
+    await _save(state.copyWith(collapsed: !state.collapsed));
   }
 
   Future<void> setOrder(List<String> order) async {

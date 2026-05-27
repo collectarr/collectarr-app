@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -21,7 +22,8 @@ class BookLibraryMediaPresentationBuilder
     required BuildContext context,
     required Color accent,
     required String singularLabel,
-    required LibraryMediaFieldLabels labels,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
     required LibraryMediaPreviewLabels previewLabels,
     required LibraryMetadataItem? item,
     required ProviderCandidate? candidate,
@@ -112,9 +114,9 @@ class _BookAddPreviewPane extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF020202),
+            kAppCanvas,
             Color.alphaBlend(accent.withValues(alpha: 0.22), kAppCanvas),
-            const Color(0xFF050505),
+            kAppCanvas,
           ],
         ),
       ),

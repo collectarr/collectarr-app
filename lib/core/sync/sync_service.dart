@@ -3,6 +3,9 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/user_metadata_override.dart';
+import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -12,7 +15,11 @@ import 'package:collectarr_app/features/collection/repositories/item_images_cach
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -71,6 +78,11 @@ class SyncService {
     final owned = <OwnedItem>[];
     final tracking = <TrackingEntry>[];
     final wishlist = <WishlistItem>[];
+    final watchSessions = <WatchSession>[];
+    final metadataOverrides = <UserMetadataOverride>[];
+    final customEpisodes = <CustomEpisode>[];
+    final pickListUpserts = <Map<String, dynamic>>[];
+    final pickListDeletes = <String>[];
     // Collect image data from snapshots keyed by item ID.
     final imageDataByItemId = <String, String>{};
     for (final entity in entities) {
@@ -98,6 +110,25 @@ class SyncService {
       if (type == 'wishlist_item') {
         wishlist.add(_wishlistItemFromEntity(entity));
       }
+      if (type == 'watch_session') {
+        watchSessions.add(_watchSessionFromEntity(entity));
+      }
+      if (type == 'metadata_override') {
+        metadataOverrides.add(_metadataOverrideFromEntity(entity));
+      }
+      if (type == 'custom_episode') {
+        customEpisodes.add(_customEpisodeFromEntity(entity));
+      }
+      if (type == 'pick_list_value') {
+        if (entity['action'] == 'delete') {
+          pickListDeletes.add(entity['entity_id'] as String);
+        } else {
+          pickListUpserts.add({
+            'id': entity['entity_id'] as String,
+            ..._payload(entity),
+          });
+        }
+      }
     }
     await db.transaction(() async {
       await catalog.upsertAll(catalogSnapshots);
@@ -107,32 +138,73 @@ class SyncService {
       await ownedItems.upsertAll(owned);
       await trackingEntries.upsertAll(tracking);
       await wishlistItems.upsertAll(wishlist);
+      if (watchSessions.isNotEmpty) {
+        await WatchSessionsCacheRepository(db).upsertAll(watchSessions);
+      }
+      if (metadataOverrides.isNotEmpty) {
+        await UserMetadataOverridesCacheRepository(db)
+            .upsertAll(metadataOverrides);
+      }
+      if (customEpisodes.isNotEmpty) {
+        await CustomEpisodesCacheRepository(db).upsertAll(customEpisodes);
+      }
+      if (pickListUpserts.isNotEmpty || pickListDeletes.isNotEmpty) {
+        await _applyPickListValues(pickListUpserts, pickListDeletes);
+      }
       for (final locationId in locationDeletes) {
         await locations.applySyncedDelete(locationId);
       }
-      // Store image bytes locally for any snapshots that carried them.
-      if (imageDataByItemId.isNotEmpty && owned.isNotEmpty) {
-        final imagesRepo = ItemImagesCacheRepository(db);
-        final ownedByItemId = <String, String>{};
-        for (final item in owned) {
-          ownedByItemId[item.itemId] = item.id;
-        }
-        for (final entry in imageDataByItemId.entries) {
-          final ownedItemId = ownedByItemId[entry.key];
-          if (ownedItemId == null) continue;
-          // Deterministic ID so re-syncing the same image is an update, not a
-          // duplicate insert.
-            final deterministicId =
-              _uuid.v5(Namespace.url.value, '$ownedItemId:front_cover');
-          await imagesRepo.upsert(
-            id: deterministicId,
-            ownedItemId: ownedItemId,
-            imageType: 'front_cover',
-            imageData: entry.value,
+    });
+
+    // Store image bytes outside the main transaction so data sync completes
+    // first and images are processed in the background.
+    if (imageDataByItemId.isNotEmpty && owned.isNotEmpty) {
+      final imagesRepo = ItemImagesCacheRepository(db);
+      final ownedByItemId = <String, String>{};
+      for (final item in owned) {
+        ownedByItemId[item.itemId] = item.id;
+      }
+      for (final entry in imageDataByItemId.entries) {
+        final ownedItemId = ownedByItemId[entry.key];
+        if (ownedItemId == null) continue;
+        final deterministicId =
+            _uuid.v5(Namespace.url.value, '$ownedItemId:front_cover');
+        await imagesRepo.upsert(
+          id: deterministicId,
+          ownedItemId: ownedItemId,
+          imageType: 'front_cover',
+          imageData: entry.value,
+        );
+      }
+    }
+  }
+
+  Future<void> _applyPickListValues(
+    List<Map<String, dynamic>> upserts,
+    List<String> deletes,
+  ) async {
+    if (upserts.isNotEmpty) {
+      await db.batch((batch) {
+        for (final data in upserts) {
+          batch.insert(
+            db.pickListValuesCache,
+            PickListValuesCacheCompanion.insert(
+              id: data['id'] as String,
+              listName: data['list_name'] as String,
+              mediaKind: Value(data['media_kind'] as String?),
+              value: data['value'] as String,
+              sortOrder: Value(data['sort_order'] as int? ?? 0),
+            ),
+            mode: InsertMode.insertOrReplace,
           );
         }
-      }
-    });
+      });
+    }
+    if (deletes.isNotEmpty) {
+      await (db.delete(db.pickListValuesCache)
+            ..where((t) => t.id.isIn(deletes)))
+          .go();
+    }
   }
 
   CatalogItem _catalogItemFromEntity(Map<String, dynamic> entity) {
@@ -188,6 +260,56 @@ class SyncService {
       throw FormatException('Expected tracking_entry entity, got $type');
     }
     return TrackingEntry.fromJson({
+      ...payload,
+      'id': entity['entity_id'],
+      'updated_at': entity['client_changed_at'],
+      'deleted_at': deletedAt,
+    });
+  }
+
+  WatchSession _watchSessionFromEntity(Map<String, dynamic> entity) {
+    final type = entity['entity_type'] as String;
+    final action = entity['action'] as String;
+    final payload = _payload(entity);
+    final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
+    if (type != 'watch_session') {
+      throw FormatException('Expected watch_session entity, got $type');
+    }
+    return WatchSession.fromJson({
+      ...payload,
+      'id': entity['entity_id'],
+      'updated_at': entity['client_changed_at'],
+      'deleted_at': deletedAt,
+    });
+  }
+
+  UserMetadataOverride _metadataOverrideFromEntity(
+    Map<String, dynamic> entity,
+  ) {
+    final type = entity['entity_type'] as String;
+    final action = entity['action'] as String;
+    final payload = _payload(entity);
+    final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
+    if (type != 'metadata_override') {
+      throw FormatException('Expected metadata_override entity, got $type');
+    }
+    return UserMetadataOverride.fromJson({
+      ...payload,
+      'id': entity['entity_id'],
+      'updated_at': entity['client_changed_at'],
+      'deleted_at': deletedAt,
+    });
+  }
+
+  CustomEpisode _customEpisodeFromEntity(Map<String, dynamic> entity) {
+    final type = entity['entity_type'] as String;
+    final action = entity['action'] as String;
+    final payload = _payload(entity);
+    final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
+    if (type != 'custom_episode') {
+      throw FormatException('Expected custom_episode entity, got $type');
+    }
+    return CustomEpisode.fromJson({
       ...payload,
       'id': entity['entity_id'],
       'updated_at': entity['client_changed_at'],

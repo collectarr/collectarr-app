@@ -35,10 +35,25 @@ String genericGroupModeLabel(
     LibraryGroupMode.title => 'Title',
     LibraryGroupMode.publisher => labels.publisher,
     LibraryGroupMode.year => 'Year',
+    LibraryGroupMode.genre => 'Genre',
+    LibraryGroupMode.country => 'Country',
+    LibraryGroupMode.language => 'Language',
+    LibraryGroupMode.ageRating => 'Age Rating',
+    LibraryGroupMode.format => 'Format',
+    LibraryGroupMode.director => 'Director',
+    LibraryGroupMode.creator => 'Creator',
+    LibraryGroupMode.writer => 'Writer',
+    LibraryGroupMode.artist => 'Artist',
+    LibraryGroupMode.penciller => 'Penciller',
+    LibraryGroupMode.colorist => 'Colorist',
+    LibraryGroupMode.letterer => 'Letterer',
+    LibraryGroupMode.coverArtist => 'Cover Artist',
+    LibraryGroupMode.editor => 'Editor',
     LibraryGroupMode.location => 'Location',
     LibraryGroupMode.ownership => 'Ownership',
     LibraryGroupMode.grade => 'Grade',
     LibraryGroupMode.condition => 'Condition',
+    LibraryGroupMode.tags => 'Tags',
   };
 }
 
@@ -54,10 +69,25 @@ String genericGroupModeSidebarTitle(
     LibraryGroupMode.title => 'Titles',
     LibraryGroupMode.publisher => labels.publisherPlural,
     LibraryGroupMode.year => 'Years',
+    LibraryGroupMode.genre => 'Genres',
+    LibraryGroupMode.country => 'Countries',
+    LibraryGroupMode.language => 'Languages',
+    LibraryGroupMode.ageRating => 'Age Ratings',
+    LibraryGroupMode.format => 'Formats',
+    LibraryGroupMode.director => 'Directors',
+    LibraryGroupMode.creator => 'Creators',
+    LibraryGroupMode.writer => 'Writers',
+    LibraryGroupMode.artist => 'Artists',
+    LibraryGroupMode.penciller => 'Pencillers',
+    LibraryGroupMode.colorist => 'Colorists',
+    LibraryGroupMode.letterer => 'Letterers',
+    LibraryGroupMode.coverArtist => 'Cover Artists',
+    LibraryGroupMode.editor => 'Editors',
     LibraryGroupMode.location => 'Locations',
     LibraryGroupMode.ownership => 'Ownership',
     LibraryGroupMode.grade => 'Grades',
     LibraryGroupMode.condition => 'Conditions',
+    LibraryGroupMode.tags => 'Tags',
   };
 }
 
@@ -69,10 +99,25 @@ IconData genericGroupModeIcon(LibraryGroupMode mode) {
     LibraryGroupMode.title => Icons.sort_by_alpha,
     LibraryGroupMode.publisher => Icons.business_outlined,
     LibraryGroupMode.year => Icons.calendar_today_outlined,
+    LibraryGroupMode.genre => Icons.theater_comedy_outlined,
+    LibraryGroupMode.country => Icons.flag_outlined,
+    LibraryGroupMode.language => Icons.translate_outlined,
+    LibraryGroupMode.ageRating => Icons.shield_outlined,
+    LibraryGroupMode.format => Icons.album_outlined,
+    LibraryGroupMode.director => Icons.movie_creation_outlined,
+    LibraryGroupMode.creator => Icons.person_outlined,
+    LibraryGroupMode.writer => Icons.edit_outlined,
+    LibraryGroupMode.artist => Icons.brush_outlined,
+    LibraryGroupMode.penciller => Icons.draw_outlined,
+    LibraryGroupMode.colorist => Icons.palette_outlined,
+    LibraryGroupMode.letterer => Icons.text_fields_outlined,
+    LibraryGroupMode.coverArtist => Icons.image_outlined,
+    LibraryGroupMode.editor => Icons.rule_outlined,
     LibraryGroupMode.location => Icons.place_outlined,
     LibraryGroupMode.ownership => Icons.inventory_2_outlined,
     LibraryGroupMode.grade => Icons.workspace_premium_outlined,
     LibraryGroupMode.condition => Icons.fact_check_outlined,
+    LibraryGroupMode.tags => Icons.label_outlined,
   };
 }
 
@@ -109,6 +154,9 @@ class LibraryProjection {
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     Map<String, List<String>> customFieldValuesByItem = const {},
+    Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+      const {},
+    Set<String> activeLoanOwnedItemIds = const {},
   }) {
     final allItems = libraryItemsForShelf(shelf, type);
     final normalizedQuery = query.trim().toLowerCase();
@@ -117,7 +165,12 @@ class LibraryProjection {
         if (_matchesBucket(item, type, groupMode, selectedBucket) &&
             _matchesConstrainedItemIds(item, constrainedItemIds) &&
             _matchesQuickView(item, quickView) &&
-            _matchesFilter(item, filterSelection) &&
+            _matchesFilter(
+              item,
+              filterSelection,
+              activeLoanOwnedItemIds,
+              customFieldValuesByDefinitionByItem,
+            ) &&
             _matchesLinkedMetadataFilter(item, linkedMetadataFilter) &&
             _matchesQuery(
               item,
@@ -125,11 +178,10 @@ class LibraryProjection {
               customFieldValuesByItem,
             ))
           item,
-    ]..sort((a, b) => compareLibraryWorkspaceEntries(
+    ]..sort((a, b) => compareLibraryWorkspaceEntriesByRules(
           a.entry,
           b.entry,
-          viewState.sortColumn,
-          viewState.sortAscending,
+          viewState.sortRules,
         ));
     final counts = _toolbarCountsForItems(
       allItems: allItems,
@@ -157,12 +209,21 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
   LibraryTypeConfig type,
   LibraryGroupMode groupMode,
 ) {
-  final counts = <String, int>{genericAllBucketLabel(type): items.length};
+  final allBucketLabel = genericAllBucketLabel(type);
+  final counts = <String, int>{allBucketLabel: items.length};
+  final ownedCounts = groupMode == LibraryGroupMode.series
+      ? <String, int>{
+          allBucketLabel: items.where((item) => item.entry.isOwned).length,
+        }
+      : null;
   final coverUrls = <String, String?>{};
   final startYears = <String, int?>{};
   for (final item in items) {
     final bucket = genericBucketForItemMode(item, type, groupMode);
     counts[bucket] = (counts[bucket] ?? 0) + 1;
+    if (ownedCounts != null && item.entry.isOwned) {
+      ownedCounts[bucket] = (ownedCounts[bucket] ?? 0) + 1;
+    }
     if (!coverUrls.containsKey(bucket)) {
       coverUrls[bucket] = item.entry.displayCoverUrl;
     }
@@ -181,13 +242,14 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
         count: entry.value,
         coverUrl: coverUrls[entry.key],
         startYear: startYears[entry.key],
+        ownedCount: ownedCounts?[entry.key],
       ),
   ];
   buckets.sort((a, b) {
-    if (a.title == genericAllBucketLabel(type)) {
+    if (a.title == allBucketLabel) {
       return -1;
     }
-    if (b.title == genericAllBucketLabel(type)) {
+    if (b.title == allBucketLabel) {
       return 1;
     }
     return a.title.compareTo(b.title);
@@ -235,19 +297,43 @@ String genericBucketForItemMode(
     LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
+    LibraryGroupMode.genre => _firstOrDefault(entry.genres, 'No genre'),
+    LibraryGroupMode.country => entry.country?.trim().isNotEmpty == true
+        ? entry.country!
+        : 'Unknown country',
+    LibraryGroupMode.language => entry.language?.trim().isNotEmpty == true
+        ? entry.language!
+        : 'Unknown language',
+    LibraryGroupMode.ageRating => entry.ageRating?.trim().isNotEmpty == true
+        ? entry.ageRating!
+        : 'Unrated',
+    LibraryGroupMode.format => _editionFormatBucket(entry),
+    LibraryGroupMode.director => _creatorBucketByRole(entry, 'director'),
+    LibraryGroupMode.creator => _creatorBucketByRole(entry, null),
+    LibraryGroupMode.writer => _creatorBucketByRole(entry, 'writer'),
+    LibraryGroupMode.artist => _creatorBucketByRole(entry, 'artist'),
+    LibraryGroupMode.penciller => _creatorBucketByRole(entry, 'penciller'),
+    LibraryGroupMode.colorist => _creatorBucketByRole(entry, 'colorist'),
+    LibraryGroupMode.letterer => _creatorBucketByRole(entry, 'letterer'),
+    LibraryGroupMode.coverArtist => _creatorBucketByRole(entry, 'cover'),
+    LibraryGroupMode.editor => _creatorBucketByRole(entry, 'editor'),
     LibraryGroupMode.location => _locationBucket(entry.storageBox),
     LibraryGroupMode.ownership => entry.isOwned
         ? 'Owned'
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Catalog only',
-    LibraryGroupMode.title => _titleBucket(entry.title),
+    LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
     LibraryGroupMode.grade =>
       entry.grade?.trim().isNotEmpty == true ? entry.grade! : 'Ungraded',
     LibraryGroupMode.condition =>
       entry.condition?.trim().isNotEmpty == true
           ? entry.condition!
           : 'No condition',
+    LibraryGroupMode.tags => _firstOrDefault(
+        entry.tags?.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList(),
+        'No tags',
+      ),
   };
 }
 
@@ -259,12 +345,37 @@ String _locationBucket(String? location) {
   return normalized;
 }
 
+String _firstOrDefault(List<String>? values, String fallback) {
+  if (values == null || values.isEmpty) return fallback;
+  final first = values.first.trim();
+  return first.isEmpty ? fallback : first;
+}
+
+String _editionFormatBucket(LibraryWorkspaceEntry entry) {
+  for (final edition in entry.editions) {
+    final label = edition.physicalFormatLabel ?? edition.physicalFormat;
+    if (label != null && label.trim().isNotEmpty) return label.trim();
+  }
+  return 'Unknown format';
+}
+
+String _creatorBucketByRole(LibraryWorkspaceEntry entry, String? role) {
+  for (final credit in entry.creators ?? const <Map<String, dynamic>>[]) {
+    final name = credit['name']?.toString().trim();
+    if (name == null || name.isEmpty) continue;
+    if (role == null) return name;
+    final creditRole = credit['role']?.toString().toLowerCase().trim();
+    if (creditRole != null && creditRole.contains(role)) return name;
+  }
+  return role != null ? 'Unknown $role' : 'Unknown creator';
+}
+
 String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
   final seriesTitle = entry.series?.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
-  final title = entry.title.trim();
+  final title = entry.resolvedTitle.trim();
   return title.isEmpty ? unknownLabel : title;
 }
 
@@ -310,9 +421,121 @@ bool _matchesQuickView(LibraryProjectionItem item, LibraryQuickView? quickView) 
 bool _matchesFilter(
   LibraryProjectionItem item,
   LibraryFilterSelection filters,
+  Set<String> activeLoanOwnedItemIds,
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
 ) {
-  if (!filters.hasActiveFilters) return true;
-  return libraryFilterMatches(item.entry, filters);
+  if (!filters.hasActiveFilters) {
+    return true;
+  }
+  if (!libraryFilterMatches(item.entry, filters)) {
+    return false;
+  }
+  if (!libraryTrackingStatusMatchesFilter(
+    item.source.tracking.status,
+    filters.trackingStatusFilter,
+  )) {
+    return false;
+  }
+  if (!_matchesLoanFilter(item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
+    return false;
+  }
+  if (!_matchesDateRange(item, filters)) {
+    return false;
+  }
+  if (!_matchesCustomField(
+    item,
+    filters,
+    customFieldValuesByDefinitionByItem,
+  )) {
+    return false;
+  }
+  return true;
+}
+
+bool _matchesCustomField(
+  LibraryProjectionItem item,
+  LibraryFilterSelection filters,
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
+) {
+  final definitionId = filters.customFieldDefinitionId;
+  if (definitionId == null || definitionId.isEmpty) {
+    return true;
+  }
+  final ownedItemId = item.source.ownedItem?.id;
+  if (ownedItemId == null) {
+    return false;
+  }
+  final values = customFieldValuesByDefinitionByItem[ownedItemId];
+  final actualValue = values?[definitionId]?.trim();
+  if (actualValue == null || actualValue.isEmpty) {
+    return false;
+  }
+  final expectedValue = filters.customFieldValue?.trim();
+  if (expectedValue == null || expectedValue.isEmpty) {
+    return true;
+  }
+  return actualValue == expectedValue;
+}
+
+bool _matchesLoanFilter(
+  LibraryProjectionItem item,
+  LibraryLoanStatusFilter filter,
+  Set<String> activeLoanOwnedItemIds,
+) {
+  if (filter == LibraryLoanStatusFilter.all) {
+    return true;
+  }
+  final ownedItemId = item.source.ownedItem?.id;
+  if (ownedItemId == null) {
+    return false;
+  }
+  final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedItemId);
+  return switch (filter) {
+    LibraryLoanStatusFilter.all => true,
+    LibraryLoanStatusFilter.onLoan => hasActiveLoan,
+    LibraryLoanStatusFilter.available => !hasActiveLoan,
+  };
+}
+
+bool _matchesDateRange(
+  LibraryProjectionItem item,
+  LibraryFilterSelection filters,
+) {
+  if (!filters.hasActiveDateRange) {
+    return true;
+  }
+  final value = _filterDateForItem(item, filters.dateRangeField);
+  if (value == null) {
+    return false;
+  }
+  final candidate = DateUtils.dateOnly(value.toLocal());
+  final from = filters.dateFrom == null
+      ? null
+      : DateUtils.dateOnly(filters.dateFrom!.toLocal());
+  final to = filters.dateTo == null
+      ? null
+      : DateUtils.dateOnly(filters.dateTo!.toLocal());
+  if (from != null && candidate.isBefore(from)) {
+    return false;
+  }
+  if (to != null && candidate.isAfter(to)) {
+    return false;
+  }
+  return true;
+}
+
+DateTime? _filterDateForItem(
+  LibraryProjectionItem item,
+  LibraryDateRangeField field,
+) {
+  final ownedItem = item.source.ownedItem;
+  final trackingEntry = item.source.trackingEntry;
+  return switch (field) {
+    LibraryDateRangeField.updated => item.source.updatedAt,
+    LibraryDateRangeField.purchased => ownedItem?.purchaseDate,
+    LibraryDateRangeField.started => trackingEntry?.startedAt ?? ownedItem?.startedAt,
+    LibraryDateRangeField.finished => trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
+  };
 }
 
 bool _matchesLinkedMetadataFilter(
@@ -349,7 +572,10 @@ Iterable<String> _linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
   final publishing = entry.publishing;
   final game = entry.game;
   yield* _nonEmptyValues([
+    entry.resolvedTitle,
     entry.title,
+    entry.localizedTitle,
+    entry.originalTitle,
     series?.seriesTitle,
     entry.itemNumber,
     entry.publisher,
@@ -360,6 +586,7 @@ Iterable<String> _linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
     entry.language,
     entry.ageRating,
   ]);
+  yield* _nonEmptyValues(entry.searchAliases);
   if (entry.creators case final creators?) {
     for (final credit in creators) {
       final name = credit['name']?.toString();
@@ -396,7 +623,10 @@ bool _matchesQuery(
     return true;
   }
   final entry = item.entry;
-  if (_containsQuery(entry.title, query) ||
+  if (_containsQuery(entry.resolvedTitle, query) ||
+      _containsQuery(entry.title, query) ||
+      _containsQuery(entry.localizedTitle, query) ||
+      _containsQuery(entry.originalTitle, query) ||
       _containsQuery(entry.itemNumber, query) ||
       _containsQuery(entry.publisher, query) ||
       _containsQuery(entry.variant, query) ||
@@ -406,6 +636,13 @@ bool _matchesQuery(
       _containsQuery(entry.grade, query) ||
       _containsQuery(entry.storageBox, query)) {
     return true;
+  }
+  if (entry.searchAliases case final aliases?) {
+    for (final alias in aliases) {
+      if (_containsQuery(alias, query)) {
+        return true;
+      }
+    }
   }
   final ownedId = item.source.ownedItem?.id;
   if (ownedId != null) {

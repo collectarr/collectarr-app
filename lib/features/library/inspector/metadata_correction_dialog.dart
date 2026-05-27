@@ -1,8 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,15 +41,39 @@ Future<void> showMetadataCorrectionDialog({
       source: 'Metadata correction',
     );
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Metadata correction sent for review')),
+    showAppToast(
+      context,
+      'Metadata correction sent for review.',
+      tone: AppToastTone.success,
     );
   } catch (error) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Metadata correction failed: $error')),
+    showAppToast(
+      context,
+      _describeMetadataCorrectionError(error),
+      tone: AppToastTone.error,
     );
   }
+}
+
+String _describeMetadataCorrectionError(Object error) {
+  if (error case DioException dioError) {
+    final statusCode = dioError.response?.statusCode;
+    if (statusCode != null) {
+      return 'Couldn\'t send the metadata correction. Server responded with $statusCode.';
+    }
+    if (dioError.type == DioExceptionType.connectionTimeout ||
+        dioError.type == DioExceptionType.receiveTimeout ||
+        dioError.type == DioExceptionType.sendTimeout) {
+      return 'Couldn\'t send the metadata correction. The request timed out.';
+    }
+    return 'Couldn\'t send the metadata correction right now. Try again.';
+  }
+  final text = error.toString().trim();
+  if (text.startsWith('Exception: ')) {
+    return text.substring('Exception: '.length);
+  }
+  return 'Couldn\'t send the metadata correction. $text';
 }
 
 class _MetadataCorrectionDialog extends StatefulWidget {
@@ -191,15 +218,12 @@ class _CorrectionField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      child: TextField(
+      child: MetadataCorrectionTextField(
         controller: controller,
+        label: label,
         keyboardType: keyboardType,
         maxLines: maxLines,
-        decoration: InputDecoration(
-          isDense: true,
-          border: const OutlineInputBorder(),
-          labelText: label,
-        ),
+        isDense: true,
       ),
     );
   }

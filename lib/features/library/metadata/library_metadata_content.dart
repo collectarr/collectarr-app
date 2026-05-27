@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
@@ -21,7 +20,8 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
 
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
-    labels: libraryMediaFieldLabels(type),
+    mediaFields: type.mediaFields,
+    releaseFields: type.releaseFields,
     entry: entry,
     includeIdentityFacts: includeIdentityFacts,
     tapFor: tapFor,

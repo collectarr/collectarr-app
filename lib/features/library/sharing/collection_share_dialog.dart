@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
+import 'package:file_selector/file_selector.dart';
 
 /// Shows a dialog to share the current collection view.
 /// Offers: copy as text list, copy as CSV, export as CSV file.
@@ -64,10 +66,31 @@ class _CollectionShareDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             _ShareOption(
+              icon: Icons.save_alt,
+              label: 'Save CSV to file',
+              subtitle: 'Save spreadsheet file to documents',
+              onTap: () => _saveCsvToFile(context),
+            ),
+            const SizedBox(height: 8),
+            _ShareOption(
               icon: Icons.data_object,
               label: 'Copy as JSON',
               subtitle: 'Structured data for import/export',
               onTap: () => _copyAsJson(context),
+            ),
+            const SizedBox(height: 8),
+            _ShareOption(
+              icon: Icons.save_alt,
+              label: 'Save JSON to file',
+              subtitle: 'Save structured data file to documents',
+              onTap: () => _saveJsonToFile(context),
+            ),
+            const SizedBox(height: 8),
+            _ShareOption(
+              icon: Icons.language,
+              label: 'Export as HTML page',
+              subtitle: 'Self-contained web page you can host or share',
+              onTap: () => _exportAsHtml(context),
             ),
           ],
         ),
@@ -137,6 +160,145 @@ class _CollectionShareDialog extends StatelessWidget {
       const SnackBar(content: Text('Copied as JSON')),
     );
     Navigator.pop(context);
+  }
+
+  Future<void> _saveCsvToFile(BuildContext context) async {
+    final rows = <List<String>>[
+      ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
+      ...items.map((item) => [
+            item.title,
+            item.itemNumber ?? '',
+            item.series?.seriesTitle ?? '',
+            item.publisher ?? '',
+            item.condition ?? '',
+            item.barcode ?? '',
+          ]),
+    ];
+    final csv = const CsvEncoder().convert(rows);
+    await _saveToFile(context, csv, 'csv');
+  }
+
+  Future<void> _saveJsonToFile(BuildContext context) async {
+    final data = items
+        .map((item) => {
+              'title': item.title,
+              if (item.itemNumber != null) 'issue': item.itemNumber,
+              if (item.series?.seriesTitle != null)
+                'series': item.series!.seriesTitle,
+              if (item.publisher != null) 'publisher': item.publisher,
+              if (item.condition != null) 'condition': item.condition,
+              if (item.barcode != null) 'barcode': item.barcode,
+            })
+        .toList();
+    final json = const JsonEncoder.withIndent('  ').convert(data);
+    await _saveToFile(context, json, 'json');
+  }
+
+  Future<void> _saveToFile(
+      BuildContext context, String content, String ext) async {
+    try {
+      final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
+      final fileName = '${safeTitle}_collection.$ext';
+      final location = await getSaveLocation(
+        suggestedName: fileName,
+        acceptedTypeGroups: [
+          XTypeGroup(label: ext.toUpperCase(), extensions: [ext]),
+        ],
+      );
+      if (location == null) return;
+      final file = File(location.path);
+      await file.writeAsString(content);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Saved to ${file.path}')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Save failed: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportAsHtml(BuildContext context) async {
+    final escapedTitle = _htmlEscape(title);
+    final rows = StringBuffer();
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      rows.writeln('<tr>');
+      rows.writeln('  <td>${i + 1}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.title)}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.itemNumber ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.series?.seriesTitle ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.publisher ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.condition ?? '')}</td>');
+      rows.writeln('</tr>');
+    }
+    final html = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$escapedTitle</title>
+<style>
+  body { font-family: system-ui, -apple-system, sans-serif; margin: 2rem; background: #1a1a2e; color: #e0e0e0; }
+  h1 { color: #e94560; margin-bottom: 0.25rem; }
+  .count { color: #8888aa; margin-bottom: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #333; }
+  th { background: #16213e; color: #e94560; font-weight: 600; position: sticky; top: 0; }
+  tr:hover { background: #16213e; }
+  footer { margin-top: 2rem; color: #555; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<h1>$escapedTitle</h1>
+<p class="count">${items.length} items</p>
+<table>
+<thead><tr><th>#</th><th>Title</th><th>Issue</th><th>Series</th><th>Publisher</th><th>Condition</th></tr></thead>
+<tbody>
+${rows.toString()}</tbody>
+</table>
+<footer>Exported from Collectarr</footer>
+</body>
+</html>''';
+
+    try {
+      final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
+      final fileName = '${safeTitle}_collection.html';
+      final location = await getSaveLocation(
+        suggestedName: fileName,
+        acceptedTypeGroups: [
+          const XTypeGroup(label: 'HTML', extensions: ['html']),
+        ],
+      );
+      if (location == null) return;
+      final file = File(location.path);
+      await file.writeAsString(html);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Saved to ${file.path}')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export failed: $e')),
+        );
+      }
+    }
+  }
+
+  static String _htmlEscape(String text) {
+    return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
   }
 }
 

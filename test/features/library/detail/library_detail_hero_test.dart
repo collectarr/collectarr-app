@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
@@ -12,6 +11,8 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../../helpers/test_constants.dart';
 
 void main() {
   testWidgets('detail hero keeps a back cover affordance when the back image is missing', (
@@ -58,7 +59,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'Back cover'), findsOneWidget);
   });
@@ -117,12 +118,12 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'View back'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'View back'));
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'View front'), findsOneWidget);
   });
@@ -158,9 +159,46 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilSettled(tester);
 
     expect(find.text('Author view'), findsOneWidget);
     expect(find.text('J.R.R. Tolkien'), findsOneWidget);
+  });
+
+  testWidgets('detail hero shows the active ownership reference label', (
+    tester,
+  ) async {
+    final type = collectarrLibraryTypes.byKind('book')!;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryDetailHero(
+              type: type,
+              entry: LibraryWorkspaceEntry(
+                id: 'book-1',
+                mediaType: 'book',
+                title: 'The Silmarillion',
+                primaryReferenceLabel: 'Owned as bundle',
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              ownedItem: OwnedItem(
+                id: 'owned-1',
+                itemId: 'book-1',
+                anchorType: 'bundle_release',
+                bundleReleaseId: 'bundle-book-1',
+                updatedAt: DateTime.utc(2026, 5, 23),
+              ),
+              accent: Colors.orange,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Owned as bundle'), findsOneWidget);
   });
 }

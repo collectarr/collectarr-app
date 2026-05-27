@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
@@ -7,11 +9,46 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+Future<void> showCustomFieldsManagementDialog({
+  required BuildContext context,
+  required LocalDatabase db,
+  bool startCreating = false,
+}) {
+  return showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: appPalette(context).panel,
+      title: const Text('Manage custom fields'),
+      content: SizedBox(
+        width: 920,
+        height: 560,
+        child: SingleChildScrollView(
+          child: CustomFieldsSettings(
+            db: db,
+            startCreating: startCreating,
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
+}
+
 /// Settings panel for managing custom field definitions.
 class CustomFieldsSettings extends StatefulWidget {
-  const CustomFieldsSettings({super.key, required this.db});
+  const CustomFieldsSettings({
+    super.key,
+    required this.db,
+    this.startCreating = false,
+  });
 
   final LocalDatabase db;
+  final bool startCreating;
 
   @override
   State<CustomFieldsSettings> createState() => _CustomFieldsSettingsState();
@@ -21,12 +58,22 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   late final CustomFieldRepository _repo;
   List<CustomFieldDefinition> _definitions = const [];
   bool _loading = true;
+  bool _openedInitialEditor = false;
 
   @override
   void initState() {
     super.initState();
     _repo = CustomFieldRepository(widget.db);
     _reload();
+    if (widget.startCreating) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _openedInitialEditor) {
+          return;
+        }
+        _openedInitialEditor = true;
+        unawaited(_showEditor());
+      });
+    }
   }
 
   Future<void> _reload() async {
@@ -224,7 +271,13 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
     try {
       final list = jsonDecode(json) as List;
       return list.join(', ');
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'custom_fields',
+        message: 'Failed to decode custom field options JSON.',
+        error: error,
+        stackTrace: stackTrace,
+      );
       return '';
     }
   }
@@ -261,7 +314,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _fieldType,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(labelText: 'Field type'),
                 items: [
@@ -278,7 +331,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _mediaKind,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Applies to',
@@ -291,7 +344,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                   ),
                   for (final type in collectarrLibraryTypes.types)
                     DropdownMenuItem<String>(
-                      value: type.workspace.kind,
+                      value: type.workspace.kind.apiValue,
                       child: Text(type.singularLabel),
                     ),
                 ],

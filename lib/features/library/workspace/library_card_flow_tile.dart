@@ -1,8 +1,11 @@
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/workspace/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// A tall card showing a large cover beside rich metadata, used in "card flow"
@@ -12,18 +15,20 @@ class LibraryCardFlowTile extends StatelessWidget {
     required this.entry,
     required this.selected,
     required this.onTap,
+    this.onDoubleTap,
     this.onSecondaryTapUp,
     required this.dateFormatter,
     required this.moneyFormatter,
-    this.selectedColor = const Color(0xFF075F75),
-    this.accentColor = const Color(0xFF10A8D8),
-    this.mutedTextColor = const Color(0xFFB8B8B8),
+    this.selectedColor = kAppSelection,
+    this.accentColor = kAppAccent,
+    this.mutedTextColor = kAppTextMuted,
     super.key,
   });
 
   final LibraryWorkspaceEntry entry;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
   final LibraryDateFormatter dateFormatter;
   final LibraryMoneyFormatter moneyFormatter;
@@ -37,21 +42,30 @@ class LibraryCardFlowTile extends StatelessWidget {
       entry.mediaType,
     );
     final theme = Theme.of(context);
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
+    final referenceHierarchy = libraryReferenceHierarchySegments(
+      mediaType: entry.mediaType,
+      editions: entry.editions,
+      editionId: entry.referenceEditionId,
+      variantId: entry.referenceVariantId,
+      bundleReleaseId: entry.referenceBundleReleaseId,
+    );
+    return RepaintBoundary(
+      child: AnimatedContainer(
+      duration: kAppAnimFast,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: selected ? selectedColor : const Color(0xFF181818),
+        color: selected ? selectedColor : kAppCardBackground,
         border: Border.all(
-          color: selected ? accentColor : const Color(0xFF363636),
+          color: selected ? accentColor : kAppCardBorder,
           width: selected ? 2 : 1,
         ),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: kAppRadiusMedium,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
+          onDoubleTap: onDoubleTap,
           onSecondaryTapUp: onSecondaryTapUp,
           child: Padding(
             padding: const EdgeInsets.all(10),
@@ -68,11 +82,13 @@ class LibraryCardFlowTile extends StatelessWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: LibraryInteractiveCover(
-                          title: entry.title,
+                          title: entry.resolvedTitle,
                           itemNumber: entry.itemNumber,
                           imageUrl: entry.displayCoverUrl,
                           ownedItemId: entry.ownedItemId,
                           accentColor: accentColor,
+                          enableFullscreen: false,
+                          enableSecondaryControl: false,
                         ),
                       ),
                       Positioned(
@@ -98,7 +114,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
                 // ── Metadata ──
                 Expanded(
                   child: Column(
@@ -109,15 +125,15 @@ class LibraryCardFlowTile extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              entry.title,
+                              entry.resolvedTitle,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.titleSmall?.copyWith(
                                 color: selected
                                     ? Colors.white
-                                    : const Color(0xFF82DDF2),
+                                    : kAppAccentLight,
                                 fontWeight: FontWeight.w900,
-                                fontSize: 15,
+                                fontSize: 14,
                               ),
                             ),
                           ),
@@ -144,7 +160,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                       // Variant | date | publisher
                       Text(
                         [
-                          if (entry.variant != null &&
+                          if (entry.browseScope != LibraryBrowserScope.title &&
+                              entry.variant != null &&
                               entry.variant!.isNotEmpty)
                             entry.variant,
                           if (entry.releaseDate != null)
@@ -163,11 +180,36 @@ class LibraryCardFlowTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      if (referenceHierarchy.length > 1) ...[
+                        Text(
+                          referenceHierarchy.join('  ->  '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: accentColor.withValues(alpha: 0.88),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       // Meta pills
                       Wrap(
                         spacing: 6,
                         runSpacing: 6,
                         children: [
+                          if (entry.referenceScopeLabel != null)
+                            _MetaPill(
+                              icon: Icons.link_outlined,
+                              label: 'Scope: ${entry.referenceScopeLabel!}',
+                              accentColor: accentColor,
+                            ),
+                          if (entry.referenceFormatLabel != null)
+                            _MetaPill(
+                              icon: Icons.album_outlined,
+                              label: 'Format: ${entry.referenceFormatLabel!}',
+                              accentColor: accentColor,
+                            ),
                           if (entry.grade != null)
                             _MetaPill(
                               icon: Icons.workspace_premium,
@@ -237,7 +279,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                               label: entry.music!.releaseStatus!,
                               accentColor: accentColor,
                             ),
-                          if (_platformLabel(entry.rawPlatforms) case final platformLabel?)
+                          if (_platformLabel(entry.rawPlatforms)
+                              case final platformLabel?)
                             _MetaPill(
                               icon: Icons.sports_esports,
                               label: platformLabel,
@@ -280,6 +323,7 @@ class LibraryCardFlowTile extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
@@ -322,8 +366,8 @@ class _IssuePill extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFD400),
-        borderRadius: BorderRadius.circular(3),
+        color: kAppHighlight,
+        borderRadius: kAppRadiusSmall,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),

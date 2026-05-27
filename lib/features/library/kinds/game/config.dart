@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_builders.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
@@ -7,7 +9,7 @@ import 'package:collectarr_app/features/library/workspace/library_workspace_conf
 import 'package:flutter/material.dart';
 
 const gamesWorkspaceConfig = LibraryWorkspaceConfig(
-  kind: 'game',
+  kind: CatalogMediaKind.game,
   title: 'Games',
   icon: Icons.sports_esports,
   preferencePrefix: 'games',
@@ -38,4 +40,12 @@ const gamesLibraryConfig = LibraryTypeConfig(
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildGenericLibraryEditDialog,
   presentation: gamesLibraryMediaPresentation,
+  mediaFields: MediaEditFields(
+    numberLabel: 'Version',
+    publisherLabel: 'Publisher / Studio',
+  ),
+  releaseFields: ReleaseEditFields(
+    variantLabel: 'Platform / Edition',
+    barcodeLabel: 'UPC / Barcode',
+  ),
 );

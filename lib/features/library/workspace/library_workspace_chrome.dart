@@ -188,7 +188,7 @@ class LibraryToolbarSearch extends StatelessWidget {
     this.selectedFilterLabel,
     this.onClearFilter,
     this.onChanged,
-    this.width = 320,
+    this.maxWidth = 320,
   });
 
   final TextEditingController controller;
@@ -198,15 +198,15 @@ class LibraryToolbarSearch extends StatelessWidget {
   final VoidCallback? onClearFilter;
   final ValueChanged<String>? onChanged;
   final Color selectionColor;
-  final double width;
+  final double maxWidth;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: width,
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
           child: SearchBar(
             controller: controller,
             constraints: const BoxConstraints.tightFor(height: 32),

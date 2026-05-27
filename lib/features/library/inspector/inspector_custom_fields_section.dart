@@ -3,8 +3,28 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class InspectorCustomFieldsSection extends StatelessWidget {
+typedef _InspectorCustomFieldsRequest = ({
+  LocalDatabase db,
+  String ownedItemId,
+  String mediaKind,
+});
+
+final _inspectorCustomFieldsProvider =
+    FutureProvider.autoDispose.family<_CustomFieldData, _InspectorCustomFieldsRequest>(
+  (ref, request) async {
+    final repo = CustomFieldRepository(request.db);
+    final definitions = await repo.listDefinitions(mediaKind: request.mediaKind);
+    final values = await repo.listValuesForItem(request.ownedItemId);
+    return _CustomFieldData(
+      definitions: definitions,
+      valueMap: {for (final v in values) v.fieldDefinitionId: v.value ?? ''},
+    );
+  },
+);
+
+class InspectorCustomFieldsSection extends ConsumerWidget {
   const InspectorCustomFieldsSection({
     super.key,
     required this.ownedItemId,
@@ -19,44 +39,29 @@ class InspectorCustomFieldsSection extends StatelessWidget {
   final Color accent;
 
   @override
-  Widget build(BuildContext context) {
-    final repo = CustomFieldRepository(db);
-    return FutureBuilder<_CustomFieldData>(
-      future: _load(repo),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox.shrink();
-        final data = snapshot.data!;
-        if (data.definitions.isEmpty) return const SizedBox.shrink();
-        final resolved = <_ResolvedField>[];
-        for (final def in data.definitions) {
-          final value = data.valueMap[def.id];
-          if (value != null && value.trim().isNotEmpty) {
-            resolved.add(_ResolvedField(label: def.name, value: value));
-          }
-        }
-        if (resolved.isEmpty) return const SizedBox.shrink();
-        return LibraryInspectorSection(
-          title: 'Custom fields',
-          accentColor: accent,
-          children: [
-            LibraryInspectorFactGrid(
-              facts: [
-                for (final f in resolved)
-                  LibraryInspectorFactData(f.label, f.value),
-              ],
-            ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(_inspectorCustomFieldsProvider(
+      (db: db, ownedItemId: ownedItemId, mediaKind: mediaKind),
+    )).value;
+    if (data == null || data.definitions.isEmpty) return const SizedBox.shrink();
+    final resolved = <_ResolvedField>[];
+    for (final def in data.definitions) {
+      final value = data.valueMap[def.id];
+      if (value != null && value.trim().isNotEmpty) {
+        resolved.add(_ResolvedField(label: def.name, value: value));
+      }
+    }
+    if (resolved.isEmpty) return const SizedBox.shrink();
+    return LibraryInspectorSection(
+      title: 'Custom fields',
+      accentColor: accent,
+      children: [
+        LibraryInspectorFactGrid(
+          facts: [
+            for (final f in resolved) LibraryInspectorFactData(f.label, f.value),
           ],
-        );
-      },
-    );
-  }
-
-  Future<_CustomFieldData> _load(CustomFieldRepository repo) async {
-    final definitions = await repo.listDefinitions(mediaKind: mediaKind);
-    final values = await repo.listValuesForItem(ownedItemId);
-    return _CustomFieldData(
-      definitions: definitions,
-      valueMap: {for (final v in values) v.fieldDefinitionId: v.value ?? ''},
+        ),
+      ],
     );
   }
 }

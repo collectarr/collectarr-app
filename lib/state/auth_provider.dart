@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _authTokenKey = 'collectarr.auth.token';
 const _authEmailKey = 'collectarr.auth.email';
 const _authIsAdminKey = 'collectarr.auth.is_admin';
+const _authSecureStorage = FlutterSecureStorage();
 
 class AuthState {
   const AuthState({
@@ -111,7 +114,8 @@ class AuthController extends StateNotifier<AuthState> {
     final prefs = await SharedPreferences.getInstance();
     await _clearStoredSession(
       prefs,
-      error: 'Metadata session reset. Sign in again.',
+      error:
+          'Metadata session reset. Sign in again only if you need authenticated tools.',
     );
     return true;
   }
@@ -140,7 +144,7 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> _restoreSession() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(_authTokenKey);
+      final token = await _readStoredToken(prefs);
       final email = prefs.getString(_authEmailKey);
       final isAdmin = prefs.getBool(_authIsAdminKey) ?? false;
       if (token != null && token.isNotEmpty) {
@@ -149,11 +153,12 @@ class AuthController extends StateNotifier<AuthState> {
           await _clearStoredSession(
             prefs,
             expiresAt: expiresAt,
-            error: 'Session expired. Sign in again.',
+            error:
+                'Session expired. Sign in again only if you need authenticated tools.',
           );
           return;
         }
-        ref.read(apiAuthTokenProvider.notifier).state = token;
+        ref.read(apiAuthTokenProvider.notifier).set(token);
         ref.read(apiClientProvider).setToken(token);
         state = AuthState(
           token: token,
@@ -162,11 +167,11 @@ class AuthController extends StateNotifier<AuthState> {
           isAdmin: isAdmin,
         );
       } else {
-        ref.read(apiAuthTokenProvider.notifier).state = null;
+        ref.read(apiAuthTokenProvider.notifier).set(null);
         state = AuthState(email: email);
       }
     } catch (error) {
-      ref.read(apiAuthTokenProvider.notifier).state = null;
+      ref.read(apiAuthTokenProvider.notifier).set(null);
       state = AuthState(error: error.toString());
     }
   }
@@ -179,10 +184,22 @@ class AuthController extends StateNotifier<AuthState> {
     final email = _stringFromJson(user?['email']) ?? fallbackEmail;
     final isAdmin = _boolFromJson(user?['is_admin']);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_authTokenKey, token);
+    try {
+      await _authSecureStorage.write(key: _authTokenKey, value: token);
+      await prefs.remove(_authTokenKey);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message:
+            'Failed to write secure token; falling back to shared preferences.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      await prefs.setString(_authTokenKey, token);
+    }
     await prefs.setString(_authEmailKey, email);
     await prefs.setBool(_authIsAdminKey, isAdmin);
-    ref.read(apiAuthTokenProvider.notifier).state = token;
+    ref.read(apiAuthTokenProvider.notifier).set(token);
     ref.read(apiClientProvider).setToken(token);
     state = AuthState(
       token: token,
@@ -198,11 +215,53 @@ class AuthController extends StateNotifier<AuthState> {
     DateTime? expiresAt,
   }) async {
     final email = prefs.getString(_authEmailKey) ?? state.email;
+    try {
+      await _authSecureStorage.delete(key: _authTokenKey);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message: 'Failed to delete secure token during session clear.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
     await prefs.remove(_authTokenKey);
     await prefs.remove(_authIsAdminKey);
-    ref.read(apiAuthTokenProvider.notifier).state = null;
+    ref.read(apiAuthTokenProvider.notifier).set(null);
     ref.read(apiClientProvider).clearToken();
     state = AuthState(email: email, expiresAt: expiresAt, error: error);
+  }
+
+  Future<String?> _readStoredToken(SharedPreferences prefs) async {
+    try {
+      final secureToken = await _authSecureStorage.read(key: _authTokenKey);
+      if (secureToken != null && secureToken.isNotEmpty) {
+        return secureToken;
+      }
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message: 'Failed to read secure token; falling back to legacy token.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+    final legacyToken = prefs.getString(_authTokenKey);
+    if (legacyToken == null || legacyToken.isEmpty) {
+      return null;
+    }
+    try {
+      await _authSecureStorage.write(key: _authTokenKey, value: legacyToken);
+      await prefs.remove(_authTokenKey);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message: 'Failed to migrate legacy token into secure storage.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+    return legacyToken;
   }
 }
 
@@ -250,7 +309,13 @@ DateTime? _jwtExpiresAt(String token) {
         isUtc: true,
       );
     }
-  } catch (_) {
+  } catch (error, stackTrace) {
+    logRecoverableError(
+      source: 'auth',
+      message: 'Failed to parse JWT expiration timestamp.',
+      error: error,
+      stackTrace: stackTrace,
+    );
     return null;
   }
   return null;

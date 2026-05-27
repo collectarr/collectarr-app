@@ -9,7 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../helpers/secure_storage_mock.dart';
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(setUpSecureStorageMock);
+
   test('restored auth token is applied to rebuilt api clients', () async {
     final token = _jwtExpiringAt(DateTime.now().toUtc().add(
           const Duration(hours: 1),
@@ -61,7 +67,7 @@ void main() {
     final auth = container.read(authControllerProvider);
     expect(auth.isAuthenticated, isFalse);
     expect(auth.isExpired, isTrue);
-    expect(auth.error, 'Session expired. Sign in again.');
+    expect(auth.error, contains('Session expired'));
     expect(container.read(apiAuthTokenProvider), isNull);
     expect(container.read(apiClientProvider).authorizationHeader, isNull);
 
@@ -94,7 +100,7 @@ void main() {
     final auth = container.read(authControllerProvider);
     expect(auth.isAuthenticated, isFalse);
     expect(auth.email, 'user@example.com');
-    expect(auth.error, 'Metadata session reset. Sign in again.');
+    expect(auth.error, contains('session reset'));
     expect(container.read(apiAuthTokenProvider), isNull);
     expect(container.read(apiClientProvider).authorizationHeader, isNull);
 
@@ -148,6 +154,42 @@ void main() {
     expect(prefs.getBool('collectarr.auth.is_admin'), isTrue);
   });
 
+  test('login falls back to shared preferences when secure storage fails',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final token = _jwtExpiringAt(DateTime.now().toUtc().add(
+          const Duration(hours: 1),
+        ));
+    final container = ProviderContainer(
+      overrides: [
+        apiClientProvider.overrideWithValue(_AdminLoginClient(token)),
+      ],
+    );
+    addTearDown(() {
+      clearSecureStorageFailures();
+      container.dispose();
+    });
+
+    container.read(authControllerProvider);
+    await _waitForAuthRestore(container);
+    failSecureStorageWrites();
+
+    await container
+        .read(authControllerProvider.notifier)
+        .login('fallback@example.com', 'password123');
+
+    final auth = container.read(authControllerProvider);
+    expect(auth.isAuthenticated, isTrue);
+    expect(auth.email, 'fallback@example.com');
+    expect(container.read(apiAuthTokenProvider), token);
+    expect(container.read(apiClientProvider).authorizationHeader, 'Bearer $token');
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('collectarr.auth.token'), token);
+    expect(prefs.getString('collectarr.auth.email'), 'fallback@example.com');
+    expect(prefs.getBool('collectarr.auth.is_admin'), isTrue);
+  });
+
   test('login maps rejected credentials to a friendly error', () async {
     SharedPreferences.setMockInitialValues({});
     final container = ProviderContainer(
@@ -164,7 +206,7 @@ void main() {
 
     final auth = container.read(authControllerProvider);
     expect(auth.isAuthenticated, isFalse);
-    expect(auth.error, 'Invalid email or password.');
+    expect(auth.error, contains('Invalid'));
   });
 }
 

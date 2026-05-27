@@ -120,6 +120,39 @@ void main() {
       expect(projection.filteredItems, hasLength(1));
     });
 
+    test('matches original and display title aliases', () {
+      final shelf = ShelfState(
+        entries: [
+          ShelfEntry(
+            itemId: 'movie-1',
+            catalogItem: CatalogItem(
+              id: 'movie-1',
+              kind: 'comic',
+              title: 'Kimi no Na wa.',
+              displayTitle: 'Your Name',
+              localizedTitle: 'Your Name',
+              originalTitle: '君の名は。',
+              searchAliases: const ['Your Name'],
+            ),
+          ),
+        ],
+        ownedCount: 0,
+        wishlistCount: 0,
+        missingGradeCount: 0,
+        pricedCount: 0,
+        totalPaidCents: null,
+        primaryCurrency: null,
+        hasMixedCurrencies: false,
+      );
+
+      final englishProjection = _project(shelf: shelf, query: 'your name');
+      final originalProjection = _project(shelf: shelf, query: '君の名');
+
+      expect(englishProjection.filteredItems, hasLength(1));
+      expect(originalProjection.filteredItems, hasLength(1));
+      expect(englishProjection.filteredItems.single.entry.resolvedTitle, 'Your Name');
+    });
+
     test('empty query returns all', () {
       final shelf = ShelfState(
         entries: [

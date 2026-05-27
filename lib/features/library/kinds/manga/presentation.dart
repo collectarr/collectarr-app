@@ -3,12 +3,6 @@ import 'package:collectarr_app/features/library/kinds/shared/presentation_suppor
 import 'package:collectarr_app/features/library/workspace/library_workspace_config.dart';
 
 const mangaLibraryMediaPresentation = LibraryMediaPresentation(
-  fieldLabels: LibraryMediaFieldLabels(
-    number: 'Volume / Chapter',
-    publisher: 'Publisher',
-    variant: 'Edition / Variant',
-    barcode: 'ISBN / Barcode',
-  ),
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
@@ -38,6 +32,8 @@ const mangaLibraryMediaPresentation = LibraryMediaPresentation(
     LibraryGroupMode.series,
     LibraryGroupMode.publisher,
     LibraryGroupMode.year,
+    LibraryGroupMode.writer,
+    LibraryGroupMode.artist,
     LibraryGroupMode.location,
     LibraryGroupMode.title,
     LibraryGroupMode.ownership,

@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class BookAuthorSpotlight extends StatelessWidget {
   const BookAuthorSpotlight({
@@ -31,10 +31,8 @@ class BookAuthorSpotlight extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => CreatorDetailPage(creatorName: spotlight.name),
-          ),
+        onTap: () => context.push(
+          '/creator/${Uri.encodeComponent(spotlight.name)}',
         ),
         child: Ink(
           decoration: BoxDecoration(

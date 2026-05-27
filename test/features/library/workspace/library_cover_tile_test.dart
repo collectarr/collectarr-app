@@ -37,4 +37,31 @@ void main() {
     expect(find.byIcon(Icons.star), findsOneWidget);
     expect(find.byIcon(Icons.check_circle), findsOneWidget);
   });
+
+  testWidgets('cover tile renders resolved and original video titles',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox(
+          width: 140,
+          height: 220,
+          child: LibraryCoverTile(
+            entry: LibraryWorkspaceEntry(
+              id: 'movie-1',
+              mediaType: 'movie',
+              title: 'Sen to Chihiro no Kamikakushi',
+              displayTitle: 'Spirited Away',
+              originalTitle: 'Sen to Chihiro no Kamikakushi',
+              updatedAt: DateTime.utc(2026),
+            ),
+            selected: false,
+            onTap: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Spirited Away'), findsWidgets);
+    expect(find.text('Sen to Chihiro no Kamikakushi'), findsOneWidget);
+  });
 }

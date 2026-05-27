@@ -1,9 +1,17 @@
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+
+const Object _ownedItemUnset = Object();
+
 class OwnedItem {
-  const OwnedItem({
+  OwnedItem({
     required this.id,
     required this.itemId,
-    this.editionId,
-    this.variantId,
+    this.isDigital,
+    PersonalItemAnchor? anchor,
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -31,12 +39,31 @@ class OwnedItem {
     this.sellPriceCents,
     this.soldTo,
     this.locationId,
-  });
+    this.features,
+    this.hdrFormats = const <String>[],
+    this.purchaseStore,
+    this.boxSetId,
+    this.boxSetName,
+    this.storageDevice,
+    this.storageSlot,
+    this.region,
+    this.packaging,
+    this.distributor,
+    this.collectionStatus,
+    this.lastBagBoardDate,
+    this.marketValueCents,
+  }) : anchor = anchor ??
+            PersonalItemAnchor.fromRaw(
+              anchorType: anchorType,
+              editionId: editionId,
+              variantId: variantId,
+              bundleReleaseId: bundleReleaseId,
+            );
 
   final String id;
   final String itemId;
-  final String? editionId;
-  final String? variantId;
+  final bool? isDigital;
+  final PersonalItemAnchor? anchor;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -64,6 +91,27 @@ class OwnedItem {
   final int? sellPriceCents;
   final String? soldTo;
   final String? locationId;
+  final String? features;
+  final List<String> hdrFormats;
+  final String? purchaseStore;
+  final String? boxSetId;
+  final String? boxSetName;
+  final String? storageDevice;
+  final String? storageSlot;
+  final String? region;
+  final String? packaging;
+  final String? distributor;
+  final String? collectionStatus;
+  final DateTime? lastBagBoardDate;
+  final int? marketValueCents;
+
+  String? get anchorType => anchor?.apiValue;
+  String? get editionId => anchor?.editionId;
+  String? get variantId => anchor?.variantId;
+  String? get bundleReleaseId => anchor?.bundleReleaseId;
+
+  PersonalItemAnchorType? get personalAnchor =>
+      anchor?.type;
 
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
@@ -71,8 +119,8 @@ class OwnedItem {
   Map<String, dynamic> toSyncPayload() {
     return {
       'item_id': itemId,
-      'edition_id': editionId,
-      'variant_id': variantId,
+      if (isDigital != null) 'is_digital': isDigital,
+      ...?anchor?.toSyncPayload(),
       'condition': condition,
       'grade': grade,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -98,6 +146,21 @@ class OwnedItem {
       'sell_price_cents': sellPriceCents,
       'sold_to': soldTo,
       'location_id': locationId,
+      if (features != null) 'features': features,
+      if (hdrFormats.isNotEmpty)
+        'hdr_formats': hdrFormats,
+      if (purchaseStore != null) 'purchase_store': purchaseStore,
+      if (boxSetId != null) 'box_set_id': boxSetId,
+      if (boxSetName != null) 'box_set_name': boxSetName,
+      if (storageDevice != null) 'storage_device': storageDevice,
+      if (storageSlot != null) 'storage_slot': storageSlot,
+      if (region != null) 'region': region,
+      if (packaging != null) 'packaging': packaging,
+      if (distributor != null) 'distributor': distributor,
+      if (collectionStatus != null) 'collection_status': collectionStatus,
+      if (lastBagBoardDate != null)
+        'last_bag_board_date': lastBagBoardDate!.toUtc().toIso8601String(),
+      if (marketValueCents != null) 'market_value_cents': marketValueCents,
     };
   }
 
@@ -105,8 +168,13 @@ class OwnedItem {
     return OwnedItem(
       id: json['id'] as String,
       itemId: json['item_id'] as String,
-      editionId: json['edition_id'] as String?,
-      variantId: json['variant_id'] as String?,
+      isDigital: json['is_digital'] as bool?,
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: json['anchor_type'] as String?,
+        editionId: json['edition_id'] as String?,
+        variantId: json['variant_id'] as String?,
+        bundleReleaseId: json['bundle_release_id'] as String?,
+      ),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: json['purchase_date'] == null
@@ -144,14 +212,36 @@ class OwnedItem {
       sellPriceCents: json['sell_price_cents'] as int?,
       soldTo: json['sold_to'] as String?,
       locationId: json['location_id'] as String?,
+      features: json['features'] as String?,
+      hdrFormats: (json['hdr_formats'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
+      purchaseStore: json['purchase_store'] as String?,
+      boxSetId: json['box_set_id'] as String?,
+      boxSetName: json['box_set_name'] as String?,
+      storageDevice: json['storage_device'] as String?,
+      storageSlot: json['storage_slot'] as String?,
+      region: json['region'] as String?,
+      packaging: json['packaging'] as String?,
+      distributor: json['distributor'] as String?,
+      collectionStatus: json['collection_status'] as String?,
+      lastBagBoardDate: json['last_bag_board_date'] == null
+          ? null
+          : DateTime.parse(json['last_bag_board_date'] as String),
+      marketValueCents: json['market_value_cents'] as int?,
     );
   }
 
   OwnedItem copyWith({
     String? id,
     String? itemId,
+    bool? isDigital,
+    Object? anchor = _ownedItemUnset,
+    String? anchorType,
     String? editionId,
     String? variantId,
+    String? bundleReleaseId,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -179,12 +269,34 @@ class OwnedItem {
     int? sellPriceCents,
     String? soldTo,
     String? locationId,
+    String? features,
+    List<String>? hdrFormats,
+    String? purchaseStore,
+    String? boxSetId,
+    String? boxSetName,
+    String? storageDevice,
+    String? storageSlot,
+    String? region,
+    String? packaging,
+    String? distributor,
+    String? collectionStatus,
+    DateTime? lastBagBoardDate,
+    int? marketValueCents,
   }) {
+    final resolvedAnchor = identical(anchor, _ownedItemUnset)
+        ? PersonalItemAnchor.fromRaw(
+            anchorType: anchorType ?? this.anchorType,
+            editionId: editionId ?? this.editionId,
+            variantId: variantId ?? this.variantId,
+            bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+          )
+        : anchor as PersonalItemAnchor?;
+
     return OwnedItem(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
+      isDigital: isDigital ?? this.isDigital,
+      anchor: resolvedAnchor,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -212,6 +324,19 @@ class OwnedItem {
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
       locationId: locationId ?? this.locationId,
+      features: features ?? this.features,
+      hdrFormats: hdrFormats ?? this.hdrFormats,
+      purchaseStore: purchaseStore ?? this.purchaseStore,
+      boxSetId: boxSetId ?? this.boxSetId,
+      boxSetName: boxSetName ?? this.boxSetName,
+      storageDevice: storageDevice ?? this.storageDevice,
+      storageSlot: storageSlot ?? this.storageSlot,
+      region: region ?? this.region,
+      packaging: packaging ?? this.packaging,
+      distributor: distributor ?? this.distributor,
+      collectionStatus: collectionStatus ?? this.collectionStatus,
+      lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
+      marketValueCents: marketValueCents ?? this.marketValueCents,
     );
   }
 }

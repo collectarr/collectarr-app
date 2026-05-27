@@ -2,8 +2,11 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Build a themed [ThemeData] for add dialogs with the given accent color.
-ThemeData libraryAddDialogTheme(Color accent) {
-  final base = kLibraryDialogTheme;
+ThemeData libraryAddDialogTheme(
+  Color accent, {
+  AppThemePalette palette = kDefaultAppThemePalette,
+}) {
+  final base = buildLibraryDialogTheme(palette: palette);
   final scheme = base.colorScheme.copyWith(
     primary: accent,
     secondary: accent,
@@ -24,8 +27,9 @@ ThemeData libraryAddDialogTheme(Color accent) {
       ),
     ),
     datePickerTheme: buildAppDatePickerTheme(
+      palette: palette,
       accent: accent,
-      surface: kAppPanel,
+      surface: palette.panel,
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(color: accent),
   );

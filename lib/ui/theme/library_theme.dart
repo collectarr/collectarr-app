@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 ThemeData buildLibraryTheme({
   AppThemePalette palette = kDefaultAppThemePalette,
 }) {
-  final base = ThemeData.dark(useMaterial3: true);
+  final base = palette.isDark
+      ? ThemeData.dark(useMaterial3: true)
+      : ThemeData.light(useMaterial3: true);
   return applySharedSurfaceTheme(
     base,
     palette,
@@ -13,20 +15,21 @@ ThemeData buildLibraryTheme({
     includeCanvasColor: false,
     includeDropdownInputDecoration: true,
     dropdownInputFillColor: palette.field,
-  );
+  ).copyWith(extensions: [palette]);
 }
 
 ThemeData buildLibraryDialogTheme({
   AppThemePalette palette = kDefaultAppThemePalette,
 }) {
-  return kLibraryTheme.copyWith(
+  return buildLibraryTheme(palette: palette).copyWith(
     inputDecorationTheme: buildAppInputDecorationTheme(
       palette,
-      fillColor: const Color(0xFF111111),
+      fillColor: palette.isDark ? kAppFieldDark : palette.field,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
     ),
   );
 }
 
+/// Legacy dark-only cached themes – prefer passing palette for theme-aware usage.
 final ThemeData kLibraryTheme = buildLibraryTheme();
 final ThemeData kLibraryDialogTheme = buildLibraryDialogTheme();

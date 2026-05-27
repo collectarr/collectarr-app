@@ -1,9 +1,16 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/generic/presentation.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -26,7 +33,17 @@ class LibraryAddDialogRequest {
   final String? initialBarcode;
 }
 
-typedef LibraryAddDialogLauncher = Future<bool?> Function(
+class LibraryAddDialogResult {
+  const LibraryAddDialogResult({
+    required this.target,
+    required this.itemIds,
+  });
+
+  final LibraryAddTarget target;
+  final List<String> itemIds;
+}
+
+typedef LibraryAddDialogLauncher = Future<LibraryAddDialogResult?> Function(
   BuildContext context,
   LibraryAddDialogRequest request,
 );
@@ -37,7 +54,9 @@ class LibraryEditDialogRequest {
     required this.item,
     required this.ownedItem,
     required this.accent,
+    this.wishlistItem,
     this.trackingEntry,
+    this.availableBundleReleases = const [],
     this.physicalFormats = const [],
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
@@ -48,7 +67,9 @@ class LibraryEditDialogRequest {
   final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final Color accent;
+  final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
+  final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
@@ -91,6 +112,29 @@ typedef LibraryDetailPageBuilder = Widget Function(
   LibraryDetailPageRequest request,
 );
 
+class LibraryInspectorRequest {
+  const LibraryInspectorRequest({
+    required this.type,
+    required this.entry,
+    required this.ownedItem,
+    required this.trackingEntry,
+    required this.accent,
+    this.onFilterByValue,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryWorkspaceEntry entry;
+  final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
+  final Color accent;
+  final ValueChanged<String>? onFilterByValue;
+}
+
+typedef LibraryInspectorSectionsBuilder = List<Widget> Function(
+  BuildContext context,
+  LibraryInspectorRequest request,
+);
+
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
     required this.id,
@@ -108,8 +152,12 @@ class LibraryMetadataProviderOption {
   final bool requiresApiKey;
   final LibraryMetadataProviderUsagePolicy? usagePolicy;
 
-  bool supportsKind(String kind) {
-    final normalized = kind.trim().toLowerCase();
+  bool supportsKind(Object? kind) {
+    final normalized = switch (kind) {
+      String value => value.trim().toLowerCase(),
+      null => '',
+      Object? _ => catalogMediaKindFromValue(kind).apiValue,
+    };
     return supportedKinds.isEmpty || supportedKinds.contains(normalized);
   }
 }
@@ -164,9 +212,14 @@ class LibraryTypeConfig {
     this.defaultGrade,
     this.capabilities = const LibraryTypeCapabilities(),
     this.presentation = genericLibraryMediaPresentation,
+    this.editPresentation =
+      const LibraryEditPresentation(builder: DefaultLibraryEditPresentationBuilder()),
+    this.mediaFields = const MediaEditFields(),
+    this.releaseFields = const ReleaseEditFields(),
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.detailPageBuilder,
+    this.inspectorSectionsBuilder,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -181,11 +234,18 @@ class LibraryTypeConfig {
   final String? defaultGrade;
   final LibraryTypeCapabilities capabilities;
   final LibraryMediaPresentation presentation;
+  final LibraryEditPresentation editPresentation;
+  final MediaEditFields mediaFields;
+  final ReleaseEditFields releaseFields;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
+  final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
+    if (workspace.kind == CatalogMediaKind.unknown) {
+      return metadataProviders;
+    }
     return [
       for (final provider in metadataProviders)
         if (provider.supportsKind(workspace.kind)) provider,

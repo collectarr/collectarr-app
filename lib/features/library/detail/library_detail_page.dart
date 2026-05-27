@@ -2,13 +2,22 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
+import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/detail/activity_timeline_section.dart';
+import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/kinds/shared/metadata_corrections_section.dart';
+import 'package:collectarr_app/features/library/kinds/shared/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,23 +91,31 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               ? const <OwnedItem>[]
               : <OwnedItem>[widget.ownedItem!],
         );
-    final activeOwnedItem = _resolveOwnedItem(ownedCopies, widget.ownedItem);
+    final ownedResolution = resolveActiveOwnedItem(
+      ownedCopies,
+      fallback: widget.ownedItem,
+      selectedOwnedItemId: _selectedOwnedItemId,
+      selectNewest: _selectNewestOwnedItem,
+    );
+    final activeOwnedItem = ownedResolution.ownedItem;
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogItemProvider)[widget.entry.id] ??
             const <TrackingEntry>[];
-    final activeTrackingEntry = _resolveTrackingEntry(
+    final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
       activeOwnedItem,
     );
+    final activeBundleReleaseId =
+        activeOwnedItem?.bundleReleaseId ?? widget.entry.referenceBundleReleaseId;
     final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || widget.entry.isOwned;
     return Theme(
-      data: kLibraryTheme,
+      data: buildLibraryTheme(palette: appPalette(context)),
       child: Scaffold(
-        backgroundColor: kAppCanvas,
+        backgroundColor: appPalette(context).canvas,
         appBar: AppBar(
           backgroundColor: widget.accent,
           foregroundColor: Colors.white,
-          title: Text(widget.entry.title),
+          title: Text(widget.entry.resolvedTitle),
           actions: [
             IconButton(
               tooltip: 'Edit metadata and collection fields',
@@ -107,6 +124,19 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   : () => widget.onEdit!(activeOwnedItem),
               icon: const Icon(Icons.edit_outlined),
             ),
+            if (activeOwnedItem != null)
+              IconButton(
+                tooltip: 'Assign to folders',
+                onPressed: () {
+                  final db = ref.read(localDatabaseProvider);
+                  showFolderAssignmentDialog(
+                    context: context,
+                    db: db,
+                    ownedItemId: activeOwnedItem.id,
+                  );
+                },
+                icon: const Icon(Icons.folder_outlined),
+              ),
             IconButton(
               tooltip: widget.entry.isWishlisted
                   ? 'Remove from wishlist'
@@ -121,7 +151,10 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             if (isOwned)
               IconButton(
                 tooltip: 'Add another copy',
-                onPressed: () => _addOwnedCopy(widget.entry.id),
+                onPressed: () => _addOwnedCopy(
+                  widget.entry,
+                  ownedItem: activeOwnedItem,
+                ),
                 icon: const Icon(Icons.copy_all_outlined),
               ),
             IconButton(
@@ -160,9 +193,15 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               selectedOwnedItemId: activeOwnedItem?.id,
               onSelectOwnedItem: ownedCopies.length < 2
                   ? null
-                  : (value) => setState(() => _selectedOwnedItemId = value),
+                  : (value) => setState(() {
+                    _selectedOwnedItemId = value;
+                    _selectNewestOwnedItem = false;
+                  }),
               onAddOwned: isOwned
-                  ? () => _addOwnedCopy(widget.entry.id)
+                  ? () => _addOwnedCopy(
+                        widget.entry,
+                        ownedItem: activeOwnedItem,
+                      )
                   : widget.onAddOwned,
               onRemoveOwned: activeOwnedItem == null
                   ? widget.onRemoveOwned
@@ -180,6 +219,19 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               ownedCopies: ownedCopies,
             ),
             const SizedBox(height: 16),
+            if (activeBundleReleaseId != null) ...[
+              BundleReleaseContentsSection(
+                bundleReleaseId: activeBundleReleaseId,
+                accent: widget.accent,
+              ),
+              const SizedBox(height: 16),
+            ] else ...[
+              ItemBundleReleaseBrowserSection(
+                itemId: widget.entry.titleItemId ?? widget.entry.id,
+                accent: widget.accent,
+              ),
+              const SizedBox(height: 16),
+            ],
             LibraryDetailMetadataSection(
               type: widget.type,
               entry: widget.entry,
@@ -197,6 +249,15 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               entry: widget.entry,
               accent: widget.accent,
               onFilterByValue: widget.onFilterByValue,
+            ),
+            LibraryDetailTrailersSection(
+              trailerUrls: widget.entry.trailerUrls,
+              accent: widget.accent,
+            ),
+            ...widget.type.presentation.builder.buildInspectorSections(
+              context: context,
+              entry: widget.entry,
+              accent: widget.accent,
             ),
             LibraryDetailProvenanceSection(
               type: widget.type,
@@ -221,8 +282,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               InspectorPersonalDetailsEditor(
                 ownedItem: activeOwnedItem,
                 accent: widget.accent,
-              )
-            else if (activeTrackingEntry != null)
+              ),
+            if (activeTrackingEntry != null)
               InspectorTrackingDetailsEditor(
                 itemId: widget.entry.id,
                 trackingEntry: activeTrackingEntry,
@@ -230,6 +291,20 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                 editions: widget.entry.editions,
                 accent: widget.accent,
               ),
+            WatchHistorySection(
+              itemId: widget.entry.id,
+              accent: widget.accent,
+            ),
+            const SizedBox(height: 16),
+            ActivityTimelineSection(
+              itemId: widget.entry.id,
+              ownedItemIds: ownedCopies.map((c) => c.id).toList(),
+              accent: widget.accent,
+            ),
+            MetadataCorrectionsSection(
+              itemId: widget.entry.id,
+              accent: widget.accent,
+            ),
             LibraryDetailProviderSection(type: widget.type, accent: widget.accent),
             LibraryDetailLocalSnapshotSection(
               entry: widget.entry,
@@ -241,78 +316,21 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     );
   }
 
-  TrackingEntry? _resolveTrackingEntry(
-    List<TrackingEntry> entries,
-    OwnedItem? activeOwnedItem,
-  ) {
-    if (entries.isEmpty) {
-      return null;
-    }
-    if (activeOwnedItem != null) {
-      for (final entry in entries) {
-        if (entry.ownedItemId == activeOwnedItem.id) {
-          return entry;
-        }
-      }
-    }
-    for (final entry in entries) {
-      if (entry.ownedItemId == null) {
-        return entry;
-      }
-    }
-    return entries.first;
-  }
-
-  OwnedItem? _resolveOwnedItem(
-    List<OwnedItem> ownedCopies,
-    OwnedItem? fallback,
-  ) {
-    if (ownedCopies.isEmpty) {
-      return fallback;
-    }
-    if (_selectNewestOwnedItem) {
-      final newest = ownedCopies.first;
-      _scheduleOwnedCopySelection(newest.id, clearNewest: true);
-      return newest;
-    }
-    if (_selectedOwnedItemId != null) {
-      for (final item in ownedCopies) {
-        if (item.id == _selectedOwnedItemId) {
-          return item;
-        }
-      }
-    }
-    final resolved = fallback != null
-        ? ownedCopies.firstWhere(
-            (item) => item.id == fallback.id,
-            orElse: () => ownedCopies.first,
-          )
-        : ownedCopies.first;
-    if (_selectedOwnedItemId != resolved.id) {
-      _scheduleOwnedCopySelection(resolved.id);
-    }
-    return resolved;
-  }
-
-  void _scheduleOwnedCopySelection(
-    String ownedItemId, {
-    bool clearNewest = true,
-  }) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _selectedOwnedItemId = ownedItemId;
-        if (clearNewest) {
-          _selectNewestOwnedItem = false;
-        }
-      });
-    });
-  }
-
-  Future<void> _addOwnedCopy(String itemId) async {
-    await ref.read(collectionMutationsProvider).addItem(itemId);
+  Future<void> _addOwnedCopy(
+    LibraryWorkspaceEntry entry, {
+    OwnedItem? ownedItem,
+  }) async {
+    final anchor = resolveLibraryMutationAnchor(
+      entry: entry,
+      ownedItem: ownedItem,
+    );
+    await ref.read(collectionMutationsProvider).addItem(
+          entry.id,
+          anchorType: anchor.anchorType,
+          editionId: anchor.editionId,
+          variantId: anchor.variantId,
+          bundleReleaseId: anchor.bundleReleaseId,
+        );
     if (!mounted) {
       return;
     }

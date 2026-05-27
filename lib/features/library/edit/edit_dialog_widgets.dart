@@ -12,66 +12,79 @@ const Color kEditPanelRaised = kAppPanelRaised;
 const Color kEditToolbar = kAppToolbar;
 const Color kEditDivider = kAppDivider;
 const Color kEditTextMuted = kAppTextMuted;
-const Color kEditChartBar = Color(0xFF7EDAF3);
-const Color kEditValueChip = Color(0xFF1B1B1B);
-const Color kEditValueChipBorder = Color(0xFF3A3A3A);
+const Color kEditChartBar = kAppAccentLight;
+const Color kEditValueChip = kAppPanel;
+const Color kEditValueChipBorder = kAppSurfaceBright;
 const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 
-/// Dark theme preset for edit dialogs.
-ThemeData editDialogTheme({Color seedColor = kEditAccent}) {
-  return ThemeData.dark(useMaterial3: true).copyWith(
+/// Theme preset for edit dialogs – resolves from [palette] for light/dark.
+ThemeData editDialogTheme({
+  Color? seedColor,
+  AppThemePalette palette = kDefaultAppThemePalette,
+}) {
+  final accent = seedColor ?? palette.accent;
+  final base = palette.isDark
+      ? ThemeData.dark(useMaterial3: true)
+      : ThemeData.light(useMaterial3: true);
+  return base.copyWith(
+    extensions: [palette],
     visualDensity: VisualDensity.compact,
-    canvasColor: kEditPanelRaised,
+    canvasColor: palette.panelRaised,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: seedColor,
-      brightness: Brightness.dark,
-      surface: kEditPanel,
+      seedColor: accent,
+      brightness: palette.brightness,
+      surface: palette.panel,
     ),
-    dialogTheme: const DialogThemeData(
-      backgroundColor: kEditPanel,
+    dialogTheme: DialogThemeData(
+      backgroundColor: palette.panel,
       surfaceTintColor: Colors.transparent,
     ),
-    popupMenuTheme: const PopupMenuThemeData(
-      color: kEditPanelRaised,
+    popupMenuTheme: PopupMenuThemeData(
+      color: palette.panelRaised,
       surfaceTintColor: Colors.transparent,
-      textStyle: TextStyle(color: Colors.white),
+      textStyle: TextStyle(color: palette.textPrimary),
       elevation: 12,
       shape: RoundedRectangleBorder(
         borderRadius: kAppMenuBorderRadius,
-        side: BorderSide(color: kEditDivider),
+        side: BorderSide(color: palette.divider),
       ),
     ),
-    menuTheme: const MenuThemeData(
+    menuTheme: MenuThemeData(
       style: MenuStyle(
-        backgroundColor: WidgetStatePropertyAll(kEditPanelRaised),
-        surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+        backgroundColor: WidgetStatePropertyAll(palette.panelRaised),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
             borderRadius: kAppMenuBorderRadius,
-            side: BorderSide(color: kEditDivider),
+            side: BorderSide(color: palette.divider),
           ),
         ),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF101010),
+      fillColor: palette.field,
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      labelStyle: const TextStyle(color: kEditTextMuted),
-      border: const OutlineInputBorder(
-        borderSide: BorderSide(color: kEditDivider),
+      labelStyle: TextStyle(color: palette.textMuted),
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: palette.divider),
       ),
-      enabledBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: kEditDivider),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: palette.divider),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: seedColor),
+        borderSide: BorderSide(color: accent),
       ),
     ),
+    textTheme: base.textTheme.apply(
+      bodyColor: palette.textPrimary,
+      displayColor: palette.textPrimary,
+    ),
     datePickerTheme: buildAppDatePickerTheme(
-      accent: seedColor,
-      surface: kEditPanel,
+      palette: palette,
+      accent: accent,
+      surface: palette.panel,
     ),
   );
 }
@@ -103,9 +116,9 @@ class EditTabShell extends StatelessWidget {
             Container(
               width: 204,
               padding: const EdgeInsets.all(14),
-              decoration: const BoxDecoration(
-                color: Color(0xFF101010),
-                border: Border(right: BorderSide(color: kEditDivider)),
+              decoration: BoxDecoration(
+                color: appPalette(context).field,
+                border: Border(right: BorderSide(color: appPalette(context).divider)),
               ),
               child: Column(
                 children: [
@@ -153,15 +166,16 @@ class EditSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: const Color(0xFF202426),
+        color: p.gridCanvas,
         shape: Border(
           left: BorderSide(color: accent, width: 2),
-          top: const BorderSide(color: Color(0xFF3D3D3D)),
-          right: const BorderSide(color: Color(0xFF3D3D3D)),
-          bottom: const BorderSide(color: Color(0xFF3D3D3D)),
+          top: BorderSide(color: p.surfaceBright),
+          right: BorderSide(color: p.surfaceBright),
+          bottom: BorderSide(color: p.surfaceBright),
         ),
         child: Padding(
           padding: const EdgeInsets.all(11),
@@ -258,7 +272,7 @@ class EditMiniBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: color ?? const Color(0xFF0E81A6),
+        color: color ?? kAppAccent,
         borderRadius: BorderRadius.circular(3),
       ),
       child: Padding(
@@ -290,30 +304,31 @@ class ValueContextChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = appPalette(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: kEditValueChip,
-        border: Border.all(color: kEditValueChipBorder),
+        color: p.panel,
+        border: Border.all(color: p.surfaceBright),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: kEditChartBar),
+          Icon(icon, size: 14, color: p.accent),
           const SizedBox(width: 5),
           Text(
             '$label: ',
-            style: const TextStyle(
-              color: kEditTextMuted,
+            style: TextStyle(
+              color: p.textMuted,
               fontSize: 11,
               fontWeight: FontWeight.w800,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: p.textPrimary,
               fontSize: 11,
               fontWeight: FontWeight.w900,
             ),
@@ -355,7 +370,7 @@ class SoldSummaryPanel extends StatelessWidget {
         ? '—'
         : '${profitCents >= 0 ? '+' : ''}$symbol${(profitCents / 100).toStringAsFixed(2)}';
     final profitColor = profitCents == null || profitCents == 0
-        ? kEditTextMuted
+        ? appPalette(context).textMuted
         : profitCents > 0
             ? const Color(0xFF4CAF50)
             : const Color(0xFFEF5350);
@@ -363,8 +378,8 @@ class SoldSummaryPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFF101010),
-        border: Border.all(color: kEditDivider),
+        color: appPalette(context).field,
+        border: Border.all(color: appPalette(context).divider),
       ),
       child: Row(
         children: [
@@ -376,7 +391,7 @@ class SoldSummaryPanel extends StatelessWidget {
                 : '$symbol${(paid / 100).toStringAsFixed(2)}',
           ),
           const SizedBox(width: 6),
-          const Icon(Icons.arrow_forward, size: 14, color: kEditTextMuted),
+          Icon(Icons.arrow_forward, size: 14, color: appPalette(context).textMuted),
           const SizedBox(width: 6),
           ValueContextChip(
             icon: Icons.sell_outlined,
@@ -386,12 +401,12 @@ class SoldSummaryPanel extends StatelessWidget {
                 : '$symbol${(sold / 100).toStringAsFixed(2)}',
           ),
           const SizedBox(width: 6),
-          const Icon(Icons.arrow_forward, size: 14, color: kEditTextMuted),
+          Icon(Icons.arrow_forward, size: 14, color: appPalette(context).textMuted),
           const SizedBox(width: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: BoxDecoration(
-              color: kEditValueChip,
+              color: appPalette(context).panel,
               border: Border.all(color: profitColor),
               borderRadius: BorderRadius.circular(3),
             ),
@@ -449,8 +464,8 @@ class FooterReadonlyField extends StatelessWidget {
       height: 48,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: const Color(0xFF191919),
-          border: Border.all(color: const Color(0xFF3D3D3D)),
+          color: kAppPanel,
+          border: Border.all(color: kAppSurfaceBright),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -531,7 +546,7 @@ class EditSummaryPill extends StatelessWidget {
     final body = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF111315),
+        color: kAppField,
         border: Border.all(color: kEditDivider),
         borderRadius: BorderRadius.circular(4),
       ),
@@ -666,7 +681,7 @@ class _EditTokenListFieldState extends State<EditTokenListField> {
                   label: Text(token),
                   onDeleted: () => _removeToken(token),
                   visualDensity: VisualDensity.compact,
-                  backgroundColor: const Color(0xFF191B1C),
+                  backgroundColor: kAppPanel,
                   side: const BorderSide(color: kEditDivider),
                   deleteIconColor: kEditTextMuted,
                   labelStyle: const TextStyle(
@@ -787,6 +802,12 @@ String? positiveIntValidator(String? value) {
   if (value == null || value.trim().isEmpty) return 'Required';
   final parsed = int.tryParse(value.trim());
   return parsed == null || parsed < 1 ? 'Enter a positive number' : null;
+}
+
+String? optionalPositiveIntValidator(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  final parsed = int.tryParse(value.trim());
+  return parsed == null || parsed < 0 ? 'Enter a positive number' : null;
 }
 
 String? optionalMoneyValidator(String? value) {

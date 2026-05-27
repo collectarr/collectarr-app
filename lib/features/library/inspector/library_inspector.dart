@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
+import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
@@ -19,10 +20,67 @@ import 'package:collectarr_app/features/library/inspector/inspector_reading_queu
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/workspace/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+@immutable
+class _InspectorConditionGradeOptionsRequest {
+  const _InspectorConditionGradeOptionsRequest({
+    required this.db,
+    required this.mediaKind,
+    required this.builtInConditions,
+    required this.builtInGrades,
+    required this.selectedCondition,
+    required this.selectedGrade,
+  });
+
+  final LocalDatabase db;
+  final String mediaKind;
+  final List<String> builtInConditions;
+  final List<String> builtInGrades;
+  final String? selectedCondition;
+  final String? selectedGrade;
+
+  @override
+  bool operator ==(Object other) {
+    return other is _InspectorConditionGradeOptionsRequest &&
+        identical(db, other.db) &&
+        mediaKind == other.mediaKind &&
+        listEquals(builtInConditions, other.builtInConditions) &&
+        listEquals(builtInGrades, other.builtInGrades) &&
+        selectedCondition == other.selectedCondition &&
+        selectedGrade == other.selectedGrade;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        db,
+        mediaKind,
+        Object.hashAll(builtInConditions),
+        Object.hashAll(builtInGrades),
+        selectedCondition,
+        selectedGrade,
+      );
+}
+
+final _inspectorConditionGradeOptionsProvider = FutureProvider.autoDispose
+    .family<PickListConditionGradeOptions, _InspectorConditionGradeOptionsRequest>(
+  (ref, request) async {
+    return loadConditionGradePickListOptions(
+      request.db,
+      mediaKind: request.mediaKind,
+      builtInConditions: request.builtInConditions,
+      builtInGrades: request.builtInGrades,
+      selectedCondition: request.selectedCondition,
+      selectedGrade: request.selectedGrade,
+    );
+  },
+);
 
 class LibraryInspector extends ConsumerStatefulWidget {
   const LibraryInspector({
@@ -99,20 +157,37 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               ? const <OwnedItem>[]
               : <OwnedItem>[widget.ownedItem!],
         );
-    final activeOwnedItem = _resolveOwnedItem(ownedCopies, widget.ownedItem);
+    final ownedResolution = resolveActiveOwnedItem(
+      ownedCopies,
+      fallback: widget.ownedItem,
+      selectedOwnedItemId: _selectedOwnedItemId,
+      selectNewest: _selectNewestOwnedItem,
+    );
+    final activeOwnedItem = ownedResolution.ownedItem;
+    if (ownedResolution.shouldScheduleSelection(
+      _selectedOwnedItemId,
+      _selectNewestOwnedItem,
+    )) {
+      _scheduleOwnedCopySelection(
+        ownedResolution.nextSelectedOwnedItemId!,
+        clearNewest: ownedResolution.clearNewest,
+      );
+    }
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogItemProvider)[selected.id] ??
             const <TrackingEntry>[];
-    final activeTrackingEntry = _resolveTrackingEntry(
+    final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
       activeOwnedItem,
     );
+    final activeBundleReleaseId =
+        activeOwnedItem?.bundleReleaseId ?? selected.referenceBundleReleaseId;
     final extraActions = <Widget>[
       if (selected.isOwned)
         _InspectorDialogActionButton(
           tooltip: 'Add another copy',
           icon: Icons.copy_all_outlined,
-          onPressed: () => _addOwnedCopy(selected.id),
+          onPressed: () => _addOwnedCopy(selected, ownedItem: activeOwnedItem),
         ),
       if (activeOwnedItem != null && widget.db != null)
         _InspectorDialogActionButton(
@@ -168,7 +243,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     return Stack(
       children: [
         Positioned.fill(
-          child: InspectorBackdrop(entry: selected),
+          child: InspectorBackdrop(
+            entry: selected,
+            ownedItem: activeOwnedItem,
+          ),
         ),
         DecoratedBox(
           decoration: const BoxDecoration(color: Color(0xBA111111)),
@@ -194,7 +272,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                           ref: ref,
                           item: CatalogItem(
                             id: selected.id,
-                            kind: widget.type.workspace.kind,
+                            kind: widget.type.workspace.kind.apiValue,
                             title: selected.title,
                             itemNumber: selected.itemNumber,
                             publisher: selected.publisher,
@@ -214,7 +292,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     ownedItem: activeOwnedItem,
                     accent: widget.accent,
                     onAddOwned: selected.isOwned
-                        ? () => _addOwnedCopy(selected.id)
+                        ? () => _addOwnedCopy(
+                              selected,
+                              ownedItem: activeOwnedItem,
+                            )
                         : widget.onAddOwned,
                     onRemoveOwned: activeOwnedItem == null
                         ? widget.onRemoveOwned
@@ -240,56 +321,107 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   editions: selected.editions,
                   selectedOwnedItemId: activeOwnedItem?.id,
                   accent: widget.accent,
-                    onAddCopy: () => _addOwnedCopy(selected.id),
+                  onAddCopy: () => _addOwnedCopy(
+                    selected,
+                    ownedItem: activeOwnedItem,
+                  ),
                   onSelected: ownedCopies.length < 2
                       ? null
                       : (value) => setState(() => _selectedOwnedItemId = value),
                 ),
               ],
-              if (activeOwnedItem != null &&
-                  (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty)) ...[
+              if (activeBundleReleaseId != null) ...[
                 const SizedBox(height: 10),
-                InspectorCollectionFields(
-                  enabled: true,
-                  condition: activeOwnedItem.condition,
-                  grade: activeOwnedItem.grade,
-                  conditions: widget.type.conditions,
-                  grades: widget.type.grades,
+                BundleReleaseContentsSection(
+                  bundleReleaseId: activeBundleReleaseId,
                   accent: widget.accent,
-                  onConditionChanged: (value) => _updateConditionGrade(
-                    context,
-                    activeOwnedItem,
-                    condition: value,
-                    grade: activeOwnedItem.grade,
-                  ),
-                  onGradeChanged: (value) => _updateConditionGrade(
-                    context,
-                    activeOwnedItem,
-                    condition: activeOwnedItem.condition,
-                    grade: value,
-                  ),
+                ),
+              ],
+              if (activeOwnedItem != null &&
+                  (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
+                  resolveOwnedDigitalFlag(
+                        activeOwnedItem,
+                        selected.editions,
+                        fallbackLabel: selected.variant,
+                      ) !=
+                      true) ...[
+                const SizedBox(height: 10),
+                Builder(
+                  builder: (context) {
+                    final options = ref.watch(_inspectorConditionGradeOptionsProvider(
+                      _InspectorConditionGradeOptionsRequest(
+                        db: widget.db ?? ref.read(localDatabaseProvider),
+                        mediaKind: widget.type.workspace.kind.apiValue,
+                        builtInConditions: widget.type.conditions,
+                        builtInGrades: widget.type.grades,
+                        selectedCondition: activeOwnedItem.condition,
+                        selectedGrade: activeOwnedItem.grade,
+                      ),
+                    )).value;
+                    return InspectorCollectionFields(
+                      enabled: true,
+                      condition: activeOwnedItem.condition,
+                      grade: activeOwnedItem.grade,
+                      conditions: options?.conditions ??
+                          mergePickListValues(
+                            builtInValues: widget.type.conditions,
+                            selectedValues: [activeOwnedItem.condition],
+                          ),
+                      grades: options?.grades ??
+                          mergePickListValues(
+                            builtInValues: widget.type.grades,
+                            selectedValues: [activeOwnedItem.grade],
+                          ),
+                      accent: widget.accent,
+                      onConditionChanged: (value) => _updateConditionGrade(
+                        context,
+                        activeOwnedItem,
+                        condition: value,
+                        grade: activeOwnedItem.grade,
+                      ),
+                      onGradeChanged: (value) => _updateConditionGrade(
+                        context,
+                        activeOwnedItem,
+                        condition: activeOwnedItem.condition,
+                        grade: value,
+                      ),
+                    );
+                  },
                 ),
               ],
               const SizedBox(height: 10),
-              InspectorMetadataSection(
-                type: widget.type,
-                entry: selected,
-                accent: widget.accent,
-                onFilterByValue: widget.onFilterByValue,
-              ),
+              ...widget.type.inspectorSectionsBuilder?.call(
+                    context,
+                    LibraryInspectorRequest(
+                      type: widget.type,
+                      entry: selected,
+                      ownedItem: activeOwnedItem,
+                      trackingEntry: activeTrackingEntry,
+                      accent: widget.accent,
+                      onFilterByValue: widget.onFilterByValue,
+                    ),
+                  ) ??
+                  <Widget>[
+                    InspectorMetadataSection(
+                      type: widget.type,
+                      entry: selected,
+                      accent: widget.accent,
+                      onFilterByValue: widget.onFilterByValue,
+                    ),
+                  ],
               InspectorPersonalSection(
                 entry: selected,
                 ownedItem: activeOwnedItem,
                 trackingEntry: activeTrackingEntry,
                 accent: widget.accent,
-                kind: widget.type.workspace.kind,
+                kind: widget.type.workspace.kind.apiValue,
               ),
               if (activeOwnedItem != null)
                 InspectorPersonalDetailsEditor(
                   ownedItem: activeOwnedItem,
                   accent: widget.accent,
-                )
-              else if (activeTrackingEntry != null)
+                ),
+              if (activeTrackingEntry != null)
                 InspectorTrackingDetailsEditor(
                   itemId: selected.id,
                   trackingEntry: activeTrackingEntry,
@@ -300,11 +432,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               if (activeOwnedItem != null && widget.db != null) ...[
                 InspectorCustomFieldsSection(
                   ownedItemId: activeOwnedItem.id,
-                  mediaKind: widget.type.workspace.kind,
+                  mediaKind: widget.type.workspace.kind.apiValue,
                   db: widget.db!,
                   accent: widget.accent,
                 ),
-                if (widget.type.workspace.kind != 'book')
+                if (widget.type.workspace.kind != CatalogMediaKind.book)
                   InspectorItemImagesSection(
                     ownedItemId: activeOwnedItem.id,
                     db: widget.db!,
@@ -321,28 +453,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       ],
     );
-  }
-
-  TrackingEntry? _resolveTrackingEntry(
-    List<TrackingEntry> entries,
-    OwnedItem? activeOwnedItem,
-  ) {
-    if (entries.isEmpty) {
-      return null;
-    }
-    if (activeOwnedItem != null) {
-      for (final entry in entries) {
-        if (entry.ownedItemId == activeOwnedItem.id) {
-          return entry;
-        }
-      }
-    }
-    for (final entry in entries) {
-      if (entry.ownedItemId == null) {
-        return entry;
-      }
-    }
-    return entries.first;
   }
 
   Future<void> _updateConditionGrade(
@@ -404,6 +514,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                       ),
                     ),
                     IconButton(
+                      tooltip: 'Close',
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close),
                     ),
@@ -417,37 +528,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       ),
     );
-  }
-
-  OwnedItem? _resolveOwnedItem(
-    List<OwnedItem> ownedCopies,
-    OwnedItem? fallback,
-  ) {
-    if (ownedCopies.isEmpty) {
-      return fallback;
-    }
-    if (_selectNewestOwnedItem) {
-      final newest = ownedCopies.first;
-      _scheduleOwnedCopySelection(newest.id, clearNewest: true);
-      return newest;
-    }
-    if (_selectedOwnedItemId != null) {
-      for (final item in ownedCopies) {
-        if (item.id == _selectedOwnedItemId) {
-          return item;
-        }
-      }
-    }
-    final resolved = fallback != null
-        ? ownedCopies.firstWhere(
-            (item) => item.id == fallback.id,
-            orElse: () => ownedCopies.first,
-          )
-        : ownedCopies.first;
-    if (_selectedOwnedItemId != resolved.id) {
-      _scheduleOwnedCopySelection(resolved.id);
-    }
-    return resolved;
   }
 
   void _scheduleOwnedCopySelection(
@@ -467,8 +547,21 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     });
   }
 
-  Future<void> _addOwnedCopy(String itemId) async {
-    await ref.read(collectionMutationsProvider).addItem(itemId);
+  Future<void> _addOwnedCopy(
+    LibraryWorkspaceEntry entry, {
+    OwnedItem? ownedItem,
+  }) async {
+    final anchor = resolveLibraryMutationAnchor(
+      entry: entry,
+      ownedItem: ownedItem,
+    );
+    await ref.read(collectionMutationsProvider).addItem(
+          entry.id,
+          anchorType: anchor.anchorType,
+          editionId: anchor.editionId,
+          variantId: anchor.variantId,
+          bundleReleaseId: anchor.bundleReleaseId,
+        );
     if (!mounted) {
       return;
     }
@@ -527,7 +620,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                           ),
                     )
                   : DropdownButtonFormField<String>(
-                      value: selectedOwnedItemId,
+                      initialValue: selectedOwnedItemId,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Active copy',

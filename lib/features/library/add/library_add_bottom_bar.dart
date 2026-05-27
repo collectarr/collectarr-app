@@ -3,6 +3,9 @@ part of 'library_add_dialog.dart';
 class _LibraryAddBottomBar extends StatelessWidget {
   const _LibraryAddBottomBar({
     required this.type,
+    required this.conditions,
+    required this.grades,
+    required this.defaultTags,
     required this.accent,
     required this.selectedItem,
     required this.selectedCandidate,
@@ -20,6 +23,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
     required this.onAddTargetChanged,
     required this.onDefaultConditionChanged,
     required this.onDefaultGradeChanged,
+    required this.onEditDefaultTagsPressed,
     required this.onDefaultLocationPressed,
     required this.onDefaultPurchaseDateChanged,
     required this.onAdd,
@@ -28,6 +32,9 @@ class _LibraryAddBottomBar extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
+  final List<String> conditions;
+  final List<String> grades;
+  final String? defaultTags;
   final Color accent;
   final LibraryMetadataItem? selectedItem;
   final ProviderCandidate? selectedCandidate;
@@ -45,6 +52,7 @@ class _LibraryAddBottomBar extends StatelessWidget {
   final ValueChanged<LibraryAddTarget> onAddTargetChanged;
   final ValueChanged<String> onDefaultConditionChanged;
   final ValueChanged<String> onDefaultGradeChanged;
+  final VoidCallback onEditDefaultTagsPressed;
   final VoidCallback onDefaultLocationPressed;
   final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
   final VoidCallback? onAdd;
@@ -55,13 +63,16 @@ class _LibraryAddBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasSelection = selectedItem != null || selectedCandidate != null;
     final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
-    final addLabel = effectiveCount > 0
-        ? LibraryAddCopy.addToTargetLabel(
-            count: effectiveCount,
-            type: type,
-            target: addTarget,
-          )
-        : 'Select a ${type.singularLabel.toLowerCase()} to add';
+    final addLabel = selectedCandidate != null &&
+            (!isAdmin || selectedCandidate!.isStub)
+        ? _localCandidateAddLabel()
+        : effectiveCount > 0
+            ? LibraryAddCopy.addToTargetLabel(
+                count: effectiveCount,
+                type: type,
+                target: addTarget,
+              )
+            : 'Select a ${type.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: kAppToolbar,
@@ -118,14 +129,16 @@ class _LibraryAddBottomBar extends StatelessWidget {
               const SizedBox(height: 8),
               _AddTargetDefaultsBar(
                 accent: accent,
-                conditions: type.conditions,
-                grades: type.grades,
+                conditions: conditions,
+                grades: grades,
                 condition: defaultCondition,
                 grade: defaultGrade,
+                tags: defaultTags,
                 locationLabel: defaultLocationLabel,
                 purchaseDate: defaultPurchaseDate,
                 onConditionChanged: onDefaultConditionChanged,
                 onGradeChanged: onDefaultGradeChanged,
+                onEditTagsPressed: onEditDefaultTagsPressed,
                 onLocationPressed: onDefaultLocationPressed,
                 onPurchaseDateChanged: onDefaultPurchaseDateChanged,
               ),
@@ -151,6 +164,15 @@ class _LibraryAddBottomBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _localCandidateAddLabel() {
+    final noun = type.singularLabel.toLowerCase();
+    return switch (addTarget) {
+      LibraryAddTarget.owned => 'Add local $noun to Collection',
+      LibraryAddTarget.wishlist => 'Add local $noun to Wishlist',
+      LibraryAddTarget.track => 'Track local $noun',
+    };
   }
 }
 
@@ -190,10 +212,12 @@ class _AddTargetDefaultsBar extends StatelessWidget {
     required this.grades,
     required this.condition,
     required this.grade,
+    required this.tags,
     required this.locationLabel,
     required this.purchaseDate,
     required this.onConditionChanged,
     required this.onGradeChanged,
+    required this.onEditTagsPressed,
     required this.onLocationPressed,
     required this.onPurchaseDateChanged,
   });
@@ -203,10 +227,12 @@ class _AddTargetDefaultsBar extends StatelessWidget {
   final List<String> grades;
   final String condition;
   final String grade;
+  final String? tags;
   final String? locationLabel;
   final DateTime? purchaseDate;
   final ValueChanged<String> onConditionChanged;
   final ValueChanged<String> onGradeChanged;
+  final VoidCallback onEditTagsPressed;
   final VoidCallback onLocationPressed;
   final ValueChanged<DateTime?> onPurchaseDateChanged;
 
@@ -243,6 +269,17 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             },
           ),
         InkWell(
+          onTap: onEditTagsPressed,
+          borderRadius: BorderRadius.circular(3),
+          child: CompactMenuFrame(
+            width: 210,
+            label: _tagSummary(tags),
+            accent: accent,
+            leading: Icons.sell_outlined,
+            trailing: Icons.edit_outlined,
+          ),
+        ),
+        InkWell(
           onTap: onLocationPressed,
           borderRadius: BorderRadius.circular(3),
           child: CompactMenuFrame(
@@ -276,6 +313,17 @@ class _AddTargetDefaultsBar extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  String _tagSummary(String? value) {
+    final tags = splitPickListValues(value);
+    if (tags.isEmpty) {
+      return 'Tags';
+    }
+    if (tags.length == 1) {
+      return tags.first;
+    }
+    return '${tags.first} +${tags.length - 1}';
   }
 }
 
@@ -319,6 +367,12 @@ class _LibraryAddTargetMenu extends StatelessWidget {
           value: LibraryAddTarget.wishlist,
           label: LibraryAddTarget.wishlist.actionLabel,
           selected: value == LibraryAddTarget.wishlist,
+          accent: accent,
+        ),
+        compactPopupMenuItem(
+          value: LibraryAddTarget.track,
+          label: LibraryAddTarget.track.actionLabel,
+          selected: value == LibraryAddTarget.track,
           accent: accent,
         ),
       ],

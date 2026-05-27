@@ -1,15 +1,16 @@
 import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const Color _authTopBar = Color(0xFF4DBBD5);
-const Color _authCanvas = Color(0xFF141414);
-const Color _authPanel = Color(0xFF202020);
+const Color _authTopBar = kAppTopBar;
+const Color _authCanvas = kAppCanvas;
+const Color _authPanel = kAppGridCanvas;
 const Color _authPanelRaised = Color(0xFF2D2D2D);
-const Color _authAccent = Color(0xFF10A8D8);
-const Color _authYellow = Color(0xFFFFD400);
+const Color _authAccent = kAppAccent;
+const Color _authYellow = kAppHighlight;
 const Color _authDivider = Color(0xFF484848);
-const Color _authMuted = Color(0xFFB8B8B8);
+const Color _authMuted = kAppTextMuted;
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -45,7 +46,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         ),
         inputDecorationTheme: const InputDecorationTheme(
           filled: true,
-          fillColor: Color(0xFF111111),
+          fillColor: kAppFieldDark,
           isDense: true,
           border: OutlineInputBorder(
             borderSide: BorderSide(color: _authDivider),
@@ -402,7 +403,7 @@ class _AuthModeStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF181818),
+        color: kAppCardBackground,
         border: Border.all(color: _authDivider),
       ),
       child: const Padding(
@@ -433,7 +434,7 @@ class _MiniWorkspacePreview extends StatelessWidget {
       height: 210,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: const Color(0xFF101010),
+          color: kAppField,
           border: Border.all(color: _authDivider),
         ),
         child: Column(
@@ -503,7 +504,7 @@ class _AlphaTab extends StatelessWidget {
       margin: const EdgeInsets.only(right: 4),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: selected ? _authAccent : const Color(0xFF111111),
+        color: selected ? _authAccent : kAppFieldDark,
         border: Border.all(color: _authDivider),
       ),
       child: Text(label, style: const TextStyle(fontSize: 10)),
@@ -561,7 +562,7 @@ class _PreviewSeriesList extends StatelessWidget {
                   Container(
                     width: 22,
                     alignment: Alignment.center,
-                    color: const Color(0xFF303030),
+                    color: kAppSurface,
                     child: Text(row.$2, style: const TextStyle(fontSize: 10)),
                   ),
                 ],
@@ -579,7 +580,7 @@ class _PreviewCoverGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF202020),
+      color: kAppGridCanvas,
       padding: const EdgeInsets.all(8),
       child: GridView.count(
         crossAxisCount: 5,
