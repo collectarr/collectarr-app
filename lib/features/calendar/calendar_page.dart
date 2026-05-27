@@ -93,13 +93,14 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (events) {
-          // Group events by date (year-month-day).
+          // Group events by date (year-month-day) in local time.
           final eventsByDay = <DateTime, List<CalendarEvent>>{};
           for (final event in events) {
+            final localDate = event.date.toLocal();
             final key = DateTime(
-              event.date.year,
-              event.date.month,
-              event.date.day,
+              localDate.year,
+              localDate.month,
+              localDate.day,
             );
             (eventsByDay[key] ??= []).add(event);
           }

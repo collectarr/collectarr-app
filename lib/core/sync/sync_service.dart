@@ -183,8 +183,11 @@ class SyncService {
     List<Map<String, dynamic>> upserts,
     List<String> deletes,
   ) async {
-    for (final data in upserts) {
-      await db.into(db.pickListValuesCache).insertOnConflictUpdate(
+    if (upserts.isNotEmpty) {
+      await db.batch((batch) {
+        for (final data in upserts) {
+          batch.insert(
+            db.pickListValuesCache,
             PickListValuesCacheCompanion.insert(
               id: data['id'] as String,
               listName: data['list_name'] as String,
@@ -192,11 +195,14 @@ class SyncService {
               value: data['value'] as String,
               sortOrder: Value(data['sort_order'] as int? ?? 0),
             ),
+            mode: InsertMode.insertOrReplace,
           );
+        }
+      });
     }
-    for (final id in deletes) {
+    if (deletes.isNotEmpty) {
       await (db.delete(db.pickListValuesCache)
-            ..where((t) => t.id.equals(id)))
+            ..where((t) => t.id.isIn(deletes)))
           .go();
     }
   }

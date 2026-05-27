@@ -128,6 +128,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
       allCfValues = await cfRepo.listAllValues();
     }
 
+    await widget.db.transaction(() async {
     for (int i = 0; i < widget.items.length; i++) {
       final item = widget.items[i];
       final isLast = i == widget.items.length - 1;
@@ -278,6 +279,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
 
       transferred++;
     }
+    });
 
     if (mounted) {
       Navigator.of(context).pop(TransferFieldResult(

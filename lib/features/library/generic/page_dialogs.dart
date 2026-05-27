@@ -285,17 +285,20 @@ extension _LibraryPageDialogs on _LibraryPageState {
     if (confirmed != true || !mounted) return;
 
     final mutations = ref.read(collectionMutationsProvider);
+    final db = ref.read(localDatabaseProvider);
     var count = 0;
-    for (var i = 0; i < items.length; i++) {
-      final ownedItem = items[i].source.ownedItem;
-      if (ownedItem == null) continue;
-      await mutations.updateItem(
-        ownedItem,
-        indexNumber: i + 1,
-        notify: i == items.length - 1,
-      );
-      count++;
-    }
+    await db.transaction(() async {
+      for (var i = 0; i < items.length; i++) {
+        final ownedItem = items[i].source.ownedItem;
+        if (ownedItem == null) continue;
+        await mutations.updateItem(
+          ownedItem,
+          indexNumber: i + 1,
+          notify: i == items.length - 1,
+        );
+        count++;
+      }
+    });
     ref.invalidate(shelfProvider);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

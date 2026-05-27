@@ -66,7 +66,8 @@ class PickListRepository {
   Future<void> removeValue(String listName, String value) async {
     final existing = await (_db.select(_db.pickListValuesCache)
           ..where(
-              (t) => t.listName.equals(listName) & t.value.equals(value)))
+              (t) => t.listName.equals(listName) & t.value.equals(value))
+          ..limit(1))
         .getSingleOrNull();
     await (_db.delete(_db.pickListValuesCache)
           ..where(

@@ -35,6 +35,8 @@ class DatabaseBackup {
   /// Import data from a previously exported JSON map.
   /// Clears all existing data first.
   Future<void> import(Map<String, dynamic> data) async {
+    await db.customStatement('PRAGMA foreign_keys = OFF;');
+    try {
     await db.transaction(() async {
       // Clear all tables first.
       for (final table in db.allTables) {
@@ -61,10 +63,15 @@ class DatabaseBackup {
         }
       }
     });
+    } finally {
+      await db.customStatement('PRAGMA foreign_keys = ON;');
+    }
   }
 
   /// Clear all rows from every table.
   Future<void> clearAll() async {
+    await db.customStatement('PRAGMA foreign_keys = OFF;');
+    try {
     await db.transaction(() async {
       for (final table in db.allTables) {
         await db.customStatement(
@@ -72,5 +79,8 @@ class DatabaseBackup {
         );
       }
     });
+    } finally {
+      await db.customStatement('PRAGMA foreign_keys = ON;');
+    }
   }
 }

@@ -229,7 +229,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             child: Text(
               'Favorites',
               style: TextStyle(
-                color: kAppHighlight,
+                color: appPalette(context).highlight,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
@@ -237,7 +237,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             ),
           ),
           for (final mode in pinned)
-            _buildGroupModeItem(mode),
+            _buildGroupModeItem(mode, menuContext: context),
           const PopupMenuDivider(height: 8),
         ],
         for (final category in categories) ...[
@@ -247,7 +247,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             child: Text(
               category.label,
               style: TextStyle(
-                color: kAppTextMuted,
+                color: appPalette(context).textMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
@@ -255,7 +255,7 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
             ),
           ),
           for (final mode in category.modes)
-            _buildGroupModeItem(mode),
+            _buildGroupModeItem(mode, menuContext: context),
         ],
       ],
     ).then((value) {
@@ -263,7 +263,10 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     });
   }
 
-  PopupMenuItem<LibraryGroupMode> _buildGroupModeItem(LibraryGroupMode mode) {
+  PopupMenuItem<LibraryGroupMode> _buildGroupModeItem(
+    LibraryGroupMode mode, {
+    BuildContext? menuContext,
+  }) {
     final isPinned = pinnedGroupModes.contains(mode);
     return PopupMenuItem<LibraryGroupMode>(
       value: mode,
@@ -298,7 +301,13 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
                 child: Icon(
                   isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                   size: 14,
-                  color: isPinned ? kAppHighlight : kAppTextMuted,
+                  color: isPinned
+                      ? (menuContext != null
+                          ? appPalette(menuContext).highlight
+                          : kAppHighlight)
+                      : (menuContext != null
+                          ? appPalette(menuContext).textMuted
+                          : kAppTextMuted),
                 ),
               ),
             ),
