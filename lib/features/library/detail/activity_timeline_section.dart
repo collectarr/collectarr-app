@@ -54,10 +54,10 @@ class _ActivityTimelineSectionState
   Future<void> _loadLoans() async {
     final db = ref.read(localDatabaseProvider);
     final repo = LoanRepository(db);
-    final loansList = await Future.wait(
-      widget.ownedItemIds.map((id) => repo.getLoansForItem(id)),
-    );
-    final allLoans = loansList.expand((l) => l).toList();
+    final allLoans = <Loan>[];
+    for (final ownedItemId in widget.ownedItemIds) {
+      allLoans.addAll(await repo.getLoansForItem(ownedItemId));
+    }
     if (mounted) setState(() => _loans = allLoans);
   }
 
@@ -88,7 +88,7 @@ class _ActivityTimelineSectionState
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: appPalette(context).surfaceSubtle,
+        color: const Color(0xD51C1F21),
         border: Border.all(color: widget.accent.withValues(alpha: 0.33)),
         borderRadius: BorderRadius.circular(12),
       ),
