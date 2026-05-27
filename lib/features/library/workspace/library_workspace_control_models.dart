@@ -16,6 +16,7 @@ class LibraryViewTableControlState {
     required this.counts,
     required this.viewMode,
     required this.detailsLayout,
+    required this.isSidebarVisible,
     required this.coverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
@@ -24,6 +25,7 @@ class LibraryViewTableControlState {
   final LibraryWorkspaceCounts counts;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
+  final bool isSidebarVisible;
   final double coverSize;
   final double minCoverSize;
   final double maxCoverSize;
@@ -34,12 +36,14 @@ class LibraryViewTableControlState {
 class LibraryViewTableControlCallbacks {
   const LibraryViewTableControlCallbacks({
     required this.onEditColumns,
+    required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
   });
 
   final VoidCallback onEditColumns;
+  final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;

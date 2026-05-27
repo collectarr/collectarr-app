@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
@@ -32,6 +33,7 @@ class LibraryBody extends StatelessWidget {
     required this.hasActiveFilter,
     required this.onAdd,
     required this.onClearFilters,
+    required this.onEditFilters,
     required this.selectionEnabled,
     required this.selectedItemIds,
     required this.onApplySelection,
@@ -41,11 +43,21 @@ class LibraryBody extends StatelessWidget {
     this.onBoxSelectionChanged,
     required this.onBucketChanged,
     required this.onGroupModeChanged,
+    required this.sidebarBreadcrumbs,
+    this.onSidebarNavigateBack,
+    this.onSidebarNavigateToBreadcrumb,
+    this.searchQuery,
+    this.activeSmartListName,
+    this.quickView,
+    this.linkedMetadataFilterLabel,
+    this.sidebarSelectedLetter,
+    this.filterSelection = LibraryFilterSelection.none,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     required this.onCoverSizeChanged,
     required this.onSidebarWidthChanged,
+    required this.onSidebarVisibilityChanged,
     required this.onDetailsWidthChanged,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -76,6 +88,7 @@ class LibraryBody extends StatelessWidget {
   final bool hasActiveFilter;
   final VoidCallback onAdd;
   final VoidCallback onClearFilters;
+  final VoidCallback onEditFilters;
   final bool selectionEnabled;
   final Set<String> selectedItemIds;
   final void Function(Set<String> ids, String focusedId) onApplySelection;
@@ -85,6 +98,15 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String?> onBucketChanged;
   final ValueChanged<LibraryGroupMode> onGroupModeChanged;
+  final List<String> sidebarBreadcrumbs;
+  final VoidCallback? onSidebarNavigateBack;
+  final ValueChanged<int>? onSidebarNavigateToBreadcrumb;
+  final String? searchQuery;
+  final String? activeSmartListName;
+  final LibraryQuickView? quickView;
+  final String? linkedMetadataFilterLabel;
+  final String? sidebarSelectedLetter;
+  final LibraryFilterSelection filterSelection;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final void Function(LibraryTableColumn column, double width)
       onColumnWidthChanged;
@@ -93,6 +115,7 @@ class LibraryBody extends StatelessWidget {
       onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
+  final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<LibraryProjectionItem> onAddOwned;
   final ValueChanged<LibraryProjectionItem> onRemoveOwned;
@@ -116,7 +139,8 @@ class LibraryBody extends StatelessWidget {
       builder: (context, constraints) {
         final selected = projection.selectedItem;
         final compact = constraints.maxWidth < kAppSpacedBreakpoint;
-        final showSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
+        final canShowSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
+        final showSidebar = canShowSidebar && viewState.isSidebarVisible;
         final detailsLayout =
             compact && viewState.detailsLayout == LibraryDetailsLayout.right
                 ? LibraryDetailsLayout.bottom
@@ -239,9 +263,24 @@ class LibraryBody extends StatelessWidget {
                       bucket == genericAllBucketLabel(type) ? null : bucket,
                     ),
                     onGroupModeChanged: onGroupModeChanged,
+                    breadcrumbs: sidebarBreadcrumbs,
+                    onNavigateBack: onSidebarNavigateBack,
+                    onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
+                    searchQuery: searchQuery,
+                    activeSmartListName: activeSmartListName,
+                    quickView: quickView,
+                    linkedMetadataFilterLabel: linkedMetadataFilterLabel,
+                    selectedLetter: sidebarSelectedLetter,
+                    filterSelection: filterSelection,
+                    hasActiveFilters: hasActiveFilter,
+                    onEditFilters: onEditFilters,
+                    onClearFilters: onClearFilters,
                     onClearFilter: selectedBucket == null
                         ? null
                         : () => onBucketChanged(null),
+                    onHideSidebar: canShowSidebar
+                        ? () => onSidebarVisibilityChanged(false)
+                        : null,
                     pinnedGroupModes: pinnedGroupModes,
                     onTogglePinGroupMode: onTogglePinGroupMode,
                   ),

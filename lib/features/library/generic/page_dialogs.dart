@@ -26,7 +26,11 @@ extension _LibraryPageDialogs on _LibraryPageState {
       options: options,
     );
     if (result != null && mounted) {
-      _rebuild(() => _filterSelection = result);
+      _mutateSidebarScope(() {
+        _filterSelection = result;
+        _activeSmartListId = null;
+        _activeSmartListName = null;
+      });
     }
   }
 

@@ -28,6 +28,7 @@ class LibraryToolbar extends StatelessWidget {
     required this.onEditColumns,
     required this.onSortChanged,
     this.onEditSort,
+    required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
     required this.onCoverSizeChanged,
@@ -70,6 +71,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback onEditColumns;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final VoidCallback? onEditSort;
+  final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onCoverSizeChanged;
@@ -223,12 +225,14 @@ class LibraryToolbar extends StatelessWidget {
                         ),
                         viewMode: viewState.viewMode,
                         detailsLayout: viewState.detailsLayout,
+                        isSidebarVisible: viewState.isSidebarVisible,
                         coverSize: viewState.coverSize,
                         minCoverSize: adapter.viewProfile.minCoverSize,
                         maxCoverSize: adapter.viewProfile.maxCoverSize,
                       ),
                       callbacks: LibraryViewTableControlCallbacks(
                         onEditColumns: onEditColumns,
+                        onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                         onViewModeChanged: onViewModeChanged,
                         onDetailsLayoutChanged: onDetailsLayoutChanged,
                         onCoverSizeChanged: onCoverSizeChanged,

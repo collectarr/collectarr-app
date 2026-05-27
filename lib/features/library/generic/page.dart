@@ -121,6 +121,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   String? _videoShelfDrilldownTitleItemId;
   String? _videoShelfDrilldownReleaseId;
   String? _activeSmartListId;
+  String? _activeSmartListName;
+  List<_LibrarySidebarScopeSnapshot> _scopeHistory = const [];
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
 
@@ -185,6 +187,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _selectedBucket = null;
       _selectedLetter = null;
       _linkedMetadataFilter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _scopeHistory = const [];
       _selectionAnchorId = null;
       _videoShelfDrilldownTitleItemId = null;
       _videoShelfDrilldownReleaseId = null;
@@ -297,12 +302,18 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 adapter: _adapter,
                 onAdd: () => showAddDialogFlow(),
                 onScan: scanBarcodeFlow,
-                onSearchChanged: (value) => setState(() {}),
+                onSearchChanged: (value) => _mutateSidebarScope(() {
+                  _activeSmartListId = null;
+                  _activeSmartListName = null;
+                }),
                 onEditColumns: showColumnChooserFlow,
                 onSortChanged: (column) => _updateViewState(
                   (state) => state.withSortColumn(column, _adapter.viewProfile),
                 ),
                 onEditSort: showSortDialogFlow,
+                onSidebarVisibilityChanged: (isVisible) => _updateViewState(
+                  (state) => state.copyWith(isSidebarVisible: isVisible),
+                ),
                 onViewModeChanged: (mode) => _updateViewState(
                   (state) => state.copyWith(viewMode: mode),
                 ),
@@ -320,7 +331,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                 quickView: _quickView,
                 onQuickViewSelected: (view) {
                   final next = _quickView == view ? null : view;
-                  setState(() => _quickView = next);
+                  _mutateSidebarScope(() {
+                    _quickView = next;
+                    _activeSmartListId = null;
+                    _activeSmartListName = null;
+                  });
                   unawaited(_viewPrefs.writeQuickView(next));
                 },
                 hasActiveFilters: _hasActiveFilter,
@@ -421,6 +436,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );
+    final trimmedSearchQuery = _searchController.text.trim();
     return LibraryBody(
       type: widget.type,
       adapter: _adapter,
@@ -435,6 +451,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       hasActiveFilter: _hasActiveFilter,
       onAdd: () => showAddDialogFlow(),
       onClearFilters: _clearFilters,
+      onEditFilters: () => showFilterDialogFlow(projection),
       selectionEnabled: _selection.enabled,
       selectedItemIds: _selection.itemIds,
       onApplySelection: _applySelection,
@@ -450,11 +467,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
           _selectedId = ids.contains(_selectedId) ? _selectedId : ids.first;
         }
       }),
-      onBucketChanged: (bucket) => setState(() => _selectedBucket = bucket),
+      onBucketChanged: _setSelectedBucket,
       onGroupModeChanged: (mode) {
         setState(() {
           _groupMode = mode;
           _selectedBucket = null;
+          _scopeHistory = const [];
           final shelfState = ref.read(shelfProvider).asData?.value;
           if (shelfState != null) {
             _ensureFacetBucketsLoaded(shelfState, mode);
@@ -484,6 +502,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       onSidebarWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(sidebarWidth: width),
       ),
+      onSidebarVisibilityChanged: (isVisible) => _updateViewState(
+        (state) => state.copyWith(isSidebarVisible: isVisible),
+      ),
       onDetailsWidthChanged: (width) => _updateViewState(
         (state) => state.copyWith(detailsWidth: width),
       ),
@@ -499,21 +520,24 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       ),
       onEditItem: (item, ownedItem) => unawaited(showEditDialog(item, ownedItem)),
       workspaceOverride: workspaceOverride,
-        onItemContextMenu: (item, position) =>
+      onItemContextMenu: (item, position) =>
           handleItemContextMenu(projection, item, position),
-      onFilterByValue: (value) => setState(() {
-        _linkedMetadataFilter =
-            _linkedMetadataFilter?.value == value
-                ? null
-                : LibraryLinkedMetadataFilter(value: value);
-        _selectedBucket = null;
-        _selectedLetter = null;
-      }),
+      sidebarBreadcrumbs: _sidebarBreadcrumbs,
+      onSidebarNavigateBack:
+          _scopeHistory.isEmpty ? null : _navigateSidebarBack,
+      onSidebarNavigateToBreadcrumb: _navigateSidebarToBreadcrumb,
+      searchQuery: trimmedSearchQuery.isEmpty ? null : trimmedSearchQuery,
+      activeSmartListName: _activeSmartListName,
+      quickView: _quickView,
+      linkedMetadataFilterLabel: _linkedMetadataFilter?.chipLabel,
+      sidebarSelectedLetter: _selectedLetter,
+      filterSelection: _filterSelection,
+      onFilterByValue: _toggleLinkedMetadataFilter,
       selectedLetter: _selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
         projection.filteredItems.map((i) => i.entry.resolvedTitle),
       ),
-      onLetterSelected: (letter) => setState(() => _selectedLetter = letter),
+      onLetterSelected: _setSelectedLetter,
       db: ref.read(localDatabaseProvider),
       pinnedGroupModes: _pinnedGroupModes,
       onTogglePinGroupMode: (mode) {
@@ -566,7 +590,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _searchController.text.trim().isNotEmpty ||
       _linkedMetadataFilter != null ||
       _selectedBucket != null ||
+      _selectedLetter != null ||
       _quickView != null ||
+      _activeSmartListId != null ||
       _filterSelection.hasActiveFilters;
 
   bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
@@ -676,12 +702,173 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     ]);
   }
 
+  List<String> get _sidebarBreadcrumbs {
+    final rootLabel = 'All ${widget.type.pluralLabel}';
+    final breadcrumbs = <String>[rootLabel];
+    breadcrumbs.addAll(_scopeHistory.map(_sidebarScopeLabel));
+    final currentLabel = _sidebarScopeLabel(_captureSidebarScope());
+    if (breadcrumbs.last != currentLabel) {
+      breadcrumbs.add(currentLabel);
+    }
+    return breadcrumbs;
+  }
+
+  void _setSelectedBucket(String? bucket) {
+    _mutateSidebarScope(() {
+      _selectedBucket = bucket;
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+  }
+
+  void _setSelectedLetter(String? letter) {
+    _mutateSidebarScope(() {
+      _selectedLetter = letter;
+      _selectedBucket = null;
+      _linkedMetadataFilter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+  }
+
+  void _toggleLinkedMetadataFilter(String value) {
+    _mutateSidebarScope(() {
+      _linkedMetadataFilter = _linkedMetadataFilter?.value == value
+          ? null
+          : LibraryLinkedMetadataFilter(value: value);
+      _selectedBucket = null;
+      _selectedLetter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+    });
+  }
+
+  void _mutateSidebarScope(VoidCallback mutate) {
+    final previous = _captureSidebarScope();
+    setState(() {
+      mutate();
+      final next = _captureSidebarScope();
+      if (next == previous) {
+        return;
+      }
+      if (next.isRootScope) {
+        _scopeHistory = const [];
+        return;
+      }
+      final history = List<_LibrarySidebarScopeSnapshot>.from(_scopeHistory);
+      final existingIndex = history.lastIndexOf(next);
+      if (existingIndex != -1) {
+        _scopeHistory = history.sublist(0, existingIndex);
+        return;
+      }
+      if (!previous.isRootScope &&
+          (history.isEmpty || history.last != previous)) {
+        history.add(previous);
+      }
+      _scopeHistory = history;
+    });
+  }
+
+  _LibrarySidebarScopeSnapshot _captureSidebarScope() {
+    return _LibrarySidebarScopeSnapshot(
+      groupMode: _activeGroupMode,
+      selectedBucket: _selectedBucket,
+      selectedLetter: _selectedLetter,
+      linkedMetadataFilter: _linkedMetadataFilter,
+      quickView: _quickView,
+      filterSelection: _filterSelection,
+      activeSmartListId: _activeSmartListId,
+      activeSmartListName: _activeSmartListName,
+      searchQuery: _searchController.text.trim(),
+    );
+  }
+
+  void _applySidebarScopeSnapshot(_LibrarySidebarScopeSnapshot snapshot) {
+    _groupMode = snapshot.groupMode;
+    _selectedBucket = snapshot.selectedBucket;
+    _selectedLetter = snapshot.selectedLetter;
+    _linkedMetadataFilter = snapshot.linkedMetadataFilter;
+    _quickView = snapshot.quickView;
+    _filterSelection = snapshot.filterSelection;
+    _activeSmartListId = snapshot.activeSmartListId;
+    _activeSmartListName = snapshot.activeSmartListName;
+    _searchController.value = _searchController.value.copyWith(
+      text: snapshot.searchQuery,
+      selection: TextSelection.collapsed(offset: snapshot.searchQuery.length),
+      composing: TextRange.empty,
+    );
+  }
+
+  void _navigateSidebarBack() {
+    if (_scopeHistory.isEmpty) {
+      return;
+    }
+    setState(() {
+      final history = List<_LibrarySidebarScopeSnapshot>.from(_scopeHistory);
+      final target = history.removeLast();
+      _scopeHistory = history;
+      _applySidebarScopeSnapshot(target);
+    });
+  }
+
+  void _navigateSidebarToBreadcrumb(int index) {
+    if (index <= 0) {
+      setState(() {
+        _scopeHistory = const [];
+        _applySidebarScopeSnapshot(
+          _LibrarySidebarScopeSnapshot(groupMode: _activeGroupMode),
+        );
+      });
+      return;
+    }
+    if (index > _scopeHistory.length) {
+      return;
+    }
+    setState(() {
+      final target = _scopeHistory[index - 1];
+      _scopeHistory = _scopeHistory.sublist(0, index - 1);
+      _applySidebarScopeSnapshot(target);
+    });
+  }
+
+  String _sidebarScopeLabel(_LibrarySidebarScopeSnapshot snapshot) {
+    if (snapshot.selectedBucket != null) {
+      return '${genericGroupModeLabel(snapshot.groupMode, widget.type)}: ${snapshot.selectedBucket}';
+    }
+    if (snapshot.linkedMetadataFilter != null) {
+      return snapshot.linkedMetadataFilter!.chipLabel;
+    }
+    if (snapshot.selectedLetter != null) {
+      return 'Letter ${snapshot.selectedLetter}';
+    }
+    if (snapshot.activeSmartListName != null &&
+        snapshot.activeSmartListName!.trim().isNotEmpty) {
+      return snapshot.activeSmartListName!;
+    }
+    if (snapshot.quickView != null) {
+      return snapshot.quickView!.label;
+    }
+    if (snapshot.filterSelection.hasActiveFilters) {
+      return '${snapshot.filterSelection.activeFilterCount} filters';
+    }
+    if (snapshot.searchQuery.trim().isNotEmpty) {
+      return 'Search';
+    }
+    return 'All ${widget.type.pluralLabel}';
+  }
+
   void _clearFilters() {
     setState(() {
       _selectedBucket = null;
+      _selectedLetter = null;
       _linkedMetadataFilter = null;
       _quickView = null;
       _filterSelection = LibraryFilterSelection.none;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _scopeHistory = const [];
       _searchController.clear();
       _selectionAnchorId = null;
     });
@@ -690,6 +877,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   void _applySmartList(SmartList smartList) {
     setState(() {
       _activeSmartListId = smartList.id;
+      _activeSmartListName = smartList.name;
       _filterSelection = smartList.filterSelection;
       _quickView = smartList.quickView;
       if (smartList.searchQuery != null) {
@@ -711,28 +899,35 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
         }
       }
       _selectedBucket = null;
+      _selectedLetter = null;
       _linkedMetadataFilter = null;
+      _scopeHistory = const [];
     });
   }
 
   void _clearSmartList() {
     setState(() {
       _activeSmartListId = null;
+      _activeSmartListName = null;
       _filterSelection = LibraryFilterSelection.none;
       _quickView = null;
       _searchController.clear();
       _selectedBucket = null;
+      _selectedLetter = null;
       _linkedMetadataFilter = null;
+      _scopeHistory = const [];
     });
   }
 
   void _clearToolbarSearchChip() {
-    setState(() {
+    _mutateSidebarScope(() {
       if (_linkedMetadataFilter != null) {
         _linkedMetadataFilter = null;
       } else {
         _selectedBucket = null;
       }
+      _activeSmartListId = null;
+      _activeSmartListName = null;
     });
   }
 
@@ -796,6 +991,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _linkedMetadataFilter = null;
       _quickView = null;
       _filterSelection = LibraryFilterSelection.none;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _scopeHistory = const [];
       _searchController.clear();
     });
   }
@@ -1002,13 +1200,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                   )
               : null,
           onEdit: (ownedItem) => unawaited(showEditDialog(titleItem!, ownedItem)),
-          onFilterByValue: (value) => _rebuild(() {
-            _linkedMetadataFilter = _linkedMetadataFilter?.value == value
-                ? null
-                : LibraryLinkedMetadataFilter(value: value);
-            _selectedBucket = null;
-            _selectedLetter = null;
-          }),
+          onFilterByValue: _toggleLinkedMetadataFilter,
         ),
       ),
     );
@@ -1156,6 +1348,69 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       _detailHydrationInFlight.remove(itemId);
     }
   }
+}
+
+class _LibrarySidebarScopeSnapshot {
+  const _LibrarySidebarScopeSnapshot({
+    required this.groupMode,
+    this.selectedBucket,
+    this.selectedLetter,
+    this.linkedMetadataFilter,
+    this.quickView,
+    this.filterSelection = LibraryFilterSelection.none,
+    this.activeSmartListId,
+    this.activeSmartListName,
+    this.searchQuery = '',
+  });
+
+  final LibraryGroupMode groupMode;
+  final String? selectedBucket;
+  final String? selectedLetter;
+  final LibraryLinkedMetadataFilter? linkedMetadataFilter;
+  final LibraryQuickView? quickView;
+  final LibraryFilterSelection filterSelection;
+  final String? activeSmartListId;
+  final String? activeSmartListName;
+  final String searchQuery;
+
+  bool get isRootScope =>
+      selectedBucket == null &&
+      selectedLetter == null &&
+      linkedMetadataFilter == null &&
+      quickView == null &&
+      !filterSelection.hasActiveFilters &&
+      activeSmartListId == null &&
+      searchQuery.trim().isEmpty;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is _LibrarySidebarScopeSnapshot &&
+        other.groupMode == groupMode &&
+        other.selectedBucket == selectedBucket &&
+        other.selectedLetter == selectedLetter &&
+        other.linkedMetadataFilter == linkedMetadataFilter &&
+        other.quickView == quickView &&
+        other.filterSelection == filterSelection &&
+        other.activeSmartListId == activeSmartListId &&
+        other.activeSmartListName == activeSmartListName &&
+        other.searchQuery == searchQuery;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        groupMode,
+        selectedBucket,
+        selectedLetter,
+        linkedMetadataFilter,
+        quickView,
+        filterSelection,
+        activeSmartListId,
+        activeSmartListName,
+        searchQuery,
+      );
 }
 
 /// Excel-style tab bar showing user smart lists as clickable collection tabs.

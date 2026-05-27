@@ -19,6 +19,17 @@ class LibraryViewTableControls extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Tooltip(
+          message: state.isSidebarVisible
+              ? 'Hide folders panel'
+              : 'Show folders panel',
+          child: LibraryWorkspaceIconButton(
+            onPressed: () =>
+                callbacks.onSidebarVisibilityChanged(!state.isSidebarVisible),
+            icon: state.isSidebarVisible ? Icons.menu_open : Icons.menu,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Tooltip(
           message: 'Select columns',
           child: LibraryWorkspaceIconButton(
             onPressed: state.canEditColumns ? callbacks.onEditColumns : null,
