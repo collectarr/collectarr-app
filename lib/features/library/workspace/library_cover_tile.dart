@@ -37,7 +37,7 @@ class LibraryCoverTile extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: selected ? selectedColor : kAppField,
+        color: selected ? selectedColor : appPalette(context).field,
         borderRadius: kAppRadiusSmall,
         border: Border.all(
           color: selected ? accentColor : kAppCardBorder,

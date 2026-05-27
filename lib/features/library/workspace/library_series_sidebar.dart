@@ -207,9 +207,9 @@ class _SidebarSearchAndSort extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: 'Filter…',
                   hintStyle:
-                      const TextStyle(fontSize: 12, color: kAppTextMuted),
+                      TextStyle(fontSize: 12, color: appPalette(context).textMuted),
                   prefixIcon:
-                      const Icon(Icons.search, size: 14, color: kAppTextMuted),
+                      Icon(Icons.search, size: 14, color: appPalette(context).textMuted),
                   prefixIconConstraints:
                       const BoxConstraints(minWidth: 28, maxHeight: 26),
                   suffixIcon: controller.text.isNotEmpty
@@ -218,8 +218,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
                             controller.clear();
                             onChanged();
                           },
-                          child: const Icon(Icons.close, size: 14,
-                              color: kAppTextMuted),
+                          child: Icon(Icons.close, size: 14,
+                              color: appPalette(context).textMuted),
                         )
                       : null,
                   suffixIconConstraints:
@@ -306,11 +306,11 @@ class _LibrarySeriesRow extends StatelessWidget {
                       child: CachedNetworkImage(
                         imageUrl: bucket.coverUrl!,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) => const ColoredBox(
-                          color: kAppSurface,
+                        placeholder: (_, __) => ColoredBox(
+                          color: appPalette(context).surface,
                         ),
-                        errorWidget: (_, __, ___) => const ColoredBox(
-                          color: kAppSurface,
+                        errorWidget: (_, __, ___) => ColoredBox(
+                          color: appPalette(context).surface,
                         ),
                       ),
                     ),

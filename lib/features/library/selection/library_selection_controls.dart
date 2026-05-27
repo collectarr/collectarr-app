@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/workspace/library_toolbar_stat.d
 import 'package:collectarr_app/features/library/workspace/library_workspace_chrome.dart';
 import 'package:flutter/material.dart';
 
-enum _BulkAction { edit, owned, wishlist, remove, clear }
+enum _BulkAction { edit, owned, wishlist, remove, refreshMetadata, clear }
 
 typedef LibrarySelectionCallbacks = ({
   VoidCallback onClearSelection,
@@ -10,6 +10,7 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback onBulkMoveToOwned,
   VoidCallback onBulkMoveToWishlist,
   VoidCallback onBulkRemove,
+  VoidCallback onBulkRefreshMetadata,
 });
 
 class LibrarySelectionControls extends StatelessWidget {
@@ -46,6 +47,7 @@ class LibrarySelectionControls extends StatelessWidget {
               _BulkAction.owned => callbacks.onBulkMoveToOwned,
               _BulkAction.wishlist => callbacks.onBulkMoveToWishlist,
               _BulkAction.remove => callbacks.onBulkRemove,
+              _BulkAction.refreshMetadata => callbacks.onBulkRefreshMetadata,
               _BulkAction.clear => callbacks.onClearSelection,
             };
             _dispatchAfterMenuClose(callback);
@@ -80,6 +82,14 @@ class LibrarySelectionControls extends StatelessWidget {
               child: ListTile(
                 leading: Icon(Icons.delete_outline),
                 title: Text('Remove selected'),
+                dense: true,
+              ),
+            ),
+            PopupMenuItem(
+              value: _BulkAction.refreshMetadata,
+              child: ListTile(
+                leading: Icon(Icons.sync),
+                title: Text('Refresh metadata'),
                 dense: true,
               ),
             ),

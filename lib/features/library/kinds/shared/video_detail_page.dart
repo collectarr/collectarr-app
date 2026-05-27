@@ -147,9 +147,9 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
         ? null
         : _selectedOwnedCopyFor(selectedRelease);
     return Theme(
-      data: kLibraryTheme,
+      data: buildLibraryTheme(palette: appPalette(context)),
       child: Scaffold(
-        backgroundColor: kAppCanvas,
+        backgroundColor: appPalette(context).canvas,
         appBar: AppBar(
           backgroundColor: request.accent,
           foregroundColor: Colors.white,
@@ -528,7 +528,7 @@ class _VideoReleaseBrowserSection extends StatelessWidget {
           Text(
             'Core has not returned any release records for this title yet. Add a copy or a wishlist entry when you need a local anchor, or refresh the title after editions are available upstream.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: kAppTextMuted,
+                  color: appPalette(context).textMuted,
                 ),
           )
         else
@@ -644,9 +644,9 @@ class _VideoReleaseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borderColor = selected ? accent.withValues(alpha: 0.85) : kAppDivider;
+    final borderColor = selected ? accent.withValues(alpha: 0.85) : appPalette(context).divider;
     return Material(
-      color: selected ? accent.withValues(alpha: 0.16) : kAppPanel,
+      color: selected ? accent.withValues(alpha: 0.16) : appPalette(context).panel,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -701,7 +701,7 @@ class _VideoReleaseTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: kAppTextMuted,
+                        color: appPalette(context).textMuted,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -745,7 +745,7 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppPanel,
+        color: appPalette(context).panel,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: accent.withValues(alpha: 0.28)),
       ),
@@ -765,7 +765,7 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
             Text(
               'Source: ${release.sourceLabel}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: kAppTextMuted,
+                    color: appPalette(context).textMuted,
                   ),
             ),
             if (release.ownedCopies.isNotEmpty) ...[

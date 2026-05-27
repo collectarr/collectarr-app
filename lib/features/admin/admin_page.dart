@@ -30,7 +30,7 @@ part 'admin_dashboard_widgets.dart';
 part 'admin_provider_widgets.dart';
 part 'admin_shared_widgets.dart';
 
-const _kAdminDropdownColor = kAppPanelRaised;
+// Resolved at runtime via appPalette(context).panelRaised
 const _kAdminDialogShape = RoundedRectangleBorder(
   borderRadius: BorderRadius.all(Radius.circular(3)),
 );

@@ -107,14 +107,14 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
             behavior: HitTestBehavior.translucent,
             onTap: _focusNode.requestFocus,
             child: DecoratedBox(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xFF1A2233),
-                    kAppGridCanvas,
-                    Color(0xFF101620),
+                    const Color(0xFF1A2233),
+                    appPalette(context).gridCanvas,
+                    const Color(0xFF101620),
                   ],
                 ),
               ),
@@ -652,7 +652,7 @@ class _FlowCarouselCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: kAppTextMuted,
+                          color: appPalette(context).textMuted,
                           fontWeight: FontWeight.w600,
                         ),
                   ),
@@ -756,7 +756,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: kAppTextMuted,
+                                color: appPalette(context).textMuted,
                               ),
                         ),
                       ],
@@ -848,7 +848,7 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
           if (isOwned)
             Icon(Icons.check_circle, size: 14, color: accent)
           else
-            const Icon(Icons.circle_outlined, size: 14, color: kAppTextMuted),
+            Icon(Icons.circle_outlined, size: 14, color: appPalette(context).textMuted),
           const SizedBox(width: 8),
           if (edition.physicalFormat != null)
             Padding(
@@ -865,7 +865,7 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: isOwned ? Colors.white : kAppTextMuted,
+                color: isOwned ? Colors.white : appPalette(context).textMuted,
                 fontSize: 12,
                 fontWeight: isOwned ? FontWeight.w800 : FontWeight.w600,
               ),
@@ -874,8 +874,8 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
           if (edition.variants.isNotEmpty)
             Text(
               '${edition.variants.length} variant${edition.variants.length > 1 ? 's' : ''}',
-              style: const TextStyle(
-                color: kAppTextMuted,
+              style: TextStyle(
+                color: appPalette(context).textMuted,
                 fontSize: 11,
               ),
             ),

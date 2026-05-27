@@ -24,7 +24,7 @@ class MetadataCorrectionsSection extends ConsumerWidget {
         const <UserMetadataOverride>[];
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xD51C1F21),
+        color: appPalette(context).surfaceSubtle,
         border: Border.all(color: accent.withValues(alpha: 0.33)),
         borderRadius: BorderRadius.circular(12),
       ),

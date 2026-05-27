@@ -11,7 +11,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Ownership filter options used in the generic filter dialog.
-enum LibraryOwnershipFilter { all, owned, wishlist, missingGrade }
+enum LibraryOwnershipFilter { all, owned, wishlist, missingGrade, forSale, onOrder }
 
 String libraryOwnershipFilterLabel(LibraryOwnershipFilter filter) {
   return switch (filter) {
@@ -19,6 +19,8 @@ String libraryOwnershipFilterLabel(LibraryOwnershipFilter filter) {
     LibraryOwnershipFilter.owned => 'Owned only',
     LibraryOwnershipFilter.wishlist => 'Wishlist only',
     LibraryOwnershipFilter.missingGrade => 'Missing grade',
+    LibraryOwnershipFilter.forSale => 'For sale',
+    LibraryOwnershipFilter.onOrder => 'On order',
   };
 }
 
@@ -408,6 +410,14 @@ bool libraryFilterMatches(
   if (filters.ownershipFilter == LibraryOwnershipFilter.missingGrade &&
       !(entry.isOwned &&
           (entry.grade == null || entry.grade!.trim().isEmpty))) {
+    return false;
+  }
+  if (filters.ownershipFilter == LibraryOwnershipFilter.forSale &&
+      !(entry.isOwned && entry.collectionStatus == 'for_sale')) {
+    return false;
+  }
+  if (filters.ownershipFilter == LibraryOwnershipFilter.onOrder &&
+      !(entry.isOwned && entry.collectionStatus == 'on_order')) {
     return false;
   }
   if (filters.series != null &&

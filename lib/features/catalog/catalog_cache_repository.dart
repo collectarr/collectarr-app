@@ -123,6 +123,12 @@ class CatalogCacheRepository {
                         )
                       : null,
                 ),
+                color: Value(video?.color),
+                nrDiscs: Value(video?.nrDiscs),
+                screenRatio: Value(video?.screenRatio),
+                audioTracksJson: Value(video?.audioTracks),
+                subtitlesJson: Value(video?.subtitles),
+                layers: Value(video?.layers),
                 cachedAt: now,
               );
             }()
@@ -223,7 +229,15 @@ class CatalogCacheRepository {
       episodeNumber: row.episodeNumber,
       tags: _decodeStringList(row.seriesTagsJson) ?? const <String>[],
     );
-    final video = VideoCatalogDetails(runtimeMinutes: row.runtimeMinutes);
+    final video = VideoCatalogDetails(
+      runtimeMinutes: row.runtimeMinutes,
+      color: row.color,
+      nrDiscs: row.nrDiscs,
+      screenRatio: row.screenRatio,
+      audioTracks: row.audioTracksJson,
+      subtitles: row.subtitlesJson,
+      layers: row.layers,
+    );
     final tracks = _decodeTracks(row.tracksJson);
     final editions = _decodeEditions(row.editionsJson);
     final rawPlatforms = _decodeStringList(row.platformsJson);

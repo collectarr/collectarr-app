@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -250,7 +251,7 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
       collection: collection,
       entries: entries,
       searchCatalog: (entry) {
-        final type = _resolvedTypeForMediaType(entry.mediaType);
+        final type = _resolvedTypeForEntry(entry);
         return searchLibraryMetadata(
           api,
           type,
@@ -339,18 +340,24 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
       Future<void> worker() async {
         while (queue.isNotEmpty) {
           final match = queue.removeLast();
-          final type = _resolvedTypeForMediaType(match.entry.mediaType);
           final enriched = await _enrichFromCache(
             match.entry, enrichmentCache, apiKey,
           );
+          final type = _resolvedTypeForEntry(enriched);
           try {
+            final truncatedQuery = enriched.query.length > 255
+                ? enriched.query.substring(0, 255)
+                : enriched.query;
+            final truncatedTitle = enriched.title.length > 255
+                ? enriched.title.substring(0, 255)
+                : enriched.title;
             final response = await createAndRecordLibraryMetadataProposal(
               api: api,
               type: type,
               provider: 'tmdb',
               providerItemId: enriched.tmdbId.toString(),
-              query: enriched.query,
-              title: enriched.title,
+              query: truncatedQuery,
+              title: truncatedTitle,
               summary: enriched.overview,
               imageUrl: enriched.posterUrl,
               metadataPayload: enriched.rawPayload,
@@ -462,11 +469,13 @@ class ImportJobsNotifier extends StateNotifier<List<ImportJobState>> {
     }
   }
 
-  LibraryTypeConfig _resolvedTypeForMediaType(TmdbMediaType mediaType) {
-    final config = switch (mediaType) {
-      TmdbMediaType.movie => moviesLibraryConfig,
-      TmdbMediaType.tv => tvLibraryConfig,
-    };
+  LibraryTypeConfig _resolvedTypeForEntry(TmdbImportEntry entry) {
+    final config = entry.looksLikeAnime
+        ? animeLibraryConfig
+        : switch (entry.mediaType) {
+            TmdbMediaType.movie => moviesLibraryConfig,
+            TmdbMediaType.tv => tvLibraryConfig,
+          };
     return _ref.read(resolvedLibraryTypeProvider(config));
   }
 

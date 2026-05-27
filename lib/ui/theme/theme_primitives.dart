@@ -16,9 +16,9 @@ ColorScheme buildAppColorScheme(AppThemePalette palette) {
     surfaceContainerLow: palette.panel,
     surfaceContainer: palette.toolbar,
     surfaceContainerHigh: palette.panelRaised,
-    surfaceContainerHighest: kAppSurfaceBright,
+    surfaceContainerHighest: palette.surfaceBright,
     outline: palette.divider,
-    outlineVariant: const Color(0xFF373737),
+    outlineVariant: palette.isDark ? const Color(0xFF373737) : const Color(0xFFD0D0D0),
   );
 }
 
@@ -142,13 +142,14 @@ OutlinedButtonThemeData buildAppOutlinedButtonTheme(AppThemePalette palette) {
   );
 }
 
-IconButtonThemeData buildAppIconButtonTheme({bool compact = false}) {
+IconButtonThemeData buildAppIconButtonTheme(
+    {bool compact = false, AppThemePalette palette = kDefaultAppThemePalette}) {
   return IconButtonThemeData(
     style: IconButton.styleFrom(
-      foregroundColor: Colors.white,
-      backgroundColor: const Color(0xFF343434),
-      disabledForegroundColor: const Color(0xFF777777),
-      disabledBackgroundColor: const Color(0xFF252525),
+      foregroundColor: palette.textPrimary,
+      backgroundColor: palette.isDark ? const Color(0xFF343434) : const Color(0xFFE0E0E0),
+      disabledForegroundColor: palette.isDark ? const Color(0xFF777777) : const Color(0xFFAAAAAA),
+      disabledBackgroundColor: palette.isDark ? const Color(0xFF252525) : const Color(0xFFF0F0F0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       visualDensity: compact ? VisualDensity.compact : null,
     ),
@@ -177,7 +178,7 @@ SearchBarThemeData buildAppSearchBarTheme(AppThemePalette palette) {
 
 ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
   return base.chipTheme.copyWith(
-    backgroundColor: const Color(0xFF343434),
+    backgroundColor: palette.isDark ? const Color(0xFF343434) : const Color(0xFFE0E0E0),
     selectedColor: palette.selection,
     labelStyle: TextStyle(color: palette.textPrimary),
     side: BorderSide(color: palette.divider),
@@ -214,7 +215,7 @@ ThemeData applySharedSurfaceTheme(
     ),
     filledButtonTheme: buildAppFilledButtonTheme(palette),
     outlinedButtonTheme: buildAppOutlinedButtonTheme(palette),
-    iconButtonTheme: buildAppIconButtonTheme(compact: compact),
+    iconButtonTheme: buildAppIconButtonTheme(compact: compact, palette: palette),
     inputDecorationTheme:
         inputDecorationTheme ?? buildAppInputDecorationTheme(palette),
     searchBarTheme: buildAppSearchBarTheme(palette),

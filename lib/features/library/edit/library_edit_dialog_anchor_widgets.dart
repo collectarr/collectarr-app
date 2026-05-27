@@ -23,7 +23,7 @@ class _LibraryEditAnchorSelector extends StatelessWidget {
       key: fieldKey,
       initialValue: value,
       isExpanded: true,
-      dropdownColor: kEditPanelRaised,
+      dropdownColor: appPalette(context).panelRaised,
       borderRadius: kEditMenuBorderRadius,
       decoration: InputDecoration(labelText: label),
       items: [
@@ -74,7 +74,7 @@ class _LibraryEditEditionSelector extends StatelessWidget {
     return DropdownButtonFormField<String>(
       initialValue: selectedEditionId,
       isExpanded: true,
-      dropdownColor: kEditPanelRaised,
+      dropdownColor: appPalette(context).panelRaised,
       borderRadius: kEditMenuBorderRadius,
       decoration: InputDecoration(labelText: label),
       items: [
@@ -111,7 +111,7 @@ class _LibraryEditVariantSelector extends StatelessWidget {
     return DropdownButtonFormField<String>(
       initialValue: selectedVariantId,
       isExpanded: true,
-      dropdownColor: kEditPanelRaised,
+      dropdownColor: appPalette(context).panelRaised,
       borderRadius: kEditMenuBorderRadius,
       decoration: InputDecoration(labelText: label),
       items: [
@@ -151,7 +151,7 @@ class _LibraryEditBundleReleaseSelector extends StatelessWidget {
       key: fieldKey,
       initialValue: selectedBundleReleaseId,
       isExpanded: true,
-      dropdownColor: kEditPanelRaised,
+      dropdownColor: appPalette(context).panelRaised,
       borderRadius: kEditMenuBorderRadius,
       decoration: InputDecoration(labelText: label),
       items: [

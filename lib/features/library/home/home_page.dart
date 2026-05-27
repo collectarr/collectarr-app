@@ -72,12 +72,12 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
             color: kAppSurfaceSubtle,
             child: Row(
               children: [
-                Icon(Icons.cloud_off, size: 14, color: kAppTextSecondary),
+                Icon(Icons.cloud_off, size: 14, color: appPalette(context).textSecondary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Using offline catalog — server unreachable',
-                    style: TextStyle(fontSize: 12, color: kAppTextSecondary),
+                    style: TextStyle(fontSize: 12, color: appPalette(context).textSecondary),
                   ),
                 ),
               ],
@@ -110,7 +110,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
     if (navPreferences.placement == LibraryNavPlacement.left) {
       return Material(
-        color: kAppCanvas,
+        color: appPalette(context).canvas,
         child: Row(
           children: [
             if (collapsed)

@@ -33,13 +33,13 @@ class LibraryEditDialogScaffold extends StatelessWidget {
     return Dialog(
       clipBehavior: Clip.antiAlias,
       child: Theme(
-        data: editDialogTheme(seedColor: accent),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
-          child: DecoratedBox(
+        data: editDialogTheme(seedColor: accent, palette: appPalette(context)),
+        child: Builder(builder: (context) {
+          final p = appPalette(context);
+          return DecoratedBox(
             decoration: BoxDecoration(
-              color: kEditPanel,
-              border: Border.all(color: kEditDivider),
+              color: p.panel,
+              border: Border.all(color: p.divider),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0xCC000000),
@@ -48,49 +48,52 @@ class LibraryEditDialogScaffold extends StatelessWidget {
                 ),
               ],
             ),
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  _LibraryEditTitleBar(
-                    accent: accent,
-                    icon: icon,
-                    title: title,
-                    badges: badges,
-                    onClose: onClose,
-                  ),
-                  ColoredBox(
-                    color: kEditPanelRaised,
-                    child: TabBar(
-                      controller: tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: kEditTextMuted,
-                      indicatorColor: accent,
-                      dividerColor: kEditDivider,
-                      labelPadding:
-                          const EdgeInsets.symmetric(horizontal: 11),
-                      tabs: tabs,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 960, maxHeight: 740),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    _LibraryEditTitleBar(
+                      accent: accent,
+                      icon: icon,
+                      title: title,
+                      badges: badges,
+                      onClose: onClose,
                     ),
-                  ),
-                  Expanded(
-                    child: ColoredBox(
-                      color: kEditPanel,
-                      child: TabBarView(
+                    ColoredBox(
+                      color: p.panelRaised,
+                      child: TabBar(
                         controller: tabController,
-                        children: views,
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        labelColor: p.textPrimary,
+                        unselectedLabelColor: p.textMuted,
+                        indicatorColor: accent,
+                        dividerColor: p.divider,
+                        labelPadding:
+                            const EdgeInsets.symmetric(horizontal: 11),
+                        tabs: tabs,
                       ),
                     ),
-                  ),
-                  _LibraryEditFooter(
-                    onSave: onSave,
-                  ),
-                ],
+                    Expanded(
+                      child: ColoredBox(
+                        color: p.panel,
+                        child: TabBarView(
+                          controller: tabController,
+                          children: views,
+                        ),
+                      ),
+                    ),
+                    _LibraryEditFooter(
+                      onSave: onSave,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
@@ -117,8 +120,8 @@ class _LibraryEditTitleBar extends StatelessWidget {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [kAppSurface, kAppSurfaceDim],
+        gradient: LinearGradient(
+          colors: [appPalette(context).surface, appPalette(context).surfaceDim],
         ),
         border: Border(bottom: BorderSide(color: accent)),
       ),
@@ -172,9 +175,9 @@ class _LibraryEditFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: const BoxDecoration(
-        color: kEditToolbar,
-        border: Border(top: BorderSide(color: kEditDivider)),
+      decoration: BoxDecoration(
+        color: appPalette(context).toolbar,
+        border: Border(top: BorderSide(color: appPalette(context).divider)),
       ),
       child: Align(
         alignment: Alignment.centerRight,

@@ -276,6 +276,40 @@ class $CatalogCacheTable extends CatalogCache
   late final GeneratedColumn<String> trailerUrlsJson = GeneratedColumn<String>(
       'trailer_urls_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  @override
+  late final GeneratedColumn<String> color = GeneratedColumn<String>(
+      'color', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _nrDiscsMeta =
+      const VerificationMeta('nrDiscs');
+  @override
+  late final GeneratedColumn<int> nrDiscs = GeneratedColumn<int>(
+      'nr_discs', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _screenRatioMeta =
+      const VerificationMeta('screenRatio');
+  @override
+  late final GeneratedColumn<String> screenRatio = GeneratedColumn<String>(
+      'screen_ratio', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _audioTracksJsonMeta =
+      const VerificationMeta('audioTracksJson');
+  @override
+  late final GeneratedColumn<String> audioTracksJson = GeneratedColumn<String>(
+      'audio_tracks_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _subtitlesJsonMeta =
+      const VerificationMeta('subtitlesJson');
+  @override
+  late final GeneratedColumn<String> subtitlesJson = GeneratedColumn<String>(
+      'subtitles_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _layersMeta = const VerificationMeta('layers');
+  @override
+  late final GeneratedColumn<String> layers = GeneratedColumn<String>(
+      'layers', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _cachedAtMeta =
       const VerificationMeta('cachedAt');
   @override
@@ -329,6 +363,12 @@ class $CatalogCacheTable extends CatalogCache
         subtitle,
         seriesGroup,
         trailerUrlsJson,
+        color,
+        nrDiscs,
+        screenRatio,
+        audioTracksJson,
+        subtitlesJson,
+        layers,
         cachedAt
       ];
   @override
@@ -586,6 +626,36 @@ class $CatalogCacheTable extends CatalogCache
           trailerUrlsJson.isAcceptableOrUnknown(
               data['trailer_urls_json']!, _trailerUrlsJsonMeta));
     }
+    if (data.containsKey('color')) {
+      context.handle(
+          _colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
+    }
+    if (data.containsKey('nr_discs')) {
+      context.handle(_nrDiscsMeta,
+          nrDiscs.isAcceptableOrUnknown(data['nr_discs']!, _nrDiscsMeta));
+    }
+    if (data.containsKey('screen_ratio')) {
+      context.handle(
+          _screenRatioMeta,
+          screenRatio.isAcceptableOrUnknown(
+              data['screen_ratio']!, _screenRatioMeta));
+    }
+    if (data.containsKey('audio_tracks_json')) {
+      context.handle(
+          _audioTracksJsonMeta,
+          audioTracksJson.isAcceptableOrUnknown(
+              data['audio_tracks_json']!, _audioTracksJsonMeta));
+    }
+    if (data.containsKey('subtitles_json')) {
+      context.handle(
+          _subtitlesJsonMeta,
+          subtitlesJson.isAcceptableOrUnknown(
+              data['subtitles_json']!, _subtitlesJsonMeta));
+    }
+    if (data.containsKey('layers')) {
+      context.handle(_layersMeta,
+          layers.isAcceptableOrUnknown(data['layers']!, _layersMeta));
+    }
     if (data.containsKey('cached_at')) {
       context.handle(_cachedAtMeta,
           cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta));
@@ -691,6 +761,18 @@ class $CatalogCacheTable extends CatalogCache
           .read(DriftSqlType.string, data['${effectivePrefix}series_group']),
       trailerUrlsJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}trailer_urls_json']),
+      color: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}color']),
+      nrDiscs: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}nr_discs']),
+      screenRatio: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}screen_ratio']),
+      audioTracksJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}audio_tracks_json']),
+      subtitlesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subtitles_json']),
+      layers: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}layers']),
       cachedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}cached_at'])!,
     );
@@ -749,6 +831,12 @@ class CatalogCacheData extends DataClass
   final String? subtitle;
   final String? seriesGroup;
   final String? trailerUrlsJson;
+  final String? color;
+  final int? nrDiscs;
+  final String? screenRatio;
+  final String? audioTracksJson;
+  final String? subtitlesJson;
+  final String? layers;
   final DateTime cachedAt;
   const CatalogCacheData(
       {required this.id,
@@ -796,6 +884,12 @@ class CatalogCacheData extends DataClass
       this.subtitle,
       this.seriesGroup,
       this.trailerUrlsJson,
+      this.color,
+      this.nrDiscs,
+      this.screenRatio,
+      this.audioTracksJson,
+      this.subtitlesJson,
+      this.layers,
       required this.cachedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -928,6 +1022,24 @@ class CatalogCacheData extends DataClass
     }
     if (!nullToAbsent || trailerUrlsJson != null) {
       map['trailer_urls_json'] = Variable<String>(trailerUrlsJson);
+    }
+    if (!nullToAbsent || color != null) {
+      map['color'] = Variable<String>(color);
+    }
+    if (!nullToAbsent || nrDiscs != null) {
+      map['nr_discs'] = Variable<int>(nrDiscs);
+    }
+    if (!nullToAbsent || screenRatio != null) {
+      map['screen_ratio'] = Variable<String>(screenRatio);
+    }
+    if (!nullToAbsent || audioTracksJson != null) {
+      map['audio_tracks_json'] = Variable<String>(audioTracksJson);
+    }
+    if (!nullToAbsent || subtitlesJson != null) {
+      map['subtitles_json'] = Variable<String>(subtitlesJson);
+    }
+    if (!nullToAbsent || layers != null) {
+      map['layers'] = Variable<String>(layers);
     }
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
@@ -1064,6 +1176,22 @@ class CatalogCacheData extends DataClass
       trailerUrlsJson: trailerUrlsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(trailerUrlsJson),
+      color:
+          color == null && nullToAbsent ? const Value.absent() : Value(color),
+      nrDiscs: nrDiscs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nrDiscs),
+      screenRatio: screenRatio == null && nullToAbsent
+          ? const Value.absent()
+          : Value(screenRatio),
+      audioTracksJson: audioTracksJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioTracksJson),
+      subtitlesJson: subtitlesJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitlesJson),
+      layers:
+          layers == null && nullToAbsent ? const Value.absent() : Value(layers),
       cachedAt: Value(cachedAt),
     );
   }
@@ -1119,6 +1247,12 @@ class CatalogCacheData extends DataClass
       subtitle: serializer.fromJson<String?>(json['subtitle']),
       seriesGroup: serializer.fromJson<String?>(json['seriesGroup']),
       trailerUrlsJson: serializer.fromJson<String?>(json['trailerUrlsJson']),
+      color: serializer.fromJson<String?>(json['color']),
+      nrDiscs: serializer.fromJson<int?>(json['nrDiscs']),
+      screenRatio: serializer.fromJson<String?>(json['screenRatio']),
+      audioTracksJson: serializer.fromJson<String?>(json['audioTracksJson']),
+      subtitlesJson: serializer.fromJson<String?>(json['subtitlesJson']),
+      layers: serializer.fromJson<String?>(json['layers']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -1171,6 +1305,12 @@ class CatalogCacheData extends DataClass
       'subtitle': serializer.toJson<String?>(subtitle),
       'seriesGroup': serializer.toJson<String?>(seriesGroup),
       'trailerUrlsJson': serializer.toJson<String?>(trailerUrlsJson),
+      'color': serializer.toJson<String?>(color),
+      'nrDiscs': serializer.toJson<int?>(nrDiscs),
+      'screenRatio': serializer.toJson<String?>(screenRatio),
+      'audioTracksJson': serializer.toJson<String?>(audioTracksJson),
+      'subtitlesJson': serializer.toJson<String?>(subtitlesJson),
+      'layers': serializer.toJson<String?>(layers),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -1221,6 +1361,12 @@ class CatalogCacheData extends DataClass
           Value<String?> subtitle = const Value.absent(),
           Value<String?> seriesGroup = const Value.absent(),
           Value<String?> trailerUrlsJson = const Value.absent(),
+          Value<String?> color = const Value.absent(),
+          Value<int?> nrDiscs = const Value.absent(),
+          Value<String?> screenRatio = const Value.absent(),
+          Value<String?> audioTracksJson = const Value.absent(),
+          Value<String?> subtitlesJson = const Value.absent(),
+          Value<String?> layers = const Value.absent(),
           DateTime? cachedAt}) =>
       CatalogCacheData(
         id: id ?? this.id,
@@ -1295,6 +1441,15 @@ class CatalogCacheData extends DataClass
         trailerUrlsJson: trailerUrlsJson.present
             ? trailerUrlsJson.value
             : this.trailerUrlsJson,
+        color: color.present ? color.value : this.color,
+        nrDiscs: nrDiscs.present ? nrDiscs.value : this.nrDiscs,
+        screenRatio: screenRatio.present ? screenRatio.value : this.screenRatio,
+        audioTracksJson: audioTracksJson.present
+            ? audioTracksJson.value
+            : this.audioTracksJson,
+        subtitlesJson:
+            subtitlesJson.present ? subtitlesJson.value : this.subtitlesJson,
+        layers: layers.present ? layers.value : this.layers,
         cachedAt: cachedAt ?? this.cachedAt,
       );
   CatalogCacheData copyWithCompanion(CatalogCacheCompanion data) {
@@ -1395,6 +1550,17 @@ class CatalogCacheData extends DataClass
       trailerUrlsJson: data.trailerUrlsJson.present
           ? data.trailerUrlsJson.value
           : this.trailerUrlsJson,
+      color: data.color.present ? data.color.value : this.color,
+      nrDiscs: data.nrDiscs.present ? data.nrDiscs.value : this.nrDiscs,
+      screenRatio:
+          data.screenRatio.present ? data.screenRatio.value : this.screenRatio,
+      audioTracksJson: data.audioTracksJson.present
+          ? data.audioTracksJson.value
+          : this.audioTracksJson,
+      subtitlesJson: data.subtitlesJson.present
+          ? data.subtitlesJson.value
+          : this.subtitlesJson,
+      layers: data.layers.present ? data.layers.value : this.layers,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -1447,6 +1613,12 @@ class CatalogCacheData extends DataClass
           ..write('subtitle: $subtitle, ')
           ..write('seriesGroup: $seriesGroup, ')
           ..write('trailerUrlsJson: $trailerUrlsJson, ')
+          ..write('color: $color, ')
+          ..write('nrDiscs: $nrDiscs, ')
+          ..write('screenRatio: $screenRatio, ')
+          ..write('audioTracksJson: $audioTracksJson, ')
+          ..write('subtitlesJson: $subtitlesJson, ')
+          ..write('layers: $layers, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
@@ -1499,6 +1671,12 @@ class CatalogCacheData extends DataClass
         subtitle,
         seriesGroup,
         trailerUrlsJson,
+        color,
+        nrDiscs,
+        screenRatio,
+        audioTracksJson,
+        subtitlesJson,
+        layers,
         cachedAt
       ]);
   @override
@@ -1550,6 +1728,12 @@ class CatalogCacheData extends DataClass
           other.subtitle == this.subtitle &&
           other.seriesGroup == this.seriesGroup &&
           other.trailerUrlsJson == this.trailerUrlsJson &&
+          other.color == this.color &&
+          other.nrDiscs == this.nrDiscs &&
+          other.screenRatio == this.screenRatio &&
+          other.audioTracksJson == this.audioTracksJson &&
+          other.subtitlesJson == this.subtitlesJson &&
+          other.layers == this.layers &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -1599,6 +1783,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
   final Value<String?> subtitle;
   final Value<String?> seriesGroup;
   final Value<String?> trailerUrlsJson;
+  final Value<String?> color;
+  final Value<int?> nrDiscs;
+  final Value<String?> screenRatio;
+  final Value<String?> audioTracksJson;
+  final Value<String?> subtitlesJson;
+  final Value<String?> layers;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const CatalogCacheCompanion({
@@ -1647,6 +1837,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.subtitle = const Value.absent(),
     this.seriesGroup = const Value.absent(),
     this.trailerUrlsJson = const Value.absent(),
+    this.color = const Value.absent(),
+    this.nrDiscs = const Value.absent(),
+    this.screenRatio = const Value.absent(),
+    this.audioTracksJson = const Value.absent(),
+    this.subtitlesJson = const Value.absent(),
+    this.layers = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1696,6 +1892,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     this.subtitle = const Value.absent(),
     this.seriesGroup = const Value.absent(),
     this.trailerUrlsJson = const Value.absent(),
+    this.color = const Value.absent(),
+    this.nrDiscs = const Value.absent(),
+    this.screenRatio = const Value.absent(),
+    this.audioTracksJson = const Value.absent(),
+    this.subtitlesJson = const Value.absent(),
+    this.layers = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -1748,6 +1950,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     Expression<String>? subtitle,
     Expression<String>? seriesGroup,
     Expression<String>? trailerUrlsJson,
+    Expression<String>? color,
+    Expression<int>? nrDiscs,
+    Expression<String>? screenRatio,
+    Expression<String>? audioTracksJson,
+    Expression<String>? subtitlesJson,
+    Expression<String>? layers,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -1798,6 +2006,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       if (subtitle != null) 'subtitle': subtitle,
       if (seriesGroup != null) 'series_group': seriesGroup,
       if (trailerUrlsJson != null) 'trailer_urls_json': trailerUrlsJson,
+      if (color != null) 'color': color,
+      if (nrDiscs != null) 'nr_discs': nrDiscs,
+      if (screenRatio != null) 'screen_ratio': screenRatio,
+      if (audioTracksJson != null) 'audio_tracks_json': audioTracksJson,
+      if (subtitlesJson != null) 'subtitles_json': subtitlesJson,
+      if (layers != null) 'layers': layers,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1849,6 +2063,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       Value<String?>? subtitle,
       Value<String?>? seriesGroup,
       Value<String?>? trailerUrlsJson,
+      Value<String?>? color,
+      Value<int?>? nrDiscs,
+      Value<String?>? screenRatio,
+      Value<String?>? audioTracksJson,
+      Value<String?>? subtitlesJson,
+      Value<String?>? layers,
       Value<DateTime>? cachedAt,
       Value<int>? rowid}) {
     return CatalogCacheCompanion(
@@ -1897,6 +2117,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
       subtitle: subtitle ?? this.subtitle,
       seriesGroup: seriesGroup ?? this.seriesGroup,
       trailerUrlsJson: trailerUrlsJson ?? this.trailerUrlsJson,
+      color: color ?? this.color,
+      nrDiscs: nrDiscs ?? this.nrDiscs,
+      screenRatio: screenRatio ?? this.screenRatio,
+      audioTracksJson: audioTracksJson ?? this.audioTracksJson,
+      subtitlesJson: subtitlesJson ?? this.subtitlesJson,
+      layers: layers ?? this.layers,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -2041,6 +2267,24 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
     if (trailerUrlsJson.present) {
       map['trailer_urls_json'] = Variable<String>(trailerUrlsJson.value);
     }
+    if (color.present) {
+      map['color'] = Variable<String>(color.value);
+    }
+    if (nrDiscs.present) {
+      map['nr_discs'] = Variable<int>(nrDiscs.value);
+    }
+    if (screenRatio.present) {
+      map['screen_ratio'] = Variable<String>(screenRatio.value);
+    }
+    if (audioTracksJson.present) {
+      map['audio_tracks_json'] = Variable<String>(audioTracksJson.value);
+    }
+    if (subtitlesJson.present) {
+      map['subtitles_json'] = Variable<String>(subtitlesJson.value);
+    }
+    if (layers.present) {
+      map['layers'] = Variable<String>(layers.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -2098,6 +2342,12 @@ class CatalogCacheCompanion extends UpdateCompanion<CatalogCacheData> {
           ..write('subtitle: $subtitle, ')
           ..write('seriesGroup: $seriesGroup, ')
           ..write('trailerUrlsJson: $trailerUrlsJson, ')
+          ..write('color: $color, ')
+          ..write('nrDiscs: $nrDiscs, ')
+          ..write('screenRatio: $screenRatio, ')
+          ..write('audioTracksJson: $audioTracksJson, ')
+          ..write('subtitlesJson: $subtitlesJson, ')
+          ..write('layers: $layers, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -2347,6 +2597,53 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> boxSetName = GeneratedColumn<String>(
       'box_set_name', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _storageDeviceMeta =
+      const VerificationMeta('storageDevice');
+  @override
+  late final GeneratedColumn<String> storageDevice = GeneratedColumn<String>(
+      'storage_device', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _storageSlotMeta =
+      const VerificationMeta('storageSlot');
+  @override
+  late final GeneratedColumn<String> storageSlot = GeneratedColumn<String>(
+      'storage_slot', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _regionMeta = const VerificationMeta('region');
+  @override
+  late final GeneratedColumn<String> region = GeneratedColumn<String>(
+      'region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _packagingMeta =
+      const VerificationMeta('packaging');
+  @override
+  late final GeneratedColumn<String> packaging = GeneratedColumn<String>(
+      'packaging', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _distributorMeta =
+      const VerificationMeta('distributor');
+  @override
+  late final GeneratedColumn<String> distributor = GeneratedColumn<String>(
+      'distributor', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _collectionStatusMeta =
+      const VerificationMeta('collectionStatus');
+  @override
+  late final GeneratedColumn<String> collectionStatus = GeneratedColumn<String>(
+      'collection_status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastBagBoardDateMeta =
+      const VerificationMeta('lastBagBoardDate');
+  @override
+  late final GeneratedColumn<DateTime> lastBagBoardDate =
+      GeneratedColumn<DateTime>('last_bag_board_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _marketValueCentsMeta =
+      const VerificationMeta('marketValueCents');
+  @override
+  late final GeneratedColumn<int> marketValueCents = GeneratedColumn<int>(
+      'market_value_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2387,7 +2684,15 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         hdrFormatsJson,
         purchaseStore,
         boxSetId,
-        boxSetName
+        boxSetName,
+        storageDevice,
+        storageSlot,
+        region,
+        packaging,
+        distributor,
+        collectionStatus,
+        lastBagBoardDate,
+        marketValueCents
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2597,6 +2902,50 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           boxSetName.isAcceptableOrUnknown(
               data['box_set_name']!, _boxSetNameMeta));
     }
+    if (data.containsKey('storage_device')) {
+      context.handle(
+          _storageDeviceMeta,
+          storageDevice.isAcceptableOrUnknown(
+              data['storage_device']!, _storageDeviceMeta));
+    }
+    if (data.containsKey('storage_slot')) {
+      context.handle(
+          _storageSlotMeta,
+          storageSlot.isAcceptableOrUnknown(
+              data['storage_slot']!, _storageSlotMeta));
+    }
+    if (data.containsKey('region')) {
+      context.handle(_regionMeta,
+          region.isAcceptableOrUnknown(data['region']!, _regionMeta));
+    }
+    if (data.containsKey('packaging')) {
+      context.handle(_packagingMeta,
+          packaging.isAcceptableOrUnknown(data['packaging']!, _packagingMeta));
+    }
+    if (data.containsKey('distributor')) {
+      context.handle(
+          _distributorMeta,
+          distributor.isAcceptableOrUnknown(
+              data['distributor']!, _distributorMeta));
+    }
+    if (data.containsKey('collection_status')) {
+      context.handle(
+          _collectionStatusMeta,
+          collectionStatus.isAcceptableOrUnknown(
+              data['collection_status']!, _collectionStatusMeta));
+    }
+    if (data.containsKey('last_bag_board_date')) {
+      context.handle(
+          _lastBagBoardDateMeta,
+          lastBagBoardDate.isAcceptableOrUnknown(
+              data['last_bag_board_date']!, _lastBagBoardDateMeta));
+    }
+    if (data.containsKey('market_value_cents')) {
+      context.handle(
+          _marketValueCentsMeta,
+          marketValueCents.isAcceptableOrUnknown(
+              data['market_value_cents']!, _marketValueCentsMeta));
+    }
     return context;
   }
 
@@ -2684,6 +3033,22 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}box_set_id']),
       boxSetName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}box_set_name']),
+      storageDevice: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_device']),
+      storageSlot: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_slot']),
+      region: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region']),
+      packaging: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}packaging']),
+      distributor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}distributor']),
+      collectionStatus: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}collection_status']),
+      lastBagBoardDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_bag_board_date']),
+      marketValueCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}market_value_cents']),
     );
   }
 
@@ -2734,6 +3099,14 @@ class OwnedItemsCacheData extends DataClass
   final String? purchaseStore;
   final String? boxSetId;
   final String? boxSetName;
+  final String? storageDevice;
+  final String? storageSlot;
+  final String? region;
+  final String? packaging;
+  final String? distributor;
+  final String? collectionStatus;
+  final DateTime? lastBagBoardDate;
+  final int? marketValueCents;
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
@@ -2773,7 +3146,15 @@ class OwnedItemsCacheData extends DataClass
       this.hdrFormatsJson,
       this.purchaseStore,
       this.boxSetId,
-      this.boxSetName});
+      this.boxSetName,
+      this.storageDevice,
+      this.storageSlot,
+      this.region,
+      this.packaging,
+      this.distributor,
+      this.collectionStatus,
+      this.lastBagBoardDate,
+      this.marketValueCents});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2884,6 +3265,30 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || boxSetName != null) {
       map['box_set_name'] = Variable<String>(boxSetName);
     }
+    if (!nullToAbsent || storageDevice != null) {
+      map['storage_device'] = Variable<String>(storageDevice);
+    }
+    if (!nullToAbsent || storageSlot != null) {
+      map['storage_slot'] = Variable<String>(storageSlot);
+    }
+    if (!nullToAbsent || region != null) {
+      map['region'] = Variable<String>(region);
+    }
+    if (!nullToAbsent || packaging != null) {
+      map['packaging'] = Variable<String>(packaging);
+    }
+    if (!nullToAbsent || distributor != null) {
+      map['distributor'] = Variable<String>(distributor);
+    }
+    if (!nullToAbsent || collectionStatus != null) {
+      map['collection_status'] = Variable<String>(collectionStatus);
+    }
+    if (!nullToAbsent || lastBagBoardDate != null) {
+      map['last_bag_board_date'] = Variable<DateTime>(lastBagBoardDate);
+    }
+    if (!nullToAbsent || marketValueCents != null) {
+      map['market_value_cents'] = Variable<int>(marketValueCents);
+    }
     return map;
   }
 
@@ -2990,6 +3395,29 @@ class OwnedItemsCacheData extends DataClass
       boxSetName: boxSetName == null && nullToAbsent
           ? const Value.absent()
           : Value(boxSetName),
+      storageDevice: storageDevice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageDevice),
+      storageSlot: storageSlot == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageSlot),
+      region:
+          region == null && nullToAbsent ? const Value.absent() : Value(region),
+      packaging: packaging == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packaging),
+      distributor: distributor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distributor),
+      collectionStatus: collectionStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectionStatus),
+      lastBagBoardDate: lastBagBoardDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastBagBoardDate),
+      marketValueCents: marketValueCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(marketValueCents),
     );
   }
 
@@ -3036,6 +3464,15 @@ class OwnedItemsCacheData extends DataClass
       purchaseStore: serializer.fromJson<String?>(json['purchaseStore']),
       boxSetId: serializer.fromJson<String?>(json['boxSetId']),
       boxSetName: serializer.fromJson<String?>(json['boxSetName']),
+      storageDevice: serializer.fromJson<String?>(json['storageDevice']),
+      storageSlot: serializer.fromJson<String?>(json['storageSlot']),
+      region: serializer.fromJson<String?>(json['region']),
+      packaging: serializer.fromJson<String?>(json['packaging']),
+      distributor: serializer.fromJson<String?>(json['distributor']),
+      collectionStatus: serializer.fromJson<String?>(json['collectionStatus']),
+      lastBagBoardDate:
+          serializer.fromJson<DateTime?>(json['lastBagBoardDate']),
+      marketValueCents: serializer.fromJson<int?>(json['marketValueCents']),
     );
   }
   @override
@@ -3081,6 +3518,14 @@ class OwnedItemsCacheData extends DataClass
       'purchaseStore': serializer.toJson<String?>(purchaseStore),
       'boxSetId': serializer.toJson<String?>(boxSetId),
       'boxSetName': serializer.toJson<String?>(boxSetName),
+      'storageDevice': serializer.toJson<String?>(storageDevice),
+      'storageSlot': serializer.toJson<String?>(storageSlot),
+      'region': serializer.toJson<String?>(region),
+      'packaging': serializer.toJson<String?>(packaging),
+      'distributor': serializer.toJson<String?>(distributor),
+      'collectionStatus': serializer.toJson<String?>(collectionStatus),
+      'lastBagBoardDate': serializer.toJson<DateTime?>(lastBagBoardDate),
+      'marketValueCents': serializer.toJson<int?>(marketValueCents),
     };
   }
 
@@ -3123,7 +3568,15 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> hdrFormatsJson = const Value.absent(),
           Value<String?> purchaseStore = const Value.absent(),
           Value<String?> boxSetId = const Value.absent(),
-          Value<String?> boxSetName = const Value.absent()}) =>
+          Value<String?> boxSetName = const Value.absent(),
+          Value<String?> storageDevice = const Value.absent(),
+          Value<String?> storageSlot = const Value.absent(),
+          Value<String?> region = const Value.absent(),
+          Value<String?> packaging = const Value.absent(),
+          Value<String?> distributor = const Value.absent(),
+          Value<String?> collectionStatus = const Value.absent(),
+          Value<DateTime?> lastBagBoardDate = const Value.absent(),
+          Value<int?> marketValueCents = const Value.absent()}) =>
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
@@ -3176,6 +3629,21 @@ class OwnedItemsCacheData extends DataClass
             purchaseStore.present ? purchaseStore.value : this.purchaseStore,
         boxSetId: boxSetId.present ? boxSetId.value : this.boxSetId,
         boxSetName: boxSetName.present ? boxSetName.value : this.boxSetName,
+        storageDevice:
+            storageDevice.present ? storageDevice.value : this.storageDevice,
+        storageSlot: storageSlot.present ? storageSlot.value : this.storageSlot,
+        region: region.present ? region.value : this.region,
+        packaging: packaging.present ? packaging.value : this.packaging,
+        distributor: distributor.present ? distributor.value : this.distributor,
+        collectionStatus: collectionStatus.present
+            ? collectionStatus.value
+            : this.collectionStatus,
+        lastBagBoardDate: lastBagBoardDate.present
+            ? lastBagBoardDate.value
+            : this.lastBagBoardDate,
+        marketValueCents: marketValueCents.present
+            ? marketValueCents.value
+            : this.marketValueCents,
       );
   OwnedItemsCacheData copyWithCompanion(OwnedItemsCacheCompanion data) {
     return OwnedItemsCacheData(
@@ -3246,6 +3714,24 @@ class OwnedItemsCacheData extends DataClass
       boxSetId: data.boxSetId.present ? data.boxSetId.value : this.boxSetId,
       boxSetName:
           data.boxSetName.present ? data.boxSetName.value : this.boxSetName,
+      storageDevice: data.storageDevice.present
+          ? data.storageDevice.value
+          : this.storageDevice,
+      storageSlot:
+          data.storageSlot.present ? data.storageSlot.value : this.storageSlot,
+      region: data.region.present ? data.region.value : this.region,
+      packaging: data.packaging.present ? data.packaging.value : this.packaging,
+      distributor:
+          data.distributor.present ? data.distributor.value : this.distributor,
+      collectionStatus: data.collectionStatus.present
+          ? data.collectionStatus.value
+          : this.collectionStatus,
+      lastBagBoardDate: data.lastBagBoardDate.present
+          ? data.lastBagBoardDate.value
+          : this.lastBagBoardDate,
+      marketValueCents: data.marketValueCents.present
+          ? data.marketValueCents.value
+          : this.marketValueCents,
     );
   }
 
@@ -3290,7 +3776,15 @@ class OwnedItemsCacheData extends DataClass
           ..write('hdrFormatsJson: $hdrFormatsJson, ')
           ..write('purchaseStore: $purchaseStore, ')
           ..write('boxSetId: $boxSetId, ')
-          ..write('boxSetName: $boxSetName')
+          ..write('boxSetName: $boxSetName, ')
+          ..write('storageDevice: $storageDevice, ')
+          ..write('storageSlot: $storageSlot, ')
+          ..write('region: $region, ')
+          ..write('packaging: $packaging, ')
+          ..write('distributor: $distributor, ')
+          ..write('collectionStatus: $collectionStatus, ')
+          ..write('lastBagBoardDate: $lastBagBoardDate, ')
+          ..write('marketValueCents: $marketValueCents')
           ..write(')'))
         .toString();
   }
@@ -3335,7 +3829,15 @@ class OwnedItemsCacheData extends DataClass
         hdrFormatsJson,
         purchaseStore,
         boxSetId,
-        boxSetName
+        boxSetName,
+        storageDevice,
+        storageSlot,
+        region,
+        packaging,
+        distributor,
+        collectionStatus,
+        lastBagBoardDate,
+        marketValueCents
       ]);
   @override
   bool operator ==(Object other) =>
@@ -3379,7 +3881,15 @@ class OwnedItemsCacheData extends DataClass
           other.hdrFormatsJson == this.hdrFormatsJson &&
           other.purchaseStore == this.purchaseStore &&
           other.boxSetId == this.boxSetId &&
-          other.boxSetName == this.boxSetName);
+          other.boxSetName == this.boxSetName &&
+          other.storageDevice == this.storageDevice &&
+          other.storageSlot == this.storageSlot &&
+          other.region == this.region &&
+          other.packaging == this.packaging &&
+          other.distributor == this.distributor &&
+          other.collectionStatus == this.collectionStatus &&
+          other.lastBagBoardDate == this.lastBagBoardDate &&
+          other.marketValueCents == this.marketValueCents);
 }
 
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
@@ -3422,6 +3932,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> purchaseStore;
   final Value<String?> boxSetId;
   final Value<String?> boxSetName;
+  final Value<String?> storageDevice;
+  final Value<String?> storageSlot;
+  final Value<String?> region;
+  final Value<String?> packaging;
+  final Value<String?> distributor;
+  final Value<String?> collectionStatus;
+  final Value<DateTime?> lastBagBoardDate;
+  final Value<int?> marketValueCents;
   final Value<int> rowid;
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
@@ -3463,6 +3981,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.purchaseStore = const Value.absent(),
     this.boxSetId = const Value.absent(),
     this.boxSetName = const Value.absent(),
+    this.storageDevice = const Value.absent(),
+    this.storageSlot = const Value.absent(),
+    this.region = const Value.absent(),
+    this.packaging = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.collectionStatus = const Value.absent(),
+    this.lastBagBoardDate = const Value.absent(),
+    this.marketValueCents = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OwnedItemsCacheCompanion.insert({
@@ -3505,6 +4031,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.purchaseStore = const Value.absent(),
     this.boxSetId = const Value.absent(),
     this.boxSetName = const Value.absent(),
+    this.storageDevice = const Value.absent(),
+    this.storageSlot = const Value.absent(),
+    this.region = const Value.absent(),
+    this.packaging = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.collectionStatus = const Value.absent(),
+    this.lastBagBoardDate = const Value.absent(),
+    this.marketValueCents = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
@@ -3549,6 +4083,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? purchaseStore,
     Expression<String>? boxSetId,
     Expression<String>? boxSetName,
+    Expression<String>? storageDevice,
+    Expression<String>? storageSlot,
+    Expression<String>? region,
+    Expression<String>? packaging,
+    Expression<String>? distributor,
+    Expression<String>? collectionStatus,
+    Expression<DateTime>? lastBagBoardDate,
+    Expression<int>? marketValueCents,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3591,6 +4133,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (purchaseStore != null) 'purchase_store': purchaseStore,
       if (boxSetId != null) 'box_set_id': boxSetId,
       if (boxSetName != null) 'box_set_name': boxSetName,
+      if (storageDevice != null) 'storage_device': storageDevice,
+      if (storageSlot != null) 'storage_slot': storageSlot,
+      if (region != null) 'region': region,
+      if (packaging != null) 'packaging': packaging,
+      if (distributor != null) 'distributor': distributor,
+      if (collectionStatus != null) 'collection_status': collectionStatus,
+      if (lastBagBoardDate != null) 'last_bag_board_date': lastBagBoardDate,
+      if (marketValueCents != null) 'market_value_cents': marketValueCents,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3635,6 +4185,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? purchaseStore,
       Value<String?>? boxSetId,
       Value<String?>? boxSetName,
+      Value<String?>? storageDevice,
+      Value<String?>? storageSlot,
+      Value<String?>? region,
+      Value<String?>? packaging,
+      Value<String?>? distributor,
+      Value<String?>? collectionStatus,
+      Value<DateTime?>? lastBagBoardDate,
+      Value<int?>? marketValueCents,
       Value<int>? rowid}) {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
@@ -3676,6 +4234,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       purchaseStore: purchaseStore ?? this.purchaseStore,
       boxSetId: boxSetId ?? this.boxSetId,
       boxSetName: boxSetName ?? this.boxSetName,
+      storageDevice: storageDevice ?? this.storageDevice,
+      storageSlot: storageSlot ?? this.storageSlot,
+      region: region ?? this.region,
+      packaging: packaging ?? this.packaging,
+      distributor: distributor ?? this.distributor,
+      collectionStatus: collectionStatus ?? this.collectionStatus,
+      lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
+      marketValueCents: marketValueCents ?? this.marketValueCents,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3800,6 +4366,30 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (boxSetName.present) {
       map['box_set_name'] = Variable<String>(boxSetName.value);
     }
+    if (storageDevice.present) {
+      map['storage_device'] = Variable<String>(storageDevice.value);
+    }
+    if (storageSlot.present) {
+      map['storage_slot'] = Variable<String>(storageSlot.value);
+    }
+    if (region.present) {
+      map['region'] = Variable<String>(region.value);
+    }
+    if (packaging.present) {
+      map['packaging'] = Variable<String>(packaging.value);
+    }
+    if (distributor.present) {
+      map['distributor'] = Variable<String>(distributor.value);
+    }
+    if (collectionStatus.present) {
+      map['collection_status'] = Variable<String>(collectionStatus.value);
+    }
+    if (lastBagBoardDate.present) {
+      map['last_bag_board_date'] = Variable<DateTime>(lastBagBoardDate.value);
+    }
+    if (marketValueCents.present) {
+      map['market_value_cents'] = Variable<int>(marketValueCents.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3848,6 +4438,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('purchaseStore: $purchaseStore, ')
           ..write('boxSetId: $boxSetId, ')
           ..write('boxSetName: $boxSetName, ')
+          ..write('storageDevice: $storageDevice, ')
+          ..write('storageSlot: $storageSlot, ')
+          ..write('region: $region, ')
+          ..write('packaging: $packaging, ')
+          ..write('distributor: $distributor, ')
+          ..write('collectionStatus: $collectionStatus, ')
+          ..write('lastBagBoardDate: $lastBagBoardDate, ')
+          ..write('marketValueCents: $marketValueCents, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -11561,6 +12159,12 @@ typedef $$CatalogCacheTableCreateCompanionBuilder = CatalogCacheCompanion
   Value<String?> subtitle,
   Value<String?> seriesGroup,
   Value<String?> trailerUrlsJson,
+  Value<String?> color,
+  Value<int?> nrDiscs,
+  Value<String?> screenRatio,
+  Value<String?> audioTracksJson,
+  Value<String?> subtitlesJson,
+  Value<String?> layers,
   required DateTime cachedAt,
   Value<int> rowid,
 });
@@ -11611,6 +12215,12 @@ typedef $$CatalogCacheTableUpdateCompanionBuilder = CatalogCacheCompanion
   Value<String?> subtitle,
   Value<String?> seriesGroup,
   Value<String?> trailerUrlsJson,
+  Value<String?> color,
+  Value<int?> nrDiscs,
+  Value<String?> screenRatio,
+  Value<String?> audioTracksJson,
+  Value<String?> subtitlesJson,
+  Value<String?> layers,
   Value<DateTime> cachedAt,
   Value<int> rowid,
 });
@@ -11768,6 +12378,25 @@ class $$CatalogCacheTableFilterComposer
   ColumnFilters<String> get trailerUrlsJson => $composableBuilder(
       column: $table.trailerUrlsJson,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get color => $composableBuilder(
+      column: $table.color, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get nrDiscs => $composableBuilder(
+      column: $table.nrDiscs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get screenRatio => $composableBuilder(
+      column: $table.screenRatio, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get audioTracksJson => $composableBuilder(
+      column: $table.audioTracksJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subtitlesJson => $composableBuilder(
+      column: $table.subtitlesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get layers => $composableBuilder(
+      column: $table.layers, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnFilters(column));
@@ -11938,6 +12567,26 @@ class $$CatalogCacheTableOrderingComposer
       column: $table.trailerUrlsJson,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get color => $composableBuilder(
+      column: $table.color, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get nrDiscs => $composableBuilder(
+      column: $table.nrDiscs, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get screenRatio => $composableBuilder(
+      column: $table.screenRatio, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get audioTracksJson => $composableBuilder(
+      column: $table.audioTracksJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subtitlesJson => $composableBuilder(
+      column: $table.subtitlesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get layers => $composableBuilder(
+      column: $table.layers, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
 }
@@ -12086,6 +12735,24 @@ class $$CatalogCacheTableAnnotationComposer
   GeneratedColumn<String> get trailerUrlsJson => $composableBuilder(
       column: $table.trailerUrlsJson, builder: (column) => column);
 
+  GeneratedColumn<String> get color =>
+      $composableBuilder(column: $table.color, builder: (column) => column);
+
+  GeneratedColumn<int> get nrDiscs =>
+      $composableBuilder(column: $table.nrDiscs, builder: (column) => column);
+
+  GeneratedColumn<String> get screenRatio => $composableBuilder(
+      column: $table.screenRatio, builder: (column) => column);
+
+  GeneratedColumn<String> get audioTracksJson => $composableBuilder(
+      column: $table.audioTracksJson, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitlesJson => $composableBuilder(
+      column: $table.subtitlesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get layers =>
+      $composableBuilder(column: $table.layers, builder: (column) => column);
+
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
 }
@@ -12161,6 +12828,12 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> subtitle = const Value.absent(),
             Value<String?> seriesGroup = const Value.absent(),
             Value<String?> trailerUrlsJson = const Value.absent(),
+            Value<String?> color = const Value.absent(),
+            Value<int?> nrDiscs = const Value.absent(),
+            Value<String?> screenRatio = const Value.absent(),
+            Value<String?> audioTracksJson = const Value.absent(),
+            Value<String?> subtitlesJson = const Value.absent(),
+            Value<String?> layers = const Value.absent(),
             Value<DateTime> cachedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -12210,6 +12883,12 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             subtitle: subtitle,
             seriesGroup: seriesGroup,
             trailerUrlsJson: trailerUrlsJson,
+            color: color,
+            nrDiscs: nrDiscs,
+            screenRatio: screenRatio,
+            audioTracksJson: audioTracksJson,
+            subtitlesJson: subtitlesJson,
+            layers: layers,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -12259,6 +12938,12 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             Value<String?> subtitle = const Value.absent(),
             Value<String?> seriesGroup = const Value.absent(),
             Value<String?> trailerUrlsJson = const Value.absent(),
+            Value<String?> color = const Value.absent(),
+            Value<int?> nrDiscs = const Value.absent(),
+            Value<String?> screenRatio = const Value.absent(),
+            Value<String?> audioTracksJson = const Value.absent(),
+            Value<String?> subtitlesJson = const Value.absent(),
+            Value<String?> layers = const Value.absent(),
             required DateTime cachedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -12308,6 +12993,12 @@ class $$CatalogCacheTableTableManager extends RootTableManager<
             subtitle: subtitle,
             seriesGroup: seriesGroup,
             trailerUrlsJson: trailerUrlsJson,
+            color: color,
+            nrDiscs: nrDiscs,
+            screenRatio: screenRatio,
+            audioTracksJson: audioTracksJson,
+            subtitlesJson: subtitlesJson,
+            layers: layers,
             cachedAt: cachedAt,
             rowid: rowid,
           ),
@@ -12374,6 +13065,14 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> purchaseStore,
   Value<String?> boxSetId,
   Value<String?> boxSetName,
+  Value<String?> storageDevice,
+  Value<String?> storageSlot,
+  Value<String?> region,
+  Value<String?> packaging,
+  Value<String?> distributor,
+  Value<String?> collectionStatus,
+  Value<DateTime?> lastBagBoardDate,
+  Value<int?> marketValueCents,
   Value<int> rowid,
 });
 typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
@@ -12417,6 +13116,14 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> purchaseStore,
   Value<String?> boxSetId,
   Value<String?> boxSetName,
+  Value<String?> storageDevice,
+  Value<String?> storageSlot,
+  Value<String?> region,
+  Value<String?> packaging,
+  Value<String?> distributor,
+  Value<String?> collectionStatus,
+  Value<DateTime?> lastBagBoardDate,
+  Value<int?> marketValueCents,
   Value<int> rowid,
 });
 
@@ -12551,6 +13258,33 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get boxSetName => $composableBuilder(
       column: $table.boxSetName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get packaging => $composableBuilder(
+      column: $table.packaging, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastBagBoardDate => $composableBuilder(
+      column: $table.lastBagBoardDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$OwnedItemsCacheTableOrderingComposer
@@ -12688,6 +13422,34 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<String> get boxSetName => $composableBuilder(
       column: $table.boxSetName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get packaging => $composableBuilder(
+      column: $table.packaging, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastBagBoardDate => $composableBuilder(
+      column: $table.lastBagBoardDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$OwnedItemsCacheTableAnnotationComposer
@@ -12815,6 +13577,30 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get boxSetName => $composableBuilder(
       column: $table.boxSetName, builder: (column) => column);
+
+  GeneratedColumn<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice, builder: (column) => column);
+
+  GeneratedColumn<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => column);
+
+  GeneratedColumn<String> get region =>
+      $composableBuilder(column: $table.region, builder: (column) => column);
+
+  GeneratedColumn<String> get packaging =>
+      $composableBuilder(column: $table.packaging, builder: (column) => column);
+
+  GeneratedColumn<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => column);
+
+  GeneratedColumn<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastBagBoardDate => $composableBuilder(
+      column: $table.lastBagBoardDate, builder: (column) => column);
+
+  GeneratedColumn<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents, builder: (column) => column);
 }
 
 class $$OwnedItemsCacheTableTableManager extends RootTableManager<
@@ -12884,6 +13670,14 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> purchaseStore = const Value.absent(),
             Value<String?> boxSetId = const Value.absent(),
             Value<String?> boxSetName = const Value.absent(),
+            Value<String?> storageDevice = const Value.absent(),
+            Value<String?> storageSlot = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<String?> packaging = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<String?> collectionStatus = const Value.absent(),
+            Value<DateTime?> lastBagBoardDate = const Value.absent(),
+            Value<int?> marketValueCents = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion(
@@ -12926,6 +13720,14 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             purchaseStore: purchaseStore,
             boxSetId: boxSetId,
             boxSetName: boxSetName,
+            storageDevice: storageDevice,
+            storageSlot: storageSlot,
+            region: region,
+            packaging: packaging,
+            distributor: distributor,
+            collectionStatus: collectionStatus,
+            lastBagBoardDate: lastBagBoardDate,
+            marketValueCents: marketValueCents,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -12968,6 +13770,14 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> purchaseStore = const Value.absent(),
             Value<String?> boxSetId = const Value.absent(),
             Value<String?> boxSetName = const Value.absent(),
+            Value<String?> storageDevice = const Value.absent(),
+            Value<String?> storageSlot = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<String?> packaging = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<String?> collectionStatus = const Value.absent(),
+            Value<DateTime?> lastBagBoardDate = const Value.absent(),
+            Value<int?> marketValueCents = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion.insert(
@@ -13010,6 +13820,14 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             purchaseStore: purchaseStore,
             boxSetId: boxSetId,
             boxSetName: boxSetName,
+            storageDevice: storageDevice,
+            storageSlot: storageSlot,
+            region: region,
+            packaging: packaging,
+            distributor: distributor,
+            collectionStatus: collectionStatus,
+            lastBagBoardDate: lastBagBoardDate,
+            marketValueCents: marketValueCents,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

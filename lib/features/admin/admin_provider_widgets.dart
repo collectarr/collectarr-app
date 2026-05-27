@@ -35,7 +35,7 @@ class _ProviderSelector extends StatelessWidget {
       key: ValueKey(selected),
       initialValue: selected,
       isExpanded: true,
-      dropdownColor: _kAdminDropdownColor,
+      dropdownColor: appPalette(context).panelRaised,
       borderRadius: kAppMenuBorderRadius,
       hint: Text(isLoading ? 'Loading providers...' : 'Select provider'),
       decoration: const InputDecoration(
@@ -88,7 +88,7 @@ class _ProviderKindSelector extends StatelessWidget {
       key: ValueKey('provider-kind-$selected'),
       initialValue: selected,
       isExpanded: true,
-      dropdownColor: _kAdminDropdownColor,
+      dropdownColor: appPalette(context).panelRaised,
       borderRadius: kAppMenuBorderRadius,
       decoration: const InputDecoration(
         labelText: 'Media kind',
@@ -370,7 +370,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 initialValue: filterValue,
                 isExpanded: true,
-                dropdownColor: _kAdminDropdownColor,
+                dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Status filter',
@@ -391,7 +391,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 initialValue: providerFilterValue,
                 isExpanded: true,
-                dropdownColor: _kAdminDropdownColor,
+                dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Provider filter',

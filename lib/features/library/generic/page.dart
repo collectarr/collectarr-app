@@ -361,6 +361,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
                   onBulkMoveToOwned: () => bulkMoveToOwnedFlow(projection),
                   onBulkMoveToWishlist: () => bulkMoveToWishlistFlow(projection),
                   onBulkRemove: () => bulkRemoveFlow(projection),
+                  onBulkRefreshMetadata: () => bulkRefreshMetadataFlow(projection),
                 ),
               ),
               Expanded(

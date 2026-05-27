@@ -58,6 +58,13 @@ class LibraryViewControls extends StatelessWidget {
                 child: Icon(Icons.view_list),
               ),
             ),
+            ButtonSegment(
+              value: LibraryViewMode.shelves,
+              icon: Tooltip(
+                message: 'Shelves view',
+                child: Icon(Icons.shelves),
+              ),
+            ),
           ],
           selected: {viewMode},
           onSelectionChanged: (selection) => onViewModeChanged(selection.first),

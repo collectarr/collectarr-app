@@ -44,6 +44,14 @@ class OwnedItem {
     this.purchaseStore,
     this.boxSetId,
     this.boxSetName,
+    this.storageDevice,
+    this.storageSlot,
+    this.region,
+    this.packaging,
+    this.distributor,
+    this.collectionStatus,
+    this.lastBagBoardDate,
+    this.marketValueCents,
   }) : anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
@@ -88,6 +96,14 @@ class OwnedItem {
   final String? purchaseStore;
   final String? boxSetId;
   final String? boxSetName;
+  final String? storageDevice;
+  final String? storageSlot;
+  final String? region;
+  final String? packaging;
+  final String? distributor;
+  final String? collectionStatus;
+  final DateTime? lastBagBoardDate;
+  final int? marketValueCents;
 
   String? get anchorType => anchor?.apiValue;
   String? get editionId => anchor?.editionId;
@@ -136,6 +152,15 @@ class OwnedItem {
       if (purchaseStore != null) 'purchase_store': purchaseStore,
       if (boxSetId != null) 'box_set_id': boxSetId,
       if (boxSetName != null) 'box_set_name': boxSetName,
+      if (storageDevice != null) 'storage_device': storageDevice,
+      if (storageSlot != null) 'storage_slot': storageSlot,
+      if (region != null) 'region': region,
+      if (packaging != null) 'packaging': packaging,
+      if (distributor != null) 'distributor': distributor,
+      if (collectionStatus != null) 'collection_status': collectionStatus,
+      if (lastBagBoardDate != null)
+        'last_bag_board_date': lastBagBoardDate!.toUtc().toIso8601String(),
+      if (marketValueCents != null) 'market_value_cents': marketValueCents,
     };
   }
 
@@ -195,6 +220,16 @@ class OwnedItem {
       purchaseStore: json['purchase_store'] as String?,
       boxSetId: json['box_set_id'] as String?,
       boxSetName: json['box_set_name'] as String?,
+      storageDevice: json['storage_device'] as String?,
+      storageSlot: json['storage_slot'] as String?,
+      region: json['region'] as String?,
+      packaging: json['packaging'] as String?,
+      distributor: json['distributor'] as String?,
+      collectionStatus: json['collection_status'] as String?,
+      lastBagBoardDate: json['last_bag_board_date'] == null
+          ? null
+          : DateTime.parse(json['last_bag_board_date'] as String),
+      marketValueCents: json['market_value_cents'] as int?,
     );
   }
 
@@ -239,6 +274,14 @@ class OwnedItem {
     String? purchaseStore,
     String? boxSetId,
     String? boxSetName,
+    String? storageDevice,
+    String? storageSlot,
+    String? region,
+    String? packaging,
+    String? distributor,
+    String? collectionStatus,
+    DateTime? lastBagBoardDate,
+    int? marketValueCents,
   }) {
     final resolvedAnchor = identical(anchor, _ownedItemUnset)
         ? PersonalItemAnchor.fromRaw(
@@ -286,6 +329,14 @@ class OwnedItem {
       purchaseStore: purchaseStore ?? this.purchaseStore,
       boxSetId: boxSetId ?? this.boxSetId,
       boxSetName: boxSetName ?? this.boxSetName,
+      storageDevice: storageDevice ?? this.storageDevice,
+      storageSlot: storageSlot ?? this.storageSlot,
+      region: region ?? this.region,
+      packaging: packaging ?? this.packaging,
+      distributor: distributor ?? this.distributor,
+      collectionStatus: collectionStatus ?? this.collectionStatus,
+      lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
+      marketValueCents: marketValueCents ?? this.marketValueCents,
     );
   }
 }

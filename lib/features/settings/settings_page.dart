@@ -350,7 +350,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       '${entry.rejected > 0 ? ', ${entry.rejected} rejected' : ''}',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: kAppTextSecondary,
+                                        color: appPalette(context).textSecondary,
                                       ),
                                     )
                                   else

@@ -119,7 +119,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: appPalette(context).panel,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
@@ -142,13 +142,13 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Default values applied when adding new items to your collection.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: kAppTextMuted,
+                          color: appPalette(context).textMuted,
                         ),
                       ),
                     ),
@@ -180,7 +180,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: kAppDivider),
+          bottom: BorderSide(color: appPalette(context).divider),
         ),
       ),
       child: Row(
@@ -228,11 +228,11 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         _legacyLocationLabel;
     return Row(
       children: [
-        const SizedBox(
+        SizedBox(
           width: 100,
           child: Text(
             'Location',
-            style: TextStyle(fontSize: 13, color: kAppTextMuted),
+            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
@@ -243,13 +243,13 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
               height: 34,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: kAppPanelRaised,
+                color: appPalette(context).panelRaised,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: kAppDivider),
+                border: Border.all(color: appPalette(context).divider),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.place, size: 16, color: kAppTextMuted),
+                  Icon(Icons.place, size: 16, color: appPalette(context).textMuted),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -337,7 +337,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           width: 100,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 13, color: kAppTextMuted),
+            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
@@ -346,18 +346,18 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
             style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(fontSize: 12, color: kAppTextMuted),
+              hintStyle: TextStyle(fontSize: 12, color: appPalette(context).textMuted),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               filled: true,
-              fillColor: kAppPanelRaised,
+              fillColor: appPalette(context).panelRaised,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: BorderSide(color: kAppDivider),
+                borderSide: BorderSide(color: appPalette(context).divider),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: BorderSide(color: kAppDivider),
+                borderSide: BorderSide(color: appPalette(context).divider),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
@@ -374,11 +374,11 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   Widget _readStatusField() {
     return Row(
       children: [
-        const SizedBox(
+        SizedBox(
           width: 100,
           child: Text(
             'Read Status',
-            style: TextStyle(fontSize: 13, color: kAppTextMuted),
+            style: TextStyle(fontSize: 13, color: appPalette(context).textMuted),
           ),
         ),
         Expanded(
@@ -386,15 +386,15 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
             height: 34,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
-              color: kAppPanelRaised,
+              color: appPalette(context).panelRaised,
               borderRadius: kAppMenuBorderRadius,
-              border: Border.all(color: kAppDivider),
+              border: Border.all(color: appPalette(context).divider),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String?>(
                 value: _readStatus,
                 isExpanded: true,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
                 icon: const Icon(Icons.expand_more, size: 16),
@@ -418,7 +418,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: kAppDivider),
+          top: BorderSide(color: appPalette(context).divider),
         ),
       ),
       child: Row(

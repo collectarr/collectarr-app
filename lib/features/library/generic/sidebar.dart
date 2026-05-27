@@ -43,11 +43,11 @@ class LibrarySidebar extends StatelessWidget {
       onSelectSeries: onSelected,
       accentColor: accent,
       selectionColor: accent.withValues(alpha: 0.36),
-      backgroundColor: kAppPanel,
-      headerColor: kAppSurface,
-      dividerColor: kAppDivider,
-      selectedBadgeColor: kAppHighlight,
-      mutedTextColor: kAppTextMuted,
+      backgroundColor: appPalette(context).panel,
+      headerColor: appPalette(context).surface,
+      dividerColor: appPalette(context).divider,
+      selectedBadgeColor: appPalette(context).highlight,
+      mutedTextColor: appPalette(context).textMuted,
       headerOverride: _SidebarGroupDropdownHeader(
         type: type,
         groupMode: groupMode,
@@ -82,9 +82,9 @@ class LibraryCompactBucketBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: kAppPanel,
-        border: Border(bottom: BorderSide(color: kAppDivider)),
+      decoration: BoxDecoration(
+        color: appPalette(context).panel,
+        border: Border(bottom: BorderSide(color: appPalette(context).divider)),
       ),
       child: SizedBox(
         height: 38,
@@ -104,7 +104,7 @@ class LibraryCompactBucketBar extends StatelessWidget {
                   : null,
               label: Text(libraryBucketLabel(bucket)),
               selectedColor: accent.withValues(alpha: 0.42),
-              side: BorderSide(color: selected ? accent : kAppDivider),
+              side: BorderSide(color: selected ? accent : appPalette(context).divider),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             );
           },
@@ -151,9 +151,9 @@ class _SidebarGroupDropdownHeader extends StatelessWidget {
     return Container(
       height: 42,
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: const BoxDecoration(
-        color: kAppSurface,
-        border: Border(bottom: BorderSide(color: kAppDivider)),
+      decoration: BoxDecoration(
+        color: appPalette(context).surface,
+        border: Border(bottom: BorderSide(color: appPalette(context).divider)),
       ),
       child: Row(
         children: [

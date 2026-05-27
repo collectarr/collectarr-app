@@ -132,6 +132,16 @@ class LibraryBulkActions {
         startedAt: src.startedAt,
         finishedAt: src.finishedAt,
         tags: src.tags,
+        features: src.features,
+        hdrFormats: src.hdrFormats,
+        purchaseStore: src.purchaseStore,
+        boxSetId: src.boxSetId,
+        boxSetName: src.boxSetName,
+        storageDevice: src.storageDevice,
+        storageSlot: src.storageSlot,
+        region: src.region,
+        packaging: src.packaging,
+        distributor: src.distributor,
         notify: index == ownedEntries.length - 1,
       );
     }

@@ -151,6 +151,42 @@ class TmdbImportEntry {
 
   int? get releaseYear => releaseDate?.year;
 
+  /// Whether this entry looks like anime based on TMDB metadata.
+  ///
+  /// Checks for Animation genre (ID 16) combined with Japanese origin
+  /// (original_language "ja", origin_country "JP", or production_countries
+  /// containing Japan).
+  bool get looksLikeAnime {
+    final raw = rawPayload;
+    bool hasAnimation = false;
+    final genreIds = raw['genre_ids'];
+    if (genreIds is List) {
+      hasAnimation = genreIds.contains(16);
+    }
+    final genres = raw['genres'];
+    if (!hasAnimation && genres is List) {
+      hasAnimation = genres.any(
+        (g) => g is Map && (g['id'] == 16 || g['name'] == 'Animation'),
+      );
+    }
+    if (!hasAnimation) return false;
+
+    final origLang = raw['original_language'];
+    if (origLang == 'ja') return true;
+
+    final originCountry = raw['origin_country'];
+    if (originCountry is List && originCountry.contains('JP')) return true;
+
+    final prodCountries = raw['production_countries'];
+    if (prodCountries is List) {
+      return prodCountries.any(
+        (c) => c is Map && (c['iso_3166_1'] == 'JP' || c['name'] == 'Japan'),
+      );
+    }
+
+    return false;
+  }
+
   String get query {
     final year = releaseYear;
     if (year == null) {
@@ -469,6 +505,7 @@ class TmdbImportService {
     if (entries.isEmpty) {
       return const <String, TmdbImportEntry>{};
     }
+    const batchSize = 200;
     final providerIds = <String>[];
     final entryByProviderId = <String, TmdbImportEntry>{};
     for (final entry in entries) {
@@ -476,18 +513,24 @@ class TmdbImportService {
       providerIds.add(pid);
       entryByProviderId[pid] = entry;
     }
-    final result = await api.adminProviderBatchHydrate(
-      provider: 'tmdb',
-      providerItemIds: providerIds,
-    );
     final enriched = <String, TmdbImportEntry>{};
-    for (final item in result.results) {
-      final entry = entryByProviderId[item.providerItemId];
-      if (entry == null || !item.success || item.preview == null) {
-        continue;
+    for (var i = 0; i < providerIds.length; i += batchSize) {
+      final chunk = providerIds.sublist(
+        i,
+        (i + batchSize).clamp(0, providerIds.length),
+      );
+      final result = await api.adminProviderBatchHydrate(
+        provider: 'tmdb',
+        providerItemIds: chunk,
+      );
+      for (final item in result.results) {
+        final entry = entryByProviderId[item.providerItemId];
+        if (entry == null || !item.success || item.preview == null) {
+          continue;
+        }
+        enriched[item.providerItemId] =
+            enrichEntryFromPreview(entry, item.preview!);
       }
-      enriched[item.providerItemId] =
-          enrichEntryFromPreview(entry, item.preview!);
     }
     return enriched;
   }

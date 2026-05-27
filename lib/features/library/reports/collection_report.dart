@@ -57,11 +57,13 @@ pw.Document _buildDocument(
               pw.Table(
                 border: pw.TableBorder.all(color: PdfColors.grey300),
                 columnWidths: {
-                  0: const pw.FlexColumnWidth(0.5),
-                  1: const pw.FlexColumnWidth(3),
-                  2: const pw.FlexColumnWidth(1.5),
-                  3: const pw.FlexColumnWidth(1),
+                  0: const pw.FlexColumnWidth(0.4),
+                  1: const pw.FlexColumnWidth(2.5),
+                  2: const pw.FlexColumnWidth(1.3),
+                  3: const pw.FlexColumnWidth(0.6),
                   4: const pw.FlexColumnWidth(1),
+                  5: const pw.FlexColumnWidth(1),
+                  6: const pw.FlexColumnWidth(1.2),
                 },
                 children: [
                   if (pageIdx == 0)
@@ -74,6 +76,8 @@ pw.Document _buildDocument(
                         _headerCell('Series'),
                         _headerCell('Issue'),
                         _headerCell('Condition'),
+                        _headerCell('Publisher'),
+                        _headerCell('Barcode'),
                       ],
                     ),
                   ...pageItems.asMap().entries.map((e) {
@@ -87,6 +91,8 @@ pw.Document _buildDocument(
                         _cell(item.series?.seriesTitle ?? ''),
                         _cell(item.itemNumber ?? ''),
                         _cell(item.condition ?? ''),
+                        _cell(item.publisher ?? ''),
+                        _cell(item.barcode ?? ''),
                       ],
                     );
                   }),

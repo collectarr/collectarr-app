@@ -348,11 +348,32 @@ class CatalogPublishingDetails {
 }
 
 class VideoCatalogDetails {
-  const VideoCatalogDetails({this.runtimeMinutes});
+  const VideoCatalogDetails({
+    this.runtimeMinutes,
+    this.color,
+    this.nrDiscs,
+    this.screenRatio,
+    this.audioTracks,
+    this.subtitles,
+    this.layers,
+  });
 
   final int? runtimeMinutes;
+  final String? color;
+  final int? nrDiscs;
+  final String? screenRatio;
+  final String? audioTracks;
+  final String? subtitles;
+  final String? layers;
 
-  bool get hasData => runtimeMinutes != null;
+  bool get hasData =>
+      runtimeMinutes != null ||
+      color != null ||
+      nrDiscs != null ||
+      screenRatio != null ||
+      audioTracks != null ||
+      subtitles != null ||
+      layers != null;
 }
 
 class GameCatalogDetails {
@@ -603,6 +624,12 @@ sealed class CatalogItem {
     );
     final video = VideoCatalogDetails(
       runtimeMinutes: json['runtime_minutes'] as int?,
+      color: json['color'] as String?,
+      nrDiscs: json['nr_discs'] as int?,
+      screenRatio: json['screen_ratio'] as String?,
+      audioTracks: json['audio_tracks'] as String?,
+      subtitles: json['subtitles'] as String?,
+      layers: json['layers'] as String?,
     );
     final tracks = (json['tracks'] as List<dynamic>?)
         ?.map((track) => CatalogTrack.fromJson(track as Map<String, dynamic>))
@@ -785,6 +812,12 @@ sealed class CatalogItem {
       'episode_number': series?.episodeNumber,
       'tags': series?.tags,
       'runtime_minutes': video?.runtimeMinutes,
+      'color': video?.color,
+      'nr_discs': video?.nrDiscs,
+      'screen_ratio': video?.screenRatio,
+      'audio_tracks': video?.audioTracks,
+      'subtitles': video?.subtitles,
+      'layers': video?.layers,
       'track_count': music?.trackCount,
       'tracks': tracks?.map((track) => track.toJson()).toList(growable: false),
       'catalog_number': music?.catalogNumber,

@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:collectarr_app/features/library/workspace/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Shows a dialog to share the current collection view.
 /// Offers: copy as text list, copy as CSV, export as CSV file.
@@ -68,6 +70,13 @@ class _CollectionShareDialog extends StatelessWidget {
               label: 'Copy as JSON',
               subtitle: 'Structured data for import/export',
               onTap: () => _copyAsJson(context),
+            ),
+            const SizedBox(height: 8),
+            _ShareOption(
+              icon: Icons.language,
+              label: 'Export as HTML page',
+              subtitle: 'Self-contained web page you can host or share',
+              onTap: () => _exportAsHtml(context),
             ),
           ],
         ),
@@ -137,6 +146,77 @@ class _CollectionShareDialog extends StatelessWidget {
       const SnackBar(content: Text('Copied as JSON')),
     );
     Navigator.pop(context);
+  }
+
+  Future<void> _exportAsHtml(BuildContext context) async {
+    final escapedTitle = _htmlEscape(title);
+    final rows = StringBuffer();
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      rows.writeln('<tr>');
+      rows.writeln('  <td>${i + 1}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.title)}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.itemNumber ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.series?.seriesTitle ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.publisher ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.condition ?? '')}</td>');
+      rows.writeln('</tr>');
+    }
+    final html = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$escapedTitle</title>
+<style>
+  body { font-family: system-ui, -apple-system, sans-serif; margin: 2rem; background: #1a1a2e; color: #e0e0e0; }
+  h1 { color: #e94560; margin-bottom: 0.25rem; }
+  .count { color: #8888aa; margin-bottom: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #333; }
+  th { background: #16213e; color: #e94560; font-weight: 600; position: sticky; top: 0; }
+  tr:hover { background: #16213e; }
+  footer { margin-top: 2rem; color: #555; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<h1>$escapedTitle</h1>
+<p class="count">${items.length} items</p>
+<table>
+<thead><tr><th>#</th><th>Title</th><th>Issue</th><th>Series</th><th>Publisher</th><th>Condition</th></tr></thead>
+<tbody>
+${rows.toString()}</tbody>
+</table>
+<footer>Exported from Collectarr</footer>
+</body>
+</html>''';
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
+      final file = File('${dir.path}/${safeTitle}_collection.html');
+      await file.writeAsString(html);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Saved to ${file.path}')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export failed: $e')),
+        );
+      }
+    }
+  }
+
+  static String _htmlEscape(String text) {
+    return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
   }
 }
 

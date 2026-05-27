@@ -17,7 +17,7 @@ Future<void> showCustomFieldsManagementDialog({
   return showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
-      backgroundColor: kAppPanel,
+      backgroundColor: appPalette(context).panel,
       title: const Text('Manage custom fields'),
       content: SizedBox(
         width: 920,
@@ -314,7 +314,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _fieldType,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(labelText: 'Field type'),
                 items: [
@@ -331,7 +331,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: _mediaKind,
-                dropdownColor: kAppPanelRaised,
+                dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
                   labelText: 'Applies to',

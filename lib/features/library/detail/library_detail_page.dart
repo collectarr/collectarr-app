@@ -109,9 +109,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
         activeOwnedItem?.bundleReleaseId ?? widget.entry.referenceBundleReleaseId;
     final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || widget.entry.isOwned;
     return Theme(
-      data: kLibraryTheme,
+      data: buildLibraryTheme(palette: appPalette(context)),
       child: Scaffold(
-        backgroundColor: kAppCanvas,
+        backgroundColor: appPalette(context).canvas,
         appBar: AppBar(
           backgroundColor: widget.accent,
           foregroundColor: Colors.white,

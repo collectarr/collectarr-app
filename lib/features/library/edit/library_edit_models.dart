@@ -51,6 +51,22 @@ class LibraryPersonalEditSelection {
     this.coverPriceCents,
     this.features,
     this.hdrFormats,
+    this.purchaseStore,
+    this.boxSetName,
+    this.storageDevice,
+    this.storageSlot,
+    this.region,
+    this.packaging,
+    this.distributor,
+    this.screenRatio,
+    this.audioTracks,
+    this.subtitles,
+    this.layers,
+    this.color,
+    this.nrDiscs,
+    this.collectionStatus,
+    this.lastBagBoardDate,
+    this.marketValueCents,
   });
 
   final String? anchorType;
@@ -79,6 +95,22 @@ class LibraryPersonalEditSelection {
   final int? coverPriceCents;
   final String? features;
   final List<String>? hdrFormats;
+  final String? purchaseStore;
+  final String? boxSetName;
+  final String? storageDevice;
+  final String? storageSlot;
+  final String? region;
+  final String? packaging;
+  final String? distributor;
+  final String? screenRatio;
+  final String? audioTracks;
+  final String? subtitles;
+  final String? layers;
+  final String? color;
+  final int? nrDiscs;
+  final String? collectionStatus;
+  final DateTime? lastBagBoardDate;
+  final int? marketValueCents;
 }
 
 class LibraryWishlistEditSelection {

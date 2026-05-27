@@ -128,6 +128,14 @@ class OwnedItemsCacheRepository {
       purchaseStore: row.purchaseStore,
       boxSetId: row.boxSetId,
       boxSetName: row.boxSetName,
+      storageDevice: row.storageDevice,
+      storageSlot: row.storageSlot,
+      region: row.region,
+      packaging: row.packaging,
+      distributor: row.distributor,
+      collectionStatus: row.collectionStatus,
+      lastBagBoardDate: row.lastBagBoardDate,
+      marketValueCents: row.marketValueCents,
     );
   }
 
@@ -174,6 +182,14 @@ class OwnedItemsCacheRepository {
       purchaseStore: Value(item.purchaseStore),
       boxSetId: Value(item.boxSetId),
       boxSetName: Value(item.boxSetName),
+      storageDevice: Value(item.storageDevice),
+      storageSlot: Value(item.storageSlot),
+      region: Value(item.region),
+      packaging: Value(item.packaging),
+      distributor: Value(item.distributor),
+      collectionStatus: Value(item.collectionStatus),
+      lastBagBoardDate: Value(item.lastBagBoardDate),
+      marketValueCents: Value(item.marketValueCents),
     );
   }
 
